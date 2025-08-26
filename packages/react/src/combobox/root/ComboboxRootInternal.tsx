@@ -56,8 +56,8 @@ const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
 /**
  * @internal
  */
-export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'none'>(
-  props: ComboboxRootConditionalProps<Item, Mode>,
+export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = 'none'>(
+  props: ComboboxRootConditionalProps<Value, Mode>,
 ): React.JSX.Element {
   const {
     id: idProp,
@@ -161,7 +161,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   const query = inputValue === '' ? '' : String(inputValue).trim().toLocaleLowerCase();
   const isGrouped = isGroupedItems(items);
 
-  const flatItems: ExtractItemType<Item>[] = React.useMemo(() => {
+  const flatItems: Value[] = React.useMemo(() => {
     if (!items) {
       return [];
     }
@@ -173,14 +173,14 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     return items;
   }, [items, isGrouped]);
 
-  const filteredItems = React.useMemo(() => {
+  const filteredItems: Value[] | ComboboxGroup<Value>[] = React.useMemo(() => {
     if (!items) {
       return [];
     }
 
     if (isGrouped) {
-      const groupedItems = items;
-      const resultingGroups: ComboboxGroup<ExtractItemType<Item>>[] = [];
+      const groupedItems = items as ComboboxGroup<Value>[];
+      const resultingGroups: ComboboxGroup<Value>[] = [];
       let currentCount = 0;
 
       for (const group of groupedItems) {
@@ -214,7 +214,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       return limit > -1 ? flatItems.slice(0, limit) : flatItems;
     }
 
-    const limitedItems: ExtractItemType<Item>[] = [];
+    const limitedItems: Value[] = [];
     for (const item of flatItems) {
       if (limit > -1 && limitedItems.length >= limit) {
         break;
@@ -227,12 +227,12 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     return limitedItems;
   }, [items, flatItems, query, filter, isGrouped, itemToString, limit]);
 
-  const flatFilteredItems: ExtractItemType<Item>[] = React.useMemo(() => {
+  const flatFilteredItems: Value[] = React.useMemo(() => {
     if (isGrouped) {
-      const groups = filteredItems as ComboboxGroup<ExtractItemType<Item>>[];
+      const groups = filteredItems as ComboboxGroup<Value>[];
       return groups.flatMap((g) => g.items);
     }
-    return filteredItems as ExtractItemType<Item>[];
+    return filteredItems as Value[];
   }, [filteredItems, isGrouped]);
 
   const store = useRefWithInit(
@@ -401,10 +401,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     }
 
     let fallback = null;
-    if (
-      defaultSelectedValue != null &&
-      registry.includes(defaultSelectedValue as ExtractItemType<Item>)
-    ) {
+    if (defaultSelectedValue != null && registry.includes(defaultSelectedValue as Value)) {
       fallback = defaultSelectedValue;
     }
     setSelectedValueUnwrapped(fallback);
@@ -601,7 +598,11 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   });
 
   const setSelectedValue = useEventCallback(
-    (nextValue: Item | Item[], event: Event | undefined, reason: ValueChangeReason | undefined) => {
+    (
+      nextValue: Value | Value[],
+      event: Event | undefined,
+      reason: ValueChangeReason | undefined,
+    ) => {
       // Cast to `any` due to conditional value type (single vs. multiple).
       // The runtime implementation already ensures the correct value shape.
       onSelectedValueChange?.(nextValue as any, event, reason);
@@ -612,7 +613,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
         (selectionMode === 'single' && popupRef.current && anchorElement === inputElement);
 
       if (shouldFillInput) {
-        setInputValue(stringifyItem(nextValue as Item, itemToString), event, reason);
+        setInputValue(stringifyItem(nextValue as Value, itemToString), event, reason);
       }
 
       const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
@@ -889,7 +890,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       return null;
     }
 
-    return selectedValue.map((value) => {
+    return selectedValue.map((value: Value) => {
       const currentSerializedValue = itemToValue ? itemToValue(value) : serializeValue(value);
       return (
         <input
@@ -989,19 +990,13 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   );
 }
 
-type ExtractItemType<Item> = Item extends ComboboxGroup<infer GroupItem>[]
-  ? GroupItem
-  : Item extends ComboboxGroup<infer GroupItem>
-    ? GroupItem
-    : Item extends (infer GroupItem)[]
-      ? GroupItem
-      : Item;
-
 type SelectionMode = 'single' | 'multiple' | 'none';
 
-type ComboboxValueType<Item, Mode extends SelectionMode> = Mode extends 'multiple' ? Item[] : Item;
+type ComboboxValueType<Value, Mode extends SelectionMode> = Mode extends 'multiple'
+  ? Value[]
+  : Value;
 
-interface ComboboxRootProps<Item> {
+interface ComboboxRootProps<Value> {
   children?: React.ReactNode;
   /**
    * Identifies the field when a form is submitted.
@@ -1090,7 +1085,7 @@ interface ComboboxRootProps<Item> {
    * - `none`: The item was highlighted via programmatic navigation.
    */
   onItemHighlighted?: (
-    value: ExtractItemType<Item> | undefined,
+    value: Value | undefined,
     data: {
       type: 'keyboard' | 'pointer' | 'none';
       index: number;
@@ -1109,26 +1104,20 @@ interface ComboboxRootProps<Item> {
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: ExtractItemType<Item>[] | ComboboxGroup<ExtractItemType<Item>>[];
+  items?: Value[] | ComboboxGroup<Value>[];
   /**
    * Filter function used to match items vs input query.
    * The `itemToString` function is provided to help convert items to strings for comparison.
    */
-  filter?:
-    | null
-    | ((
-        item: ExtractItemType<Item>,
-        query: string,
-        itemToString?: (item: ExtractItemType<Item>) => string,
-      ) => boolean);
+  filter?: null | ((item: Value, query: string, itemToString?: (item: Value) => string) => boolean);
   /**
    * Function to convert an item to a string for display.
    */
-  itemToString?: (item: ExtractItemType<Item>) => string;
+  itemToString?: (item: Value) => string;
   /**
    * Function to convert an item to its value for form submission.
    */
-  itemToValue?: (item: ExtractItemType<Item>) => string;
+  itemToValue?: (item: Value) => string;
   /**
    * Whether the combobox items are virtualized.
    * @default false
@@ -1167,8 +1156,8 @@ interface ComboboxRootProps<Item> {
   fillInputOnItemPress?: boolean;
 }
 
-export type ComboboxRootConditionalProps<Item, Mode extends SelectionMode = 'none'> = Omit<
-  ComboboxRootProps<Item>,
+export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'none'> = Omit<
+  ComboboxRootProps<Value>,
   'selectionMode' | 'selectedValue' | 'defaultSelectedValue' | 'onSelectedValueChange'
 > & {
   /**
@@ -1182,26 +1171,26 @@ export type ComboboxRootConditionalProps<Item, Mode extends SelectionMode = 'non
   /**
    * The selected value of the combobox. Use when controlled.
    */
-  selectedValue?: ComboboxValueType<ExtractItemType<Item>, Mode>;
+  selectedValue?: ComboboxValueType<Value, Mode>;
   /**
    * The uncontrolled selected value of the combobox when it's initially rendered.
    *
    * To render a controlled combobox, use the `selectedValue` prop instead.
    */
-  defaultSelectedValue?: ComboboxValueType<ExtractItemType<Item>, Mode> | null;
+  defaultSelectedValue?: ComboboxValueType<Value, Mode> | null;
   /**
    * Callback fired when the selected value of the combobox changes.
    */
   onSelectedValueChange?: (
-    value: ComboboxValueType<ExtractItemType<Item>, Mode>,
+    value: ComboboxValueType<Value, Mode>,
     event: Event | undefined,
     reason: string | undefined,
   ) => void;
 };
 
 export namespace ComboboxRootInternal {
-  export type Props<Item, Mode extends SelectionMode = 'none'> = ComboboxRootConditionalProps<
-    Item,
+  export type Props<Value, Mode extends SelectionMode = 'none'> = ComboboxRootConditionalProps<
+    Value,
     Mode
   >;
 

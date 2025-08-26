@@ -20,7 +20,7 @@ export default function ExampleGroupAutocomplete() {
             <Autocomplete.Empty className={styles.Empty}>No tags found.</Autocomplete.Empty>
             <Autocomplete.List className={styles.List}>
               {(group: TagGroup) => (
-                <Autocomplete.Group key={group.value} className={styles.Group} items={group.items}>
+                <Autocomplete.Group key={group.value} items={group.items} className={styles.Group}>
                   <Autocomplete.GroupLabel className={styles.GroupLabel}>
                     {group.value}
                   </Autocomplete.GroupLabel>

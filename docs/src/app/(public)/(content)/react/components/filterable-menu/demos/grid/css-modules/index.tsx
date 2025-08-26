@@ -116,8 +116,8 @@ export default function ExampleEmojiPicker() {
                   {(group: EmojiGroup) => (
                     <FilterableMenu.Group
                       key={group.value}
-                      className={styles.Group}
                       items={group.items}
+                      className={styles.Group}
                     >
                       <FilterableMenu.GroupLabel className={styles.GroupLabel}>
                         {group.label}

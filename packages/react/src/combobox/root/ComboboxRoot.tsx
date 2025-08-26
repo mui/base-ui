@@ -8,15 +8,18 @@ import { ComboboxRootInternal } from './ComboboxRootInternal';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/autocomplete)
  */
-export function ComboboxRoot<Item = any, Multiple extends boolean | undefined = false>(
-  props: ComboboxRoot.Props<Item, Multiple>,
+export function ComboboxRoot<Value = any, Multiple extends boolean | undefined = false>(
+  props: ComboboxRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
   const { multiple = false as Multiple, defaultValue, value, onValueChange, ...rest } = props;
 
   type Mode = ModeFromMultiple<Multiple>;
   const mode = multiple ? 'multiple' : 'single';
+
   return (
-    <ComboboxRootInternal<Item, Mode>
+    // Use `any` for the internal item type so external value types are inferred
+    // solely from the passed `value`/`defaultValue`, mirroring Select.
+    <ComboboxRootInternal<Value, Mode>
       {...(rest as any)}
       selectionMode={mode}
       selectedValue={value}
@@ -31,8 +34,13 @@ type ModeFromMultiple<Multiple extends boolean | undefined> = Multiple extends t
   : 'single';
 
 export namespace ComboboxRoot {
-  export type Props<Item, Multiple extends boolean | undefined = false> = Omit<
-    ComboboxRootInternal.Props<Item, ModeFromMultiple<Multiple>>,
+  type ComboboxValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
+    ? Value[]
+    : Value;
+
+  export type Props<Value, Multiple extends boolean | undefined = false> = Omit<
+    // Avoid constraining external value type by items; accept any for items
+    ComboboxRootInternal.Props<any, ModeFromMultiple<Multiple>>,
     | 'clearInputOnCloseComplete'
     | 'modal'
     | 'fillInputOnItemPress'
@@ -56,24 +64,19 @@ export namespace ComboboxRoot {
      *
      * To render a controlled combobox, use the `value` prop instead.
      */
-    defaultValue?: ComboboxRootInternal.Props<
-      Item,
-      Multiple extends true ? 'multiple' : 'single'
-    >['defaultSelectedValue'];
+    defaultValue?: ComboboxValueType<Value, Multiple> | null;
     /**
      * The selected value of the combobox. Use when controlled.
      */
-    value?: ComboboxRootInternal.Props<
-      Item,
-      Multiple extends true ? 'multiple' : 'single'
-    >['selectedValue'];
+    value?: ComboboxValueType<Value, Multiple>;
     /**
      * Callback fired when the selected value of the combobox changes.
      */
-    onValueChange?: ComboboxRootInternal.Props<
-      Item,
-      Multiple extends true ? 'multiple' : 'single'
-    >['onSelectedValueChange'];
+    onValueChange?: (
+      value: ComboboxValueType<Value, Multiple>,
+      event: Event | undefined,
+      reason: string | undefined,
+    ) => void;
     /**
      * A ref to imperative actions.
      * - `unmount`: When specified, the combobox will not be unmounted when closed.

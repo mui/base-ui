@@ -3,6 +3,7 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ComboboxGroupContext } from './ComboboxGroupContext';
+import { GroupCollectionProvider } from '../collection/GroupCollectionContext';
 
 /**
  * Groups related items with the corresponding label.
@@ -12,7 +13,7 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
   componentProps: ComboboxGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, items, ...elementProps } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 
@@ -20,8 +21,9 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
     () => ({
       labelId,
       setLabelId,
+      items,
     }),
-    [labelId, setLabelId],
+    [labelId, setLabelId, items],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -35,13 +37,25 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
     ],
   });
 
-  return (
+  const wrappedElement = (
     <ComboboxGroupContext.Provider value={contextValue}>{element}</ComboboxGroupContext.Provider>
   );
+
+  if (items) {
+    return <GroupCollectionProvider items={items}>{wrappedElement}</GroupCollectionProvider>;
+  }
+
+  return wrappedElement;
 });
 
 export namespace ComboboxGroup {
   export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {
+    /**
+     * Items to be rendered within this group.
+     * When provided, child `Collection` components will use these items.
+     */
+    items?: any[];
+  }
 }

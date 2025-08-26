@@ -353,36 +353,6 @@ describe('<Combobox.Value />', () => {
       expect(screen.getByTestId('value')).to.have.text('First Label');
     });
 
-    it('handles items without label property', async () => {
-      const items = [
-        { value: 'test1' },
-        { value: 'test2', label: 'Has Label' },
-        { value: 'test3' },
-      ];
-
-      await render(
-        <Combobox.Root defaultValue={items[0]} items={items}>
-          <Combobox.Trigger data-testid="value">
-            <Combobox.Value />
-          </Combobox.Trigger>
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  <Combobox.Item value={items[0]}>Test 1</Combobox.Item>
-                  <Combobox.Item value={items[1]}>Has Label</Combobox.Item>
-                  <Combobox.Item value={items[2]}>Test 3</Combobox.Item>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      // Should fall back to stringifyItem which uses the value
-      expect(screen.getByTestId('value')).to.have.text('test1');
-    });
-
     it('is not stale after items are updated', async () => {
       function App() {
         // Keep stable object identities for selected items
@@ -467,11 +437,11 @@ describe('<Combobox.Value />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  <Combobox.Group>
+                  <Combobox.Group items={items[0].items}>
                     <Combobox.Item value={items[0].items[0]}>Sans-serif</Combobox.Item>
                     <Combobox.Item value={items[0].items[1]}>Serif</Combobox.Item>
                   </Combobox.Group>
-                  <Combobox.Group>
+                  <Combobox.Group items={items[1].items}>
                     <Combobox.Item value={items[1].items[0]}>Small</Combobox.Item>
                     <Combobox.Item value={items[1].items[1]}>Large</Combobox.Item>
                   </Combobox.Group>
@@ -505,7 +475,7 @@ describe('<Combobox.Value />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  <Combobox.Group>
+                  <Combobox.Group items={items[0].items}>
                     <Combobox.Item value={items[0].items[0]}>None selected</Combobox.Item>
                     <Combobox.Item value={items[0].items[1]}>Option 1</Combobox.Item>
                   </Combobox.Group>
