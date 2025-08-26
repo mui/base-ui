@@ -56,7 +56,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   // Derive open state from value being non-nullish
   const open = value != null;
 
-  const closeReasonRef = React.useRef<BaseOpenChangeReason | undefined>(undefined);
+  const closeReasonRef = React.useRef<NavigationMenuRoot.OpenChangeReason | undefined>(undefined);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
@@ -86,7 +86,11 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   }, [value]);
 
   const setValue = useEventCallback(
-    (nextValue: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
+    (
+      nextValue: any,
+      event: Event | undefined,
+      reason: NavigationMenuRoot.OpenChangeReason | undefined,
+    ) => {
       if (!nextValue) {
         closeReasonRef.current = reason;
         setActivationDirection(null);
@@ -307,7 +311,7 @@ export namespace NavigationMenuRoot {
     onValueChange?: (
       value: any,
       event: Event | undefined,
-      reason: BaseOpenChangeReason | undefined,
+      reason: OpenChangeReason | undefined,
     ) => void;
     /**
      * How long to wait before opening the navigation menu. Specified in milliseconds.
@@ -334,4 +338,6 @@ export namespace NavigationMenuRoot {
      */
     unmount: () => void;
   }
+
+  export type OpenChangeReason = BaseOpenChangeReason | 'link-press';
 }
