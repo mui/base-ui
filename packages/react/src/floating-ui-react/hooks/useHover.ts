@@ -461,16 +461,12 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       cleanupMouseMoveHandler();
       timeout.clear();
       restTimeout.clear();
-      clearPointerEvents();
     };
-  }, [
-    enabled,
-    elements.domReference,
-    cleanupMouseMoveHandler,
-    clearPointerEvents,
-    timeout,
-    restTimeout,
-  ]);
+  }, [enabled, elements.domReference, cleanupMouseMoveHandler, timeout, restTimeout]);
+
+  React.useEffect(() => {
+    return clearPointerEvents;
+  }, [clearPointerEvents]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {
     function setPointerRef(event: React.PointerEvent) {

@@ -289,17 +289,17 @@ export function useAnchorPositioning(
         const transformY = arrowY + arrowHeight / 2;
         const shiftY = Math.abs(middlewareData.shift?.y || 0);
         const halfAnchorHeight = rects.reference.height / 2;
-        const isOverlappingAnchor =
-          shiftY >
-          (typeof sideOffset === 'function'
+        const sideOffsetValue =
+          typeof sideOffset === 'function'
             ? sideOffset(getOffsetData(state, sideParam, isRtl))
-            : sideOffset);
+            : sideOffset;
+        const isOverlappingAnchor = shiftY > sideOffsetValue;
 
         const adjacentTransformOrigin = {
-          top: `${transformX}px calc(100% + ${sideOffset}px)`,
-          bottom: `${transformX}px ${-sideOffset}px`,
-          left: `calc(100% + ${sideOffset}px) ${transformY}px`,
-          right: `${-sideOffset}px ${transformY}px`,
+          top: `${transformX}px calc(100% + ${sideOffsetValue}px)`,
+          bottom: `${transformX}px ${-sideOffsetValue}px`,
+          left: `calc(100% + ${sideOffsetValue}px) ${transformY}px`,
+          right: `${-sideOffsetValue}px ${transformY}px`,
         }[currentRenderedSide];
         const overlapTransformOrigin = `${transformX}px ${rects.reference.y + halfAnchorHeight - y}px`;
 

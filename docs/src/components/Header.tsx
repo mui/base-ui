@@ -12,17 +12,13 @@ export const HEADER_HEIGHT = 48;
 
 export function Header() {
   return (
-    <div className="Header">
+    <header className="Header">
       <div className="HeaderInner">
         <SkipNav>Skip to contents</SkipNav>
         <NextLink href="/" className="HeaderLogoLink">
           <Logo aria-label="Base UI" />
         </NextLink>
-
         <div className="flex gap-6 max-show-side-nav:hidden">
-          <NextLink href="/careers/design-engineer" className="HeaderLink">
-            Careers
-          </NextLink>
           <a
             className="HeaderLink"
             href="https://www.npmjs.com/package/@base-ui-components/react"
@@ -36,14 +32,13 @@ export function Header() {
             GitHub
           </a>
         </div>
-
         <div className="flex show-side-nav:hidden">
           <MobileNav.Root>
             <MobileNav.Trigger className="HeaderButton">
-              <div className="flex w-4 flex-col items-center gap-1">
-                <div className="h-0.5 w-3.5 bg-current" />
-                <div className="h-0.5 w-3.5 bg-current" />
-              </div>
+              <span className="flex w-4 flex-col items-center gap-1">
+                <span className="h-0.5 w-3.5 bg-current" />
+                <span className="h-0.5 w-3.5 bg-current" />
+              </span>
               Navigation
             </MobileNav.Trigger>
             <MobileNav.Portal>
@@ -62,15 +57,9 @@ export function Header() {
                     </MobileNav.List>
                   </MobileNav.Section>
                 ))}
-
                 <MobileNav.Section>
                   <MobileNav.Heading>Resources</MobileNav.Heading>
                   <MobileNav.List>
-                    <MobileNav.Item href="/careers/design-engineer" rel="noopener">
-                      <span className="flex flex-grow-1 items-baseline justify-between">
-                        Careers
-                      </span>
-                    </MobileNav.Item>
                     <MobileNav.Item
                       href="https://www.npmjs.com/package/@base-ui-components/react"
                       rel="noopener"
@@ -92,6 +81,6 @@ export function Header() {
           </MobileNav.Root>
         </div>
       </div>
-    </div>
+    </header>
   );
 }
