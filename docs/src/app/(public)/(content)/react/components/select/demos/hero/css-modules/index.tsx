@@ -23,12 +23,12 @@ export default function ExampleSelect() {
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
-            {fonts.map((font) => (
-              <Select.Item key={font.value} value={font} className={styles.Item}>
+            {fonts.map(({ label, value }) => (
+              <Select.Item key={label} value={value} className={styles.Item}>
                 <Select.ItemIndicator className={styles.ItemIndicator}>
                   <CheckIcon className={styles.ItemIndicatorIcon} />
                 </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>{font.label}</Select.ItemText>
+                <Select.ItemText className={styles.ItemText}>{label}</Select.ItemText>
               </Select.Item>
             ))}
           </Select.Popup>

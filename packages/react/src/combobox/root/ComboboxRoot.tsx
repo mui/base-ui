@@ -8,7 +8,7 @@ import { ComboboxRootInternal } from './ComboboxRootInternal';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/autocomplete)
  */
-export function ComboboxRoot<Value = any, Multiple extends boolean | undefined = false>(
+export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
   props: ComboboxRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
   const { multiple = false as Multiple, defaultValue, value, onValueChange, ...rest } = props;
@@ -17,8 +17,6 @@ export function ComboboxRoot<Value = any, Multiple extends boolean | undefined =
   const mode = multiple ? 'multiple' : 'single';
 
   return (
-    // Use `any` for the internal item type so external value types are inferred
-    // solely from the passed `value`/`defaultValue`, mirroring Select.
     <ComboboxRootInternal<Value, Mode>
       {...(rest as any)}
       selectionMode={mode}
@@ -39,7 +37,6 @@ export namespace ComboboxRoot {
     : Value;
 
   export type Props<Value, Multiple extends boolean | undefined = false> = Omit<
-    // Avoid constraining external value type by items; accept any for items
     ComboboxRootInternal.Props<any, ModeFromMultiple<Multiple>>,
     | 'clearInputOnCloseComplete'
     | 'modal'

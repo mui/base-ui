@@ -57,7 +57,7 @@ export default function ExampleVirtualizedCombobox() {
           setQueryChangedAfterOpen(true);
         }
       }}
-      onValueChange={(value) => {
+      onValueChange={(value: string) => {
         const stringValue = value ?? '';
         setSearchValue(stringValue);
       }}

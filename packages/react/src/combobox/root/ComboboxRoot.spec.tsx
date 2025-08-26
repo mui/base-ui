@@ -1,6 +1,36 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 
+const objectItems = [
+  { value: 'a', label: 'apple' },
+  { value: 'b', label: 'banana' },
+  { value: 'c', label: 'cherry' },
+];
+
+<Combobox.Root
+  items={objectItems}
+  defaultValue="a"
+  onValueChange={(value) => {
+    value.startsWith('a');
+  }}
+/>;
+
+<Combobox.Root
+  items={objectItems}
+  value="a"
+  onValueChange={(value) => {
+    value.startsWith('a');
+  }}
+/>;
+
+<Combobox.Root
+  items={objectItems}
+  value={objectItems[0]}
+  onValueChange={(value) => {
+    value.label;
+  }}
+/>;
+
 <Combobox.Root
   multiple
   // @ts-expect-error
@@ -49,6 +79,7 @@ function App() {
     <Combobox.Root
       multiple={multiple}
       onValueChange={(value) => {
+        // @ts-expect-error
         value.pop();
       }}
     />
