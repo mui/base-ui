@@ -14,12 +14,6 @@ export async function createPackageManifest(options: RunOptions) {
   // The following `types` and `typesVersions` fields ensure compatibility with TypeScript's `node` moduleResolution strategy.
   // https://github.com/andrewbranch/example-subpath-exports-ts-compat/tree/main/examples/node_modules/types-versions-wildcards
   packageData.types = 'index';
-  packageData.typesVersions = {
-    '*': {
-      index: ['./cjs/index.d.ts'],
-      '*': ['./cjs/*/index.d.ts'],
-    },
-  };
 
   await fse.writeJSON(pkgJsonPath, packageData, {
     spaces: 2,

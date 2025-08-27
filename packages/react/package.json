@@ -72,7 +72,7 @@
   "type": "commonjs",
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
-    "build": "code-infra build --cjsOutDir cjs --ignore \"**/*.template.js\" && pnpm build:copy-files && pnpm build:manifest",
+    "build": "code-infra build --ignore \"**/*.template.js\" && pnpm build:copy-files && pnpm build:manifest",
     "build:stable": "code-infra build --bundle esm --ignore \"**/*.template.js\" --buildTypes false",
     "build:copy-files": "code-infra copy-files .npmignore",
     "build:manifest": "tsx ../../scripts/createPackageManifest.mts -p .",
