@@ -458,6 +458,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('should set the max and aria-valuemax on the input', async () => {
       await render(<TestSlider defaultValue={150} step={100} max={750} />);
       expect(screen.getByRole('slider')).to.have.attribute('aria-valuemax', '750');
+      expect(screen.getByRole('slider')).to.have.attribute('max', '750');
     });
 
     it('should not go more than the max', async () => {
@@ -526,6 +527,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('should set the min and aria-valuemin on the input', async () => {
       await render(<TestSlider defaultValue={150} step={100} min={150} />);
       expect(screen.getByRole('slider')).to.have.attribute('aria-valuemin', '150');
+      expect(screen.getByRole('slider')).to.have.attribute('min', '150');
     });
 
     it('should use min as the step origin', async () => {
@@ -557,7 +559,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('should enforce a minimum difference between range slider values', async () => {
       const handleValueChange = spy();
 
-      await render(
+      const { user } = await render(
         <TestRangeSlider
           onValueChange={handleValueChange}
           defaultValue={[44, 50]}
@@ -566,27 +568,21 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         />,
       );
 
-      const [input1, input2] = screen.getAllByRole('slider');
+      await user.keyboard('[Tab]');
 
-      await act(async () => {
-        input1.focus();
-      });
-
-      fireEvent.keyDown(input1, { key: ARROW_UP });
+      await user.keyboard(`[${ARROW_UP}]`);
       expect(handleValueChange.callCount).to.equal(1);
       expect(handleValueChange.args[0][0]).to.deep.equal([46, 50]);
-      fireEvent.keyDown(input1, { key: ARROW_UP });
+      await user.keyboard(`[${ARROW_UP}]`);
       expect(handleValueChange.callCount).to.equal(1);
 
-      await act(async () => {
-        input2.focus();
-      });
+      await user.keyboard('[Tab]');
 
-      fireEvent.keyDown(input2, { key: ARROW_UP });
+      await user.keyboard(`[${ARROW_UP}]`);
       expect(handleValueChange.callCount).to.equal(2);
       expect(handleValueChange.args[1][0]).to.deep.equal([46, 52]);
-      fireEvent.keyDown(input2, { key: ARROW_DOWN });
-      fireEvent.keyDown(input2, { key: ARROW_DOWN });
+      await user.keyboard(`[${ARROW_DOWN}]`);
+      await user.keyboard(`[${ARROW_DOWN}]`);
       expect(handleValueChange.callCount).to.equal(3);
       expect(handleValueChange.args[2][0]).to.deep.equal([46, 50]);
     });
