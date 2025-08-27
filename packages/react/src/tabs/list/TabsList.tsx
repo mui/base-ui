@@ -118,6 +118,7 @@ export const TabsList = React.forwardRef(function TabsList(
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={handleTabMapChange}
         disabledIndices={EMPTY_ARRAY}
+        ignoreDisabledOnInit
       />
     </TabsListContext.Provider>
   );

@@ -43,51 +43,32 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
+  React.useEffect(() => {
+    // fallback in case all items are disabled
+    let firstNonDisabledItem = 0;
+    let hasEnabledItems = false;
+    // get default value from the first non disabled tab
+    for(const tabMetadata of tabMap.values()) {
+      if (tabMetadata && tabMetadata.disabled === false ) {
+        firstNonDisabledItem = tabMetadata.value ?? tabMetadata.index;
+        hasEnabledItems = true;
+        break;
+      }
+    }
+    if (!hasEnabledItems && tabMap.size > 0) {
+      console.warn('All tabs are disabled. The first tab will be selected.');
+    }
+    if (defaultValue == null) {
+      setValue(firstNonDisabledItem);
+    }
+  }, [tabMap]);
+
   const [value, setValue] = useControlled({
     controlled: valueProp,
-    default: defaultValue ?? 0,
+    default: defaultValue,
     name: 'Tabs',
     state: 'value',
   });
-
-  const hasSetInitialValueRef = React.useRef(false);
-
-  // Set the initial value based on disabled tabs once tabs are registered
-  React.useEffect(() => {
-    // Only run this logic if no explicit value/defaultValue was provided
-    // and we haven't already set the initial value
-    if (valueProp !== undefined || defaultValue !== undefined || hasSetInitialValueRef.current) {
-      return;
-    }
-
-    if (tabMap.size > 0) {
-      hasSetInitialValueRef.current = true;
-
-      // Create array of tab metadata from tabMap
-      const tabs = Array.from(tabMap.values())
-        .filter(Boolean)
-        .sort((a, b) => (a!.index ?? 0) - (b!.index ?? 0));
-
-      if (tabs.length > 0) {
-        // Check if all tabs are disabled
-        const allDisabled = tabs.every((tab) => tab!.disabled);
-        if (allDisabled) {
-          console.warn('All tabs are disabled. The first tab will be selected.');
-          // Keep value at 0, no need to change
-        } else {
-          // Find first non-disabled tab
-          const firstNonDisabledTab = tabs.find((tab) => !tab!.disabled);
-          if (firstNonDisabledTab) {
-            const newValue = firstNonDisabledTab.value ?? firstNonDisabledTab.index ?? 0;
-            if (newValue !== 0) {
-              // Only change if different from current default
-              setValue(newValue);
-            }
-          }
-        }
-      }
-    }
-  }, [tabMap, valueProp, defaultValue, setValue]);
 
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabsTab.ActivationDirection>('none');

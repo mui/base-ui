@@ -69,6 +69,12 @@ export interface UseCompositeRootParameters {
    * @default []
    */
   modifierKeys?: ModifierKey[];
+  /**
+   * When `true`, the first non-disabled item will be highlighted on mount if no item has the
+   * `ACTIVE_COMPOSITE_ITEM` attribute.
+   * @default false
+   */
+  ignoreDisabledOnInit?: boolean;
 }
 
 const EMPTY_ARRAY: never[] = [];
@@ -88,6 +94,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     stopEventPropagation = false,
     disabledIndices,
     modifierKeys = EMPTY_ARRAY,
+    ignoreDisabledOnInit = false,
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
@@ -119,8 +126,23 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
     ) ?? null) as HTMLElement | null;
     // Set the default highlighted index of an arbitrary composite item.
-    const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
+    let activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
 
+    if ( activeIndex === -1 && ignoreDisabledOnInit) {
+      const disabledIndicesInternal: number[] = [];
+      for (const tabMetadata of map.values()) {
+        if (tabMetadata?.disabled && tabMetadata.index !== undefined) {
+          disabledIndicesInternal.push(tabMetadata?.index!);
+        }
+      }
+
+      // If all items are disabled, select the first one
+      if (disabledIndicesInternal.length === map.size) {
+        activeIndex = 0;
+      } else {
+        activeIndex = findNonDisabledListIndex(elementsRef, { disabledIndices: disabledIndicesInternal });
+      }
+    }
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
     }
