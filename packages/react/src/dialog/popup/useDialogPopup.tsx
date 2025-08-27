@@ -42,11 +42,7 @@ export namespace useDialogPopup {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    setOpen: (
-      open: boolean,
-      event: Event | undefined,
-      reason: DialogRoot.OpenChangeReason | undefined,
-    ) => void;
+    setOpen: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
     /**
      * The id of the title element associated with the dialog.
      */

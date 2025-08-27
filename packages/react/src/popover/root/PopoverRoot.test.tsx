@@ -293,6 +293,33 @@ describe('<Popover.Root />', () => {
     });
   });
 
+  describe('BaseUIEventDetails', () => {
+    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+      await render(
+        <Root
+          onOpenChange={(nextOpen, eventDetails) => {
+            if (nextOpen) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Popover.Trigger />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
+  });
+
   describe('focus management', () => {
     it('focuses the trigger after the popover is closed but not unmounted', async () => {
       const { user } = await render(

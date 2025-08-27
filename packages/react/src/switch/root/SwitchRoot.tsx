@@ -17,6 +17,8 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
+import { BaseUIEventDetails } from '../../types';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Represents the switch itself.
@@ -188,12 +190,18 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
             }
 
             const nextChecked = event.target.checked;
+            const eventDetails = createBaseUIEventDetails('none', event.nativeEvent);
 
+            onCheckedChange?.(nextChecked, eventDetails);
+
+            if (eventDetails.isCanceled) {
+              return;
+            }
+
+            clearErrors(name);
             setDirty(nextChecked !== validityData.initialValue);
             setFilled(nextChecked);
             setCheckedState(nextChecked);
-            onCheckedChange?.(nextChecked, event.nativeEvent);
-            clearErrors(name);
 
             if (validationMode === 'onChange') {
               commitValidation(nextChecked);
@@ -288,11 +296,8 @@ export namespace SwitchRoot {
     name?: string;
     /**
      * Event handler called when the switch is activated or deactivated.
-     *
-     * @param {boolean} checked The new checked state.
-     * @param {Event} event The corresponding event that initiated the change.
      */
-    onCheckedChange?: (checked: boolean, event: Event) => void;
+    onCheckedChange?: (checked: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * Whether the user should be unable to activate or deactivate the switch.
      * @default false
@@ -323,4 +328,7 @@ export namespace SwitchRoot {
      */
     required: boolean;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }
