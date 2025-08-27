@@ -43,26 +43,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
-  React.useEffect(() => {
-    // fallback in case all items are disabled
-    let firstNonDisabledItem = 0;
-    let hasEnabledItems = false;
-    // get default value from the first non disabled tab
-    for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata && tabMetadata.disabled === false) {
-        firstNonDisabledItem = tabMetadata.value ?? tabMetadata.index;
-        hasEnabledItems = true;
-        break;
-      }
-    }
-    if (!hasEnabledItems && tabMap.size > 0) {
-      console.warn('All tabs are disabled. The first tab will be selected.');
-    }
-    if (defaultValue == null) {
-      setValue(firstNonDisabledItem);
-    }
-  }, [tabMap]);
-
   const [value, setValue] = useControlled({
     controlled: valueProp,
     default: defaultValue,

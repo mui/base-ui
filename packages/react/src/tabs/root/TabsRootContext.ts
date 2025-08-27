@@ -13,7 +13,7 @@ export interface TabsRootContext {
   onValueChange: (
     value: TabsTab.Value,
     activationDirection: TabsTab.ActivationDirection,
-    event: Event,
+    event: Event | undefined,
   ) => void;
   /**
    * The component orientation (layout flow direction).

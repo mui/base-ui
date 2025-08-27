@@ -66,6 +66,25 @@ export const TabsList = React.forwardRef(function TabsList(
     (newMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>) => {
       setTabMapInternal(newMap);
       setTabMap(newMap);
+
+      // set value to the first non disabled item if it's is null
+      if (value == null) {
+        // fallback in case all items are disabled
+        let firstNonDisabledItem = 0;
+        let hasEnabledItems = false;
+        // get default value from the first non disabled tab
+        for (const tabMetadata of newMap.values()) {
+          if (tabMetadata && tabMetadata.disabled === false) {
+            firstNonDisabledItem = tabMetadata.value ?? tabMetadata.index;
+            hasEnabledItems = true;
+            break;
+          }
+        }
+        if (!hasEnabledItems && newMap.size > 0) {
+          console.warn('All tabs are disabled. The first tab will be selected.');
+        }
+        onValueChange(firstNonDisabledItem, 'none', undefined);
+      }
     },
     [setTabMap],
   );
