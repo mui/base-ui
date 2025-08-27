@@ -229,7 +229,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       setActive(thumbIndex);
       thumbRefs.current?.[thumbIndex]
         ?.querySelector<HTMLInputElement>('input[type="range"]')
-        ?.focus();
+        ?.focus({ preventScroll: true });
     }
   });
 
@@ -267,7 +267,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const handleTouchEnd = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
     const fingerPosition = getFingerPosition(nativeEvent, touchIdRef);
     setDragging(false);
-
+    pressedInputRef.current = null;
     if (fingerPosition == null) {
       return;
     }
@@ -390,10 +390,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
               return;
             }
 
-            const pressedOnFocusedThumb =
-              pressedInputRef.current != null &&
-              activeElement(ownerDocument(control)) === pressedInputRef.current &&
-              thumbRefs.current[finger.thumbIndex]?.contains(pressedInputRef.current);
+            const pressedOnFocusedThumb = thumbRefs.current[finger.thumbIndex]?.contains(
+              activeElement(ownerDocument(control)),
+            );
 
             if (pressedOnFocusedThumb) {
               event.preventDefault();
@@ -402,6 +401,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
                 focusThumb(finger.thumbIndex);
               });
             }
+
             setDragging(true);
             // if the event lands on a thumb, don't change the value, just get the
             // percentageValue difference represented by the distance between the click origin

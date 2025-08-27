@@ -335,13 +335,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         onBlur: onBlurProp,
         onFocus: onFocusProp,
         onPointerDown() {
-          if (inputRef.current) {
+          if (inputRef.current != null && pressedInputRef.current !== inputRef.current) {
             pressedInputRef.current = inputRef.current;
-          }
-        },
-        onPointerUp() {
-          if (pressedInputRef.current != null && pressedInputRef.current === inputRef.current) {
-            pressedInputRef.current = null;
           }
         },
         style: getThumbStyle(),
