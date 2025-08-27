@@ -86,7 +86,7 @@ export const TabsList = React.forwardRef(function TabsList(
         onValueChange(firstNonDisabledItem, 'none', undefined);
       }
     },
-    [setTabMap],
+    []
   );
 
   const state: TabsList.State = React.useMemo(

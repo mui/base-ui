@@ -131,8 +131,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     if (activeIndex === -1 && ignoreDisabledItemsOnInitialHiglighting) {
       const disabledIndicesInternal: number[] = [];
       for (const tabMetadata of map.values()) {
-        if (tabMetadata?.disabled && tabMetadata.index !== undefined) {
-          disabledIndicesInternal.push(tabMetadata?.index!);
+        if (tabMetadata?.disabled && tabMetadata?.index !== undefined) {
+          disabledIndicesInternal.push(tabMetadata?.index);
         }
       }
 
