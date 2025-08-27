@@ -357,13 +357,13 @@ export namespace SliderThumb {
      */
     disabled?: boolean;
     /**
-     * Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb
+     * A function which returns a string value for the [`aria-label`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label) attribute of the `input`.
      * @param {number} index The index of the input
      * @returns {string}
      */
     getAriaLabel?: ((index: number) => string) | null;
     /**
-     * Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.
+     * A function which returns a string value for the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.
      * This is important for screen reader users.
      * @param {string} formattedValue The thumb's formatted value.
      * @param {number} value The thumb's numerical value.
@@ -380,7 +380,7 @@ export namespace SliderThumb {
      */
     onFocus?: React.FocusEventHandler<HTMLInputElement>;
     /**
-     * Optional tab index attribute forwarded to the `input`
+     * Optional tab index attribute forwarded to the `input`.
      */
     tabIndex?: number;
   }

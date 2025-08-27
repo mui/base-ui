@@ -4,12 +4,12 @@
   "props": {
     "getAriaLabel": {
       "type": "((index: number) => string) | null",
-      "description": "Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb",
+      "description": "A function which returns a string value for the [`aria-label`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label) attribute of the `input`.",
       "detailedType": "((index: number) => string) | null | undefined"
     },
     "getAriaValueText": {
       "type": "((formattedValue: string, value: number, index: number) => string) | null",
-      "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users.",
+      "description": "A function which returns a string value for the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.\nThis is important for screen reader users.",
       "detailedType": "| ((\n    formattedValue: string,\n    value: number,\n    index: number,\n  ) => string)\n| null\n| undefined"
     },
     "onBlur": {
@@ -24,7 +24,7 @@
     },
     "tabIndex": {
       "type": "number",
-      "description": "Optional tab index attribute forwarded to the `input`",
+      "description": "Optional tab index attribute forwarded to the `input`.",
       "detailedType": "number | undefined"
     },
     "disabled": {
