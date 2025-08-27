@@ -10,7 +10,7 @@ import {
   type BaseUIEventDetails,
   createBaseUIEventDetails,
 } from '../../utils/createBaseUIEventDetails';
-import { BaseUIChangeReason } from '../../utils/types';
+import { BaseUIChangeEventReason } from '../../utils/types';
 
 /**
  * Groups all parts of the select.
@@ -304,6 +304,6 @@ export namespace SelectRoot {
     unmount: () => void;
   }
 
-  export type ChangeEventReason = BaseUIChangeReason | 'window-resize';
+  export type ChangeEventReason = BaseUIChangeEventReason | 'window-resize';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

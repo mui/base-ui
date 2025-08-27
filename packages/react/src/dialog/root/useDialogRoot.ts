@@ -19,7 +19,7 @@ import type {
   RequiredExcept,
   HTMLProps,
   FloatingUIOpenChangeDetails,
-  BaseUIChangeReason,
+  BaseUIChangeEventReason,
 } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
@@ -78,7 +78,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       const details: FloatingUIOpenChangeDetails = {
         open: nextOpen,
         nativeEvent: eventDetails.event,
-        reason: eventDetails.reason as BaseUIChangeReason,
+        reason: eventDetails.reason as BaseUIChangeEventReason,
         nested,
       };
 

@@ -17,7 +17,7 @@ import {
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
 } from './NavigationMenuRootContext';
-import type { BaseUIComponentProps, BaseUIChangeReason } from '../../utils/types';
+import type { BaseUIComponentProps, BaseUIChangeEventReason } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';
@@ -335,6 +335,6 @@ export namespace NavigationMenuRoot {
     unmount: () => void;
   }
 
-  export type ChangeEventReason = BaseUIChangeReason | 'link-press';
+  export type ChangeEventReason = BaseUIChangeEventReason | 'link-press';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

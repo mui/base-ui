@@ -3,7 +3,7 @@ import * as React from 'react';
 import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
 import { useDialogRoot } from './useDialogRoot';
-import type { BaseUIChangeReason } from '../../utils/types';
+import type { BaseUIChangeEventReason } from '../../utils/types';
 import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
@@ -68,6 +68,6 @@ export namespace DialogRoot {
     unmount: () => void;
   }
 
-  export type ChangeEventReason = BaseUIChangeReason | 'close-press';
+  export type ChangeEventReason = BaseUIChangeEventReason | 'close-press';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

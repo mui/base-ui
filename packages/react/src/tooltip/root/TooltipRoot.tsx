@@ -19,7 +19,7 @@ import { OPEN_DELAY } from '../utils/constants';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
-import type { BaseUIChangeReason } from '../../utils/types';
+import type { BaseUIChangeEventReason } from '../../utils/types';
 
 /**
  * Groups all parts of the tooltip.
@@ -293,6 +293,6 @@ export namespace TooltipRoot {
     unmount: () => void;
   }
 
-  export type ChangeEventReason = BaseUIChangeReason | 'disabled';
+  export type ChangeEventReason = BaseUIChangeEventReason | 'disabled';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

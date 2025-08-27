@@ -1,4 +1,4 @@
-import type { BaseUIChangeReason } from './types';
+import type { BaseUIChangeEventReason } from './types';
 
 /**
  * Maps an open-change `reason` string to the corresponding native event type.
@@ -22,7 +22,7 @@ export type ReasonToEvent<Reason extends string> = Reason extends 'trigger-press
 /**
  * Details of custom events emitted by Base UI components.
  */
-export type BaseUIEventDetails<Reason extends string = BaseUIChangeReason> = {
+export type BaseUIEventDetails<Reason extends string = BaseUIChangeEventReason> = {
   [K in Reason]: {
     /**
      * The reason for the event.
@@ -55,7 +55,7 @@ export type BaseUIEventDetails<Reason extends string = BaseUIChangeReason> = {
  * Creates a Base UI event details object with the given reason and utilities
  * for preventing Base UI's internal event handling.
  */
-export function createBaseUIEventDetails<Reason extends string = BaseUIChangeReason>(
+export function createBaseUIEventDetails<Reason extends string = BaseUIChangeEventReason>(
   reason: Reason,
   event?: ReasonToEvent<Reason>,
 ): BaseUIEventDetails<Reason> {
