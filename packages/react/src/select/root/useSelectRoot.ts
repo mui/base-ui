@@ -23,7 +23,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
-import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
@@ -218,12 +218,13 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   }, [value]);
 
   const setOpen = useEventCallback(
-    (
-      nextOpen: boolean,
-      event: Event | undefined,
-      reason: SelectRoot.OpenChangeReason | undefined,
-    ) => {
-      params.onOpenChange?.(nextOpen, event, reason);
+    (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
+      params.onOpenChange?.(nextOpen, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
       setOpenUnwrapped(nextOpen);
 
       // The active index will sync to the last selected index on the next open.
@@ -265,10 +266,17 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const setValue = useEventCallback((nextValue: any, event?: Event) => {
-    params.onValueChange?.(nextValue, event);
-    setValueUnwrapped(nextValue);
-  });
+  const setValue = useEventCallback(
+    (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
+      params.onValueChange?.(nextValue, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      setValueUnwrapped(nextValue);
+    },
+  );
 
   /**
    * Keeps `store.selectedIndex` and `store.label` in sync with the current `value`.
@@ -348,9 +356,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   const floatingContext = useFloatingRootContext({
     open,
-    onOpenChange(nextOpen, event, reason) {
-      setOpen(nextOpen, event, translateOpenChangeReason(reason));
-    },
+    onOpenChange: setOpen,
     elements: {
       reference: triggerElement,
       floating: positionerElement,
@@ -398,7 +404,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index]);
+        setValue(valuesRef.current[index], createBaseUIEventDetails('none'));
       }
     },
     onTypingChange(typing) {

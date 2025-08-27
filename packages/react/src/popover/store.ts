@@ -2,9 +2,9 @@ import { Store, createSelector } from '@base-ui-components/utils/store';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { type FloatingRootContext } from '../floating-ui-react';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
-import { type PopoverOpenChangeReason } from './root/PopoverRootContext';
 import { type HTMLProps } from '../utils/types';
 import { getEmptyContext } from '../floating-ui-react/hooks/useFloatingRootContext';
+import { PopoverRoot } from './root/PopoverRoot';
 
 const EMPTY_OBJ = {};
 
@@ -26,7 +26,7 @@ export type State = {
   instantType: 'dismiss' | 'click' | undefined;
   transitionStatus: TransitionStatus;
   openMethod: InteractionType | null;
-  openReason: PopoverOpenChangeReason | null;
+  openReason: PopoverRoot.ChangeEventReason | null;
 
   titleId: string | undefined;
   descriptionId: string | undefined;

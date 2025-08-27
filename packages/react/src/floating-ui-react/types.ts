@@ -4,6 +4,7 @@ import type {
   VirtualElement,
 } from '@floating-ui/react-dom';
 import type * as React from 'react';
+import type { BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
 
 import type { ExtendedUserProps } from './hooks/useInteractions';
 
@@ -132,9 +133,8 @@ export interface ContextData {
 
 export type OpenChangeCallback = (
   open: boolean,
-  event: Event | undefined,
-  reason: OpenChangeReason | undefined,
-  triggerElement?: Element | undefined,
+  eventDetails: BaseUIEventDetails,
+  triggerElement?: HTMLElement | undefined,
 ) => void;
 
 export interface FloatingRootContext<RT extends ReferenceType = ReferenceType> {
@@ -159,7 +159,7 @@ export type FloatingContext<RT extends ReferenceType = ReferenceType> = Omit<
   'refs' | 'elements'
 > & {
   open: boolean;
-  onOpenChange(open: boolean, event?: Event, reason?: OpenChangeReason): void;
+  onOpenChange(open: boolean, eventDetails: BaseUIEventDetails): void;
   events: FloatingEvents;
   dataRef: React.MutableRefObject<ContextData>;
   nodeId: string | undefined;
@@ -228,7 +228,7 @@ export interface UseFloatingOptions<RT extends ReferenceType = ReferenceType>
    * An event callback that is invoked when the floating element is opened or
    * closed.
    */
-  onOpenChange?(open: boolean, event?: Event, reason?: OpenChangeReason): void;
+  onOpenChange?(open: boolean, eventDetails: BaseUIEventDetails): void;
   /**
    * Unique node id when using `FloatingTree`.
    */

@@ -250,6 +250,33 @@ describe('<Popover.Root />', () => {
     });
   });
 
+  describe('BaseUIEventDetails', () => {
+    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+      await render(
+        <Popover.Root
+          onOpenChange={(nextOpen, eventDetails) => {
+            if (nextOpen) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Popover.Trigger />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
+  });
+
   describe('focus management', () => {
     it('focuses the trigger after the popover is closed but not unmounted', async () => {
       const { user } = await render(
@@ -478,7 +505,7 @@ describe('<Popover.Root />', () => {
       const { user } = await render(
         <Popover.Root
           actionsRef={actionsRef}
-          onOpenChange={(open, event, reason, trigger, options) => {
+          onOpenChange={(open, details, trigger, options) => {
             options.preventUnmountOnClose();
           }}
         >
@@ -834,6 +861,8 @@ describe('<Popover.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
+    type NumberPayload = { payload: number | undefined };
+
     it('should open the popover with any trigger', async () => {
       const { user } = await render(
         <Popover.Root>
@@ -917,7 +946,7 @@ describe('<Popover.Root />', () => {
     it('should set the payload and render content based on its value', async () => {
       const { user } = await render(
         <Popover.Root>
-          {({ payload }) => (
+          {({ payload }: NumberPayload) => (
             <React.Fragment>
               <Popover.Trigger payload={1}>Trigger 1</Popover.Trigger>
               <Popover.Trigger payload={2}>Trigger 2</Popover.Trigger>
@@ -925,7 +954,7 @@ describe('<Popover.Root />', () => {
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup>
-                    <span data-testid="content">{payload as number}</span>
+                    <span data-testid="content">{payload}</span>
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
@@ -947,7 +976,7 @@ describe('<Popover.Root />', () => {
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
       const { user } = await render(
         <Popover.Root>
-          {({ payload }) => (
+          {({ payload }: NumberPayload) => (
             <React.Fragment>
               <Popover.Trigger payload={1}>Trigger 1</Popover.Trigger>
               <Popover.Trigger payload={2}>Trigger 2</Popover.Trigger>
@@ -955,7 +984,7 @@ describe('<Popover.Root />', () => {
               <Popover.Portal>
                 <Popover.Positioner data-testid="positioner">
                   <Popover.Popup data-testid="popup">
-                    <span>{payload as number}</span>
+                    <span>{payload}</span>
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
@@ -986,12 +1015,12 @@ describe('<Popover.Root />', () => {
             <Popover.Root
               open={open}
               triggerId={activeTrigger}
-              onOpenChange={(nextOpen, event, reason, triggerId) => {
+              onOpenChange={(nextOpen, details, triggerId) => {
                 setActiveTrigger(triggerId);
                 setOpen(nextOpen);
               }}
             >
-              {({ payload }) => (
+              {({ payload }: NumberPayload) => (
                 <React.Fragment>
                   <Popover.Trigger payload={1} id="trigger-1">
                     Trigger 1
@@ -1042,6 +1071,8 @@ describe('<Popover.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
+    type NumberPayload = { payload: number | undefined };
+
     it('should open the popover with any trigger', async () => {
       const testPopover = Popover.createHandle();
       const { user } = await render(
@@ -1097,11 +1128,11 @@ describe('<Popover.Root />', () => {
           </Popover.Trigger>
 
           <Popover.Root handle={testPopover}>
-            {({ payload }) => (
+            {({ payload }: NumberPayload) => (
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup>
-                    <span data-testid="content">{payload as number}</span>
+                    <span data-testid="content">{payload}</span>
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
@@ -1132,11 +1163,11 @@ describe('<Popover.Root />', () => {
           </Popover.Trigger>
 
           <Popover.Root handle={testPopover}>
-            {({ payload }) => (
+            {({ payload }: NumberPayload) => (
               <Popover.Portal>
                 <Popover.Positioner data-testid="positioner">
                   <Popover.Popup data-testid="popup">
-                    <span>{payload as number}</span>
+                    <span>{payload}</span>
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
@@ -1174,14 +1205,14 @@ describe('<Popover.Root />', () => {
 
             <Popover.Root
               open={open}
-              onOpenChange={(nextOpen, event, reason, trigger) => {
+              onOpenChange={(nextOpen, details, trigger) => {
                 setActiveTrigger(trigger);
                 setOpen(nextOpen);
               }}
               triggerId={activeTrigger}
               handle={testPopover}
             >
-              {({ payload }) => (
+              {({ payload }: NumberPayload) => (
                 <Popover.Portal>
                   <Popover.Positioner data-testid="positioner" side="bottom" align="start">
                     <Popover.Popup>

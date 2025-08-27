@@ -5,6 +5,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { activeElement } from '../../floating-ui-react/utils';
 import { clamp } from '../../utils/clamp';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -280,7 +281,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
     setActive(-1);
 
     fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
-    onValueCommitted(lastChangedValueRef.current ?? finger.value, nativeEvent);
+    onValueCommitted(
+      lastChangedValueRef.current ?? finger.value,
+      createBaseUIEventDetails('none', nativeEvent),
+    );
 
     if (
       'pointerType' in nativeEvent &&

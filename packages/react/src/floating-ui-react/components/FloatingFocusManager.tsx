@@ -28,13 +28,15 @@ import {
   getNextTabbable,
   getPreviousTabbable,
 } from '../utils';
-import type { FloatingRootContext, OpenChangeReason } from '../types';
+import type { FloatingRootContext } from '../types';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
+import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
   const win = ownerWindow(event.target);
@@ -471,7 +473,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           relatedTarget !== getPreviouslyFocusedElement()
         ) {
           preventReturnFocusRef.current = true;
-          onOpenChange(false, event, 'focus-out');
+          onOpenChange(false, createBaseUIEventDetails('focus-out', event));
         }
       });
     }
@@ -654,34 +656,24 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     // Dismissing via outside press should always ignore `returnFocus` to
     // prevent unwanted scrolling.
-    function onOpenChangeLocal({
-      open: openLocal,
-      reason,
-      event,
-      nested,
-    }: {
-      open: boolean;
-      reason: OpenChangeReason;
-      event: Event | undefined;
-      nested: boolean;
-    }) {
-      if (event && !openLocal) {
-        closeTypeRef.current = getEventType(event, lastInteractionTypeRef.current);
+    function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
+      if (!details.open) {
+        closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
       }
 
-      if (event && ['hover', 'safe-polygon'].includes(reason) && event.type === 'mouseleave') {
+      if (details.reason === 'trigger-hover' && details.nativeEvent.type === 'mouseleave') {
         preventReturnFocusRef.current = true;
       }
 
-      if (reason !== 'outside-press') {
+      if (details.reason !== 'outside-press') {
         return;
       }
 
-      if (nested) {
+      if (details.nested) {
         preventReturnFocusRef.current = false;
       } else if (
-        isVirtualClick(event as MouseEvent) ||
-        isVirtualPointerEvent(event as PointerEvent)
+        isVirtualClick(details.nativeEvent as MouseEvent) ||
+        isVirtualPointerEvent(details.nativeEvent as PointerEvent)
       ) {
         preventReturnFocusRef.current = false;
       } else {

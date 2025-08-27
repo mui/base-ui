@@ -1,15 +1,12 @@
 'use client';
 import * as React from 'react';
-import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import type { PopoverStore } from '../store';
-
-export type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press' | 'imperative-action';
+import { PopoverRoot } from './PopoverRoot';
 
 export interface PopoverRootContext {
   setOpen: (
     open: boolean,
-    event: Event | undefined,
-    reason: PopoverOpenChangeReason | undefined,
+    eventDetails: PopoverRoot.ChangeEventDetails,
     target: HTMLElement | undefined,
   ) => void;
   popupRef: React.RefObject<HTMLElement | null>;

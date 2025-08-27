@@ -13,10 +13,11 @@ import type {
   FloatingContext,
   FloatingRootContext,
   FloatingTreeType,
-  OpenChangeReason,
   SafePolygonOptions,
 } from '../types';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
+import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { getEmptyContext } from './useFloatingRootContext';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
@@ -156,8 +157,8 @@ export function useHover(
       return undefined;
     }
 
-    function onOpenChangeLocal({ open: newOpen }: { open: boolean }) {
-      if (!newOpen) {
+    function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
+      if (!details.open) {
         timeout.clear();
         restTimeout.clear();
         blockMouseMoveRef.current = true;
@@ -184,7 +185,11 @@ export function useHover(
 
     function onLeave(event: MouseEvent) {
       if (isHoverOpen()) {
-        onOpenChange(false, event, 'hover', (event.currentTarget as Element) ?? undefined);
+        onOpenChange(
+          false,
+          createBaseUIEventDetails('trigger-hover', event),
+          (event.currentTarget as HTMLElement) ?? undefined,
+        );
       }
     }
 
@@ -196,13 +201,15 @@ export function useHover(
   }, [elements.floating, open, onOpenChange, enabled, handleCloseRef, isHoverOpen]);
 
   const closeWithDelay = React.useCallback(
-    (event: Event, runElseBranch = true, reason: OpenChangeReason = 'hover') => {
+    (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
-        timeout.start(closeDelay, () => onOpenChange(false, event, reason, undefined));
+        timeout.start(closeDelay, () =>
+          onOpenChange(false, createBaseUIEventDetails('trigger-hover', event), undefined),
+        );
       } else if (runElseBranch) {
         timeout.clear();
-        onOpenChange(false, event, reason, undefined);
+        onOpenChange(false, createBaseUIEventDetails('trigger-hover', event), undefined);
       }
     },
     [delayRef, onOpenChange, timeout],
@@ -248,16 +255,16 @@ export function useHover(
       }
 
       const openDelay = getDelay(delayRef.current, 'open', pointerTypeRef.current);
-      const trigger = (event.currentTarget as Element) ?? undefined;
+      const trigger = (event.currentTarget as HTMLElement) ?? undefined;
 
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
-            onOpenChange(true, event, 'hover', trigger);
+            onOpenChange(true, createBaseUIEventDetails('trigger-hover', event), trigger);
           }
         });
       } else if (!open) {
-        onOpenChange(true, event, 'hover', trigger);
+        onOpenChange(true, createBaseUIEventDetails('trigger-hover', event), trigger);
       }
     }
 
@@ -298,7 +305,7 @@ export function useHover(
             clearPointerEvents();
             cleanupMouseMoveHandler();
             if (!isClickLikeOpenEvent()) {
-              closeWithDelay(event, true, 'safe-polygon');
+              closeWithDelay(event, true);
             }
           },
         });
@@ -511,7 +518,7 @@ export function useHover(
       onPointerEnter: setPointerRef,
       onMouseMove(event) {
         const { nativeEvent } = event;
-        const trigger = event.currentTarget as Element;
+        const trigger = event.currentTarget as HTMLElement;
 
         // `true` when there are multiple triggers per floating element and user hovers over the one that
         // wasn't used to open the floating element.
@@ -520,7 +527,7 @@ export function useHover(
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && (!openRef.current || isOverInactiveTrigger)) {
-            onOpenChange(true, nativeEvent, 'hover', trigger);
+            onOpenChange(true, createBaseUIEventDetails('trigger-hover', nativeEvent), trigger);
           }
         }
 

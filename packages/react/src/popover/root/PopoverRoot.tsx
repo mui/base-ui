@@ -16,16 +16,16 @@ import {
   useFloatingParentNodeId,
 } from '../../floating-ui-react';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import {
+  createBaseUIEventDetails,
+  type BaseUIEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
-import {
-  PopoverOpenChangeReason,
-  PopoverRootContext,
-  usePopoverRootContext,
-} from './PopoverRootContext';
+import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore, selectors } from '../store';
+import type { FloatingUIOpenChangeDetails, BaseUIChangeEventReason } from '../../utils/types';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
@@ -131,26 +131,40 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const setOpen = useEventCallback(function setOpen(
     nextOpen: boolean,
-    event: Event | undefined,
-    reason: PopoverOpenChangeReason | undefined,
+    eventDetails: PopoverRoot.ChangeEventDetails,
     trigger: HTMLElement | undefined,
   ) {
-    floatingEvents?.emit('openchange', { open: nextOpen, event, reason, nested });
+    const isHover = eventDetails.reason === 'trigger-hover';
+    const isKeyboardClick =
+      eventDetails.reason === 'trigger-press' && (eventDetails.event as MouseEvent).detail === 0;
+    const isDismissClose =
+      !nextOpen && (eventDetails.reason === 'escape-key' || eventDetails.reason == null);
 
-    const isHover = reason === 'trigger-hover';
-    const isKeyboardClick = reason === 'trigger-press' && (event as MouseEvent).detail === 0;
-    const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
+    const options = new PopoverRoot.OpenChangeOptions();
+    onOpenChange?.(nextOpen, eventDetails, nextOpen ? (trigger?.id ?? null) : null, options);
+
+    if (eventDetails.isCanceled) {
+      return;
+    }
+
+    const details: FloatingUIOpenChangeDetails = {
+      open: nextOpen,
+      nativeEvent: eventDetails.event,
+      reason: eventDetails.reason as BaseUIChangeEventReason,
+      nested,
+      triggerElement: trigger,
+    };
+
+    floatingEvents?.emit('openchange', details);
 
     function changeState() {
       const newTriggerId = trigger?.id ?? null;
-      const options = new PopoverRoot.OpenChangeOptions();
-      onOpenChange?.(nextOpen, event, reason, nextOpen ? (trigger?.id ?? null) : null, options);
       preventUnmountingRef.current = options.isUnmountingPrevented;
       setOpenState(nextOpen);
       setTriggerId(newTriggerId);
 
       if (nextOpen) {
-        store.set('openReason', reason ?? null);
+        store.set('openReason', eventDetails.reason ?? null);
       }
 
       store.set('open', nextOpen);
@@ -184,7 +198,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   });
 
   const handleImperativeClose = React.useCallback(() => {
-    setOpen(false, undefined, 'imperative-action', undefined);
+    setOpen(false, createBaseUIEventDetails('imperative-action'), undefined);
   }, [setOpen]);
 
   useOpenChangeComplete({
@@ -213,15 +227,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       ),
     },
     open,
-    onOpenChange(openValue, eventValue, reasonValue, trigger) {
-      setOpen(
-        openValue,
-        eventValue,
-        translateOpenChangeReason(reasonValue),
-        trigger as HTMLElement,
-      );
-    },
-    noEmit: true,
+    onOpenChange: setOpen,
   });
 
   floatingEvents = floatingContext.events;
@@ -303,8 +309,7 @@ export namespace PopoverRoot {
      */
     onOpenChange?: (
       open: boolean,
-      event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      eventDetails: ChangeEventDetails,
       activeTriggerId: string | null,
       options: OpenChangeOptions,
     ) => void;
@@ -368,5 +373,6 @@ export namespace PopoverRoot {
     payload: Payload | undefined;
   }) => React.ReactNode;
 
-  export type OpenChangeReason = PopoverOpenChangeReason;
+  export type ChangeEventReason = BaseUIChangeEventReason | 'close-press' | 'imperative-action';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

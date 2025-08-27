@@ -13,9 +13,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: Popover.Root.OpenChangeReason | undefined, activeTriggerId: string | null, options: Popover.Root.OpenChangeOptions) => void)",
+      "type": "((open: boolean, eventDetails: Popover.Root.ChangeEventDetails, activeTriggerId: string | null, options: Popover.Root.OpenChangeOptions) => void)",
       "description": "Event handler called when the popover is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: Popover.Root.OpenChangeReason | undefined,\n    activeTriggerId: string | null,\n    options: Popover.Root.OpenChangeOptions,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Popover.Root.ChangeEventDetails,\n    activeTriggerId: string | null,\n    options: Popover.Root.OpenChangeOptions,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Popover.Root.Actions | null>",
@@ -44,9 +44,8 @@
       "detailedType": "string | null | undefined"
     },
     "children": {
-      "type": "ReactNode | Popover.Root.ChildRenderFunction<Payload>",
-      "description": "The content of the popover.\nThis can be a regular React node or a render function that receives the `payload` of the active trigger.",
-      "detailedType": "| React.ReactNode\n| ((__0: { payload: Payload | undefined }) => ReactNode)"
+      "type": "any",
+      "description": "The content of the popover.\nThis can be a regular React node or a render function that receives the `payload` of the active trigger."
     }
   },
   "dataAttributes": {},

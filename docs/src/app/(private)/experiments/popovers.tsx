@@ -113,7 +113,7 @@ export default function Popovers() {
       <div className={styles.Container}>
         <Popover.Root
           open={controlledWithinRootOpen}
-          onOpenChange={(open, event, reason, triggerId) => {
+          onOpenChange={(open, eventDetails, triggerId) => {
             setControlledWithinRootOpen(open);
             setControlledWithinRootTriggerId(triggerId);
           }}
@@ -156,7 +156,7 @@ export default function Popovers() {
           handle={popover2}
           open={controlledDetachedOpen}
           triggerId={controlledDetachedTriggerId ?? undefined}
-          onOpenChange={(open, event, reason, triggerId) => {
+          onOpenChange={(open, eventDetails, triggerId) => {
             setControlledDetachedOpen(open);
             setControlledDetachedTriggerId(triggerId);
           }}

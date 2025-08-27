@@ -64,7 +64,7 @@ function NoOpacity() {
   return (
     <Popover.Root
       open={open}
-      onOpenChange={(nextOpen, event, reason, triggerId, options) => {
+      onOpenChange={(nextOpen, eventDetails, triggerId, options) => {
         setOpen(nextOpen);
         options.preventUnmountOnClose();
       }}

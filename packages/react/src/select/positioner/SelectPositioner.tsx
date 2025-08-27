@@ -16,6 +16,7 @@ import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { clearPositionerStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { useScrollLock } from '../../utils/useScrollLock';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -172,20 +173,22 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       return;
     }
 
+    const eventDetails = createBaseUIEventDetails('none');
+
     if (prevSize !== 0 && !store.state.multiple && value !== null) {
       const valueIndex = valuesRef.current.indexOf(value);
       if (valueIndex === -1) {
         const initial = initialValueRef.current;
         const hasInitial = initial != null && valuesRef.current.includes(initial);
         const nextValue = hasInitial ? initial : null;
-        setValue(nextValue);
+        setValue(nextValue, eventDetails);
       }
     }
 
     if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
       const nextValue = value.filter((v) => valuesRef.current.includes(v));
       if (nextValue.length !== value.length || nextValue.some((v) => !value.includes(v))) {
-        setValue(nextValue);
+        setValue(nextValue, eventDetails);
       }
     }
 
