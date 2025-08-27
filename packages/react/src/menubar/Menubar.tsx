@@ -15,6 +15,7 @@ import { useScrollLock } from '../utils/useScrollLock';
 import { useOpenInteractionType } from '../utils/useOpenInteractionType';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useBaseUiId } from '../utils/useBaseUiId';
+import { MenuOpenEventDetails } from '../menu/utils/types';
 
 /**
  * The container for menus.
@@ -111,15 +112,15 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
   const rootContext = useMenubarContext();
 
   React.useEffect(() => {
-    function onSubmenuOpenChange(event: { open: boolean; nodeId: string; parentNodeId: string }) {
-      if (event.parentNodeId !== nodeId) {
+    function onSubmenuOpenChange(details: MenuOpenEventDetails) {
+      if (!details.nodeId || details.parentNodeId !== nodeId) {
         return;
       }
 
-      if (event.open) {
-        openSubmenusRef.current.add(event.nodeId);
+      if (details.open) {
+        openSubmenusRef.current.add(details.nodeId);
       } else {
-        openSubmenusRef.current.delete(event.nodeId);
+        openSubmenusRef.current.delete(details.nodeId);
       }
 
       const isAnyOpen = openSubmenusRef.current.size > 0;
@@ -136,10 +137,10 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
       }
     }
 
-    menuEvents.on('openchange', onSubmenuOpenChange);
+    menuEvents.on('menuopenchange', onSubmenuOpenChange);
 
     return () => {
-      menuEvents.off('openchange', onSubmenuOpenChange);
+      menuEvents.off('menuopenchange', onSubmenuOpenChange);
     };
   }, [menuEvents, nodeId, rootContext]);
 

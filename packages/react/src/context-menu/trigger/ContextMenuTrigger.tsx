@@ -7,6 +7,7 @@ import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const LONG_PRESS_DELAY = 500;
 
@@ -37,27 +38,29 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
 
-  const handleLongPress = useEventCallback((x: number, y: number, event: Event) => {
-    const isTouchEvent = event.type.startsWith('touch');
+  const handleLongPress = useEventCallback(
+    (x: number, y: number, event: MouseEvent | TouchEvent) => {
+      const isTouchEvent = event.type.startsWith('touch');
 
-    setAnchor({
-      getBoundingClientRect() {
-        return DOMRect.fromRect({
-          width: isTouchEvent ? 10 : 0,
-          height: isTouchEvent ? 10 : 0,
-          x,
-          y,
-        });
-      },
-    });
+      setAnchor({
+        getBoundingClientRect() {
+          return DOMRect.fromRect({
+            width: isTouchEvent ? 10 : 0,
+            height: isTouchEvent ? 10 : 0,
+            x,
+            y,
+          });
+        },
+      });
 
-    allowMouseUpRef.current = false;
-    actionsRef.current?.setOpen(true, event);
+      allowMouseUpRef.current = false;
+      actionsRef.current?.setOpen(true, createBaseUIEventDetails('trigger-press', event));
 
-    allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
-      allowMouseUpRef.current = true;
-    });
-  });
+      allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
+        allowMouseUpRef.current = true;
+      });
+    },
+  );
 
   const handleContextMenu = useEventCallback((event: React.MouseEvent) => {
     allowMouseUpTriggerRef.current = true;
@@ -81,7 +84,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
           return;
         }
 
-        actionsRef.current?.setOpen(false, mouseEvent, 'cancel-open');
+        actionsRef.current?.setOpen(false, createBaseUIEventDetails('cancel-open', mouseEvent));
       },
       { once: true },
     );

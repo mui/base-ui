@@ -9,6 +9,10 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import {
+  createBaseUIEventDetails,
+  type BaseUIEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { clamp } from '../../utils/clamp';
@@ -74,10 +78,17 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const id = useBaseUiId(idProp);
   const onValueChange = useEventCallback(
-    onValueChangeProp as (value: number | number[], event: Event, activeThumbIndex: number) => void,
+    onValueChangeProp as (
+      value: number | number[],
+      data: BaseUIEventDetails<'none'>,
+      activeThumbIndex: number,
+    ) => void,
   );
   const onValueCommitted = useEventCallback(
-    onValueCommittedProp as (value: number | readonly number[], event: Event) => void,
+    onValueCommittedProp as (
+      value: number | readonly number[],
+      data: BaseUIEventDetails<'none'>,
+    ) => void,
   );
 
   const { clearErrors } = useFormContext();
@@ -152,7 +163,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         return;
       }
 
-      setValueUnwrapped(newValue as Value);
       // Redefine target to allow name and value to be read.
       // This allows seamless integration with the most popular form libraries.
       // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
@@ -166,7 +176,16 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       });
 
       lastChangedValueRef.current = newValue;
-      onValueChange(newValue, clonedEvent, thumbIndex);
+
+      const details = createBaseUIEventDetails('none', clonedEvent);
+
+      onValueChange(newValue, details, thumbIndex);
+
+      if (details.isCanceled) {
+        return;
+      }
+
+      setValueUnwrapped(newValue as Value);
       clearErrors(name);
       fieldControlValidation.commitValidation(newValue, true);
     },
@@ -183,7 +202,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         setTouched(true);
 
         const nextValue = lastChangedValueRef.current ?? newValue;
-        onValueCommitted(nextValue, event.nativeEvent);
+        onValueCommitted(nextValue, createBaseUIEventDetails('none', event.nativeEvent));
         clearErrors(name);
 
         if (validationMode === 'onChange') {
@@ -486,7 +505,7 @@ export namespace SliderRoot {
      */
     onValueChange?: (
       value: Value extends number ? number : Value,
-      event: Event,
+      eventDetails: ChangeEventDetails,
       activeThumbIndex: number,
     ) => void;
     /**
@@ -496,6 +515,12 @@ export namespace SliderRoot {
      * @param {Event} event The corresponding event that initiated the change.
      * **Warning**: This is a generic event not a change event.
      */
-    onValueCommitted?: (value: Value extends number ? number : Value, event: Event) => void;
+    onValueCommitted?: (
+      value: Value extends number ? number : Value,
+      eventDetails: ChangeEventDetails,
+    ) => void;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

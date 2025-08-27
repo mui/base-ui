@@ -6,7 +6,7 @@ import type { NavigationMenuRoot } from './NavigationMenuRoot';
 export interface NavigationMenuRootContext {
   open: boolean;
   value: any;
-  setValue: (value: any, event?: Event, reason?: NavigationMenuRoot.OpenChangeReason) => void;
+  setValue: (value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void;
   transitionStatus: TransitionStatus;
   mounted: boolean;
   popupElement: HTMLElement | null;

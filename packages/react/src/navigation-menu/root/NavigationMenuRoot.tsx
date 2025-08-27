@@ -11,17 +11,17 @@ import {
   type FloatingRootContext,
 } from '../../floating-ui-react';
 import { activeElement, contains } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
   NavigationMenuRootContext,
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
 } from './NavigationMenuRootContext';
-import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { BaseUIComponentProps, BaseUIChangeEventReason } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';
+import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups all parts of the navigation menu.
@@ -56,7 +56,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   // Derive open state from value being non-nullish
   const open = value != null;
 
-  const closeReasonRef = React.useRef<NavigationMenuRoot.OpenChangeReason | undefined>(undefined);
+  const closeReasonRef = React.useRef<NavigationMenuRoot.ChangeEventReason | undefined>(undefined);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
@@ -86,13 +86,9 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   }, [value]);
 
   const setValue = useEventCallback(
-    (
-      nextValue: any,
-      event: Event | undefined,
-      reason: NavigationMenuRoot.OpenChangeReason | undefined,
-    ) => {
+    (nextValue: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => {
       if (!nextValue) {
-        closeReasonRef.current = reason;
+        closeReasonRef.current = eventDetails.reason;
         setActivationDirection(null);
         setFloatingRootContext(undefined);
 
@@ -103,7 +99,11 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       }
 
       if (nextValue !== value) {
-        onValueChange?.(nextValue, event, reason);
+        onValueChange?.(nextValue, eventDetails);
+      }
+
+      if (eventDetails.isCanceled) {
+        return;
       }
 
       setValueUnwrapped(nextValue);
@@ -308,11 +308,7 @@ export namespace NavigationMenuRoot {
     /**
      * Callback fired when the value changes.
      */
-    onValueChange?: (
-      value: any,
-      event: Event | undefined,
-      reason: OpenChangeReason | undefined,
-    ) => void;
+    onValueChange?: (value: any, eventDetails: ChangeEventDetails) => void;
     /**
      * How long to wait before opening the navigation menu. Specified in milliseconds.
      * @default 50
@@ -339,5 +335,6 @@ export namespace NavigationMenuRoot {
     unmount: () => void;
   }
 
-  export type OpenChangeReason = BaseOpenChangeReason | 'link-press';
+  export type ChangeEventReason = BaseUIChangeEventReason | 'link-press';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }
