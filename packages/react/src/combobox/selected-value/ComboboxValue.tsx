@@ -21,9 +21,9 @@ export function ComboboxValue(props: ComboboxValue.Props) {
   const memoizedItemDerivatives = React.useMemo(() => {
     if (isChildrenPropDefined || !Array.isArray(items)) {
       return {
-        flatItems: undefined as any[] | undefined,
-        valueToLabel: undefined as Map<any, React.ReactNode> | undefined,
-        nullItemLabel: undefined as React.ReactNode | undefined,
+        flatItems: undefined,
+        valueToLabel: undefined,
+        nullItemLabel: undefined,
       };
     }
 
@@ -80,9 +80,9 @@ export function ComboboxValue(props: ComboboxValue.Props) {
     selectedValue &&
     typeof selectedValue === 'object' &&
     'label' in selectedValue &&
-    (selectedValue as any).label != null
+    selectedValue.label != null
   ) {
-    return (selectedValue as any).label as React.ReactNode;
+    return selectedValue.label;
   }
 
   if (Array.isArray(items)) {
