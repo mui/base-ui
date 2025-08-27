@@ -57,9 +57,9 @@
       "detailedType": "string | number | string[] | undefined"
     },
     "items": {
-      "type": "Item[] | ComboboxGroup<Item>[]",
+      "type": "Item[] | Group<Item>[]",
       "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
-      "detailedType": "Item[] | ComboboxGroup<Item>[] | undefined"
+      "detailedType": "Item[] | Group<Item>[] | undefined"
     },
     "limit": {
       "type": "number",

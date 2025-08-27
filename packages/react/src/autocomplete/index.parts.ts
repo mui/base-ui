@@ -1,5 +1,5 @@
 export { AutocompleteRoot as Root } from './root/AutocompleteRoot';
-export { AutocompleteValue as Value } from './value/AutocompleteValue.tsx';
+export { AutocompleteValue as Value } from './value/AutocompleteValue';
 
 export { ComboboxTrigger as Trigger } from '../combobox/trigger/ComboboxTrigger';
 export { ComboboxInput as Input } from '../combobox/input/ComboboxInput';

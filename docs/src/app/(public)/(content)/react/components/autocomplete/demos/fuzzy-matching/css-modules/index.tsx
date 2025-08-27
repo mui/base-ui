@@ -4,21 +4,9 @@ import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import { matchSorter } from 'match-sorter';
 import styles from './index.module.css';
 
-function itemToLabel(item: FuzzyItem): string {
-  return item.title;
-}
-
 export default function ExampleFuzzyMatchingAutocomplete() {
-  const [searchValue, setSearchValue] = React.useState('');
-
   return (
-    <Autocomplete.Root
-      items={fuzzyItems}
-      filter={fuzzyFilter}
-      value={searchValue}
-      onValueChange={setSearchValue}
-      itemToLabel={itemToLabel}
-    >
+    <Autocomplete.Root items={fuzzyItems} filter={fuzzyFilter} itemToValue={(item) => item.title}>
       <label className={styles.Label}>
         Fuzzy search documentation
         <Autocomplete.Input placeholder="e.g. React" className={styles.Input} />
@@ -28,22 +16,24 @@ export default function ExampleFuzzyMatchingAutocomplete() {
         <Autocomplete.Positioner className={styles.Positioner} sideOffset={4}>
           <Autocomplete.Popup className={styles.Popup}>
             <Autocomplete.Empty className={styles.Empty}>
-              No results found for "{searchValue}"
+              No results found for "{<Autocomplete.Value />}"
             </Autocomplete.Empty>
 
             <Autocomplete.List className={styles.List}>
               {(item: FuzzyItem) => (
                 <Autocomplete.Item key={item.title} value={item} className={styles.Item}>
-                  <div className={styles.ItemContent}>
-                    <div className={styles.ItemHeader}>
-                      <div className={styles.ItemTitle}>
-                        {highlightText(item.title, searchValue)}
+                  <Autocomplete.Value>
+                    {(value) => (
+                      <div className={styles.ItemContent}>
+                        <div className={styles.ItemHeader}>
+                          <div className={styles.ItemTitle}>{highlightText(item.title, value)}</div>
+                        </div>
+                        <div className={styles.ItemDescription}>
+                          {highlightText(item.description, value)}
+                        </div>
                       </div>
-                    </div>
-                    <div className={styles.ItemDescription}>
-                      {highlightText(item.description, searchValue)}
-                    </div>
-                  </div>
+                    )}
+                  </Autocomplete.Value>
                 </Autocomplete.Item>
               )}
             </Autocomplete.List>

@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ComboboxRootInternal } from '../../combobox/root/ComboboxRootInternal';
 import { ComboboxDefaultAnchorContext } from '../../combobox/positioner/ComboboxDefaultAnchorContext';
+import { isGroupedItems } from '../../combobox/root/utils';
 
 /**
  * Groups all parts of the filterable menu.
@@ -13,17 +14,31 @@ export function FilterableMenuRoot<Item = any>(
   props: FilterableMenuRoot.Props<Item>,
 ): React.JSX.Element {
   const { modal = true, ...rest } = props;
+  const { items, ...restProps } = rest as any;
 
   return (
     <ComboboxDefaultAnchorContext.Provider value="trigger">
-      <ComboboxRootInternal
-        {...rest}
-        selectionMode="none"
-        fillInputOnItemPress={false}
-        openOnInputClick={false}
-        clearInputOnCloseComplete
-        modal={modal}
-      />
+      {isGroupedItems(items) ? (
+        <ComboboxRootInternal
+          {...(restProps as any)}
+          items={items}
+          selectionMode="none"
+          fillInputOnItemPress={false}
+          openOnInputClick={false}
+          clearInputOnCloseComplete
+          modal={modal}
+        />
+      ) : (
+        <ComboboxRootInternal
+          {...(restProps as any)}
+          items={items as any}
+          selectionMode="none"
+          fillInputOnItemPress={false}
+          openOnInputClick={false}
+          clearInputOnCloseComplete
+          modal={modal}
+        />
+      )}
     </ComboboxDefaultAnchorContext.Provider>
   );
 }

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { ComboboxRootInternal } from '../../combobox/root/ComboboxRootInternal';
-import { stringifyItem } from '../../combobox/root/utils';
+import { stringifyItem, type Group } from '../../combobox/root/utils';
 import { useFilter as useCollatorFilter } from '../../combobox/root/utils/useFilter';
 
 const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
@@ -13,9 +13,13 @@ const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
  *
  * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
  */
-export function AutocompleteRoot<Item = any>(
-  props: AutocompleteRoot.Props<Item>,
-): React.JSX.Element {
+export function AutocompleteRoot<Value>(
+  props: Omit<AutocompleteRoot.Props<Value>, 'items'> & { items: Group<Value>[] },
+): React.JSX.Element;
+export function AutocompleteRoot<Value>(
+  props: Omit<AutocompleteRoot.Props<Value>, 'items'> & { items?: Value[] },
+): React.JSX.Element;
+export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): React.JSX.Element {
   const {
     openOnInputClick = false,
     value,
@@ -24,6 +28,7 @@ export function AutocompleteRoot<Item = any>(
     mode = 'list',
     autoHighlight = false,
     itemToValue,
+    items,
     ...rest
   } = props;
 
@@ -91,7 +96,7 @@ export function AutocompleteRoot<Item = any>(
     };
   }
 
-  const handleItemHighlighted: ComboboxRootInternal.Props<Item, 'none'>['onItemHighlighted'] =
+  const handleItemHighlighted: ComboboxRootInternal.Props<Value, 'none'>['onItemHighlighted'] =
     useEventCallback((highlightedValue, data) => {
       props.onItemHighlighted?.(highlightedValue, data);
 
@@ -113,6 +118,7 @@ export function AutocompleteRoot<Item = any>(
   return (
     <ComboboxRootInternal
       {...rest}
+      items={items as any} // Block `Group` type inference
       itemToLabel={itemToValue}
       openOnInputClick={openOnInputClick}
       selectionMode="none"
@@ -162,15 +168,21 @@ export namespace AutocompleteRoot {
      *
      * To render a controlled autocomplete, use the `value` prop instead.
      */
-    defaultValue?: ComboboxRootInternal.Props<Value, 'none'>['defaultInputValue'];
+    defaultValue?: ComboboxRootInternal.Props<
+      React.ComponentProps<'input'>['defaultValue'],
+      'none'
+    >['defaultInputValue'];
     /**
      * The input value of the autocomplete. Use when controlled.
      */
-    value?: ComboboxRootInternal.Props<Value, 'none'>['inputValue'];
+    value?: ComboboxRootInternal.Props<
+      React.ComponentProps<'input'>['value'],
+      'none'
+    >['inputValue'];
     /**
      * Callback fired when the input value of the autocomplete changes.
      */
-    onValueChange?: ComboboxRootInternal.Props<Value, 'none'>['onInputValueChange'];
+    onValueChange?: ComboboxRootInternal.Props<string, 'none'>['onInputValueChange'];
     /**
      * Converts an item's value to its string representation for display in the input.
      */

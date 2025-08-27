@@ -17,7 +17,7 @@ export function AutocompleteValue(props: AutocompleteValue.Props) {
   const inputValue = useStore(store, selectors.inputValue);
 
   if (typeof children === 'function') {
-    return children(inputValue);
+    return children(String(inputValue));
   }
 
   if (children != null) {
@@ -29,8 +29,6 @@ export function AutocompleteValue(props: AutocompleteValue.Props) {
 
 export namespace AutocompleteValue {
   export interface Props {
-    children?:
-      | React.ReactNode
-      | ((inputValue: React.ComponentProps<'input'>['value']) => React.ReactNode);
+    children?: React.ReactNode | ((value: string) => React.ReactNode);
   }
 }

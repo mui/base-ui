@@ -87,5 +87,5 @@ export namespace ComboboxRoot {
 
   export type Actions = ComboboxRootInternal.Actions;
 
-  export type OpenChangeReason = ComboboxRootInternal.OpenChangeReason;
+  export type ChangeReason = ComboboxRootInternal.ChangeReason;
 }

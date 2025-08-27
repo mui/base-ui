@@ -3,8 +3,8 @@
   "description": "The current value of the autocomplete.\nDoesn't render its own HTML element.",
   "props": {
     "children": {
-      "type": "ReactNode | ((inputValue: string | number | string[] | undefined) => ReactNode)",
-      "detailedType": "| React.ReactNode\n| ((\n    inputValue: string | number | string[] | undefined,\n  ) => ReactNode)"
+      "type": "ReactNode | ((value: string) => ReactNode)",
+      "detailedType": "React.ReactNode | ((value: string) => ReactNode)"
     }
   },
   "dataAttributes": {},

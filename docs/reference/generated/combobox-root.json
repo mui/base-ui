@@ -75,9 +75,9 @@
       "detailedType": "((item: any) => string) | undefined"
     },
     "items": {
-      "type": "any[] | ComboboxGroup[]",
+      "type": "any[] | Group[]",
       "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
-      "detailedType": "any[] | ComboboxGroup[] | undefined"
+      "detailedType": "any[] | Group[] | undefined"
     },
     "limit": {
       "type": "number",

@@ -39,9 +39,9 @@
       "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.ChangeReason\n      | undefined,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Autocomplete.Root.Actions>",
+      "type": "RefObject<Combobox.RootInternal.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<Autocomplete.Root.Actions>\n| undefined"
+      "detailedType": "| React.RefObject<Combobox.RootInternal.Actions>\n| undefined"
     },
     "autoHighlight": {
       "type": "boolean",
@@ -56,19 +56,18 @@
       "detailedType": "number | undefined"
     },
     "filter": {
-      "type": "((value: Item, query: string, itemToLabel: ((value: Item) => string) | undefined) => boolean) | null",
+      "type": "((value: Value, query: string, itemToLabel: ((value: Value) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.\nThe `itemToLabel` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    value: Item,\n    query: string,\n    itemToLabel: ((value: Item) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "detailedType": "| ((\n    value: Value,\n    query: string,\n    itemToLabel: ((value: Value) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "itemToValue": {
-      "type": "((value: Item) => string)",
+      "type": "((value: Value) => string)",
       "description": "Converts an item's value to its string representation for display in the input.",
-      "detailedType": "((value: Item) => string) | undefined"
+      "detailedType": "((value: Value) => string) | undefined"
     },
     "items": {
-      "type": "Item[] | ComboboxGroup<Item>[]",
-      "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
-      "detailedType": "Item[] | ComboboxGroup<Item>[] | undefined"
+      "type": "Group<Value>[] | Value[]",
+      "detailedType": "Group<Value>[] | Value[] | undefined"
     },
     "limit": {
       "type": "number",
@@ -83,9 +82,9 @@
       "detailedType": "'none' | 'list' | 'inline' | 'both' | undefined"
     },
     "onItemHighlighted": {
-      "type": "((value: Item | undefined, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",
+      "type": "((value: Value | undefined, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",
       "description": "Callback fired when the user navigates the list and highlights an item.\nPasses the item and the type of navigation or `undefined` when no item is highlighted.\n- `keyboard`: The item was highlighted via keyboard navigation.\n- `pointer`: The item was highlighted via pointer navigation.\n- `none`: The item was highlighted via programmatic navigation.",
-      "detailedType": "| ((\n    value: Item | undefined,\n    data: {\n      type: 'none' | 'keyboard' | 'pointer'\n      index: number\n    },\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Value | undefined,\n    data: {\n      type: 'none' | 'keyboard' | 'pointer'\n      index: number\n    },\n  ) => void)\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
@@ -134,7 +133,7 @@
     },
     "children": {
       "type": "ReactNode",
-      "detailedType": "React.ReactNode"
+      "detailedType": "React.ReactNode | undefined"
     }
   },
   "dataAttributes": {},

@@ -1,19 +1,12 @@
 import { serializeValue } from '../../../utils/serializeValue';
 import { useFilter } from './useFilter';
 
-export interface ComboboxGroup<Item = any> {
-  /**
-   * A label or value that identifies this group when required by the consumer.
-   * When `Item` is an object with a `value` field, this should typically match that type;
-   * however, for simple string items it can be any value.
-   */
+export interface Group<Item = any> {
   value: unknown;
   items: Item[];
 }
 
-export function isGroupedItems(
-  items: (any | ComboboxGroup<any>)[] | undefined,
-): items is ComboboxGroup<any>[] {
+export function isGroupedItems(items: (any | Group<any>)[] | undefined): items is Group<any>[] {
   return (
     items != null &&
     items.length > 0 &&

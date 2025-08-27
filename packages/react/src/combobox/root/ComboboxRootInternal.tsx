@@ -37,7 +37,7 @@ import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import {
-  type ComboboxGroup,
+  type Group,
   isGroupedItems,
   stringifyItem,
   createCollatorItemFilter,
@@ -56,6 +56,16 @@ const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
 /**
  * @internal
  */
+export function ComboboxRootInternal<Value, Mode extends SelectionMode = 'none'>(
+  props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
+    items: Group<Value>[];
+  },
+): React.JSX.Element;
+export function ComboboxRootInternal<Value, Mode extends SelectionMode = 'none'>(
+  props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
+    items?: Value[];
+  },
+): React.JSX.Element;
 export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = 'none'>(
   props: ComboboxRootConditionalProps<Value, Mode>,
 ): React.JSX.Element {
@@ -173,14 +183,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     return items;
   }, [items, isGrouped]);
 
-  const filteredItems: Value[] | ComboboxGroup<Value>[] = React.useMemo(() => {
+  const filteredItems: Value[] | Group<Value>[] = React.useMemo(() => {
     if (!items) {
       return [];
     }
 
     if (isGrouped) {
-      const groupedItems = items as ComboboxGroup<Value>[];
-      const resultingGroups: ComboboxGroup<Value>[] = [];
+      const groupedItems = items as Group<Value>[];
+      const resultingGroups: Group<Value>[] = [];
       let currentCount = 0;
 
       for (const group of groupedItems) {
@@ -229,7 +239,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const flatFilteredItems: Value[] = React.useMemo(() => {
     if (isGrouped) {
-      const groups = filteredItems as ComboboxGroup<Value>[];
+      const groups = filteredItems as Group<Value>[];
       return groups.flatMap((g) => g.items);
     }
     return filteredItems as Value[];
@@ -1104,7 +1114,7 @@ interface ComboboxRootProps<Value> {
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: Value[] | ComboboxGroup<Value>[];
+  items?: Value[] | Group<Value>[];
   /**
    * Filter function used to match items vs input query.
    * The `itemToLabel` function is provided to help convert items to strings for comparison.

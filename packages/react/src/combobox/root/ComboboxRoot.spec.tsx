@@ -32,6 +32,19 @@ const objectItems = [
 />;
 
 <Combobox.Root
+  items={objectItems}
+  defaultValue={objectItems[0]}
+  itemToLabel={(item) => {
+    // Improve type inference of `item`
+    return item.label;
+  }}
+  itemToValue={(item) => {
+    // Improve type inference of `item`
+    return item.value;
+  }}
+/>;
+
+<Combobox.Root
   multiple
   // @ts-expect-error
   defaultValue="javascript"

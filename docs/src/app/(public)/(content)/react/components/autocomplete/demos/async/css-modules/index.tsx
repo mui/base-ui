@@ -2,10 +2,6 @@ import * as React from 'react';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import styles from './index.module.css';
 
-function itemToLabel(item: Movie) {
-  return item.title;
-}
-
 export default function ExampleAsyncAutocomplete() {
   const [searchValue, setSearchValue] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
@@ -73,7 +69,7 @@ export default function ExampleAsyncAutocomplete() {
       items={searchResults}
       value={searchValue}
       onValueChange={setSearchValue}
-      itemToLabel={itemToLabel}
+      itemToValue={(item) => item.title}
       filter={null}
     >
       <label className={styles.Label}>
