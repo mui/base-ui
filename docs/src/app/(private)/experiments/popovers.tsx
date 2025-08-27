@@ -67,7 +67,7 @@ export default function Popovers() {
       <h1>Popovers</h1>
       <h2>Uncontrolled, single trigger</h2>
       <div className={styles.Container}>
-        <Popover.Root defaultOpen>
+        <Popover.Root>
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
         </Popover.Root>
