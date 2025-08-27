@@ -81,7 +81,7 @@ export function useFocusWithDelay(
             return;
           }
 
-          onOpenChange(false, createBaseUIEventDetails('focus-out', nativeEvent));
+          onOpenChange(false, createBaseUIEventDetails('trigger-focus', nativeEvent));
         });
       },
     }),
