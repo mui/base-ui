@@ -40,7 +40,7 @@
     },
     "actionsRef": {
       "type": "RefObject<Combobox.RootInternal.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the autocomplete will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the autocomplete manually.\nUseful when the autocomplete's animation is controlled by an external library.",
       "detailedType": "| React.RefObject<Combobox.RootInternal.Actions>\n| undefined"
     },
     "autoHighlight": {
