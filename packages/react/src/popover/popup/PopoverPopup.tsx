@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
@@ -57,20 +58,18 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
   });
 
-  const resolvedInitialFocus = React.useMemo(() => {
-    if (initialFocus == null) {
-      if (openMethod === 'touch') {
-        return popupRef;
-      }
-      return 0;
+  // Default initial focus logic:
+  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
+  // (this is required for Android specifically as iOS handles this automatically).
+  const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
+    if (interactionType === 'touch') {
+      return popupRef.current;
     }
 
-    if (typeof initialFocus === 'function') {
-      return initialFocus(openMethod ?? '');
-    }
+    return 0;
+  });
 
-    return initialFocus;
-  }, [initialFocus, openMethod, popupRef]);
+  const initialFocusProp = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
   const state: PopoverPopup.State = React.useMemo(
     () => ({
@@ -101,9 +100,10 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   return (
     <FloatingFocusManager
       context={positioner.context}
+      openInteractionType={openMethod}
       modal={modal === 'trap-focus'}
       disabled={!mounted || openReason === 'trigger-hover'}
-      initialFocus={resolvedInitialFocus}
+      initialFocus={initialFocusProp}
       returnFocus={finalFocus}
       restoreFocus="popup"
     >
@@ -127,14 +127,26 @@ export namespace PopoverPopup {
     /**
      * Determines the element to focus when the popover is opened.
      * By default, the first focusable element is focused.
+     *
+     * - `null`: Do not focus any element.
+     * - `RefObject`: Focus the ref element. Falls back to default behavior when `null`.
+     * - `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the open. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.
      */
     initialFocus?:
+      | null
       | React.RefObject<HTMLElement | null>
-      | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
+      | ((openType: InteractionType) => HTMLElement | null | void);
     /**
      * Determines the element to focus when the popover is closed.
      * By default, focus returns to the trigger.
+     *
+     * - `null`: Do not focus any element.
+     * - `RefObject`: Focus the ref element. Falls back to default behavior when `null`.
+     * - `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the close. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.
      */
-    finalFocus?: React.RefObject<HTMLElement | null>;
+    finalFocus?:
+      | null
+      | React.RefObject<HTMLElement | null>
+      | ((closeType: InteractionType) => HTMLElement | null | void);
   }
 }

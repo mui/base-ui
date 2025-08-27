@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { FloatingFocusManager, useFloatingTree } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -39,6 +40,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     popupProps,
     mounted,
     instantType,
+    triggerElement,
     onOpenChangeComplete,
     parent,
     lastOpenChangeReason,
@@ -98,7 +100,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   });
 
   let returnFocus = parent.type === undefined || parent.type === 'context-menu';
-  if (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press') {
+  if (triggerElement || (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press')) {
     returnFocus = true;
   }
 
@@ -107,7 +109,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       context={floatingContext}
       modal={false}
       disabled={!mounted}
-      returnFocus={finalFocus || returnFocus}
+      returnFocus={finalFocus === undefined ? returnFocus : finalFocus}
       initialFocus={parent.type === 'menu' ? -1 : 0}
       restoreFocus
     >
@@ -126,8 +128,15 @@ export namespace MenuPopup {
     /**
      * Determines the element to focus when the menu is closed.
      * By default, focus returns to the trigger.
+     *
+     * - `null`: Do not focus any element.
+     * - `RefObject`: Focus the ref element. Falls back to default behavior when `null`.
+     * - `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the close. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.
      */
-    finalFocus?: React.RefObject<HTMLElement | null>;
+    finalFocus?:
+      | null
+      | React.RefObject<HTMLElement | null>
+      | ((closeType: InteractionType) => HTMLElement | null | void);
   }
 
   export type State = {
