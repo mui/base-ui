@@ -919,12 +919,16 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       <input
         {...fieldControlValidation.getInputValidationProps({
           onFocus() {
-            // Move focus to the trigger element when the hidden input is focused.
-            const referenceElement = open && inputRef.current ? inputRef.current : triggerElement;
-            referenceElement?.focus();
+            if (!open && anchorElement !== inputElement) {
+              // inputRef is potentially inside a keepMounted but invisible popup.
+              triggerElement?.focus();
+            }
+
+            // Move focus when the hidden input is focused.
+            (inputRef.current || triggerElement)?.focus();
           },
           // Handle browser autofill.
-          onChange(event: React.ChangeEvent<HTMLSelectElement>) {
+          onChange(event: React.ChangeEvent<HTMLInputElement>) {
             // Workaround for https://github.com/facebook/react/issues/9023
             if (event.nativeEvent.defaultPrevented) {
               return;
