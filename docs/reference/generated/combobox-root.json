@@ -18,9 +18,9 @@
       "detailedType": "Value[] | Value | undefined"
     },
     "onValueChange": {
-      "type": "((value: Value[] | Value, event: Event | undefined, reason: string | undefined) => void)",
+      "type": "((value: Value[] | Value, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
       "description": "Callback fired when the selected value of the combobox changes.",
-      "detailedType": "| ((\n    value: Value[] | Value,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {
       "type": "boolean",
@@ -34,9 +34,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: Combobox.RootInternal.ChangeReason | undefined) => void)",
+      "type": "((open: boolean, eventDetails: Combobox.RootInternal.ChangeEventDetails) => void)",
       "description": "Event handler called when the popup is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.ChangeReason\n      | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Combobox.RootInternal.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Combobox.Root.Actions>",
@@ -92,9 +92,9 @@
       "detailedType": "boolean | undefined | undefined"
     },
     "onInputValueChange": {
-      "type": "((value: string, event: Event | undefined, reason: Combobox.RootInternal.ChangeReason | undefined) => void)",
+      "type": "((value: string, eventDetails: Combobox.RootInternal.ChangeEventDetails) => void)",
       "description": "Callback fired when the input value of the combobox changes.",
-      "detailedType": "| ((\n    value: string,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.ChangeReason\n      | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: string,\n    eventDetails: Combobox.RootInternal.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemHighlighted": {
       "type": "((value: any, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",

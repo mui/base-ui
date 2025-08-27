@@ -18,6 +18,7 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * An individual item in the list.
@@ -169,6 +170,8 @@ export const ComboboxItem = React.memo(
           return;
         }
 
+        const eventDetails = createBaseUIEventDetails('item-press', event.nativeEvent);
+
         if (multiple) {
           const currentSelectedValue = rootSelectedValue as any[];
           const isCurrentlySelected =
@@ -183,15 +186,15 @@ export const ComboboxItem = React.memo(
               : [value];
           }
 
-          setSelectedValue(nextValue, event.nativeEvent, 'item-press');
+          setSelectedValue(nextValue, eventDetails);
 
           const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
           if (wasFiltering) {
-            setOpen(false, event.nativeEvent, 'item-press');
+            setOpen(false, eventDetails);
           }
         } else {
-          setSelectedValue(value, event.nativeEvent, 'item-press');
-          setOpen(false, event.nativeEvent, 'item-press');
+          setSelectedValue(value, eventDetails);
+          setOpen(false, eventDetails);
         }
       },
     };

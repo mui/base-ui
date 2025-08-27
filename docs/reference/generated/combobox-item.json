@@ -39,13 +39,13 @@
   },
   "dataAttributes": {
     "data-selected": {
-      "description": "Present when the combobox item is selected."
+      "description": "Present when the item is selected."
     },
     "data-highlighted": {
-      "description": "Present when the combobox item is highlighted."
+      "description": "Present when the item is highlighted."
     },
     "data-disabled": {
-      "description": "Present when the combobox item is disabled."
+      "description": "Present when the item is disabled."
     }
   },
   "cssVariables": {}

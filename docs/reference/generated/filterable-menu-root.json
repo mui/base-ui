@@ -14,9 +14,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: Combobox.RootInternal.ChangeReason | undefined) => void)",
+      "type": "((open: boolean, eventDetails: Combobox.RootInternal.ChangeEventDetails) => void)",
       "description": "Event handler called when the popup is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.ChangeReason\n      | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Combobox.RootInternal.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Combobox.RootInternal.Actions>",
@@ -74,9 +74,9 @@
       "detailedType": "boolean | undefined"
     },
     "onInputValueChange": {
-      "type": "((value: string, event: Event | undefined, reason: Combobox.RootInternal.ChangeReason | undefined) => void)",
+      "type": "((value: string, eventDetails: Combobox.RootInternal.ChangeEventDetails) => void)",
       "description": "Callback fired when the input value of the combobox changes.",
-      "detailedType": "| ((\n    value: string,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.ChangeReason\n      | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: string,\n    eventDetails: Combobox.RootInternal.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemHighlighted": {
       "type": "((value: Item | undefined, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",
@@ -89,9 +89,9 @@
       "detailedType": "((open: boolean) => void) | undefined"
     },
     "onSelectedValueChange": {
-      "type": "((value: Item, event: Event | undefined, reason: Combobox.RootInternal.ChangeReason | undefined) => void)",
+      "type": "((value: Item, eventDetails: Combobox.RootInternal.ChangeEventDetails) => void)",
       "description": "Callback fired when the selected value of the combobox changes.",
-      "detailedType": "| ((\n    value: Item,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.ChangeReason\n      | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Item,\n    eventDetails: Combobox.RootInternal.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "virtualized": {
       "type": "boolean",

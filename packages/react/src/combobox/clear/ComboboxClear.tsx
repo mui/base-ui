@@ -11,6 +11,7 @@ import { TransitionStatus, useTransitionStatus } from '../../utils/useTransition
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const customStyleHookMapping: CustomStyleHookMapping<ComboboxClear.State> = transitionStatusMapping;
 
@@ -107,13 +108,12 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             return;
           }
 
-          setInputValue('', event.nativeEvent, 'clear-press');
+          setInputValue('', createBaseUIEventDetails('clear-press', event.nativeEvent));
 
           if (selectionMode !== 'none') {
             setSelectedValue(
               Array.isArray(selectedValue) ? [] : null,
-              event.nativeEvent,
-              'clear-press',
+              createBaseUIEventDetails('clear-press', event.nativeEvent),
             );
             setIndices({
               activeIndex: null,

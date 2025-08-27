@@ -58,17 +58,13 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
   }
 
   const handleValueChange = useEventCallback(
-    (
-      nextValue: string,
-      event: Event | undefined,
-      reason: AutocompleteRoot.ChangeReason | undefined,
-    ) => {
+    (nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) => {
       // Typing should clear the overlay, mirroring the demo behavior
       setInlineOverlay('');
       if (!isControlled) {
         setInternalValue(nextValue);
       }
-      onValueChange?.(nextValue, event, reason);
+      onValueChange?.(nextValue, eventDetails);
     },
   );
 
@@ -145,6 +141,7 @@ export namespace AutocompleteRoot {
       | 'fillInputOnItemPress'
       | 'modal'
       | 'clearInputOnCloseComplete'
+      | 'itemToValue'
       // Different names
       | 'inputValue' // value
       | 'defaultInputValue' // defaultValue
@@ -182,7 +179,7 @@ export namespace AutocompleteRoot {
     /**
      * Callback fired when the input value of the autocomplete changes.
      */
-    onValueChange?: ComboboxRootInternal.Props<string, 'none'>['onInputValueChange'];
+    onValueChange?: (value: string, eventDetails: ChangeEventDetails) => void;
     /**
      * Converts an item's value to its string representation for display in the input.
      */
@@ -200,5 +197,6 @@ export namespace AutocompleteRoot {
 
   export type Actions = ComboboxRootInternal.Actions;
 
-  export type ChangeReason = ComboboxRootInternal.ChangeReason;
+  export type ChangeEventReason = ComboboxRootInternal.ChangeEventReason;
+  export type ChangeEventDetails = ComboboxRootInternal.ChangeEventDetails;
 }

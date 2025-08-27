@@ -2,11 +2,11 @@ import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
 export enum ComboboxArrowDataAttributes {
   /**
-   * Present when the combobox popup is open.
+   * Present when the popup is open.
    */
   open = CommonPopupDataAttributes.open,
   /**
-   * Present when the combobox popup is closed.
+   * Present when the popup is closed.
    */
   closed = CommonPopupDataAttributes.closed,
   /**
@@ -24,7 +24,7 @@ export enum ComboboxArrowDataAttributes {
    */
   align = 'data-align',
   /**
-   * Present when the combobox arrow is uncentered.
+   * Present when the arrow is uncentered.
    */
   uncentered = 'data-uncentered',
 }

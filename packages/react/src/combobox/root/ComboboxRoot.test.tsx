@@ -1119,7 +1119,7 @@ describe('<Combobox.Root />', () => {
       expect(screen.queryByRole('listbox')).to.equal(null);
       expect(input).to.have.value('');
       expect(onInput.lastCall.args[0]).to.equal('');
-      expect(onInput.lastCall.args[2]).to.equal('input-clear');
+      expect(onInput.lastCall.args[1].reason).to.equal('input-clear');
     });
 
     it('"single" clears typed input on close when no selection made (input outside popup)', async () => {
@@ -1150,7 +1150,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
       expect(input).to.have.value('');
       expect(onInput.lastCall.args[0]).to.equal('');
-      expect(onInput.lastCall.args[2]).to.equal('input-clear');
+      expect(onInput.lastCall.args[1].reason).to.equal('input-clear');
     });
   });
 

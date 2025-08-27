@@ -80,19 +80,19 @@ export default function ExampleEmojiPicker() {
           open={pickerOpen}
           onOpenChange={setPickerOpen}
           inputValue={searchValue}
-          onInputValueChange={(nextInputValue, event, reason) => {
-            if (reason !== 'item-press') {
+          onInputValueChange={(nextInputValue, details) => {
+            if (details.reason !== 'item-press') {
               setSearchValue(nextInputValue);
             }
           }}
-          onSelectedValueChange={(item: EmojiItem | null, event, reason) => {
+          onSelectedValueChange={(item: EmojiItem | null, details) => {
             if (item) {
               handleInsertEmoji(item.emoji);
             }
 
             setPickerOpen(false);
 
-            if (reason !== 'item-press') {
+            if (details.reason !== 'item-press') {
               setSearchValue('');
             }
           }}

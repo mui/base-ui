@@ -17,6 +17,7 @@ import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const customStyleHookMapping: CustomStyleHookMapping<ComboboxInput.State> = {
   ...triggerOpenStateMapping,
@@ -176,16 +177,19 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
         },
         onChange(event: React.ChangeEvent<HTMLInputElement>) {
-          setInputValue(event.currentTarget.value, event.nativeEvent, 'input-change');
+          setInputValue(
+            event.currentTarget.value,
+            createBaseUIEventDetails('input-change', event.nativeEvent),
+          );
 
           if (event.currentTarget.value === '' && !openOnInputClick && !hasPositionerParent) {
-            setOpen(false, event.nativeEvent, undefined);
+            setOpen(false, createBaseUIEventDetails('input-clear', event.nativeEvent));
           }
 
           if (!readOnly && !disabled) {
             const trimmed = event.currentTarget.value.trim();
             if (trimmed !== '') {
-              setOpen(true, event.nativeEvent, undefined);
+              setOpen(true, createBaseUIEventDetails('none', event.nativeEvent));
               // When autoHighlight is enabled for autocomplete, keep the highlight (will be set to 0 in root).
               if (!(selectionMode === 'none' && autoHighlight)) {
                 setIndices({
@@ -235,7 +239,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               selectedIndex: null,
               type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
             });
-            setSelectedValue(newValue, event.nativeEvent, undefined);
+            setSelectedValue(newValue, createBaseUIEventDetails('none', event.nativeEvent));
             return;
           }
 
@@ -258,7 +262,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             stopEvent(event);
 
             if (store.state.activeIndex === null) {
-              setOpen(false, event.nativeEvent, undefined);
+              setOpen(false, createBaseUIEventDetails('none', event.nativeEvent));
               return;
             }
 

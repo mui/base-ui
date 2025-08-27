@@ -81,8 +81,8 @@ export default function ExampleEmojiPicker() {
           onOpenChange={setPickerOpen}
           onOpenChangeComplete={() => setSearchValue('')}
           value={searchValue}
-          onValueChange={(value, event, reason) => {
-            if (reason !== 'item-press') {
+          onValueChange={(value, details) => {
+            if (details.reason !== 'item-press') {
               setSearchValue(value);
             }
           }}

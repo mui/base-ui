@@ -3,27 +3,13 @@ import { ComboboxStore } from '../store';
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { HTMLProps } from '../../utils/types';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
-
-export type ValueChangeReason = 'item-press' | 'input-change' | 'input-clear' | 'clear-press';
+import type { ComboboxRootInternal } from './ComboboxRootInternal';
 
 export interface ComboboxRootContext {
   selectionMode: 'single' | 'multiple' | 'none';
-  setOpen: (
-    open: boolean,
-    event: Event | undefined,
-    reason: BaseOpenChangeReason | undefined,
-  ) => void;
-  setInputValue: (
-    value: string,
-    event: Event | undefined,
-    reason: ValueChangeReason | undefined,
-  ) => void;
-  setSelectedValue: (
-    value: any,
-    event: Event | undefined,
-    reason: ValueChangeReason | undefined,
-  ) => void;
+  setOpen: (open: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
+  setInputValue: (value: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
+  setSelectedValue: (value: any, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
   setIndices: (indices: {
     activeIndex?: number | null;
     selectedIndex?: number | null;

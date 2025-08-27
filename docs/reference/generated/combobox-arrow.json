@@ -14,13 +14,13 @@
   },
   "dataAttributes": {
     "data-open": {
-      "description": "Present when the combobox popup is open."
+      "description": "Present when the popup is open."
     },
     "data-closed": {
-      "description": "Present when the combobox popup is closed."
+      "description": "Present when the popup is closed."
     },
     "data-uncentered": {
-      "description": "Present when the combobox arrow is uncentered."
+      "description": "Present when the arrow is uncentered."
     },
     "data-anchor-hidden": {
       "description": "Present when the anchor is hidden."

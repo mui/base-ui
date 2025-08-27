@@ -8,6 +8,7 @@ import { selectors } from '../../combobox/store';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxRootContext } from '../../combobox/root/ComboboxRootContext';
 import { useComboboxPositionerContext } from '../../combobox/positioner/ComboboxPositionerContext';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * A textarea that can be used as the input surface for FilterableMenu.
@@ -67,7 +68,7 @@ export const FilterableMenuTextarea = React.forwardRef(function FilterableMenuTe
             stopEvent(event);
 
             if (store.state.activeIndex === null) {
-              setOpen(false, event.nativeEvent, undefined);
+              setOpen(false, createBaseUIEventDetails('none', event.nativeEvent));
               return;
             }
 

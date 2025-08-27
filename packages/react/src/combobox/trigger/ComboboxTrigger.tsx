@@ -12,6 +12,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { stopEvent } from '../../floating-ui-react/utils';
 import type { FieldRoot } from '../../field/root/FieldRoot';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * A button that opens the popup.
@@ -133,7 +134,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
-          setOpen(!open, event.nativeEvent, undefined);
+          setOpen(!open, createBaseUIEventDetails('trigger-press', event.nativeEvent));
 
           if (currentPointerTypeRef.current !== 'touch') {
             inputRef.current?.focus();
@@ -146,7 +147,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             stopEvent(event);
-            setOpen(true, event.nativeEvent, undefined);
+            setOpen(true, createBaseUIEventDetails('list-navigation', event.nativeEvent));
             inputRef.current?.focus();
           }
         },

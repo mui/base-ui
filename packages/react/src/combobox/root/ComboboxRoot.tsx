@@ -22,7 +22,7 @@ export function ComboboxRoot<Value, Multiple extends boolean | undefined = false
       selectionMode={mode}
       selectedValue={value}
       defaultSelectedValue={defaultValue}
-      onSelectedValueChange={onValueChange}
+      onSelectedValueChange={onValueChange as any}
     />
   );
 }
@@ -71,8 +71,7 @@ export namespace ComboboxRoot {
      */
     onValueChange?: (
       value: ComboboxValueType<Value, Multiple>,
-      event: Event | undefined,
-      reason: string | undefined,
+      eventDetails: ComboboxRoot.ChangeEventDetails,
     ) => void;
     /**
      * A ref to imperative actions.
@@ -87,5 +86,6 @@ export namespace ComboboxRoot {
 
   export type Actions = ComboboxRootInternal.Actions;
 
-  export type ChangeReason = ComboboxRootInternal.ChangeReason;
+  export type ChangeEventReason = ComboboxRootInternal.ChangeEventReason;
+  export type ChangeEventDetails = ComboboxRootInternal.ChangeEventDetails;
 }

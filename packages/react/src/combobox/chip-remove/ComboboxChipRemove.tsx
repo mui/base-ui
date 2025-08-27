@@ -8,6 +8,7 @@ import { useComboboxChipContext } from '../chip/ComboboxChipContext';
 import { useButton } from '../../use-button';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * A button to remove a chip.
@@ -58,10 +59,13 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
           if (disabled || readOnly) {
             return;
           }
-          event.stopPropagation();
+
+          const eventDetails = createBaseUIEventDetails('chip-remove-press', event.nativeEvent);
+
           // If the removed chip was the active item, clear highlight
           const activeIndex = store.state.activeIndex;
           const removedItem = selectedValue[index];
+
           // Try current visible list first; if not found, it's filtered out. No need
           // to clear highlight in that case since it can't equal activeIndex.
           const removedIndex = valuesRef.current.indexOf(removedItem);
@@ -71,11 +75,16 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
               type: keyboardActiveRef.current ? 'pointer' : 'keyboard',
             });
           }
+
           setSelectedValue(
             selectedValue.filter((_: any, i: number) => i !== index),
-            event.nativeEvent,
-            undefined,
+            eventDetails,
           );
+
+          if (!eventDetails.isPropagationAllowed) {
+            event.stopPropagation();
+          }
+
           inputRef.current?.focus();
         },
         onKeyDown(event) {
@@ -83,23 +92,30 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
             return;
           }
 
+          const eventDetails = createBaseUIEventDetails('chip-remove-press', event.nativeEvent);
+
           if (event.key === 'Enter' || event.key === ' ') {
-            stopEvent(event);
             // If the removed chip was the active item, clear highlight
             const activeIndex = store.state.activeIndex;
             const removedItem = selectedValue[index];
             const removedIndex = valuesRef.current.indexOf(removedItem);
+
             if (removedIndex !== -1 && activeIndex === removedIndex) {
               setIndices({
                 activeIndex: null,
                 type: keyboardActiveRef.current ? 'pointer' : 'keyboard',
               });
             }
+
             setSelectedValue(
               selectedValue.filter((_: any, i: number) => i !== index),
-              event.nativeEvent,
-              undefined,
+              eventDetails,
             );
+
+            if (!eventDetails.isPropagationAllowed) {
+              stopEvent(event);
+            }
+
             inputRef.current?.focus();
           }
         },

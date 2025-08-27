@@ -19,14 +19,14 @@ import {
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
-  BaseOpenChangeReason,
-  translateOpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
+  createBaseUIEventDetails,
+  type BaseUIEventDetails,
+} from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventReason } from '../../utils/types';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
   ComboboxRootContext,
-  ValueChangeReason,
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
@@ -484,10 +484,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
 
   const setInputValue = useEventCallback(
-    (next: string, event: Event | undefined, reason: ValueChangeReason | undefined) => {
+    (next: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
-      if (reason === 'input-change') {
+      if (eventDetails.reason === 'input-change') {
         const hasQuery = next.trim() !== '';
         if (hasQuery) {
           setQueryChangedAfterOpen(true);
@@ -497,24 +497,20 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         }
       }
 
-      if (reason === 'input-clear' && open) {
+      if (eventDetails.reason === 'input-clear' && open) {
         hadInputClearRef.current = true;
         // Defer clearing until close transition completes to avoid flicker
         return;
       }
 
-      props.onInputValueChange?.(next, event, reason);
+      props.onInputValueChange?.(next, eventDetails);
       setInputValueUnwrapped(next);
     },
   );
 
   const setOpen = useEventCallback(
-    (
-      nextOpen: boolean,
-      event: Event | undefined,
-      reason: ComboboxRootInternal.ChangeReason | undefined,
-    ) => {
-      props.onOpenChange?.(nextOpen, event, reason);
+    (nextOpen: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
+      props.onOpenChange?.(nextOpen, eventDetails);
       setOpenUnwrapped(nextOpen);
     },
   );
@@ -558,7 +554,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     // If an input-clear was requested while open, perform it here after close completes
     // to avoid mid-exit flicker.
     if (hadInputClearRef.current && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', undefined, 'input-clear');
+      setInputValue('', createBaseUIEventDetails('input-clear'));
       hadInputClearRef.current = false;
     }
 
@@ -566,14 +562,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     // after close completes regardless of selection mode. This ensures the next open
     // starts from a blank query without requiring external state resets.
     if (props.clearInputOnCloseComplete && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', undefined, 'input-clear');
+      setInputValue('', createBaseUIEventDetails('input-clear'));
     }
 
     // Multiple selection mode:
     // If the user typed a filter and didn't select in multiple mode, clear the input
     // after close completes to avoid mid-exit flicker and start fresh on next open.
     if (selectionMode === 'multiple' && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', undefined, 'input-clear');
+      setInputValue('', createBaseUIEventDetails('input-clear'));
     }
 
     // Single selection mode:
@@ -583,14 +579,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       const isInputInsidePopup = contains(popupRef.current, inputRef.current);
       if (isInputInsidePopup) {
         if (inputRef.current && inputRef.current.value !== '') {
-          setInputValue('', undefined, 'input-clear');
+          setInputValue('', createBaseUIEventDetails('input-clear'));
         }
       } else {
         const stringVal = stringifyItem(selectedValue, itemToLabel);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
           const reason = stringVal === '' ? 'input-clear' : 'item-press';
-          setInputValue(stringVal, undefined, reason);
+          setInputValue(stringVal, createBaseUIEventDetails(reason));
         }
       }
     }
@@ -608,14 +604,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   });
 
   const setSelectedValue = useEventCallback(
-    (
-      nextValue: Value | Value[],
-      event: Event | undefined,
-      reason: ValueChangeReason | undefined,
-    ) => {
+    (nextValue: Value | Value[], eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
       // Cast to `any` due to conditional value type (single vs. multiple).
       // The runtime implementation already ensures the correct value shape.
-      onSelectedValueChange?.(nextValue as any, event, reason);
+      onSelectedValueChange?.(nextValue as any, eventDetails);
       setSelectedValueUnwrapped(nextValue);
 
       const shouldFillInput =
@@ -623,18 +615,25 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         (selectionMode === 'single' && popupRef.current && anchorElement === inputElement);
 
       if (shouldFillInput) {
-        setInputValue(stringifyItem(nextValue as Value, itemToLabel), event, reason);
+        setInputValue(
+          stringifyItem(nextValue, itemToLabel),
+          createBaseUIEventDetails(eventDetails.reason, eventDetails.event),
+        );
       }
 
       const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
       if (multiple && hadInputValue) {
-        setInputValue('', event, reason);
+        setInputValue('', createBaseUIEventDetails(eventDetails.reason, eventDetails.event));
         // Reset active index and clear any highlighted item since the list will re-filter.
         setIndices({ activeIndex: null });
       }
 
-      if (selectionMode === 'single' && nextValue != null && reason !== 'input-change') {
-        setOpen(false, event, 'item-press');
+      if (
+        selectionMode === 'single' &&
+        nextValue != null &&
+        eventDetails.reason !== 'input-change'
+      ) {
+        setOpen(false, createBaseUIEventDetails('item-press', eventDetails.event as any));
       }
     },
   );
@@ -651,9 +650,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
-    onOpenChange(nextOpen, event, reason) {
-      setOpen(nextOpen, event, translateOpenChangeReason(reason));
-    },
+    onOpenChange: setOpen,
     elements: {
       reference: anchorElement,
       floating: positionerElement,
@@ -722,8 +719,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     virtual: true,
     loop: true,
     allowEscape: !autoHighlight,
-    openOnArrowKeyDown:
-      anchorElement === inputElement && (inputElement as HTMLElement | null)?.tagName === 'INPUT',
+    openOnArrowKeyDown: anchorElement === inputElement && inputElement?.tagName === 'INPUT',
     focusItemOnOpen:
       queryChangedAfterOpen || selectionMode === 'none' || selectedIndex === null ? false : 'auto',
     cols,
@@ -758,7 +754,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     onMatch(index) {
       const nextSelectedValue = valuesRef.current[index];
       if (nextSelectedValue !== undefined) {
-        setSelectedValue(nextSelectedValue, undefined, undefined);
+        setSelectedValue(nextSelectedValue, createBaseUIEventDetails('none'));
       }
     },
   });
@@ -939,7 +935,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
             function handleChange() {
               if (selectionMode === 'none') {
                 setDirty(nextValue !== validityData.initialValue);
-                setInputValue(nextValue, event.nativeEvent, 'input-change');
+                setInputValue(
+                  nextValue,
+                  createBaseUIEventDetails('input-change', event.nativeEvent),
+                );
 
                 if (validationMode === 'onChange') {
                   fieldControlValidation.commitValidation(nextValue);
@@ -956,7 +955,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
               if (exactValue != null) {
                 setDirty(exactValue !== validityData.initialValue);
-                setSelectedValue?.(exactValue, event.nativeEvent, 'input-change');
+                setSelectedValue?.(
+                  exactValue,
+                  createBaseUIEventDetails('input-change', event.nativeEvent),
+                );
 
                 if (validationMode === 'onChange') {
                   fieldControlValidation.commitValidation(exactValue);
@@ -1049,11 +1051,7 @@ interface ComboboxRootProps<Value> {
   /**
    * Event handler called when the popup is opened or closed.
    */
-  onOpenChange?: (
-    open: boolean,
-    event: Event | undefined,
-    reason: ComboboxRootInternal.ChangeReason | undefined,
-  ) => void;
+  onOpenChange?: (open: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
   /**
    * Event handler called after any animations complete when the popup is opened or closed.
    */
@@ -1077,8 +1075,7 @@ interface ComboboxRootProps<Value> {
    */
   onInputValueChange?: (
     value: string,
-    event: Event | undefined,
-    reason: ComboboxRootInternal.ChangeReason | undefined,
+    eventDetails: ComboboxRootInternal.ChangeEventDetails,
   ) => void;
   /**
    * The uncontrolled input value when initially rendered.
@@ -1199,8 +1196,7 @@ export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'no
    */
   onSelectedValueChange?: (
     value: ComboboxValueType<Value, Mode>,
-    event: Event | undefined,
-    reason: ComboboxRootInternal.ChangeReason | undefined,
+    eventDetails: ComboboxRootInternal.ChangeEventDetails,
   ) => void;
 };
 
@@ -1216,5 +1212,11 @@ export namespace ComboboxRootInternal {
     unmount: () => void;
   }
 
-  export type ChangeReason = BaseOpenChangeReason | 'input-change' | 'input-clear' | 'clear-press';
+  export type ChangeEventReason =
+    | BaseUIChangeEventReason
+    | 'input-change'
+    | 'input-clear'
+    | 'clear-press'
+    | 'chip-remove-press';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

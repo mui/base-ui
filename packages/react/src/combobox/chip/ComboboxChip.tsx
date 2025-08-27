@@ -10,6 +10,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { ComboboxChipContext } from './ComboboxChipContext';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * An individual chip that represents a value in a multiselectable input.
@@ -56,15 +57,14 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
       setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
       setSelectedValue(
         selectedValue.filter((_: any, i: number) => i !== index),
-        event.nativeEvent,
-        undefined,
+        createBaseUIEventDetails('none', event.nativeEvent),
       );
     } else if (event.key === 'Enter' || event.key === ' ') {
       stopEvent(event);
       nextIndex = undefined;
     } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       stopEvent(event);
-      setOpen(true, event.nativeEvent, undefined);
+      setOpen(true, createBaseUIEventDetails('list-navigation', event.nativeEvent));
       nextIndex = undefined;
     } else if (
       // Check for printable characters (letters, numbers, symbols)
