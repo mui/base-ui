@@ -1309,6 +1309,164 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  describe('prop: open', () => {
+    it('controls the open state', async () => {
+      const { setProps, user } = await render(
+        <Combobox.Root open={false}>
+          <Combobox.Input />
+          <Combobox.Trigger>Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+
+      await user.click(input);
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+
+      await setProps({ open: true });
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+
+      await user.click(document.body);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+    });
+  });
+
+  describe('prop: onOpenChange', () => {
+    it('fires when opening and closing', async () => {
+      const onOpenChange = spy();
+
+      const { user } = await render(
+        <Combobox.Root onOpenChange={onOpenChange}>
+          <Combobox.Input />
+          <Combobox.Trigger>Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+
+      await user.click(input);
+      await waitFor(() => {
+        expect(onOpenChange.callCount).to.be.greaterThan(0);
+      });
+      expect(onOpenChange.lastCall.args[0]).to.equal(true);
+
+      // Close by clicking outside
+      await user.click(document.body);
+      await waitFor(() => {
+        expect(onOpenChange.lastCall.args[0]).to.equal(false);
+      });
+    });
+  });
+
+  describe('prop: defaultOpen', () => {
+    it('opens by default', async () => {
+      await render(
+        <Combobox.Root defaultOpen>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+
+    it('remains uncontrolled (can be closed via interaction)', async () => {
+      const { user } = await render(
+        <Combobox.Root defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger>Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+
+      await user.click(document.body);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+    });
+
+    it('is overridden by controlled open={false}', async () => {
+      await render(
+        <Combobox.Root defaultOpen open={false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+
+    it('respects controlled open={true}', async () => {
+      await render(
+        <Combobox.Root defaultOpen open>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+  });
+
   describe('prop: limit', () => {
     it('limits the number of items displayed when no groups are used', async () => {
       const items = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
