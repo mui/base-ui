@@ -13,6 +13,7 @@ import {
   useInteractions,
   useRole,
   FloatingTree,
+  useFloatingParentNodeId,
 } from '../../floating-ui-react';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
@@ -39,6 +40,10 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const backdropRef = React.useRef<HTMLDivElement | null>(null);
   const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
+
+  const nested = useFloatingParentNodeId() != null;
+
+  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
 
   const [openState, setOpenState] = useControlled({
     controlled: openProp,
@@ -130,6 +135,8 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     reason: PopoverOpenChangeReason | undefined,
     trigger: HTMLElement | undefined,
   ) {
+    floatingEvents?.emit('openchange', { open: nextOpen, event, reason, nested });
+
     const isHover = reason === 'trigger-hover';
     const isKeyboardClick = reason === 'trigger-press' && (event as MouseEvent).detail === 0;
     const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
@@ -214,7 +221,10 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
         trigger as HTMLElement,
       );
     },
+    noEmit: true,
   });
+
+  floatingEvents = floatingContext.events;
 
   const dismiss = useDismiss(floatingContext, {
     outsidePressEvent: {

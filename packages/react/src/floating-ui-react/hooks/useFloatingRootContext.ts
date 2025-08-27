@@ -21,6 +21,10 @@ export interface UseFloatingRootContextOptions {
     floating: HTMLElement | null;
     triggers?: Element[];
   };
+  /**
+   * Whether to prevent the auto-emitted `openchange` event.
+   */
+  noEmit?: boolean;
 }
 
 export function useFloatingRootContext(
@@ -56,7 +60,9 @@ export function useFloatingRootContext(
       triggerElement: Element | undefined,
     ) => {
       dataRef.current.openEvent = newOpen ? event : undefined;
-      events.emit('openchange', { open: newOpen, event, reason, nested, triggerElement });
+      if (!options.noEmit) {
+        events.emit('openchange', { open: newOpen, event, reason, nested, triggerElement });
+      }
       onOpenChangeProp?.(newOpen, event, reason, triggerElement);
     },
   );
