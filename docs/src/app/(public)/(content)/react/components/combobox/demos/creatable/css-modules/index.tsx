@@ -94,8 +94,8 @@ export default function ExampleCreatableCombobox() {
         itemToLabel={itemToLabel}
         inputValue={query}
         onInputValueChange={setQuery}
-        onOpenChange={(open, event) => {
-          if (event && 'key' in event && event.key === 'Enter') {
+        onOpenChange={(open, details) => {
+          if ('key' in details.event && details.event.key === 'Enter') {
             // When pressing Enter:
             // - If the typed value exactly matches an existing item, add that item to the selected chips
             // - Otherwise, create a new item
