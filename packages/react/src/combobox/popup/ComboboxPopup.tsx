@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { useStore } from '@base-ui-components/utils/store';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -46,6 +45,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const open = useStore(store, selectors.open);
   const openMethod = useStore(store, selectors.openMethod);
   const transitionStatus = useStore(store, selectors.transitionStatus);
+  const triggerElement = useStore(store, selectors.triggerElement);
   const anchorElement = useStore(store, selectors.anchorElement);
   const inputElement = useStore(store, selectors.inputElement);
   const listElement = useStore(store, selectors.listElement);
@@ -97,15 +97,23 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
   // (this is required for Android specifically as iOS handles this automatically).
-  const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
-    if (interactionType === 'touch') {
-      return popupRef.current;
-    }
+  // For input-anchored comboboxes, pass -1 so the focus manager treats it as
+  // an "untrapped typeable combobox" and includes the input in insideElements.
+  // For trigger-anchored comboboxes, preserve touch behavior and otherwise focus the input.
+  const computedDefaultInitialFocus = isAnchorInput
+    ? -1
+    : (interactionType: InteractionType) =>
+        interactionType === 'touch' ? popupRef.current : inputElement;
 
-    return inputElement;
-  });
+  const resolvedInitialFocus =
+    initialFocus === undefined ? computedDefaultInitialFocus : initialFocus;
 
-  const initialFocusProp = initialFocus === undefined ? defaultInitialFocus : initialFocus;
+  let resolvedFinalFocus: ComboboxPopup.Props['finalFocus'] | boolean | undefined;
+  if (finalFocus != null) {
+    resolvedFinalFocus = finalFocus;
+  } else {
+    resolvedFinalFocus = isAnchorInput ? false : () => triggerElement;
+  }
 
   return (
     <FloatingFocusManager
@@ -113,8 +121,8 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       disabled={!mounted}
       modal={isAnchorInput}
       openInteractionType={openMethod}
-      initialFocus={initialFocusProp}
-      returnFocus={finalFocus}
+      initialFocus={resolvedInitialFocus}
+      returnFocus={resolvedFinalFocus}
     >
       {element}
     </FloatingFocusManager>
