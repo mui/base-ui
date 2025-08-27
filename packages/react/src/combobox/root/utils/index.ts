@@ -23,9 +23,9 @@ export function isGroupedItems(
   );
 }
 
-export function stringifyItem(item: any | null | undefined, itemToString?: (item: any) => string) {
-  if (itemToString && item != null) {
-    return itemToString(item) ?? '';
+export function stringifyItem(item: any | null | undefined, itemToLabel?: (item: any) => string) {
+  if (itemToLabel && item != null) {
+    return itemToLabel(item) ?? '';
   }
   if (item && typeof item === 'object') {
     // Prefer human-readable labels when available for matching/display.
@@ -42,19 +42,19 @@ export function stringifyItem(item: any | null | undefined, itemToString?: (item
 
 /**
  * Enhanced filter using Intl.Collator for more robust string matching.
- * Uses the provided `itemToString` function if available, otherwise falls back to:
+ * Uses the provided `itemToLabel` function if available, otherwise falls back to:
  * • When `item` is an object with a `value` property, that property is used.
  * • When `item` is a primitive (e.g. `string`), it is used directly.
  */
 export function createCollatorItemFilter(
   collatorFilter: ReturnType<typeof useFilter>,
-  itemToString?: (item: any) => string,
+  itemToLabel?: (item: any) => string,
 ) {
   return (item: any, query: string) => {
     if (item == null) {
       return false;
     }
-    const itemString = stringifyItem(item, itemToString);
+    const itemString = stringifyItem(item, itemToLabel);
     return collatorFilter.contains(itemString, query);
   };
 }
@@ -65,7 +65,7 @@ export function createCollatorItemFilter(
  */
 export function createSingleSelectionCollatorFilter(
   collatorFilter: ReturnType<typeof useFilter>,
-  itemToString?: (item: any) => string,
+  itemToLabel?: (item: any) => string,
   selectedValue?: any,
 ) {
   return (item: any, query: string) => {
@@ -76,8 +76,8 @@ export function createSingleSelectionCollatorFilter(
       return true;
     }
 
-    const itemString = stringifyItem(item, itemToString);
-    const selectedString = selectedValue != null ? stringifyItem(selectedValue, itemToString) : '';
+    const itemString = stringifyItem(item, itemToLabel);
+    const selectedString = selectedValue != null ? stringifyItem(selectedValue, itemToLabel) : '';
 
     // Handle case-insensitive matching consistently
     if (

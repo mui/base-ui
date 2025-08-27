@@ -36,7 +36,7 @@ export namespace FilterableMenuRoot {
       | 'selectedValue'
       | 'defaultSelectedValue'
       | 'fillInputOnItemPress'
-      | 'itemToString'
+      | 'itemToLabel'
       | 'itemToValue'
       | 'openOnInputClick'
       | 'clearInputOnCloseComplete'

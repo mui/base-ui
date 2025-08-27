@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import styles from './index.module.css';
 
-function itemToString(item: Movie) {
+function itemToLabel(item: Movie) {
   return item.title;
 }
 
@@ -73,7 +73,7 @@ export default function ExampleAsyncAutocomplete() {
       items={searchResults}
       value={searchValue}
       onValueChange={setSearchValue}
-      itemToString={itemToString}
+      itemToLabel={itemToLabel}
       filter={null}
     >
       <label className={styles.Label}>

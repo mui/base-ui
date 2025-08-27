@@ -844,18 +844,18 @@ describe('<Combobox.Root />', () => {
     });
   });
 
-  describe('prop: itemToString', () => {
+  describe('prop: itemToLabel', () => {
     const items = [
       { country: 'United States', code: 'US' },
       { country: 'Canada', code: 'CA' },
       { country: 'Australia', code: 'AU' },
     ];
 
-    it('uses itemToString for input value synchronization', async () => {
+    it('uses itemToLabel for input value synchronization', async () => {
       const { user } = await render(
         <Combobox.Root
           items={items}
-          itemToString={(item) => item.country}
+          itemToLabel={(item) => item.country}
           itemToValue={(item) => item.code}
           defaultOpen
         >
@@ -894,7 +894,7 @@ describe('<Combobox.Root />', () => {
         <Combobox.Root
           name="country"
           items={items}
-          itemToString={(item) => item.country}
+          itemToLabel={(item) => item.country}
           itemToValue={(item) => item.code}
           defaultValue={items[0]}
         >
@@ -924,7 +924,7 @@ describe('<Combobox.Root />', () => {
         <Combobox.Root
           name="countries"
           items={items}
-          itemToString={(item) => item.country}
+          itemToLabel={(item) => item.country}
           itemToValue={(item) => item.code}
           multiple
           defaultValue={[items[0], items[1]]}

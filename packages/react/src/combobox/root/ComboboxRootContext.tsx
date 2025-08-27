@@ -57,7 +57,7 @@ export interface ComboboxRootContext {
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
-  itemToString?: (item: any) => string;
+  itemToLabel?: (item: any) => string;
   modal: boolean;
   autoHighlight: boolean;
 }

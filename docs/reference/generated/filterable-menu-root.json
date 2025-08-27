@@ -47,9 +47,9 @@
       "detailedType": "string | number | string[] | undefined"
     },
     "filter": {
-      "type": "((value: Item, query: string, itemToString: ((value: Item) => string) | undefined) => boolean) | null",
-      "description": "Filter function used to match items vs input query.\nThe `itemToString` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    value: Item,\n    query: string,\n    itemToString: ((value: Item) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "type": "((value: Item, query: string, itemToLabel: ((value: Item) => string) | undefined) => boolean) | null",
+      "description": "Filter function used to match items vs input query.\nThe `itemToLabel` function is provided to help convert items to strings for comparison.",
+      "detailedType": "| ((\n    value: Item,\n    query: string,\n    itemToLabel: ((value: Item) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "inputValue": {
       "type": "string | number | string[]",

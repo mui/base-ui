@@ -55,23 +55,23 @@
       "detailedType": "string | number | string[] | undefined"
     },
     "filter": {
-      "type": "((value: any, query: string, itemToString: ((value: any) => string) | undefined) => boolean) | null",
-      "description": "Filter function used to match items vs input query.\nThe `itemToString` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    value: any,\n    query: string,\n    itemToString: ((value: any) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "type": "((value: any, query: string, itemToLabel: ((value: any) => string) | undefined) => boolean) | null",
+      "description": "Filter function used to match items vs input query.\nThe `itemToLabel` function is provided to help convert items to strings for comparison.",
+      "detailedType": "| ((\n    value: any,\n    query: string,\n    itemToLabel: ((value: any) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "inputValue": {
       "type": "string | number | string[]",
       "description": "The input value of the combobox.",
       "detailedType": "string | number | string[] | undefined"
     },
-    "itemToString": {
+    "itemToLabel": {
       "type": "((item: any) => string)",
-      "description": "Function to convert an item's value to a string for display.",
+      "description": "Function to convert an item's value to a string label for display.",
       "detailedType": "((item: any) => string) | undefined"
     },
     "itemToValue": {
       "type": "((item: any) => string)",
-      "description": "Function to convert an item's value to its value for form submission.",
+      "description": "Function to convert an item's value to its serialized value for form submission.",
       "detailedType": "((item: any) => string) | undefined"
     },
     "items": {

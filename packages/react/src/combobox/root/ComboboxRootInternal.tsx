@@ -79,7 +79,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     filter: filterProp,
     openOnInputClick = true,
     autoHighlight = false,
-    itemToString,
+    itemToLabel,
     itemToValue,
     virtualized = false,
     fillInputOnItemPress = true,
@@ -132,16 +132,16 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       return filterProp;
     }
     if (selectionMode === 'single' && !queryChangedAfterOpen) {
-      return createSingleSelectionCollatorFilter(collatorFilter, itemToString, selectedValue);
+      return createSingleSelectionCollatorFilter(collatorFilter, itemToLabel, selectedValue);
     }
-    return createCollatorItemFilter(collatorFilter, itemToString);
+    return createCollatorItemFilter(collatorFilter, itemToLabel);
   }, [
     filterProp,
     selectionMode,
     selectedValue,
     queryChangedAfterOpen,
     collatorFilter,
-    itemToString,
+    itemToLabel,
   ]);
 
   const [inputValue, setInputValueUnwrapped] = useControlled({
@@ -191,7 +191,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         const candidateItems =
           query === ''
             ? group.items
-            : group.items.filter((item) => filter(item, query, itemToString));
+            : group.items.filter((item) => filter(item, query, itemToLabel));
 
         if (candidateItems.length === 0) {
           continue;
@@ -219,13 +219,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       if (limit > -1 && limitedItems.length >= limit) {
         break;
       }
-      if (filter(item, query, itemToString)) {
+      if (filter(item, query, itemToLabel)) {
         limitedItems.push(item);
       }
     }
 
     return limitedItems;
-  }, [items, flatItems, query, filter, isGrouped, itemToString, limit]);
+  }, [items, flatItems, query, filter, isGrouped, itemToLabel, limit]);
 
   const flatFilteredItems: Value[] = React.useMemo(() => {
     if (isGrouped) {
@@ -311,7 +311,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const forceMount = useEventCallback(() => {
     if (items) {
-      labelsRef.current = flatFilteredItems.map((item) => stringifyItem(item, itemToString));
+      labelsRef.current = flatFilteredItems.map((item) => stringifyItem(item, itemToLabel));
     } else {
       store.set('forceMount', true);
     }
@@ -409,7 +409,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     // Keep the input text in sync when the input is rendered outside the popup.
     const isInputInsidePopup = contains(popupRef.current, inputRef.current);
     if (!isInputInsidePopup) {
-      const stringVal = stringifyItem(fallback, itemToString);
+      const stringVal = stringifyItem(fallback, itemToLabel);
       if (inputRef.current && inputRef.current.value !== stringVal) {
         setInputValueUnwrapped(stringVal);
       }
@@ -423,7 +423,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     defaultSelectedValue,
     setSelectedValueUnwrapped,
     setInputValueUnwrapped,
-    itemToString,
+    itemToLabel,
   ]);
 
   useValueChanged(queryRef, query, () => {
@@ -576,7 +576,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
           setInputValue('', undefined, 'input-clear');
         }
       } else {
-        const stringVal = stringifyItem(selectedValue, itemToString);
+        const stringVal = stringifyItem(selectedValue, itemToLabel);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
           const reason = stringVal === '' ? 'input-clear' : 'item-press';
@@ -613,7 +613,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         (selectionMode === 'single' && popupRef.current && anchorElement === inputElement);
 
       if (shouldFillInput) {
-        setInputValue(stringifyItem(nextValue as Value, itemToString), event, reason);
+        setInputValue(stringifyItem(nextValue as Value, itemToLabel), event, reason);
       }
 
       const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
@@ -834,7 +834,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       isGrouped,
       virtualized,
       openOnInputClick,
-      itemToString,
+      itemToLabel,
       modal,
       autoHighlight,
       forceMount,
@@ -859,7 +859,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       isGrouped,
       virtualized,
       openOnInputClick,
-      itemToString,
+      itemToLabel,
       modal,
       autoHighlight,
       forceMount,
@@ -1107,17 +1107,17 @@ interface ComboboxRootProps<Value> {
   items?: Value[] | ComboboxGroup<Value>[];
   /**
    * Filter function used to match items vs input query.
-   * The `itemToString` function is provided to help convert items to strings for comparison.
+   * The `itemToLabel` function is provided to help convert items to strings for comparison.
    */
   filter?:
     | null
-    | ((value: Value, query: string, itemToString?: (value: Value) => string) => boolean);
+    | ((value: Value, query: string, itemToLabel?: (value: Value) => string) => boolean);
   /**
-   * Function to convert an item's value to a string for display.
+   * Function to convert an item's value to a string label for display.
    */
-  itemToString?: (item: Value) => string;
+  itemToLabel?: (item: Value) => string;
   /**
-   * Function to convert an item's value to its value for form submission.
+   * Function to convert an item's value to its serialized value for form submission.
    */
   itemToValue?: (item: Value) => string;
   /**

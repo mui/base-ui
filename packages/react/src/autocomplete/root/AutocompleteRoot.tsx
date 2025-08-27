@@ -23,7 +23,7 @@ export function AutocompleteRoot<Item = any>(
     onValueChange,
     mode = 'list',
     autoHighlight = false,
-    itemToString,
+    itemToValue,
     ...rest
   } = props;
 
@@ -103,7 +103,7 @@ export function AutocompleteRoot<Item = any>(
         if (highlightedValue == null) {
           setInlineOverlay('');
         } else {
-          setInlineOverlay(stringifyItem(highlightedValue, itemToString));
+          setInlineOverlay(stringifyItem(highlightedValue, itemToValue));
         }
       } else {
         setInlineOverlay('');
@@ -113,7 +113,7 @@ export function AutocompleteRoot<Item = any>(
   return (
     <ComboboxRootInternal
       {...rest}
-      itemToString={itemToString}
+      itemToLabel={itemToValue}
       openOnInputClick={openOnInputClick}
       selectionMode="none"
       fillInputOnItemPress
@@ -144,6 +144,7 @@ export namespace AutocompleteRoot {
       | 'defaultInputValue' // defaultValue
       | 'onInputValueChange' // onValueChange
       | 'autoComplete' // mode
+      | 'itemToLabel' // itemToValue
       // Custom JSDoc
       | 'actionsRef'
     > {
@@ -170,6 +171,10 @@ export namespace AutocompleteRoot {
      * Callback fired when the input value of the autocomplete changes.
      */
     onValueChange?: ComboboxRootInternal.Props<Value, 'none'>['onInputValueChange'];
+    /**
+     * Converts an item's value to its string representation for display in the input.
+     */
+    itemToValue?: (value: Value) => string;
     /**
      * A ref to imperative actions.
      * - `unmount`: When specified, the combobox will not be unmounted when closed.

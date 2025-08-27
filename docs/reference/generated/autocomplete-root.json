@@ -56,19 +56,14 @@
       "detailedType": "number | undefined"
     },
     "filter": {
-      "type": "((value: Item, query: string, itemToString: ((value: Item) => string) | undefined) => boolean) | null",
-      "description": "Filter function used to match items vs input query.\nThe `itemToString` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    value: Item,\n    query: string,\n    itemToString: ((value: Item) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
-    },
-    "itemToString": {
-      "type": "((item: Item) => string)",
-      "description": "Function to convert an item's value to a string for display.",
-      "detailedType": "((item: Item) => string) | undefined"
+      "type": "((value: Item, query: string, itemToLabel: ((value: Item) => string) | undefined) => boolean) | null",
+      "description": "Filter function used to match items vs input query.\nThe `itemToLabel` function is provided to help convert items to strings for comparison.",
+      "detailedType": "| ((\n    value: Item,\n    query: string,\n    itemToLabel: ((value: Item) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "itemToValue": {
-      "type": "((item: Item) => string)",
-      "description": "Function to convert an item's value to its value for form submission.",
-      "detailedType": "((item: Item) => string) | undefined"
+      "type": "((value: Item) => string)",
+      "description": "Converts an item's value to its string representation for display in the input.",
+      "detailedType": "((value: Item) => string) | undefined"
     },
     "items": {
       "type": "Item[] | ComboboxGroup<Item>[]",

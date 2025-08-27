@@ -4,7 +4,7 @@ import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import { matchSorter } from 'match-sorter';
 import styles from './index.module.css';
 
-function itemToString(item: FuzzyItem): string {
+function itemToLabel(item: FuzzyItem): string {
   return item.title;
 }
 
@@ -17,7 +17,7 @@ export default function ExampleFuzzyMatchingAutocomplete() {
       filter={fuzzyFilter}
       value={searchValue}
       onValueChange={setSearchValue}
-      itemToString={itemToString}
+      itemToLabel={itemToLabel}
     >
       <label className={styles.Label}>
         Fuzzy search documentation

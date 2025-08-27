@@ -2,13 +2,13 @@ import * as React from 'react';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import styles from './index.module.css';
 
-function itemToString(tag: Tag) {
+function itemToLabel(tag: Tag) {
   return tag.label;
 }
 
 export default function ExampleGroupAutocomplete() {
   return (
-    <Autocomplete.Root items={groupedTags} itemToString={itemToString}>
+    <Autocomplete.Root items={groupedTags} itemToLabel={itemToLabel}>
       <label className={styles.Label}>
         Select a tag
         <Autocomplete.Input placeholder="e.g. feature" className={styles.Input} />
