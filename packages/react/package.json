@@ -72,10 +72,9 @@
   "type": "commonjs",
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
-    "build": "code-infra build --ignore \"**/*.template.js\" && pnpm build:copy-files && pnpm build:manifest",
+    "build": "code-infra build --ignore \"**/*.template.js\" && pnpm build:copy-files",
     "build:stable": "code-infra build --bundle esm --ignore \"**/*.template.js\" --buildTypes false",
     "build:copy-files": "code-infra copy-files .npmignore",
-    "build:manifest": "tsx ../../scripts/createPackageManifest.mts -p .",
     "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
