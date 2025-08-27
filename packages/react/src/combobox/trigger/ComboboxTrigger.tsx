@@ -9,8 +9,9 @@ import { useButton } from '../../use-button';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { stopEvent } from '../../floating-ui-react/utils';
+import type { FieldRoot } from '../../field/root/FieldRoot';
 
 /**
  * A button that opens the popup.
@@ -28,7 +29,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     ...elementProps
   } = componentProps;
 
-  const { disabled: fieldDisabled } = useFieldRootContext();
+  const {
+    state: fieldState,
+    disabled: fieldDisabled,
+    labelId,
+    setTouched,
+    setFocused,
+    validationMode,
+  } = useFieldRootContext();
   const {
     store,
     setOpen,
@@ -36,9 +44,13 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     readOnly,
     inputRef,
     forceMount,
+    selectionMode,
+    fieldControlValidation,
   } = useComboboxRootContext();
 
   const open = useStore(store, selectors.open);
+  const selectedValue = useStore(store, selectors.selectedValue);
+  const inputValue = useStore(store, selectors.inputValue);
   const anchorElement = useStore(store, selectors.anchorElement);
   const listElement = useStore(store, selectors.listElement);
   const triggerProps = useStore(store, selectors.triggerProps);
@@ -61,10 +73,11 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const state: ComboboxTrigger.State = React.useMemo(
     () => ({
+      ...fieldState,
       open,
       disabled,
     }),
-    [open, disabled],
+    [fieldState, open, disabled],
   );
 
   const setTriggerElement = useEventCallback((element) => {
@@ -82,8 +95,27 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         'aria-expanded': open,
         'aria-controls': open ? listElement?.id : undefined,
         'aria-readonly': readOnly || undefined,
+        'aria-labelledby': labelId,
         onPointerDown: trackPointerType,
         onPointerEnter: trackPointerType,
+        onFocus() {
+          setFocused(true);
+        },
+        onBlur() {
+          setTouched(true);
+          setFocused(false);
+
+          if (validationMode === 'onBlur') {
+            const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
+            fieldControlValidation.commitValidation(valueToValidate);
+          }
+
+          if (disabled || readOnly) {
+            return;
+          }
+
+          focusTimeout.start(0, forceMount);
+        },
         onMouseDown(event) {
           if (disabled || readOnly) {
             return;
@@ -118,25 +150,18 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             inputRef.current?.focus();
           }
         },
-        onFocus() {
-          if (disabled || readOnly) {
-            return;
-          }
-
-          focusTimeout.start(0, forceMount);
-        },
       },
       elementProps,
       getButtonProps,
     ],
-    customStyleHookMapping: triggerOpenStateMapping,
+    customStyleHookMapping: pressableTriggerOpenStateMapping,
   });
 
   return element;
 });
 
 export namespace ComboboxTrigger {
-  export interface State {
+  export interface State extends FieldRoot.State {
     /**
      * Whether the combobox popup is open.
      */

@@ -1,6 +1,6 @@
 import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
-export enum PopoverPositionerDataAttributes {
+export enum ComboboxPositionerDataAttributes {
   /**
    * Present when the popup is open.
    */

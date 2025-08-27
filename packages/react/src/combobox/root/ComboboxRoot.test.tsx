@@ -1850,6 +1850,7 @@ describe('<Combobox.Root />', () => {
         <Field.Root disabled>
           <Combobox.Root>
             <Combobox.Input data-testid="input" />
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
             <Combobox.Portal>
               <Combobox.Positioner>
                 <Combobox.Popup>
@@ -1866,6 +1867,9 @@ describe('<Combobox.Root />', () => {
 
       const input = screen.getByTestId('input');
       expect(input).to.have.attribute('disabled');
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.attribute('disabled');
     });
 
     it('should receive name prop from Field.Root', async () => {
@@ -1896,6 +1900,7 @@ describe('<Combobox.Root />', () => {
         <Field.Root>
           <Combobox.Root>
             <Combobox.Input data-testid="input" />
+            <Combobox.Trigger data-testid="trigger" />
             <Combobox.Portal>
               <Combobox.Positioner>
                 <Combobox.Popup>
@@ -1911,8 +1916,10 @@ describe('<Combobox.Root />', () => {
       );
 
       const input = screen.getByTestId('input');
+      const trigger = screen.getByTestId('trigger');
 
       expect(input).not.to.have.attribute('data-dirty');
+      expect(trigger).not.to.have.attribute('data-dirty');
 
       fireEvent.focus(input);
       fireEvent.blur(input);
@@ -1920,6 +1927,7 @@ describe('<Combobox.Root />', () => {
       await flushMicrotasks();
 
       expect(input).to.have.attribute('data-touched', '');
+      expect(trigger).to.have.attribute('data-touched', '');
     });
 
     it('[data-dirty]', async () => {
@@ -1927,6 +1935,7 @@ describe('<Combobox.Root />', () => {
         <Field.Root>
           <Combobox.Root>
             <Combobox.Input data-testid="input" />
+            <Combobox.Trigger data-testid="trigger" />
             <Combobox.Portal>
               <Combobox.Positioner>
                 <Combobox.Popup>
@@ -1942,8 +1951,10 @@ describe('<Combobox.Root />', () => {
       );
 
       const input = screen.getByTestId('input');
+      const trigger = screen.getByTestId('trigger');
 
       expect(input).not.to.have.attribute('data-dirty');
+      expect(trigger).not.to.have.attribute('data-dirty');
 
       await user.click(input);
       await flushMicrotasks();
@@ -1957,6 +1968,7 @@ describe('<Combobox.Root />', () => {
       await flushMicrotasks();
 
       expect(input).to.have.attribute('data-dirty', '');
+      expect(trigger).to.have.attribute('data-dirty', '');
     });
 
     describe('[data-filled]', () => {
@@ -1965,6 +1977,7 @@ describe('<Combobox.Root />', () => {
           <Field.Root>
             <Combobox.Root>
               <Combobox.Input data-testid="input" />
+              <Combobox.Trigger data-testid="trigger" />
               <Combobox.Portal>
                 <Combobox.Positioner>
                   <Combobox.Popup>
@@ -1980,8 +1993,10 @@ describe('<Combobox.Root />', () => {
         );
 
         const input = screen.getByTestId('input');
+        const trigger = screen.getByTestId('trigger');
 
         expect(input).not.to.have.attribute('data-filled');
+        expect(trigger).not.to.have.attribute('data-filled');
 
         await user.click(input);
         await flushMicrotasks();
@@ -1995,6 +2010,7 @@ describe('<Combobox.Root />', () => {
         await flushMicrotasks();
 
         expect(input).to.have.attribute('data-filled', '');
+        expect(trigger).to.have.attribute('data-filled', '');
 
         await user.click(input);
 
@@ -2010,6 +2026,7 @@ describe('<Combobox.Root />', () => {
           <Field.Root>
             <Combobox.Root defaultValue="1">
               <Combobox.Input data-testid="input" />
+              <Combobox.Trigger data-testid="trigger" />
               <Combobox.Portal>
                 <Combobox.Positioner>
                   <Combobox.Popup>
@@ -2024,8 +2041,10 @@ describe('<Combobox.Root />', () => {
         );
 
         const input = screen.getByTestId('input');
+        const trigger = screen.getByTestId('trigger');
 
         expect(input).to.have.attribute('data-filled');
+        expect(trigger).to.have.attribute('data-filled');
       });
     });
 
@@ -2034,6 +2053,7 @@ describe('<Combobox.Root />', () => {
         <Field.Root>
           <Combobox.Root>
             <Combobox.Input data-testid="input" />
+            <Combobox.Trigger data-testid="trigger" />
             <Combobox.Portal>
               <Combobox.Positioner>
                 <Combobox.Popup>
@@ -2049,16 +2069,20 @@ describe('<Combobox.Root />', () => {
       );
 
       const input = screen.getByTestId('input');
+      const trigger = screen.getByTestId('trigger');
 
       expect(input).not.to.have.attribute('data-focused');
+      expect(trigger).not.to.have.attribute('data-focused');
 
       fireEvent.focus(input);
 
       expect(input).to.have.attribute('data-focused', '');
+      expect(trigger).to.have.attribute('data-focused', '');
 
       fireEvent.blur(input);
 
       expect(input).not.to.have.attribute('data-focused');
+      expect(trigger).not.to.have.attribute('data-focused');
     });
 
     it('prop: validate', async () => {
