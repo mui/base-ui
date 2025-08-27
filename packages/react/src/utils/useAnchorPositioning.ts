@@ -168,26 +168,28 @@ export function useAnchorPositioning(
 
   // Ensure the popup flips if it's been limited by its --available-height and it resizes.
   // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
-  let sizeCollisionPadding: Padding | undefined;
+  let flipCollisionPadding: Padding | undefined;
   const epsilon = -0.01;
+
+  // Create a bias to the preferred side.
+  // On iOS, when the mobile software keyboard opens, the input is exactly
+  // centered in the viewport, but this can cause it to flip to the top
+  // undesirably.
   const bias = 1;
-  const biasTop = side === 'bottom' ? bias : epsilon;
-  const biasBottom = side === 'top' ? bias : epsilon;
-  const biasLeft = side === 'right' ? bias : epsilon;
-  const biasRight = side === 'left' ? bias : epsilon;
+  const biasTop = sideParam === 'bottom' ? bias : epsilon;
+  const biasBottom = sideParam === 'top' ? bias : epsilon;
+  const biasLeft = sideParam === 'right' ? bias : epsilon;
+  const biasRight = sideParam === 'left' ? bias : epsilon;
 
   if (typeof collisionPadding === 'number') {
-    sizeCollisionPadding = {
-      // Create a bias to `bottom`. On iOS when the mobile software keyboard opens,
-      // the input is exactly centered in the viewport, but this can cause it to
-      // flip to the top undesirably.
+    flipCollisionPadding = {
       top: collisionPadding + biasTop,
       right: collisionPadding + biasRight,
       bottom: collisionPadding + biasBottom,
       left: collisionPadding + biasLeft,
     };
   } else if (collisionPadding) {
-    sizeCollisionPadding = {
+    flipCollisionPadding = {
       top: (collisionPadding.top || 0) + biasTop,
       right: (collisionPadding.right || 0) + biasRight,
       bottom: (collisionPadding.bottom || 0) + biasBottom,
@@ -197,7 +199,7 @@ export function useAnchorPositioning(
 
   const sizeCollisionProps = {
     boundary: commonCollisionProps.boundary,
-    padding: sizeCollisionPadding,
+    padding: collisionPadding,
   } as const;
 
   // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
@@ -244,6 +246,7 @@ export function useAnchorPositioning(
       ? null
       : flip({
           ...commonCollisionProps,
+          padding: flipCollisionPadding,
           mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
           crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
           fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
