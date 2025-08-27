@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { useStore } from '@base-ui-components/utils/store';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -48,7 +48,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const anchorElement = useStore(store, selectors.anchorElement);
   const inputElement = useStore(store, selectors.inputElement);
-  const triggerElement = useStore(store, selectors.triggerElement);
   const listElement = useStore(store, selectors.listElement);
 
   const isAnchorInput = anchorElement === inputElement;
@@ -95,35 +94,27 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     customStyleHookMapping,
   });
 
-  const triggerRef = useLatestRef(triggerElement);
-
-  let resolvedInitialFocus: number | React.RefObject<HTMLElement | null>;
-  if (initialFocus == null) {
-    if (openMethod === 'touch') {
-      resolvedInitialFocus = popupRef;
-    } else {
-      resolvedInitialFocus = isAnchorInput ? -1 : inputRef;
+  // Default initial focus logic:
+  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
+  // (this is required for Android specifically as iOS handles this automatically).
+  const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
+    if (interactionType === 'touch') {
+      return popupRef.current;
     }
-  } else if (typeof initialFocus === 'function') {
-    resolvedInitialFocus = initialFocus(openMethod ?? '');
-  } else {
-    resolvedInitialFocus = initialFocus;
-  }
 
-  let resolvedFinalFocus: boolean | React.RefObject<HTMLElement | null>;
-  if (finalFocus != null) {
-    resolvedFinalFocus = finalFocus;
-  } else {
-    resolvedFinalFocus = isAnchorInput ? false : triggerRef;
-  }
+    return inputElement;
+  });
+
+  const initialFocusProp = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
   return (
     <FloatingFocusManager
       context={floatingRootContext}
       disabled={!mounted}
       modal={isAnchorInput}
-      initialFocus={resolvedInitialFocus}
-      returnFocus={resolvedFinalFocus}
+      openInteractionType={openMethod}
+      initialFocus={initialFocusProp}
+      returnFocus={finalFocus}
     >
       {element}
     </FloatingFocusManager>
@@ -144,14 +135,26 @@ export namespace ComboboxPopup {
     /**
      * Determines the element to focus when the popup is opened.
      * By default, the first focusable element is focused.
+     *
+     * - `null`: Do not focus any element.
+     * - `RefObject`: Focus the ref element. Falls back to default behavior when `null`.
+     * - `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the open. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.
      */
     initialFocus?:
+      | null
       | React.RefObject<HTMLElement | null>
-      | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
+      | ((openType: InteractionType) => HTMLElement | null | void);
     /**
      * Determines the element to focus when the popup is closed.
      * By default, focus returns to the trigger.
+     *
+     * - `null`: Do not focus any element.
+     * - `RefObject`: Focus the ref element. Falls back to default behavior when `null`.
+     * - `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the close. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.
      */
-    finalFocus?: React.RefObject<HTMLElement | null>;
+    finalFocus?:
+      | null
+      | React.RefObject<HTMLElement | null>
+      | ((closeType: InteractionType) => HTMLElement | null | void);
   }
 }
