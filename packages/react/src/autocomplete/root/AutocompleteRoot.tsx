@@ -53,7 +53,11 @@ export function AutocompleteRoot<Item = any>(
   }
 
   const handleValueChange = useEventCallback(
-    (nextValue: string, event: Event | undefined, reason: string | undefined) => {
+    (
+      nextValue: string,
+      event: Event | undefined,
+      reason: AutocompleteRoot.ChangeReason | undefined,
+    ) => {
       // Typing should clear the overlay, mirroring the demo behavior
       setInlineOverlay('');
       if (!isControlled) {
@@ -125,9 +129,9 @@ export function AutocompleteRoot<Item = any>(
 }
 
 export namespace AutocompleteRoot {
-  export interface Props<Item = any>
+  export interface Props<Value>
     extends Omit<
-      ComboboxRootInternal.Props<Item, 'none'>,
+      ComboboxRootInternal.Props<Value, 'none'>,
       | 'selectionMode'
       | 'selectedValue'
       | 'defaultSelectedValue'
@@ -157,15 +161,15 @@ export namespace AutocompleteRoot {
      *
      * To render a controlled autocomplete, use the `value` prop instead.
      */
-    defaultValue?: ComboboxRootInternal.Props<Item, 'none'>['defaultInputValue'];
+    defaultValue?: ComboboxRootInternal.Props<Value, 'none'>['defaultInputValue'];
     /**
      * The input value of the autocomplete. Use when controlled.
      */
-    value?: ComboboxRootInternal.Props<Item, 'none'>['inputValue'];
+    value?: ComboboxRootInternal.Props<Value, 'none'>['inputValue'];
     /**
      * Callback fired when the input value of the autocomplete changes.
      */
-    onValueChange?: ComboboxRootInternal.Props<Item, 'none'>['onInputValueChange'];
+    onValueChange?: ComboboxRootInternal.Props<Value, 'none'>['onInputValueChange'];
     /**
      * A ref to imperative actions.
      * - `unmount`: When specified, the combobox will not be unmounted when closed.
@@ -179,5 +183,5 @@ export namespace AutocompleteRoot {
 
   export type Actions = ComboboxRootInternal.Actions;
 
-  export type OpenChangeReason = ComboboxRootInternal.OpenChangeReason;
+  export type ChangeReason = ComboboxRootInternal.ChangeReason;
 }

@@ -34,9 +34,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: Combobox.RootInternal.OpenChangeReason | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: Combobox.RootInternal.ChangeReason | undefined) => void)",
       "description": "Event handler called when the popup is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.OpenChangeReason\n      | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.ChangeReason\n      | undefined,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Combobox.Root.Actions>",
@@ -55,9 +55,9 @@
       "detailedType": "string | number | string[] | undefined"
     },
     "filter": {
-      "type": "((item: any, query: string, itemToString: ((item: any) => string) | undefined) => boolean) | null",
+      "type": "((value: any, query: string, itemToString: ((value: any) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.\nThe `itemToString` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    item: any,\n    query: string,\n    itemToString: ((item: any) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "detailedType": "| ((\n    value: any,\n    query: string,\n    itemToString: ((value: any) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "inputValue": {
       "type": "string | number | string[]",
@@ -66,12 +66,12 @@
     },
     "itemToString": {
       "type": "((item: any) => string)",
-      "description": "Function to convert an item to a string for display.",
+      "description": "Function to convert an item's value to a string for display.",
       "detailedType": "((item: any) => string) | undefined"
     },
     "itemToValue": {
       "type": "((item: any) => string)",
-      "description": "Function to convert an item to its value for form submission.",
+      "description": "Function to convert an item's value to its value for form submission.",
       "detailedType": "((item: any) => string) | undefined"
     },
     "items": {
@@ -92,9 +92,9 @@
       "detailedType": "boolean | undefined | undefined"
     },
     "onInputValueChange": {
-      "type": "((value: string, event: Event | undefined, reason: string | undefined) => void)",
+      "type": "((value: string, event: Event | undefined, reason: Combobox.RootInternal.ChangeReason | undefined) => void)",
       "description": "Callback fired when the input value of the combobox changes.",
-      "detailedType": "| ((\n    value: string,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: string,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.ChangeReason\n      | undefined,\n  ) => void)\n| undefined"
     },
     "onItemHighlighted": {
       "type": "((value: any, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",

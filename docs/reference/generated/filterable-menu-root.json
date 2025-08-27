@@ -14,9 +14,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: Combobox.RootInternal.OpenChangeReason | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: Combobox.RootInternal.ChangeReason | undefined) => void)",
       "description": "Event handler called when the popup is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.OpenChangeReason\n      | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.ChangeReason\n      | undefined,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Combobox.RootInternal.Actions>",
@@ -47,9 +47,9 @@
       "detailedType": "string | number | string[] | undefined"
     },
     "filter": {
-      "type": "((item: Item, query: string, itemToString: ((item: Item) => string) | undefined) => boolean) | null",
+      "type": "((value: Item, query: string, itemToString: ((value: Item) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.\nThe `itemToString` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    item: Item,\n    query: string,\n    itemToString: ((item: Item) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "detailedType": "| ((\n    value: Item,\n    query: string,\n    itemToString: ((value: Item) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "inputValue": {
       "type": "string | number | string[]",
@@ -74,9 +74,9 @@
       "detailedType": "boolean | undefined"
     },
     "onInputValueChange": {
-      "type": "((value: string, event: Event | undefined, reason: string | undefined) => void)",
+      "type": "((value: string, event: Event | undefined, reason: Combobox.RootInternal.ChangeReason | undefined) => void)",
       "description": "Callback fired when the input value of the combobox changes.",
-      "detailedType": "| ((\n    value: string,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: string,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.ChangeReason\n      | undefined,\n  ) => void)\n| undefined"
     },
     "onItemHighlighted": {
       "type": "((value: Item | undefined, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",
@@ -89,9 +89,9 @@
       "detailedType": "((open: boolean) => void) | undefined"
     },
     "onSelectedValueChange": {
-      "type": "((value: Item, event: Event | undefined, reason: string | undefined) => void)",
+      "type": "((value: Item, event: Event | undefined, reason: Combobox.RootInternal.ChangeReason | undefined) => void)",
       "description": "Callback fired when the selected value of the combobox changes.",
-      "detailedType": "| ((\n    value: Item,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Item,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.ChangeReason\n      | undefined,\n  ) => void)\n| undefined"
     },
     "virtualized": {
       "type": "boolean",

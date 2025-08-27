@@ -502,7 +502,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     (
       nextOpen: boolean,
       event: Event | undefined,
-      reason: ComboboxRootInternal.OpenChangeReason | undefined,
+      reason: ComboboxRootInternal.ChangeReason | undefined,
     ) => {
       props.onOpenChange?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
@@ -1038,7 +1038,7 @@ interface ComboboxRootProps<Value> {
   onOpenChange?: (
     open: boolean,
     event: Event | undefined,
-    reason: ComboboxRootInternal.OpenChangeReason | undefined,
+    reason: ComboboxRootInternal.ChangeReason | undefined,
   ) => void;
   /**
    * Event handler called after any animations complete when the popup is opened or closed.
@@ -1064,7 +1064,7 @@ interface ComboboxRootProps<Value> {
   onInputValueChange?: (
     value: string,
     event: Event | undefined,
-    reason: string | undefined,
+    reason: ComboboxRootInternal.ChangeReason | undefined,
   ) => void;
   /**
    * The uncontrolled input value when initially rendered.
@@ -1109,13 +1109,15 @@ interface ComboboxRootProps<Value> {
    * Filter function used to match items vs input query.
    * The `itemToString` function is provided to help convert items to strings for comparison.
    */
-  filter?: null | ((item: Value, query: string, itemToString?: (item: Value) => string) => boolean);
+  filter?:
+    | null
+    | ((value: Value, query: string, itemToString?: (value: Value) => string) => boolean);
   /**
-   * Function to convert an item to a string for display.
+   * Function to convert an item's value to a string for display.
    */
   itemToString?: (item: Value) => string;
   /**
-   * Function to convert an item to its value for form submission.
+   * Function to convert an item's value to its value for form submission.
    */
   itemToValue?: (item: Value) => string;
   /**
@@ -1184,7 +1186,7 @@ export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'no
   onSelectedValueChange?: (
     value: ComboboxValueType<Value, Mode>,
     event: Event | undefined,
-    reason: string | undefined,
+    reason: ComboboxRootInternal.ChangeReason | undefined,
   ) => void;
 };
 
@@ -1200,5 +1202,5 @@ export namespace ComboboxRootInternal {
     unmount: () => void;
   }
 
-  export type OpenChangeReason = BaseOpenChangeReason | 'input-change' | 'input-clear';
+  export type ChangeReason = BaseOpenChangeReason | 'input-change' | 'input-clear' | 'clear-press';
 }
