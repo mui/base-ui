@@ -13,9 +13,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, eventDetails: Popover.Root.ChangeEventDetails, activeTriggerId: string | null, options: Popover.Root.OpenChangeOptions) => void)",
+      "type": "((open: boolean, eventDetails: Popover.Root.ChangeEventDetails, activeTriggerId: string | null) => void)",
       "description": "Event handler called when the popover is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Popover.Root.ChangeEventDetails,\n    activeTriggerId: string | null,\n    options: Popover.Root.OpenChangeOptions,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Popover.Root.ChangeEventDetails,\n    activeTriggerId: string | null,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Popover.Root.Actions | null>",

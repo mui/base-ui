@@ -129,9 +129,21 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     }
   }, [stickIfOpenTimeout, open]);
 
+  function createPopoverEventDetails(reason: PopoverRoot.ChangeEventReason) {
+    const details: PopoverRoot.ChangeEventDetails =
+      createBaseUIEventDetails<PopoverRoot.ChangeEventReason>(
+        reason,
+      ) as PopoverRoot.ChangeEventDetails;
+    details.preventUnmountOnClose = () => {
+      preventUnmountingRef.current = true;
+    };
+
+    return details;
+  }
+
   const setOpen = useEventCallback(function setOpen(
     nextOpen: boolean,
-    eventDetails: PopoverRoot.ChangeEventDetails,
+    eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
     trigger: HTMLElement | undefined,
   ) {
     const isHover = eventDetails.reason === 'trigger-hover';
@@ -140,8 +152,15 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     const isDismissClose =
       !nextOpen && (eventDetails.reason === 'escape-key' || eventDetails.reason == null);
 
-    const options = new PopoverRoot.OpenChangeOptions();
-    onOpenChange?.(nextOpen, eventDetails, nextOpen ? (trigger?.id ?? null) : null, options);
+    (eventDetails as PopoverRoot.ChangeEventDetails).preventUnmountOnClose = () => {
+      preventUnmountingRef.current = true;
+    };
+
+    onOpenChange?.(
+      nextOpen,
+      eventDetails as PopoverRoot.ChangeEventDetails,
+      nextOpen ? (trigger?.id ?? null) : null,
+    );
 
     if (eventDetails.isCanceled) {
       return;
@@ -159,7 +178,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
     function changeState() {
       const newTriggerId = trigger?.id ?? null;
-      preventUnmountingRef.current = options.isUnmountingPrevented;
       setOpenState(nextOpen);
       setTriggerId(newTriggerId);
 
@@ -198,7 +216,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   });
 
   const handleImperativeClose = React.useCallback(() => {
-    setOpen(false, createBaseUIEventDetails('imperative-action'), undefined);
+    setOpen(false, createPopoverEventDetails('imperative-action'), undefined);
   }, [setOpen]);
 
   useOpenChangeComplete({
@@ -227,7 +245,9 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       ),
     },
     open,
-    onOpenChange: setOpen,
+    onOpenChange(nextOpen, details, triggerElement) {
+      setOpen(nextOpen, details, triggerElement);
+    },
   });
 
   floatingEvents = floatingContext.events;
@@ -311,7 +331,6 @@ export namespace PopoverRoot {
       open: boolean,
       eventDetails: ChangeEventDetails,
       activeTriggerId: string | null,
-      options: OpenChangeOptions,
     ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.
@@ -355,22 +374,12 @@ export namespace PopoverRoot {
     close: () => void;
   }
 
-  export class OpenChangeOptions {
-    #isUnmountingPrevented: boolean = false;
-
-    get isUnmountingPrevented() {
-      return this.#isUnmountingPrevented;
-    }
-
-    preventUnmountOnClose() {
-      this.#isUnmountingPrevented = true;
-    }
-  }
-
   export type ChildRenderFunction<Payload> = (arg: {
     payload: Payload | undefined;
   }) => React.ReactNode;
 
   export type ChangeEventReason = BaseUIChangeEventReason | 'close-press' | 'imperative-action';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason> & {
+    preventUnmountOnClose(): void;
+  };
 }

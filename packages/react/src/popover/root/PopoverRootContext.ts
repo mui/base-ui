@@ -6,7 +6,7 @@ import { PopoverRoot } from './PopoverRoot';
 export interface PopoverRootContext {
   setOpen: (
     open: boolean,
-    eventDetails: PopoverRoot.ChangeEventDetails,
+    eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
     target: HTMLElement | undefined,
   ) => void;
   popupRef: React.RefObject<HTMLElement | null>;

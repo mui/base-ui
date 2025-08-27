@@ -505,8 +505,8 @@ describe('<Popover.Root />', () => {
       const { user } = await render(
         <Popover.Root
           actionsRef={actionsRef}
-          onOpenChange={(open, details, trigger, options) => {
-            options.preventUnmountOnClose();
+          onOpenChange={(open, details) => {
+            details.preventUnmountOnClose();
           }}
         >
           <Popover.Trigger>Open</Popover.Trigger>
