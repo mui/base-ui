@@ -367,9 +367,7 @@ export namespace PopoverRoot {
     }
   }
 
-  export type ChildRenderFunction<Payload> = ({
-    payload,
-  }: {
+  export type ChildRenderFunction<Payload> = (arg: {
     payload: Payload | undefined;
   }) => React.ReactNode;
 
