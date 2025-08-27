@@ -45,7 +45,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const open = useStore(store, selectors.open);
   const openMethod = useStore(store, selectors.openMethod);
   const transitionStatus = useStore(store, selectors.transitionStatus);
-  const triggerElement = useStore(store, selectors.triggerElement);
   const anchorElement = useStore(store, selectors.anchorElement);
   const inputElement = useStore(store, selectors.inputElement);
   const listElement = useStore(store, selectors.listElement);
@@ -112,7 +111,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   if (finalFocus != null) {
     resolvedFinalFocus = finalFocus;
   } else {
-    resolvedFinalFocus = isAnchorInput ? false : () => triggerElement;
+    resolvedFinalFocus = isAnchorInput ? false : undefined;
   }
 
   return (
