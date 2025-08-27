@@ -24,7 +24,7 @@ import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { mergeProps } from '../../merge-props';
-import type { FloatingUIOpenChangeDetails, PopupChangeReason } from '../../utils/types';
+import type { FloatingUIOpenChangeDetails, BaseUIChangeReason } from '../../utils/types';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
@@ -113,7 +113,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       const details: FloatingUIOpenChangeDetails = {
         open: nextOpen,
         nativeEvent: eventDetails.event,
-        reason: eventDetails.reason as PopupChangeReason,
+        reason: eventDetails.reason as BaseUIChangeReason,
         nested,
       };
 
@@ -341,6 +341,6 @@ export namespace PopoverRoot {
     unmount: () => void;
   }
 
-  export type ChangeEventReason = PopupChangeReason | 'close-press';
+  export type ChangeEventReason = BaseUIChangeReason | 'close-press';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

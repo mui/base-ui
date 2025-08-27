@@ -6,12 +6,12 @@ export type HTMLProps<T = any> = React.HTMLAttributes<T> & {
 
 export interface FloatingUIOpenChangeDetails {
   open: boolean;
-  reason: PopupChangeReason;
+  reason: BaseUIChangeReason;
   nativeEvent: Event;
   nested: boolean;
 }
 
-export type PopupChangeReason =
+export type BaseUIChangeReason =
   | 'trigger-press'
   | 'trigger-hover'
   | 'trigger-focus'
