@@ -1,4 +1,4 @@
-import { getFormatter } from '../../utils/formatNumber';
+import { getFormatter } from '@base-ui-components/utils/formatNumber';
 import { clamp } from '../../utils/clamp';
 
 export function removeFloatingPointErrors(value: number, format: Intl.NumberFormatOptions = {}) {

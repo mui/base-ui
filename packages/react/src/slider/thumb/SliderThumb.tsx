@@ -4,7 +4,7 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { formatNumber } from '../../utils/formatNumber';
+import { formatNumber } from '@base-ui-components/utils/formatNumber';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { mergeProps } from '../../merge-props';
 import { resolveClassName } from '../../utils/resolveClassName';

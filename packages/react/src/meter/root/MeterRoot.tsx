@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { formatNumber } from '@base-ui-components/utils/formatNumber';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { formatNumber } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 function formatValue(
