@@ -48,8 +48,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     let firstNonDisabledItem = 0;
     let hasEnabledItems = false;
     // get default value from the first non disabled tab
-    for(const tabMetadata of tabMap.values()) {
-      if (tabMetadata && tabMetadata.disabled === false ) {
+    for (const tabMetadata of tabMap.values()) {
+      if (tabMetadata && tabMetadata.disabled === false) {
         firstNonDisabledItem = tabMetadata.value ?? tabMetadata.index;
         hasEnabledItems = true;
         break;

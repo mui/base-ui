@@ -128,7 +128,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     // Set the default highlighted index of an arbitrary composite item.
     let activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
 
-    if ( activeIndex === -1 && ignoreDisabledItemsOnInitialHiglighting) {
+    if (activeIndex === -1 && ignoreDisabledItemsOnInitialHiglighting) {
       const disabledIndicesInternal: number[] = [];
       for (const tabMetadata of map.values()) {
         if (tabMetadata?.disabled && tabMetadata.index !== undefined) {
@@ -140,7 +140,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       if (disabledIndicesInternal.length === map.size) {
         activeIndex = 0;
       } else {
-        activeIndex = findNonDisabledListIndex(elementsRef, { disabledIndices: disabledIndicesInternal });
+        activeIndex = findNonDisabledListIndex(elementsRef, {
+          disabledIndices: disabledIndicesInternal,
+        });
       }
     }
     if (activeIndex !== -1) {
