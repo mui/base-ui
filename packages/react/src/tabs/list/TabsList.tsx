@@ -67,8 +67,8 @@ export const TabsList = React.forwardRef(function TabsList(
       setTabMapInternal(newMap);
       setTabMap(newMap);
 
-      // set value to the first non disabled item if it's is null
-      if (value == null) {
+      // set value to the first non disabled item if the value is null
+      if (value == null && newMap.size > 0) {
         // fallback in case all items are disabled
         let firstNonDisabledItem = 0;
         let hasEnabledItems = false;
@@ -86,7 +86,7 @@ export const TabsList = React.forwardRef(function TabsList(
         onValueChange(firstNonDisabledItem, 'none', undefined);
       }
     },
-    [],
+    [onValueChange, setTabMap, value],
   );
 
   const state: TabsList.State = React.useMemo(
