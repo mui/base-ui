@@ -699,8 +699,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !readOnly && !disabled,
-    outsidePressEvent:
-      anchorElement !== inputElement ? { mouse: 'intentional', touch: 'sloppy' } : undefined,
+    outsidePressEvent: {
+      mouse: 'sloppy',
+      // The visual viewport (affected by the mobile software keyboard) can be
+      // somewhat small. The user may want to scroll the screen to see more of
+      // the popup.
+      touch: 'intentional',
+    },
     outsidePress(event) {
       const target = getTarget(event) as Element | null;
       return (
