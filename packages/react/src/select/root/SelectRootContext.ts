@@ -1,5 +1,4 @@
 import * as React from 'react';
-import type { Timeout } from '@base-ui-components/utils/useTimeout';
 import { useFloatingRootContext, type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
@@ -29,7 +28,6 @@ export interface SelectRootContext {
   selectionRef: React.MutableRefObject<{
     allowUnselectedMouseUp: boolean;
     allowSelectedMouseUp: boolean;
-    allowSelect: boolean;
   }>;
   selectedItemTextRef: React.MutableRefObject<HTMLSpanElement | null>;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
@@ -41,7 +39,6 @@ export interface SelectRootContext {
   onOpenChangeComplete?: (open: boolean) => void;
   keyboardActiveRef: React.MutableRefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;
-  highlightTimeout: Timeout;
   initialValueRef: React.MutableRefObject<any>;
 }
 

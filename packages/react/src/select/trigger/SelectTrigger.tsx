@@ -114,7 +114,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     selectionRef.current = {
       allowSelectedMouseUp: false,
       allowUnselectedMouseUp: false,
-      allowSelect: true,
     };
 
     timeoutMouseDown.clear();
