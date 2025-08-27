@@ -74,7 +74,7 @@ export interface UseCompositeRootParameters {
    * `ACTIVE_COMPOSITE_ITEM` attribute.
    * @default false
    */
-  ignoreDisabledOnInit?: boolean;
+  ignoreDisabledItemsOnInitialHiglighting?: boolean;
 }
 
 const EMPTY_ARRAY: never[] = [];
@@ -94,7 +94,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     stopEventPropagation = false,
     disabledIndices,
     modifierKeys = EMPTY_ARRAY,
-    ignoreDisabledOnInit = false,
+    ignoreDisabledItemsOnInitialHiglighting = false,
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
@@ -128,7 +128,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     // Set the default highlighted index of an arbitrary composite item.
     let activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
 
-    if ( activeIndex === -1 && ignoreDisabledOnInit) {
+    if ( activeIndex === -1 && ignoreDisabledItemsOnInitialHiglighting) {
       const disabledIndicesInternal: number[] = [];
       for (const tabMetadata of map.values()) {
         if (tabMetadata?.disabled && tabMetadata.index !== undefined) {
