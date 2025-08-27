@@ -34,7 +34,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const {
     render,
     className,
-    anchor,
+    anchor: anchorProp,
     positionMethod = 'absolute',
     side = 'bottom',
     align = 'center',
@@ -62,6 +62,8 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const defaultAnchor = useComboboxDefaultAnchor();
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
+
+  const anchor = anchorProp === 'trigger' ? triggerElement : anchorProp;
 
   let resolvedAnchor = anchor;
   if (anchor != null) {
@@ -184,9 +186,10 @@ export namespace ComboboxPositioner {
       BaseUIComponentProps<'div', State> {
     /**
      * An element to position the popup against.
-     * By default, the popup will be positioned against the input. Components may override this via context.
+     * By default, the popup will be positioned against the input.
      */
     anchor?:
+      | 'trigger'
       | Element
       | null
       | VirtualElement

@@ -3,18 +3,16 @@ import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
 
 export default function ExamplePopoverCombobox() {
-  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
-
   return (
     <Combobox.Root items={countries} defaultValue={countries[0]}>
-      <Combobox.Trigger ref={triggerRef} className={styles.Trigger}>
+      <Combobox.Trigger className={styles.Trigger}>
         <Combobox.Value />
         <Combobox.Icon className={styles.TriggerIcon}>
           <ChevronUpDownIcon />
         </Combobox.Icon>
       </Combobox.Trigger>
       <Combobox.Portal>
-        <Combobox.Positioner anchor={triggerRef} align="start" sideOffset={4}>
+        <Combobox.Positioner anchor="trigger" align="start" sideOffset={4}>
           <Combobox.Popup className={styles.Popup} aria-label="Select country">
             <div className={styles.InputContainer}>
               <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />

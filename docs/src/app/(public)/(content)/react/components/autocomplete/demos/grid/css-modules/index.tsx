@@ -36,8 +36,6 @@ const emojiGroups: EmojiGroup[] = emojiCategories.map((category) => ({
 }));
 
 export default function ExampleEmojiPicker() {
-  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
-
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const [textValue, setTextValue] = React.useState('');
   const [searchValue, setSearchValue] = React.useState('');
@@ -89,11 +87,7 @@ export default function ExampleEmojiPicker() {
             }
           }}
         >
-          <Autocomplete.Trigger
-            className={styles.EmojiButton}
-            aria-label="Choose emoji"
-            ref={triggerRef}
-          >
+          <Autocomplete.Trigger className={styles.EmojiButton} aria-label="Choose emoji">
             😀
           </Autocomplete.Trigger>
           <Autocomplete.Portal>
@@ -101,7 +95,7 @@ export default function ExampleEmojiPicker() {
               className={styles.Positioner}
               sideOffset={4}
               align="end"
-              anchor={triggerRef}
+              anchor="trigger"
             >
               <Autocomplete.Popup className={styles.Popup} aria-label="Select emoji">
                 <div className={styles.InputContainer}>
