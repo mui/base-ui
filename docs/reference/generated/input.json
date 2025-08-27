@@ -7,9 +7,9 @@
       "detailedType": "string | number | string[] | undefined"
     },
     "onValueChange": {
-      "type": "((value: string, eventDetails: BaseUIEventDetails) => void)",
+      "type": "((value: string, eventDetails: Field.Control.ChangeEventDetails) => void)",
       "description": "Callback fired when the `value` changes. Use when controlled.",
-      "detailedType": "| ((\n    value: string,\n    eventDetails: BaseUIEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: string,\n    eventDetails: Field.Control.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "className": {
       "type": "string | ((state: Input.State) => string)",

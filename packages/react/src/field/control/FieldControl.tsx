@@ -94,7 +94,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const isControlled = valueProp !== undefined;
 
   const setValue = useEventCallback(
-    (nextValue: string, eventDetails: BaseUIEventDetails<'none'>) => {
+    (nextValue: string, eventDetails: FieldControl.ChangeEventDetails) => {
       onValueChange?.(nextValue, eventDetails);
 
       if (eventDetails.isCanceled) {
@@ -171,7 +171,10 @@ export namespace FieldControl {
     /**
      * Callback fired when the `value` changes. Use when controlled.
      */
-    onValueChange?: (value: string, eventDetails: BaseUIEventDetails<'none'>) => void;
+    onValueChange?: (value: string, eventDetails: ChangeEventDetails) => void;
     defaultValue?: React.ComponentProps<'input'>['defaultValue'];
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }
