@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
@@ -22,6 +23,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { clearPositionerStyles } from './utils';
 import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -48,11 +50,12 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     valueRef,
     selectedItemTextRef,
     keyboardActiveRef,
-    highlightTimeout,
     multiple,
   } = useSelectRootContext();
   const { side, align, context, alignItemWithTriggerActive, setControlledAlignItemWithTrigger } =
     useSelectPositionerContext();
+
+  const highlightTimeout = useTimeout();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
@@ -280,7 +283,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const win = ownerWindow(positionerElement);
 
     function handleResize(event: Event) {
-      setOpen(false, event, 'window-resize');
+      setOpen(false, createBaseUIEventDetails('window-resize', event));
     }
 
     win.addEventListener('resize', handleResize);

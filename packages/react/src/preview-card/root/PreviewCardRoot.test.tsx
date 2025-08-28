@@ -385,6 +385,35 @@ describe('<PreviewCard.Root />', () => {
     });
   });
 
+  describe('BaseUIEventDetails', () => {
+    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+      await render(
+        <Root
+          onOpenChange={(nextOpen, eventDetails) => {
+            if (nextOpen) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Trigger />
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('link');
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
+  });
+
   describe.skipIf(!isJSDOM)('prop: actionsRef', () => {
     it('unmounts the preview card when the `unmount` method is called', async () => {
       const actionsRef = {
@@ -554,7 +583,7 @@ describe('<PreviewCard.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-ending-style] {
             animation: test-anim 1ms;
           }
@@ -641,7 +670,7 @@ describe('<PreviewCard.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }

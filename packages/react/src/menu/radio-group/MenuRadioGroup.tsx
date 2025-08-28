@@ -5,6 +5,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import type { MenuRoot } from '../root/MenuRoot';
 
 /**
  * Groups related radio items.
@@ -35,12 +36,16 @@ export const MenuRadioGroup = React.memo(
 
     const onValueChange = useEventCallback(onValueChangeProp);
 
-    const setValue = React.useCallback(
-      (newValue: any, event: Event) => {
+    const setValue = useEventCallback(
+      (newValue: any, eventDetails: MenuRoot.ChangeEventDetails) => {
+        onValueChange?.(newValue, eventDetails);
+
+        if (eventDetails.isCanceled) {
+          return;
+        }
+
         setValueUnwrapped(newValue);
-        onValueChange?.(newValue, event);
       },
-      [onValueChange, setValueUnwrapped],
     );
 
     const state = React.useMemo(() => ({ disabled }), [disabled]);
@@ -93,7 +98,7 @@ export namespace MenuRadioGroup {
      *
      * @default () => {}
      */
-    onValueChange?: (value: any, event: Event) => void;
+    onValueChange?: (value: any, eventDetails: MenuRoot.ChangeEventDetails) => void;
     /**
      * Whether the component should ignore user interaction.
      *

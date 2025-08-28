@@ -283,9 +283,9 @@ function ComboSlider({ color }: { color: 'r' | 'g' | 'b' }) {
     <div className={styles.slider.Row}>
       <Slider.Root
         value={val}
-        onValueChange={(newValue, event) => {
+        onValueChange={(newValue, eventDetails) => {
           if (color === 'r') {
-            event.preventDefault();
+            eventDetails.event.preventDefault();
           }
           setVal(newValue as number);
         }}
