@@ -633,7 +633,11 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it.skipIf(isJSDOM || isWebKit)('should support touch events', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
-        <TestRangeSlider defaultValue={[20, 30]} onValueChange={handleValueChange} />,
+        <TestRangeSlider
+          defaultValue={[20, 30]}
+          style={{ width: '100px' }}
+          onValueChange={handleValueChange}
+        />,
       );
       const sliderControl = getByTestId('control');
       stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
@@ -1020,7 +1024,13 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         const handleValueChange = spy();
 
         await render(
-          <TestRangeSlider min={0} max={5} onValueChange={handleValueChange} value={value} />,
+          <TestRangeSlider
+            min={0}
+            max={5}
+            onValueChange={handleValueChange}
+            value={value}
+            style={{ width: '100px' }}
+          />,
         );
 
         const sliderControl = screen.getByTestId('control');
