@@ -3,7 +3,8 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { activeElement } from '../../floating-ui-react/utils';
+import { activeElement, contains } from '../../floating-ui-react/utils';
+import type { Coords } from '../../floating-ui-react/types';
 import { clamp } from '../../utils/clamp';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -59,7 +60,7 @@ function getControlOffset(styles: CSSStyleDeclaration | null, orientation: Orien
 function getFingerPosition(
   event: TouchEvent | PointerEvent | React.PointerEvent,
   touchIdRef: React.RefObject<any>,
-): FingerPosition | null {
+): Coords | null {
   // The event is TouchEvent
   if (touchIdRef.current !== undefined && (event as TouchEvent).changedTouches) {
     const touchEvent = event as TouchEvent;
@@ -140,7 +141,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   const getFingerState = useEventCallback(
     (
-      fingerPosition: FingerPosition | null,
+      fingerPosition: Coords | null,
       /**
        * When `true`, closestThumbIndexRef is updated.
        * It's `true` when called by touchstart or pointerdown.
@@ -379,7 +380,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
               return;
             }
 
-            const pressedOnFocusedThumb = thumbRefs.current[finger.thumbIndex]?.contains(
+            const pressedOnFocusedThumb = contains(
+              thumbRefs.current[finger.thumbIndex],
               activeElement(ownerDocument(control)),
             );
 
@@ -421,11 +423,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   return element;
 });
-
-export interface FingerPosition {
-  x: number;
-  y: number;
-}
 
 interface FingerState {
   value: number | number[];
