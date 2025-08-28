@@ -54,7 +54,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   Value extends number | readonly number[],
 >(componentProps: SliderRoot.Props<Value>, forwardedRef: React.ForwardedRef<HTMLDivElement>) {
   const {
-    'aria-labelledby': ariaLabelledbyProp,
+    'aria-labelledby': ariaLabelledByProp,
     className,
     defaultValue,
     disabled: disabledProp = false,
@@ -72,7 +72,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
     step = 1,
-    tabIndex: externalTabIndex,
     value: valueProp,
     ...elementProps
   } = componentProps;
@@ -106,7 +105,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const fieldControlValidation = useFieldControlValidation();
 
-  const ariaLabelledby = ariaLabelledbyProp ?? labelId;
+  const ariaLabelledby = ariaLabelledByProp ?? labelId;
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp ?? '';
 
@@ -291,7 +290,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       setValue,
       state,
       step,
-      tabIndex: externalTabIndex ?? null,
       thumbMap,
       thumbRefs,
       values,
@@ -301,7 +299,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       ariaLabelledby,
       disabled,
       dragging,
-      externalTabIndex,
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
@@ -489,10 +486,6 @@ export namespace SliderRoot {
      * @default 10
      */
     largeStep?: number;
-    /**
-     * Optional tab index attribute for the thumb components.
-     */
-    tabIndex?: number;
     /**
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
