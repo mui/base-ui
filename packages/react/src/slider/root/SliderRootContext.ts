@@ -5,6 +5,7 @@ import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot } from './SliderRoot';
+import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface SliderRootContext {
   /**
@@ -14,6 +15,7 @@ export interface SliderRootContext {
   dragging: boolean;
   disabled: boolean;
   fieldControlValidation: useFieldControlValidation.ReturnValue;
+  pressedInputRef: React.RefObject<HTMLInputElement | null>;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   handleInputChange: (
     valueInput: number,
@@ -48,7 +50,10 @@ export interface SliderRootContext {
   /**
    * Function to be called when drag ends and the pointer is released.
    */
-  onValueCommitted: (newValue: number | readonly number[], event: Event) => void;
+  onValueCommitted: (
+    newValue: number | readonly number[],
+    data: BaseUIEventDetails<'none'>,
+  ) => void;
   /**
    * The component orientation.
    * @default 'horizontal'
@@ -72,7 +77,6 @@ export interface SliderRootContext {
    * @default 1
    */
   step: number;
-  tabIndex: number | null;
   thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
   thumbRefs: React.RefObject<(HTMLElement | null)[]>;
   /**

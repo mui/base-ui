@@ -541,6 +541,39 @@ describe('<Checkbox.Root />', () => {
       expect(button).not.to.have.attribute('data-focused');
     });
 
+    it('[data-invalid]', async () => {
+      await render(
+        <Field.Root invalid>
+          <Checkbox.Root data-testid="button" />
+        </Field.Root>,
+      );
+
+      const button = screen.getByTestId('button');
+
+      expect(button).to.have.attribute('data-invalid', '');
+    });
+
+    it('[data-valid]', async () => {
+      await render(
+        <Field.Root validationMode="onBlur">
+          <Checkbox.Root data-testid="button" required />
+        </Field.Root>,
+      );
+
+      const button = screen.getByTestId('button');
+
+      expect(button).not.to.have.attribute('data-valid');
+      expect(button).not.to.have.attribute('data-invalid');
+
+      // Check the checkbox and trigger validation
+      fireEvent.click(button);
+      fireEvent.focus(button);
+      fireEvent.blur(button);
+
+      expect(button).to.have.attribute('data-valid', '');
+      expect(button).not.to.have.attribute('data-invalid');
+    });
+
     it('prop: validate', async () => {
       await render(
         <Field.Root validate={() => 'error'}>

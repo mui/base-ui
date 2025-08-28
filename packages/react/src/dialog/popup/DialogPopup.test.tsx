@@ -45,7 +45,7 @@ describe('<Dialog.Popup />', () => {
     });
   });
 
-  describe('prop: initial focus', () => {
+  describe('prop: initialFocus', () => {
     it('should focus the first focusable element within the popup', async () => {
       const { getByText, getByTestId } = await render(
         <div>
@@ -113,7 +113,7 @@ describe('<Dialog.Popup />', () => {
       function TestComponent() {
         const input2Ref = React.useRef<HTMLInputElement>(null);
 
-        const getRef = React.useCallback(() => input2Ref, []);
+        const getRef = React.useCallback(() => input2Ref.current, []);
 
         return (
           <div>
@@ -146,9 +146,98 @@ describe('<Dialog.Popup />', () => {
         expect(input2).to.toHaveFocus();
       });
     });
+
+    it('should support element-returning function and no-op via null/void for initialFocus', async () => {
+      function TestComponent() {
+        const input2Ref = React.useRef<HTMLInputElement>(null);
+        const getEl = React.useCallback((type: string) => {
+          if (type === 'keyboard') {
+            return input2Ref.current;
+          }
+          return undefined;
+        }, []);
+
+        return (
+          <div>
+            <Dialog.Root modal={false}>
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="dialog" initialFocus={getEl}>
+                  <input data-testid="input-1" />
+                  <input data-testid="input-2" ref={input2Ref} />
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { getByTestId, getByText, user } = await render(<TestComponent />);
+
+      const trigger = getByText('Open');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      await user.keyboard('{Escape}');
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(getByTestId('input-2')).toHaveFocus();
+      });
+    });
+
+    it('should not move focus when initialFocus is null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Dialog.Root modal={false}>
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="dialog" initialFocus={null}>
+                  <input data-testid="input-1" />
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
+
+    it('should default focus when initialFocus returns null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Dialog.Root modal={false}>
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="dialog" initialFocus={() => null}>
+                  <input data-testid="input-1" />
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      await user.click(getByText('Open'));
+      await waitFor(() => {
+        expect(getByTestId('input-1')).toHaveFocus();
+      });
+    });
   });
 
-  describe('prop: final focus', () => {
+  describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {
       const { getByText, user } = await render(
         <div>
@@ -211,6 +300,203 @@ describe('<Dialog.Popup />', () => {
 
       await waitFor(() => {
         expect(inputToFocus).toHaveFocus();
+      });
+    });
+
+    it('should support function returning element for finalFocus when closed', async () => {
+      function TestComponent() {
+        const inputRef = React.useRef<HTMLInputElement>(null);
+        const getEl = React.useCallback(() => inputRef.current, []);
+        return (
+          <div>
+            <Dialog.Root>
+              <Dialog.Backdrop />
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup finalFocus={getEl}>
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+            <input data-testid="input-to-focus" ref={inputRef} />
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      await user.click(getByText('Open'));
+      await user.click(getByText('Close'));
+      await waitFor(() => {
+        expect(getByTestId('input-to-focus')).toHaveFocus();
+      });
+    });
+
+    it('should not move focus when finalFocus is null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Dialog.Root>
+              <Dialog.Backdrop />
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup finalFocus={null}>
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+      await user.click(trigger);
+      await user.click(getByText('Close'));
+      await waitFor(() => {
+        expect(trigger).not.toHaveFocus();
+      });
+    });
+
+    it('should move focus to the trigger when finalFocus returns null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Dialog.Root>
+              <Dialog.Backdrop />
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup finalFocus={() => null}>
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+      await user.click(trigger);
+      await user.click(getByText('Close'));
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
+
+    it('should support element-returning function and default via null + no-op via void for finalFocus based on closeType', async () => {
+      function TestComponent() {
+        const inputRef = React.useRef<HTMLInputElement>(null);
+        const getEl = React.useCallback((type: string) => {
+          if (type === 'keyboard') {
+            return inputRef.current;
+          }
+          return null; // default to trigger
+        }, []);
+
+        return (
+          <div>
+            <Dialog.Root>
+              <Dialog.Backdrop />
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup finalFocus={getEl}>
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+            <input data-testid="final-input" ref={inputRef} />
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+
+      const trigger = getByText('Open');
+
+      // Close via pointer: null => default, should move focus to trigger
+      await user.click(trigger);
+      await user.click(getByText('Close'));
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      // Close via keyboard: should move focus to final-input
+      await user.click(trigger);
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(getByTestId('final-input')).toHaveFocus();
+      });
+    });
+
+    it('respects finalFocus when initialFocus points outside the popup', async () => {
+      function TestComponent() {
+        const initialRef = React.useRef<HTMLInputElement>(null);
+        const finalRef = React.useRef<HTMLInputElement>(null);
+        return (
+          <div>
+            <input data-testid="initial-outside" ref={initialRef} />
+            <Dialog.Root>
+              <Dialog.Backdrop />
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup initialFocus={initialRef} finalFocus={finalRef}>
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+            <input data-testid="final-outside" ref={finalRef} />
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+
+      await user.click(getByText('Open'));
+
+      await waitFor(() => {
+        expect(getByTestId('initial-outside')).toHaveFocus();
+      });
+
+      await user.click(getByText('Close'));
+
+      await waitFor(() => {
+        expect(getByTestId('final-outside')).toHaveFocus();
+      });
+    });
+
+    it('moves final focus to trigger if initialFocus points outside the popup and finalFocus is not specified', async () => {
+      function TestComponent() {
+        const initialRef = React.useRef<HTMLInputElement>(null);
+        const finalRef = React.useRef<HTMLInputElement>(null);
+        return (
+          <div>
+            <input data-testid="initial-outside" ref={initialRef} />
+            <Dialog.Root>
+              <Dialog.Backdrop />
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup initialFocus={initialRef}>
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+            <input data-testid="final-outside" ref={finalRef} />
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+
+      await user.click(getByText('Open'));
+
+      await waitFor(() => {
+        expect(getByTestId('initial-outside')).toHaveFocus();
+      });
+
+      await user.click(getByText('Close'));
+
+      await waitFor(() => {
+        expect(getByTestId('final-outside')).not.toHaveFocus();
       });
     });
   });

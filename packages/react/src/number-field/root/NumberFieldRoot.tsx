@@ -21,6 +21,8 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
+import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { isReactEvent } from '../../floating-ui-react/utils';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -165,6 +167,12 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const setValue = useEventCallback(
     (unvalidatedValue: number | null, event?: React.MouseEvent | Event, dir?: 1 | -1) => {
       const eventWithOptionalKeyState = event as EventWithOptionalKeyState;
+      let nativeEvent: Event | undefined;
+      if (event) {
+        nativeEvent = isReactEvent(event) ? event.nativeEvent : event;
+      }
+
+      const details = createBaseUIEventDetails('none', nativeEvent);
       const validatedValue = toValidatedNumber(unvalidatedValue, {
         step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
         format: formatOptionsRef.current,
@@ -175,7 +183,12 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         small: eventWithOptionalKeyState?.altKey ?? false,
       });
 
-      onValueChange?.(validatedValue, event && 'nativeEvent' in event ? event.nativeEvent : event);
+      onValueChange?.(validatedValue, details);
+
+      if (details.isCanceled) {
+        return;
+      }
+
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
 
@@ -526,10 +539,8 @@ export namespace NumberFieldRoot {
     format?: Intl.NumberFormatOptions;
     /**
      * Callback fired when the number value changes.
-     * @param {number | null} value The new value.
-     * @param {Event} event The event that triggered the change.
      */
-    onValueChange?: (value: number | null, event?: Event) => void;
+    onValueChange?: (value: number | null, eventDetails: ChangeEventDetails) => void;
     /**
      * The locale of the input element.
      * Defaults to the user's runtime locale.
@@ -567,6 +578,9 @@ export namespace NumberFieldRoot {
      */
     scrubbing: boolean;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }
 
 function getControlledInputValue(

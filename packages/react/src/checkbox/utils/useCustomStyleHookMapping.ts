@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { CheckboxRoot } from '../root/CheckboxRoot';
 import { CheckboxRootDataAttributes } from '../root/CheckboxRootDataAttributes';
+import { fieldValidityMapping } from '../../field/utils/constants';
 
 export function useCustomStyleHookMapping(state: CheckboxRoot.State) {
   return React.useMemo<CustomStyleHookMapping<typeof state>>(
@@ -23,6 +24,7 @@ export function useCustomStyleHookMapping(state: CheckboxRoot.State) {
           [CheckboxRootDataAttributes.unchecked]: '',
         };
       },
+      ...fieldValidityMapping,
     }),
     [state.indeterminate],
   );

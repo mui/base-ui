@@ -26,4 +26,7 @@ export namespace Input {
   }
 
   export interface State extends Field.Control.State {}
+
+  export type ChangeEventReason = Field.Control.ChangeEventReason;
+  export type ChangeEventDetails = Field.Control.ChangeEventDetails;
 }

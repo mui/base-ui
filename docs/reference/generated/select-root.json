@@ -14,14 +14,14 @@
       "detailedType": "Value[] | Value | null | undefined"
     },
     "value": {
-      "type": "Value[] | Value | null",
+      "type": "Value[] | Value",
       "description": "The value of the select.",
-      "detailedType": "Value[] | Value | null | undefined"
+      "detailedType": "Value[] | Value | undefined"
     },
     "onValueChange": {
-      "type": "((value: Value[] | Value, event: Event | undefined) => void)",
+      "type": "((value: Value[] | Value, eventDetails: Select.Root.ChangeEventDetails) => void)",
       "description": "Callback fired when the value of the select changes. Use when controlled.",
-      "detailedType": "| ((\n    value: Value[] | Value,\n    event: Event | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {
       "type": "boolean",
@@ -35,9 +35,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: Select.Root.OpenChangeReason | undefined) => void)",
+      "type": "((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the select menu is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: Select.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Select.Root.Actions>",

@@ -20,7 +20,7 @@ export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
   const fallbackValue = useBaseUiId();
   const value = valueProp ?? fallbackValue;
 
-  const element = useRenderElement('div', componentProps, {
+  const element = useRenderElement('li', componentProps, {
     ref: forwardedRef,
     props: elementProps,
   });
@@ -33,7 +33,7 @@ export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
 export namespace NavigationMenuItem {
   export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends BaseUIComponentProps<'li', State> {
     /**
      * A unique value that identifies this navigation menu item.
      * If no value is provided, a unique ID will be generated automatically.

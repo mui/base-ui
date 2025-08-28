@@ -25,6 +25,7 @@ import {
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { Dimensions, ElementProps, FloatingRootContext } from '../types';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
 import { scrollIntoViewIfNeeded } from '../../composite/composite';
@@ -606,7 +607,7 @@ export function useListNavigation(
         stopEvent(event);
       }
 
-      onOpenChange(false, event.nativeEvent, 'list-navigation');
+      onOpenChange(false, createBaseUIEventDetails('list-navigation', event.nativeEvent));
 
       if (isHTMLElement(elements.domReference)) {
         if (virtual) {
@@ -806,7 +807,7 @@ export function useListNavigation(
         // Close submenu on Shift+Tab
         if (event.key === 'Tab' && event.shiftKey && open && !virtual) {
           stopEvent(event);
-          onOpenChange(false, event.nativeEvent, 'list-navigation');
+          onOpenChange(false, createBaseUIEventDetails('list-navigation', event.nativeEvent));
 
           if (isHTMLElement(elements.domReference)) {
             elements.domReference.focus();
@@ -887,7 +888,7 @@ export function useListNavigation(
               indexRef.current = getMinListIndex(listRef, disabledIndicesRef.current);
               onNavigate();
             } else {
-              onOpenChange(true, event.nativeEvent, 'list-navigation');
+              onOpenChange(true, createBaseUIEventDetails('list-navigation', event.nativeEvent));
             }
           }
 
@@ -902,7 +903,7 @@ export function useListNavigation(
           stopEvent(event);
 
           if (!open && openOnArrowKeyDown) {
-            onOpenChange(true, event.nativeEvent, 'list-navigation');
+            onOpenChange(true, createBaseUIEventDetails('list-navigation', event.nativeEvent));
           } else {
             commonOnKeyDown(event);
           }

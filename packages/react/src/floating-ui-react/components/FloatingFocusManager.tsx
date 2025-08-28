@@ -7,6 +7,9 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { ownerWindow } from '@base-ui-components/utils/owner';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -25,13 +28,38 @@ import {
   getNextTabbable,
   getPreviousTabbable,
 } from '../utils';
-import type { FloatingRootContext, OpenChangeReason } from '../types';
+import type { FloatingRootContext } from '../types';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
+import { FloatingUIOpenChangeDetails } from '../../utils/types';
+
+function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
+  const win = ownerWindow(event.target);
+  if (event instanceof win.KeyboardEvent) {
+    return 'keyboard';
+  }
+  if (event instanceof win.FocusEvent) {
+    // Focus events can be caused by a preceding pointer interaction (e.g., focusout on outside press).
+    // Prefer the last known pointer type if provided, else treat as keyboard.
+    return lastInteractionType || 'keyboard';
+  }
+  if ('pointerType' in event) {
+    return (event.pointerType as React.PointerEvent['pointerType']) || 'keyboard';
+  }
+  if ('touches' in event) {
+    return 'touch';
+  }
+  if (event instanceof win.MouseEvent) {
+    // onClick events may not contain pointer events, and will fall through to here
+    return lastInteractionType || (event.detail === 0 ? 'keyboard' : 'mouse');
+  }
+  return '';
+}
 
 const LIST_LIMIT = 20;
 let previouslyFocusedElements: Element[] = [];
@@ -107,6 +135,10 @@ export interface FloatingFocusManagerProps {
    */
   context: FloatingRootContext;
   /**
+   * The interaction type used to open the floating element.
+   */
+  openInteractionType?: InteractionType | null;
+  /**
    * Whether or not the focus manager should be disabled. Useful to delay focus
    * management until after a transition completes or some other conditional
    * state.
@@ -123,7 +155,11 @@ export interface FloatingFocusManagerProps {
    * specified by the `order`) or a ref.
    * @default 0
    */
-  initialFocus?: number | React.RefObject<HTMLElement | null>;
+  initialFocus?:
+    | number
+    | React.RefObject<HTMLElement | null>
+    | null
+    | ((openType: InteractionType) => number | HTMLElement | null | void);
   /**
    * Determines if focus should be returned to the reference element once the
    * floating element closes/unmounts (or if that is not available, the
@@ -132,14 +168,22 @@ export interface FloatingFocusManagerProps {
    * It can be also set to a ref to explicitly control the element to return focus to.
    * @default true
    */
-  returnFocus?: boolean | React.RefObject<HTMLElement | null>;
+  returnFocus?:
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | null
+    | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
   /**
-   * Determines if focus should be restored to the nearest tabbable element if
-   * focus inside the floating element is lost (such as due to the removal of
-   * the currently focused element from the DOM).
+   * Determines where focus should be restored if focus inside the floating element is lost
+   * (such as due to the removal of the currently focused element from the DOM).
+   *
+   * - `true`: restore to the nearest tabbable element inside the floating tree (previous
+   *   tabbable if possible, otherwise the last tabbable, then the floating element itself)
+   * - `'popup'`: restore directly to the floating element (container) itself
+   * - `false`: do not restore focus
    * @default false
    */
-  restoreFocus?: boolean;
+  restoreFocus?: boolean | 'popup';
   /**
    * Determines if focus is “modal”, meaning focus is fully trapped inside the
    * floating element and outside content cannot be accessed. This includes
@@ -178,6 +222,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     restoreFocus = false,
     modal = true,
     closeOnFocusOut = true,
+    openInteractionType = '',
     getInsideElements: getInsideElementsProp = () => [],
   } = props;
   const {
@@ -202,6 +247,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const orderRef = useLatestRef(order);
   const initialFocusRef = useLatestRef(initialFocus);
   const returnFocusRef = useLatestRef(returnFocus);
+  const openInteractionTypeRef = useLatestRef(openInteractionType);
 
   const tree = useFloatingTree();
   const portalContext = usePortalContext();
@@ -211,8 +257,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const preventReturnFocusRef = React.useRef(false);
   const isPointerDownRef = React.useRef(false);
   const tabbableIndexRef = React.useRef(-1);
+  const closeTypeRef = React.useRef<InteractionType>('');
+  const lastInteractionTypeRef = React.useRef<InteractionType>('');
 
   const blurTimeout = useTimeout();
+  const restoreFocusFrame = useAnimationFrame();
 
   const isInsidePortal = portalContext != null;
   const floatingFocusElement = getFloatingFocusElement(floating);
@@ -293,6 +342,31 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     };
   }, [disabled, floating, getTabbableContent]);
 
+  // Track the last interaction type at the document level to disambiguate focus events
+  React.useEffect(() => {
+    if (disabled || !open) {
+      return undefined;
+    }
+
+    const doc = getDocument(floatingFocusElement);
+
+    function onPointerDown(event: PointerEvent) {
+      lastInteractionTypeRef.current =
+        (event.pointerType as React.PointerEvent['pointerType']) || 'keyboard';
+    }
+
+    function onKeyDown() {
+      lastInteractionTypeRef.current = 'keyboard';
+    }
+
+    doc.addEventListener('pointerdown', onPointerDown, true);
+    doc.addEventListener('keydown', onKeyDown, true);
+    return () => {
+      doc.removeEventListener('pointerdown', onPointerDown, true);
+      doc.removeEventListener('keydown', onKeyDown, true);
+    };
+  }, [disabled, floating, domReference, floatingFocusElement, open]);
+
   React.useEffect(() => {
     if (disabled) {
       return undefined;
@@ -352,6 +426,18 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // floating tree.
           if (isHTMLElement(floatingFocusElement)) {
             floatingFocusElement.focus();
+            // If explicitly requested to restore focus to the popup container, do not search
+            // for the next/previous tabbable element.
+            if (restoreFocus === 'popup') {
+              // If the element is removed on pointerdown, focus tries to move it,
+              // but since it's removed at the same time, focus gets lost as it
+              // happens after the .focus() call above.
+              // In this case, focus needs to be moved asynchronously.
+              restoreFocusFrame.request(() => {
+                floatingFocusElement.focus();
+              });
+              return;
+            }
           }
 
           const prevTabbableIndex = tabbableIndexRef.current;
@@ -387,7 +473,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           relatedTarget !== getPreviouslyFocusedElement()
         ) {
           preventReturnFocusRef.current = true;
-          onOpenChange(false, event, 'focus-out');
+          onOpenChange(false, createBaseUIEventDetails('focus-out', event));
         }
       });
     }
@@ -438,6 +524,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     orderRef,
     dataRef,
     blurTimeout,
+    restoreFocusFrame,
   ]);
 
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
@@ -447,10 +534,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
   React.useEffect(() => {
-    if (disabled) {
-      return undefined;
-    }
-    if (!floating) {
+    if (disabled || !floating || !open) {
       return undefined;
     }
 
@@ -484,6 +568,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       cleanup();
     };
   }, [
+    open,
     disabled,
     domReference,
     floating,
@@ -507,14 +592,43 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     // Wait for any layout effect state setters to execute to set `tabIndex`.
     queueMicrotask(() => {
       const focusableElements = getTabbableElements(floatingFocusElement);
-      const initialFocusValue = initialFocusRef.current;
-      const elToFocus =
-        (typeof initialFocusValue === 'number'
-          ? focusableElements[initialFocusValue]
-          : initialFocusValue.current) || floatingFocusElement;
+      const initialFocusValueOrFn = initialFocusRef.current;
+      const resolvedInitialFocus =
+        typeof initialFocusValueOrFn === 'function'
+          ? initialFocusValueOrFn(openInteractionTypeRef.current || '')
+          : initialFocusValueOrFn;
+
+      // If the prop was explicitly set to null, do nothing.
+      if (initialFocusValueOrFn === null) {
+        return;
+      }
+
+      // If a function returned undefined/void, do nothing.
+      if (resolvedInitialFocus === undefined) {
+        return;
+      }
+
+      const normalizedInitialFocus = resolvedInitialFocus ?? 0; // null => default
+      const ignoreResolvedInitialFocus =
+        typeof normalizedInitialFocus === 'number' && normalizedInitialFocus < 0;
+
+      if (ignoreResolvedInitialFocus) {
+        return;
+      }
+
+      let elToFocus: FocusableElement | null | undefined;
+      if (typeof normalizedInitialFocus === 'number') {
+        elToFocus = focusableElements[normalizedInitialFocus];
+      } else if (normalizedInitialFocus && 'current' in normalizedInitialFocus) {
+        elToFocus = normalizedInitialFocus.current;
+      } else {
+        elToFocus = normalizedInitialFocus as HTMLElement | null | undefined;
+      }
+      elToFocus = elToFocus || focusableElements[0] || floatingFocusElement;
+
       const focusAlreadyInsideFloatingEl = contains(floatingFocusElement, previouslyFocusedElement);
 
-      if (!ignoreInitialFocus && !focusAlreadyInsideFloatingEl && open) {
+      if (!ignoreResolvedInitialFocus && !focusAlreadyInsideFloatingEl && open) {
         enqueueFocus(elToFocus, {
           preventScroll: elToFocus === floatingFocusElement,
         });
@@ -527,6 +641,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     ignoreInitialFocus,
     getTabbableElements,
     initialFocusRef,
+    openInteractionTypeRef,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -541,29 +656,24 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     // Dismissing via outside press should always ignore `returnFocus` to
     // prevent unwanted scrolling.
-    function onOpenChangeLocal({
-      reason,
-      event,
-      nested,
-    }: {
-      open: boolean;
-      reason: OpenChangeReason;
-      event: Event;
-      nested: boolean;
-    }) {
-      if (['hover', 'safe-polygon'].includes(reason) && event.type === 'mouseleave') {
+    function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
+      if (!details.open) {
+        closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
+      }
+
+      if (details.reason === 'trigger-hover' && details.nativeEvent.type === 'mouseleave') {
         preventReturnFocusRef.current = true;
       }
 
-      if (reason !== 'outside-press') {
+      if (details.reason !== 'outside-press') {
         return;
       }
 
-      if (nested) {
+      if (details.nested) {
         preventReturnFocusRef.current = false;
       } else if (
-        isVirtualClick(event as MouseEvent) ||
-        isVirtualPointerEvent(event as PointerEvent)
+        isVirtualClick(details.nativeEvent as MouseEvent) ||
+        isVirtualPointerEvent(details.nativeEvent as PointerEvent)
       ) {
         preventReturnFocusRef.current = false;
       } else {
@@ -595,12 +705,34 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     function getReturnElement() {
-      if (typeof returnFocusRef.current === 'boolean') {
+      const returnFocusValueOrFn = returnFocusRef.current;
+      const resolvedReturnFocusValue =
+        typeof returnFocusValueOrFn === 'function'
+          ? returnFocusValueOrFn(closeTypeRef.current)
+          : returnFocusValueOrFn;
+
+      // If the prop was explicitly set to null, do nothing.
+      if (returnFocusValueOrFn === null) {
+        return null;
+      }
+
+      // If a function returned undefined/void, do nothing.
+      if (resolvedReturnFocusValue === undefined) {
+        return null;
+      }
+
+      if (typeof resolvedReturnFocusValue === 'boolean') {
         const el = domReference || getPreviouslyFocusedElement();
         return el && el.isConnected ? el : fallbackEl;
       }
 
-      return returnFocusRef.current.current || fallbackEl;
+      const fallback = domReference || getPreviouslyFocusedElement() || fallbackEl;
+
+      if (resolvedReturnFocusValue && 'current' in resolvedReturnFocusValue) {
+        return resolvedReturnFocusValue.current || fallback;
+      }
+
+      return resolvedReturnFocusValue || fallback;
     }
 
     return () => {
@@ -616,9 +748,15 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       const returnElement = getReturnElement();
 
+      if (!returnElement) {
+        return;
+      }
+
       queueMicrotask(() => {
         // This is `returnElement`, if it's tabbable, or its first tabbable child.
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
+        const hasExplicitReturnFocus = typeof returnFocusRef.current !== 'boolean';
+
         if (
           // eslint-disable-next-line react-hooks/exhaustive-deps
           returnFocusRef.current &&
@@ -627,7 +765,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // If the focus moved somewhere else after mount, avoid returning focus
           // since it likely entered a different element which should be
           // respected: https://github.com/floating-ui/floating-ui/issues/2607
-          (tabbableReturnElement !== activeEl && activeEl !== doc.body
+          (!hasExplicitReturnFocus && tabbableReturnElement !== activeEl && activeEl !== doc.body
             ? isFocusInsideFloatingTree
             : true)
         ) {
