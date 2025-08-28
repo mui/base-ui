@@ -96,7 +96,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const { render: renderProp, className, ...elementProps } = componentProps;
 
   const {
-    active: activeThumbIndex,
     disabled,
     dragging,
     fieldControlValidation,
@@ -218,19 +217,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
   );
 
   const focusThumb = useEventCallback((thumbIndex: number) => {
-    const control = controlRef.current;
-    if (!control) {
-      return;
-    }
-
-    const activeEl = activeElement(ownerDocument(control));
-
-    if (activeEl == null || !control.contains(activeEl) || activeThumbIndex !== thumbIndex) {
-      setActive(thumbIndex);
-      thumbRefs.current?.[thumbIndex]
-        ?.querySelector<HTMLInputElement>('input[type="range"]')
-        ?.focus({ preventScroll: true });
-    }
+    thumbRefs.current?.[thumbIndex]
+      ?.querySelector<HTMLInputElement>('input[type="range"]')
+      ?.focus({ preventScroll: true });
   });
 
   const handleTouchMove = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
