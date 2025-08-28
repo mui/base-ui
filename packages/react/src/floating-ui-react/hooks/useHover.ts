@@ -257,13 +257,16 @@ export function useHover(
       const openDelay = getDelay(delayRef.current, 'open', pointerTypeRef.current);
       const trigger = (event.currentTarget as HTMLElement) ?? undefined;
 
+      const isOverInactiveTrigger =
+        elements.domReference && trigger && !elements.domReference.contains(trigger);
+
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
             onOpenChange(true, createBaseUIEventDetails('trigger-hover', event), trigger);
           }
         });
-      } else if (!open) {
+      } else if (!open || isOverInactiveTrigger) {
         onOpenChange(true, createBaseUIEventDetails('trigger-hover', event), trigger);
       }
     }
