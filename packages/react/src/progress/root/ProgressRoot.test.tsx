@@ -40,7 +40,10 @@ describe('<Progress.Root />', () => {
       expect(progressbar).to.have.attribute('aria-valuenow', '30');
       expect(progressbar).to.have.attribute('aria-valuemin', '0');
       expect(progressbar).to.have.attribute('aria-valuemax', '100');
-      expect(progressbar).to.have.attribute('aria-valuetext', '30%');
+      expect(progressbar).to.have.attribute(
+        'aria-valuetext',
+        (0.3).toLocaleString(undefined, { style: 'percent' }),
+      );
       expect(progressbar.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
     });
 
