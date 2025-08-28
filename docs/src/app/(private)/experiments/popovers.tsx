@@ -117,7 +117,7 @@ export default function Popovers() {
             setControlledWithinRootOpen(open);
             setControlledWithinRootTriggerId(triggerId);
           }}
-          triggerId={controlledWithinRootTriggerId ?? undefined}
+          triggerId={controlledWithinRootTriggerId}
         >
           {({ payload }) => (
             <React.Fragment>
@@ -155,7 +155,7 @@ export default function Popovers() {
         <StyledPopover
           handle={popover2}
           open={controlledDetachedOpen}
-          triggerId={controlledDetachedTriggerId ?? undefined}
+          triggerId={controlledDetachedTriggerId}
           onOpenChange={(open, eventDetails, triggerId) => {
             setControlledDetachedOpen(open);
             setControlledDetachedTriggerId(triggerId);
