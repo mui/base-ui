@@ -20,7 +20,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 ) {
   const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
 
-  const { store, popupRef, listRef } = useSelectRootContext();
+  const { store, popupRef, listRef, handleScrollArrowVisibility } = useSelectRootContext();
   const { side, scrollDownArrowRef, scrollUpArrowRef } = useSelectPositionerContext();
 
   const selector =
@@ -72,6 +72,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         }
 
         store.set('activeIndex', null);
+        handleScrollArrowVisibility();
 
         const isScrolledToTop = popupElement.scrollTop === 0;
         const isScrolledToBottom =
@@ -80,40 +81,13 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
         const list = listRef.current;
 
-        // Update visibility based on the first/last actual items (ignores sticky arrows and labels).
-        if (list.length > 0) {
-          const firstItem = list.find((item) => item != null);
-          let lastItem: HTMLElement | undefined;
-          for (let i = list.length - 1; i >= 0; i -= 1) {
-            const item = list[i];
-            if (item) {
-              lastItem = item;
-              break;
-            }
-          }
-
-          if (!firstItem || !lastItem) {
-            return;
-          }
-
-          const firstItemTop = firstItem.offsetTop;
-          const lastItemBottom = lastItem.offsetTop + lastItem.offsetHeight;
-
-          const viewportTop = popupElement.scrollTop;
-          const viewportBottom = popupElement.scrollTop + popupElement.clientHeight;
-
-          const shouldShowUp = viewportTop > firstItemTop + 1;
-          const shouldShowDown = viewportBottom < lastItemBottom - 1;
-
+        // Fallback when there are no items registered yet.
+        if (list.length === 0) {
           if (direction === 'up') {
-            store.set('scrollUpArrowVisible', shouldShowUp);
+            store.set('scrollUpArrowVisible', !isScrolledToTop);
           } else {
-            store.set('scrollDownArrowVisible', shouldShowDown);
+            store.set('scrollDownArrowVisible', !isScrolledToBottom);
           }
-        } else if (direction === 'up') {
-          store.set('scrollUpArrowVisible', !isScrolledToTop);
-        } else {
-          store.set('scrollDownArrowVisible', !isScrolledToBottom);
         }
 
         if (

@@ -21,6 +21,7 @@ export interface SelectRootContext {
   ) => void;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
+  handleScrollArrowVisibility: () => void;
   getItemProps: (
     props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>; // PREVENT_COMMIT

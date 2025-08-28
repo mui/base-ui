@@ -5,7 +5,6 @@ import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useStore } from '@base-ui-components/utils/store';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { FloatingFocusManager } from '../../floating-ui-react';
@@ -44,7 +43,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const {
     store,
     popupRef,
-    listRef,
     onOpenChangeComplete,
     setOpen,
     valueRef,
@@ -52,6 +50,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     keyboardActiveRef,
     highlightTimeout,
     multiple,
+    handleScrollArrowVisibility,
   } = useSelectRootContext();
   const {
     side,
@@ -69,8 +68,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
-  const scrollUpArrowVisible = useStore(store, selectors.scrollUpArrowVisible);
-  const scrollDownArrowVisible = useStore(store, selectors.scrollDownArrowVisible);
 
   const scrollArrowFrame = useAnimationFrame();
 
@@ -99,45 +96,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const maxHeightRef = React.useRef(0);
   const initialPlacedRef = React.useRef(false);
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
-
-  const handleScrollArrowVisibility = useEventCallback(() => {
-    const popupElement = popupRef.current;
-    if (!popupElement) {
-      return;
-    }
-
-    // Determine visibility based on the first/last actual items, not container extremes.
-    const list = listRef.current;
-    const firstItem = list.find((item) => item != null);
-    let lastItem: HTMLElement | undefined;
-    for (let i = list.length - 1; i >= 0; i -= 1) {
-      const item = list[i];
-      if (item) {
-        lastItem = item;
-        break;
-      }
-    }
-
-    if (!firstItem || !lastItem) {
-      return;
-    }
-
-    const firstItemTop = firstItem.offsetTop;
-    const lastItemBottom = lastItem.offsetTop + lastItem.offsetHeight;
-
-    const viewportTop = popupElement.scrollTop;
-    const viewportBottom = popupElement.scrollTop + popupElement.clientHeight;
-
-    const shouldShowUp = viewportTop > firstItemTop + 1;
-    const shouldShowDown = viewportBottom < lastItemBottom - 1;
-
-    if (scrollUpArrowVisible !== shouldShowUp) {
-      store.set('scrollUpArrowVisible', shouldShowUp);
-    }
-    if (scrollDownArrowVisible !== shouldShowDown) {
-      store.set('scrollDownArrowVisible', shouldShowDown);
-    }
-  });
 
   useIsoLayoutEffect(() => {
     if (!positionerElement || Object.keys(originalPositionerStylesRef.current).length) {
