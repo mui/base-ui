@@ -106,6 +106,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const {
     active: activeIndex,
     disabled: contextDisabled,
+    pressedInputRef,
     fieldControlValidation,
     formatOptionsRef,
     handleInputChange,
@@ -128,6 +129,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const { controlId, setControlId, setTouched, setFocused, validationMode } = useFieldRootContext();
 
   const thumbRef = React.useRef<HTMLElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   useIsoLayoutEffect(() => {
     setControlId(inputId);
@@ -316,10 +318,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const children = childrenProp ? (
     <React.Fragment>
       {childrenProp}
-      <input {...inputProps} />
+      <input ref={inputRef} {...inputProps} />
     </React.Fragment>
   ) : (
-    <input {...inputProps} />
+    <input ref={inputRef} {...inputProps} />
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -332,6 +334,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         id,
         onBlur: onBlurProp,
         onFocus: onFocusProp,
+        onPointerDown() {
+          if (inputRef.current != null && pressedInputRef.current !== inputRef.current) {
+            pressedInputRef.current = inputRef.current;
+          }
+        },
         style: getThumbStyle(),
         tabIndex: -1,
       },
