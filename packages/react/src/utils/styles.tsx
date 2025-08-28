@@ -1,10 +1,12 @@
 import * as React from 'react';
 
+export const DISABLE_SCROLLBAR_CLASS_NAME = 'base-ui-disable-scrollbar';
+
 export const styleDisableScrollbar = {
-  className: 'base-ui-disable-scrollbar',
+  className: DISABLE_SCROLLBAR_CLASS_NAME,
   element: (
-    <style href="base-ui-disable-scrollbar" precedence="base-ui:low">
-      {`.base-ui-disable-scrollbar{scrollbar-width:none}.base-ui-disable-scrollbar::-webkit-scrollbar{display:none}`}
+    <style href={DISABLE_SCROLLBAR_CLASS_NAME} precedence="base-ui:low">
+      {`.${DISABLE_SCROLLBAR_CLASS_NAME}{scrollbar-width:none}.${DISABLE_SCROLLBAR_CLASS_NAME}::-webkit-scrollbar{display:none}`}
     </style>
   ),
 };
