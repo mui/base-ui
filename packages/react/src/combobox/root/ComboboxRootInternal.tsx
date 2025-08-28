@@ -485,6 +485,18 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const setInputValue = useEventCallback(
     (next: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
+      if (eventDetails.reason === 'input-clear' && open) {
+        hadInputClearRef.current = true;
+        // Defer clearing until close transition completes to avoid flicker
+        return;
+      }
+
+      props.onInputValueChange?.(next, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
       if (eventDetails.reason === 'input-change') {
@@ -497,13 +509,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         }
       }
 
-      if (eventDetails.reason === 'input-clear' && open) {
-        hadInputClearRef.current = true;
-        // Defer clearing until close transition completes to avoid flicker
-        return;
-      }
-
-      props.onInputValueChange?.(next, eventDetails);
       setInputValueUnwrapped(next);
     },
   );
@@ -511,7 +516,57 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const setOpen = useEventCallback(
     (nextOpen: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
       props.onOpenChange?.(nextOpen, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      // Avoid a flicker when closing the popup with an empty query.
+      if (selectionMode === 'single' && !nextOpen && query === '') {
+        setQueryChangedAfterOpen(false);
+      }
+
       setOpenUnwrapped(nextOpen);
+    },
+  );
+
+  const setSelectedValue = useEventCallback(
+    (nextValue: Value | Value[], eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
+      // Cast to `any` due to conditional value type (single vs. multiple).
+      // The runtime implementation already ensures the correct value shape.
+      onSelectedValueChange?.(nextValue as any, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      setSelectedValueUnwrapped(nextValue);
+
+      const shouldFillInput =
+        (selectionMode === 'none' && popupRef.current && fillInputOnItemPress) ||
+        (selectionMode === 'single' && popupRef.current && anchorElement === inputElement);
+
+      if (shouldFillInput) {
+        setInputValue(
+          stringifyItem(nextValue, itemToLabel),
+          createBaseUIEventDetails(eventDetails.reason, eventDetails.event),
+        );
+      }
+
+      const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
+      if (multiple && hadInputValue) {
+        setInputValue('', createBaseUIEventDetails(eventDetails.reason, eventDetails.event));
+        // Reset active index and clear any highlighted item since the list will re-filter.
+        setIndices({ activeIndex: null });
+      }
+
+      if (
+        selectionMode === 'single' &&
+        nextValue != null &&
+        eventDetails.reason !== 'input-change'
+      ) {
+        setOpen(false, createBaseUIEventDetails('item-press', eventDetails.event as any));
+      }
     },
   );
 
@@ -602,41 +657,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       }
     },
   });
-
-  const setSelectedValue = useEventCallback(
-    (nextValue: Value | Value[], eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
-      // Cast to `any` due to conditional value type (single vs. multiple).
-      // The runtime implementation already ensures the correct value shape.
-      onSelectedValueChange?.(nextValue as any, eventDetails);
-      setSelectedValueUnwrapped(nextValue);
-
-      const shouldFillInput =
-        (selectionMode === 'none' && popupRef.current && fillInputOnItemPress) ||
-        (selectionMode === 'single' && popupRef.current && anchorElement === inputElement);
-
-      if (shouldFillInput) {
-        setInputValue(
-          stringifyItem(nextValue, itemToLabel),
-          createBaseUIEventDetails(eventDetails.reason, eventDetails.event),
-        );
-      }
-
-      const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-      if (multiple && hadInputValue) {
-        setInputValue('', createBaseUIEventDetails(eventDetails.reason, eventDetails.event));
-        // Reset active index and clear any highlighted item since the list will re-filter.
-        setIndices({ activeIndex: null });
-      }
-
-      if (
-        selectionMode === 'single' &&
-        nextValue != null &&
-        eventDetails.reason !== 'input-change'
-      ) {
-        setOpen(false, createBaseUIEventDetails('item-press', eventDetails.event as any));
-      }
-    },
-  );
 
   const handleEnterSelection = useEventCallback(() => {
     if (activeIndex === null) {
