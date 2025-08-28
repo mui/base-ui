@@ -12,6 +12,12 @@
       "description": "A function which returns a string value for the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.\nThis is important for screen reader users.",
       "detailedType": "| ((\n    formattedValue: string,\n    value: number,\n    index: number,\n  ) => string)\n| null\n| undefined"
     },
+    "index": {
+      "type": "number",
+      "description": "The index of the thumb which corresponds to the index of its value in the\n`value` or `defaultValue` array.\nThis prop is required to support server-side rendering for range sliders\nwith multiple thumbs.",
+      "example": "```tsx\n<Slider.Root value={[10, 20]}>\n  <Slider.Thumb index={0} />\n  <Slider.Thumb index={1} />\n</Slider.Root>\n```",
+      "detailedType": "number | undefined"
+    },
     "onBlur": {
       "type": "FocusEventHandler<HTMLInputElement>",
       "description": "A blur handler forwarded to the `input`.",
