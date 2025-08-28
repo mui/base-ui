@@ -70,10 +70,10 @@ describe('<NumberField.Increment />', () => {
     const increase = screen.getByLabelText('Increase');
 
     await user.click(screen.getByText('external'));
-    expect(input).to.have.value('1.23456');
+    expect(input).to.have.value((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
 
     await user.click(increase);
-    expect(input).to.have.value('2.235');
+    expect(input).to.have.value((2.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
   });
 
   it('only calls onValueChange once per increment', async () => {
@@ -343,7 +343,7 @@ describe('<NumberField.Increment />', () => {
       const button = screen.getByRole('button');
       fireEvent.click(button);
 
-      expect(screen.getByRole('textbox')).to.have.value('4.7');
+      expect(screen.getByRole('textbox')).to.have.value((4.7).toLocaleString());
     });
 
     it('should snap on increment when snapOnStep is true', async () => {
