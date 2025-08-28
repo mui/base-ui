@@ -88,14 +88,10 @@ describe('<NumberField.Decrement />', () => {
     const button = screen.getByRole('button');
 
     await user.click(button);
-    await waitFor(() => {
-      expect(handleValueChange.callCount).to.equal(1);
-    });
+    expect(handleValueChange.callCount).to.equal(1);
 
     await user.click(button);
-    await waitFor(() => {
-      expect(handleValueChange.callCount).to.equal(2);
-    });
+    expect(handleValueChange.callCount).to.equal(2);
   });
 
   describe('press and hold', () => {
