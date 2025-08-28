@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { usePrevious } from '@base-ui-components/utils/usePrevious';
+import { usePreviousRenderValue } from '@base-ui-components/utils/usePreviousRenderValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -36,7 +36,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const { store } = usePopoverRootContext();
 
   const activeTrigger = useStore(store, selectors.activeTriggerElement);
-  const previousActiveTrigger = usePrevious(activeTrigger);
+  const previousActiveTrigger = usePreviousRenderValue(activeTrigger);
 
   const capturedNodeRef = React.useRef<HTMLElement | null>(null);
   const [previousContentNode, setPreviousContentNode] = React.useState<HTMLElement | null>(null);
