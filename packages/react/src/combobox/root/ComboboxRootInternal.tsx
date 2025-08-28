@@ -168,7 +168,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     state: 'open',
   });
 
-  const query = inputValue === '' ? '' : String(inputValue).trim().toLocaleLowerCase();
+  const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
+
+  const query =
+    closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim().toLocaleLowerCase());
   const isGrouped = isGroupedItems(items);
 
   const flatItems: Value[] = React.useMemo(() => {
@@ -521,9 +524,12 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         return;
       }
 
-      // Avoid a flicker when closing the popup with an empty query.
-      if (selectionMode === 'single' && !nextOpen && query === '') {
-        setQueryChangedAfterOpen(false);
+      if (selectionMode === 'single' && !nextOpen && queryChangedAfterOpen) {
+        setCloseQuery(query);
+        // Avoid a flicker when closing the popup with an empty query.
+        if (query === '') {
+          setQueryChangedAfterOpen(false);
+        }
       }
 
       setOpenUnwrapped(nextOpen);
@@ -566,6 +572,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         eventDetails.reason !== 'input-change'
       ) {
         setOpen(false, createBaseUIEventDetails('item-press', eventDetails.event as any));
+
+        if (queryChangedAfterOpen) {
+          setCloseQuery(query);
+        }
       }
     },
   );
@@ -599,6 +609,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
     resetOpenInteractionType();
+    setCloseQuery(null);
 
     if (selectionMode === 'none') {
       setIndices({ activeIndex: null, selectedIndex: null });
