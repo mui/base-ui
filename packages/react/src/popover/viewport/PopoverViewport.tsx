@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
+import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { usePrevious } from '@base-ui-components/utils/usePrevious';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -116,7 +117,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       <React.Fragment>
         <div
           data-previous
-          inert
+          inert={inertValue(true)}
           ref={previousContainerRef}
           style={{
             width: previousContentDimensions?.width,
