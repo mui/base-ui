@@ -275,7 +275,7 @@ export default function Page() {
         </Field.Root>
 
         <Field.Root name="combobox" className={styles.Field}>
-          <Field.Label className={styles.Label}>Framework</Field.Label>
+          <Field.Label className={styles.Label}>Framework (Combobox)</Field.Label>
           <Combobox.Root required={native} items={frameworks}>
             <Combobox.Input placeholder="Select a framework" className={styles.Input} />
             <Combobox.Portal>
@@ -297,7 +297,7 @@ export default function Page() {
         </Field.Root>
 
         <Field.Root name="autocomplete" className={styles.Field}>
-          <Field.Label className={styles.Label}>Framework</Field.Label>
+          <Field.Label className={styles.Label}>Framework (Autocomplete)</Field.Label>
           <Autocomplete.Root required={native} items={frameworks}>
             <Autocomplete.Input placeholder="Input framework" className={styles.Input} />
             <Autocomplete.Portal>
