@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import NextLink, { LinkProps as NextLinkProps } from 'next/link';
+import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import scrollIntoView from 'scroll-into-view-if-needed';
@@ -51,9 +51,6 @@ export function Item(props: ItemProps) {
   const { children, className, href, external, ...other } = props;
   const ref = React.useRef<HTMLLIElement>(null);
   const pathname = usePathname();
-  // By default, Next.js prefetches all the links as soon as they enter the viewport. For a side nav, it spams
-  // requests to the CDN for nothing. Instead, wait for the user to hover link.
-  const [prefetch, setPrefetch] = React.useState<NextLinkProps['prefetch']>(false);
   const active = pathname === href;
   const rem = React.useRef(16);
 
@@ -93,15 +90,7 @@ export function Item(props: ItemProps) {
       <LinkComponent
         className="SideNavLink"
         href={href}
-        {...(external
-          ? {}
-          : {
-              scroll: !active,
-              prefetch,
-              onMouseEnter: () => {
-                setPrefetch('auto');
-              },
-            })}
+        scroll={external ? undefined : !active}
         {...(active
           ? {
               'aria-current': true,
