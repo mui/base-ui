@@ -113,7 +113,7 @@ export function useAnchorPositioning(
     align = 'center',
     alignOffset = 0,
     collisionBoundary,
-    collisionPadding = 5,
+    collisionPadding: collisionPaddingParam = 5,
     sticky = false,
     arrowPadding = 5,
     trackAnchor = true,
@@ -161,35 +161,31 @@ export function useAnchorPositioning(
 
   const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
 
-  const commonCollisionProps = {
-    boundary: collisionBoundary === 'clipping-ancestors' ? 'clippingAncestors' : collisionBoundary,
-    padding: collisionPadding,
-  } as const;
-
-  // Ensure the popup flips if it's been limited by its --available-height and it resizes.
-  // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
-  let flipCollisionPadding: Padding | undefined;
-  const epsilon = -0.01;
+  let collisionPadding = collisionPaddingParam as {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
 
   // Create a bias to the preferred side.
-  // On iOS, when the mobile software keyboard opens, the input is exactly
-  // centered in the viewport, but this can cause it to flip to the top
-  // undesirably.
+  // On iOS, when the mobile software keyboard opens, the input is exactly centered
+  // in the viewport, but this can cause it to flip to the top undesirably.
   const bias = 1;
-  const biasTop = sideParam === 'bottom' ? bias : epsilon;
-  const biasBottom = sideParam === 'top' ? bias : epsilon;
-  const biasLeft = sideParam === 'right' ? bias : epsilon;
-  const biasRight = sideParam === 'left' ? bias : epsilon;
+  const biasTop = sideParam === 'bottom' ? bias : 0;
+  const biasBottom = sideParam === 'top' ? bias : 0;
+  const biasLeft = sideParam === 'right' ? bias : 0;
+  const biasRight = sideParam === 'left' ? bias : 0;
 
   if (typeof collisionPadding === 'number') {
-    flipCollisionPadding = {
+    collisionPadding = {
       top: collisionPadding + biasTop,
       right: collisionPadding + biasRight,
       bottom: collisionPadding + biasBottom,
       left: collisionPadding + biasLeft,
     };
   } else if (collisionPadding) {
-    flipCollisionPadding = {
+    collisionPadding = {
       top: (collisionPadding.top || 0) + biasTop,
       right: (collisionPadding.right || 0) + biasRight,
       bottom: (collisionPadding.bottom || 0) + biasBottom,
@@ -197,8 +193,8 @@ export function useAnchorPositioning(
     };
   }
 
-  const sizeCollisionProps = {
-    boundary: commonCollisionProps.boundary,
+  const commonCollisionProps = {
+    boundary: collisionBoundary === 'clipping-ancestors' ? 'clippingAncestors' : collisionBoundary,
     padding: collisionPadding,
   } as const;
 
@@ -246,7 +242,14 @@ export function useAnchorPositioning(
       ? null
       : flip({
           ...commonCollisionProps,
-          padding: flipCollisionPadding,
+          // Ensure the popup flips if it's been limited by its --available-height and it resizes.
+          // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
+          padding: {
+            top: collisionPadding.top + bias,
+            right: collisionPadding.right + bias,
+            bottom: collisionPadding.bottom + bias,
+            left: collisionPadding.left + bias,
+          },
           mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
           crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
           fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
@@ -296,7 +299,7 @@ export function useAnchorPositioning(
 
   middleware.push(
     size({
-      ...sizeCollisionProps,
+      ...commonCollisionProps,
       apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
         Object.entries({
           '--available-width': `${availableWidth}px`,
