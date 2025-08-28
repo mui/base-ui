@@ -10,7 +10,6 @@
     "moduleResolution": "bundler",
     "noEmit": false,
     "rootDir": "./src",
-    "jsx": "react-jsx",
     "outDir": "build"
   },
   "include": ["src/**/*.ts*"],

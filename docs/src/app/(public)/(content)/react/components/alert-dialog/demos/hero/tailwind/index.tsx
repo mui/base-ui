@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 
 export default function ExampleAlertDialog() {

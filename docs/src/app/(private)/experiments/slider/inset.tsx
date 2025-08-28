@@ -1,5 +1,4 @@
 'use client';
-import * as React from 'react';
 import { Slider } from '@base-ui-components/react/slider';
 import '../../../../demo-theme.css';
 import macStyles from './inset.mac.module.css';
