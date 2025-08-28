@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { screen, fireEvent, act } from '@mui/internal-test-utils';
+import { screen, fireEvent, act, waitFor } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
@@ -74,6 +74,28 @@ describe('<NumberField.Decrement />', () => {
 
     await user.click(increase);
     expect(input).to.have.value('0.235');
+  });
+
+  it('only calls onValueChange once per decrement', async () => {
+    const handleValueChange = spy();
+    const { user } = await render(
+      <NumberField.Root onValueChange={handleValueChange}>
+        <NumberField.Decrement />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+
+    await user.click(button);
+    await waitFor(() => {
+      expect(handleValueChange.callCount).to.equal(1);
+    });
+
+    await user.click(button);
+    await waitFor(() => {
+      expect(handleValueChange.callCount).to.equal(2);
+    });
   });
 
   describe('press and hold', () => {
