@@ -22,6 +22,10 @@
     border-color: var(--color-blue);
     outline: 1px solid var(--color-blue);
   }
+
+  @media (min-width: 500px) {
+    width: 20rem;
+  }
 }
 
 .Label {
