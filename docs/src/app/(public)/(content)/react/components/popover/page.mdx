@@ -133,7 +133,7 @@ Target the **Popup's** `width` and `height` properties to animate dimensions.
 The popover also supports transitions between content.
 Wrap the content you wish to transition in the `Viewport` part and apply the transition styles to it.
 The `Viewport` part is only required if you want to animate the content.
-It renders an element (`div` by default) with a `data-activationdirection` attribute set to `left` | `right` | `down` | `up` and a children divs marked with `data-current` (when no transition is active) or `data-next` and `data-previous`.
-The `data-activationdirection` attribute specifies the position of the new trigger relative to the previous one, which can be used to apply different styles based on the direction of the transition.
+It renders an element (`div` by default) with a `data-activation-direction` attribute set to `left` | `right` | `down` | `up` and a children divs marked with `data-current` (when no transition is active) or `data-next` and `data-previous`.
+The `data-activation-direction` attribute specifies the position of the new trigger relative to the previous one, which can be used to apply different styles based on the direction of the transition.
 
 <Demo path="./demos/detached-triggers-full" />
