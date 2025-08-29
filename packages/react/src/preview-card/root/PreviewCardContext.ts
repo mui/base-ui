@@ -21,6 +21,7 @@ export interface PreviewCardRootContext {
   transitionStatus: TransitionStatus;
   popupRef: React.RefObject<HTMLElement | null>;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  coordsRef: React.RefObject<{ x: number; y: number; rectIndex: number } | undefined>;
 }
 
 export const PreviewCardRootContext = React.createContext<PreviewCardRootContext | undefined>(
