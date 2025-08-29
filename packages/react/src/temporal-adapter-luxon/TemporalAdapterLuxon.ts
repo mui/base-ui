@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable class-methods-use-this */
 import { DateTime, Info } from 'luxon';
 import {
   TemporalAdapterFormats,
@@ -62,7 +61,7 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
   };
 
   public now = (timezone: TemporalTimezone) => {
-    // @ts-ignore
+    // @ts-expect-error locale is not identified as a field
     return DateTime.fromJSDate(new Date(), { locale: this.locale, zone: timezone });
   };
 
@@ -75,7 +74,6 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
       return <R>null;
     }
 
-    // @ts-ignore
     return <R>DateTime.fromISO(value, { locale: this.locale, zone: timezone });
   };
 

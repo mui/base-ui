@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable class-methods-use-this */
 import { addDays } from 'date-fns/addDays';
 import { addHours } from 'date-fns/addHours';
 import { addMinutes } from 'date-fns/addMinutes';
