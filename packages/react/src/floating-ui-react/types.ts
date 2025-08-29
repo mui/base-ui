@@ -131,14 +131,21 @@ export interface ContextData {
   [key: string]: any;
 }
 
+export type OpenChangeCallback = (
+  open: boolean,
+  eventDetails: BaseUIEventDetails,
+  triggerElement?: HTMLElement | undefined,
+) => void;
+
 export interface FloatingRootContext<RT extends ReferenceType = ReferenceType> {
   dataRef: React.MutableRefObject<ContextData>;
   open: boolean;
-  onOpenChange: (open: boolean, eventDetails: BaseUIEventDetails) => void;
+  onOpenChange: OpenChangeCallback;
   elements: {
     domReference: Element | null;
     reference: RT | null;
     floating: HTMLElement | null;
+    triggers?: Element[];
   };
   events: FloatingEvents;
   floatingId: string | undefined;
@@ -180,6 +187,7 @@ export interface ElementProps {
   item?:
     | React.HTMLProps<HTMLElement>
     | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>);
+  trigger?: React.HTMLProps<Element>;
 }
 
 export type ReferenceType = Element | VirtualElement;
