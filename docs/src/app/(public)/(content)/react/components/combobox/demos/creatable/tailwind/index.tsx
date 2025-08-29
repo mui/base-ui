@@ -107,7 +107,8 @@ export default function ExampleCreatableCombobox() {
               return;
             }
 
-            handleCreate();
+            pendingQueryRef.current = trimmed;
+            setOpenDialog(true);
           }
         }}
       >
