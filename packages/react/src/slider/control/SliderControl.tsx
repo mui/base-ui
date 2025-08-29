@@ -102,6 +102,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     fieldControlValidation,
     pressedInputRef,
     lastChangedValueRef,
+    inverted,
     max,
     min,
     minStepsBetweenValues,
@@ -166,13 +167,15 @@ export const SliderControl = React.forwardRef(function SliderControl(
       const isRtl = direction === 'rtl';
       const isVertical = orientation === 'vertical';
 
-      const { width, height, bottom, left, right } = control.getBoundingClientRect();
+      const { width, height, bottom, top, left, right } = control.getBoundingClientRect();
 
       const controlOffset = getControlOffset(stylesRef.current, orientation);
 
       // the value at the finger origin scaled down to fit the range [0, 1]
       let valueRescaled = isVertical
-        ? (bottom - controlOffset.end - fingerPosition.y) /
+        ? (inverted
+            ? fingerPosition.y - controlOffset.end - top
+            : bottom - controlOffset.end - fingerPosition.y) /
             (height - controlOffset.start - controlOffset.end) +
           thumbOffset
         : (isRtl
