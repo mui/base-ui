@@ -13,7 +13,7 @@ import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { clearPositionerStyles } from '../popup/utils';
+import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -56,6 +56,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     alignItemWithTriggerActiveRef,
     valuesRef,
     initialValueRef,
+    popupRef,
     setValue,
   } = useSelectRootContext();
   const floatingRootContext = useSelectFloatingContext();
@@ -71,6 +72,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
   const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
 
+  const [hasScrollArrows, setHasScrollArrows] = React.useState(false);
   const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
     React.useState(alignItemWithTrigger);
   const alignItemWithTriggerActive = mounted && controlledAlignItemWithTrigger && !touchModality;
@@ -201,9 +203,9 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         scrollDownArrowVisible: false,
       });
 
-      if (positionerElement) {
-        clearPositionerStyles(positionerElement, { height: '' });
-      }
+      const stylesToClear: React.CSSProperties = { height: '' };
+      clearStyles(positionerElement, stylesToClear);
+      clearStyles(popupRef.current, stylesToClear);
     }
   });
 
@@ -215,8 +217,16 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       setControlledAlignItemWithTrigger,
       scrollUpArrowRef,
       scrollDownArrowRef,
+      hasScrollArrows,
+      setHasScrollArrows,
     }),
-    [positioning, renderedSide, alignItemWithTriggerActive, setControlledAlignItemWithTrigger],
+    [
+      positioning,
+      renderedSide,
+      alignItemWithTriggerActive,
+      setControlledAlignItemWithTrigger,
+      hasScrollArrows,
+    ],
   );
 
   return (

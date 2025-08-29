@@ -17,6 +17,7 @@ export interface SelectRootContext {
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
+  scrollHandlerRef: React.MutableRefObject<((el: HTMLDivElement) => void) | null>;
   handleScrollArrowVisibility: () => void;
   getItemProps: (
     props?: HTMLProps & { active?: boolean; selected?: boolean },

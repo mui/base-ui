@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStore } from '@base-ui-components/utils/store';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
@@ -21,7 +22,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
 
   const { store, popupRef, listRef, handleScrollArrowVisibility } = useSelectRootContext();
-  const { side, scrollDownArrowRef, scrollUpArrowRef, alignItemWithTriggerActive } =
+  const { side, scrollDownArrowRef, scrollUpArrowRef, setHasScrollArrows } =
     useSelectPositionerContext();
 
   const selector =
@@ -34,6 +35,14 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const scrollArrowRef = direction === 'up' ? scrollUpArrowRef : scrollDownArrowRef;
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
+
+  useIsoLayoutEffect(() => {
+    setHasScrollArrows(true);
+    return () => {
+      // Assume that both scroll arrows (up/down) are rendered together.
+      setHasScrollArrows(false);
+    };
+  }, [setHasScrollArrows]);
 
   useOpenChangeComplete({
     open: visible,
@@ -70,7 +79,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
       store.set('activeIndex', null);
 
       function scrollNextItem() {
-        const popupElement = popupRef.current;
+        const popupElement = store.state.scrollList ?? popupRef.current;
         if (!popupElement) {
           return;
         }
@@ -102,7 +111,11 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           return;
         }
 
-        if (popupRef.current && listRef.current && listRef.current.length > 0) {
+        if (
+          (store.state.scrollList || popupRef.current) &&
+          listRef.current &&
+          listRef.current.length > 0
+        ) {
           const items = listRef.current;
           const scrollArrowHeight = scrollArrowRef.current?.offsetHeight || 0;
 
@@ -179,10 +192,6 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     state,
     props: [defaultProps, elementProps],
   });
-
-  if (!alignItemWithTriggerActive) {
-    return null;
-  }
 
   const shouldRender = visible || keepMounted;
   if (!shouldRender) {
