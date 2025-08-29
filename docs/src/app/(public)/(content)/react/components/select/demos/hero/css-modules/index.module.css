@@ -187,7 +187,6 @@
 }
 
 .ScrollArrow {
-  position: absolute;
   width: 100%;
   background: canvas;
   z-index: 1;
@@ -196,7 +195,7 @@
   border-radius: 0.375rem;
   height: 1rem;
   font-size: 0.75rem;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
 
@@ -206,10 +205,6 @@
     width: 100%;
     height: 100%;
     left: 0;
-  }
-
-  &[data-side='none'] {
-    display: flex;
   }
 
   &[data-direction='up'] {

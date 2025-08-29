@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export const DISABLE_SCROLLBAR_CLASS_NAME = 'base-ui-disable-scrollbar';
+const DISABLE_SCROLLBAR_CLASS_NAME = 'base-ui-disable-scrollbar';
 
 export const styleDisableScrollbar = {
   className: DISABLE_SCROLLBAR_CLASS_NAME,

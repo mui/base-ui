@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Select, DISABLE_SCROLLBAR_CLASS_NAME } from '@base-ui-components/react/select';
+import { Select } from '@base-ui-components/react/select';
 import styles from './long-select.module.css';
 
 export default function ExampleSelect() {
@@ -17,12 +17,12 @@ export default function ExampleSelect() {
       </Select.Trigger>
       <Select.Portal>
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
-          <Select.Popup className={`${styles.Popup} ${DISABLE_SCROLLBAR_CLASS_NAME}`}>
+          <Select.ScrollUpArrow className={styles.ScrollArrow} />
+          <Select.Popup className={styles.Popup}>
             <div role="presentation" className={styles.PopupScroll}>
               <div aria-hidden style={{ height: 75 }}>
                 Start
               </div>
-              <Select.ScrollUpArrow className={styles.ScrollArrow} />
               <Select.Arrow className={styles.Arrow}>
                 <ArrowSvg />
               </Select.Arrow>
@@ -37,9 +37,9 @@ export default function ExampleSelect() {
               <div aria-hidden style={{ height: 75 }}>
                 End
               </div>
-              <Select.ScrollDownArrow className={styles.ScrollArrow} />
             </div>
           </Select.Popup>
+          <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>
       </Select.Portal>
       <div style={{ width: 1, height: 2000 }} />

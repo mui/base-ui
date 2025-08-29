@@ -21,7 +21,8 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
 
   const { store, popupRef, listRef, handleScrollArrowVisibility } = useSelectRootContext();
-  const { side, scrollDownArrowRef, scrollUpArrowRef } = useSelectPositionerContext();
+  const { side, scrollDownArrowRef, scrollUpArrowRef, alignItemWithTriggerActive } =
+    useSelectPositionerContext();
 
   const selector =
     direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
@@ -58,6 +59,9 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     hidden: !mounted,
     'aria-hidden': true,
     children: direction === 'up' ? '▲' : '▼',
+    style: {
+      position: 'absolute',
+    },
     onMouseMove(event) {
       if ((event.movementX === 0 && event.movementY === 0) || timeout.isStarted()) {
         return;
@@ -175,6 +179,10 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     state,
     props: [defaultProps, elementProps],
   });
+
+  if (!alignItemWithTriggerActive) {
+    return null;
+  }
 
   const shouldRender = visible || keepMounted;
   if (!shouldRender) {

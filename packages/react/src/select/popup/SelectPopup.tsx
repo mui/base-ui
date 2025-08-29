@@ -146,15 +146,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       return;
     }
 
-    // Avoid affecting layout for the `scrollIntoViewIfNeeded` call if the scroll arrow
-    // styles use `position: sticky`.
-    if (scrollDownArrowRef.current) {
-      scrollDownArrowRef.current.style.position = 'absolute';
-    }
-    if (scrollUpArrowRef.current) {
-      scrollUpArrowRef.current.style.position = 'absolute';
-    }
-
     // Wait for `selectedItemTextRef.current` to be set.
     queueMicrotask(() => {
       const positionerStyles = getComputedStyle(positionerElement);
@@ -251,13 +242,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       if (initialHeightRef.current === viewportHeight) {
         reachedMaxHeightRef.current = true;
-      }
-
-      if (scrollDownArrowRef.current) {
-        scrollDownArrowRef.current.style.position = '';
-      }
-      if (scrollUpArrowRef.current) {
-        scrollUpArrowRef.current.style.position = '';
       }
 
       handleScrollArrowVisibility();

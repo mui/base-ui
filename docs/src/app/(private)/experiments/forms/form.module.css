@@ -296,7 +296,6 @@
 }
 
 .ScrollArrow {
-  position: absolute;
   width: 100%;
   background: canvas;
   z-index: 1;

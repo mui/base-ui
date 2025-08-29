@@ -178,7 +178,6 @@
 }
 
 .ScrollArrow {
-  position: sticky;
   width: 100%;
   background: canvas;
   z-index: 1;
@@ -200,10 +199,16 @@
   }
 
   &[data-direction='up'] {
-    top: -0.25rem;
+    &::before {
+      top: -100%;
+    }
   }
 
   &[data-direction='down'] {
-    bottom: -0.25rem;
+    bottom: 0;
+
+    &::before {
+      bottom: -100%;
+    }
   }
 }
