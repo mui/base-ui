@@ -4,6 +4,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { CompositeMetadata } from '../../composite/list/CompositeList';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRoot } from '../root/TabsRoot';
@@ -40,6 +41,9 @@ export const TabsList = React.forwardRef(function TabsList(
   } = useTabsRootContext();
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
+  const [, setTabMapInternal] = React.useState(
+    () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
+  );
 
   const tabsListRef = React.useRef<HTMLElement>(null);
 
@@ -56,6 +60,34 @@ export const TabsList = React.forwardRef(function TabsList(
       onValueChange(newValue, activationDirection, event);
     }
   });
+
+  // Combine the tab map updates to send to both local state and parent
+  const handleTabMapChange = React.useCallback(
+    (newMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>) => {
+      setTabMapInternal(newMap);
+      setTabMap(newMap);
+
+      // set value to the first non disabled item if the value is null
+      if (value == null && newMap.size > 0) {
+        // fallback in case all items are disabled
+        let firstNonDisabledItem = 0;
+        let hasEnabledItems = false;
+        // get default value from the first non disabled tab
+        for (const tabMetadata of newMap.values()) {
+          if (tabMetadata && tabMetadata.disabled === false) {
+            firstNonDisabledItem = tabMetadata.value ?? tabMetadata.index;
+            hasEnabledItems = true;
+            break;
+          }
+        }
+        if (!hasEnabledItems && newMap.size > 0) {
+          console.warn('All tabs are disabled. The first tab will be selected.');
+        }
+        onValueChange(firstNonDisabledItem, 'none', undefined);
+      }
+    },
+    [onValueChange, setTabMap, value],
+  );
 
   const state: TabsList.State = React.useMemo(
     () => ({
@@ -103,8 +135,9 @@ export const TabsList = React.forwardRef(function TabsList(
         loop={loop}
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
-        onMapChange={setTabMap}
+        onMapChange={handleTabMapChange}
         disabledIndices={EMPTY_ARRAY}
+        ignoreDisabledItemsOnInitialHiglighting
       />
     </TabsListContext.Provider>
   );
