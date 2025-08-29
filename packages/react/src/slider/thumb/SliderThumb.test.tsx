@@ -8,7 +8,7 @@ import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 
 describe('<Slider.Thumb />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Slider.Thumb />, () => ({
     render: (node) => {
@@ -505,6 +505,55 @@ describe('<Slider.Thumb />', () => {
 
       await user.click(screen.getByRole('button', { name: 'min' }));
       expect(thumbStyles.getPropertyValue('left')).to.equal('0px');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('server-side rendering', () => {
+    it('single thumb', async () => {
+      await renderToString(
+        <Slider.Root
+          defaultValue={30}
+          style={{
+            width: '100px',
+          }}
+        >
+          <Slider.Value />
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Indicator />
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(getComputedStyle(screen.getByTestId('thumb')).getPropertyValue('left')).to.equal(
+        '30px',
+      );
+    });
+
+    it('multiple thumbs', async () => {
+      const { container } = await renderToString(
+        <Slider.Root
+          defaultValue={[30, 40]}
+          style={{
+            width: '100px',
+          }}
+        >
+          <Slider.Value />
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Thumb index={0} data-testid="thumb" />
+              <Slider.Thumb index={1} data-testid="thumb" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const [thumb0, thumb1] = Array.from(container.querySelectorAll('[data-testid="thumb"]'));
+
+      expect(getComputedStyle(thumb0).getPropertyValue('left')).to.equal('30px');
+      expect(getComputedStyle(thumb1).getPropertyValue('left')).to.equal('40px');
     });
   });
 });

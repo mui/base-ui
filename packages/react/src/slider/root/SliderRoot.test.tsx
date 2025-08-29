@@ -49,8 +49,8 @@ function TestRangeSlider(props: SliderRoot.Props) {
       <Slider.Control data-testid="control">
         <Slider.Track>
           <Slider.Indicator />
-          <Slider.Thumb data-testid="thumb" />
-          <Slider.Thumb data-testid="thumb" />
+          <Slider.Thumb index={0} data-testid="thumb" />
+          <Slider.Thumb index={1} data-testid="thumb" />
         </Slider.Track>
       </Slider.Control>
     </Slider.Root>
@@ -1370,8 +1370,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
                       <Slider.Control>
                         <Slider.Track>
                           <Slider.Indicator />
-                          <Slider.Thumb />
-                          <Slider.Thumb />
+                          <Slider.Thumb index={0} />
+                          <Slider.Thumb index={1} />
                         </Slider.Track>
                       </Slider.Control>
                     </Slider.Root>
@@ -1442,8 +1442,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
                       <Slider.Control>
                         <Slider.Track>
                           <Slider.Indicator />
-                          <Slider.Thumb />
-                          <Slider.Thumb />
+                          <Slider.Thumb index={0} />
+                          <Slider.Thumb index={1} />
                         </Slider.Track>
                       </Slider.Control>
                     </Slider.Root>
@@ -1907,8 +1907,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
           <Field.Root validate={validateSpy}>
             <Slider.Root defaultValue={[5, 12]}>
               <Slider.Control>
-                <Slider.Thumb />
-                <Slider.Thumb />
+                <Slider.Thumb index={0} />
+                <Slider.Thumb index={1} />
               </Slider.Control>
             </Slider.Root>
             <Field.Error data-testid="error" />
