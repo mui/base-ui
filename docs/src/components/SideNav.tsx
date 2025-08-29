@@ -34,10 +34,6 @@ export function List(props: React.ComponentProps<'ul'>) {
   return <ul {...props} className={clsx('SideNavList', props.className)} />;
 }
 
-export function Label(props: React.ComponentProps<'span'>) {
-  return <span {...props} className={clsx('SideNavLabel', props.className)} />;
-}
-
 export function Badge(props: React.ComponentProps<'span'>) {
   return <span {...props} className={clsx('SideNavBadge', props.className)} />;
 }
@@ -51,7 +47,8 @@ interface ItemProps extends React.ComponentProps<'li'> {
 
 const SCROLL_MARGIN = 48;
 
-export function Item({ children, href, external, ...props }: ItemProps) {
+export function Item(props: ItemProps) {
+  const { children, className, href, external, ...other } = props;
   const ref = React.useRef<HTMLLIElement>(null);
   const pathname = usePathname();
   const active = pathname === href;
@@ -89,19 +86,21 @@ export function Item({ children, href, external, ...props }: ItemProps) {
   const LinkComponent = external ? 'a' : NextLink;
 
   return (
-    <li ref={ref} {...props} className={clsx('SideNavItem', props.className)}>
+    <li ref={ref} {...other} className={clsx('SideNavItem', className)}>
       <LinkComponent
-        aria-current={active ? 'page' : undefined}
-        data-active={active || undefined}
         className="SideNavLink"
         href={href}
         scroll={external ? undefined : !active}
-        onClick={() => {
-          // Scroll to top smoothly when clicking on the currently active item
-          if (active) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
-        }}
+        {...(active
+          ? {
+              'aria-current': true,
+              'data-active': true,
+              onClick: () => {
+                // Scroll to top smoothly when clicking on the currently active item
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              },
+            }
+          : {})}
       >
         {children}
       </LinkComponent>
