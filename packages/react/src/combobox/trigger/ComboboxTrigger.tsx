@@ -86,6 +86,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     store.set('triggerElement', element);
   });
 
+  const isAnchorInput = inputElement && inputElement === anchorElement;
+
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef, setTriggerElement],
     state,
@@ -95,7 +97,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       {
         tabIndex: inputElement && inputElement === anchorElement ? -1 : 0,
         disabled,
-        'aria-expanded': open,
+        'aria-expanded': open ? 'true' : 'false',
+        'aria-haspopup': isAnchorInput ? 'listbox' : 'dialog',
         'aria-controls': open ? listElement?.id : undefined,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,

@@ -17,6 +17,26 @@ describe('<Combobox.Trigger />', () => {
     },
   }));
 
+  it('sets tabIndex to -1 when not used as the main anchor', async () => {
+    const { user } = await render(
+      <Combobox.Root>
+        <Combobox.Input />
+        <Combobox.Trigger data-testid="trigger" />
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    const trigger = screen.getByTestId('trigger');
+
+    expect(trigger).to.have.attribute('tabindex', '-1');
+
+    await user.click(input);
+    expect(trigger).to.have.attribute('tabindex', '-1');
+
+    await user.click(trigger);
+    expect(trigger).to.have.attribute('tabindex', '-1');
+  });
+
   describe('prop: disabled', () => {
     it('should render aria-disabled attribute when disabled', async () => {
       await render(
@@ -253,6 +273,55 @@ describe('<Combobox.Trigger />', () => {
       expect(screen.queryByRole('listbox')).to.equal(null);
       await user.keyboard('{ArrowUp}');
       expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+  });
+
+  describe('aria attributes', () => {
+    it('sets all aria attributes on the input when closed', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="trigger" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).to.have.attribute('tabindex', '0');
+      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(trigger).to.have.attribute('aria-haspopup', 'dialog');
+      expect(trigger).not.to.have.attribute('aria-controls');
+    });
+
+    it('sets all aria attributes on the input when open', async () => {
+      const { user } = await render(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="trigger" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+
+      const listbox = await screen.findByRole('listbox');
+
+      expect(trigger).to.have.attribute('tabindex', '0');
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(trigger).to.have.attribute('aria-haspopup', 'dialog');
+      expect(trigger).to.have.attribute('aria-controls', listbox.id);
     });
   });
 });
