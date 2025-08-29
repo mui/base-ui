@@ -93,6 +93,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
     ref: [forwardedRef, buttonRef, clearRef],
     props: [
       {
+        tabIndex: -1,
         hidden: !mounted,
         children: 'x',
         disabled,

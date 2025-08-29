@@ -221,6 +221,19 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             return;
           }
 
+          if (!open && event.key === 'Escape') {
+            const details = createBaseUIEventDetails('none', event.nativeEvent);
+            const value = selectionMode === 'multiple' ? [] : null;
+            setInputValue('', details);
+            setSelectedValue(value, details);
+
+            if (!details.isPropagationAllowed) {
+              event.stopPropagation();
+            }
+
+            return;
+          }
+
           keyboardActiveRef.current = true;
 
           // Handle deletion when no chip is highlighted and the input is empty.

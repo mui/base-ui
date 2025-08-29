@@ -266,5 +266,58 @@ describe('<Combobox.Input />', () => {
       await user.type(input, '{backspace}');
       expect(screen.getByTestId('chip')).not.to.equal(null);
     });
+
+    it('should move focus to clear button when pressing Escape and popup is closed', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana']} defaultValue="apple">
+          <Combobox.Input data-testid="input" />
+          <Combobox.Clear data-testid="clear" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      input.focus();
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(input.value).to.equal('');
+      });
+
+      await user.type(input, 'a');
+
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+      await user.click(screen.getByRole('option', { name: 'apple' }));
+
+      await user.type(input, 'a');
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(input.value).to.equal('apple');
+      });
+      expect(screen.queryByRole('listbox')).to.equal(null);
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(input.value).to.equal('');
+      });
+    });
   });
 });
