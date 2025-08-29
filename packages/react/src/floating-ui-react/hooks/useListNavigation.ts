@@ -212,14 +212,6 @@ export interface UseListNavigationProps {
    */
   scrollItemIntoView?: boolean | ScrollIntoViewOptions;
   /**
-   * When using virtual focus management, this holds a ref to the
-   * virtually-focused item. This allows nested virtual navigation to be
-   * enabled, and lets you know when a nested element is virtually focused from
-   * the root reference handling the events. Requires `FloatingTree` to be
-   * setup.
-   */
-  virtualItemRef?: React.MutableRefObject<HTMLElement | null>;
-  /**
    * Only for `cols > 1`, specify sizes for grid items.
    * `{ width: 2, height: 2 }` means an item is 2 columns wide and 2 rows tall.
    */
@@ -261,7 +253,6 @@ export function useListNavigation(
     parentOrientation,
     cols = 1,
     scrollItemIntoView = true,
-    virtualItemRef,
     itemSizes,
     dense = false,
   } = props;
@@ -323,14 +314,8 @@ export function useListNavigation(
   const focusItem = useEventCallback(() => {
     function runFocus(item: HTMLElement) {
       if (virtual) {
-        if (item.id?.endsWith('-fui-option')) {
-          item.id = `${floatingId}-${Math.random().toString(16).slice(2, 10)}`;
-        }
         setActiveId(item.id);
         tree?.events.emit('virtualfocus', item);
-        if (virtualItemRef) {
-          virtualItemRef.current = item;
-        }
       } else {
         enqueueFocus(item, {
           sync: forceSyncFocusRef.current,
