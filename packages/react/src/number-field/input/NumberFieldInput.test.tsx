@@ -237,7 +237,7 @@ describe('<NumberField.Input />', () => {
     await user.click(incrementButton);
 
     expect(input).to.have.value('1');
-    expect(onValueChange.callCount).to.equal(2);
+    expect(onValueChange.callCount).to.equal(1);
 
     await user.click(screen.getByText('external'));
 
@@ -274,7 +274,7 @@ describe('<NumberField.Input />', () => {
     await user.click(decrementButton);
 
     expect(input).to.have.value('4');
-    expect(onValueChange.callCount).to.equal(2);
+    expect(onValueChange.callCount).to.equal(1);
 
     await user.click(screen.getByText('external'));
 
@@ -544,6 +544,6 @@ describe('<NumberField.Input />', () => {
     // Without explicit precision formatting, the behavior depends on the step
     // The current implementation preserves full precision until it differs from canonical
     expect(input).to.have.value((1.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
-    expect(onValueChange.callCount).to.equal(callCountBeforeBlur + 1);
+    expect(onValueChange.callCount).to.equal(callCountBeforeBlur);
   });
 });
