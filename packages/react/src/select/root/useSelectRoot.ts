@@ -354,6 +354,44 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   // Keep store in sync whenever `value` changes after registration.
   useIsoLayoutEffect(syncSelectedState, [value, syncSelectedState]);
 
+  const handleScrollArrowVisibility = useEventCallback(() => {
+    const popupElement = popupRef.current;
+    if (!popupElement) {
+      return;
+    }
+
+    const list = listRef.current;
+    const firstItem = list.find((item) => item != null);
+    let lastItem: HTMLElement | undefined;
+    for (let i = list.length - 1; i >= 0; i -= 1) {
+      const item = list[i];
+      if (item) {
+        lastItem = item;
+        break;
+      }
+    }
+
+    if (!firstItem || !lastItem) {
+      return;
+    }
+
+    const firstItemTop = firstItem.offsetTop;
+    const lastItemBottom = lastItem.offsetTop + lastItem.offsetHeight;
+
+    const viewportTop = popupElement.scrollTop;
+    const viewportBottom = popupElement.scrollTop + popupElement.clientHeight;
+
+    const shouldShowUp = viewportTop > firstItemTop + 1;
+    const shouldShowDown = viewportBottom < lastItemBottom - 1;
+
+    if (store.state.scrollUpArrowVisible !== shouldShowUp) {
+      store.set('scrollUpArrowVisible', shouldShowUp);
+    }
+    if (store.state.scrollDownArrowVisible !== shouldShowDown) {
+      store.set('scrollDownArrowVisible', shouldShowDown);
+    }
+  });
+
   const floatingContext = useFloatingRootContext({
     open,
     onOpenChange: setOpen,
@@ -471,6 +509,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       setOpen,
       listRef,
       popupRef,
+      handleScrollArrowVisibility,
       getItemProps,
       events: floatingContext.events,
       valueRef,
@@ -510,6 +549,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
+      handleScrollArrowVisibility,
     ],
   );
 
