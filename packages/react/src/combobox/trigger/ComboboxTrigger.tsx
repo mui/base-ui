@@ -152,6 +152,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
         },
       },
+      fieldControlValidation.getValidationProps(elementProps),
       elementProps,
       getButtonProps,
     ],
