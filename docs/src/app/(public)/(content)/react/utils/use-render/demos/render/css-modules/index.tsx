@@ -7,9 +7,10 @@ import styles from './index.module.css';
 interface TextProps extends useRender.ComponentProps<'p'> {}
 
 function Text(props: TextProps) {
-  const { render = <p />, ...otherProps } = props;
+  const { render, ...otherProps } = props;
 
   const element = useRender({
+    defaultTag: 'p',
     render,
     props: mergeProps<'p'>({ className: styles.Text }, otherProps),
   });
