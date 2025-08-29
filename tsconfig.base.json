@@ -3,7 +3,6 @@
     "module": "nodenext",
     "target": "es2020",
     "lib": ["es2020", "dom"],
-    "jsx": "preserve",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noEmit": true,
@@ -14,6 +13,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
+    "jsx": "react-jsx",
     "paths": {
       "@base-ui-components/react": ["./packages/react/src"],
       "@base-ui-components/react/*": ["./packages/react/src/*"],

@@ -1,4 +1,3 @@
-import * as React from 'react';
 import * as BaseDemo from 'docs/src/blocks/Demo';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';

@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 
 export default function ExampleField() {

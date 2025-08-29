@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { type Dirent } from 'node:fs';
@@ -29,12 +28,9 @@ export default async function Page(props: Props) {
 }
 
 export async function generateStaticParams() {
-  const routes = (
-    await readdir('src/app/(private)/playground', { withFileTypes: true })
-  )
+  const routes = (await readdir('src/app/(private)/playground', { withFileTypes: true }))
     .filter(
-      (entry: Dirent) =>
-        entry.name.endsWith('.tsx') && entry.name !== 'page.tsx' && entry.isFile(),
+      (entry: Dirent) => entry.name.endsWith('.tsx') && entry.name !== 'page.tsx' && entry.isFile(),
     )
     .map((entry: Dirent) => ({ slug: basename(entry.name, extname(entry.name)) }));
 

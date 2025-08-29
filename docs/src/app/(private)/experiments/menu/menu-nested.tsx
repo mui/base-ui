@@ -1,5 +1,4 @@
 'use client';
-import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { styled } from '@mui/system';
 
@@ -163,7 +162,7 @@ const MenuItem = styled(Menu.Item)(
   border-radius: 8px;
   cursor: default;
   user-select: none;
-  
+
   &:last-of-type {
     border-bottom: none;
   }

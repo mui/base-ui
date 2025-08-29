@@ -1,4 +1,3 @@
-import * as React from 'react';
 import NextLink from 'next/link';
 import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import * as MobileNav from './MobileNav';

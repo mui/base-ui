@@ -1,5 +1,4 @@
 'use client';
-import * as React from 'react';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { styled } from '@mui/system';
 

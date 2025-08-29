@@ -10,7 +10,8 @@
     "moduleResolution": "bundler",
     "noEmit": false,
     "rootDir": "./src",
-    "outDir": "build/esm"
+    "jsx": "react-jsx",
+    "outDir": "build"
   },
   "include": ["src/**/*.ts*", "src/**/*.tsx"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"]
