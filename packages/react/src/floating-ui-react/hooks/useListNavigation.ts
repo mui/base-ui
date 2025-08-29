@@ -233,7 +233,7 @@ export function useListNavigation(
   context: FloatingRootContext,
   props: UseListNavigationProps,
 ): ElementProps {
-  const { open, onOpenChange, elements, floatingId } = context;
+  const { open, onOpenChange, elements } = context;
   const {
     listRef,
     activeIndex,
