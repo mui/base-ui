@@ -40,6 +40,12 @@ export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
   loop?: boolean;
+  onLoop?: (
+    event: React.KeyboardEvent,
+    prevIndex: number,
+    nextIndex: number,
+    elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
+  ) => number;
   highlightedIndex?: number;
   onHighlightedIndexChange?: (index: number) => void;
   dense?: boolean;
@@ -78,6 +84,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     itemSizes,
     cols = 1,
     loop = true,
+    onLoop,
     dense = false,
     orientation = 'both',
     direction,
@@ -127,6 +134,15 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
+
+  const wrappedOnLoop = useEventCallback(
+    (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => {
+      if (!onLoop) {
+        return nextIndex;
+      }
+      return onLoop?.(event, prevIndex, nextIndex, elementsRef);
+    },
+  );
 
   const props = React.useMemo<HTMLProps>(
     () => ({
@@ -224,6 +240,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
                 event,
                 orientation,
                 loop,
+                onLoop: wrappedOnLoop,
                 cols,
                 // treat undefined (empty grid spaces) as disabled indices so we
                 // don't end up in them
@@ -290,8 +307,14 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         ) {
           if (loop && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
+            if (onLoop) {
+              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
+            }
           } else if (loop && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
+            if (onLoop) {
+              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
+            }
           } else {
             nextIndex = findNonDisabledListIndex(elementsRef, {
               startingIndex: nextIndex,
@@ -329,6 +352,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       isGrid,
       itemSizes,
       loop,
+      onLoop,
+      wrappedOnLoop,
       mergedRef,
       modifierKeys,
       onHighlightedIndexChange,
