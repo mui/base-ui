@@ -13,19 +13,19 @@ export default function ExamplePopoverCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner anchor="trigger" align="start" sideOffset={4}>
           <Combobox.Popup
-            className="[--input-container-height:3rem] origin-[var(--transform-origin)] max-w-[var(--available-width)] max-h-[min(24rem,var(--available-height))] rounded-lg bg-[canvas] text-gray-900 outline-1 outline-gray-200 transition-[transform,opacity] data-[starting-style]:opacity-0 data-[starting-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:scale-90 shadow-lg shadow-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
+            className="[--input-container-height:3rem] origin-[var(--transform-origin)] max-w-[var(--available-width)] max-h-[min(24rem,var(--available-height))] rounded-lg bg-[canvas] shadow-lg shadow-gray-200 text-gray-900 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
             aria-label="Select country"
           >
-            <div className="h-12 w-80 text-center p-2">
+            <div className="w-80 h-[var(--input-container-height)] text-center p-2">
               <Combobox.Input
                 placeholder="e.g. United Kingdom"
-                className="box-border h-10 w-full min-w-[18rem] rounded-md border border-gray-300 pl-3.5 text-base text-gray-900 bg-[canvas] outline-none focus:border-blue-800 focus:outline-1 focus:outline-blue-800"
+                className="h-10 w-full font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
               />
             </div>
-            <Combobox.Empty className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
+            <Combobox.Empty className="p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
               No countries found.
             </Combobox.Empty>
-            <Combobox.List className="box-border max-h-[calc(min(24rem,var(--available-height))_-_var(--input-container-height))] overscroll-contain scroll-pt-2 py-2">
+            <Combobox.List className="overflow-y-auto scroll-py-2 py-2 overscroll-contain max-h-[min(calc(24rem-var(--input-container-height)),calc(var(--available-height)-var(--input-container-height)))] empty:p-0">
               {(country: Country) => (
                 <Combobox.Item
                   key={country.code}

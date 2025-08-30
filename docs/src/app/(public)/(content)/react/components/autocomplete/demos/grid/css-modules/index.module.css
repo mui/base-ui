@@ -7,7 +7,6 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  margin-bottom: 0.5rem;
 }
 
 .TextInput {
@@ -31,6 +30,7 @@
 }
 
 .EmojiButton {
+  box-sizing: border-box;
   width: 2.5rem;
   height: 2.5rem;
   border: 1px solid var(--color-gray-200);
