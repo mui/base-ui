@@ -4,10 +4,10 @@ import { useComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
 import { useGroupCollectionContext } from './GroupCollectionContext';
 
 /**
- * Renders filtered items.
+ * Renders filtered list items.
+ * Doesn't render its own HTML element.
  *
- * If you only need a flat list you can omit this component – pass a function
- * child to `Combobox.List` and it will implicitly wrap it.
+ * If rendering a flat list, pass a function child to the `List` component instead, which implicitly wraps it.
  */
 export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.Element | null {
   const { children } = props;

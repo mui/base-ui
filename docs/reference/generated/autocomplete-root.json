@@ -34,14 +34,14 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, eventDetails: Combobox.RootInternal.ChangeEventDetails) => void)",
+      "type": "((open: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the popup is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Combobox.RootInternal.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Autocomplete.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Combobox.RootInternal.Actions>",
+      "type": "RefObject<Autocomplete.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the autocomplete will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the autocomplete manually.\nUseful when the autocomplete's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<Combobox.RootInternal.Actions>\n| undefined"
+      "detailedType": "| React.RefObject<Autocomplete.Root.Actions>\n| undefined"
     },
     "autoHighlight": {
       "type": "boolean",
@@ -56,9 +56,9 @@
       "detailedType": "number | undefined"
     },
     "filter": {
-      "type": "((value: Value, query: string, itemToLabel: ((value: Value) => string) | undefined) => boolean) | null",
+      "type": "((value: Value, query: string, itemToLabel: ((itemValue: Value) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.\nThe `itemToLabel` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    value: Value,\n    query: string,\n    itemToLabel: ((value: Value) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "detailedType": "| ((\n    value: Value,\n    query: string,\n    itemToLabel:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "itemToValue": {
       "type": "((value: Value) => string)",
@@ -100,7 +100,7 @@
     "virtualized": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the combobox items are virtualized.",
+      "description": "Whether the items are being externally virtualized.",
       "detailedType": "boolean | undefined"
     },
     "disabled": {

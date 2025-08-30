@@ -16,7 +16,7 @@ const customStyleHookMapping: CustomStyleHookMapping<ComboboxBackdrop.State> = {
 };
 
 /**
- * An overlay displayed beneath the combobox popup.
+ * An overlay displayed beneath the popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)

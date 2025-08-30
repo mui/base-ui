@@ -1,6 +1,6 @@
 {
   "name": "ComboboxBackdrop",
-  "description": "An overlay displayed beneath the combobox popup.\nRenders a `<div>` element.",
+  "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Combobox.Backdrop.State) => string)",

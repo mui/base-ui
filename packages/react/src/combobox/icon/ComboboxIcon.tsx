@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
- * An icon that indicates that the trigger button opens a combobox popup.
+ * An icon that indicates that the trigger button opens the popup.
  * Renders a `<span>` element.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)

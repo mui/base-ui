@@ -967,14 +967,12 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
             }
 
             const nextValue = event.target.value;
+            const details = createBaseUIEventDetails('input-change', event.nativeEvent);
 
             function handleChange() {
               if (selectionMode === 'none') {
                 setDirty(nextValue !== validityData.initialValue);
-                setInputValue(
-                  nextValue,
-                  createBaseUIEventDetails('input-change', event.nativeEvent),
-                );
+                setInputValue(nextValue, details);
 
                 if (validationMode === 'onChange') {
                   fieldControlValidation.commitValidation(nextValue);
@@ -991,10 +989,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
               if (exactValue != null) {
                 setDirty(exactValue !== validityData.initialValue);
-                setSelectedValue?.(
-                  exactValue,
-                  createBaseUIEventDetails('input-change', event.nativeEvent),
-                );
+                setSelectedValue?.(exactValue, details);
 
                 if (validationMode === 'onChange') {
                   fieldControlValidation.commitValidation(exactValue);
@@ -1158,17 +1153,17 @@ interface ComboboxRootProps<Value> {
    */
   filter?:
     | null
-    | ((value: Value, query: string, itemToLabel?: (value: Value) => string) => boolean);
+    | ((value: Value, query: string, itemToLabel?: (itemValue: Value) => string) => boolean);
   /**
    * Function to convert an item's value to a string label for display.
    */
-  itemToLabel?: (item: Value) => string;
+  itemToLabel?: (itemValue: Value) => string;
   /**
-   * Function to convert an item's value to its serialized value for form submission.
+   * Function to convert an item's value to its serialized form for submission.
    */
-  itemToValue?: (item: Value) => string;
+  itemToValue?: (itemValue: Value) => string;
   /**
-   * Whether the combobox items are virtualized.
+   * Whether the items are being externally virtualized.
    * @default false
    */
   virtualized?: boolean;

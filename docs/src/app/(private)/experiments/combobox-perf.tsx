@@ -5,38 +5,113 @@ import styles from './combobox-perf.module.css';
 
 export default function ExampleCombobox() {
   return (
-    <Combobox.Root items={fruits}>
-      <label className={styles.Label}>
-        Choose a fruit
-        <Combobox.Input placeholder="e.g. Apple" className={styles.Input} />
-        <div className={styles.ActionButtons}>
-          <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
-            <ClearIcon className={styles.ClearIcon} />
-          </Combobox.Clear>
-          <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
-            <ChevronDownIcon className={styles.TriggerIcon} />
-          </Combobox.Trigger>
-        </div>
-      </label>
+    <div>
+      <h2>With manually specified index</h2>
+      <Combobox.Root items={fruits}>
+        <label className={styles.Label}>
+          Choose a fruit
+          <Combobox.Input placeholder="e.g. Apple" className={styles.Input} />
+          <div className={styles.ActionButtons}>
+            <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
+              <ClearIcon className={styles.ClearIcon} />
+            </Combobox.Clear>
+            <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
+              <ChevronDownIcon className={styles.TriggerIcon} />
+            </Combobox.Trigger>
+          </div>
+        </label>
 
-      <Combobox.Portal>
-        <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
-          <Combobox.Popup className={styles.Popup}>
-            <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
-            <Combobox.List className={styles.List}>
-              {(item: string) => (
-                <Combobox.Item key={item} value={item} className={styles.Item}>
-                  <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Combobox.ItemIndicator>
-                  <div className={styles.ItemText}>{item}</div>
-                </Combobox.Item>
-              )}
-            </Combobox.List>
-          </Combobox.Popup>
-        </Combobox.Positioner>
-      </Combobox.Portal>
-    </Combobox.Root>
+        <Combobox.Portal>
+          <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
+            <Combobox.Popup className={styles.Popup}>
+              <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
+              <Combobox.List className={styles.List}>
+                {(item: string, index: number) => (
+                  <Combobox.Item key={item} value={item} index={index} className={styles.Item}>
+                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Combobox.ItemIndicator>
+                    <div className={styles.ItemText}>{item}</div>
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+
+      <hr className="my-4" />
+
+      <h2>Without manually specified index</h2>
+      <Combobox.Root items={fruits}>
+        <label className={styles.Label}>
+          Choose a fruit
+          <Combobox.Input placeholder="e.g. Apple" className={styles.Input} />
+          <div className={styles.ActionButtons}>
+            <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
+              <ClearIcon className={styles.ClearIcon} />
+            </Combobox.Clear>
+            <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
+              <ChevronDownIcon className={styles.TriggerIcon} />
+            </Combobox.Trigger>
+          </div>
+        </label>
+
+        <Combobox.Portal>
+          <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
+            <Combobox.Popup className={styles.Popup}>
+              <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
+              <Combobox.List className={styles.List}>
+                {(item: string, index: number) => (
+                  <Combobox.Item key={item} value={item} index={index} className={styles.Item}>
+                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Combobox.ItemIndicator>
+                    <div className={styles.ItemText}>{item}</div>
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+
+      <hr className="my-4" />
+
+      <h2>Open API</h2>
+      <Combobox.Root items={fruits}>
+        <label className={styles.Label}>
+          Choose a fruit
+          <Combobox.Input placeholder="e.g. Apple" className={styles.Input} />
+          <div className={styles.ActionButtons}>
+            <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
+              <ClearIcon className={styles.ClearIcon} />
+            </Combobox.Clear>
+            <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
+              <ChevronDownIcon className={styles.TriggerIcon} />
+            </Combobox.Trigger>
+          </div>
+        </label>
+
+        <Combobox.Portal>
+          <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
+            <Combobox.Popup className={styles.Popup}>
+              <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
+              <Combobox.List className={styles.List}>
+                {fruits.map((item, index) => (
+                  <Combobox.Item key={item} value={item} index={index} className={styles.Item}>
+                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Combobox.ItemIndicator>
+                    <div className={styles.ItemText}>{item}</div>
+                  </Combobox.Item>
+                ))}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+    </div>
   );
 }
 
