@@ -704,7 +704,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
           autoComplete: 'off',
           spellCheck: 'false',
           autoCorrect: 'off',
-          autoCapitalize: 'off',
+          autoCapitalize: 'none',
         } as HTMLProps<HTMLInputElement>)
       : {};
 
