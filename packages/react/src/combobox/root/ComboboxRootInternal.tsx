@@ -599,10 +599,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   });
 
   useIsoLayoutEffect(() => {
-    if (!mounted) {
+    if (!open) {
       syncSelectedIndex();
     }
-  }, [mounted, selectedValue, syncSelectedIndex]);
+  }, [open, selectedValue, syncSelectedIndex]);
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
