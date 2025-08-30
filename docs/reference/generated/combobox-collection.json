@@ -1,0 +1,13 @@
+{
+  "name": "ComboboxCollection",
+  "description": "Renders filtered list items.\nDoesn't render its own HTML element.\n\nIf rendering a flat list, pass a function child to the `List` component instead, which implicitly wraps it.",
+  "props": {
+    "children": {
+      "type": "((item: any, index: number) => ReactNode)",
+      "required": true,
+      "detailedType": "(item: any, index: number) => ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

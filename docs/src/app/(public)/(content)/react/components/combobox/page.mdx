@@ -1,0 +1,92 @@
+# Combobox
+
+<Subtitle>An input combined with a list of predefined items to select.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React combobox component that renders an input combined with a list of predefined items to select."
+/>
+
+<Demo path="./demos/hero" />
+
+## Anatomy
+
+Import the components and place them together:
+
+```jsx title="Anatomy"
+import { Combobox } from '@base-ui-components/react/combobox';
+
+<Combobox.Root>
+  <Combobox.Input />
+  <Combobox.Trigger />
+  <Combobox.Icon />
+  <Combobox.Clear />
+  <Combobox.Value />
+
+  <Combobox.Chips>
+    <Combobox.Chip>
+      <Combobox.ChipRemove />
+    </Combobox.Chip>
+  </Combobox.Chips>
+
+  <Combobox.Portal>
+    <Combobox.Backdrop />
+    <Combobox.Positioner>
+      <Combobox.Popup>
+        <Combobox.Arrow />
+
+        <Combobox.Status />
+        <Combobox.Empty />
+
+        <Combobox.List>
+          <Combobox.Row>
+            <Combobox.Item>
+              <Combobox.ItemIndicator />
+            </Combobox.Item>
+          </Combobox.Row>
+
+          <Combobox.Separator />
+
+          <Combobox.Group>
+            <Combobox.GroupLabel />
+          </Combobox.Group>
+
+          <Combobox.Collection />
+        </Combobox.List>
+      </Combobox.Popup>
+    </Combobox.Positioner>
+  </Combobox.Portal>
+</Combobox.Root>;
+```
+
+## API reference
+
+<Reference
+  component="Combobox"
+  parts="Root, Value, Icon, Input, Clear, Trigger, Chips, Chip, ChipRemove, List, Portal, Backdrop, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
+/>
+
+## Examples
+
+### Multiple select
+
+The combobox can allow multiple selections by adding the `multiple` prop to `Combobox.Root`. Selection chips are rendered with `Combobox.Chip` inside the input that can be removed.
+
+<Demo path="./demos/multiple" compact />
+
+### Input inside popup
+
+`Combobox.Input` can be rendered inside `Combobox.Popup` to create a searchable select menu.
+
+<Demo path="./demos/input-inside-popup" compact />
+
+### Virtualized
+
+Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
+
+<Demo path="./demos/virtualized" compact />
+
+### Creatable
+
+Create a new item when the filter matches no items, opening a creation `Dialog`.
+
+<Demo path="./demos/creatable" compact />

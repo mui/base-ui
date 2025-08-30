@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingRootContext } from '../types';
-import { isMouseLikePointerType } from '../utils';
+import { isMouseLikePointerType, isTypeableElement } from '../utils';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface UseClickProps {
@@ -18,7 +18,7 @@ export interface UseClickProps {
    * Keyboard clicks work as normal.
    * @default 'click'
    */
-  event?: 'click' | 'mousedown';
+  event?: 'click' | 'mousedown' | 'mousedown-only';
   /**
    * Whether to toggle the open state with repeated clicks.
    * @default true
@@ -84,6 +84,14 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
             ? openEventType === 'click' || openEventType === 'mousedown'
             : true)
         );
+
+        // Animations sometimes won't run on a typeable element if using a rAF.
+        // Focus is always set on these elements, so we don't need to wait.
+        if (isTypeableElement(nativeEvent.target)) {
+          onOpenChange(nextOpen, createBaseUIEventDetails('trigger-press', nativeEvent));
+          return;
+        }
+
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
@@ -91,6 +99,10 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
         });
       },
       onClick(event) {
+        if (eventOption === 'mousedown-only') {
+          return;
+        }
+
         const pointerType = pointerTypeRef.current;
 
         if (eventOption === 'mousedown' && pointerType) {
