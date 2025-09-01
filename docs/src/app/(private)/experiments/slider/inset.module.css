@@ -1,8 +1,7 @@
-/* CSS workaround around centered thumb positioning */
 .Slider {
   --thumb-radius: 0.625rem;
-  --track-height: 0.5rem;
-  --track-width: 14rem;
+  --track-height: 0.625rem;
+  --track-width: 6.25rem; /* 100px */
 
   --indicator-bg: var(--color-blue);
   --thumb-bg: var(--color-blue);
@@ -11,48 +10,30 @@
   --track-bg: var(--color-gray-200);
   --dragging-color: oklch(69% 50% 264);
 
-  border: 1px solid var(--track-outer-border-color);
-  border-radius: 9999px;
-  background-color: var(--track-bg);
-
   @media (prefers-color-scheme: dark) {
     --track-bg: var(--color-gray-200);
-    --dragging-color: blue;
+    --dragging-color: var(--color-blue);
   }
 }
 
 .Control {
   box-sizing: border-box;
   position: relative;
+  width: var(--track-width);
   touch-action: none;
   user-select: none;
-  z-index: 1;
-
-  border-radius: 9999px;
-  padding-inline: var(--thumb-radius);
 }
 
 .Track {
   width: var(--track-width);
   height: var(--track-height);
+  background-color: var(--track-bg);
   user-select: none;
 }
 
 .Indicator {
   background-color: var(--indicator-bg);
   user-select: none;
-
-  &:before {
-    position: absolute;
-    content: '';
-    border-radius: 9999px 0 0 9999px;
-    height: var(--track-height);
-    width: var(--thumb-radius);
-    top: 0;
-    left: 0;
-    transform: translateX(-100%);
-    background-color: var(--indicator-bg);
-  }
 
   &[data-dragging] {
     background-color: var(--dragging-color);
@@ -72,7 +53,9 @@
 
   user-select: none;
 
-  &:has(:focus-visible) {
+  opacity: 0.65;
+
+  &:focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: 2px;
   }

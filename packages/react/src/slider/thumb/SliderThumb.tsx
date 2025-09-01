@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -7,6 +8,7 @@ import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { valueToPercent } from '../../utils/valueToPercent';
 import {
   ARROW_DOWN,
   ARROW_UP,
@@ -107,10 +109,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const {
     active: activeIndex,
+    controlRef,
     disabled: contextDisabled,
     fieldControlValidation,
     formatOptionsRef,
     handleInputChange,
+    inset,
     labelId,
     largeStep,
     locale,
@@ -122,6 +126,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     pressedThumbCenterOffsetRef,
     pressedThumbIndexRef,
     setActive,
+    setIndicatorPosition,
     state,
     step,
     values: sliderValues,
@@ -160,29 +165,69 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const thumbValue = sliderValues[index];
 
   const percentageValues = valueArrayToPercentages(sliderValues.slice(), min, max);
-  // for SSR, don't wait for the index if there's only one thumb
-  const percent = percentageValues.length === 1 ? percentageValues[0] : percentageValues[index];
+  const derivedPercent = !range ? percentageValues[0] : percentageValues[index];
+
+  const [percentState, setPercentState] = React.useState<number | undefined>();
+
+  const getInsetPosition = useEventCallback(() => {
+    const control = controlRef.current;
+    const thumb = thumbRef.current;
+    if (!control || !thumb) {
+      return;
+    }
+    const thumbRect = thumb.getBoundingClientRect();
+    const controlRect = control.getBoundingClientRect();
+
+    const side = orientation === 'horizontal' ? 'width' : 'height';
+    const controlTotalTravelPx = controlRect[side] - thumbRect[side];
+    // console.log('controlTotalTravelPx', controlTotalTravelPx);
+    const valuePercent = valueToPercent(thumbValue, min, max);
+    // px distance between the thumb center and the starting edge (inline-start or bottom)
+    const thumbOffsetFromControlEdge =
+      thumbRect[side] / 2 + (controlTotalTravelPx * valuePercent) / 100;
+    const insetPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
+    // console.log('insetPercent', insetPercent);
+    setPercentState(insetPercent);
+    if (index === 0) {
+      setIndicatorPosition((prevPosition) => [insetPercent, prevPosition[1]]);
+    } else if (index === sliderValues.length - 1) {
+      setIndicatorPosition((prevPosition) => [prevPosition[0], insetPercent]);
+    }
+  });
+
+  useIsoLayoutEffect(() => {
+    if (inset) {
+      queueMicrotask(getInsetPosition);
+    }
+  }, [getInsetPosition, inset]);
+
+  useIsoLayoutEffect(() => {
+    if (inset) {
+      getInsetPosition();
+    }
+  }, [getInsetPosition, inset, thumbValue]);
 
   const isRtl = direction === 'rtl';
 
   const getThumbStyle = React.useCallback(() => {
     const isVertical = orientation === 'vertical';
 
-    if (!Number.isFinite(percent)) {
+    if (!inset && !Number.isFinite(derivedPercent)) {
       return visuallyHidden;
     }
 
     return {
+      visibility: inset && percentState === undefined ? 'hidden' : undefined,
       position: 'absolute',
       [{
         horizontal: 'insetInlineStart',
         vertical: 'bottom',
-      }[orientation]]: `${percent}%`,
+      }[orientation]]: `${inset ? percentState : derivedPercent}%`,
       [isVertical ? 'left' : 'top']: '50%',
       transform: `translate(${(isVertical || !isRtl ? -1 : 1) * 50}%, ${(isVertical ? 1 : -1) * 50}%)`,
       zIndex: activeIndex === index ? 1 : undefined,
     } satisfies React.CSSProperties;
-  }, [activeIndex, isRtl, orientation, percent, index]);
+  }, [activeIndex, inset, isRtl, orientation, derivedPercent, percentState, index]);
 
   let cssWritingMode: React.CSSProperties['writingMode'];
   if (orientation === 'vertical') {
