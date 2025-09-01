@@ -39,7 +39,6 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     modifierKeys,
     highlightItemOnHover = false,
     tag = 'div',
-    ignoreDisabledItemsOnInitialHiglighting = false,
     ...elementProps
   } = componentProps;
 
@@ -65,7 +64,6 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     direction,
     disabledIndices,
     modifierKeys,
-    ignoreDisabledItemsOnInitialHiglighting,
   });
 
   const onMapChange = useEventCallback(
@@ -118,6 +116,5 @@ export namespace CompositeRoot {
     disabledIndices?: number[];
     modifierKeys?: ModifierKey[];
     highlightItemOnHover?: boolean;
-    ignoreDisabledItemsOnInitialHiglighting?: boolean;
   }
 }

@@ -69,12 +69,6 @@ export interface UseCompositeRootParameters {
    * @default []
    */
   modifierKeys?: ModifierKey[];
-  /**
-   * When `true`, the first non-disabled item will be highlighted on mount if no item has the
-   * `ACTIVE_COMPOSITE_ITEM` attribute.
-   * @default false
-   */
-  ignoreDisabledItemsOnInitialHiglighting?: boolean;
 }
 
 const EMPTY_ARRAY: never[] = [];
@@ -94,7 +88,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     stopEventPropagation = false,
     disabledIndices,
     modifierKeys = EMPTY_ARRAY,
-    ignoreDisabledItemsOnInitialHiglighting = false,
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
@@ -128,7 +121,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     // Set the default highlighted index of an arbitrary composite item.
     let activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
 
-    if (activeIndex === -1 && ignoreDisabledItemsOnInitialHiglighting) {
+    if (activeIndex === -1) {
       const disabledIndicesInternal: number[] = [];
       for (const tabMetadata of map.values()) {
         if (tabMetadata?.disabled && tabMetadata?.index !== undefined) {
