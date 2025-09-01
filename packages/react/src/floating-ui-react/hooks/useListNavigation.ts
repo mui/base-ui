@@ -529,7 +529,9 @@ export function useListNavigation(
 
         forceSyncFocusRef.current = true;
 
-        if (!focusItemOnHover) {
+        const relatedTarget = event.relatedTarget as HTMLElement | null;
+
+        if (!focusItemOnHover || listRef.current.includes(relatedTarget)) {
           return;
         }
 
