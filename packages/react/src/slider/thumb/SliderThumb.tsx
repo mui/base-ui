@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { warn } from '@base-ui-components/utils/warn';
 import { BaseUIComponentProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
@@ -124,14 +123,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     step,
     values: sliderValues,
   } = useSliderRootContext();
-
-  if (process.env.NODE_ENV !== 'production') {
-    if (typeof document === 'undefined' && indexProp === undefined && sliderValues.length > 1) {
-      warn(
-        'A `Slider.Thumb` was rendered on the server without an `index` prop, it must be specified for full SSR support.',
-      );
-    }
-  }
 
   const disabled = disabledProp || contextDisabled;
 
