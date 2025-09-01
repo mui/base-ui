@@ -428,12 +428,20 @@ export function useListNavigation(
             }
             runs += 1;
           } else {
+            // initially focus the first non-disabled item
+            const disabledIndices: Array<number> = [];
+            listRef.current.forEach((_, i) => {
+              if (isListIndexDisabled(listRef, i)) {
+                disabledIndices.push(i);
+              }
+            });
+
             indexRef.current =
               keyRef.current == null ||
               isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
               nested
-                ? getMinListIndex(listRef, disabledIndicesRef.current)
-                : getMaxListIndex(listRef, disabledIndicesRef.current);
+                ? getMinListIndex(listRef, disabledIndices)
+                : getMaxListIndex(listRef, disabledIndices);
             keyRef.current = null;
             onNavigate();
           }
