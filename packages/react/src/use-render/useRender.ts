@@ -87,7 +87,7 @@ export namespace useRender {
      */
     enabled?: Enabled;
     /**
-     * The default tag name to use for the rendered element.
+     * The default tag name to use for the rendered element when `render` is not provided.
      * @default 'div'
      */
     defaultTagName?: keyof React.JSX.IntrinsicElements;
