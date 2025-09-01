@@ -36,6 +36,11 @@ The `useRender` hook lets you build custom components that provide a `render` pr
       description:
         'The default tag name to use for the rendered element when `render` is not provided.',
     },
+    stateAttributesMapping: {
+      type: 'StateAttributesMapping<State>',
+      description: 'Custom mapping for converting state properties to data-* attributes.',
+      example: '{ isActive: (value) => (value ? { "data-is-active": "" } : null) }',
+    },
   }}
 />
 
