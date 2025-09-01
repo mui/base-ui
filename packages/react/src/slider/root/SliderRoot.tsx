@@ -121,9 +121,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
   const pressedInputRef = React.useRef<HTMLInputElement>(null);
-  const inputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
+  const pressedThumbCenterOffsetRef = React.useRef<number>(0);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
+
   const formatOptionsRef = useLatestRef(format);
+  const inputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -286,6 +288,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       onValueCommitted,
       orientation,
       pressedInputRef,
+      pressedThumbCenterOffsetRef,
       registerFieldControlRef,
       setActive,
       setDragging,
@@ -314,6 +317,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       onValueCommitted,
       orientation,
       pressedInputRef,
+      pressedThumbCenterOffsetRef,
       registerFieldControlRef,
       setActive,
       setDragging,

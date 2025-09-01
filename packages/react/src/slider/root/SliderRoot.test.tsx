@@ -144,7 +144,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
   describe.skipIf(isJSDOM || isWebKit)('rtl', () => {
     it('should handle RTL', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = spy((newValue) => newValue);
       const { getByTestId } = await render(
         <div dir="rtl">
           <DirectionProvider direction="rtl">
@@ -169,8 +169,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
 
       expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[0][0]).to.equal(80);
-      expect(handleValueChange.args[1][0]).to.equal(78);
+      expect(handleValueChange.firstCall.returnValue).to.equal(80);
+      expect(handleValueChange.lastCall.returnValue).to.equal(78);
     });
   });
 

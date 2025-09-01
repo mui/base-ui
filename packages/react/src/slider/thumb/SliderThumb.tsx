@@ -19,6 +19,7 @@ import {
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { valueArrayToPercentages } from '../utils/valueArrayToPercentages';
@@ -107,7 +108,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const {
     active: activeIndex,
     disabled: contextDisabled,
-    pressedInputRef,
     fieldControlValidation,
     formatOptionsRef,
     handleInputChange,
@@ -118,6 +118,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     min,
     minStepsBetweenValues,
     orientation,
+    pressedInputRef,
+    pressedThumbCenterOffsetRef,
     setActive,
     state,
     step,
@@ -337,7 +339,15 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         id,
         onBlur: onBlurProp,
         onFocus: onFocusProp,
-        onPointerDown() {
+        onPointerDown(event) {
+          if (thumbRef.current != null) {
+            const axis = orientation === 'horizontal' ? 'x' : 'y';
+            const midpoint = getMidpoint(thumbRef.current);
+            const offset =
+              (orientation === 'horizontal' ? event.clientX : event.clientY) - midpoint[axis];
+            pressedThumbCenterOffsetRef.current = offset;
+          }
+
           if (inputRef.current != null && pressedInputRef.current !== inputRef.current) {
             pressedInputRef.current = inputRef.current;
           }
