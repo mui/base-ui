@@ -125,6 +125,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         listElement: null,
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
+        hasScrollArrows: false,
       }),
   ).current;
 

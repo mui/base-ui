@@ -1,12 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStore } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES } from '../popup/utils';
+import { selectors } from '../store';
 
 /**
  * A container for the select items.
@@ -21,7 +23,9 @@ export const SelectList = React.forwardRef(function SelectList(
   const { className, render, ...elementProps } = componentProps;
 
   const { store, scrollHandlerRef } = useSelectRootContext();
-  const { alignItemWithTriggerActive, hasScrollArrows } = useSelectPositionerContext();
+  const { alignItemWithTriggerActive } = useSelectPositionerContext();
+
+  const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
 
   const defaultProps: HTMLProps = {
     role: 'presentation',

@@ -31,6 +31,8 @@ export type State = {
 
   scrollUpArrowVisible: boolean;
   scrollDownArrowVisible: boolean;
+
+  hasScrollArrows: boolean;
 };
 
 export type SelectStore = Store<State>;
@@ -74,4 +76,6 @@ export const selectors = {
 
   scrollUpArrowVisible: createSelector((state: State) => state.scrollUpArrowVisible),
   scrollDownArrowVisible: createSelector((state: State) => state.scrollDownArrowVisible),
+
+  hasScrollArrows: createSelector((state: State) => state.hasScrollArrows),
 };
