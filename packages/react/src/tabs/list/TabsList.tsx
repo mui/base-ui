@@ -80,8 +80,10 @@ export const TabsList = React.forwardRef(function TabsList(
             break;
           }
         }
-        if (!hasEnabledItems && newMap.size > 0) {
-          console.warn('All tabs are disabled. The first tab will be selected.');
+        if (process.env.NODE_ENV !== 'production') {
+          if (!hasEnabledItems && newMap.size > 0) {
+            console.warn('All tabs are disabled. The first tab will be selected.');
+          }
         }
         onValueChange(firstNonDisabledItem, 'none', undefined);
       }
