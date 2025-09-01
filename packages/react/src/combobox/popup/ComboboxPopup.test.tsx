@@ -23,6 +23,7 @@ describe('<Combobox.Popup />', () => {
   it('exposes open state via data attributes mapping', async () => {
     await render(
       <Combobox.Root defaultOpen>
+        <Combobox.Input />
         <Combobox.Portal>
           <Combobox.Positioner>
             <Combobox.Popup data-testid="popup" />

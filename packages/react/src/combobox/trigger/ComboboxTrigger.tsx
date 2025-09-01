@@ -53,7 +53,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const selectedValue = useStore(store, selectors.selectedValue);
   const inputValue = useStore(store, selectors.inputValue);
   const anchorElement = useStore(store, selectors.anchorElement);
-  const inputElement = useStore(store, selectors.inputElement);
   const listElement = useStore(store, selectors.listElement);
   const triggerProps = useStore(store, selectors.triggerProps);
   const typeaheadTriggerProps = useStore(store, selectors.typeaheadTriggerProps);
@@ -94,7 +93,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       triggerProps,
       typeaheadTriggerProps,
       {
-        tabIndex: inputElement && inputElement === anchorElement ? -1 : 0,
+        tabIndex: inputInsidePopup ? 0 : -1,
         disabled,
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',

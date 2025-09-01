@@ -551,7 +551,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
       const shouldFillInput =
         (selectionMode === 'none' && popupRef.current && fillInputOnItemPress) ||
-        (selectionMode === 'single' && popupRef.current && anchorElement === inputElement);
+        (selectionMode === 'single' && !store.state.inputInsidePopup);
 
       if (shouldFillInput) {
         setInputValue(
@@ -755,7 +755,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     virtual: true,
     loop: true,
     allowEscape: !autoHighlight,
-    openOnArrowKeyDown: anchorElement === inputElement && inputElement?.tagName === 'INPUT',
     focusItemOnOpen:
       queryChangedAfterOpen || selectionMode === 'none' || selectedIndex === null ? false : 'auto',
     cols,
