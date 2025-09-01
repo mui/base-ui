@@ -70,36 +70,40 @@ describe('useRender', () => {
     });
   });
 
-  describe('param: defaultTag', () => {
+  describe('param: defaultTagName', () => {
     it('renders the element with the default tag with no render prop', async () => {
-      function TestComponent({ defaultTag }: { defaultTag: keyof React.JSX.IntrinsicElements }) {
-        return useRender({ defaultTag });
+      function TestComponent({
+        defaultTagName,
+      }: {
+        defaultTagName: keyof React.JSX.IntrinsicElements;
+      }) {
+        return useRender({ defaultTagName });
       }
 
-      const { container, setProps } = await render(<TestComponent defaultTag="div" />);
+      const { container, setProps } = await render(<TestComponent defaultTagName="div" />);
       expect(container.firstElementChild).to.have.property('tagName', 'DIV');
 
-      await setProps({ defaultTag: 'span' });
+      await setProps({ defaultTagName: 'span' });
       expect(container.firstElementChild).to.have.property('tagName', 'SPAN');
     });
 
     it('is overwritten by the render prop', async () => {
       function TestComponent({
         render: renderProp,
-        defaultTag,
+        defaultTagName,
       }: {
         render: useRender.Parameters<{}, Element, undefined>['render'];
-        defaultTag: keyof React.JSX.IntrinsicElements;
+        defaultTagName: keyof React.JSX.IntrinsicElements;
       }) {
-        return useRender({ render: renderProp, defaultTag });
+        return useRender({ render: renderProp, defaultTagName });
       }
 
       const { container, setProps } = await render(
-        <TestComponent defaultTag="div" render={<span />} />,
+        <TestComponent defaultTagName="div" render={<span />} />,
       );
       expect(container.firstElementChild).to.have.property('tagName', 'SPAN');
 
-      await setProps({ defaultTag: 'a' });
+      await setProps({ defaultTagName: 'a' });
       expect(container.firstElementChild).to.have.property('tagName', 'SPAN');
     });
   });

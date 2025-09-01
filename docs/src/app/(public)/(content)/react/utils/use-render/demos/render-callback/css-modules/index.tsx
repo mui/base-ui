@@ -32,7 +32,7 @@ function Counter(props: CounterProps) {
   };
 
   const element = useRender({
-    defaultTag: 'button',
+    defaultTagName: 'button',
     render,
     state,
     props: mergeProps<'button'>(defaultProps, otherProps),
