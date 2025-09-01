@@ -3,14 +3,14 @@
   "description": "A container for the items.\nRenders a `<div>` element.",
   "props": {
     "initialFocus": {
-      "type": "RefObject<HTMLElement | null> | ((openType: InteractionType) => void | HTMLElement | null) | null",
-      "description": "Determines the element to focus when the popup is opened.\nBy default, the first focusable element is focused.\n\n- `null`: Do not focus any element.\n- `RefObject`: Focus the ref element. Falls back to default behavior when `null`.\n- `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the open. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.",
-      "detailedType": "| React.RefObject<HTMLElement | null>\n| ((\n    openType: InteractionType,\n  ) => void | HTMLElement | null)\n| null\n| undefined"
+      "type": "boolean | RefObject<HTMLElement | null> | ((openType: InteractionType) => boolean | void | HTMLElement | null)",
+      "description": "Determines the element to focus when the popup is opened.\n\n- `false`: Do not move focus.\n- `true`: Move focus based on the default behavior (first tabbable element or popup).\n- `RefObject`: Move focus to the ref element.\n- `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\n  Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.",
+      "detailedType": "| boolean\n| React.RefObject<HTMLElement | null>\n| ((\n    openType: InteractionType,\n  ) => boolean | void | HTMLElement | null)\n| undefined"
     },
     "finalFocus": {
-      "type": "RefObject<HTMLElement | null> | ((closeType: InteractionType) => void | HTMLElement | null) | null",
-      "description": "Determines the element to focus when the popup is closed.\nBy default, focus returns to the trigger.\n\n- `null`: Do not focus any element.\n- `RefObject`: Focus the ref element. Falls back to default behavior when `null`.\n- `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the close. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.",
-      "detailedType": "| React.RefObject<HTMLElement | null>\n| ((\n    closeType: InteractionType,\n  ) => void | HTMLElement | null)\n| null\n| undefined"
+      "type": "boolean | RefObject<HTMLElement | null> | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
+      "description": "Determines the element to focus when the popup is closed.\n\n- `false`: Do not move focus.\n- `true`: Move focus based on the default behavior (trigger or previously focused element).\n- `RefObject`: Move focus to the ref element.\n- `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\n  Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.",
+      "detailedType": "| boolean\n| React.RefObject<HTMLElement | null>\n| ((\n    closeType: InteractionType,\n  ) => boolean | void | HTMLElement | null)\n| undefined"
     },
     "className": {
       "type": "string | ((state: Combobox.Popup.State) => string)",

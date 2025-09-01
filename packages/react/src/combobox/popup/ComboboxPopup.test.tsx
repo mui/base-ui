@@ -31,7 +31,7 @@ describe('<Combobox.Popup />', () => {
       </Combobox.Root>,
     );
 
-    const popup = screen.getByTestId('popup');
+    const popup = await screen.findByTestId('popup');
     expect(popup).to.have.attribute('data-open');
   });
 });

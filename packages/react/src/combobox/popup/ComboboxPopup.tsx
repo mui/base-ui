@@ -95,13 +95,10 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
   // (this is required for Android specifically as iOS handles this automatically).
-  // For input-anchored comboboxes, pass -1 so the focus manager treats it as
-  // an "untrapped typeable combobox" and includes the input in insideElements.
-  // For trigger-anchored comboboxes, preserve touch behavior and otherwise focus the input.
   const computedDefaultInitialFocus = inputInsidePopup
     ? (interactionType: InteractionType) =>
         interactionType === 'touch' ? popupRef.current : inputElement
-    : -1;
+    : false;
 
   const resolvedInitialFocus =
     initialFocus === undefined ? computedDefaultInitialFocus : initialFocus;
@@ -140,27 +137,29 @@ export namespace ComboboxPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Determines the element to focus when the popup is opened.
-     * By default, the first focusable element is focused.
      *
-     * - `null`: Do not focus any element.
-     * - `RefObject`: Focus the ref element. Falls back to default behavior when `null`.
-     * - `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the open. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.
+     * - `false`: Do not move focus.
+     * - `true`: Move focus based on the default behavior (first tabbable element or popup).
+     * - `RefObject`: Move focus to the ref element.
+     * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+     *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
      */
     initialFocus?:
-      | null
+      | boolean
       | React.RefObject<HTMLElement | null>
-      | ((openType: InteractionType) => HTMLElement | null | void);
+      | ((openType: InteractionType) => void | boolean | HTMLElement | null);
     /**
      * Determines the element to focus when the popup is closed.
-     * By default, focus returns to the trigger.
      *
-     * - `null`: Do not focus any element.
-     * - `RefObject`: Focus the ref element. Falls back to default behavior when `null`.
-     * - `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the close. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.
+     * - `false`: Do not move focus.
+     * - `true`: Move focus based on the default behavior (trigger or previously focused element).
+     * - `RefObject`: Move focus to the ref element.
+     * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+     *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
      */
     finalFocus?:
-      | null
+      | boolean
       | React.RefObject<HTMLElement | null>
-      | ((closeType: InteractionType) => HTMLElement | null | void);
+      | ((closeType: InteractionType) => void | boolean | HTMLElement | null);
   }
 }
