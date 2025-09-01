@@ -22,6 +22,8 @@ export interface SliderRootContext {
     index: number,
     event: React.KeyboardEvent | React.ChangeEvent,
   ) => void;
+  indicatorPosition: (number | undefined)[];
+  inset: boolean;
   labelId?: string;
   /**
    * The large step value of the slider when incrementing or decrementing while the shift key is held,
@@ -66,6 +68,7 @@ export interface SliderRootContext {
   registerFieldControlRef: React.RefCallback<Element> | null;
   setActive: React.Dispatch<React.SetStateAction<number>>;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
+  setIndicatorPosition: React.Dispatch<React.SetStateAction<(number | undefined)[]>>;
   /**
    * Callback fired when dragging and invokes onValueChange.
    */

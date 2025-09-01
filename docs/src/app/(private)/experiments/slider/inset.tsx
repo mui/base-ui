@@ -2,39 +2,69 @@
 import * as React from 'react';
 import { Slider } from '@base-ui-components/react/slider';
 import '../../../../demo-theme.css';
-import macStyles from './inset.mac.module.css';
-import nativeStyles from './inset.native.module.css';
-
-const styles = {
-  mac: macStyles,
-  native: nativeStyles,
-};
+import styles from './inset.module.css';
 
 export default function InsetSliders() {
   return (
     <div
       style={{
-        alignSelf: 'center',
         marginTop: '40vh',
         display: 'flex',
         flexDirection: 'column',
         gap: '2rem',
+
+        alignSelf: 'flex-start',
+        marginLeft: '20px',
       }}
     >
-      <Slider.Root className={styles.mac.Slider} defaultValue={25}>
-        <Slider.Control className={styles.mac.Control}>
-          <Slider.Track className={styles.mac.Track}>
-            <Slider.Indicator className={styles.mac.Indicator} />
-            <Slider.Thumb className={styles.mac.Thumb} />
+      <Slider.Root className={styles.Slider} defaultValue={0} min={0} max={100} inset>
+        <Slider.Control className={styles.Control}>
+          <Slider.Track className={styles.Track}>
+            <Slider.Indicator className={styles.Indicator} />
+            <Slider.Thumb className={styles.Thumb} />
           </Slider.Track>
         </Slider.Control>
       </Slider.Root>
 
-      <Slider.Root className={styles.native.Slider} defaultValue={25}>
-        <Slider.Control className={styles.native.Control}>
-          <Slider.Track className={styles.native.Track}>
-            <Slider.Indicator className={styles.native.Indicator} />
-            <Slider.Thumb className={styles.native.Thumb} />
+      <Slider.Root className={styles.Slider} defaultValue={[20, 64]} min={0} max={100} inset>
+        <Slider.Control className={styles.Control}>
+          <Slider.Track className={styles.Track}>
+            <Slider.Indicator className={styles.Indicator} />
+            <Slider.Thumb index={0} className={styles.Thumb} />
+            <Slider.Thumb index={1} className={styles.Thumb} />
+          </Slider.Track>
+        </Slider.Control>
+      </Slider.Root>
+
+      <Slider.Root
+        className={styles.Slider}
+        defaultValue={0}
+        min={0}
+        max={100}
+        inset
+        style={{ ['--track-width' as string]: '400px' }}
+      >
+        <Slider.Control className={styles.Control}>
+          <Slider.Track className={styles.Track}>
+            <Slider.Indicator className={styles.Indicator} />
+            <Slider.Thumb className={styles.Thumb} />
+          </Slider.Track>
+        </Slider.Control>
+      </Slider.Root>
+
+      <Slider.Root
+        className={styles.Slider}
+        defaultValue={[20, 60]}
+        min={0}
+        max={100}
+        inset
+        style={{ ['--track-width' as string]: '400px' }}
+      >
+        <Slider.Control className={styles.Control}>
+          <Slider.Track className={styles.Track}>
+            <Slider.Indicator className={styles.Indicator} />
+            <Slider.Thumb index={0} className={styles.Thumb} />
+            <Slider.Thumb index={1} className={styles.Thumb} />
           </Slider.Track>
         </Slider.Control>
       </Slider.Root>
