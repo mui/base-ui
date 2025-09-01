@@ -45,11 +45,10 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const open = useStore(store, selectors.open);
   const openMethod = useStore(store, selectors.openMethod);
   const transitionStatus = useStore(store, selectors.transitionStatus);
-  const anchorElement = useStore(store, selectors.anchorElement);
+  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
   const listElement = useStore(store, selectors.listElement);
 
-  const isAnchorInput = anchorElement === inputElement;
   const empty = filteredItems.length === 0;
 
   useOpenChangeComplete({
@@ -99,10 +98,10 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   // For input-anchored comboboxes, pass -1 so the focus manager treats it as
   // an "untrapped typeable combobox" and includes the input in insideElements.
   // For trigger-anchored comboboxes, preserve touch behavior and otherwise focus the input.
-  const computedDefaultInitialFocus = isAnchorInput
-    ? -1
-    : (interactionType: InteractionType) =>
-        interactionType === 'touch' ? popupRef.current : inputElement;
+  const computedDefaultInitialFocus = inputInsidePopup
+    ? (interactionType: InteractionType) =>
+        interactionType === 'touch' ? popupRef.current : inputElement
+    : -1;
 
   const resolvedInitialFocus =
     initialFocus === undefined ? computedDefaultInitialFocus : initialFocus;
@@ -111,14 +110,14 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   if (finalFocus != null) {
     resolvedFinalFocus = finalFocus;
   } else {
-    resolvedFinalFocus = isAnchorInput ? false : undefined;
+    resolvedFinalFocus = inputInsidePopup ? undefined : false;
   }
 
   return (
     <FloatingFocusManager
       context={floatingRootContext}
       disabled={!mounted}
-      modal={isAnchorInput}
+      modal={!inputInsidePopup}
       openInteractionType={openMethod}
       initialFocus={resolvedInitialFocus}
       returnFocus={resolvedFinalFocus}

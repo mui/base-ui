@@ -57,6 +57,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const listElement = useStore(store, selectors.listElement);
   const triggerProps = useStore(store, selectors.triggerProps);
   const typeaheadTriggerProps = useStore(store, selectors.typeaheadTriggerProps);
+  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
@@ -86,8 +87,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     store.set('triggerElement', element);
   });
 
-  const isAnchorInput = inputElement && inputElement === anchorElement;
-
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef, setTriggerElement],
     state,
@@ -98,7 +97,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         tabIndex: inputElement && inputElement === anchorElement ? -1 : 0,
         disabled,
         'aria-expanded': open ? 'true' : 'false',
-        'aria-haspopup': isAnchorInput ? 'listbox' : 'dialog',
+        'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': open ? listElement?.id : undefined,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,

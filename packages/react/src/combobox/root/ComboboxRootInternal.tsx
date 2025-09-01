@@ -274,6 +274,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         triggerElement: null,
         inputElement: null,
         openMethod: null,
+        inputInsidePopup: true,
       }),
   ).current;
 
@@ -420,8 +421,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     setSelectedValueUnwrapped(fallback);
 
     // Keep the input text in sync when the input is rendered outside the popup.
-    const isInputInsidePopup = contains(popupRef.current, inputRef.current);
-    if (!isInputInsidePopup) {
+    if (!store.state.inputInsidePopup) {
       const stringVal = stringifyItem(fallback, itemToLabel);
       if (inputRef.current && inputRef.current.value !== stringVal) {
         setInputValueUnwrapped(stringVal);
@@ -437,6 +437,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     setSelectedValueUnwrapped,
     setInputValueUnwrapped,
     itemToLabel,
+    store,
   ]);
 
   useValueChanged(queryRef, query, () => {
@@ -642,8 +643,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     // - If input is rendered inside the popup, clear it so the next open is blank
     // - If input is outside the popup, sync it to the selected value
     if (selectionMode === 'single') {
-      const isInputInsidePopup = contains(popupRef.current, inputRef.current);
-      if (isInputInsidePopup) {
+      if (store.state.inputInsidePopup) {
         if (inputRef.current && inputRef.current.value !== '') {
           setInputValue('', createBaseUIEventDetails('input-clear'));
         }

@@ -38,6 +38,8 @@ export type State = {
   inputElement: HTMLInputElement | null;
 
   openMethod: InteractionType | null;
+
+  inputInsidePopup: boolean;
 };
 
 export type ComboboxStore = Store<State>;
@@ -82,4 +84,6 @@ export const selectors = {
   inputElement: createSelector((state: State) => state.inputElement),
 
   openMethod: createSelector((state: State) => state.openMethod),
+
+  inputInsidePopup: createSelector((state: State) => state.inputInsidePopup),
 };

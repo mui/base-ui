@@ -80,7 +80,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   });
 
   const setInputElement = useEventCallback((element) => {
-    store.set('inputElement', element);
+    store.apply({
+      inputElement: element,
+      inputInsidePopup: hasPositionerParent,
+    });
   });
 
   const state: ComboboxInput.State = React.useMemo(
