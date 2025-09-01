@@ -66,7 +66,8 @@ async function submitForm(event: React.FormEvent<HTMLFormElement>, values: Value
   const entries = Object.fromEntries(formData as any);
 
   entries['number-field'] = values.numberField;
-  entries.slider = Number(entries.slider);
+  entries.slider = parseFloat(formData.get('slider') as string);
+  entries['range-slider'] = formData.getAll('range-slider').map((v) => parseFloat(v as string));
   entries['multi-select'] = formData.getAll('multi-select');
 
   const result = schema.safeParse(entries);
@@ -176,8 +177,8 @@ export default function Page() {
             <Slider.Control className={styles.SliderControl}>
               <Slider.Track className={styles.SliderTrack}>
                 <Slider.Indicator className={styles.SliderIndicator} />
-                <Slider.Thumb className={styles.SliderThumb} />
-                <Slider.Thumb className={styles.SliderThumb} />
+                <Slider.Thumb index={0} className={styles.SliderThumb} />
+                <Slider.Thumb index={1} className={styles.SliderThumb} />
               </Slider.Track>
             </Slider.Control>
           </Slider.Root>

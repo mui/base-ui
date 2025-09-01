@@ -158,7 +158,8 @@ export function useNumberFieldButton(
           event.defaultPrevented ||
           isDisabled ||
           !isPressedRef.current ||
-          isTouchingButtonRef.current
+          isTouchingButtonRef.current ||
+          pointerTypeRef.current === 'touch'
         ) {
           return;
         }

@@ -31,6 +31,11 @@ The `useRender` hook lets you build custom components that provide a `render` pr
       description:
         'The state of the component. It will be used as a parameter for the render callback.',
     },
+    defaultTagName: {
+      type: 'keyof React.JSX.IntrinsicElements',
+      description:
+        'The default tag name to use for the rendered element when `render` is not provided.',
+    },
   }}
 />
 
@@ -97,11 +102,12 @@ When building custom components, you often need to control a ref internally whil
 
 In React 19, `React.forwardRef()` is not needed when building primitive components, as the external ref prop is already contained inside `props`. Your internal ref can be passed to `ref` to be merged with `props.ref`:
 
-```tsx title="React 19" {5} "internalRef"
-function Text({ render = <p />, ...props }: TextProps) {
+```tsx title="React 19" {6} "internalRef"
+function Text({ render, ...props }: TextProps) {
   const internalRef = React.useRef<HTMLElement | null>(null);
 
   const element = useRender({
+    defaultTagName: 'p',
     ref: internalRef,
     props,
     render,
@@ -115,14 +121,15 @@ In older versions of React, you need to use `React.forwardRef()` and add the for
 
 The [examples](#examples) above assume React 19, and should be modified to use `React.forwardRef()` to support React 18 and 17.
 
-```tsx title="React 18 and 17" {8} "forwardedRef" "internalRef"
+```tsx title="React 18 and 17" {9} "forwardedRef" "internalRef"
 const Text = React.forwardRef(function Text(
-  { render = <p />, ...props }: TextProps,
+  { render, ...props }: TextProps,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const internalRef = React.useRef<HTMLElement | null>(null);
 
   const element = useRender({
+    defaultTagName: 'p',
     ref: [forwardedRef, internalRef],
     props,
     render,
@@ -142,7 +149,7 @@ To type props, there are two interfaces:
 ```tsx title="Typing props" {1,4}
 interface ButtonProps extends useRender.ComponentProps<'button'> {}
 
-function Button({ render = <button />, ...props }: ButtonProps) {
+function Button({ render, ...props }: ButtonProps) {
   const defaultProps: useRender.ElementProps<'button'> = {
     className: styles.Button,
     type: 'button',
@@ -150,6 +157,7 @@ function Button({ render = <button />, ...props }: ButtonProps) {
   };
 
   const element = useRender({
+    defaultTagName: 'button',
     render,
     props: mergeProps<'button'>(defaultProps, props),
   });
@@ -183,10 +191,14 @@ In Base UI, `useRender` lets you implement a `render` prop. The example below is
 ```jsx title="Base UI render prop"
 import { useRender } from '@base-ui-components/react/use-render';
 
-function Button({ render = <button />, ...props }) {
-  return useRender({ render, props });
+function Button({ render, ...props }) {
+  return useRender({
+    defaultTagName: 'button',
+    render,
+    props,
+  });
 }
 
 // Usage
-<Button render={<a href="/contact">Contact</a>} />;
+<Button render={<a href="/contact" />}>Contact</Button>;
 ```
