@@ -73,7 +73,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
-  const scrollList = useStore(store, selectors.scrollList);
+  const listElement = useStore(store, selectors.listElement);
 
   const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);
@@ -217,7 +217,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       const positionerRect = positionerElement.getBoundingClientRect();
       const triggerX = triggerRect.left;
       const triggerHeight = triggerRect.height;
-      const scroller = scrollList ?? popupElement;
+      const scroller = listElement || popupElement;
       const scrollHeight = scroller.scrollHeight;
 
       const borderBottom = parseFloat(popupStyles.borderBottomWidth);
@@ -327,7 +327,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     scrollArrowFrame,
     scrollDownArrowRef,
     scrollUpArrowRef,
-    scrollList,
+    listElement,
   ]);
 
   React.useEffect(() => {
@@ -369,13 +369,13 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       });
     },
     onScroll(event) {
-      if (scrollList) {
+      if (listElement) {
         return;
       }
       scrollHandlerRef.current?.(event.currentTarget);
     },
     ...(alignItemWithTriggerActive && {
-      style: scrollList ? { height: '100%' } : LIST_FUNCTIONAL_STYLES,
+      style: listElement ? { height: '100%' } : LIST_FUNCTIONAL_STYLES,
     }),
   };
 
@@ -389,7 +389,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       {
         style: transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE.style : undefined,
         className:
-          !scrollList && alignItemWithTriggerActive ? styleDisableScrollbar.className : undefined,
+          !listElement && alignItemWithTriggerActive ? styleDisableScrollbar.className : undefined,
       },
       elementProps,
     ],

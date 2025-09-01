@@ -34,12 +34,12 @@ export const SelectList = React.forwardRef(function SelectList(
     className: hasScrollArrows ? styleDisableScrollbar.className : undefined,
   };
 
-  const setScrollList = useEventCallback((element: HTMLElement | null) => {
-    store.set('scrollList', element);
+  const setListElement = useEventCallback((element: HTMLElement | null) => {
+    store.set('listElement', element);
   });
 
   return useRenderElement('div', componentProps, {
-    ref: [forwardedRef, setScrollList],
+    ref: [forwardedRef, setListElement],
     props: [defaultProps, elementProps],
   });
 });

@@ -79,7 +79,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
       store.set('activeIndex', null);
 
       function scrollNextItem() {
-        const popupElement = store.state.scrollList ?? popupRef.current;
+        const popupElement = store.state.listElement ?? popupRef.current;
         if (!popupElement) {
           return;
         }
@@ -112,7 +112,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         }
 
         if (
-          (store.state.scrollList || popupRef.current) &&
+          (store.state.listElement || popupRef.current) &&
           listRef.current &&
           listRef.current.length > 0
         ) {

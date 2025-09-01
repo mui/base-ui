@@ -122,7 +122,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         triggerProps: {},
         triggerElement: null,
         positionerElement: null,
-        scrollList: null,
+        listElement: null,
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
       }),
@@ -357,7 +357,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   useIsoLayoutEffect(syncSelectedState, [value, syncSelectedState]);
 
   const handleScrollArrowVisibility = useEventCallback(() => {
-    const scroller = store.state.scrollList ?? popupRef.current;
+    const scroller = store.state.listElement || popupRef.current;
     if (!scroller) {
       return;
     }

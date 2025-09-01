@@ -27,7 +27,7 @@ export type State = {
   triggerProps: HTMLProps;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
-  scrollList: HTMLDivElement | null;
+  listElement: HTMLDivElement | null;
 
   scrollUpArrowVisible: boolean;
   scrollDownArrowVisible: boolean;
@@ -70,7 +70,7 @@ export const selectors = {
   triggerProps: createSelector((state: State) => state.triggerProps),
   triggerElement: createSelector((state: State) => state.triggerElement),
   positionerElement: createSelector((state: State) => state.positionerElement),
-  scrollList: createSelector((state: State) => state.scrollList),
+  listElement: createSelector((state: State) => state.listElement),
 
   scrollUpArrowVisible: createSelector((state: State) => state.scrollUpArrowVisible),
   scrollDownArrowVisible: createSelector((state: State) => state.scrollDownArrowVisible),
