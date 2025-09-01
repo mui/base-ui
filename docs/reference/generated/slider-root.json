@@ -18,14 +18,14 @@
       "detailedType": "number | number[] | undefined"
     },
     "onValueChange": {
-      "type": "((value: number | number[], event: Event, activeThumbIndex: number) => void)",
+      "type": "((value: number | number[], eventDetails: Slider.Root.ChangeEventDetails, activeThumbIndex: number) => void)",
       "description": "Callback function that is fired when the slider's value changed.",
-      "detailedType": "| ((\n    value: number | number[],\n    event: Event,\n    activeThumbIndex: number,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.ChangeEventDetails,\n    activeThumbIndex: number,\n  ) => void)\n| undefined"
     },
     "onValueCommitted": {
-      "type": "((value: number | number[], event: Event) => void)",
+      "type": "((value: number | number[], eventDetails: Slider.Root.ChangeEventDetails) => void)",
       "description": "Callback function that is fired when the `pointerup` is triggered.",
-      "detailedType": "| ((value: number | number[], event: Event) => void)\n| undefined"
+      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "locale": {
       "type": "Intl.LocalesArgument",
@@ -35,11 +35,6 @@
     "ref": {
       "type": "RefObject<HTMLDivElement>",
       "detailedType": "React.RefObject<HTMLDivElement> | undefined"
-    },
-    "tabIndex": {
-      "type": "number",
-      "description": "Optional tab index attribute for the thumb components.",
-      "detailedType": "number | undefined"
     },
     "step": {
       "type": "number",

@@ -3,7 +3,8 @@ import type { Metadata, Viewport } from 'next';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    <html lang="en">
+    // Use suppressHydrationWarning to avoid https://github.com/facebook/react/issues/24430
+    <html lang="en" suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );
@@ -63,7 +64,7 @@ export const metadata: Metadata = {
       },
       {
         rel: 'icon',
-        type: 'svg+xml',
+        type: 'image/svg+xml',
         url:
           process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.svg' : '/static/favicon.svg',
       },

@@ -164,10 +164,6 @@ export function Badge(props: React.ComponentProps<'span'>) {
   return <span {...props} className={clsx('MobileNavBadge', props.className)} />;
 }
 
-export function Label(props: React.ComponentProps<'span'>) {
-  return <span {...props} className={clsx('MobileNavLabel', props.className)} />;
-}
-
 interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
   active?: boolean;
   href: string;
