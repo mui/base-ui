@@ -57,6 +57,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     defaultValue,
     disabled: disabledProp = false,
     id: idProp,
+    inset = false,
     format,
     largeStep = 10,
     locale,
@@ -137,6 +138,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
+
+  const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
+    undefined,
+    undefined,
+  ]);
 
   useField({
     id,
@@ -275,6 +281,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
+      indicatorPosition,
+      inset,
       labelId: ariaLabelledby,
       largeStep,
       lastChangedValueRef,
@@ -291,6 +299,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       registerFieldControlRef,
       setActive,
       setDragging,
+      setIndicatorPosition,
       setValue,
       state,
       step,
@@ -307,6 +316,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
+      indicatorPosition,
+      inset,
       largeStep,
       lastChangedValueRef,
       locale,
@@ -322,6 +333,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       registerFieldControlRef,
       setActive,
       setDragging,
+      setIndicatorPosition,
       setValue,
       state,
       step,
@@ -415,6 +427,11 @@ export namespace SliderRoot {
      * Options to format the input value.
      */
     format?: Intl.NumberFormatOptions;
+    /**
+     * When `true` thumbs are inset within `Slider.Control`.
+     * @default false
+     */
+    inset?: boolean;
     /**
      * The locale used by `Intl.NumberFormat` when formatting the value.
      * Defaults to the user's runtime locale.
