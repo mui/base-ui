@@ -27,6 +27,12 @@
       "description": "Callback function that is fired when the `pointerup` is triggered.",
       "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "inset": {
+      "type": "boolean",
+      "default": "false",
+      "description": "When `true` thumbs are inset within `Slider.Control`.",
+      "detailedType": "boolean | undefined"
+    },
     "locale": {
       "type": "Intl.LocalesArgument",
       "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale.",

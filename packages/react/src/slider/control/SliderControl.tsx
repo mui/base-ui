@@ -11,7 +11,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { useSliderRootContext } from '../root/SliderRootContext';
+import { useSliderRootContext, type SliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRoot } from '../root/SliderRoot';
 import { getMidpoint } from '../utils/getMidpoint';
@@ -20,6 +20,23 @@ import { roundValueToStep } from '../utils/roundValueToStep';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
+
+function setThumbOffset(
+  inset: boolean,
+  insetThumbOffsetRef: React.RefObject<number>,
+  index: number,
+  vertical: boolean,
+  thumbRefs: SliderRootContext['thumbRefs'],
+) {
+  if (inset) {
+    const thumbElement = thumbRefs.current[index];
+    if (isElement(thumbElement)) {
+      const thumbRect = thumbElement.getBoundingClientRect();
+      const side = !vertical ? 'width' : 'height';
+      insetThumbOffsetRef.current = thumbRect[side] / 2;
+    }
+  }
+}
 
 function getControlOffset(styles: CSSStyleDeclaration | null, vertical: boolean) {
   if (!styles) {
@@ -81,6 +98,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     disabled,
     dragging,
     fieldControlValidation,
+    inset,
     lastChangedValueRef,
     max,
     min,
@@ -118,6 +136,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const touchIdRef = React.useRef<number>(null);
   // The number of touch/pointermove events that have fired.
   const moveCountRef = React.useRef(0);
+  // The offset amount to each side of the control for inset sliders.
+  // This value should be equal to the radius or half the width/height of the thumb.
+  const insetThumbOffsetRef = React.useRef(0);
 
   const getFingerState = useEventCallback((fingerCoords: Coords): FingerState | null => {
     const control = controlRef.current;
@@ -129,7 +150,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
     const { width, height, bottom, left, right } = control.getBoundingClientRect();
 
     const controlOffset = getControlOffset(stylesRef.current, vertical);
-    const controlSize = (vertical ? height : width) - controlOffset.start - controlOffset.end;
+    const insetThumbOffset = insetThumbOffsetRef.current;
+    const controlSize =
+      (vertical ? height : width) - controlOffset.start - controlOffset.end - insetThumbOffset * 2;
     const thumbCenterOffset = pressedThumbCenterOffsetRef.current ?? 0;
     const fingerX = fingerCoords.x - thumbCenterOffset;
     const fingerY = fingerCoords.y - thumbCenterOffset;
@@ -138,7 +161,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       ? bottom - fingerY - controlOffset.end
       : (direction === 'rtl' ? right - fingerX : fingerX - left) - controlOffset.start;
     // the value at the finger origin scaled down to fit the range [0, 1]
-    const valueRescaled = clamp(valueSize / controlSize, 0, 1);
+    const valueRescaled = clamp((valueSize - insetThumbOffset) / controlSize, 0, 1);
 
     let newValue = (max - min) * valueRescaled + min;
     newValue = roundValueToStep(newValue, step, min);
@@ -306,7 +329,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
     const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
 
     if (fingerCoords != null) {
-      startPressing(fingerCoords);
+      const closestThumbIndex = startPressing(fingerCoords);
+
+      setThumbOffset(inset, insetThumbOffsetRef, closestThumbIndex, vertical, thumbRefs);
 
       const finger = getFingerState(fingerCoords);
 
@@ -380,7 +405,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
           const fingerCoords = getFingerCoords(event, touchIdRef);
 
           if (fingerCoords != null) {
-            startPressing(fingerCoords);
+            const closestThumbIndex = startPressing(fingerCoords);
+
+            setThumbOffset(inset, insetThumbOffsetRef, closestThumbIndex, vertical, thumbRefs);
 
             const finger = getFingerState(fingerCoords);
 

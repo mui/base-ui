@@ -7,24 +7,57 @@ import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRoot } from '../root/SliderRoot';
 import { valueArrayToPercentages } from '../utils/valueArrayToPercentages';
 
-function getRangeStyles(
+function getStyles(
   orientation: Orientation,
-  offset: number,
-  leap: number,
+  range: boolean,
+  inset: boolean,
+  percentageValues: number[],
+  indicatorPosition: (number | undefined)[],
 ): React.CSSProperties {
+  const visibility =
+    inset && (indicatorPosition[0] === undefined || (range && indicatorPosition[1] === undefined))
+      ? 'hidden'
+      : undefined;
+
+  if (range) {
+    const start = inset ? (indicatorPosition[0] ?? 0) : percentageValues[0];
+    const end = inset ? (indicatorPosition[1] ?? 0) : percentageValues[percentageValues.length - 1];
+    const size = end - start;
+
+    if (orientation === 'vertical') {
+      return {
+        position: 'absolute',
+        bottom: `${start}%`,
+        height: `${size}%`,
+        width: 'inherit',
+      };
+    }
+
+    return {
+      position: 'relative',
+      insetInlineStart: `${start}%`,
+      width: `${size}%`,
+      height: 'inherit',
+    };
+  }
+
+  const value = inset ? (indicatorPosition[0] ?? 0) : percentageValues[0];
+
   if (orientation === 'vertical') {
     return {
+      visibility,
       position: 'absolute',
-      bottom: `${offset}%`,
-      height: `${leap}%`,
+      bottom: 0,
+      height: `${value}%`,
       width: 'inherit',
     };
   }
 
   return {
+    visibility,
     position: 'relative',
-    insetInlineStart: `${offset}%`,
-    width: `${leap}%`,
+    insetInlineStart: 0,
+    width: `${value}%`,
     height: 'inherit',
   };
 }
@@ -41,32 +74,12 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { max, min, orientation, state, values } = useSliderRootContext();
+  const { max, min, indicatorPosition, inset, orientation, state, values } = useSliderRootContext();
 
+  const range = values.length > 1;
   const percentageValues = valueArrayToPercentages(values.slice(), min, max);
 
-  let style: React.CSSProperties;
-
-  if (percentageValues.length > 1) {
-    const trackOffset = percentageValues[0];
-    const trackLeap = percentageValues[percentageValues.length - 1] - trackOffset;
-
-    style = getRangeStyles(orientation, trackOffset, trackLeap);
-  } else if (orientation === 'vertical') {
-    style = {
-      position: 'absolute',
-      bottom: 0,
-      height: `${percentageValues[0]}%`,
-      width: 'inherit',
-    };
-  } else {
-    style = {
-      position: 'relative',
-      insetInlineStart: 0,
-      width: `${percentageValues[0]}%`,
-      height: 'inherit',
-    };
-  }
+  const style = getStyles(orientation, range, inset, percentageValues, indicatorPosition);
 
   const element = useRenderElement('div', componentProps, {
     state,
