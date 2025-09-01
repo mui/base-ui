@@ -14,6 +14,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...baseMapping,
@@ -63,9 +64,9 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   React.useEffect(() => {
     function handleClose(event: {
       domEvent: Event | undefined;
-      reason: MenuRoot.OpenChangeReason | undefined;
+      reason: MenuRoot.ChangeEventReason;
     }) {
-      setOpen(false, event.domEvent, event.reason);
+      setOpen(false, createBaseUIEventDetails(event.reason, event.domEvent));
     }
 
     menuEvents.on('close', handleClose);
@@ -110,7 +111,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       modal={false}
       disabled={!mounted}
       returnFocus={finalFocus === undefined ? returnFocus : finalFocus}
-      initialFocus={parent.type === 'menu' ? -1 : 0}
+      initialFocus={parent.type !== 'menu'}
       restoreFocus
     >
       {element}
@@ -127,16 +128,17 @@ export namespace MenuPopup {
     id?: string;
     /**
      * Determines the element to focus when the menu is closed.
-     * By default, focus returns to the trigger.
      *
-     * - `null`: Do not focus any element.
-     * - `RefObject`: Focus the ref element. Falls back to default behavior when `null`.
-     * - `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the close. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.
+     * - `false`: Do not move focus.
+     * - `true`: Move focus based on the default behavior (trigger or previously focused element).
+     * - `RefObject`: Move focus to the ref element.
+     * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+     *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
      */
     finalFocus?:
-      | null
+      | boolean
       | React.RefObject<HTMLElement | null>
-      | ((closeType: InteractionType) => HTMLElement | null | void);
+      | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
   }
 
   export type State = {

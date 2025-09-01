@@ -9,6 +9,10 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import {
+  createBaseUIEventDetails,
+  type BaseUIEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { clamp } from '../../utils/clamp';
@@ -50,7 +54,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   Value extends number | readonly number[],
 >(componentProps: SliderRoot.Props<Value>, forwardedRef: React.ForwardedRef<HTMLDivElement>) {
   const {
-    'aria-labelledby': ariaLabelledbyProp,
+    'aria-labelledby': ariaLabelledByProp,
     className,
     defaultValue,
     disabled: disabledProp = false,
@@ -68,17 +72,23 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
     step = 1,
-    tabIndex: externalTabIndex,
     value: valueProp,
     ...elementProps
   } = componentProps;
 
   const id = useBaseUiId(idProp);
   const onValueChange = useEventCallback(
-    onValueChangeProp as (value: number | number[], event: Event, activeThumbIndex: number) => void,
+    onValueChangeProp as (
+      value: number | number[],
+      data: BaseUIEventDetails<'none'>,
+      activeThumbIndex: number,
+    ) => void,
   );
   const onValueCommitted = useEventCallback(
-    onValueCommittedProp as (value: number | readonly number[], event: Event) => void,
+    onValueCommittedProp as (
+      value: number | readonly number[],
+      data: BaseUIEventDetails<'none'>,
+    ) => void,
   );
 
   const { clearErrors } = useFormContext();
@@ -95,7 +105,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const fieldControlValidation = useFieldControlValidation();
 
-  const ariaLabelledby = ariaLabelledbyProp ?? labelId;
+  const ariaLabelledby = ariaLabelledByProp ?? labelId;
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp ?? '';
 
@@ -110,6 +120,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const pressedInputRef = React.useRef<HTMLInputElement>(null);
   const inputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
   const formatOptionsRef = useLatestRef(format);
@@ -153,7 +164,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         return;
       }
 
-      setValueUnwrapped(newValue as Value);
       // Redefine target to allow name and value to be read.
       // This allows seamless integration with the most popular form libraries.
       // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
@@ -167,7 +177,16 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       });
 
       lastChangedValueRef.current = newValue;
-      onValueChange(newValue, clonedEvent, thumbIndex);
+
+      const details = createBaseUIEventDetails('none', clonedEvent);
+
+      onValueChange(newValue, details, thumbIndex);
+
+      if (details.isCanceled) {
+        return;
+      }
+
+      setValueUnwrapped(newValue as Value);
       clearErrors(name);
       fieldControlValidation.commitValidation(newValue, true);
     },
@@ -184,7 +203,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         setTouched(true);
 
         const nextValue = lastChangedValueRef.current ?? newValue;
-        onValueCommitted(nextValue, event.nativeEvent);
+        onValueCommitted(nextValue, createBaseUIEventDetails('none', event.nativeEvent));
         clearErrors(name);
 
         if (validationMode === 'onChange') {
@@ -201,15 +220,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     thumbRefs.current?.[0]?.focus();
   });
 
-  useIsoLayoutEffect(() => {
-    if (valueProp === undefined || dragging) {
-      return;
-    }
-
+  if (process.env.NODE_ENV !== 'production') {
     if (min >= max) {
-      warn('Slider `max` must be greater than `min`');
+      warn('Slider `max` must be greater than `min`.');
     }
-  }, [dragging, min, max, valueProp]);
+  }
 
   useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
@@ -258,6 +273,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       disabled,
       dragging,
       fieldControlValidation,
+      pressedInputRef,
       formatOptionsRef,
       handleInputChange,
       labelId: ariaLabelledby,
@@ -276,7 +292,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       setValue,
       state,
       step,
-      tabIndex: externalTabIndex ?? null,
       thumbMap,
       thumbRefs,
       values,
@@ -286,8 +301,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       ariaLabelledby,
       disabled,
       dragging,
-      externalTabIndex,
       fieldControlValidation,
+      pressedInputRef,
       formatOptionsRef,
       handleInputChange,
       largeStep,
@@ -475,10 +490,6 @@ export namespace SliderRoot {
      */
     largeStep?: number;
     /**
-     * Optional tab index attribute for the thumb components.
-     */
-    tabIndex?: number;
-    /**
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
      */
@@ -493,7 +504,7 @@ export namespace SliderRoot {
      */
     onValueChange?: (
       value: Value extends number ? number : Value,
-      event: Event,
+      eventDetails: ChangeEventDetails,
       activeThumbIndex: number,
     ) => void;
     /**
@@ -503,6 +514,12 @@ export namespace SliderRoot {
      * @param {Event} event The corresponding event that initiated the change.
      * **Warning**: This is a generic event not a change event.
      */
-    onValueCommitted?: (value: Value extends number ? number : Value, event: Event) => void;
+    onValueCommitted?: (
+      value: Value extends number ? number : Value,
+      eventDetails: ChangeEventDetails,
+    ) => void;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

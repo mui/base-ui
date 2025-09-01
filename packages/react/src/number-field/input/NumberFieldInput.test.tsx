@@ -161,7 +161,7 @@ describe('<NumberField.Input />', () => {
     fireEvent.change(input, { target: { value: '1.5' } });
     expect(input).to.have.value('1.5');
     fireEvent.blur(input);
-    expect(input).to.have.value('1.5');
+    expect(input).to.have.value((1.5).toLocaleString());
   });
 
   it('should commit validated number on blur (step and min)', async () => {
@@ -196,14 +196,14 @@ describe('<NumberField.Input />', () => {
       setProps({ value: 1.23456 });
     });
 
-    expect(input).to.have.value('1.23456');
+    expect(input).to.have.value((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
 
     await act(async () => {
       input.focus();
       input.blur();
     });
 
-    expect(input).to.have.value('1.23456');
+    expect(input).to.have.value((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
     expect(onValueChange.callCount).to.equal(0);
   });
 
@@ -237,11 +237,11 @@ describe('<NumberField.Input />', () => {
     await user.click(incrementButton);
 
     expect(input).to.have.value('1');
-    expect(onValueChange.callCount).to.equal(2);
+    expect(onValueChange.callCount).to.equal(1);
 
     await user.click(screen.getByText('external'));
 
-    expect(input).to.have.value('1.23456');
+    expect(input).to.have.value((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
   });
 
   it('should update input value after decrement followed by external value change', async () => {
@@ -274,11 +274,11 @@ describe('<NumberField.Input />', () => {
     await user.click(decrementButton);
 
     expect(input).to.have.value('4');
-    expect(onValueChange.callCount).to.equal(2);
+    expect(onValueChange.callCount).to.equal(1);
 
     await user.click(screen.getByText('external'));
 
-    expect(input).to.have.value('2.98765');
+    expect(input).to.have.value((2.98765).toLocaleString(undefined, { minimumFractionDigits: 5 }));
   });
 
   it('should allow typing after precision is preserved on blur', async () => {
@@ -299,14 +299,14 @@ describe('<NumberField.Input />', () => {
       setProps({ value: 1.23456 });
     });
 
-    expect(input).to.have.value('1.23456');
+    expect(input).to.have.value((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
 
     await act(async () => {
       input.focus();
       input.blur();
     });
 
-    expect(input).to.have.value('1.23456');
+    expect(input).to.have.value((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
 
     await act(async () => {
       input.focus();
@@ -317,7 +317,7 @@ describe('<NumberField.Input />', () => {
     expect(input).to.have.value('1.234567');
 
     fireEvent.blur(input);
-    expect(input).to.have.value('1.23456');
+    expect(input).to.have.value((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
   });
 
   it('should format to canonical representation when input differs from max precision', async () => {
@@ -338,7 +338,7 @@ describe('<NumberField.Input />', () => {
       setProps({ value: 1.23456 });
     });
 
-    expect(input).to.have.value('1.23456');
+    expect(input).to.have.value((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
 
     await act(async () => {
       input.focus();
@@ -349,7 +349,7 @@ describe('<NumberField.Input />', () => {
     expect(input).to.have.value('1.23456000');
 
     fireEvent.blur(input);
-    expect(input).to.have.value('1.23456');
+    expect(input).to.have.value((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
   });
 
   it('should handle multiple blur cycles with precision preservation', async () => {
@@ -370,14 +370,18 @@ describe('<NumberField.Input />', () => {
       setProps({ value: 1.23456789 });
     });
 
-    expect(input).to.have.value('1.23456789');
+    expect(input).to.have.value(
+      (1.23456789).toLocaleString(undefined, { minimumFractionDigits: 8 }),
+    );
 
     await act(async () => {
       input.focus();
       input.blur();
     });
 
-    expect(input).to.have.value('1.23456789');
+    expect(input).to.have.value(
+      (1.23456789).toLocaleString(undefined, { minimumFractionDigits: 8 }),
+    );
     expect(onValueChange.callCount).to.equal(0);
 
     await act(async () => {
@@ -385,7 +389,9 @@ describe('<NumberField.Input />', () => {
       input.blur();
     });
 
-    expect(input).to.have.value('1.23456789');
+    expect(input).to.have.value(
+      (1.23456789).toLocaleString(undefined, { minimumFractionDigits: 8 }),
+    );
     expect(onValueChange.callCount).to.equal(0);
   });
 
@@ -407,7 +413,7 @@ describe('<NumberField.Input />', () => {
       setProps({ value: 1.5 });
     });
 
-    expect(input).to.have.value('1.5');
+    expect(input).to.have.value((1.5).toLocaleString());
 
     await act(async () => {
       input.focus();
@@ -418,7 +424,7 @@ describe('<NumberField.Input />', () => {
     expect(input).to.have.value('1.50');
 
     fireEvent.blur(input);
-    expect((input as HTMLInputElement).value).to.match(/^1\.5/);
+    expect((input as HTMLInputElement).value).to.match(/^1[.,]5/);
   });
 
   it('should preserve precision when value matches max precision after external change during typing', async () => {
@@ -452,10 +458,14 @@ describe('<NumberField.Input />', () => {
 
     await user.click(screen.getByText('set pi'));
 
-    expect(input).to.have.value('3.14159265');
+    expect(input).to.have.value(
+      (3.14159265).toLocaleString(undefined, { minimumFractionDigits: 8 }),
+    );
 
     fireEvent.blur(input);
-    expect(input).to.have.value('3.14159265');
+    expect(input).to.have.value(
+      (3.14159265).toLocaleString(undefined, { minimumFractionDigits: 8 }),
+    );
   });
 
   it('should round to explicit maximumFractionDigits on blur', async () => {
@@ -480,14 +490,14 @@ describe('<NumberField.Input />', () => {
       setProps({ value: 1.23456 });
     });
 
-    expect(input).to.have.value('1.23');
+    expect(input).to.have.value((1.23).toLocaleString());
 
     await act(async () => {
       input.focus();
       input.blur();
     });
 
-    expect(input).to.have.value('1.23');
+    expect(input).to.have.value((1.23).toLocaleString());
     expect(onValueChange.callCount).to.equal(1);
     expect(onValueChange.firstCall.args[0]).to.equal(1.23);
   });
@@ -533,7 +543,7 @@ describe('<NumberField.Input />', () => {
 
     // Without explicit precision formatting, the behavior depends on the step
     // The current implementation preserves full precision until it differs from canonical
-    expect(input).to.have.value('1.235');
-    expect(onValueChange.callCount).to.equal(callCountBeforeBlur + 1);
+    expect(input).to.have.value((1.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
+    expect(onValueChange.callCount).to.equal(callCountBeforeBlur);
   });
 });

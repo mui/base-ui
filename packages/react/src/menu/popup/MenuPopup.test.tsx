@@ -126,7 +126,7 @@ describe('<Menu.Popup />', () => {
       });
     });
 
-    it('should not move focus when finalFocus is null', async () => {
+    it('should not move focus when finalFocus is false', async () => {
       function TestComponent() {
         return (
           <div>
@@ -134,7 +134,7 @@ describe('<Menu.Popup />', () => {
               <Menu.Trigger>Open</Menu.Trigger>
               <Menu.Portal>
                 <Menu.Positioner>
-                  <Menu.Popup finalFocus={null}>
+                  <Menu.Popup finalFocus={false}>
                     <Menu.Item>Close</Menu.Item>
                   </Menu.Popup>
                 </Menu.Positioner>
@@ -155,7 +155,36 @@ describe('<Menu.Popup />', () => {
       });
     });
 
-    it('should move focus to trigger when finalFocus returns null', async () => {
+    it('should move focus to trigger when finalFocus returns true', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Menu.Root>
+              <Menu.Trigger>Open</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup finalFocus={() => true}>
+                    <Menu.Item>Close</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user, findByText } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+
+      await user.click(trigger);
+      await user.click(await findByText('Close'));
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
+
+    it('uses default behavior when finalFocus returns null', async () => {
       function TestComponent() {
         return (
           <div>
@@ -175,10 +204,8 @@ describe('<Menu.Popup />', () => {
 
       const { getByText, user, findByText } = await render(<TestComponent />);
       const trigger = getByText('Open');
-
       await user.click(trigger);
       await user.click(await findByText('Close'));
-
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });

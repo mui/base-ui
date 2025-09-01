@@ -6,8 +6,8 @@ import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useStore } from '@base-ui-components/utils/store';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -23,6 +23,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { clearPositionerStyles } from './utils';
 import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -50,9 +51,17 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     selectedItemTextRef,
     keyboardActiveRef,
     multiple,
+    handleScrollArrowVisibility,
   } = useSelectRootContext();
-  const { side, align, context, alignItemWithTriggerActive, setControlledAlignItemWithTrigger } =
-    useSelectPositionerContext();
+  const {
+    side,
+    align,
+    context,
+    alignItemWithTriggerActive,
+    setControlledAlignItemWithTrigger,
+    scrollDownArrowRef,
+    scrollUpArrowRef,
+  } = useSelectPositionerContext();
 
   const highlightTimeout = useTimeout();
 
@@ -62,8 +71,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
-  const scrollUpArrowVisible = useStore(store, selectors.scrollUpArrowVisible);
-  const scrollDownArrowVisible = useStore(store, selectors.scrollDownArrowVisible);
+
+  const scrollArrowFrame = useAnimationFrame();
 
   useOpenChangeComplete({
     open,
@@ -90,24 +99,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const maxHeightRef = React.useRef(0);
   const initialPlacedRef = React.useRef(false);
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
-
-  const handleScrollArrowVisibility = useEventCallback(() => {
-    if (!alignItemWithTriggerActive || !popupRef.current) {
-      return;
-    }
-
-    const isScrolledToTop = popupRef.current.scrollTop < 1;
-    const isScrolledToBottom =
-      popupRef.current.scrollTop + popupRef.current.clientHeight >=
-      popupRef.current.scrollHeight - 1;
-
-    if (scrollUpArrowVisible !== !isScrolledToTop) {
-      store.set('scrollUpArrowVisible', !isScrolledToTop);
-    }
-    if (scrollDownArrowVisible !== !isScrolledToBottom) {
-      store.set('scrollDownArrowVisible', !isScrolledToBottom);
-    }
-  });
 
   useIsoLayoutEffect(() => {
     if (!positionerElement || Object.keys(originalPositionerStylesRef.current).length) {
@@ -145,14 +136,13 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   useIsoLayoutEffect(() => {
     const popupElement = popupRef.current;
 
-    if (
-      !mounted ||
-      !alignItemWithTriggerActive ||
-      !triggerElement ||
-      !positionerElement ||
-      !popupRef.current ||
-      !popupElement
-    ) {
+    if (!mounted || !triggerElement || !positionerElement || !popupElement) {
+      return;
+    }
+
+    if (!alignItemWithTriggerActive) {
+      initialPlacedRef.current = true;
+      scrollArrowFrame.request(handleScrollArrowVisibility);
       return;
     }
 
@@ -272,6 +262,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     handleScrollArrowVisibility,
     alignItemWithTriggerActive,
     setControlledAlignItemWithTrigger,
+    scrollArrowFrame,
+    scrollDownArrowRef,
+    scrollUpArrowRef,
   ]);
 
   React.useEffect(() => {
@@ -282,7 +275,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const win = ownerWindow(positionerElement);
 
     function handleResize(event: Event) {
-      setOpen(false, event, 'window-resize');
+      setOpen(false, createBaseUIEventDetails('window-resize', event));
     }
 
     win.addEventListener('resize', handleResize);
@@ -313,16 +306,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       });
     },
     onScroll(event) {
-      if (
-        !alignItemWithTriggerActive ||
-        !positionerElement ||
-        !popupRef.current ||
-        !initialPlacedRef.current
-      ) {
+      if (!positionerElement || !popupRef.current || !initialPlacedRef.current) {
         return;
       }
 
-      if (reachedMaxHeightRef.current) {
+      if (reachedMaxHeightRef.current || !alignItemWithTriggerActive) {
         handleScrollArrowVisibility();
         return;
       }
@@ -410,10 +398,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 export namespace SelectPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
-    /**
-     * @ignore
-     */
-    id?: string;
   }
 
   export interface State {

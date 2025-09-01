@@ -1,10 +1,13 @@
 'use client';
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { activeElement } from '../../floating-ui-react/utils';
+import { activeElement, contains } from '../../floating-ui-react/utils';
+import type { Coords } from '../../floating-ui-react/types';
 import { clamp } from '../../utils/clamp';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -57,7 +60,7 @@ function getControlOffset(styles: CSSStyleDeclaration | null, orientation: Orien
 function getFingerPosition(
   event: TouchEvent | PointerEvent | React.PointerEvent,
   touchIdRef: React.RefObject<any>,
-): FingerPosition | null {
+): Coords | null {
   // The event is TouchEvent
   if (touchIdRef.current !== undefined && (event as TouchEvent).changedTouches) {
     const touchEvent = event as TouchEvent;
@@ -94,10 +97,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const { render: renderProp, className, ...elementProps } = componentProps;
 
   const {
-    active: activeThumbIndex,
     disabled,
     dragging,
     fieldControlValidation,
+    pressedInputRef,
     lastChangedValueRef,
     max,
     min,
@@ -138,7 +141,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   const getFingerState = useEventCallback(
     (
-      fingerPosition: FingerPosition | null,
+      fingerPosition: Coords | null,
       /**
        * When `true`, closestThumbIndexRef is updated.
        * It's `true` when called by touchstart or pointerdown.
@@ -215,19 +218,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
   );
 
   const focusThumb = useEventCallback((thumbIndex: number) => {
-    const control = controlRef.current;
-    if (!control) {
-      return;
-    }
-
-    const activeEl = activeElement(ownerDocument(control));
-
-    if (activeEl == null || !control.contains(activeEl) || activeThumbIndex !== thumbIndex) {
-      setActive(thumbIndex);
-      thumbRefs.current?.[thumbIndex]
-        ?.querySelector<HTMLInputElement>('input[type="range"]')
-        ?.focus();
-    }
+    thumbRefs.current?.[thumbIndex]
+      ?.querySelector<HTMLInputElement>('input[type="range"]')
+      ?.focus({ preventScroll: true });
   });
 
   const handleTouchMove = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
@@ -252,8 +245,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
       return;
     }
 
-    focusThumb(finger.thumbIndex);
-
     if (validateMinimumDistance(finger.value, step, minStepsBetweenValues)) {
       if (!dragging && moveCountRef.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {
         setDragging(true);
@@ -266,7 +257,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const handleTouchEnd = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
     const fingerPosition = getFingerPosition(nativeEvent, touchIdRef);
     setDragging(false);
-
+    pressedInputRef.current = null;
     if (fingerPosition == null) {
       return;
     }
@@ -280,7 +271,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
     setActive(-1);
 
     fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
-    onValueCommitted(lastChangedValueRef.current ?? finger.value, nativeEvent);
+    onValueCommitted(
+      lastChangedValueRef.current ?? finger.value,
+      createBaseUIEventDetails('none', nativeEvent),
+    );
 
     if (
       'pointerType' in nativeEvent &&
@@ -333,6 +327,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
     doc.removeEventListener('touchend', handleTouchEnd);
   });
 
+  const focusFrame = useAnimationFrame();
+
   React.useEffect(() => {
     const control = controlRef.current;
     if (!control) {
@@ -345,10 +341,11 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     return () => {
       control.removeEventListener('touchstart', handleTouchStart);
+      focusFrame.cancel();
 
       stopListening();
     };
-  }, [stopListening, handleTouchStart, controlRef]);
+  }, [stopListening, handleTouchStart, controlRef, focusFrame]);
 
   React.useEffect(() => {
     if (disabled) {
@@ -361,22 +358,18 @@ export const SliderControl = React.forwardRef(function SliderControl(
     ref: [forwardedRef, registerFieldControlRef, controlRef, setStylesRef],
     props: [
       {
-        onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
-          if (disabled) {
+        onPointerDown(event) {
+          const control = controlRef.current;
+
+          if (
+            !control ||
+            disabled ||
+            event.defaultPrevented ||
+            // Only handle left clicks
+            event.button !== 0
+          ) {
             return;
           }
-
-          if (event.defaultPrevented) {
-            return;
-          }
-
-          // Only handle left clicks
-          if (event.button !== 0) {
-            return;
-          }
-
-          // Avoid text selection
-          event.preventDefault();
 
           const fingerPosition = getFingerPosition(event, touchIdRef);
 
@@ -387,7 +380,19 @@ export const SliderControl = React.forwardRef(function SliderControl(
               return;
             }
 
-            focusThumb(finger.thumbIndex);
+            const pressedOnFocusedThumb = contains(
+              thumbRefs.current[finger.thumbIndex],
+              activeElement(ownerDocument(control)),
+            );
+
+            if (pressedOnFocusedThumb) {
+              event.preventDefault();
+            } else {
+              focusFrame.request(() => {
+                focusThumb(finger.thumbIndex);
+              });
+            }
+
             setDragging(true);
             // if the event lands on a thumb, don't change the value, just get the
             // percentageValue difference represented by the distance between the click origin
@@ -401,7 +406,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
           }
 
           if (event.nativeEvent.pointerId) {
-            controlRef.current?.setPointerCapture(event.nativeEvent.pointerId);
+            control.setPointerCapture(event.nativeEvent.pointerId);
           }
 
           moveCountRef.current = 0;
@@ -409,6 +414,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd);
         },
+        tabIndex: -1,
       },
       elementProps,
     ],
@@ -417,11 +423,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   return element;
 });
-
-export interface FingerPosition {
-  x: number;
-  y: number;
-}
 
 interface FingerState {
   value: number | number[];

@@ -4,6 +4,7 @@ import type { SelectStore } from '../store';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';
 import type { SelectRoot } from './SelectRoot';
+import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface SelectRootContext {
   store: SelectStore;
@@ -12,14 +13,11 @@ export interface SelectRootContext {
   readOnly: boolean;
   required: boolean;
   multiple: boolean;
-  setValue: (nextValue: any, event?: Event) => void;
-  setOpen: (
-    open: boolean,
-    event: Event | undefined,
-    reason: SelectRoot.OpenChangeReason | undefined,
-  ) => void;
+  setValue: (nextValue: any, eventDetails: BaseUIEventDetails<'none'>) => void;
+  setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
+  handleScrollArrowVisibility: () => void;
   getItemProps: (
     props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>; // PREVENT_COMMIT
