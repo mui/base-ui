@@ -22,7 +22,7 @@ export function useRender<
 
   renderParams.customStyleHookMapping = renderParams.stateAttributesMapping;
 
-  return useRenderElement(undefined, renderParams, renderParams);
+  return useRenderElement(renderParams.defaultTagName, renderParams, renderParams);
 }
 
 export namespace useRender {
@@ -57,7 +57,7 @@ export namespace useRender {
     /**
      * The React element or a function that returns one to override the default element.
      */
-    render: RenderProp<State>;
+    render?: RenderProp<State>;
     /**
      * The ref to apply to the rendered element.
      */
@@ -86,6 +86,11 @@ export namespace useRender {
      * @default true
      */
     enabled?: Enabled;
+    /**
+     * The default tag name to use for the rendered element when `render` is not provided.
+     * @default 'div'
+     */
+    defaultTagName?: keyof React.JSX.IntrinsicElements;
   }
 
   export type ReturnValue<Enabled extends boolean | undefined> = Enabled extends false
