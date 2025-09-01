@@ -8,6 +8,11 @@
 
 <Demo path="./demos/hero" />
 
+## Accessibility guidelines
+
+- **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
+- **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
+
 ## Anatomy
 
 Import the components and place them together:
@@ -79,14 +84,14 @@ The combobox can allow multiple selections by adding the `multiple` prop to `Com
 
 <Demo path="./demos/input-inside-popup" compact />
 
-### Virtualized
-
-Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
-
-<Demo path="./demos/virtualized" compact />
-
 ### Creatable
 
 Create a new item when the filter matches no items, opening a creation `Dialog`.
 
 <Demo path="./demos/creatable" compact />
+
+### Virtualized
+
+Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
+
+<Demo path="./demos/virtualized" compact />

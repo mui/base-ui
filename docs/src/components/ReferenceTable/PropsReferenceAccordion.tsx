@@ -37,6 +37,10 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
   data: Record<string, PropDef>;
   type?: 'props' | 'return';
   name: string;
+  // When reusing a component's reference for another component,
+  // replace occurrences of "renameFrom.*" with "renameTo.*" in types
+  renameFrom?: string;
+  renameTo?: string;
 }
 
 function getShortPropType(name: string, type: string | undefined) {
@@ -71,7 +75,25 @@ function getShortPropType(name: string, type: string | undefined) {
   return { type: 'Union', detailedType: true };
 }
 
-export async function PropsReferenceAccordion({ data, name: partName, ...props }: Props) {
+function escapeRegExp(input: string) {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function replaceComponentPrefix(input: string | undefined, from?: string, to?: string) {
+  if (!input || !from || !to) {
+    return input ?? '';
+  }
+  const pattern = new RegExp(`\\b${escapeRegExp(from)}(?=\\.)`, 'g');
+  return input.replace(pattern, to);
+}
+
+export async function PropsReferenceAccordion({
+  data,
+  name: partName,
+  renameFrom,
+  renameTo,
+  ...props
+}: Props) {
   const captionId = `${partName}-caption`;
 
   return (
@@ -86,13 +108,20 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
       {Object.keys(data).map(async (name, index) => {
         const prop = data[name];
 
-        const PropType = await createMdxComponent(`\`${prop.type}\``, {
+        const displayType = replaceComponentPrefix(prop.type, renameFrom, renameTo);
+        const detailedDisplayType = replaceComponentPrefix(
+          prop.detailedType ?? prop.type,
+          renameFrom,
+          renameTo,
+        );
+
+        const PropType = await createMdxComponent(`\`${displayType}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
           useMDXComponents: () => ({ code: TableCode }),
         });
 
         const PropDetailedType = await createMdxComponent(
-          `\`\`\`ts\n${prop.detailedType ?? prop.type}\n\`\`\``,
+          `\`\`\`ts\n${detailedDisplayType}\n\`\`\``,
           {
             rehypePlugins: rehypeSyntaxHighlighting,
             useMDXComponents: () => ({
@@ -102,7 +131,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
           },
         );
 
-        const { type: shortPropTypeName, detailedType } = getShortPropType(name, prop.type);
+        const { type: shortPropTypeName, detailedType } = getShortPropType(name, displayType);
         const hasExpandedType = Boolean(prop.detailedType);
 
         const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
