@@ -16,19 +16,13 @@ export function useRender<
 >(
   params: useRender.Parameters<State, RenderedElementType, Enabled>,
 ): useRender.ReturnValue<Enabled> {
-  const { stateAttributesMapping, ...renderParams } = params as useRender.Parameters<
-    State,
-    RenderedElementType,
-    Enabled
-  > & {
-    disableStyleHooks: boolean;
+  const renderParams = params as useRender.Parameters<State, RenderedElementType, Enabled> & {
+    customStyleHookMapping?: CustomStyleHookMapping<State>;
   };
-  renderParams.disableStyleHooks = false;
 
-  return useRenderElement(undefined, renderParams, {
-    ...renderParams,
-    customStyleHookMapping: stateAttributesMapping,
-  });
+  renderParams.customStyleHookMapping = renderParams.stateAttributesMapping;
+
+  return useRenderElement(undefined, renderParams, renderParams);
 }
 
 export namespace useRender {
