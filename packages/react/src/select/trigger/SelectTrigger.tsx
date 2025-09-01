@@ -19,6 +19,7 @@ import { contains } from '../../floating-ui-react/utils';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import type { FieldRoot } from '../../field/root/FieldRoot';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -113,7 +114,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     selectionRef.current = {
       allowSelectedMouseUp: false,
       allowUnselectedMouseUp: false,
-      allowSelect: true,
     };
 
     timeoutMouseDown.clear();
@@ -132,7 +132,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         setFocused(true);
         // The popup element shouldn't obscure the focused trigger.
         if (open && alignItemWithTriggerActiveRef.current) {
-          setOpen(false, event.nativeEvent, 'focus-out');
+          setOpen(false, createBaseUIEventDetails('focus-out', event.nativeEvent));
         }
 
         // Saves a re-render on initial click: `forceMount === true` mounts
@@ -163,7 +163,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         keyboardActiveRef.current = true;
 
         if (event.key === 'ArrowDown') {
-          setOpen(true, event.nativeEvent, 'list-navigation');
+          setOpen(true, createBaseUIEventDetails('list-navigation', event.nativeEvent));
         }
       },
       onMouseDown(event) {
@@ -200,7 +200,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          setOpen(false, mouseEvent, 'cancel-open');
+          setOpen(false, createBaseUIEventDetails('cancel-open', mouseEvent));
         }
 
         // Firefox can fire this upon mousedown

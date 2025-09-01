@@ -18,6 +18,8 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { MenuOpenEventDetails } from '../utils/types';
 
 /**
  * Positions the menu popup against the trigger.
@@ -130,29 +132,62 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   }, [open, mounted, positioner.positionerStyles]);
 
   React.useEffect(() => {
-    function onMenuOpenChange(event: { open: boolean; nodeId: string; parentNodeId: string }) {
-      if (event.open) {
-        if (event.parentNodeId === nodeId) {
+    function onMenuOpenChange(details: MenuOpenEventDetails) {
+      if (details.open) {
+        if (details.parentNodeId === nodeId) {
           setHoverEnabled(false);
         }
-        if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
-          setOpen(false, undefined, 'sibling-open');
+        if (details.nodeId !== nodeId && details.parentNodeId === parentNodeId) {
+          setOpen(false, createBaseUIEventDetails('sibling-open'));
         }
-      } else if (event.parentNodeId === nodeId) {
-        setHoverEnabled(true);
+      } else if (details.parentNodeId === nodeId) {
+        // Re-enable hover on the parent when a child closes, except when the child
+        // closed due to hovering a different sibling item in this parent (sibling-open).
+        // Keeping hover disabled in that scenario prevents the parent from closing
+        // immediately when the pointer then leaves it.
+        if (details.reason !== 'sibling-open') {
+          setHoverEnabled(true);
+        }
       }
     }
 
-    menuEvents.on('openchange', onMenuOpenChange);
+    menuEvents.on('menuopenchange', onMenuOpenChange);
 
     return () => {
-      menuEvents.off('openchange', onMenuOpenChange);
+      menuEvents.off('menuopenchange', onMenuOpenChange);
     };
   }, [menuEvents, nodeId, parentNodeId, setOpen, setHoverEnabled]);
 
+  // Close unrelated child submenus when hovering a different item in the parent menu.
   React.useEffect(() => {
-    menuEvents.emit('openchange', { open, nodeId, parentNodeId });
-  }, [menuEvents, open, nodeId, parentNodeId]);
+    function onItemHover(event: { nodeId: string | undefined; target: Element | null }) {
+      // If an item within our parent menu is hovered, and this menu's trigger is not that item,
+      // close this submenu. This ensures hovering a different item in the parent closes other branches.
+      if (!open || event.nodeId !== parentNodeId) {
+        return;
+      }
+
+      if (triggerElement && event.target && triggerElement !== event.target) {
+        setOpen(false, createBaseUIEventDetails('sibling-open'));
+      }
+    }
+
+    menuEvents.on('itemhover', onItemHover);
+    return () => {
+      menuEvents.off('itemhover', onItemHover);
+    };
+  }, [menuEvents, parentNodeId, triggerElement, open, setOpen]);
+
+  React.useEffect(() => {
+    const eventDetails: MenuOpenEventDetails = {
+      open,
+      nodeId,
+      parentNodeId,
+      reason: lastOpenChangeReason,
+    };
+
+    menuEvents.emit('menuopenchange', eventDetails);
+  }, [menuEvents, open, nodeId, parentNodeId, lastOpenChangeReason]);
 
   const state: MenuPositioner.State = React.useMemo(
     () => ({

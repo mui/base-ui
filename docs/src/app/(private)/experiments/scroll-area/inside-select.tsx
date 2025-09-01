@@ -18,7 +18,6 @@ export default function ExampleSelect() {
           sideOffset={8}
           alignItemWithTrigger={false}
         >
-          <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
             <ScrollArea.Root className={styles.ScrollArea}>
               <ScrollArea.Viewport className={styles.Viewport} tabIndex={-1}>
@@ -36,7 +35,6 @@ export default function ExampleSelect() {
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>
           </Select.Popup>
-          <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>
       </Select.Portal>
     </Select.Root>

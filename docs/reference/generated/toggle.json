@@ -19,9 +19,9 @@
       "detailedType": "boolean | undefined"
     },
     "onPressedChange": {
-      "type": "((pressed: boolean, event: Event) => void)",
+      "type": "((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void)",
       "description": "Callback fired when the pressed state is changed.",
-      "detailedType": "| ((pressed: boolean, event: Event) => void)\n| undefined"
+      "detailedType": "| ((\n    pressed: boolean,\n    eventDetails: Toggle.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "nativeButton": {
       "type": "boolean",

@@ -8,6 +8,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../composite/item/CompositeItem';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * A link in the navigation menu that can be used to navigate to a different page or section.
@@ -19,14 +20,25 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   componentProps: NavigationMenuLink.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, active = false, ...elementProps } = componentProps;
 
   const { setValue, popupElement, positionerElement, rootRef } = useNavigationMenuRootContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
+  const state: NavigationMenuLink.State = React.useMemo(
+    () => ({
+      active,
+    }),
+    [active],
+  );
+
   const defaultProps: HTMLProps = {
+    'aria-current': active ? 'page' : undefined,
     tabIndex: undefined,
+    onClick(event) {
+      setValue(null, createBaseUIEventDetails('link-press', event.nativeEvent));
+    },
     onBlur(event) {
       if (
         positionerElement &&
@@ -39,7 +51,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
           { popupElement, rootRef, tree, nodeId },
         )
       ) {
-        setValue(null, event.nativeEvent, 'focus-out');
+        setValue(null, createBaseUIEventDetails('focus-out', event.nativeEvent));
       }
     },
   };
@@ -49,6 +61,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
       tag="a"
       render={render}
       className={className}
+      state={state}
       refs={[forwardedRef]}
       props={[defaultProps, elementProps]}
     />
@@ -56,7 +69,18 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
 });
 
 export namespace NavigationMenuLink {
-  export interface State {}
+  export interface State {
+    /**
+     * Whether the link is the currently active page.
+     */
+    active: boolean;
+  }
 
-  export interface Props extends BaseUIComponentProps<'a', State> {}
+  export interface Props extends BaseUIComponentProps<'a', State> {
+    /**
+     * Whether the link is the currently active page.
+     * @default false
+     */
+    active?: boolean;
+  }
 }

@@ -7,18 +7,22 @@ import {
   FloatingRootContext,
   useClick,
   useDismiss,
+  useFloatingParentNodeId,
   useFloatingRootContext,
   useInteractions,
   useRole,
-  type OpenChangeReason as FloatingUIOpenChangeReason,
 } from '../../floating-ui-react';
 import { getTarget } from '../../floating-ui-react/utils';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
-import type { RequiredExcept, HTMLProps } from '../../utils/types';
+import type {
+  RequiredExcept,
+  HTMLProps,
+  FloatingUIOpenChangeDetails,
+  BaseUIChangeEventReason,
+} from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { type DialogRoot } from './DialogRoot';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
@@ -52,19 +56,34 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
   const {
     openMethod,
     triggerProps,
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
+  const nested = useFloatingParentNodeId() != null;
+
+  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
+
   const setOpen = useEventCallback(
-    (
-      nextOpen: boolean,
-      event: Event | undefined,
-      reason: DialogRoot.OpenChangeReason | undefined,
-    ) => {
-      onOpenChangeParameter?.(nextOpen, event, reason);
+    (nextOpen: boolean, eventDetails: DialogRoot.ChangeEventDetails) => {
+      onOpenChangeParameter?.(nextOpen, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      const details: FloatingUIOpenChangeDetails = {
+        open: nextOpen,
+        nativeEvent: eventDetails.event,
+        reason: eventDetails.reason as BaseUIChangeEventReason,
+        nested,
+      };
+
+      floatingEvents?.emit('openchange', details);
+
       setOpenUnwrapped(nextOpen);
     },
   );
@@ -88,40 +107,46 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const handleFloatingUIOpenChange = (
-    nextOpen: boolean,
-    event: Event | undefined,
-    reason: FloatingUIOpenChangeReason | undefined,
-  ) => {
-    setOpen(nextOpen, event, translateOpenChangeReason(reason));
-  };
-
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },
     open,
-    onOpenChange: handleFloatingUIOpenChange,
+    onOpenChange: setOpen,
+    noEmit: true,
   });
+
+  floatingEvents = context.events;
+
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
   const role = useRole(context);
   const click = useClick(context);
   const dismiss = useDismiss(context, {
-    outsidePressEvent: 'intentional',
+    outsidePressEvent() {
+      if (internalBackdropRef.current || backdropRef.current) {
+        return 'intentional';
+      }
+      // Ensure `aria-hidden` on outside elements is removed immediately
+      // on outside press when trapping focus.
+      return {
+        mouse: modal === 'trap-focus' ? 'sloppy' : 'intentional',
+        touch: 'sloppy',
+      };
+    },
     outsidePress(event) {
       if (event.button !== 0) {
         return false;
       }
       const target = getTarget(event) as Element | null;
       if (isTopmost && dismissible) {
-        const backdrop = target as HTMLDivElement | null;
+        const eventTarget = target as Element | null;
         // Only close if the click occurred on the dialog's owning backdrop.
         // This supports multiple modal dialogs that aren't nested in the React tree:
         // https://github.com/mui/base-ui/issues/1320
         if (modal) {
-          return backdrop
-            ? internalBackdropRef.current === backdrop || backdropRef.current === backdrop
-            : false;
+          return internalBackdropRef.current || backdropRef.current
+            ? internalBackdropRef.current === eventTarget || backdropRef.current === eventTarget
+            : true;
         }
         return true;
       }
@@ -234,11 +259,7 @@ export namespace useDialogRoot {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    onOpenChange?: (
-      open: boolean,
-      event: Event | undefined,
-      reason: DialogRoot.OpenChangeReason | undefined,
-    ) => void;
+    onOpenChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
     /**
      * Event handler called after any animations complete when the dialog is opened or closed.
      */
@@ -296,11 +317,7 @@ export namespace useDialogRoot {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    setOpen: (
-      open: boolean,
-      event: Event | undefined,
-      reason: DialogRoot.OpenChangeReason | undefined,
-    ) => void;
+    setOpen: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
     /**
      * Whether the dialog is currently open.
      */
