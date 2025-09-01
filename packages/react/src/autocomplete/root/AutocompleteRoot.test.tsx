@@ -123,6 +123,39 @@ describe('<Autocomplete.Root />', () => {
         expect(input).to.have.attribute('aria-activedescendant');
       });
     });
+
+    it('links aria-activedescendant to the highlighted item after filtering', async () => {
+      const { user } = await render(
+        <Autocomplete.Root autoHighlight>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="feature">feature</Autocomplete.Item>
+                  <Autocomplete.Item value="fix">fix</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+
+      // Type 'f' — both items remain, first should be highlighted
+      await user.type(input, 'f');
+      const firstOption = screen.getByRole('option', { name: 'feature' });
+      expect(firstOption).to.have.attribute('data-highlighted');
+      expect(input.getAttribute('aria-activedescendant')).to.equal(firstOption.id);
+
+      // Type 'i' — filters to "fix" and highlight should follow, with ids stable
+      await user.type(input, 'i');
+      const fixOption = screen.getByRole('option', { name: 'fix' });
+      expect(fixOption).to.have.attribute('data-highlighted');
+      expect(input.getAttribute('aria-activedescendant')).to.equal(fixOption.id);
+    });
   });
 
   describe('prop: mode', () => {

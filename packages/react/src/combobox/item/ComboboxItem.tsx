@@ -16,7 +16,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
@@ -38,8 +37,6 @@ export const ComboboxItem = React.memo(
       nativeButton = false,
       ...elementProps
     } = componentProps;
-
-    const id = useBaseUiId();
 
     const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
@@ -63,12 +60,13 @@ export const ComboboxItem = React.memo(
     } = useComboboxRootContext();
 
     const { flatFilteredItems } = useComboboxDerivedItemsContext();
+    const isRow = useComboboxRowContext();
 
     const selectable = selectionMode !== 'none';
     const multiple = selectionMode === 'multiple';
     const index = indexProp ?? (virtualized ? flatFilteredItems.indexOf(value) : listItem.index);
 
-    const isRow = useComboboxRowContext();
+    const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
     const matchesSelectedValue = useStore(store, selectors.isSelected, value);
     const rootSelectedValue = useStore(store, selectors.selectedValue);
@@ -80,6 +78,8 @@ export const ComboboxItem = React.memo(
     const indexRef = useLatestRef(index);
 
     const hasRegistered = listItem.index !== -1;
+
+    const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered || !virtualized) {

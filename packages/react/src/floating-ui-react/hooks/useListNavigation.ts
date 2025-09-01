@@ -220,6 +220,10 @@ export interface UseListNavigationProps {
    * @default false
    */
   dense?: boolean;
+  /**
+   * The id of the root component.
+   */
+  id?: string | undefined;
 }
 
 /**
@@ -253,6 +257,7 @@ export function useListNavigation(
     scrollItemIntoView = true,
     itemSizes,
     dense = false,
+    id,
   } = props;
 
   if (process.env.NODE_ENV !== 'production') {
@@ -306,12 +311,9 @@ export function useListNavigation(
   const scrollItemIntoViewRef = useLatestRef(scrollItemIntoView);
   const selectedIndexRef = useLatestRef(selectedIndex);
 
-  const [activeId, setActiveId] = React.useState<string | undefined>();
-
   const focusItem = useEventCallback(() => {
     function runFocus(item: HTMLElement) {
       if (virtual) {
-        setActiveId(item.id);
         tree?.events.emit('virtualfocus', item);
       } else {
         enqueueFocus(item, {
@@ -772,10 +774,10 @@ export function useListNavigation(
       virtual &&
       open &&
       hasActiveIndex && {
-        'aria-activedescendant': activeId,
+        'aria-activedescendant': `${id}-${activeIndex}`,
       }
     );
-  }, [virtual, open, hasActiveIndex, activeId]);
+  }, [virtual, open, hasActiveIndex, id, activeIndex]);
 
   const floating: ElementProps['floating'] = React.useMemo(() => {
     return {

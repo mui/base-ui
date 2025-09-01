@@ -749,6 +749,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !readOnly && !disabled,
+    id,
     listRef,
     activeIndex,
     selectedIndex,
