@@ -120,8 +120,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
+  // The input element nested in the pressed thumb.
   const pressedInputRef = React.useRef<HTMLInputElement>(null);
-  const pressedThumbCenterOffsetRef = React.useRef<number>(0);
+  // The px distance between the pointer and the center of a pressed thumb.
+  const pressedThumbCenterOffsetRef = React.useRef<number | null>(null);
+  // The index of the pressed thumb, or the closest thumb if the `Control` was pressed.
+  // This is updated on pointerdown, which is sooner than the `active/activeIndex`
+  // state which is updated later when the nested `input` receives focus.
+  const pressedThumbIndexRef = React.useRef(-1);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
 
   const formatOptionsRef = useLatestRef(format);
@@ -289,6 +295,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       orientation,
       pressedInputRef,
       pressedThumbCenterOffsetRef,
+      pressedThumbIndexRef,
       registerFieldControlRef,
       setActive,
       setDragging,
@@ -318,6 +325,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       orientation,
       pressedInputRef,
       pressedThumbCenterOffsetRef,
+      pressedThumbIndexRef,
       registerFieldControlRef,
       setActive,
       setDragging,

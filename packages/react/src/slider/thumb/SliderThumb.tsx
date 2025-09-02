@@ -120,6 +120,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     orientation,
     pressedInputRef,
     pressedThumbCenterOffsetRef,
+    pressedThumbIndexRef,
     setActive,
     state,
     step,
@@ -127,6 +128,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   } = useSliderRootContext();
 
   const disabled = disabledProp || contextDisabled;
+  const range = sliderValues.length > 1;
 
   const direction = useDirection();
   const { controlId, setControlId, setTouched, setFocused, validationMode } = useFieldRootContext();
@@ -153,7 +155,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     metadata: thumbMetadata,
   });
 
-  const index = indexProp ?? compositeIndex;
+  const index = !range ? 0 : (indexProp ?? compositeIndex);
 
   const thumbValue = sliderValues[index];
 
@@ -232,7 +234,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
         if (validationMode === 'onBlur') {
           fieldControlValidation.commitValidation(
-            getSliderValue(thumbValue, index, min, max, sliderValues.length > 1, sliderValues),
+            getSliderValue(thumbValue, index, min, max, range, sliderValues),
           );
         }
       },
@@ -245,7 +247,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
 
         let newValue = null;
-        const isRange = sliderValues.length > 1;
         const roundedValue = roundValueToStep(thumbValue, step, min);
         switch (event.key) {
           case ARROW_UP:
@@ -281,7 +282,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           case END:
             newValue = max;
 
-            if (isRange) {
+            if (range) {
               newValue = Number.isFinite(sliderValues[index + 1])
                 ? sliderValues[index + 1] - step * minStepsBetweenValues
                 : max;
@@ -290,7 +291,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           case HOME:
             newValue = min;
 
-            if (isRange) {
+            if (range) {
               newValue = Number.isFinite(sliderValues[index - 1])
                 ? sliderValues[index - 1] + step * minStepsBetweenValues
                 : min;
@@ -340,6 +341,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         onBlur: onBlurProp,
         onFocus: onFocusProp,
         onPointerDown(event) {
+          pressedThumbIndexRef.current = index;
+
           if (thumbRef.current != null) {
             const axis = orientation === 'horizontal' ? 'x' : 'y';
             const midpoint = getMidpoint(thumbRef.current);
