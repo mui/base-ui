@@ -119,11 +119,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
     ) ?? null) as HTMLElement | null;
     // Set the default highlighted index of an arbitrary composite item.
-    let activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
+    const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
 
-    if (activeIndex === -1) {
-      activeIndex = findNonDisabledListIndex(elementsRef);
-    }
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
     }
