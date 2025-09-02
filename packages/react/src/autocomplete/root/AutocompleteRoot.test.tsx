@@ -518,6 +518,105 @@ describe('<Autocomplete.Root />', () => {
     });
   });
 
+  describe('object item stringification', () => {
+    it('filters and displays using label for {label} objects', async () => {
+      const items = [{ label: 'United States' }, { label: 'Canada' }, { label: 'Australia' }];
+
+      const { user } = await render(
+        <Autocomplete.Root items={items}>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: { label: string }) => (
+                    <Autocomplete.Item key={item.label} value={item}>
+                      {item.label}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await user.type(input, 'can');
+
+      // Should match the item by its label, not its value
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).to.have.length(1);
+      });
+      expect(screen.getByRole('option', { name: 'Canada' })).not.to.equal(null);
+    });
+
+    it('uses itemToStringValue when object lacks label', async () => {
+      const items = [{ country: 'United States' }, { country: 'Canada' }, { country: 'Australia' }];
+
+      const { user } = await render(
+        <Autocomplete.Root items={items} itemToStringValue={(i) => i.country}>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: { country: string }) => (
+                    <Autocomplete.Item key={item.country} value={item}>
+                      {item.country}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await user.type(input, 'can');
+
+      // Should match by the provided itemToStringValue mapping
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).to.have.length(1);
+      });
+      expect(screen.getByRole('option', { name: 'Canada' })).not.to.equal(null);
+    });
+
+    it('filters and displays using value for {value} objects', async () => {
+      const items = [{ value: 'United States' }, { value: 'Canada' }, { value: 'Australia' }];
+
+      const { user } = await render(
+        <Autocomplete.Root items={items}>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: { value: string }) => (
+                    <Autocomplete.Item key={item.value} value={item}>
+                      {item.value}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'can');
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).to.have.length(1);
+      });
+      expect(screen.getByRole('option', { name: 'Canada' })).not.to.equal(null);
+    });
+  });
+
   describe('Field', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {

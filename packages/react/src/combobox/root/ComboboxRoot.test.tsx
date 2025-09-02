@@ -1762,6 +1762,111 @@ describe('<Combobox.Root />', () => {
 
     clock.withFakeTimers();
 
+    describe('serialization for object values', () => {
+      const items = [
+        { value: 'US', label: 'United States' },
+        { value: 'CA', label: 'Canada' },
+        { value: 'AU', label: 'Australia' },
+      ];
+
+      it('serializes {value,label} objects using their value field', async () => {
+        const { container } = await render(
+          <Combobox.Root
+            name="country"
+            items={items}
+            itemToStringLabel={(item) => item.label}
+            defaultValue={items[1]}
+          >
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: { value: string; label: string }) => (
+                      <Combobox.Item key={item.value} value={item}>
+                        {item.label}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const hiddenInput = container.querySelector('input[name="country"]');
+        expect(hiddenInput).to.have.value('CA');
+      });
+
+      it('serializes multiple {value,label} objects into multiple hidden inputs', async () => {
+        const { container } = await render(
+          <Combobox.Root
+            name="countries"
+            items={items}
+            itemToStringLabel={(item) => item.label}
+            multiple
+            defaultValue={[items[0], items[2]]}
+          >
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: { value: string; label: string }) => (
+                      <Combobox.Item key={item.value} value={item}>
+                        {item.label}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const hiddenInputs = container.querySelectorAll('input[name="countries"]');
+        expect(hiddenInputs).to.have.length(2);
+        expect(hiddenInputs[0]).to.have.value('US');
+        expect(hiddenInputs[1]).to.have.value('AU');
+      });
+
+      it('falls back to itemToStringValue when object lacks value', async () => {
+        const codeItems = [
+          { code: 'US', name: 'United States' },
+          { code: 'CA', name: 'Canada' },
+          { code: 'AU', name: 'Australia' },
+        ];
+
+        const { container } = await render(
+          <Combobox.Root
+            name="country"
+            items={codeItems}
+            itemToStringLabel={(item) => item.name}
+            itemToStringValue={(item) => item.code}
+            defaultValue={codeItems[0]}
+          >
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: { code: string; name: string }) => (
+                      <Combobox.Item key={item.code} value={item}>
+                        {item.name}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const hiddenInput = container.querySelector('input[name="country"]');
+        expect(hiddenInput).to.have.value('US');
+      });
+    });
+
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
         <Form>

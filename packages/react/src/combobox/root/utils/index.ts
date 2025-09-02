@@ -37,6 +37,26 @@ export function stringifyItem(
 }
 
 /**
+ * Converts an item into a string suitable for value serialization (e.g., form submission).
+ * Prefers:
+ * - itemToStringValue when provided
+ * - object's `value` when the item looks like { value, label, ... }
+ * - serializeValue fallback for all other cases
+ */
+export function stringifyItemValue(
+  item: any | null | undefined,
+  itemToStringValue?: (item: any) => string,
+) {
+  if (itemToStringValue && item != null) {
+    return itemToStringValue(item) ?? '';
+  }
+  if (item && typeof item === 'object' && 'value' in item && 'label' in item) {
+    return serializeValue((item as Record<string, unknown>).value);
+  }
+  return serializeValue(item);
+}
+
+/**
  * Enhanced filter using Intl.Collator for more robust string matching.
  * Uses the provided `itemToStringLabel` function if available, otherwise falls back to:
  * • When `item` is an object with a `value` property, that property is used.

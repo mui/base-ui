@@ -4,7 +4,7 @@ import styles from './index.module.css';
 
 export default function ExamplePopoverCombobox() {
   return (
-    <Combobox.Root items={countries} defaultValue={countries[0]}>
+    <Combobox.Root name="test" items={countries} defaultValue={countries[0]}>
       <Combobox.Trigger className={styles.Trigger}>
         <Combobox.Value />
         <Combobox.Icon className={styles.TriggerIcon}>

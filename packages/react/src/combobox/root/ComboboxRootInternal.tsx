@@ -40,11 +40,11 @@ import {
   type Group,
   isGroupedItems,
   stringifyItem,
+  stringifyItemValue,
   createCollatorItemFilter,
   createSingleSelectionCollatorFilter,
 } from './utils';
 import { useFilter } from './utils/useFilter';
-import { serializeValue } from '../../utils/serializeValue';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -920,10 +920,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     if (Array.isArray(formValue)) {
       return '';
     }
-    if (itemToStringValue && formValue != null) {
-      return itemToStringValue(formValue);
-    }
-    return serializeValue(formValue);
+    return stringifyItemValue(formValue, itemToStringValue);
   }, [formValue, itemToStringValue]);
 
   const hiddenInputs = React.useMemo(() => {
@@ -932,9 +929,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
 
     return selectedValue.map((value: Value) => {
-      const currentSerializedValue = itemToStringValue
-        ? itemToStringValue(value)
-        : serializeValue(value);
+      const currentSerializedValue = stringifyItemValue(value, itemToStringValue);
       return (
         <input
           key={currentSerializedValue}
