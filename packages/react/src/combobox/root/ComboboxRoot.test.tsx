@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -365,6 +365,48 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('keyboard interaction', () => {
+    it('focuses first item on ArrowDown and last item on ArrowUp', async () => {
+      const { user } = await render(
+        <Combobox.Root>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                  <Combobox.Item value="cherry">cherry</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await act(async () => input.focus());
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        const first = screen.getByRole('option', { name: 'apple' });
+        expect(input).to.have.attribute('aria-activedescendant', first.id);
+      });
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        const last = screen.getByRole('option', { name: 'cherry' });
+        expect(input).to.have.attribute('aria-activedescendant', last.id);
+      });
+    });
+
     it('opens, navigates with ArrowDown, and Enter selects', async () => {
       const items = ['apple', 'banana', 'cherry'];
 

@@ -159,6 +159,44 @@ describe('<Autocomplete.Root />', () => {
       expect(fixOption).to.have.attribute('data-highlighted');
       expect(input.getAttribute('aria-activedescendant')).to.equal(fixOption.id);
     });
+
+    it('does not highlight first/last item when pressing ArrowDown/ArrowUp initially', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['alpha', 'beta', 'gamma']} openOnInputClick>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      expect(input).not.to.have.attribute('aria-activedescendant');
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(input).not.to.have.attribute('aria-activedescendant');
+      });
+
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => {
+        expect(input).not.to.have.attribute('aria-activedescendant');
+      });
+    });
   });
 
   describe('prop: mode', () => {

@@ -757,8 +757,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     virtual: true,
     loop: true,
     allowEscape: !autoHighlight,
-    focusItemOnOpen:
-      queryChangedAfterOpen || selectionMode === 'none' || selectedIndex === null ? false : 'auto',
+    focusItemOnOpen: queryChangedAfterOpen || selectionMode === 'none' ? false : 'auto',
     cols,
     orientation: cols > 1 ? 'horizontal' : undefined,
     disabledIndices: virtualized
