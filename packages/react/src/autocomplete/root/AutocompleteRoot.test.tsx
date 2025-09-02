@@ -126,14 +126,17 @@ describe('<Autocomplete.Root />', () => {
 
     it('links aria-activedescendant to the highlighted item after filtering', async () => {
       const { user } = await render(
-        <Autocomplete.Root autoHighlight>
+        <Autocomplete.Root items={['feature', 'fix']} autoHighlight>
           <Autocomplete.Input />
           <Autocomplete.Portal>
             <Autocomplete.Positioner>
               <Autocomplete.Popup>
                 <Autocomplete.List>
-                  <Autocomplete.Item value="feature">feature</Autocomplete.Item>
-                  <Autocomplete.Item value="fix">fix</Autocomplete.Item>
+                  {(item) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
                 </Autocomplete.List>
               </Autocomplete.Popup>
             </Autocomplete.Positioner>
