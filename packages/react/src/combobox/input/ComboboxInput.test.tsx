@@ -319,5 +319,43 @@ describe('<Combobox.Input />', () => {
         expect(input.value).to.equal('');
       });
     });
+
+    it('pressing Home moves caret to start', async () => {
+      const { user } = await render(
+        <Combobox.Root>
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      input.focus();
+      await user.type(input, 'banana');
+      expect(input.value).to.equal('banana');
+
+      await user.keyboard('{Home}');
+
+      expect(input.selectionStart).to.equal(0);
+      expect(input.selectionEnd).to.equal(0);
+    });
+
+    it('pressing End moves caret to end', async () => {
+      const { user } = await render(
+        <Combobox.Root>
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      input.focus();
+      await user.type(input, 'apple');
+      expect(input.value).to.equal('apple');
+
+      await user.keyboard('{End}');
+
+      expect(input.selectionStart).to.equal(input.value.length);
+      expect(input.selectionEnd).to.equal(input.value.length);
+    });
   });
 });

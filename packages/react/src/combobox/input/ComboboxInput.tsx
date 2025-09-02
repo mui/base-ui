@@ -150,6 +150,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       inputProps,
       triggerProps,
       {
+        type: 'text',
         value: componentProps.value ?? inputValue,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
@@ -213,6 +214,25 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             return;
           }
 
+          if (event.ctrlKey || event.shiftKey) {
+            return;
+          }
+
+          keyboardActiveRef.current = true;
+
+          if (event.key === 'Home') {
+            stopEvent(event);
+            event.currentTarget.setSelectionRange(0, 0);
+            return;
+          }
+
+          if (event.key === 'End') {
+            stopEvent(event);
+            const length = event.currentTarget.value.length;
+            event.currentTarget.setSelectionRange(length, length);
+            return;
+          }
+
           if (!open && event.key === 'Escape') {
             const details = createBaseUIEventDetails('none', event.nativeEvent);
             const value = selectionMode === 'multiple' ? [] : null;
@@ -225,8 +245,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
             return;
           }
-
-          keyboardActiveRef.current = true;
 
           // Handle deletion when no chip is highlighted and the input is empty.
           if (
