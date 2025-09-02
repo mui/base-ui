@@ -122,21 +122,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     let activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
 
     if (activeIndex === -1) {
-      const disabledIndicesInternal: number[] = [];
-      for (const tabMetadata of map.values()) {
-        if (tabMetadata?.disabled && tabMetadata?.index !== undefined) {
-          disabledIndicesInternal.push(tabMetadata?.index);
-        }
-      }
-
-      // If all items are disabled, select the first one
-      if (disabledIndicesInternal.length === map.size) {
-        activeIndex = 0;
-      } else {
-        activeIndex = findNonDisabledListIndex(elementsRef, {
-          disabledIndices: disabledIndicesInternal,
-        });
-      }
+      activeIndex = findNonDisabledListIndex(elementsRef);
     }
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
