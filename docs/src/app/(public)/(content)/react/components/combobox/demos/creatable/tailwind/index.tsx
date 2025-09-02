@@ -239,17 +239,16 @@ function PlusIcon(props: React.ComponentProps<'svg'>) {
     <svg
       width="12"
       height="12"
-      viewBox="0 0 24 24"
+      viewBox="0 0 12 12"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="butt"
+      strokeLinejoin="miter"
       aria-hidden
       {...props}
     >
-      <path d="M12 5v14" />
-      <path d="M5 12h14" />
+      <path d="M6 1v10M1 6h10" />
     </svg>
   );
 }
