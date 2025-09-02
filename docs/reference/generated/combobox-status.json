@@ -1,6 +1,6 @@
 {
   "name": "ComboboxStatus",
-  "description": "Displays a status message with screen reader support.\nRenders a `<div>` element.\nThis component must not be conditionally rendered — conditionally render the\nchildren instead.",
+  "description": "Displays a status message whose content changes are announced politely to screen readers.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Combobox.Status.State) => string)",
