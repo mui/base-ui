@@ -6,10 +6,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
-import {
-  pressableTriggerOpenStateMapping,
-  triggerOpenStateMapping,
-} from '../../utils/popupStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -20,7 +17,6 @@ import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerCo
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const customStyleHookMapping: CustomStyleHookMapping<ComboboxInput.State> = {
-  ...triggerOpenStateMapping,
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
 };

@@ -13,6 +13,13 @@ import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping'
 import { stopEvent } from '../../floating-ui-react/utils';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { fieldValidityMapping } from '../../field/utils/constants';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<ComboboxTrigger.State> = {
+  ...pressableTriggerOpenStateMapping,
+  ...fieldValidityMapping,
+};
 
 /**
  * A button that opens the popup.
@@ -158,7 +165,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       elementProps,
       getButtonProps,
     ],
-    customStyleHookMapping: pressableTriggerOpenStateMapping,
+    customStyleHookMapping,
   });
 
   return element;

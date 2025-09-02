@@ -772,6 +772,63 @@ describe('<Autocomplete.Root />', () => {
       expect(input).not.to.have.attribute('data-focused');
     });
 
+    it('[data-invalid]', async () => {
+      await render(
+        <Field.Root invalid>
+          <Autocomplete.Root>
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.Portal>
+              <Autocomplete.Positioner>
+                <Autocomplete.Popup>
+                  <Autocomplete.List>
+                    <Autocomplete.Item value="1">Option 1</Autocomplete.Item>
+                  </Autocomplete.List>
+                </Autocomplete.Popup>
+              </Autocomplete.Positioner>
+            </Autocomplete.Portal>
+          </Autocomplete.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      expect(input).to.have.attribute('data-invalid', '');
+    });
+
+    it('[data-valid]', async () => {
+      await render(
+        <Field.Root validationMode="onBlur">
+          <Autocomplete.Root required>
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.Portal>
+              <Autocomplete.Positioner>
+                <Autocomplete.Popup>
+                  <Autocomplete.List>
+                    <Autocomplete.Item value="1">Option 1</Autocomplete.Item>
+                  </Autocomplete.List>
+                </Autocomplete.Popup>
+              </Autocomplete.Positioner>
+            </Autocomplete.Portal>
+          </Autocomplete.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      expect(input).not.to.have.attribute('data-valid');
+      expect(input).not.to.have.attribute('data-invalid');
+
+      // Type a non-empty value and blur to trigger validation
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'ok' } });
+      fireEvent.blur(input);
+
+      await flushMicrotasks();
+
+      expect(input).to.have.attribute('data-valid', '');
+      expect(input).not.to.have.attribute('data-invalid');
+    });
+
     it('prop: validate', async () => {
       await render(
         <Field.Root validate={() => 'error'}>

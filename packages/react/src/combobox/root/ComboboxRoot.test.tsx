@@ -2190,6 +2190,73 @@ describe('<Combobox.Root />', () => {
       expect(trigger).not.to.have.attribute('data-focused');
     });
 
+    it('[data-invalid]', async () => {
+      await render(
+        <Field.Root invalid>
+          <Combobox.Root>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Trigger data-testid="trigger" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="1">Option 1</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const trigger = screen.getByTestId('trigger');
+
+      expect(input).to.have.attribute('data-invalid', '');
+      expect(trigger).to.have.attribute('data-invalid', '');
+    });
+
+    it('[data-valid]', async () => {
+      const { user } = await render(
+        <Field.Root validationMode="onBlur">
+          <Combobox.Root>
+            <Combobox.Input data-testid="input" required />
+            <Combobox.Trigger data-testid="trigger" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="1">Option 1</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const trigger = screen.getByTestId('trigger');
+
+      expect(input).not.to.have.attribute('data-valid');
+      expect(input).not.to.have.attribute('data-invalid');
+      expect(trigger).not.to.have.attribute('data-valid');
+      expect(trigger).not.to.have.attribute('data-invalid');
+
+      // Select an option to produce a valid value, then blur to commit
+      fireEvent.focus(input);
+      await user.click(input);
+      const option = await screen.findByRole('option', { name: 'Option 1' });
+
+      await user.click(option);
+      fireEvent.blur(input);
+
+      await waitFor(() => expect(input).to.have.attribute('data-valid', ''));
+      expect(trigger).to.have.attribute('data-valid', '');
+      expect(input).not.to.have.attribute('data-invalid');
+      expect(trigger).not.to.have.attribute('data-invalid');
+    });
+
     it('prop: validate', async () => {
       await render(
         <Field.Root validate={() => 'error'}>
