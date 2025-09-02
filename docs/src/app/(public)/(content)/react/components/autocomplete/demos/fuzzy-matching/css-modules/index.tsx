@@ -64,7 +64,7 @@ function highlightText(text: string, query: string): React.ReactNode {
 }
 
 function fuzzyFilter(item: FuzzyItem, query: string): boolean {
-  if (!query.trim()) {
+  if (!query) {
     return true;
   }
 

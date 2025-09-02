@@ -4,7 +4,7 @@ import styles from './index.module.css';
 
 export default function ExampleGroupAutocomplete() {
   return (
-    <Autocomplete.Root items={groupedTags} itemToStringValue={(item) => item.label}>
+    <Autocomplete.Root items={groupedTags}>
       <label className={styles.Label}>
         Select a tag
         <Autocomplete.Input placeholder="e.g. feature" className={styles.Input} />

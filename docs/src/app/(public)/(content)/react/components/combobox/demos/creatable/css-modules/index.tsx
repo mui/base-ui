@@ -3,10 +3,6 @@ import { Combobox } from '@base-ui-components/react/combobox';
 import { Dialog } from '@base-ui-components/react/dialog';
 import styles from './index.module.css';
 
-function itemToStringLabel(item: LabelItem) {
-  return item.value;
-}
-
 export default function ExampleCreatableCombobox() {
   const id = React.useId();
 
@@ -91,7 +87,6 @@ export default function ExampleCreatableCombobox() {
           setQuery('');
         }}
         value={selected}
-        itemToStringLabel={itemToStringLabel}
         inputValue={query}
         onInputValueChange={setQuery}
         onOpenChange={(open, details) => {
