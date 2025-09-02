@@ -27,7 +27,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
     onValueChange,
     mode = 'list',
     autoHighlight = false,
-    itemToValue,
+    itemToStringValue,
     items,
     ...rest
   } = props;
@@ -104,7 +104,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
         if (highlightedValue == null) {
           setInlineOverlay('');
         } else {
-          setInlineOverlay(stringifyItem(highlightedValue, itemToValue));
+          setInlineOverlay(stringifyItem(highlightedValue, itemToStringValue));
         }
       } else {
         setInlineOverlay('');
@@ -115,7 +115,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
     <ComboboxRootInternal
       {...rest}
       items={items as any} // Block `Group` type inference
-      itemToLabel={itemToValue}
+      itemToStringLabel={itemToStringValue}
       openOnInputClick={openOnInputClick}
       selectionMode="none"
       fillInputOnItemPress
@@ -131,9 +131,9 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
 }
 
 export namespace AutocompleteRoot {
-  export interface Props<Value>
+  export interface Props<ItemValue>
     extends Omit<
-      ComboboxRootInternal.Props<Value, 'none'>,
+      ComboboxRootInternal.Props<ItemValue, 'none'>,
       | 'selectionMode'
       | 'selectedValue'
       | 'defaultSelectedValue'
@@ -141,13 +141,13 @@ export namespace AutocompleteRoot {
       | 'fillInputOnItemPress'
       | 'modal'
       | 'clearInputOnCloseComplete'
-      | 'itemToValue'
+      | 'itemToStringValue'
       // Different names
       | 'inputValue' // value
       | 'defaultInputValue' // defaultValue
       | 'onInputValueChange' // onValueChange
       | 'autoComplete' // mode
-      | 'itemToLabel' // itemToValue
+      | 'itemToStringLabel' // itemToStringValue
       // Custom JSDoc
       | 'actionsRef'
     > {
@@ -181,9 +181,9 @@ export namespace AutocompleteRoot {
      */
     onValueChange?: (value: string, eventDetails: ChangeEventDetails) => void;
     /**
-     * Converts an item's value to its string representation for display in the input.
+     * When items' values are objects, converts its value to a string representation for display in the input.
      */
-    itemToValue?: (value: Value) => string;
+    itemToStringValue?: (itemValue: ItemValue) => string;
     /**
      * A ref to imperative actions.
      * - `unmount`: When specified, the autocomplete will not be unmounted when closed.

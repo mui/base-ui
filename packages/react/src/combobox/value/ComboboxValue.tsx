@@ -14,7 +14,7 @@ import { selectors } from '../store';
 export function ComboboxValue(props: ComboboxValue.Props) {
   const { children: childrenProp } = props;
 
-  const { store, itemToLabel } = useComboboxRootContext();
+  const { store, itemToStringLabel } = useComboboxRootContext();
 
   const selectedValue = useStore(store, selectors.selectedValue);
   const items = useStore(store, selectors.items);
@@ -39,7 +39,7 @@ export function ComboboxValue(props: ComboboxValue.Props) {
 
       if (item == null) {
         if (nullItemLabel === undefined) {
-          nullItemLabel = stringifyItem(item, itemToLabel);
+          nullItemLabel = stringifyItem(item, itemToStringLabel);
         }
         continue;
       }
@@ -50,7 +50,7 @@ export function ComboboxValue(props: ComboboxValue.Props) {
 
         if (hasValueKey) {
           if (item.value == null && nullItemLabel === undefined) {
-            nullItemLabel = hasLabelKey ? item.label : stringifyItem(item, itemToLabel);
+            nullItemLabel = hasLabelKey ? item.label : stringifyItem(item, itemToStringLabel);
           }
 
           if (hasLabelKey) {
@@ -68,7 +68,7 @@ export function ComboboxValue(props: ComboboxValue.Props) {
       valueToLabel,
       nullItemLabel,
     };
-  }, [items, itemToLabel, isChildrenPropDefined]);
+  }, [items, itemToStringLabel, isChildrenPropDefined]);
 
   if (typeof childrenProp === 'function') {
     return childrenProp(selectedValue);
@@ -99,7 +99,7 @@ export function ComboboxValue(props: ComboboxValue.Props) {
     }
   }
 
-  return stringifyItem(selectedValue, itemToLabel);
+  return stringifyItem(selectedValue, itemToStringLabel);
 }
 
 export namespace ComboboxValue {

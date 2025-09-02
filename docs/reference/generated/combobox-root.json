@@ -8,19 +8,19 @@
       "detailedType": "string | undefined"
     },
     "defaultValue": {
-      "type": "Value[] | Value | null",
+      "type": "ItemValue[] | ItemValue | null",
       "description": "The uncontrolled selected value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `value` prop instead.",
-      "detailedType": "Value[] | Value | null | undefined"
+      "detailedType": "ItemValue[] | ItemValue | null | undefined"
     },
     "value": {
-      "type": "Value[] | Value",
+      "type": "ItemValue[] | ItemValue",
       "description": "The selected value of the combobox. Use when controlled.",
-      "detailedType": "Value[] | Value | undefined"
+      "detailedType": "ItemValue[] | ItemValue | undefined"
     },
     "onValueChange": {
-      "type": "((value: Value[] | Value, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
+      "type": "((value: ItemValue[] | ItemValue, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
       "description": "Callback fired when the selected value of the combobox changes.",
-      "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: ItemValue[] | ItemValue,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {
       "type": "boolean",
@@ -55,29 +55,29 @@
       "detailedType": "string | number | string[] | undefined"
     },
     "filter": {
-      "type": "((value: any, query: string, itemToLabel: ((itemValue: any) => string) | undefined) => boolean) | null",
-      "description": "Filter function used to match items vs input query.\nThe `itemToLabel` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    value: any,\n    query: string,\n    itemToLabel: ((itemValue: any) => string) | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "type": "((itemValue: ItemValue, query: string, itemToStringLabel: ((itemValue: ItemValue) => string) | undefined) => boolean) | null",
+      "description": "Filter function used to match items vs input query.\nThe `itemToStringLabel` function is provided to help convert items to strings for comparison.",
+      "detailedType": "| ((\n    itemValue: ItemValue,\n    query: string,\n    itemToStringLabel:\n      | ((itemValue: ItemValue) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "inputValue": {
       "type": "string | number | string[]",
       "description": "The input value of the combobox.",
       "detailedType": "string | number | string[] | undefined"
     },
-    "itemToLabel": {
-      "type": "((itemValue: any) => string)",
-      "description": "Function to convert an item's value to a string label for display.",
-      "detailedType": "((itemValue: any) => string) | undefined"
+    "itemToStringLabel": {
+      "type": "((itemValue: ItemValue) => string)",
+      "description": "When items' values are objects, converts its value to a string label for display.",
+      "detailedType": "((itemValue: ItemValue) => string) | undefined"
     },
-    "itemToValue": {
-      "type": "((itemValue: any) => string)",
-      "description": "Function to convert an item's value to its serialized form for submission.",
-      "detailedType": "((itemValue: any) => string) | undefined"
+    "itemToStringValue": {
+      "type": "((itemValue: ItemValue) => string)",
+      "description": "When items' values are objects, converts its value to a string value for form submission.",
+      "detailedType": "((itemValue: ItemValue) => string) | undefined"
     },
     "items": {
-      "type": "any[] | Group[]",
+      "type": "ItemValue[] | Group<ItemValue>[]",
       "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
-      "detailedType": "any[] | Group[] | undefined"
+      "detailedType": "ItemValue[] | Group<ItemValue>[] | undefined"
     },
     "limit": {
       "type": "number",
@@ -97,9 +97,9 @@
       "detailedType": "| ((\n    value: string,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemHighlighted": {
-      "type": "((value: any, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",
+      "type": "((itemValue: ItemValue | undefined, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",
       "description": "Callback fired when the user navigates the list and highlights an item.\nPasses the item and the type of navigation or `undefined` when no item is highlighted.\n- `keyboard`: The item was highlighted via keyboard navigation.\n- `pointer`: The item was highlighted via pointer navigation.\n- `none`: The item was highlighted via programmatic navigation.",
-      "detailedType": "| ((\n    value: any,\n    data: {\n      type: 'none' | 'keyboard' | 'pointer'\n      index: number\n    },\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    itemValue: ItemValue | undefined,\n    data: {\n      type: 'none' | 'keyboard' | 'pointer'\n      index: number\n    },\n  ) => void)\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

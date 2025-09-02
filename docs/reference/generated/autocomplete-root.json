@@ -56,14 +56,14 @@
       "detailedType": "number | undefined"
     },
     "filter": {
-      "type": "((value: Value, query: string, itemToLabel: ((itemValue: Value) => string) | undefined) => boolean) | null",
-      "description": "Filter function used to match items vs input query.\nThe `itemToLabel` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    value: Value,\n    query: string,\n    itemToLabel:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "type": "((itemValue: Value, query: string, itemToStringLabel: ((itemValue: Value) => string) | undefined) => boolean) | null",
+      "description": "Filter function used to match items vs input query.\nThe `itemToStringLabel` function is provided to help convert items to strings for comparison.",
+      "detailedType": "| ((\n    itemValue: Value,\n    query: string,\n    itemToStringLabel:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
-    "itemToValue": {
-      "type": "((value: Value) => string)",
-      "description": "Converts an item's value to its string representation for display in the input.",
-      "detailedType": "((value: Value) => string) | undefined"
+    "itemToStringValue": {
+      "type": "((itemValue: Value) => string)",
+      "description": "When items' values are objects, converts its value to a string representation for display in the input.",
+      "detailedType": "((itemValue: Value) => string) | undefined"
     },
     "items": {
       "type": "Group<Value>[] | Value[]",
@@ -82,9 +82,9 @@
       "detailedType": "'none' | 'list' | 'inline' | 'both' | undefined"
     },
     "onItemHighlighted": {
-      "type": "((value: Value | undefined, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",
+      "type": "((itemValue: Value | undefined, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",
       "description": "Callback fired when the user navigates the list and highlights an item.\nPasses the item and the type of navigation or `undefined` when no item is highlighted.\n- `keyboard`: The item was highlighted via keyboard navigation.\n- `pointer`: The item was highlighted via pointer navigation.\n- `none`: The item was highlighted via programmatic navigation.",
-      "detailedType": "| ((\n    value: Value | undefined,\n    data: {\n      type: 'none' | 'keyboard' | 'pointer'\n      index: number\n    },\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    itemValue: Value | undefined,\n    data: {\n      type: 'none' | 'keyboard' | 'pointer'\n      index: number\n    },\n  ) => void)\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

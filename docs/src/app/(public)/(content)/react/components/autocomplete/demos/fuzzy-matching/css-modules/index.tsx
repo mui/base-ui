@@ -6,7 +6,11 @@ import styles from './index.module.css';
 
 export default function ExampleFuzzyMatchingAutocomplete() {
   return (
-    <Autocomplete.Root items={fuzzyItems} filter={fuzzyFilter} itemToValue={(item) => item.title}>
+    <Autocomplete.Root
+      items={fuzzyItems}
+      filter={fuzzyFilter}
+      itemToStringValue={(item) => item.title}
+    >
       <label className={styles.Label}>
         Fuzzy search documentation
         <Autocomplete.Input placeholder="e.g. React" className={styles.Input} />

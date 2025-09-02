@@ -844,19 +844,19 @@ describe('<Combobox.Root />', () => {
     });
   });
 
-  describe('prop: itemToLabel', () => {
+  describe('prop: itemToStringLabel', () => {
     const items = [
       { country: 'United States', code: 'US' },
       { country: 'Canada', code: 'CA' },
       { country: 'Australia', code: 'AU' },
     ];
 
-    it('uses itemToLabel for input value synchronization', async () => {
+    it('uses itemToStringLabel for input value synchronization', async () => {
       const { user } = await render(
         <Combobox.Root
           items={items}
-          itemToLabel={(item) => item.country}
-          itemToValue={(item) => item.code}
+          itemToStringLabel={(item) => item.country}
+          itemToStringValue={(item) => item.code}
           defaultOpen
         >
           <Combobox.Input />
@@ -882,20 +882,20 @@ describe('<Combobox.Root />', () => {
     });
   });
 
-  describe('prop: itemToValue', () => {
+  describe('prop: itemToStringValue', () => {
     const items = [
       { country: 'United States', code: 'US' },
       { country: 'Canada', code: 'CA' },
       { country: 'Australia', code: 'AU' },
     ];
 
-    it('uses itemToValue for form submission', async () => {
+    it('uses itemToStringValue for form submission', async () => {
       const { container } = await render(
         <Combobox.Root
           name="country"
           items={items}
-          itemToLabel={(item) => item.country}
-          itemToValue={(item) => item.code}
+          itemToStringLabel={(item) => item.country}
+          itemToStringValue={(item) => item.code}
           defaultValue={items[0]}
         >
           <Combobox.Input />
@@ -919,13 +919,13 @@ describe('<Combobox.Root />', () => {
       expect(hiddenInput).to.have.value('US');
     });
 
-    it('uses itemToValue for multiple selection form submission', async () => {
+    it('uses itemToStringValue for multiple selection form submission', async () => {
       const { container } = await render(
         <Combobox.Root
           name="countries"
           items={items}
-          itemToLabel={(item) => item.country}
-          itemToValue={(item) => item.code}
+          itemToStringLabel={(item) => item.country}
+          itemToStringValue={(item) => item.code}
           multiple
           defaultValue={[items[0], items[1]]}
         >

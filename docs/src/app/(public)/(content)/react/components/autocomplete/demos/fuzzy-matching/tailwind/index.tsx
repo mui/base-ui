@@ -4,7 +4,11 @@ import { matchSorter } from 'match-sorter';
 
 export default function ExampleFuzzyMatchingAutocomplete() {
   return (
-    <Autocomplete.Root items={fuzzyItems} filter={fuzzyFilter} itemToValue={(item) => item.title}>
+    <Autocomplete.Root
+      items={fuzzyItems}
+      filter={fuzzyFilter}
+      itemToStringValue={(item) => item.title}
+    >
       <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
         Fuzzy search documentation
         <Autocomplete.Input

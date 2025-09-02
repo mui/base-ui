@@ -556,9 +556,9 @@ describe('<Combobox.Value />', () => {
     });
   });
 
-  describe('itemToLabel prop', () => {
-    it('uses custom itemToLabel function', async () => {
-      const customItemToLabel = (item: any) => {
+  describe('itemToStringLabel prop', () => {
+    it('uses custom itemToStringLabel function', async () => {
+      const customitemToStringLabel = (item: any) => {
         if (item && typeof item === 'object' && 'name' in item) {
           return `Custom: ${item.name}`;
         }
@@ -568,7 +568,7 @@ describe('<Combobox.Value />', () => {
       const complexItem = { id: 1, name: 'Test Item' };
 
       await render(
-        <Combobox.Root defaultValue={complexItem} itemToLabel={customItemToLabel}>
+        <Combobox.Root defaultValue={complexItem} itemToStringLabel={customitemToStringLabel}>
           <Combobox.Trigger data-testid="value">
             <Combobox.Value />
           </Combobox.Trigger>

@@ -89,8 +89,8 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     filter: filterProp,
     openOnInputClick = true,
     autoHighlight = false,
-    itemToLabel,
-    itemToValue,
+    itemToStringLabel,
+    itemToStringValue,
     virtualized = false,
     fillInputOnItemPress = true,
     modal = false,
@@ -142,16 +142,16 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       return filterProp;
     }
     if (selectionMode === 'single' && !queryChangedAfterOpen) {
-      return createSingleSelectionCollatorFilter(collatorFilter, itemToLabel, selectedValue);
+      return createSingleSelectionCollatorFilter(collatorFilter, itemToStringLabel, selectedValue);
     }
-    return createCollatorItemFilter(collatorFilter, itemToLabel);
+    return createCollatorItemFilter(collatorFilter, itemToStringLabel);
   }, [
     filterProp,
     selectionMode,
     selectedValue,
     queryChangedAfterOpen,
     collatorFilter,
-    itemToLabel,
+    itemToStringLabel,
   ]);
 
   const [inputValue, setInputValueUnwrapped] = useControlled({
@@ -204,7 +204,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         const candidateItems =
           query === ''
             ? group.items
-            : group.items.filter((item) => filter(item, query, itemToLabel));
+            : group.items.filter((item) => filter(item, query, itemToStringLabel));
 
         if (candidateItems.length === 0) {
           continue;
@@ -232,13 +232,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       if (limit > -1 && limitedItems.length >= limit) {
         break;
       }
-      if (filter(item, query, itemToLabel)) {
+      if (filter(item, query, itemToStringLabel)) {
         limitedItems.push(item);
       }
     }
 
     return limitedItems;
-  }, [items, flatItems, query, filter, isGrouped, itemToLabel, limit]);
+  }, [items, flatItems, query, filter, isGrouped, itemToStringLabel, limit]);
 
   const flatFilteredItems: Value[] = React.useMemo(() => {
     if (isGrouped) {
@@ -324,7 +324,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const forceMount = useEventCallback(() => {
     if (items) {
-      labelsRef.current = flatFilteredItems.map((item) => stringifyItem(item, itemToLabel));
+      labelsRef.current = flatFilteredItems.map((item) => stringifyItem(item, itemToStringLabel));
     } else {
       store.set('forceMount', true);
     }
@@ -421,7 +421,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
     // Keep the input text in sync when the input is rendered outside the popup.
     if (!store.state.inputInsidePopup) {
-      const stringVal = stringifyItem(fallback, itemToLabel);
+      const stringVal = stringifyItem(fallback, itemToStringLabel);
       if (inputRef.current && inputRef.current.value !== stringVal) {
         setInputValueUnwrapped(stringVal);
       }
@@ -435,7 +435,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     defaultSelectedValue,
     setSelectedValueUnwrapped,
     setInputValueUnwrapped,
-    itemToLabel,
+    itemToStringLabel,
     store,
   ]);
 
@@ -554,7 +554,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
       if (shouldFillInput) {
         setInputValue(
-          stringifyItem(nextValue, itemToLabel),
+          stringifyItem(nextValue, itemToStringLabel),
           createBaseUIEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
@@ -647,7 +647,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
           setInputValue('', createBaseUIEventDetails('input-clear'));
         }
       } else {
-        const stringVal = stringifyItem(selectedValue, itemToLabel);
+        const stringVal = stringifyItem(selectedValue, itemToStringLabel);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
           const reason = stringVal === '' ? 'input-clear' : 'item-press';
@@ -875,7 +875,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       isGrouped,
       virtualized,
       openOnInputClick,
-      itemToLabel,
+      itemToStringLabel,
       modal,
       autoHighlight,
       forceMount,
@@ -900,7 +900,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       isGrouped,
       virtualized,
       openOnInputClick,
-      itemToLabel,
+      itemToStringLabel,
       modal,
       autoHighlight,
       forceMount,
@@ -920,11 +920,11 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     if (Array.isArray(formValue)) {
       return '';
     }
-    if (itemToValue && formValue != null) {
-      return itemToValue(formValue);
+    if (itemToStringValue && formValue != null) {
+      return itemToStringValue(formValue);
     }
     return serializeValue(formValue);
-  }, [formValue, itemToValue]);
+  }, [formValue, itemToStringValue]);
 
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(selectedValue) || !name) {
@@ -932,7 +932,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
 
     return selectedValue.map((value: Value) => {
-      const currentSerializedValue = itemToValue ? itemToValue(value) : serializeValue(value);
+      const currentSerializedValue = itemToStringValue
+        ? itemToStringValue(value)
+        : serializeValue(value);
       return (
         <input
           key={currentSerializedValue}
@@ -942,7 +944,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         />
       );
     });
-  }, [multiple, selectedValue, name, itemToValue]);
+  }, [multiple, selectedValue, name, itemToStringValue]);
 
   const children = (
     <React.Fragment>
@@ -1037,11 +1039,11 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
 type SelectionMode = 'single' | 'multiple' | 'none';
 
-type ComboboxValueType<Value, Mode extends SelectionMode> = Mode extends 'multiple'
-  ? Value[]
-  : Value;
+type ComboboxItemValueType<ItemValue, Mode extends SelectionMode> = Mode extends 'multiple'
+  ? ItemValue[]
+  : ItemValue;
 
-interface ComboboxRootProps<Value> {
+interface ComboboxRootProps<ItemValue> {
   children?: React.ReactNode;
   /**
    * Identifies the field when a form is submitted.
@@ -1125,7 +1127,7 @@ interface ComboboxRootProps<Value> {
    * - `none`: The item was highlighted via programmatic navigation.
    */
   onItemHighlighted?: (
-    value: Value | undefined,
+    itemValue: ItemValue | undefined,
     data: {
       type: 'keyboard' | 'pointer' | 'none';
       index: number;
@@ -1144,22 +1146,26 @@ interface ComboboxRootProps<Value> {
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: Value[] | Group<Value>[];
+  items?: ItemValue[] | Group<ItemValue>[];
   /**
    * Filter function used to match items vs input query.
-   * The `itemToLabel` function is provided to help convert items to strings for comparison.
+   * The `itemToStringLabel` function is provided to help convert items to strings for comparison.
    */
   filter?:
     | null
-    | ((value: Value, query: string, itemToLabel?: (itemValue: Value) => string) => boolean);
+    | ((
+        itemValue: ItemValue,
+        query: string,
+        itemToStringLabel?: (itemValue: ItemValue) => string,
+      ) => boolean);
   /**
-   * Function to convert an item's value to a string label for display.
+   * When items' values are objects, converts its value to a string label for display.
    */
-  itemToLabel?: (itemValue: Value) => string;
+  itemToStringLabel?: (itemValue: ItemValue) => string;
   /**
-   * Function to convert an item's value to its serialized form for submission.
+   * When items' values are objects, converts its value to a string value for form submission.
    */
-  itemToValue?: (itemValue: Value) => string;
+  itemToStringValue?: (itemValue: ItemValue) => string;
   /**
    * Whether the items are being externally virtualized.
    * @default false
@@ -1213,18 +1219,18 @@ export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'no
   /**
    * The selected value of the combobox. Use when controlled.
    */
-  selectedValue?: ComboboxValueType<Value, Mode>;
+  selectedValue?: ComboboxItemValueType<Value, Mode>;
   /**
    * The uncontrolled selected value of the combobox when it's initially rendered.
    *
    * To render a controlled combobox, use the `selectedValue` prop instead.
    */
-  defaultSelectedValue?: ComboboxValueType<Value, Mode> | null;
+  defaultSelectedValue?: ComboboxItemValueType<Value, Mode> | null;
   /**
    * Callback fired when the selected value of the combobox changes.
    */
   onSelectedValueChange?: (
-    value: ComboboxValueType<Value, Mode>,
+    value: ComboboxItemValueType<Value, Mode>,
     eventDetails: ComboboxRootInternal.ChangeEventDetails,
   ) => void;
 };

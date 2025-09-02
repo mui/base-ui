@@ -8,8 +8,8 @@ import { ComboboxRootInternal } from './ComboboxRootInternal';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/autocomplete)
  */
-export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
-  props: ComboboxRoot.Props<Value, Multiple>,
+export function ComboboxRoot<ItemValue, Multiple extends boolean | undefined = false>(
+  props: ComboboxRoot.Props<ItemValue, Multiple>,
 ): React.JSX.Element {
   const { multiple = false as Multiple, defaultValue, value, onValueChange, ...rest } = props;
 
@@ -17,7 +17,7 @@ export function ComboboxRoot<Value, Multiple extends boolean | undefined = false
   const mode = multiple ? 'multiple' : 'single';
 
   return (
-    <ComboboxRootInternal<Value, Mode>
+    <ComboboxRootInternal<ItemValue, Mode>
       {...(rest as any)}
       selectionMode={mode}
       selectedValue={value}
@@ -32,12 +32,13 @@ type ModeFromMultiple<Multiple extends boolean | undefined> = Multiple extends t
   : 'single';
 
 export namespace ComboboxRoot {
-  type ComboboxValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
-    ? Value[]
-    : Value;
+  type ComboboxItemValueType<
+    ItemValue,
+    Multiple extends boolean | undefined,
+  > = Multiple extends true ? ItemValue[] : ItemValue;
 
-  export type Props<Value, Multiple extends boolean | undefined = false> = Omit<
-    ComboboxRootInternal.Props<any, ModeFromMultiple<Multiple>>,
+  export type Props<ItemValue, Multiple extends boolean | undefined = false> = Omit<
+    ComboboxRootInternal.Props<ItemValue, ModeFromMultiple<Multiple>>,
     | 'clearInputOnCloseComplete'
     | 'modal'
     | 'fillInputOnItemPress'
@@ -61,16 +62,16 @@ export namespace ComboboxRoot {
      *
      * To render a controlled combobox, use the `value` prop instead.
      */
-    defaultValue?: ComboboxValueType<Value, Multiple> | null;
+    defaultValue?: ComboboxItemValueType<ItemValue, Multiple> | null;
     /**
      * The selected value of the combobox. Use when controlled.
      */
-    value?: ComboboxValueType<Value, Multiple>;
+    value?: ComboboxItemValueType<ItemValue, Multiple>;
     /**
      * Callback fired when the selected value of the combobox changes.
      */
     onValueChange?: (
-      value: ComboboxValueType<Value, Multiple>,
+      value: ComboboxItemValueType<ItemValue, Multiple>,
       eventDetails: ComboboxRoot.ChangeEventDetails,
     ) => void;
     /**

@@ -29,7 +29,7 @@ const objectItems = [
 <Autocomplete.Root
   items={objectItems}
   defaultValue="a"
-  itemToValue={(item) => {
+  itemToStringValue={(item) => {
     // Improve type inference of `item`
     return item.value;
   }}

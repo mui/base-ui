@@ -71,7 +71,7 @@ export default function ExampleAsyncAutocomplete() {
       items={searchResults}
       value={searchValue}
       onValueChange={setSearchValue}
-      itemToValue={(item) => item.title}
+      itemToStringValue={(item) => item.title}
       filter={null}
     >
       <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">

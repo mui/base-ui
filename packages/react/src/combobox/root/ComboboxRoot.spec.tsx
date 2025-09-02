@@ -34,11 +34,11 @@ const objectItems = [
 <Combobox.Root
   items={objectItems}
   defaultValue={objectItems[0]}
-  itemToLabel={(item) => {
+  itemToStringLabel={(item) => {
     // Improve type inference of `item`
     return item.label;
   }}
-  itemToValue={(item) => {
+  itemToStringValue={(item) => {
     // Improve type inference of `item`
     return item.value;
   }}

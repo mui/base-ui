@@ -47,9 +47,9 @@
       "detailedType": "string | number | string[] | undefined"
     },
     "filter": {
-      "type": "((value: Item, query: string, itemToLabel: ((itemValue: Item) => string) | undefined) => boolean) | null",
-      "description": "Filter function used to match items vs input query.\nThe `itemToLabel` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    value: Item,\n    query: string,\n    itemToLabel:\n      | ((itemValue: Item) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "type": "((itemValue: Item, query: string, itemToStringLabel: ((itemValue: Item) => string) | undefined) => boolean) | null",
+      "description": "Filter function used to match items vs input query.\nThe `itemToStringLabel` function is provided to help convert items to strings for comparison.",
+      "detailedType": "| ((\n    itemValue: Item,\n    query: string,\n    itemToStringLabel:\n      | ((itemValue: Item) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "inputValue": {
       "type": "string | number | string[]",
@@ -79,9 +79,9 @@
       "detailedType": "| ((\n    value: string,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemHighlighted": {
-      "type": "((value: Item | undefined, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",
+      "type": "((itemValue: Item | undefined, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",
       "description": "Callback fired when the user navigates the list and highlights an item.\nPasses the item and the type of navigation or `undefined` when no item is highlighted.\n- `keyboard`: The item was highlighted via keyboard navigation.\n- `pointer`: The item was highlighted via pointer navigation.\n- `none`: The item was highlighted via programmatic navigation.",
-      "detailedType": "| ((\n    value: Item | undefined,\n    data: {\n      type: 'none' | 'keyboard' | 'pointer'\n      index: number\n    },\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    itemValue: Item | undefined,\n    data: {\n      type: 'none' | 'keyboard' | 'pointer'\n      index: number\n    },\n  ) => void)\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
