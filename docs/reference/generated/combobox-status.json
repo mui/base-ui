@@ -1,6 +1,6 @@
 {
   "name": "ComboboxStatus",
-  "description": "Displays a status message whose content changes are announced politely to screen readers.\nRenders a `<div>` element.",
+  "description": "Displays a status message whose content changes are announced politely to screen readers.\nUseful for conveying the status of an asynchronously loaded list.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Combobox.Status.State) => string)",

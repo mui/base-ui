@@ -5,6 +5,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Displays a status message whose content changes are announced politely to screen readers.
+ * Useful for conveying the status of an asynchronously loaded list.
  * Renders a `<div>` element.
  */
 export const ComboboxStatus = React.forwardRef(function ComboboxStatus(
