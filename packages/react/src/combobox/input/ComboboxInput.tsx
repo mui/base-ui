@@ -217,7 +217,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             setInputValue('', details);
             setSelectedValue(value, details);
 
-            if (!details.isPropagationAllowed) {
+            if (!store.state.inline && !details.isPropagationAllowed) {
               event.stopPropagation();
             }
 

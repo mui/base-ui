@@ -462,6 +462,40 @@ describe('<Combobox.Root />', () => {
       expect(screen.queryByRole('listbox')).to.equal(null);
       expect(input).to.have.value('');
     });
+
+    it('bubbles Escape key when rendered inline without Positioner/Popup', async () => {
+      const onOuterKeyDown = spy();
+
+      const { user } = await render(
+        <div
+          data-testid="outer"
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              onOuterKeyDown();
+            }
+          }}
+        >
+          <Combobox.Root defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              <Combobox.Item value="a">a</Combobox.Item>
+              <Combobox.Item value="b">b</Combobox.Item>
+            </Combobox.List>
+          </Combobox.Root>
+        </div>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+
+      await user.keyboard('{Escape}');
+
+      expect(onOuterKeyDown.callCount).to.equal(1);
+    });
   });
 
   describe('aria attributes', () => {

@@ -736,6 +736,8 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       // the popup.
       touch: 'intentional',
     },
+    // Without a popup, let the Escape key bubble the event up to other popups' handlers.
+    bubbles: inline ? true : undefined,
     outsidePress(event) {
       const target = getTarget(event) as Element | null;
       return (
