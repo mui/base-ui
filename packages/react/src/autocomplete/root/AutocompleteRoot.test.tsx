@@ -162,7 +162,7 @@ describe('<Autocomplete.Root />', () => {
 
     it('does not highlight first/last item when pressing ArrowDown/ArrowUp initially', async () => {
       const { user } = await render(
-        <Autocomplete.Root items={['alpha', 'beta', 'gamma']} openOnInputClick>
+        <Autocomplete.Root items={['alpha', 'beta', 'gamma']}>
           <Autocomplete.Input data-testid="input" />
           <Autocomplete.Portal>
             <Autocomplete.Positioner>
@@ -183,8 +183,6 @@ describe('<Autocomplete.Root />', () => {
       const input = screen.getByTestId<HTMLInputElement>('input');
 
       await user.click(input);
-      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
-
       expect(input).not.to.have.attribute('aria-activedescendant');
 
       await user.keyboard('{ArrowDown}');
@@ -192,9 +190,9 @@ describe('<Autocomplete.Root />', () => {
         expect(input).not.to.have.attribute('aria-activedescendant');
       });
 
-      await user.keyboard('{ArrowUp}');
+      await user.keyboard('{ArrowDown}');
       await waitFor(() => {
-        expect(input).not.to.have.attribute('aria-activedescendant');
+        expect(input).to.have.attribute('aria-activedescendant');
       });
     });
   });
