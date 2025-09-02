@@ -50,10 +50,16 @@
   outline: 0;
   cursor: default;
 
-  &:focus-within,
-  &[data-highlighted] {
+  &:focus-within {
     background-color: var(--color-blue);
     color: var(--color-gray-50);
+  }
+
+  @media (hover: hover) {
+    &[data-highlighted] {
+      background-color: var(--color-blue);
+      color: var(--color-gray-50);
+    }
   }
 }
 
@@ -188,14 +194,8 @@
     color: var(--color-gray-900);
   }
 
-  &[data-highlighted] {
-    z-index: 0;
-    position: relative;
-    color: var(--color-gray-50);
-  }
-
-  &[data-highlighted]::before,
-  &[data-selected]::before {
+  &[data-selected]::before,
+  &[data-highlighted]::before {
     content: '';
     z-index: -1;
     position: absolute;
@@ -204,8 +204,16 @@
     border-radius: 0.25rem;
   }
 
-  &[data-highlighted]::before {
-    background-color: var(--color-gray-900);
+  @media (hover: hover) {
+    &[data-highlighted] {
+      z-index: 0;
+      position: relative;
+      color: var(--color-gray-50);
+    }
+
+    &[data-highlighted]::before {
+      background-color: var(--color-gray-900);
+    }
   }
 }
 
