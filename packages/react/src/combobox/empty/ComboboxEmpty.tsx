@@ -5,8 +5,9 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
 
 /**
- * Renders its children only when the list is empty with
- * screen reader support.
+ * Renders its children only when the list is empty.
+ * Announces changes politely to screen readers.
+ * Renders a `<div>` element.
  */
 export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
   componentProps: ComboboxEmpty.Props,
