@@ -400,6 +400,44 @@ describe('<Combobox.Root />', () => {
       expect(input).to.have.value('apple');
     });
 
+    it('Enter selects with manual indices provided to items', async () => {
+      const items = ['apple', 'banana', 'cherry'];
+
+      const { user } = await render(
+        <Combobox.Root items={items}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string, index: number) => (
+                    <Combobox.Item key={item} value={item} index={index}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+
+      await user.type(input, 'c'); // filter to "cherry"
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(input).to.have.value('cherry');
+      });
+    });
+
     it('Escape closes the popup without committing when nothing highlighted', async () => {
       const { user } = await render(
         <Combobox.Root defaultOpen items={['a', 'b']}>

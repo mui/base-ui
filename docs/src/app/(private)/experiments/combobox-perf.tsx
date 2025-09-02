@@ -62,8 +62,8 @@ export default function ExampleCombobox() {
             <Combobox.Popup className={styles.Popup}>
               <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
               <Combobox.List className={styles.List}>
-                {(item: string, index: number) => (
-                  <Combobox.Item key={item} value={item} index={index} className={styles.Item}>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item} className={styles.Item}>
                     <Combobox.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Combobox.ItemIndicator>
@@ -78,8 +78,8 @@ export default function ExampleCombobox() {
 
       <hr className="my-4" />
 
-      <h2>Open API</h2>
-      <Combobox.Root items={fruits}>
+      <h2>Open API (no filtering)</h2>
+      <Combobox.Root>
         <label className={styles.Label}>
           Choose a fruit
           <Combobox.Input placeholder="e.g. Apple" className={styles.Input} />
@@ -96,10 +96,9 @@ export default function ExampleCombobox() {
         <Combobox.Portal>
           <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
             <Combobox.Popup className={styles.Popup}>
-              <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
               <Combobox.List className={styles.List}>
-                {fruits.map((item, index) => (
-                  <Combobox.Item key={item} value={item} index={index} className={styles.Item}>
+                {fruits.map((item) => (
+                  <Combobox.Item key={item} value={item} className={styles.Item}>
                     <Combobox.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Combobox.ItemIndicator>

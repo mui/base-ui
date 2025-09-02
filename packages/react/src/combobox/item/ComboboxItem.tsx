@@ -82,7 +82,8 @@ export const ComboboxItem = React.memo(
     const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered || !virtualized) {
+      const shouldRun = hasRegistered && (virtualized || indexProp != null);
+      if (!shouldRun) {
         return undefined;
       }
 
@@ -92,7 +93,7 @@ export const ComboboxItem = React.memo(
       return () => {
         delete list[index];
       };
-    }, [hasRegistered, virtualized, index, listRef]);
+    }, [hasRegistered, virtualized, index, listRef, indexProp]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered || items) {
