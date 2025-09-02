@@ -60,6 +60,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
 
   const inputProps = useStore(store, selectors.inputProps);
+  const triggerProps = useStore(store, selectors.triggerProps);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
   const inputValue = useStore(store, selectors.inputValue);
@@ -147,6 +148,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     ref: [forwardedRef, inputRef, setInputElement],
     props: [
       inputProps,
+      triggerProps,
       {
         value: componentProps.value ?? inputValue,
         'aria-readonly': readOnly || undefined,

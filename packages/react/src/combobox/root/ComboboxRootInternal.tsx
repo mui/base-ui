@@ -725,6 +725,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     enabled: !readOnly && !disabled && openOnInputClick,
     event: 'mousedown-only',
     toggle: false,
+    // Apply a small delay for touch to let iOS viewport centering settle.
+    // This avoids top-bottom flip flickers if the preferred position is "top" when first tapping.
+    touchOpenDelay: 50,
   });
 
   const dismiss = useDismiss(floatingRootContext, {
