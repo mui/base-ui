@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { ComboboxRootInternal } from './ComboboxRootInternal';
+import type { Group } from './utils';
 
 /**
  * Groups all parts of the combobox.
@@ -8,21 +9,20 @@ import { ComboboxRootInternal } from './ComboboxRootInternal';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/autocomplete)
  */
-export function ComboboxRoot<ItemValue, Multiple extends boolean | undefined = false>(
-  props: ComboboxRoot.Props<ItemValue, Multiple>,
-): React.JSX.Element {
+export function ComboboxRoot<
+  ItemValue,
+  SelectedValue = ItemValue,
+  Multiple extends boolean | undefined = false,
+>(props: ComboboxRoot.Props<ItemValue, SelectedValue, Multiple>): React.JSX.Element {
   const { multiple = false as Multiple, defaultValue, value, onValueChange, ...rest } = props;
 
-  type Mode = ModeFromMultiple<Multiple>;
-  const mode = multiple ? 'multiple' : 'single';
-
   return (
-    <ComboboxRootInternal<ItemValue, Mode>
+    <ComboboxRootInternal
       {...(rest as any)}
-      selectionMode={mode}
+      selectionMode={multiple ? 'multiple' : 'single'}
       selectedValue={value}
       defaultSelectedValue={defaultValue}
-      onSelectedValueChange={onValueChange as any}
+      onSelectedValueChange={onValueChange}
     />
   );
 }
@@ -33,17 +33,25 @@ type ModeFromMultiple<Multiple extends boolean | undefined> = Multiple extends t
 
 export namespace ComboboxRoot {
   type ComboboxItemValueType<
-    ItemValue,
+    TSelected,
     Multiple extends boolean | undefined,
-  > = Multiple extends true ? ItemValue[] : ItemValue;
+  > = Multiple extends true ? TSelected[] : TSelected;
 
-  export type Props<ItemValue, Multiple extends boolean | undefined = false> = Omit<
-    ComboboxRootInternal.Props<ItemValue, ModeFromMultiple<Multiple>>,
+  export type Props<
+    ItemValue,
+    SelectedValue = ItemValue,
+    Multiple extends boolean | undefined = false,
+  > = Omit<
+    ComboboxRootInternal.Props<any, ModeFromMultiple<Multiple>>,
     | 'clearInputOnCloseComplete'
     | 'modal'
     | 'fillInputOnItemPress'
     | 'autoComplete'
     | 'autoHighlight'
+    // Prevent `items` from driving generic inference at the callsite
+    | 'items'
+    | 'itemToStringLabel'
+    | 'itemToStringValue'
     // Different names
     | 'selectionMode'
     | 'defaultSelectedValue'
@@ -58,20 +66,32 @@ export namespace ComboboxRoot {
      */
     multiple?: Multiple;
     /**
+     * The items to be displayed in the list.
+     */
+    items?: ItemValue[] | Group<ItemValue>[];
+    /**
+     * When items' values are objects, converts its value to a string label for input display.
+     */
+    itemToStringLabel?: (itemValue: ItemValue) => string;
+    /**
+     * When items' values are objects, converts its value to a string value for form submission.
+     */
+    itemToStringValue?: (itemValue: ItemValue) => string;
+    /**
      * The uncontrolled selected value of the combobox when it's initially rendered.
      *
      * To render a controlled combobox, use the `value` prop instead.
      */
-    defaultValue?: ComboboxItemValueType<ItemValue, Multiple> | null;
+    defaultValue?: ComboboxItemValueType<SelectedValue, Multiple> | null;
     /**
      * The selected value of the combobox. Use when controlled.
      */
-    value?: ComboboxItemValueType<ItemValue, Multiple>;
+    value?: ComboboxItemValueType<SelectedValue, Multiple>;
     /**
      * Callback fired when the selected value of the combobox changes.
      */
     onValueChange?: (
-      value: ComboboxItemValueType<ItemValue, Multiple>,
+      value: ComboboxItemValueType<SelectedValue, Multiple>,
       eventDetails: ComboboxRoot.ChangeEventDetails,
     ) => void;
     /**

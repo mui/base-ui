@@ -30,7 +30,6 @@ const objectItems = [
   items={objectItems}
   defaultValue="a"
   itemToStringValue={(item) => {
-    // Improve type inference of `item`
     return item.value;
   }}
 />;

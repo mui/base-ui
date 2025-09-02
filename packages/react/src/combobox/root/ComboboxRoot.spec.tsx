@@ -35,11 +35,9 @@ const objectItems = [
   items={objectItems}
   defaultValue={objectItems[0]}
   itemToStringLabel={(item) => {
-    // Improve type inference of `item`
     return item.label;
   }}
   itemToStringValue={(item) => {
-    // Improve type inference of `item`
     return item.value;
   }}
 />;
