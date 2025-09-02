@@ -51,7 +51,7 @@ export const ComboboxArrow = React.forwardRef(function ComboboxArrow(
 export namespace ComboboxArrow {
   export interface State {
     /**
-     * Whether the combobox popup is currently open.
+     * Whether the popup is currently open.
      */
     open: boolean;
     side: Side;

@@ -64,7 +64,7 @@ export namespace ComboboxBackdrop {
 
   export interface State {
     /**
-     * Whether the combobox popup is currently open.
+     * Whether the popup is currently open.
      */
     open: boolean;
     transitionStatus: TransitionStatus;

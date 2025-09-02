@@ -290,7 +290,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 export namespace ComboboxInput {
   export interface State extends FieldRoot.State {
     /**
-     * Whether the combobox popup is open.
+     * Whether the popup is open.
      */
     open: boolean;
   }

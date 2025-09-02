@@ -148,7 +148,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 export namespace ComboboxClear {
   export interface State {
     /**
-     * Whether the combobox popup is open.
+     * Whether the popup is open.
      */
     open: boolean;
     /**

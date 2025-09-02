@@ -174,7 +174,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 export namespace ComboboxTrigger {
   export interface State extends FieldRoot.State {
     /**
-     * Whether the combobox popup is open.
+     * Whether the popup is open.
      */
     open: boolean;
     /**
