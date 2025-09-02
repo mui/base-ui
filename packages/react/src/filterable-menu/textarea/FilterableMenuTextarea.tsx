@@ -7,7 +7,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { selectors } from '../../combobox/store';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxRootContext } from '../../combobox/root/ComboboxRootContext';
-import { useComboboxPositionerContext } from '../../combobox/positioner/ComboboxPositionerContext';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
@@ -29,25 +28,15 @@ export const FilterableMenuTextarea = React.forwardRef(function FilterableMenuTe
     setIndices,
   } = useComboboxRootContext();
 
-  const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
-
   const inputProps = useStore(store, selectors.inputProps);
   const open = useStore(store, selectors.open);
-
-  const setAnchorElement = useEventCallback((element: Element | null) => {
-    // When not inside a Positioner, the reference anchor is this textarea
-    if (hasPositionerParent) {
-      return;
-    }
-    store.set('anchorElement', element);
-  });
 
   const setInputElement = useEventCallback((element: Element | null) => {
     store.set('inputElement', element);
   });
 
   const element = useRenderElement('textarea', componentProps, {
-    ref: [forwardedRef, setAnchorElement, setInputElement],
+    ref: [forwardedRef, setInputElement],
     props: [
       inputProps,
       {

@@ -41,9 +41,9 @@
       "detailedType": "number | undefined"
     },
     "anchor": {
-      "type": "Element | RefObject<Element | null> | VirtualElement | 'trigger' | (() => Element | VirtualElement | null) | null",
-      "description": "An element to position the popup against.\nBy default, the popup will be positioned against the input.",
-      "detailedType": "| Element\n| React.RefObject<Element | null>\n| VirtualElement\n| 'trigger'\n| (() => Element | VirtualElement | null)\n| null\n| undefined"
+      "type": "Element | RefObject<Element | null> | VirtualElement | (() => Element | VirtualElement | null) | null",
+      "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger.",
+      "detailedType": "| Element\n| React.RefObject<Element | null>\n| VirtualElement\n| (() => Element | VirtualElement | null)\n| null\n| undefined"
     },
     "collisionBoundary": {
       "type": "Boundary",

@@ -31,7 +31,6 @@ export type State = {
   triggerProps: HTMLProps;
   typeaheadTriggerProps: HTMLProps;
 
-  anchorElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLElement | null;
   triggerElement: HTMLElement | null;
@@ -77,7 +76,6 @@ export const selectors = {
   triggerProps: createSelector((state: State) => state.triggerProps),
   typeaheadTriggerProps: createSelector((state: State) => state.typeaheadTriggerProps),
 
-  anchorElement: createSelector((state: State) => state.anchorElement),
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),
   triggerElement: createSelector((state: State) => state.triggerElement),

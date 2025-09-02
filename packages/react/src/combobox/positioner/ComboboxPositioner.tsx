@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import type { VirtualElement } from '@floating-ui/react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { inertValue } from '@base-ui-components/utils/inertValue';
@@ -17,7 +16,6 @@ import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
-import { useComboboxDefaultAnchor } from './ComboboxDefaultAnchorContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useScrollLock } from '../../utils/useScrollLock';
 
@@ -34,7 +32,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const {
     render,
     className,
-    anchor: anchorProp,
+    anchor,
     positionMethod = 'absolute',
     side = 'bottom',
     align = 'center',
@@ -56,23 +54,14 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
-  const empty = filteredItems.length === 0;
   const openMethod = useStore(store, selectors.openMethod);
 
-  const defaultAnchor = useComboboxDefaultAnchor();
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
+  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
 
-  const anchor = anchorProp === 'trigger' ? triggerElement : anchorProp;
-
-  let resolvedAnchor = anchor;
-  if (anchor != null) {
-    resolvedAnchor = anchor;
-  } else if (defaultAnchor === 'trigger') {
-    resolvedAnchor = triggerElement;
-  } else {
-    resolvedAnchor = inputElement;
-  }
+  const empty = filteredItems.length === 0;
+  const resolvedAnchor = anchor ?? (inputInsidePopup ? triggerElement : inputElement);
 
   const positioning = useAnchorPositioning({
     anchor: resolvedAnchor,
@@ -182,18 +171,6 @@ export namespace ComboboxPositioner {
   }
 
   export interface Props
-    extends Omit<useAnchorPositioning.SharedParameters, 'anchor'>,
-      BaseUIComponentProps<'div', State> {
-    /**
-     * An element to position the popup against.
-     * By default, the popup will be positioned against the input.
-     */
-    anchor?:
-      | 'trigger'
-      | Element
-      | null
-      | VirtualElement
-      | React.RefObject<Element | null>
-      | (() => Element | VirtualElement | null);
-  }
+    extends useAnchorPositioning.SharedParameters,
+      BaseUIComponentProps<'div', State> {}
 }

@@ -52,7 +52,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
   const inputValue = useStore(store, selectors.inputValue);
-  const anchorElement = useStore(store, selectors.anchorElement);
   const listElement = useStore(store, selectors.listElement);
   const triggerProps = useStore(store, selectors.triggerProps);
   const typeaheadTriggerProps = useStore(store, selectors.typeaheadTriggerProps);
@@ -128,7 +127,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           // Ensure items are registered for initial selection highlight.
           forceMount();
 
-          if (anchorElement !== null) {
+          if (!store.state.inputInsidePopup) {
             event.preventDefault();
           }
         },

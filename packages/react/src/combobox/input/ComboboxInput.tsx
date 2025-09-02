@@ -70,15 +70,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
-  const setAnchorElement = useEventCallback((element) => {
-    // Combobox.Trigger is the anchor element for Combobox.Positioner
-    if (hasPositionerParent) {
-      return;
-    }
-
-    store.set('anchorElement', element);
-  });
-
   const setInputElement = useEventCallback((element) => {
     store.apply({
       inputElement: element,
@@ -157,7 +148,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const element = useRenderElement('input', componentProps, {
     state,
-    ref: [forwardedRef, setAnchorElement, inputRef, setInputElement],
+    ref: [forwardedRef, inputRef, setInputElement],
     props: [
       inputProps,
       {

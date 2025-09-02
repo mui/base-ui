@@ -91,12 +91,7 @@ export default function ExampleEmojiPicker() {
             😀
           </Autocomplete.Trigger>
           <Autocomplete.Portal>
-            <Autocomplete.Positioner
-              className={styles.Positioner}
-              sideOffset={4}
-              align="end"
-              anchor="trigger"
-            >
+            <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="end">
               <Autocomplete.Popup className={styles.Popup} aria-label="Select emoji">
                 <div className={styles.InputContainer}>
                   <Autocomplete.Input placeholder="Search emojis…" className={styles.Input} />

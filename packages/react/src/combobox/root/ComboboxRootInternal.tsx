@@ -268,7 +268,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         inputProps: {},
         triggerProps: {},
         typeaheadTriggerProps: {},
-        anchorElement: null,
         positionerElement: null,
         listElement: null,
         triggerElement: null,
@@ -283,12 +282,12 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const activeIndex = useStore(store, selectors.activeIndex);
   const selectedIndex = useStore(store, selectors.selectedIndex);
-  const anchorElement = useStore(store, selectors.anchorElement);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
   const inline = useStore(store, selectors.inline);
+  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const {
@@ -683,7 +682,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     open: inline ? true : open,
     onOpenChange: setOpen,
     elements: {
-      reference: anchorElement,
+      reference: inputInsidePopup ? triggerElement : inputElement,
       floating: positionerElement,
     },
   });
@@ -950,13 +949,12 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       {props.children}
       <input
         {...fieldControlValidation.getInputValidationProps({
+          // Move focus when the hidden input is focused.
           onFocus() {
-            if (!open && anchorElement !== inputElement) {
-              // inputRef is potentially inside a keepMounted but invisible popup.
+            if (inputInsidePopup) {
               triggerElement?.focus();
             }
 
-            // Move focus when the hidden input is focused.
             (inputRef.current || triggerElement)?.focus();
           },
           // Handle browser autofill.

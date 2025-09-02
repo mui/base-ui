@@ -12,7 +12,7 @@ export default function ExamplePopoverCombobox() {
         </Combobox.Icon>
       </Combobox.Trigger>
       <Combobox.Portal>
-        <Combobox.Positioner anchor="trigger" align="start" sideOffset={4}>
+        <Combobox.Positioner align="start" sideOffset={4}>
           <Combobox.Popup className={styles.Popup} aria-label="Select country">
             <div className={styles.InputContainer}>
               <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
