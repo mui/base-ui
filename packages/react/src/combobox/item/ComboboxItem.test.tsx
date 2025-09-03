@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 
 describe('<Combobox.Item />', () => {
@@ -216,86 +216,92 @@ describe('<Combobox.Item />', () => {
     );
   });
 
-  it('clicking a link inside an item does not select or close (anchor with href)', async () => {
-    const { user } = await render(
-      <Combobox.Root defaultOpen>
-        <Combobox.Input />
-        <Combobox.Portal>
-          <Combobox.Positioner>
-            <Combobox.Popup>
-              <Combobox.List>
-                <Combobox.Item value="one" render={<a href="/somewhere" />} data-testid="link-one">
-                  one
-                </Combobox.Item>
-                <Combobox.Item value="two">two</Combobox.Item>
-              </Combobox.List>
-            </Combobox.Popup>
-          </Combobox.Positioner>
-        </Combobox.Portal>
-      </Combobox.Root>,
-    );
+  describe.skipIf(!isJSDOM)('link handling', () => {
+    it('clicking a link inside an item does not select or close (anchor with href)', async () => {
+      const { user } = await render(
+        <Combobox.Root defaultOpen>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item
+                    value="one"
+                    render={<a href="/somewhere" />}
+                    data-testid="link-one"
+                  >
+                    one
+                  </Combobox.Item>
+                  <Combobox.Item value="two">two</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
 
-    const input = screen.getByRole<HTMLInputElement>('combobox');
-    const link = screen.getByTestId('link-one');
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      const link = screen.getByTestId('link-one');
 
-    await user.click(link);
+      await user.click(link);
 
-    await waitFor(() => expect(input.value).to.equal(''));
-    expect(screen.queryByRole('listbox')).not.to.equal(null);
-  });
+      await waitFor(() => expect(input.value).to.equal(''));
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
+    });
 
-  it('clicking a hash link inside an item does not select and closes popup (anchor with #hash)', async () => {
-    const { user } = await render(
-      <Combobox.Root defaultOpen>
-        <Combobox.Input data-testid="input" />
-        <Combobox.Portal>
-          <Combobox.Positioner>
-            <Combobox.Popup>
-              <Combobox.List>
-                <Combobox.Item value="one" render={<a href="#section" />} data-testid="link-hash">
-                  one
-                </Combobox.Item>
-                <Combobox.Item value="two">two</Combobox.Item>
-              </Combobox.List>
-            </Combobox.Popup>
-          </Combobox.Positioner>
-        </Combobox.Portal>
-      </Combobox.Root>,
-    );
+    it('clicking a hash link inside an item does not select and closes popup (anchor with #hash)', async () => {
+      const { user } = await render(
+        <Combobox.Root defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="one" render={<a href="#section" />} data-testid="link-hash">
+                    one
+                  </Combobox.Item>
+                  <Combobox.Item value="two">two</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
 
-    const input = screen.getByRole<HTMLInputElement>('combobox');
-    const link = screen.getByTestId('link-hash');
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      const link = screen.getByTestId('link-hash');
 
-    await user.click(link);
+      await user.click(link);
 
-    await waitFor(() => expect(input.value).to.equal(''));
-    expect(screen.queryByRole('listbox')).to.equal(null);
-  });
+      await waitFor(() => expect(input.value).to.equal(''));
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
 
-  it('clicking an anchor without href behaves like normal item (selects and closes)', async () => {
-    const { user } = await render(
-      <Combobox.Root defaultOpen>
-        <Combobox.Input data-testid="input" />
-        <Combobox.Portal>
-          <Combobox.Positioner>
-            <Combobox.Popup>
-              <Combobox.List>
-                <Combobox.Item value="one" render={<a />} data-testid="anchor-no-href">
-                  one
-                </Combobox.Item>
-                <Combobox.Item value="two">two</Combobox.Item>
-              </Combobox.List>
-            </Combobox.Popup>
-          </Combobox.Positioner>
-        </Combobox.Portal>
-      </Combobox.Root>,
-    );
+    it('clicking an anchor without href behaves like normal item (selects and closes)', async () => {
+      const { user } = await render(
+        <Combobox.Root defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="one" render={<a />} data-testid="anchor-no-href">
+                    one
+                  </Combobox.Item>
+                  <Combobox.Item value="two">two</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
 
-    const input = screen.getByRole<HTMLInputElement>('combobox');
+      const input = screen.getByRole<HTMLInputElement>('combobox');
 
-    await user.click(screen.getByTestId('anchor-no-href'));
+      await user.click(screen.getByTestId('anchor-no-href'));
 
-    await waitFor(() => expect(input.value).to.equal('one'));
-    expect(screen.queryByRole('listbox')).to.equal(null);
+      await waitFor(() => expect(input.value).to.equal('one'));
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
   });
 });
