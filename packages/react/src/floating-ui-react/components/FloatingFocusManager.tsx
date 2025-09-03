@@ -272,6 +272,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const lastInteractionTypeRef = React.useRef<InteractionType>('');
 
   const blurTimeout = useTimeout();
+  const pointerDownTimeout = useTimeout();
   const restoreFocusFrame = useAnimationFrame();
 
   const isInsidePortal = portalContext != null;
@@ -389,6 +390,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     // In Safari, buttons lose focus when pressing them.
     function handlePointerDown() {
       isPointerDownRef.current = true;
+      pointerDownTimeout.start(0, () => {
+        isPointerDownRef.current = false;
+      });
     }
 
     function handleFocusOutside(event: FocusEvent) {
@@ -469,11 +473,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           return;
         }
 
-        if (isPointerDownRef.current) {
-          isPointerDownRef.current = false;
-          return;
-        }
-
         // Focus did not move inside the floating tree, and there are no tabbable
         // portal guards to handle closing.
         if (
@@ -535,6 +534,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     orderRef,
     dataRef,
     blurTimeout,
+    pointerDownTimeout,
     restoreFocusFrame,
   ]);
 
