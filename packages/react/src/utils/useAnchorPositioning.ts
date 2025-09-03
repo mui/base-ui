@@ -271,14 +271,16 @@ export function useAnchorPositioning(
             limiter:
               sticky || shiftCrossAxis
                 ? undefined
-                : limitShift(() => {
+                : limitShift((limitData) => {
                     if (!arrowRef.current) {
                       return {};
                     }
-                    const { height } = arrowRef.current.getBoundingClientRect();
+                    const { width, height } = arrowRef.current.getBoundingClientRect();
+                    const arrowSize = getSideAxis(limitData.placement) === 'y' ? width : height;
                     return {
                       offset:
-                        height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
+                        arrowSize / 2 +
+                        (typeof collisionPadding === 'number' ? collisionPadding : 0),
                     };
                   }),
           };
