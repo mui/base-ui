@@ -16,7 +16,7 @@ _Sep 3, 2025_
 
 - **Breaking change:** Support `initialFocus` and `finalFocus` functions.
   The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
-  The element must be returned directly (not as a ref).
+  This is a new feature for `finalFocus` and a breaking change for `initialFocus` as the element must be returned directly (not as a ref).
   (#2536) by @atomiks
 
 ### Checkbox
@@ -31,7 +31,7 @@ _Sep 3, 2025_
 
 - **Breaking change:** Support `initialFocus` and `finalFocus` functions.
   The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
-  The element must be returned directly (not as a ref).
+  This is a new feature for `finalFocus` and a breaking change for `initialFocus` as the element must be returned directly (not as a ref).
   (#2536) by @atomiks
 - Restore focus to popup when focused element is removed (#2479) by @atomiks
 
@@ -52,7 +52,7 @@ _Sep 3, 2025_
   (#2493) by @seongminn
 - **Breaking change:** Support `initialFocus` and `finalFocus` functions.
   The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
-  The element must be returned directly (not as a ref).
+  This is a new feature for `finalFocus` and a breaking change for `initialFocus` as the element must be returned directly (not as a ref).
   (#2536) by @atomiks
 - Fix menu not opening when inside context menu trigger (#2506) by @baptisteArno
 - Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
@@ -75,7 +75,7 @@ _Sep 3, 2025_
 
 - **Breaking change:** Support `initialFocus` and `finalFocus` functions.
   The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
-  The element must be returned directly (not as a ref).
+  This is a new feature for `finalFocus` and a breaking change for `initialFocus` as the element must be returned directly (not as a ref).
   (#2536) by @atomiks
 - Fix outside click after right clicking in popup (#2508) by @baptisteArno
 - Fix unexpected close when nested inside two popovers (#2481) by @atomiks
