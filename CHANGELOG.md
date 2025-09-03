@@ -1,5 +1,122 @@
 # Versions
 
+## v1.0.0-beta.3
+
+_Sep 3, 2025_
+
+### General changes
+
+- **Breaking change:** Base UI event details.
+  Custom event callbacks provide BaseUIEventDetails object as their second parameter.
+  This object contains the source event, reason and methods to customize the behavior (where applicable).
+  (#2382) by @atomiks
+
+### Alert Dialog
+
+- **Breaking change:** Support `initialFocus` and `finalFocus` functions.
+  The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
+  (#2536) by @atomiks
+
+### Checkbox
+
+- Fix missing validity attributes when wrapped in `Field` (#2572) by @Copilot
+
+### Dialog
+
+- **Breaking change:** Support `initialFocus` and `finalFocus` functions.
+  The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
+  (#2536) by @atomiks
+- Restore focus to popup when focused element is removed (#2479) by @atomiks
+
+### Field
+
+- Prevent defaultValue reset on focus for uncontrolled inputs (#2543) by @ingokpp
+
+### Menu
+
+- **Breaking change:** Fix `closeParentOnEsc` default value.
+  The default value of `closeParentOnEsc` in Menu.SubmenuRoot is now false.
+  When the Esc key is pressed in a Submenu, the Submenu will close, and the focus will correctly move to the SubmenuTrigger.
+  (#2493) by @seongminn
+- **Breaking change:** Support `initialFocus` and `finalFocus` functions.
+  The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
+  (#2536) by @atomiks
+- Fix menu not opening when inside context menu trigger (#2506) by @baptisteArno
+- Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
+- Fix submenu events (#2483) by @atomiks
+
+### Navigation Menu
+
+- **Breaking change:** Semantic element structure and `active` page prop.
+  `NavigationMenu.List` renders `<ul>` and `NavigationMenu.Item` renders `<li>` by default.
+  (#2526) by @atomiks
+- Unshare AbortController instance (#2441) by @tomokinat
+- Close on link click by default (#2535) by @atomiks
+
+### Number Field
+
+- Fix duplicate `onValueChange` calls (#2591) by @atomiks
+
+### Popover
+
+- **Breaking change:** Support `initialFocus` and `finalFocus` functions.
+  The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
+  (#2536) by @atomiks
+- Fix outside click after right clicking in popup (#2508) by @baptisteArno
+- Fix unexpected close when nested inside two popovers (#2481) by @atomiks
+- Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
+- Restore focus to popup when focused element is removed (#2479) by @atomiks
+
+### Preview Card
+
+- Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
+
+### Radio Group
+
+- Return null in form data when no option selected (#2473) by @ingokpp
+
+### Scroll Area
+
+- Prevent pointer events from sibling portals triggering hover (#2542) by @KenanYusuf
+
+### Select
+
+- Fix stale `items` prop (#2397) by @atomiks
+- Fix unexpected close when nested inside two popovers (#2481) by @atomiks
+- Fix `onValueChange` type inference (#2372) by @atomiks
+- Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
+- Reset state when selected item is removed (#2577) by @atomiks
+- Fix `data-highlighted` and DOM focus item desync (#2569) by @atomiks
+- Fix item click with `defaultOpen` prop (#2570) by @atomiks
+- Fix scroll arrows not propagating scroll fully to start/end of list (#2523) by @atomiks
+
+### Slider
+
+- **Breaking change:** Fix interacting with TalkBack.
+  The `input type="range"` element receives focus and the thumb div is no longer focusable, focus styles targeting the thumb e.g. `.Thumb:focus-visible` should use `.Thumb:has(:focus-visible)` instead.
+  The `tabIndex` prop is moved from Root to Thumb where it gets forwarded to the input.
+  The thumb's `render` prop no longer contains the third `inputProps` argument; the input element is instead merged with children.
+  (#2578) by @mj12albert
+- Reduce bundle size (#2551) by @oliviertassinari
+- Fix thumb `:focus-visible` with mixed keyboard and pointer modality (#2584) by @mj12albert
+- Add `index` prop to `Slider.Thumb` (#2593) by @mj12albert
+
+### Tabs
+
+- Fix tab size rounding (#2488) by @atomiks
+- Fix highlight sync when focus is inside list (#2487) by @atomiks
+
+### Tooltip
+
+- Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
+
+### useRender
+
+- Add support for data-* attributes (#2524) by @Raghuboi
+- Add `defaultTagName` parameter (#2527) by @atomiks
+
+All contributors of this release in alphabetical order: @atomiks, @baptisteArno, @brijeshb42, @Copilot, @ingokpp, @Janpot, @KenanYusuf, @LukasTy, @michaldudak, @mirka, @mj12albert, @mnajdova, @oliviertassinari, @Powerplex, @Raghuboi, @seongminn, @tomokinat
+
 ## v1.0.0-beta.2
 
 _Jul 30, 2025_
