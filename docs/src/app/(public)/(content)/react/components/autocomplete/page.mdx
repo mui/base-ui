@@ -10,7 +10,8 @@
 
 ## Usage guidelines
 
-- **Avoid using as a filterable Select**: The Autocomplete's input can contain free-form text, with suggestions attached to the input to _optionally_ autocomplete the text. Use [Combobox](/react/components/combobox) instead of Autocomplete if the selection must be predefined and cannot be changed from the given list.
+- **No selection state**: Use [Combobox](/react/components/combobox) instead of Autocomplete if the selection should be remembered and the input value cannot be custom. Unlike Combobox, Autocomplete's input can contain free-form text, as its suggestions only _optionally_ autocomplete the text.
+- **Filterable command picker**: The input can be used as a filter for command items that perform an action when clicked when rendered inside the popup.
 
 ## Anatomy
 

@@ -46,7 +46,7 @@
     "cols": {
       "type": "number",
       "default": "1",
-      "description": "The number of columns the items are rendered in grid layout.",
+      "description": "The maximum number of columns present when the items are rendered in grid layout.\nA value of more than `1` turns the listbox into a grid.",
       "detailedType": "number | undefined"
     },
     "defaultInputValue": {

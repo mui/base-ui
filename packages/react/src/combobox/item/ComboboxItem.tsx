@@ -58,7 +58,6 @@ export const ComboboxItem = React.memo(
       virtualized,
       listRef,
     } = useComboboxRootContext();
-
     const { flatFilteredItems } = useComboboxDerivedItemsContext();
     const isRow = useComboboxRowContext();
 
@@ -72,14 +71,13 @@ export const ComboboxItem = React.memo(
     const rootSelectedValue = useStore(store, selectors.selectedValue);
     const items = useStore(store, selectors.items);
 
-    const selected = matchesSelectedValue && selectable;
-
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(index);
 
     const hasRegistered = listItem.index !== -1;
 
     const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
+    const selected = matchesSelectedValue && selectable;
 
     useIsoLayoutEffect(() => {
       const shouldRun = hasRegistered && (virtualized || indexProp != null);
@@ -126,12 +124,8 @@ export const ComboboxItem = React.memo(
         ? rootSelectedValue[rootSelectedValue.length - 1]
         : rootSelectedValue;
 
-      if (lastSelectedValue == null) {
-        return;
-      }
-
-      if (lastSelectedValue === value) {
-        store.apply({ selectedIndex: index });
+      if (lastSelectedValue != null && lastSelectedValue === value) {
+        store.set('selectedIndex', index);
       }
     }, [hasRegistered, items, store, index, value, rootSelectedValue]);
 

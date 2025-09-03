@@ -2,29 +2,31 @@ import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 
 export default function ExampleCombobox() {
+  const id = React.useId();
   return (
     <Combobox.Root items={fruits}>
-      <label className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
-        Choose a fruit
+      <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
+        <label htmlFor={id}>Choose a fruit</label>
         <Combobox.Input
           placeholder="e.g. Apple"
-          className="h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          id={id}
+          className="h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
         <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
           <Combobox.Clear
-            className="flex h-10 w-6 items-center justify-center rounded bg-transparent p-0 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+            className="flex h-10 w-6 items-center justify-center rounded bg-transparent p-0"
             aria-label="Clear selection"
           >
             <ClearIcon className="size-4" />
           </Combobox.Clear>
           <Combobox.Trigger
-            className="flex h-10 w-6 items-center justify-center rounded bg-transparent p-0 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+            className="flex h-10 w-6 items-center justify-center rounded bg-transparent p-0"
             aria-label="Open popup"
           >
             <ChevronDownIcon className="size-4" />
           </Combobox.Trigger>
         </div>
-      </label>
+      </div>
 
       <Combobox.Portal>
         <Combobox.Positioner className="outline-none" sideOffset={4}>
@@ -37,7 +39,7 @@ export default function ExampleCombobox() {
                 <Combobox.Item
                   key={item}
                   value={item}
-                  className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
+                  className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
                 >
                   <Combobox.ItemIndicator className="col-start-1">
                     <CheckIcon className="size-3" />
@@ -96,4 +98,30 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-const fruits = ['Apple', 'Banana', 'Orange', 'Pineapple', 'Grape', 'Mango', 'Strawberry'];
+const fruits = [
+  'Apple',
+  'Banana',
+  'Orange',
+  'Pineapple',
+  'Grape',
+  'Mango',
+  'Strawberry',
+  'Blueberry',
+  'Raspberry',
+  'Blackberry',
+  'Cherry',
+  'Peach',
+  'Pear',
+  'Plum',
+  'Kiwi',
+  'Watermelon',
+  'Cantaloupe',
+  'Honeydew',
+  'Papaya',
+  'Guava',
+  'Lychee',
+  'Pomegranate',
+  'Apricot',
+  'Grapefruit',
+  'Passionfruit',
+];

@@ -57,11 +57,6 @@
   padding: 0;
   border-radius: 0.25rem;
   background: none;
-
-  &:focus {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
-  }
 }
 
 .ClearIcon,

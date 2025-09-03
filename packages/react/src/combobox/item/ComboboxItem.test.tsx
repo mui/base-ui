@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { spy } from 'sinon';
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
 
@@ -37,6 +38,69 @@ describe('<Combobox.Item />', () => {
 
     expect(input).to.have.value('two');
     expect(screen.queryByRole('listbox')).to.equal(null);
+  });
+
+  describe('prop: onClick', () => {
+    it('calls onClick when clicked with a pointer', async () => {
+      const handleClick = spy();
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana']} openOnInputClick>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item} onClick={handleClick}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+
+      const option = screen.getByRole('option', { name: 'banana' });
+      await user.click(option);
+
+      expect(handleClick.callCount).to.equal(1);
+    });
+
+    it('calls onClick when selected with Enter key', async () => {
+      const handleClick = spy();
+      const { user } = await render(
+        <Combobox.Root items={['one', 'two']} openOnInputClick>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item} onClick={handleClick}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      expect(handleClick.callCount).to.equal(1);
+    });
   });
 
   it('does not select disabled item', async () => {

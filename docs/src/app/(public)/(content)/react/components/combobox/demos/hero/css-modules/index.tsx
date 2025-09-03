@@ -3,20 +3,23 @@ import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
 
 export default function ExampleCombobox() {
+  const id = React.useId();
   return (
     <Combobox.Root items={fruits}>
-      <label className={styles.Label}>
-        Choose a fruit
-        <Combobox.Input placeholder="e.g. Apple" className={styles.Input} />
-        <div className={styles.ActionButtons}>
-          <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
-            <ClearIcon className={styles.ClearIcon} />
-          </Combobox.Clear>
-          <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
-            <ChevronDownIcon className={styles.TriggerIcon} />
-          </Combobox.Trigger>
+      <div className={styles.Label}>
+        <label htmlFor={id}>Choose a fruit</label>
+        <div className={styles.InputWrapper}>
+          <Combobox.Input placeholder="e.g. Apple" id={id} className={styles.Input} />
+          <div className={styles.ActionButtons}>
+            <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
+              <ClearIcon className={styles.ClearIcon} />
+            </Combobox.Clear>
+            <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
+              <ChevronDownIcon className={styles.TriggerIcon} />
+            </Combobox.Trigger>
+          </div>
         </div>
-      </label>
+      </div>
 
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
@@ -82,4 +85,30 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-const fruits = ['Apple', 'Banana', 'Orange', 'Pineapple', 'Grape', 'Mango', 'Strawberry'];
+const fruits = [
+  'Apple',
+  'Banana',
+  'Orange',
+  'Pineapple',
+  'Grape',
+  'Mango',
+  'Strawberry',
+  'Blueberry',
+  'Raspberry',
+  'Blackberry',
+  'Cherry',
+  'Peach',
+  'Pear',
+  'Plum',
+  'Kiwi',
+  'Watermelon',
+  'Cantaloupe',
+  'Honeydew',
+  'Papaya',
+  'Guava',
+  'Lychee',
+  'Pomegranate',
+  'Apricot',
+  'Grapefruit',
+  'Passionfruit',
+];

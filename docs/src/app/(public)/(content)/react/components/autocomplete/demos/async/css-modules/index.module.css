@@ -109,7 +109,7 @@
   opacity: 0.8;
 }
 
-.StatusItem {
+.Status {
   display: flex;
   align-items: center;
   gap: 0.5rem;

@@ -818,13 +818,13 @@ export function useListNavigation(
   const reference: ElementProps['reference'] = React.useMemo(() => {
     function checkVirtualMouse(event: React.PointerEvent) {
       if (focusItemOnOpen === 'auto' && isVirtualClick(event.nativeEvent)) {
-        focusItemOnOpenRef.current = true;
+        focusItemOnOpenRef.current = !virtual;
       }
     }
 
     function checkVirtualPointer(event: React.PointerEvent) {
       // `pointerdown` fires first, reset the state then perform the checks.
-      focusItemOnOpenRef.current = focusItemOnOpen;
+      focusItemOnOpenRef.current = event.pointerType === 'touch' ? false : focusItemOnOpen;
       if (focusItemOnOpen === 'auto' && isVirtualPointerEvent(event.nativeEvent)) {
         focusItemOnOpenRef.current = true;
       }

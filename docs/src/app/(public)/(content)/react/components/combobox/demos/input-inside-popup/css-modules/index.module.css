@@ -16,18 +16,15 @@
   line-height: 1.5rem;
   color: var(--color-gray-900);
   cursor: default;
+  background-color: canvas;
+  -webkit-user-select: none;
   user-select: none;
   min-width: 12rem;
-  background-color: canvas;
 
   @media (hover: hover) {
     &:hover {
       background-color: var(--color-gray-100);
     }
-  }
-
-  &:active {
-    background-color: var(--color-gray-100);
   }
 
   &[data-popup-open] {
@@ -45,6 +42,7 @@
 }
 
 .InputContainer {
+  box-sizing: border-box;
   width: 20rem;
   height: var(--input-container-height);
   text-align: center;
@@ -139,6 +137,7 @@
   outline: 0;
   cursor: default;
   user-select: none;
+  min-width: var(--anchor-width);
   padding-block: 0.5rem;
   padding-left: 1rem;
   padding-right: 2rem;
@@ -187,6 +186,7 @@
 }
 
 .Empty:not(:empty) {
+  box-sizing: border-box;
   font-size: 0.925rem;
   line-height: 1rem;
   color: var(--color-gray-600);

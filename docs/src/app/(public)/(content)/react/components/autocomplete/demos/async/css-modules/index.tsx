@@ -81,10 +81,19 @@ export default function ExampleAsyncAutocomplete() {
         <Autocomplete.Portal>
           <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="start">
             <Autocomplete.Popup className={styles.Popup} aria-busy={isLoading || undefined}>
-              <Autocomplete.Status className={styles.StatusItem}>{status}</Autocomplete.Status>
+              <Autocomplete.Status className={styles.Status}>{status}</Autocomplete.Status>
               <Autocomplete.List>
                 {(movie: Movie) => (
-                  <Autocomplete.Item key={movie.id} className={styles.Item} value={movie}>
+                  <Autocomplete.Item
+                    key={movie.id}
+                    className={styles.Item}
+                    value={movie}
+                    onClick={() => {
+                      setSearchResults([]);
+                      setIsLoading(false);
+                      setError(null);
+                    }}
+                  >
                     <div className={styles.MovieItem}>
                       <div className={styles.MovieName}>{movie.title}</div>
                       <div className={styles.MovieYear}>{movie.year}</div>

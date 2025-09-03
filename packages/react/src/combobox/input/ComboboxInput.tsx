@@ -154,7 +154,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         value: componentProps.value ?? inputValue,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
-        disabled: disabled || undefined,
+        disabled,
         readOnly,
         ...(selectionMode === 'none' && name && { name }),
         onFocus() {

@@ -27,7 +27,7 @@ const customStyleHookMapping: CustomStyleHookMapping<ComboboxPopup.State> = {
 };
 
 /**
- * A container for the items.
+ * A container for the list.
  * Renders a `<div>` element.
  */
 export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
@@ -81,7 +81,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
         tabIndex: -1,
         onFocus(event) {
           const target = getTarget(event.nativeEvent) as Element | null;
-          if (!contains(listElement, target)) {
+          if (openMethod !== 'touch' && !contains(listElement, target)) {
             inputRef.current?.focus();
           }
         },

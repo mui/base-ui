@@ -120,6 +120,7 @@
 }
 
 .Empty:not(:empty) {
+  box-sizing: border-box;
   font-size: 0.925rem;
   line-height: 1rem;
   color: var(--color-gray-600);

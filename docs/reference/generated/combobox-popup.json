@@ -1,6 +1,6 @@
 {
   "name": "ComboboxPopup",
-  "description": "A container for the items.\nRenders a `<div>` element.",
+  "description": "A container for the list.\nRenders a `<div>` element.",
   "props": {
     "initialFocus": {
       "type": "boolean | RefObject<HTMLElement | null> | ((openType: InteractionType) => boolean | void | HTMLElement | null)",

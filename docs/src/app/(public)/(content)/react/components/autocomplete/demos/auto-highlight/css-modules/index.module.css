@@ -92,6 +92,7 @@
 }
 
 .Empty:not(:empty) {
+  box-sizing: border-box;
   padding: 0.5rem 1rem;
   font-size: 0.925rem;
   line-height: 1rem;

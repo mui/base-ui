@@ -63,7 +63,7 @@ export default function ExampleVirtualizedAutocomplete() {
     >
       <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
         Search 10,000 items (virtualized)
-        <Autocomplete.Input className="h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" />
+        <Autocomplete.Input className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" />
       </label>
 
       <Autocomplete.Portal>
@@ -77,7 +77,7 @@ export default function ExampleVirtualizedAutocomplete() {
                 <div
                   role="presentation"
                   ref={handleScrollElementRef}
-                  className="box-border h-[min(22rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-pt-2"
+                  className="h-[min(22rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-pt-2"
                   style={{ '--total-size': totalSizePx } as React.CSSProperties}
                 >
                   <div

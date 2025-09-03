@@ -115,6 +115,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
+  const commitValidation = fieldControlValidation.commitValidation;
 
   useIsoLayoutEffect(() => {
     setControlId(id);
@@ -289,13 +290,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const inline = useStore(store, selectors.inline);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  const {
-    openMethod,
-    triggerProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
-
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -322,8 +316,16 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const selectedValueRef = React.useRef(selectedValue);
   const inputValueRef = React.useRef(inputValue);
 
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const {
+    openMethod,
+    triggerProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
+
   const forceMount = useEventCallback(() => {
     if (items) {
+      // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) => stringifyItem(item, itemToStringLabel));
     } else {
       store.set('forceMount', true);
@@ -338,37 +340,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
   }, [forceMount, selectedValue, initialSelectedValueRef]);
 
-  const commitValidation = fieldControlValidation.commitValidation;
-
   const updateValue = useEventCallback((nextValue: any) => {
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
   });
-
-  const setIndices = useEventCallback(
-    (options: {
-      activeIndex?: number | null;
-      selectedIndex?: number | null;
-      type?: 'none' | 'keyboard' | 'pointer';
-    }) => {
-      store.apply(options);
-      const type = options.type || 'none';
-
-      if (options.activeIndex === undefined) {
-        return;
-      }
-
-      if (options.activeIndex === null) {
-        onItemHighlighted(undefined, { type, index: -1 });
-      } else {
-        const activeValue = valuesRef.current[options.activeIndex];
-        onItemHighlighted(activeValue, {
-          type,
-          index: options.activeIndex,
-        });
-      }
-    },
-  );
 
   const formValue = selectionMode === 'none' ? inputValue : selectedValue;
 
@@ -485,6 +460,31 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       );
     }
   }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
+
+  const setIndices = useEventCallback(
+    (options: {
+      activeIndex?: number | null;
+      selectedIndex?: number | null;
+      type?: 'none' | 'keyboard' | 'pointer';
+    }) => {
+      store.apply(options);
+      const type = options.type || 'none';
+
+      if (options.activeIndex === undefined) {
+        return;
+      }
+
+      if (options.activeIndex === null) {
+        onItemHighlighted(undefined, { type, index: -1 });
+      } else {
+        const activeValue = valuesRef.current[options.activeIndex];
+        onItemHighlighted(activeValue, {
+          type,
+          index: options.activeIndex,
+        });
+      }
+    },
+  );
 
   const setInputValue = useEventCallback(
     (next: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
@@ -604,6 +604,12 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
   }, [open, selectedValue, syncSelectedIndex]);
 
+  const handleEnterSelection = useEventCallback(() => {
+    if (activeIndex != null) {
+      listRef.current[activeIndex]?.click();
+    }
+  });
+
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
     onOpenChangeComplete?.(false);
@@ -668,14 +674,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     },
   });
 
-  const handleEnterSelection = useEventCallback(() => {
-    if (activeIndex === null) {
-      return;
-    }
-
-    listRef.current[activeIndex]?.click();
-  });
-
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const floatingRootContext = useFloatingRootContext({
@@ -727,7 +725,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     toggle: false,
     // Apply a small delay for touch to let iOS viewport centering settle.
     // This avoids top-bottom flip flickers if the preferred position is "top" when first tapping.
-    touchOpenDelay: 50,
+    touchOpenDelay: inputInsidePopup ? 0 : 50,
   });
 
   const dismiss = useDismiss(floatingRootContext, {
@@ -1137,7 +1135,8 @@ interface ComboboxRootProps<ItemValue> {
    */
   inputRef?: React.RefObject<HTMLInputElement>;
   /**
-   * The number of columns the items are rendered in grid layout.
+   * The maximum number of columns present when the items are rendered in grid layout.
+   * A value of more than `1` turns the listbox into a grid.
    * @default 1
    */
   cols?: number;
