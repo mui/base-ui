@@ -10,6 +10,15 @@ _Sep 3, 2025_
   Custom event callbacks provide BaseUIEventDetails object as their second parameter.
   This object contains the source event, reason and methods to customize the behavior (where applicable).
   For example, `onOpenChange(open, event, reason)` becomes `onOpenChange(open, eventDetails)`, where `eventDetails` contains `event` and `reason` properties.
+  ```diff
+  -onOpenChange: (open, event, reason) => {
+  +onOpenChange: (open, eventDetails) => {
+  -  if (reason === 'escape-key') {
+  +  if (eventDetails.reason === 'escape-key') {
+       // ...
+     }
+   }
+  ```
   (#2382) by @atomiks
 
 ### Alert Dialog
@@ -56,7 +65,7 @@ _Sep 3, 2025_
 
 - **Breaking change:** Fix `closeParentOnEsc` default value.
   The default value of `closeParentOnEsc` in Menu.SubmenuRoot is now false.
-  When the Esc key is pressed in a Submenu, the Submenu closes, and the focus correctly moves to the SubmenuTrigger.
+  When the <kbd>Esc</kbd> key is pressed in a Submenu, the Submenu closes, and the focus correctly moves to the SubmenuTrigger.
   (#2493) by @seongminn
 - **Breaking change:** Support `initialFocus` and `finalFocus` functions.
   The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
@@ -72,7 +81,7 @@ _Sep 3, 2025_
 - **Breaking change:** Semantic element structure and `active` page prop.
   `NavigationMenu.List` renders `<ul>` and `NavigationMenu.Item` renders `<li>` by default.
   (#2526) by @atomiks
-- Unshare AbortController instance (#2441) by @tomokinat
+- Unshare `AbortController` instance (#2441) by @tomokinat
 - Close on link click by default (#2535) by @atomiks
 
 ### Number Field
