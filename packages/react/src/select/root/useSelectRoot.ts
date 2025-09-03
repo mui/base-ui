@@ -360,21 +360,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       return;
     }
 
-    const list = listRef.current;
-    const firstItem = list.find((item) => item != null);
-    let lastItem: HTMLElement | undefined;
-    for (let i = list.length - 1; i >= 0; i -= 1) {
-      const item = list[i];
-      if (item) {
-        lastItem = item;
-        break;
-      }
-    }
-
-    if (!firstItem || !lastItem) {
-      return;
-    }
-
     const viewportTop = popupElement.scrollTop;
     const viewportBottom = popupElement.scrollTop + popupElement.clientHeight;
     const shouldShowUp = viewportTop > 1;
