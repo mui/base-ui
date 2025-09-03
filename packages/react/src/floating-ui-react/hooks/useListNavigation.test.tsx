@@ -15,7 +15,10 @@ import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation'
 
 /* eslint-disable testing-library/no-unnecessary-act */
 
-function App(props: Omit<Partial<UseListNavigationProps>, 'listRef'>) {
+function App(
+  inProps: Omit<Partial<UseListNavigationProps>, 'listRef'> & { disableFirstItem?: boolean } = {},
+) {
+  const { disableFirstItem, ...props } = inProps;
   const [open, setOpen] = React.useState(false);
   const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
   const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
@@ -49,6 +52,12 @@ function App(props: Omit<Partial<UseListNavigationProps>, 'listRef'>) {
                 aria-selected={activeIndex === index}
                 key={string}
                 tabIndex={-1}
+                aria-disabled={
+                  (disableFirstItem && index === 0) ||
+                  (typeof props.disabledIndices === 'function'
+                    ? props.disabledIndices?.(index)
+                    : props.disabledIndices?.includes(index))
+                }
                 {...getItemProps({
                   ref(node: HTMLLIElement) {
                     listRef.current[index] = node;
@@ -132,6 +141,31 @@ describe('useListNavigation', () => {
     });
 
     // Reached the end of the list.
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
+    await waitFor(() => {
+      expect(screen.getByTestId('item-0')).toHaveFocus();
+    });
+  });
+
+  it('skips disabled item on initial navigation', async () => {
+    render(<App disableFirstItem loop disabledIndices={[]} />);
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('item-1')).toHaveFocus();
+    });
+
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown' });
+    await waitFor(() => {
+      expect(screen.getByTestId('item-2')).toHaveFocus();
+    });
+
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
+    await waitFor(() => {
+      expect(screen.getByTestId('item-1')).toHaveFocus();
+    });
+
     fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
     await waitFor(() => {
       expect(screen.getByTestId('item-0')).toHaveFocus();
