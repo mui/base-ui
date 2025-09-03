@@ -88,7 +88,7 @@
     "modal": {
       "type": "boolean",
       "default": "false",
-      "description": "Determines if the combobox enters a modal state when open.\n- `true`: user interaction is limited to the combobox: document page scroll is locked and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.",
+      "description": "Determines if the popup enters a modal state when open.\n- `true`: user interaction is limited to the popup: document page scroll is locked and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.",
       "detailedType": "boolean | undefined"
     },
     "multiple": {

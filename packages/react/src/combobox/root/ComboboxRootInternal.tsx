@@ -1178,8 +1178,8 @@ interface ComboboxRootProps<ItemValue> {
    */
   virtualized?: boolean;
   /**
-   * Determines if the combobox enters a modal state when open.
-   * - `true`: user interaction is limited to the combobox: document page scroll is locked and pointer interactions on outside elements are disabled.
+   * Determines if the popup enters a modal state when open.
+   * - `true`: user interaction is limited to the popup: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * @default false
    */
