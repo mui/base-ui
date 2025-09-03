@@ -11,6 +11,8 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Switch } from '@base-ui-components/react/switch';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { Slider } from '@base-ui-components/react/slider';
+import { Combobox } from '@base-ui-components/react/combobox';
+import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import { z } from 'zod';
 import styles from './form.module.css';
 
@@ -36,9 +38,13 @@ const schema = z.object({
   select: z.enum(['sans', 'serif', 'mono', 'cursive']),
   'radio-group': z.enum(['auto', 'scrolling', 'always']),
   'multi-select': z.array(z.enum(['sans', 'serif', 'mono', 'cursive'])).min(1),
+  combobox: z.string().min(1, 'Please select a framework'),
+  autocomplete: z.string().min(1, 'Please input a framework'),
 });
 
 interface Settings extends Record<string, boolean> {}
+
+const frameworks = ['React', 'Vue', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Gatsby', 'Remix'];
 
 interface Values {
   numberField: number | null;
@@ -269,6 +275,52 @@ export default function Page() {
           <Field.Error className={styles.Error} />
         </Field.Root>
 
+        <Field.Root name="combobox" className={styles.Field}>
+          <Field.Label className={styles.Label}>Framework (Combobox)</Field.Label>
+          <Combobox.Root required={native} items={frameworks}>
+            <Combobox.Input placeholder="Select a framework" className={styles.Input} />
+            <Combobox.Portal>
+              <Combobox.Positioner className={styles.Positioner} sideOffset={8}>
+                <Combobox.Popup className={styles.Popup}>
+                  <Combobox.Empty className={styles.Empty}>No frameworks found</Combobox.Empty>
+                  <Combobox.List>
+                    {(framework) => (
+                      <Combobox.Item key={framework} className={styles.Item} value={framework}>
+                        {framework}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+          <Field.Error className={styles.Error} />
+        </Field.Root>
+
+        <Field.Root name="autocomplete" className={styles.Field}>
+          <Field.Label className={styles.Label}>Framework (Autocomplete)</Field.Label>
+          <Autocomplete.Root required={native} items={frameworks}>
+            <Autocomplete.Input placeholder="Input framework" className={styles.Input} />
+            <Autocomplete.Portal>
+              <Autocomplete.Positioner className={styles.Positioner} sideOffset={8}>
+                <Autocomplete.Popup className={styles.Popup}>
+                  <Autocomplete.Empty className={styles.Empty}>
+                    No frameworks found
+                  </Autocomplete.Empty>
+                  <Autocomplete.List>
+                    {(framework) => (
+                      <Autocomplete.Item key={framework} className={styles.Item} value={framework}>
+                        {framework}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Popup>
+              </Autocomplete.Positioner>
+            </Autocomplete.Portal>
+          </Autocomplete.Root>
+          <Field.Error className={styles.Error} />
+        </Field.Root>
+
         <Field.Root name="checkbox-group" render={<Fieldset.Root />} className={styles.Field}>
           <Fieldset.Legend className={styles.Legend}>Content blocking</Fieldset.Legend>
           <CheckboxGroup
@@ -333,7 +385,6 @@ export default function Page() {
               Block trackers
             </Field.Label>
           </CheckboxGroup>
-          <Field.Error className={styles.Error} />
         </Field.Root>
 
         <Field.Root name="multi-select" className={styles.Field}>
