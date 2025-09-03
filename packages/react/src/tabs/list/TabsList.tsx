@@ -122,7 +122,7 @@ export const TabsList = React.forwardRef(function TabsList(
 
       onValueChange(newVal, 'none', undefined);
     }
-  }, [value, hasSetDefaultIndexRef.current, highlightedTabIndex, tabMap, onValueChange]);
+  }, [value, highlightedTabIndex, tabMap, onValueChange]);
 
   return (
     <TabsListContext.Provider value={tabsListContextValue}>
