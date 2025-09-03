@@ -2,7 +2,7 @@ import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { HTMLProps } from '../utils/types';
 import { useRenderElement } from '../utils/useRenderElement';
-import { CustomStyleHookMapping } from '../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../utils/getStyleHookProps';
 
 /**
  * Renders a Base UI element.
@@ -17,7 +17,7 @@ export function useRender<
   params: useRender.Parameters<State, RenderedElementType, Enabled>,
 ): useRender.ReturnValue<Enabled> {
   const renderParams = params as useRender.Parameters<State, RenderedElementType, Enabled> & {
-    customStyleHookMapping?: CustomStyleHookMapping<State>;
+    customStyleHookMapping?: StateAttributesMapping<State>;
   };
 
   renderParams.customStyleHookMapping = renderParams.stateAttributesMapping;
@@ -72,7 +72,7 @@ export namespace useRender {
      * @example
      * { isActive: (value) => (value ? { 'data-is-active': '' } : null) }
      */
-    stateAttributesMapping?: CustomStyleHookMapping<State>;
+    stateAttributesMapping?: StateAttributesMapping<State>;
     /**
      * Props to be spread on the rendered element.
      * They are merged with the internal props of the component, so that event handlers

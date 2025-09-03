@@ -492,6 +492,50 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
 
       HTMLElement.prototype.focus = originalFocus;
     });
+
+    test('removes fallback element when return element is falsy', async () => {
+      function App() {
+        const [isOpen, setIsOpen] = React.useState(false);
+
+        const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
+
+        const click = useClick(context);
+        const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+
+        return (
+          <>
+            <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+            <FloatingPortal>
+              {isOpen && (
+                <FloatingFocusManager context={context} returnFocus={() => undefined}>
+                  <div ref={refs.setFloating} {...getFloatingProps()}>
+                    <button data-testid="close" onClick={() => setIsOpen(false)} />
+                  </div>
+                </FloatingFocusManager>
+              )}
+            </FloatingPortal>
+          </>
+        );
+      }
+
+      render(<App />);
+
+      const reference = screen.getByTestId('reference');
+      await userEvent.click(reference);
+
+      const fallback = reference.nextElementSibling as HTMLElement | null;
+      await waitFor(() => {
+        expect(fallback).not.toBeNull();
+      });
+      expect(fallback?.getAttribute('aria-hidden')).toBe('true');
+      expect(fallback?.getAttribute('tabindex')).toBe('-1');
+
+      await userEvent.click(screen.getByTestId('close'));
+
+      await waitFor(() => {
+        expect(fallback && fallback.isConnected).toBe(false);
+      });
+    });
   });
 
   describe('iframe focus navigation', () => {

@@ -17,7 +17,7 @@
       "detailedType": "Record<string, unknown> | undefined"
     },
     "stateAttributesMapping": {
-      "type": "CustomStyleHookMapping<Record<string, unknown>>",
+      "type": "StateAttributesMapping<Record<string, unknown>>",
       "description": "Custom mapping for converting state properties to data-* attributes.",
       "example": "{ isActive: (value) => (value ? { 'data-is-active': '' } : null) }",
       "detailedType": "{} | undefined"

@@ -83,7 +83,11 @@ function getPreviouslyFocusedElement() {
   return previouslyFocusedElements[previouslyFocusedElements.length - 1];
 }
 
-function getFirstTabbableElement(container: Element) {
+function getFirstTabbableElement(container: Element | null) {
+  if (!container) {
+    return null;
+  }
+
   const tabbableOptions = getTabbableOptions();
   if (isTabbable(container, tabbableOptions)) {
     return container;
@@ -740,10 +744,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           ));
 
       const returnElement = getReturnElement();
-
-      if (!returnElement) {
-        return;
-      }
 
       queueMicrotask(() => {
         // This is `returnElement`, if it's tabbable, or its first tabbable child.

@@ -12,6 +12,11 @@ The `useRender` hook lets you build custom components that provide a `render` pr
 
 <PropsReferenceTable
   data={{
+    defaultTagName: {
+      type: 'keyof React.JSX.IntrinsicElements',
+      description:
+        'The default tag name to use for the rendered element when `render` is not provided.',
+    },
     render: {
       type: 'RenderProp<State>',
       description:
@@ -31,10 +36,9 @@ The `useRender` hook lets you build custom components that provide a `render` pr
       description:
         'The state of the component. It will be used as a parameter for the render callback.',
     },
-    defaultTagName: {
-      type: 'keyof React.JSX.IntrinsicElements',
-      description:
-        'The default tag name to use for the rendered element when `render` is not provided.',
+    stateAttributesMapping: {
+      type: 'CustomStyleHookMapping<State>',
+      description: 'Custom mapping for converting state properties to data-* attributes.',
     },
   }}
 />
