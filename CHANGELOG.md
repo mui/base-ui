@@ -110,8 +110,8 @@ _Sep 3, 2025_
 
 ### Slider
 
-- **Breaking change:** The `input type="range"` element receives focus and the thumb div is no longer focusable, focus styles targeting the thumb.
-  For example `.Thumb:focus-visible` should use `.Thumb:has(:focus-visible)` instead.
+- **Breaking change:** Instead of the thumb div, the `input type="range"` element receives focus. Focus styles that were targeting the thumb, should be updated.
+  For example `.Thumb:focus-visible` should be replaced with `.Thumb:has(:focus-visible)`.
   The `tabIndex` prop is moved from Root to Thumb where it gets forwarded to the input.
   The thumb's `render` prop no longer contains the third `inputProps` argument; the input element is instead merged with children.
   (#2578) by @mj12albert
