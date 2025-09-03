@@ -225,12 +225,17 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           if (!open && event.key === 'Escape') {
+            const isClear =
+              selectionMode === 'multiple' && Array.isArray(selectedValue)
+                ? selectedValue.length === 0
+                : selectedValue === null;
+
             const details = createBaseUIEventDetails('none', event.nativeEvent);
             const value = selectionMode === 'multiple' ? [] : null;
             store.state.setInputValue('', details);
             store.state.setSelectedValue(value, details);
 
-            if (!store.state.inline && !details.isPropagationAllowed) {
+            if (!isClear && !store.state.inline && !details.isPropagationAllowed) {
               event.stopPropagation();
             }
 
