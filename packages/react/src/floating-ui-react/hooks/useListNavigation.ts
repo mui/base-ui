@@ -824,7 +824,7 @@ export function useListNavigation(
 
     function checkVirtualPointer(event: React.PointerEvent) {
       // `pointerdown` fires first, reset the state then perform the checks.
-      focusItemOnOpenRef.current = event.pointerType === 'touch' ? false : focusItemOnOpen;
+      focusItemOnOpenRef.current = focusItemOnOpen;
       if (focusItemOnOpen === 'auto' && isVirtualPointerEvent(event.nativeEvent)) {
         focusItemOnOpenRef.current = true;
       }
