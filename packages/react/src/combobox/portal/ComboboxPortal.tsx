@@ -9,8 +9,6 @@ import { selectors } from '../store';
 /**
  * A portal element that moves the popup to a different part of the DOM.
  * By default, the portal element is appended to `<body>`.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export function ComboboxPortal(props: ComboboxPortal.Props) {
   const { children, keepMounted = false, container } = props;

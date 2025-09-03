@@ -22,8 +22,6 @@ import { useScrollLock } from '../../utils/useScrollLock';
 /**
  * Positions the popup against the trigger.
  * Renders a `<div>` element.
- *
- * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   componentProps: ComboboxPositioner.Props,
