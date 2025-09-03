@@ -93,6 +93,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaLabel: getAriaLabelProp,
     getAriaValueText: getAriaValueTextProp,
     id: idProp,
+    index: indexProp,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
@@ -146,9 +147,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     [inputId],
   );
 
-  const { ref: listItemRef, index } = useCompositeListItem<ThumbMetadata>({
+  const { ref: listItemRef, index: compositeIndex } = useCompositeListItem<ThumbMetadata>({
     metadata: thumbMetadata,
   });
+
+  const index = indexProp ?? compositeIndex;
 
   const thumbValue = sliderValues[index];
 
@@ -378,6 +381,20 @@ export namespace SliderThumb {
      * @returns {string}
      */
     getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
+    /**
+     * The index of the thumb which corresponds to the index of its value in the
+     * `value` or `defaultValue` array.
+     * This prop is required to support server-side rendering for range sliders
+     * with multiple thumbs.
+     * @example
+     * ```tsx
+     * <Slider.Root value={[10, 20]}>
+     *   <Slider.Thumb index={0} />
+     *   <Slider.Thumb index={1} />
+     * </Slider.Root>
+     * ```
+     */
+    index?: number | undefined;
     /**
      * A blur handler forwarded to the `input`.
      */
