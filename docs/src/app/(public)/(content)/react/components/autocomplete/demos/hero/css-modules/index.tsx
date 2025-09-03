@@ -16,12 +16,7 @@ export default function ExampleAutocomplete() {
             <Autocomplete.Empty className={styles.Empty}>No tags found.</Autocomplete.Empty>
             <Autocomplete.List>
               {(tag: Tag) => (
-                <Autocomplete.Item
-                  render={<a href="https://base-ui.com" aria-label={tag.value} />}
-                  key={tag.id}
-                  className={styles.Item}
-                  value={tag}
-                >
+                <Autocomplete.Item key={tag.id} className={styles.Item} value={tag}>
                   {tag.value}
                 </Autocomplete.Item>
               )}
