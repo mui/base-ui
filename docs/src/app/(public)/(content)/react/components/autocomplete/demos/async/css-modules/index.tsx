@@ -84,16 +84,7 @@ export default function ExampleAsyncAutocomplete() {
               <Autocomplete.Status className={styles.Status}>{status}</Autocomplete.Status>
               <Autocomplete.List>
                 {(movie: Movie) => (
-                  <Autocomplete.Item
-                    key={movie.id}
-                    className={styles.Item}
-                    value={movie}
-                    onClick={() => {
-                      setSearchResults([]);
-                      setIsLoading(false);
-                      setError(null);
-                    }}
-                  >
+                  <Autocomplete.Item key={movie.id} className={styles.Item} value={movie}>
                     <div className={styles.MovieItem}>
                       <div className={styles.MovieName}>{movie.title}</div>
                       <div className={styles.MovieYear}>{movie.year}</div>
