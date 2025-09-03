@@ -48,7 +48,7 @@ _Sep 3, 2025_
 
 - **Breaking change:** Fix `closeParentOnEsc` default value.
   The default value of `closeParentOnEsc` in Menu.SubmenuRoot is now false.
-  When the Esc key is pressed in a Submenu, the Submenu will close, and the focus will correctly move to the SubmenuTrigger.
+  When the Esc key is pressed in a Submenu, the Submenu closes, and the focus correctly moves to the SubmenuTrigger.
   (#2493) by @seongminn
 - **Breaking change:** Support `initialFocus` and `finalFocus` functions.
   The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
