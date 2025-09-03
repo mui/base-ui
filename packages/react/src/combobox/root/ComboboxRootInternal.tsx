@@ -171,8 +171,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
 
-  const query =
-    closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim().toLocaleLowerCase());
+  const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
   const isGrouped = isGroupedItems(items);
 
   const flatItems: Value[] = React.useMemo(() => {
@@ -448,7 +447,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   ]);
 
   useValueChanged(queryRef, query, () => {
-    if (!open || query === '' || query === String(defaultInputValue).toLocaleLowerCase()) {
+    if (!open || query === '' || query === String(defaultInputValue)) {
       return;
     }
     setQueryChangedAfterOpen(true);

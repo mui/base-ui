@@ -47,7 +47,7 @@ describe('<Combobox.Clear />', () => {
       </Combobox.Root>,
     );
 
-    const input = screen.getByRole('textbox');
+    const input = screen.getByRole('combobox');
     await user.click(screen.getByTestId('clear'));
 
     expect(screen.queryByTestId('clear')).to.equal(null);
