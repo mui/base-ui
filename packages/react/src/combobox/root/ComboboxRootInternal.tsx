@@ -44,7 +44,7 @@ import {
   createCollatorItemFilter,
   createSingleSelectionCollatorFilter,
 } from './utils';
-import { useFilter } from './utils/useFilter';
+import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -134,7 +134,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
 
-  const collatorFilter = useFilter(DEFAULT_FILTER_OPTIONS);
+  const collatorFilter = useCoreFilter(DEFAULT_FILTER_OPTIONS);
 
   const filter = React.useMemo(() => {
     if (filterProp === null) {

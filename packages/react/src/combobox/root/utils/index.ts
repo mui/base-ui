@@ -1,5 +1,5 @@
 import { serializeValue } from '../../../utils/serializeValue';
-import { useFilter } from './useFilter';
+import type { Filter } from './useFilter';
 
 export interface Group<Item = any> {
   value: unknown;
@@ -63,7 +63,7 @@ export function stringifyItemValue(
  * • When `item` is a primitive (e.g. `string`), it is used directly.
  */
 export function createCollatorItemFilter(
-  collatorFilter: ReturnType<typeof useFilter>,
+  collatorFilter: Filter,
   itemToStringLabel?: (item: any) => string,
 ) {
   return (item: any, query: string) => {
@@ -80,7 +80,7 @@ export function createCollatorItemFilter(
  * when query is empty or matches the current selection, making it easier to browse options.
  */
 export function createSingleSelectionCollatorFilter(
-  collatorFilter: ReturnType<typeof useFilter>,
+  collatorFilter: Filter,
   itemToStringLabel?: (item: any) => string,
   selectedValue?: any,
 ) {

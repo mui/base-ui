@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { ComboboxRootInternal } from '../../combobox/root/ComboboxRootInternal';
 import { stringifyItem, type Group } from '../../combobox/root/utils';
-import { useFilter as useCollatorFilter } from '../../combobox/root/utils/useFilter';
+import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 
 const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
 
@@ -68,7 +68,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
     },
   );
 
-  const collator = useCollatorFilter(DEFAULT_FILTER_OPTIONS);
+  const collator = useCoreFilter(DEFAULT_FILTER_OPTIONS);
 
   const baseFilter = React.useMemo(() => {
     if (rest.filter) {

@@ -1,7 +1,11 @@
-interface Filter {
-  contains: (item: string, query: string) => boolean;
-  startsWith: (item: string, query: string) => boolean;
-  endsWith: (item: string, query: string) => boolean;
+'use client';
+import * as React from 'react';
+import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './index';
+
+export interface Filter {
+  contains: (item: any, query: string) => boolean;
+  startsWith: (item: any, query: string) => boolean;
+  endsWith: (item: any, query: string) => boolean;
 }
 
 const filterCache = new Map<string, Filter>();
@@ -57,4 +61,44 @@ function getFilter(options: Intl.CollatorOptions = {}): Filter {
 /**
  * Matches items against a query using `Intl.Collator` for robust string matching.
  */
-export const useFilter = getFilter;
+export const useCoreFilter = getFilter;
+
+export type UseComboboxFilterOptions = Intl.CollatorOptions & {
+  /**
+   * Whether the combobox is in multiple selection mode.
+   * @default false
+   */
+  multiple?: boolean;
+  /**
+   * The current value of the combobox.
+   */
+  value?: any;
+};
+
+/**
+ * Matches items against a query using `Intl.Collator` for robust string matching.
+ */
+export function useComboboxFilter(options: UseComboboxFilterOptions = {}): Filter {
+  const { multiple = false, value } = options;
+
+  const coreFilter = getFilter(options);
+
+  const contains: Filter['contains'] = React.useCallback(
+    (item: any, query: string, itemToStringLabel?: (item: any) => string) => {
+      if (multiple) {
+        return createCollatorItemFilter(coreFilter, itemToStringLabel)(item, query);
+      }
+      return createSingleSelectionCollatorFilter(coreFilter, itemToStringLabel, value)(item, query);
+    },
+    [coreFilter, value, multiple],
+  );
+
+  return React.useMemo(
+    () => ({
+      contains,
+      startsWith: coreFilter.startsWith,
+      endsWith: coreFilter.endsWith,
+    }),
+    [contains, coreFilter],
+  );
+}

@@ -21,4 +21,4 @@ export { ComboboxEmpty as Empty } from '../combobox/empty/ComboboxEmpty';
 
 export { Separator } from '../separator/Separator';
 
-export { useFilter } from '../combobox/root/utils/useFilter';
+export { useCoreFilter as useFilter } from '../combobox/root/utils/useFilter';

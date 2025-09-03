@@ -7,17 +7,15 @@ import styles from './index.module.css';
 export default function ExampleVirtualizedCombobox() {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
-  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
+  const [value, setValue] = React.useState<string | null>(null);
 
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
 
-  const { contains } = Combobox.useFilter({ sensitivity: 'base' });
+  const { contains } = Combobox.useFilter({ sensitivity: 'base', value });
 
   const filteredItems = React.useMemo(() => {
-    return queryChangedAfterOpen
-      ? virtualItems.filter((item) => contains(item, searchValue))
-      : virtualItems;
-  }, [contains, searchValue, queryChangedAfterOpen]);
+    return virtualItems.filter((item) => contains(item, searchValue));
+  }, [contains, searchValue]);
 
   const virtualizer = useVirtualizer({
     enabled: open,
@@ -47,19 +45,16 @@ export default function ExampleVirtualizedCombobox() {
   return (
     <Combobox.Root
       virtualized
+      filter={contains}
       items={virtualItems}
       open={open}
       onOpenChange={setOpen}
       inputValue={searchValue}
-      onInputValueChange={(value) => {
-        setSearchValue(value);
-        setQueryChangedAfterOpen(true);
-      }}
-      onValueChange={setSearchValue}
-      onOpenChangeComplete={(nextOpen) => {
-        if (!nextOpen) {
-          setQueryChangedAfterOpen(false);
-        }
+      onInputValueChange={setSearchValue}
+      value={value}
+      onValueChange={(newValue) => {
+        setValue(newValue);
+        setSearchValue(newValue ?? '');
       }}
       onItemHighlighted={(item, { type, index }) => {
         if (!item) {
