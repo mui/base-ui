@@ -18,6 +18,7 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { getTarget } from '../../floating-ui-react/utils';
 
 /**
  * An individual item in the list.
@@ -163,6 +164,18 @@ export const ComboboxItem = React.memo(
         }
 
         const eventDetails = createBaseUIEventDetails('item-press', event.nativeEvent);
+
+        // Let the link handle the click.
+        const target = getTarget(event.nativeEvent) as HTMLElement | null;
+        const href = target?.closest('a')?.getAttribute('href');
+        const hasNavigableHref = href != null && href !== '';
+        if (hasNavigableHref) {
+          // If on the same page, close the popup to avoid it lingering.
+          if (href.startsWith('#')) {
+            store.state.setOpen(false, eventDetails);
+          }
+          return;
+        }
 
         if (multiple) {
           const currentSelectedValue = rootSelectedValue as any[];
