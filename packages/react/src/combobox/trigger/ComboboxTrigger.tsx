@@ -119,7 +119,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
-          focusTimeout.start(0, () => store.state.forceMount?.());
+          focusTimeout.start(0, () => store.state.forceMount());
         },
         onMouseDown(event) {
           if (disabled || readOnly) {
@@ -127,7 +127,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           // Ensure items are registered for initial selection highlight.
-          store.state.forceMount?.();
+          store.state.forceMount();
 
           if (!store.state.inputInsidePopup) {
             event.preventDefault();
@@ -159,8 +159,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
         },
       },
-      fieldControlValidation?.getValidationProps(elementProps) ?? elementProps,
-      elementProps,
+      fieldControlValidation
+        ? fieldControlValidation.getValidationProps(elementProps)
+        : elementProps,
       getButtonProps,
     ],
     customStyleHookMapping,
