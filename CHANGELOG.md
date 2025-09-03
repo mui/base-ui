@@ -112,7 +112,7 @@ _Sep 3, 2025_
 
 ### useRender
 
-- Add support for data-* attributes (#2524) by @Raghuboi
+- Add support for data-\* attributes (#2524) by @Raghuboi
 - Add `defaultTagName` parameter (#2527) by @atomiks
 
 All contributors of this release in alphabetical order: @atomiks, @baptisteArno, @brijeshb42, @Copilot, @ingokpp, @Janpot, @KenanYusuf, @LukasTy, @michaldudak, @mirka, @mj12albert, @mnajdova, @oliviertassinari, @Powerplex, @Raghuboi, @seongminn, @tomokinat
