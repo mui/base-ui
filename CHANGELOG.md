@@ -74,7 +74,7 @@ _Sep 3, 2025_
 - Fix menu not opening when inside context menu trigger (#2506) by @baptisteArno
 - Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
 - Fix submenu events (#2483) by @atomiks
-- Fix limitShift offset based on arrow size (#2571) by @atomiks
+- Fix `limitShift` offset based on arrow size (#2571) by @atomiks
 
 ### Navigation Menu
 
@@ -98,12 +98,12 @@ _Sep 3, 2025_
 - Fix unexpected close when nested inside two popovers (#2481) by @atomiks
 - Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
 - Restore focus to popup when focused element is removed (#2479) by @atomiks
-- Fix limitShift offset based on arrow size (#2571) by @atomiks
+- Fix `limitShift` offset based on arrow size (#2571) by @atomiks
 
 ### Preview Card
 
 - Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
-- Fix limitShift offset based on arrow size (#2571) by @atomiks
+- Fix `limitShift` offset based on arrow size (#2571) by @atomiks
 
 ### Radio Group
 
@@ -123,7 +123,7 @@ _Sep 3, 2025_
 - Fix `data-highlighted` and DOM focus item desync (#2569) by @atomiks
 - Fix item click with `defaultOpen` prop (#2570) by @atomiks
 - Fix scroll arrows not propagating scroll fully to start/end of list (#2523) by @atomiks
-- Fix limitShift offset based on arrow size (#2571) by @atomiks
+- Fix `limitShift` offset based on arrow size (#2571) by @atomiks
 
 ### Slider
 
@@ -144,7 +144,7 @@ _Sep 3, 2025_
 ### Tooltip
 
 - Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
-- Fix limitShift offset based on arrow size (#2571) by @atomiks
+- Fix `limitShift` offset based on arrow size (#2571) by @atomiks
 
 ### useRender
 
