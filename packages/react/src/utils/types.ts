@@ -9,6 +9,7 @@ export interface FloatingUIOpenChangeDetails {
   reason: BaseUIChangeEventReason;
   nativeEvent: Event;
   nested: boolean;
+  triggerElement?: Element | undefined;
 }
 
 export type BaseUIChangeEventReason =
