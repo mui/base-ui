@@ -70,6 +70,49 @@ import { Combobox } from '@base-ui-components/react/combobox';
   parts="Root, Value, Icon, Input, Clear, Trigger, Chips, Chip, ChipRemove, List, Portal, Backdrop, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
 />
 
+## useFilter
+
+Matches items against a query using `Intl.Collator` for robust string matching. This hook is used when externally filtering items. Pass the result to the `filter` prop of `Combobox.Root`.
+
+### Input parameters
+
+Accepts all `Intl.CollatorOptions`, plus the following options:
+
+<PropsReferenceTable
+  data={{
+    multiple: {
+      type: 'boolean',
+      description: 'Whether the combobox is in multiple selection mode.',
+      default: 'false',
+    },
+    value: {
+      type: 'any',
+      description:
+        'The current value of the combobox. For single selection, pass this so the selected item remains visible when the query is empty or matches the selection.',
+    },
+  }}
+/>
+
+### Return value
+
+<PropsReferenceTable
+  type="return"
+  data={{
+    contains: {
+      type: '(itemValue: any, query: string) => boolean',
+      description: 'Returns whether the item matches the query anywhere.',
+    },
+    startsWith: {
+      type: '(itemValue: any, query: string) => boolean',
+      description: 'Returns whether the item starts with the query.',
+    },
+    endsWith: {
+      type: '(itemValue: any, query: string) => boolean',
+      description: 'Returns whether the item ends with the query.',
+    },
+  }}
+/>
+
 ## Examples
 
 ### Multiple select
