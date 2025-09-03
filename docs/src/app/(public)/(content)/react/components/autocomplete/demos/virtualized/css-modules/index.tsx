@@ -8,7 +8,7 @@ export default function ExampleVirtualizedAutocomplete() {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
 
-  const scrollElementRef = React.useRef<HTMLDivElement>(null);
+  const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
 
   const { contains } = Autocomplete.useFilter({ sensitivity: 'base' });
 

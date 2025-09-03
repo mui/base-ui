@@ -8,7 +8,7 @@ export default function ExampleVirtualizedCombobox() {
   const [searchValue, setSearchValue] = React.useState('');
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
 
-  const scrollElementRef = React.useRef<HTMLDivElement>(null);
+  const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
 
   const { contains } = Combobox.useFilter({ sensitivity: 'base' });
 
@@ -52,9 +52,7 @@ export default function ExampleVirtualizedCombobox() {
       inputValue={searchValue}
       onInputValueChange={(value) => {
         setSearchValue(value);
-        if (open) {
-          setQueryChangedAfterOpen(true);
-        }
+        setQueryChangedAfterOpen(true);
       }}
       onValueChange={setSearchValue}
       onOpenChangeComplete={(nextOpen) => {

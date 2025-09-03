@@ -6,6 +6,7 @@ import { useComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
 
 /**
  * Renders its children only when the list is empty.
+ * Requires the `items` prop on the root component.
  * Announces changes politely to screen readers.
  * Renders a `<div>` element.
  */
