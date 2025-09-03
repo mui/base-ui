@@ -3,9 +3,9 @@
   "description": "A container for the menu items.\nRenders a `<div>` element.",
   "props": {
     "finalFocus": {
-      "type": "RefObject<HTMLElement | null> | ((closeType: InteractionType) => void | HTMLElement | null) | null",
-      "description": "Determines the element to focus when the menu is closed.\nBy default, focus returns to the trigger.\n\n- `null`: Do not focus any element.\n- `RefObject`: Focus the ref element. Falls back to default behavior when `null`.\n- `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the close. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.",
-      "detailedType": "| React.RefObject<HTMLElement | null>\n| ((\n    closeType: InteractionType,\n  ) => void | HTMLElement | null)\n| null\n| undefined"
+      "type": "boolean | RefObject<HTMLElement | null> | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
+      "description": "Determines the element to focus when the menu is closed.\n\n- `false`: Do not move focus.\n- `true`: Move focus based on the default behavior (trigger or previously focused element).\n- `RefObject`: Move focus to the ref element.\n- `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\n  Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.",
+      "detailedType": "| boolean\n| React.RefObject<HTMLElement | null>\n| ((\n    closeType: InteractionType,\n  ) => boolean | void | HTMLElement | null)\n| undefined"
     },
     "id": {
       "type": "string",

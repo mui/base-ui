@@ -171,8 +171,8 @@ export default function Page() {
             <Slider.Control className={styles.SliderControl}>
               <Slider.Track className={styles.SliderTrack}>
                 <Slider.Indicator className={styles.SliderIndicator} />
-                <Slider.Thumb className={styles.SliderThumb} />
-                <Slider.Thumb className={styles.SliderThumb} />
+                <Slider.Thumb index={0} className={styles.SliderThumb} />
+                <Slider.Thumb index={1} className={styles.SliderThumb} />
               </Slider.Track>
             </Slider.Control>
           </Slider.Root>
