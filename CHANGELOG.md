@@ -6,7 +6,7 @@ _Sep 3, 2025_
 
 ### General changes
 
-- **Breaking change:** Base UI event details.
+- **Breaking change:** Base UI event details.
   Custom event callbacks provide BaseUIEventDetails object as their second parameter.
   This object contains the source event, reason and methods to customize the behavior (where applicable).
   (#2382) by @atomiks
@@ -93,7 +93,7 @@ _Sep 3, 2025_
 ### Slider
 
 - **Breaking change:** Fix interacting with TalkBack.
-  The `input type="range"` element receives focus and the thumb div is no longer focusable, focus styles targeting the thumb e.g. `.Thumb:focus-visible` should use `.Thumb:has(:focus-visible)` instead.
+  The `input type="range"` element receives focus and the thumb div is no longer focusable, focus styles targeting the thumb, for example `.Thumb:focus-visible` should use `.Thumb:has(:focus-visible)` instead.
   The `tabIndex` prop is moved from Root to Thumb where it gets forwarded to the input.
   The thumb's `render` prop no longer contains the third `inputProps` argument; the input element is instead merged with children.
   (#2578) by @mj12albert
