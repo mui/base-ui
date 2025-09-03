@@ -126,15 +126,10 @@ export const FieldControl = React.forwardRef(function FieldControl(
         'aria-labelledby': labelId,
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
-          if (value != null) {
-            setValue(
-              event.currentTarget.value,
-              createBaseUIEventDetails('none', event.nativeEvent),
-            );
-          }
-
-          setDirty(event.currentTarget.value !== validityData.initialValue);
-          setFilled(event.currentTarget.value !== '');
+          const inputValue = event.currentTarget.value;
+          setValue(inputValue, createBaseUIEventDetails('none', event.nativeEvent));
+          setDirty(inputValue !== validityData.initialValue);
+          setFilled(inputValue !== '');
         },
         onFocus() {
           setFocused(true);
