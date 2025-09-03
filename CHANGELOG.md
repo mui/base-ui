@@ -19,9 +19,17 @@ _Sep 3, 2025_
   This is a new feature for `finalFocus` and a breaking change for `initialFocus` as the element must be returned directly (not as a ref).
   (#2536) by @atomiks
 
+### Autocomplete
+
+- New Autocomplete component (#2105) by @atomiks
+
 ### Checkbox
 
 - Fix missing validity attributes when wrapped in `Field` (#2572) by @Copilot
+
+### Combobox
+
+- New Combobox component (#2105) by @atomiks
 
 ### Context Menu
 
