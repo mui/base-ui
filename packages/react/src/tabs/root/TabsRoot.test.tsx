@@ -1250,13 +1250,13 @@ describe('<Tabs.Root />', () => {
       const tabs = getAllByRole('tab');
 
       // The first non-disabled tab (tab 1) should be selected
-      expect(tabs[1]).to.have.attribute('aria-selected', 'true');
       expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'true');
       expect(tabs[2]).to.have.attribute('aria-selected', 'false');
       expect(tabs[3]).to.have.attribute('aria-selected', 'false');
     });
 
-    it('should select the first non-disabled tab when first two tabs are disabled', async () => {
+    it('should select the third tab when first two tabs are disabled', async () => {
       const { getAllByRole } = await render(
         <Tabs.Root>
           <Tabs.List>
