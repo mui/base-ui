@@ -1749,6 +1749,50 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('typeahead', () => {
+    it('starts from the first match after value reset (closed)', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <React.Fragment>
+            <button data-testid="reset" onClick={() => setValue(null)}>
+              Reset
+            </button>
+            <Select.Root value={value} onValueChange={setValue}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value data-testid="value" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a1">A1</Select.Item>
+                    <Select.Item value="a2">A2</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const trigger = screen.getByTestId('trigger');
+      const valueEl = screen.getByTestId('value');
+      const resetBtn = screen.getByTestId('reset');
+
+      act(() => trigger.focus());
+      await user.keyboard('a');
+      expect(valueEl.textContent).to.equal('a1');
+
+      await user.click(resetBtn);
+
+      act(() => trigger.focus());
+      await user.keyboard('a');
+      expect(valueEl.textContent).to.equal('a1');
+    });
+  });
+
   describe('prop: multiple', () => {
     it('removes selections that no longer exist', async () => {
       function Test() {
