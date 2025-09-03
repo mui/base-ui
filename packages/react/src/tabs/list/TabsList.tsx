@@ -40,8 +40,9 @@ export const TabsList = React.forwardRef(function TabsList(
     tabActivationDirection,
   } = useTabsRootContext();
 
+  const hasSetDefaultIndexRef = React.useRef(false);
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
-  const [, setTabMapInternal] = React.useState(
+  const [tabMap, setTabMapInternal] = React.useState(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
@@ -66,29 +67,8 @@ export const TabsList = React.forwardRef(function TabsList(
     (newMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>) => {
       setTabMapInternal(newMap);
       setTabMap(newMap);
-
-      // set value to the first non disabled item if the value is null
-      if (value == null && newMap.size > 0) {
-        // fallback in case all items are disabled
-        let firstNonDisabledItem = 0;
-        let hasEnabledItems = false;
-        // get default value from the first non disabled tab
-        for (const tabMetadata of newMap.values()) {
-          if (tabMetadata && tabMetadata.disabled === false) {
-            firstNonDisabledItem = tabMetadata.value ?? tabMetadata.index;
-            hasEnabledItems = true;
-            break;
-          }
-        }
-        if (process.env.NODE_ENV !== 'production') {
-          if (!hasEnabledItems && newMap.size > 0) {
-            console.warn('All tabs are disabled. The first tab will be selected.');
-          }
-        }
-        onValueChange(firstNonDisabledItem, 'none', undefined);
-      }
     },
-    [onValueChange, setTabMap, value],
+    [setTabMap],
   );
 
   const state: TabsList.State = React.useMemo(
@@ -122,6 +102,27 @@ export const TabsList = React.forwardRef(function TabsList(
       value,
     ],
   );
+
+  useIsoLayoutEffect(() => {
+    if (
+      value == null &&
+      !hasSetDefaultIndexRef.current &&
+      highlightedTabIndex !== -1 &&
+      tabMap.size > 0
+    ) {
+      hasSetDefaultIndexRef.current = true;
+      let newVal = null;
+
+      for (const tabMetadata of tabMap.values()) {
+        if (tabMetadata && tabMetadata.index === highlightedTabIndex) {
+          newVal = tabMetadata.value ?? tabMetadata.index;
+          break;
+        }
+      }
+
+      onValueChange(newVal, 'none', undefined);
+    }
+  }, [value, hasSetDefaultIndexRef.current, highlightedTabIndex, tabMap, onValueChange]);
 
   return (
     <TabsListContext.Provider value={tabsListContextValue}>

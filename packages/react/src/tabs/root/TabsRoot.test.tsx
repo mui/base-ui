@@ -1376,7 +1376,7 @@ describe('<Tabs.Root />', () => {
         expect(warnings.length).to.be.greaterThan(0);
       });
 
-      expect(warnings[0][0]).to.include('All tabs are disabled');
+      expect(warnings[0][0]).to.include('All items are disabled');
 
       // The first tab should still be selected (fallback behavior)
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');

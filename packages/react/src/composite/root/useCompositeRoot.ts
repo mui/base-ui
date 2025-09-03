@@ -119,7 +119,26 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
     ) ?? null) as HTMLElement | null;
     // Set the default highlighted index of an arbitrary composite item.
-    const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
+    let activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
+
+    if (activeIndex === -1) {
+      activeIndex = 0;
+      let hasEnabledItems = false;
+
+      // get default value from the first non disabled tab
+      for (const tabMetadata of map.values()) {
+        if (tabMetadata && tabMetadata.disabled === false) {
+          activeIndex = tabMetadata.index;
+          hasEnabledItems = true;
+          break;
+        }
+      }
+      if (process.env.NODE_ENV !== 'production') {
+        if (!hasEnabledItems) {
+          console.warn('All items are disabled. The first item will be highlighted.');
+        }
+      }
+    }
 
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);

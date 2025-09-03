@@ -7,20 +7,24 @@ export default function DisabledTabsExample() {
   return (
     <Tabs.Root className={styles.Tabs}>
       <Tabs.List className={styles.List}>
-        <Tabs.Tab disabled className={styles.Tab}>
+        <Tabs.Tab disabled className={styles.Tab} value="overview">
           Overview
         </Tabs.Tab>
-        <Tabs.Tab className={styles.Tab}>Projects</Tabs.Tab>
-        <Tabs.Tab className={styles.Tab}>Account</Tabs.Tab>
+        <Tabs.Tab className={styles.Tab} value="projects">
+          Projects
+        </Tabs.Tab>
+        <Tabs.Tab className={styles.Tab} value="account">
+          Account
+        </Tabs.Tab>
         <Tabs.Indicator className={styles.Indicator} />
       </Tabs.List>
-      <Tabs.Panel className={styles.Panel}>
+      <Tabs.Panel className={styles.Panel} value="overview">
         <OverviewIcon className={styles.Icon} />
       </Tabs.Panel>
-      <Tabs.Panel className={styles.Panel}>
+      <Tabs.Panel className={styles.Panel} value="projects">
         <ProjectIcon className={styles.Icon} />
       </Tabs.Panel>
-      <Tabs.Panel className={styles.Panel}>
+      <Tabs.Panel className={styles.Panel} value="account">
         <PersonIcon className={styles.Icon} />
       </Tabs.Panel>
     </Tabs.Root>
