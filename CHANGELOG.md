@@ -42,7 +42,7 @@ _Sep 3, 2025_
 
 ### Context Menu
 
-- Fix default offsets when `align=center` or `side` differs (#2601) by @atomiks
+- Fix default offsets when `align="center"` or `side` differs (#2601) by @atomiks
 
 ### Dialog
 
