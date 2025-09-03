@@ -159,7 +159,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
 export namespace ComboboxPositioner {
   export interface State {
     /**
-     * Whether the preview card is currently open.
+     * Whether the popup is currently open.
      */
     open: boolean;
     side: Side;

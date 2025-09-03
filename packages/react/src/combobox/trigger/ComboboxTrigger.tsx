@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -182,7 +182,7 @@ export namespace ComboboxTrigger {
     disabled: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
     /**
      * Whether the component renders a native `<button>` element when replacing it
      * via the `render` prop.

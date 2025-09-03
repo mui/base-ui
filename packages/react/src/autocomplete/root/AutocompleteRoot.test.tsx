@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
@@ -832,7 +832,7 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('[data-valid]', async () => {
-      await render(
+      const { user } = await render(
         <Field.Root validationMode="onBlur">
           <Autocomplete.Root required>
             <Autocomplete.Input data-testid="input" />
@@ -849,16 +849,12 @@ describe('<Autocomplete.Root />', () => {
         </Field.Root>,
       );
 
-      const input = screen.getByTestId('input');
-
+      const input = screen.getByRole('combobox');
       expect(input).not.to.have.attribute('data-valid');
       expect(input).not.to.have.attribute('data-invalid');
 
-      // Type a non-empty value and blur to trigger validation
-      fireEvent.focus(input);
-      fireEvent.change(input, { target: { value: 'ok' } });
-      fireEvent.blur(input);
-
+      await user.type(input, 'ok');
+      await act(async () => input.blur());
       await flushMicrotasks();
 
       expect(input).to.have.attribute('data-valid', '');
@@ -881,10 +877,8 @@ describe('<Autocomplete.Root />', () => {
 
       expect(input).not.to.have.attribute('aria-invalid');
 
-      fireEvent.focus(input);
-      fireEvent.blur(input);
-
-      await flushMicrotasks();
+      await act(async () => input.focus());
+      await act(async () => input.blur());
 
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
@@ -954,8 +948,6 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'invalid');
 
       fireEvent.blur(input);
-
-      await flushMicrotasks();
 
       await waitFor(() => {
         expect(input).to.have.attribute('aria-invalid', 'true');

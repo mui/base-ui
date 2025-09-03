@@ -11,7 +11,7 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
@@ -228,7 +228,9 @@ export namespace ComboboxItem {
     highlighted: boolean;
   }
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'id'> {
+  export interface Props
+    extends NonNativeButtonProps,
+      Omit<BaseUIComponentProps<'div', State>, 'id'> {
     children?: React.ReactNode;
     /**
      * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
@@ -91,10 +91,8 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
         children: 'x',
         disabled,
         'aria-readonly': readOnly || undefined,
+        // Avoid stealing focus from the input.
         onMouseDown(event) {
-          if (disabled || readOnly) {
-            return;
-          }
           event.preventDefault();
         },
         onClick(event) {
@@ -153,7 +151,7 @@ export namespace ComboboxClear {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
     /**
      * Whether the component renders a native `<button>` element when replacing it
      * via the `render` prop.

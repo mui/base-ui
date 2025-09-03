@@ -57,6 +57,30 @@ describe('<Combobox.Empty />', () => {
         <Combobox.Portal>
           <Combobox.Positioner>
             <Combobox.Popup>
+              <Combobox.Empty>No results</Combobox.Empty>
+              <Combobox.List>
+                {(item) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    expect(screen.queryByText('No results')).to.equal(null);
+  });
+
+  it('renders when the search query matches no items', async () => {
+    await render(
+      <Combobox.Root items={['a', 'b', 'c']} defaultInputValue="d" defaultOpen>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
               <Combobox.Empty data-testid="empty">No results</Combobox.Empty>
               <Combobox.List>
                 {(item) => (
@@ -70,7 +94,31 @@ describe('<Combobox.Empty />', () => {
         </Combobox.Portal>
       </Combobox.Root>,
     );
-    // Empty renders regardless; only conveys status when no items. It should still exist.
-    expect(screen.getByTestId('empty')).not.to.equal(null);
+
+    expect(screen.queryByText('No results')).not.to.equal(null);
+  });
+
+  it('does not render when the search query matches an item', async () => {
+    await render(
+      <Combobox.Root items={['a', 'b', 'c']} defaultInputValue="c" defaultOpen>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.Empty data-testid="empty">No results</Combobox.Empty>
+              <Combobox.List>
+                {(item) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    expect(screen.queryByText('No results')).to.equal(null);
   });
 });

@@ -22,6 +22,6 @@ export { ComboboxCollection as Collection } from './collection/ComboboxCollectio
 export { ComboboxEmpty as Empty } from './empty/ComboboxEmpty';
 export { ComboboxClear as Clear } from './clear/ComboboxClear';
 
-export { Separator as ComboboxSeparator } from '../separator';
+export { Separator } from '../separator';
 
 export { useComboboxFilter as useFilter } from './root/utils/useFilter';

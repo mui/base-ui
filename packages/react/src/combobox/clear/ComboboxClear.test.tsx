@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 
 describe('<Combobox.Clear />', () => {
@@ -31,7 +31,7 @@ describe('<Combobox.Clear />', () => {
   });
 
   it('click clears selected value and focuses input', async () => {
-    await render(
+    const { user } = await render(
       <Combobox.Root defaultValue="a">
         <Combobox.Input data-testid="input" />
         <Combobox.Clear data-testid="clear" />
@@ -47,9 +47,8 @@ describe('<Combobox.Clear />', () => {
       </Combobox.Root>,
     );
 
-    const input = screen.getByTestId('input') as HTMLInputElement;
-    fireEvent.click(screen.getByTestId('clear'));
-    await flushMicrotasks();
+    const input = screen.getByRole('textbox');
+    await user.click(screen.getByTestId('clear'));
 
     expect(screen.queryByTestId('clear')).to.equal(null);
     expect(document.activeElement).to.equal(input);
