@@ -52,8 +52,6 @@ import { HTMLProps } from '../../utils/types';
 import { useValueChanged } from './utils/useValueChanged';
 import { NOOP } from '../../utils/noop';
 
-const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
-
 /**
  * @internal
  */
@@ -97,6 +95,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     modal = false,
     limit = -1,
     autoComplete = 'list',
+    locale,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -134,7 +133,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
 
-  const collatorFilter = useCoreFilter(DEFAULT_FILTER_OPTIONS);
+  const collatorFilter = useCoreFilter({ locale });
 
   const filter = React.useMemo(() => {
     if (filterProp === null) {
@@ -1198,6 +1197,11 @@ interface ComboboxRootProps<ItemValue> {
    * @default 'list'
    */
   autoComplete?: 'list' | 'both' | 'inline' | 'none';
+  /**
+   * The locale to use for string comparison.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
   /**
    * INTERNAL: Clears the input value after close animation completes.
    * Useful for wrappers like FilterableMenu so they don't need to reset externally.

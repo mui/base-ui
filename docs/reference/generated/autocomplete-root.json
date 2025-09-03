@@ -75,6 +75,11 @@
       "description": "The maximum number of items to display in the list.",
       "detailedType": "number | undefined"
     },
+    "locale": {
+      "type": "Intl.LocalesArgument",
+      "description": "The locale to use for string comparison.\nDefaults to the user's runtime locale.",
+      "detailedType": "Intl.LocalesArgument | undefined"
+    },
     "modal": {
       "type": "boolean",
       "default": "false",

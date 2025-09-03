@@ -2,6 +2,14 @@
 import * as React from 'react';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './index';
 
+interface FilterOptions extends Intl.CollatorOptions {
+  /**
+   * The locale to use for string comparison.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+}
+
 export interface Filter {
   contains: (item: any, query: string) => boolean;
   startsWith: (item: any, query: string) => boolean;
@@ -10,15 +18,22 @@ export interface Filter {
 
 const filterCache = new Map<string, Filter>();
 
-function getFilter(options: Intl.CollatorOptions = {}): Filter {
-  const optionsString = JSON.stringify(options);
+function getFilter(options: FilterOptions = {}): Filter {
+  const mergedOptions: Intl.CollatorOptions = {
+    usage: 'search',
+    sensitivity: 'base',
+    ignorePunctuation: true,
+    ...options,
+  };
+
+  const optionsString = JSON.stringify(mergedOptions);
   const cachedFilter = filterCache.get(optionsString);
 
   if (cachedFilter) {
     return cachedFilter;
   }
 
-  const collator = new Intl.Collator(undefined, options);
+  const collator = new Intl.Collator(options.locale, mergedOptions);
 
   const filter: Filter = {
     contains(item: string, query: string) {
@@ -63,7 +78,7 @@ function getFilter(options: Intl.CollatorOptions = {}): Filter {
  */
 export const useCoreFilter = getFilter;
 
-export type UseComboboxFilterOptions = Intl.CollatorOptions & {
+export type UseComboboxFilterOptions = FilterOptions & {
   /**
    * Whether the combobox is in multiple selection mode.
    * @default false
@@ -79,9 +94,9 @@ export type UseComboboxFilterOptions = Intl.CollatorOptions & {
  * Matches items against a query using `Intl.Collator` for robust string matching.
  */
 export function useComboboxFilter(options: UseComboboxFilterOptions = {}): Filter {
-  const { multiple = false, value } = options;
+  const { multiple = false, value, ...collatorOptions } = options;
 
-  const coreFilter = getFilter(options);
+  const coreFilter = getFilter(collatorOptions);
 
   const contains: Filter['contains'] = React.useCallback(
     (item: any, query: string, itemToStringLabel?: (item: any) => string) => {
