@@ -51,7 +51,6 @@ export const nav: NavGroup[] = [
         label: 'llms.txt',
         external: true,
         href: '/llms.txt',
-        isNew: true,
       },
     ],
   },
@@ -159,7 +158,6 @@ export const nav: NavGroup[] = [
       {
         label: 'Select',
         href: '/react/components/select',
-        isNew: true,
       },
       {
         label: 'Separator',
