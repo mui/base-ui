@@ -97,8 +97,8 @@ _Sep 3, 2025_
 
 ### Slider
 
-- **Breaking change:** Fix interacting with TalkBack.
-  The `input type="range"` element receives focus and the thumb div is no longer focusable, focus styles targeting the thumb, for example `.Thumb:focus-visible` should use `.Thumb:has(:focus-visible)` instead.
+- **Breaking change:** The `input type="range"` element receives focus and the thumb div is no longer focusable, focus styles targeting the thumb.
+  For example `.Thumb:focus-visible` should use `.Thumb:has(:focus-visible)` instead.
   The `tabIndex` prop is moved from Root to Thumb where it gets forwarded to the input.
   The thumb's `render` prop no longer contains the third `inputProps` argument; the input element is instead merged with children.
   (#2578) by @mj12albert
