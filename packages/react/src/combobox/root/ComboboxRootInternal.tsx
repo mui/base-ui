@@ -50,6 +50,7 @@ import { EMPTY_ARRAY } from '../../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { HTMLProps } from '../../utils/types';
 import { useValueChanged } from './utils/useValueChanged';
+import { NOOP } from '../../utils/noop';
 
 const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
 
@@ -249,47 +250,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     return filteredItems as Value[];
   }, [filteredItems, isGrouped]);
 
-  const store = useRefWithInit(
-    () =>
-      new Store<StoreState>({
-        id,
-        selectedValue,
-        inputValue,
-        open,
-        filter,
-        query,
-        items,
-        mounted: false,
-        forceMount: false,
-        transitionStatus: 'idle',
-        inline: false,
-        activeIndex: null,
-        selectedIndex: null,
-        popupProps: {},
-        inputProps: {},
-        triggerProps: {},
-        typeaheadTriggerProps: {},
-        positionerElement: null,
-        listElement: null,
-        triggerElement: null,
-        inputElement: null,
-        openMethod: null,
-        inputInsidePopup: true,
-      }),
-  ).current;
-
-  const onItemHighlighted = useEventCallback(onItemHighlightedProp);
-  const onOpenChangeComplete = useEventCallback(onOpenChangeCompleteProp);
-
-  const activeIndex = useStore(store, selectors.activeIndex);
-  const selectedIndex = useStore(store, selectors.selectedIndex);
-  const positionerElement = useStore(store, selectors.positionerElement);
-  const listElement = useStore(store, selectors.listElement);
-  const triggerElement = useStore(store, selectors.triggerElement);
-  const inputElement = useStore(store, selectors.inputElement);
-  const inline = useStore(store, selectors.inline);
-  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
-
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -312,6 +272,80 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
    */
   const allValuesRef = React.useRef<Array<any>>([]);
 
+  const store = useRefWithInit(
+    () =>
+      new Store<StoreState>({
+        id,
+        selectedValue,
+        inputValue,
+        open,
+        filter,
+        query,
+        items,
+        selectionMode,
+        listRef,
+        popupRef,
+        inputRef,
+        keyboardActiveRef,
+        chipsContainerRef,
+        clearRef,
+        valuesRef,
+        allValuesRef,
+        name,
+        disabled,
+        readOnly,
+        required,
+        fieldControlValidation,
+        cols,
+        isGrouped,
+        virtualized,
+        openOnInputClick,
+        itemToStringLabel,
+        modal,
+        autoHighlight,
+        mounted: false,
+        forceMounted: false,
+        transitionStatus: 'idle',
+        inline: false,
+        activeIndex: null,
+        selectedIndex: null,
+        popupProps: {},
+        inputProps: {},
+        triggerProps: {},
+        typeaheadTriggerProps: {},
+        positionerElement: null,
+        listElement: null,
+        triggerElement: null,
+        inputElement: null,
+        openMethod: null,
+        inputInsidePopup: true,
+        onOpenChangeComplete: onOpenChangeCompleteProp || NOOP,
+        // Placeholder callbacks replaced on first render
+        setOpen: NOOP,
+        setInputValue: NOOP,
+        setSelectedValue: NOOP,
+        setIndices: NOOP,
+        onItemHighlighted: NOOP,
+        handleEnterSelection: NOOP,
+        getItemProps() {
+          return {};
+        },
+        forceMount: NOOP,
+      }),
+  ).current;
+
+  const onItemHighlighted = useEventCallback(onItemHighlightedProp);
+  const onOpenChangeComplete = useEventCallback(onOpenChangeCompleteProp);
+
+  const activeIndex = useStore(store, selectors.activeIndex);
+  const selectedIndex = useStore(store, selectors.selectedIndex);
+  const positionerElement = useStore(store, selectors.positionerElement);
+  const listElement = useStore(store, selectors.listElement);
+  const triggerElement = useStore(store, selectors.triggerElement);
+  const inputElement = useStore(store, selectors.inputElement);
+  const inline = useStore(store, selectors.inline);
+  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
+
   const queryRef = React.useRef(query);
   const selectedValueRef = React.useRef(selectedValue);
   const inputValueRef = React.useRef(inputValue);
@@ -328,7 +362,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) => stringifyItem(item, itemToStringLabel));
     } else {
-      store.set('forceMount', true);
+      store.set('forceMounted', true);
     }
   });
 
@@ -804,17 +838,22 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   ]);
 
   useOnFirstRender(() => {
-    // These should be initialized at store creation, but there is an interdependency
-    // between some values used in floating hooks above.
     store.apply({
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
       typeaheadTriggerProps,
+      getItemProps,
+      setOpen,
+      setInputValue,
+      setSelectedValue,
+      setIndices,
+      onItemHighlighted,
+      handleEnterSelection,
+      forceMount,
     });
   });
 
-  // Store values that depend on other hooks
   React.useEffect(() => {
     store.apply({
       id,
@@ -829,6 +868,21 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       triggerProps,
       typeaheadTriggerProps,
       openMethod,
+      getItemProps,
+      selectionMode,
+      name,
+      disabled,
+      readOnly,
+      required,
+      fieldControlValidation,
+      cols,
+      isGrouped,
+      virtualized,
+      onOpenChangeComplete,
+      openOnInputClick,
+      itemToStringLabel,
+      modal,
+      autoHighlight,
     });
   }, [
     store,
@@ -841,73 +895,27 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     items,
     getFloatingProps,
     getReferenceProps,
+    getItemProps,
     openMethod,
     triggerProps,
     typeaheadTriggerProps,
+    selectionMode,
+    name,
+    disabled,
+    readOnly,
+    required,
+    fieldControlValidation,
+    cols,
+    isGrouped,
+    virtualized,
+    onOpenChangeComplete,
+    openOnInputClick,
+    itemToStringLabel,
+    modal,
+    autoHighlight,
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
-
-  const contextValue: ComboboxRootContext = React.useMemo(
-    () => ({
-      selectionMode,
-      listRef,
-      popupRef,
-      valuesRef,
-      allValuesRef,
-      inputRef,
-      keyboardActiveRef,
-      chipsContainerRef,
-      clearRef,
-      store,
-      getItemProps,
-      onOpenChangeComplete,
-      setOpen,
-      setInputValue,
-      setSelectedValue,
-      setIndices,
-      onItemHighlighted,
-      handleEnterSelection,
-      name,
-      disabled,
-      readOnly,
-      required,
-      fieldControlValidation,
-      cols,
-      isGrouped,
-      virtualized,
-      openOnInputClick,
-      itemToStringLabel,
-      modal,
-      autoHighlight,
-      forceMount,
-    }),
-    [
-      selectionMode,
-      store,
-      getItemProps,
-      onOpenChangeComplete,
-      setOpen,
-      setInputValue,
-      setSelectedValue,
-      setIndices,
-      onItemHighlighted,
-      handleEnterSelection,
-      name,
-      disabled,
-      readOnly,
-      required,
-      fieldControlValidation,
-      cols,
-      isGrouped,
-      virtualized,
-      openOnInputClick,
-      itemToStringLabel,
-      modal,
-      autoHighlight,
-      forceMount,
-    ],
-  );
 
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
@@ -1018,7 +1026,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   );
 
   return (
-    <ComboboxRootContext.Provider value={contextValue}>
+    <ComboboxRootContext.Provider value={store}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
         <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
           {virtualized ? (

@@ -45,24 +45,19 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     setFocused,
     validationMode,
   } = useFieldRootContext();
-  const {
-    store,
-    setOpen,
-    disabled: comboboxDisabled,
-    readOnly,
-    inputRef,
-    forceMount,
-    selectionMode,
-    fieldControlValidation,
-  } = useComboboxRootContext();
+  const store = useComboboxRootContext();
 
-  const open = useStore(store, selectors.open);
-  const selectedValue = useStore(store, selectors.selectedValue);
-  const inputValue = useStore(store, selectors.inputValue);
+  const selectionMode = useStore(store, selectors.selectionMode);
+  const fieldControlValidation = useStore(store, selectors.fieldControlValidation);
+  const comboboxDisabled = useStore(store, selectors.disabled);
+  const readOnly = useStore(store, selectors.readOnly);
   const listElement = useStore(store, selectors.listElement);
   const triggerProps = useStore(store, selectors.triggerProps);
   const typeaheadTriggerProps = useStore(store, selectors.typeaheadTriggerProps);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
+  const open = useStore(store, selectors.open);
+  const selectedValue = useStore(store, selectors.selectedValue);
+  const inputValue = useStore(store, selectors.inputValue);
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
@@ -117,14 +112,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           if (validationMode === 'onBlur') {
             const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
-            fieldControlValidation.commitValidation(valueToValidate);
+            fieldControlValidation?.commitValidation(valueToValidate);
           }
 
           if (disabled || readOnly) {
             return;
           }
 
-          focusTimeout.start(0, forceMount);
+          focusTimeout.start(0, () => store.state.forceMount?.());
         },
         onMouseDown(event) {
           if (disabled || readOnly) {
@@ -132,7 +127,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           // Ensure items are registered for initial selection highlight.
-          forceMount();
+          store.state.forceMount?.();
 
           if (!store.state.inputInsidePopup) {
             event.preventDefault();
@@ -143,10 +138,10 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
-          setOpen(!open, createBaseUIEventDetails('trigger-press', event.nativeEvent));
+          store.state.setOpen(!open, createBaseUIEventDetails('trigger-press', event.nativeEvent));
 
           if (currentPointerTypeRef.current !== 'touch') {
-            inputRef.current?.focus();
+            store.state.inputRef.current?.focus();
           }
         },
         onKeyDown(event) {
@@ -156,12 +151,15 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             stopEvent(event);
-            setOpen(true, createBaseUIEventDetails('list-navigation', event.nativeEvent));
-            inputRef.current?.focus();
+            store.state.setOpen(
+              true,
+              createBaseUIEventDetails('list-navigation', event.nativeEvent),
+            );
+            store.state.inputRef.current?.focus();
           }
         },
       },
-      fieldControlValidation.getValidationProps(elementProps),
+      fieldControlValidation?.getValidationProps(elementProps) ?? elementProps,
       elementProps,
       getButtonProps,
     ],

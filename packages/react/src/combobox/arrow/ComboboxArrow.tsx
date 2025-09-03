@@ -19,7 +19,7 @@ export const ComboboxArrow = React.forwardRef(function ComboboxArrow(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { store } = useComboboxRootContext();
+  const store = useComboboxRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useComboboxPositionerContext();
 
   const open = useStore(store, selectors.open);

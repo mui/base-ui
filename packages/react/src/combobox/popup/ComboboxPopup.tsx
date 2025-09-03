@@ -36,7 +36,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 ) {
   const { render, className, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const { store, popupRef, inputRef, onOpenChangeComplete } = useComboboxRootContext();
+  const store = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
   const { filteredItems } = useComboboxDerivedItemsContext();
@@ -53,10 +53,10 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.state.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.state.onOpenChangeComplete(true);
       }
     },
   });
@@ -75,14 +75,14 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, popupRef],
+    ref: [forwardedRef, store.state.popupRef],
     props: [
       {
         tabIndex: -1,
         onFocus(event) {
           const target = getTarget(event.nativeEvent) as Element | null;
           if (openMethod !== 'touch' && !contains(listElement, target)) {
-            inputRef.current?.focus();
+            store.state.inputRef.current?.focus();
           }
         },
       },
@@ -97,7 +97,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   // (this is required for Android specifically as iOS handles this automatically).
   const computedDefaultInitialFocus = inputInsidePopup
     ? (interactionType: InteractionType) =>
-        interactionType === 'touch' ? popupRef.current : inputElement
+        interactionType === 'touch' ? store.state.popupRef.current : inputElement
     : false;
 
   const resolvedInitialFocus =

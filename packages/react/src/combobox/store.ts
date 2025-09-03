@@ -2,6 +2,8 @@ import { Store, createSelector } from '@base-ui-components/utils/store';
 import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
+import type { useFieldControlValidation } from '../field/control/useFieldControlValidation';
+import type { ComboboxRootInternal } from './root/ComboboxRootInternal';
 
 export type State = {
   id: string | undefined;
@@ -10,7 +12,6 @@ export type State = {
 
   filter: (item: any, query: string) => boolean;
 
-  // The items provided to the combobox. Can be flat or grouped.
   items: any[] | undefined;
 
   selectedValue: any;
@@ -19,7 +20,7 @@ export type State = {
   open: boolean;
   mounted: boolean;
   transitionStatus: TransitionStatus;
-  forceMount: boolean;
+  forceMounted: boolean;
 
   inline: boolean;
 
@@ -39,6 +40,49 @@ export type State = {
   openMethod: InteractionType | null;
 
   inputInsidePopup: boolean;
+
+  selectionMode: 'single' | 'multiple' | 'none';
+
+  listRef: React.RefObject<Array<HTMLElement | null>>;
+  popupRef: React.RefObject<HTMLDivElement | null>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  keyboardActiveRef: React.RefObject<boolean>;
+  chipsContainerRef: React.RefObject<HTMLDivElement | null>;
+  clearRef: React.RefObject<HTMLButtonElement | null>;
+  valuesRef: React.RefObject<Array<any>>;
+  allValuesRef: React.RefObject<Array<any>>;
+
+  setOpen: (open: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
+  setInputValue: (value: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
+  setSelectedValue: (value: any, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
+  setIndices: (indices: {
+    activeIndex?: number | null;
+    selectedIndex?: number | null;
+    type?: 'keyboard' | 'pointer' | 'none';
+  }) => void;
+  onItemHighlighted: (
+    item: any,
+    info: { type: 'keyboard' | 'pointer' | 'none'; index: number },
+  ) => void;
+  forceMount: () => void;
+  handleEnterSelection: (event: Event) => void;
+  getItemProps: (
+    props?: HTMLProps & { active?: boolean; selected?: boolean },
+  ) => Record<string, unknown>;
+
+  name: string | undefined;
+  disabled: boolean;
+  readOnly: boolean;
+  required: boolean;
+  fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
+  cols: number;
+  isGrouped: boolean;
+  virtualized: boolean;
+  onOpenChangeComplete: (open: boolean) => void;
+  openOnInputClick: boolean;
+  itemToStringLabel?: (item: any) => string;
+  modal: boolean;
+  autoHighlight: boolean;
 };
 
 export type ComboboxStore = Store<State>;
@@ -55,7 +99,7 @@ export const selectors = {
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
-  forceMount: createSelector((state: State) => state.forceMount),
+  forceMounted: createSelector((state: State) => state.forceMounted),
 
   inline: createSelector((state: State) => state.inline),
 
@@ -75,6 +119,7 @@ export const selectors = {
   inputProps: createSelector((state: State) => state.inputProps),
   triggerProps: createSelector((state: State) => state.triggerProps),
   typeaheadTriggerProps: createSelector((state: State) => state.typeaheadTriggerProps),
+  getItemProps: createSelector((state: State) => state.getItemProps),
 
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),
@@ -84,4 +129,28 @@ export const selectors = {
   openMethod: createSelector((state: State) => state.openMethod),
 
   inputInsidePopup: createSelector((state: State) => state.inputInsidePopup),
+
+  selectionMode: createSelector((state: State) => state.selectionMode),
+  listRef: createSelector((state: State) => state.listRef),
+  popupRef: createSelector((state: State) => state.popupRef),
+  inputRef: createSelector((state: State) => state.inputRef),
+  keyboardActiveRef: createSelector((state: State) => state.keyboardActiveRef),
+  chipsContainerRef: createSelector((state: State) => state.chipsContainerRef),
+  clearRef: createSelector((state: State) => state.clearRef),
+  valuesRef: createSelector((state: State) => state.valuesRef),
+  allValuesRef: createSelector((state: State) => state.allValuesRef),
+
+  name: createSelector((state: State) => state.name),
+  disabled: createSelector((state: State) => state.disabled),
+  readOnly: createSelector((state: State) => state.readOnly),
+  required: createSelector((state: State) => state.required),
+  fieldControlValidation: createSelector((state: State) => state.fieldControlValidation),
+  cols: createSelector((state: State) => state.cols),
+  isGrouped: createSelector((state: State) => state.isGrouped),
+  virtualized: createSelector((state: State) => state.virtualized),
+  onOpenChangeComplete: createSelector((state: State) => state.onOpenChangeComplete),
+  openOnInputClick: createSelector((state: State) => state.openOnInputClick),
+  itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
+  modal: createSelector((state: State) => state.modal),
+  autoHighlight: createSelector((state: State) => state.autoHighlight),
 };

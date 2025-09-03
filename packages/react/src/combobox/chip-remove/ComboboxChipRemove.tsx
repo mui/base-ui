@@ -20,18 +20,12 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
 ) {
   const { render, className, nativeButton = true, ...elementProps } = componentProps;
 
-  const {
-    store,
-    inputRef,
-    disabled,
-    readOnly,
-    setSelectedValue,
-    setIndices,
-    valuesRef,
-    keyboardActiveRef,
-  } = useComboboxRootContext();
+  const store = useComboboxRootContext();
   const { index } = useComboboxChipContext();
 
+  const disabled = useStore(store, selectors.disabled);
+  const readOnly = useStore(store, selectors.readOnly);
+  const valuesRef = useStore(store, selectors.valuesRef);
   const selectedValue = useStore(store, selectors.selectedValue);
 
   const { buttonRef, getButtonProps } = useButton({
@@ -70,13 +64,13 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
           // to clear highlight in that case since it can't equal activeIndex.
           const removedIndex = valuesRef.current.indexOf(removedItem);
           if (removedIndex !== -1 && activeIndex === removedIndex) {
-            setIndices({
+            store.state.setIndices({
               activeIndex: null,
-              type: keyboardActiveRef.current ? 'pointer' : 'keyboard',
+              type: store.state.keyboardActiveRef.current ? 'pointer' : 'keyboard',
             });
           }
 
-          setSelectedValue(
+          store.state.setSelectedValue(
             selectedValue.filter((_: any, i: number) => i !== index),
             eventDetails,
           );
@@ -85,7 +79,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
             event.stopPropagation();
           }
 
-          inputRef.current?.focus();
+          store.state.inputRef.current?.focus();
         },
         onKeyDown(event) {
           if (disabled || readOnly) {
@@ -101,13 +95,13 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
             const removedIndex = valuesRef.current.indexOf(removedItem);
 
             if (removedIndex !== -1 && activeIndex === removedIndex) {
-              setIndices({
+              store.state.setIndices({
                 activeIndex: null,
-                type: keyboardActiveRef.current ? 'pointer' : 'keyboard',
+                type: store.state.keyboardActiveRef.current ? 'pointer' : 'keyboard',
               });
             }
 
-            setSelectedValue(
+            store.state.setSelectedValue(
               selectedValue.filter((_: any, i: number) => i !== index),
               eventDetails,
             );
@@ -116,7 +110,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
               stopEvent(event);
             }
 
-            inputRef.current?.focus();
+            store.state.inputRef.current?.focus();
           }
         },
       },

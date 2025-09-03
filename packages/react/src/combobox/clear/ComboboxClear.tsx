@@ -32,20 +32,13 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
     ...elementProps
   } = componentProps;
 
-  const {
-    setInputValue,
-    setSelectedValue,
-    inputRef,
-    store,
-    selectionMode,
-    disabled: comboboxDisabled,
-    readOnly,
-    clearRef,
-    setIndices,
-    keyboardActiveRef,
-  } = useComboboxRootContext();
   const { disabled: fieldDisabled } = useFieldRootContext();
+  const store = useComboboxRootContext();
 
+  const selectionMode = useStore(store, selectors.selectionMode);
+  const comboboxDisabled = useStore(store, selectors.disabled);
+  const readOnly = useStore(store, selectors.readOnly);
+  const clearRef = useStore(store, selectors.clearRef);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
   const inputValue = useStore(store, selectors.inputValue);
@@ -109,26 +102,28 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             return;
           }
 
-          setInputValue('', createBaseUIEventDetails('clear-press', event.nativeEvent));
+          const keyboardActiveRef = store.state.keyboardActiveRef;
+
+          store.state.setInputValue('', createBaseUIEventDetails('clear-press', event.nativeEvent));
 
           if (selectionMode !== 'none') {
-            setSelectedValue(
+            store.state.setSelectedValue(
               Array.isArray(selectedValue) ? [] : null,
               createBaseUIEventDetails('clear-press', event.nativeEvent),
             );
-            setIndices({
+            store.state.setIndices({
               activeIndex: null,
               selectedIndex: null,
               type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
             });
           } else {
-            setIndices({
+            store.state.setIndices({
               activeIndex: null,
               type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
             });
           }
 
-          inputRef.current?.focus();
+          store.state.inputRef.current?.focus();
         },
       },
       elementProps,

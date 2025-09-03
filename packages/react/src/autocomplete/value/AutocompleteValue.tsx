@@ -13,7 +13,8 @@ import { selectors } from '../../combobox/store';
 export function AutocompleteValue(props: AutocompleteValue.Props) {
   const { children } = props;
 
-  const { store } = useComboboxRootContext();
+  const store = useComboboxRootContext();
+
   const inputValue = useStore(store, selectors.inputValue);
 
   if (typeof children === 'function') {

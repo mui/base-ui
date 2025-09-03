@@ -15,11 +15,12 @@ import { selectors } from '../store';
 export function ComboboxPortal(props: ComboboxPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
-  const { store } = useComboboxRootContext();
-  const mounted = useStore(store, selectors.mounted);
-  const forceMount = useStore(store, selectors.forceMount);
+  const store = useComboboxRootContext();
 
-  const shouldRender = mounted || keepMounted || forceMount;
+  const mounted = useStore(store, selectors.mounted);
+  const forceMounted = useStore(store, selectors.forceMounted);
+
+  const shouldRender = mounted || keepMounted || forceMounted;
   if (!shouldRender) {
     return null;
   }

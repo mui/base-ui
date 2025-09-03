@@ -18,7 +18,9 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { store, chipsContainerRef } = useComboboxRootContext();
+  const store = useComboboxRootContext();
+
+  const chipsContainerRef = useStore(store, selectors.chipsContainerRef);
   const open = useStore(store, selectors.open);
 
   const [highlightedChipIndex, setHighlightedChipIndex] = React.useState<number | undefined>(

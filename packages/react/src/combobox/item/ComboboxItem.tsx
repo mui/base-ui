@@ -45,21 +45,17 @@ export const ComboboxItem = React.memo(
       indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
 
-    const {
-      store,
-      selectionMode,
-      getItemProps,
-      setOpen,
-      setSelectedValue,
-      valuesRef,
-      allValuesRef,
-      inputRef,
-      readOnly,
-      virtualized,
-      listRef,
-    } = useComboboxRootContext();
-    const { flatFilteredItems } = useComboboxDerivedItemsContext();
+    const store = useComboboxRootContext();
     const isRow = useComboboxRowContext();
+    const { flatFilteredItems } = useComboboxDerivedItemsContext();
+
+    const selectionMode = useStore(store, selectors.selectionMode);
+    const readOnly = useStore(store, selectors.readOnly);
+    const virtualized = useStore(store, selectors.virtualized);
+    const listRef = useStore(store, selectors.listRef);
+    const valuesRef = useStore(store, selectors.valuesRef);
+    const allValuesRef = useStore(store, selectors.allValuesRef);
+    const inputRef = useStore(store, selectors.inputRef);
 
     const selectable = selectionMode !== 'none';
     const multiple = selectionMode === 'multiple';
@@ -70,6 +66,7 @@ export const ComboboxItem = React.memo(
     const matchesSelectedValue = useStore(store, selectors.isSelected, value);
     const rootSelectedValue = useStore(store, selectors.selectedValue);
     const items = useStore(store, selectors.items);
+    const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(index);
@@ -181,15 +178,15 @@ export const ComboboxItem = React.memo(
               : [value];
           }
 
-          setSelectedValue(nextValue, eventDetails);
+          store.state.setSelectedValue(nextValue, eventDetails);
 
           const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
           if (wasFiltering) {
-            setOpen(false, eventDetails);
+            store.state.setOpen(false, eventDetails);
           }
         } else {
-          setSelectedValue(value, eventDetails);
-          setOpen(false, eventDetails);
+          store.state.setSelectedValue(value, eventDetails);
+          store.state.setOpen(false, eventDetails);
         }
       },
     };

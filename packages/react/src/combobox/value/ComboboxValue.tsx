@@ -14,10 +14,12 @@ import { selectors } from '../store';
 export function ComboboxValue(props: ComboboxValue.Props) {
   const { children: childrenProp } = props;
 
-  const { store, itemToStringLabel } = useComboboxRootContext();
+  const store = useComboboxRootContext();
 
+  const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
   const selectedValue = useStore(store, selectors.selectedValue);
   const items = useStore(store, selectors.items);
+
   const isChildrenPropDefined = childrenProp !== undefined;
 
   const memoizedItemDerivatives = React.useMemo(() => {

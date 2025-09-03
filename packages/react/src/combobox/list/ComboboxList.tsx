@@ -21,14 +21,16 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 ) {
   const { render, className, children, ...elementProps } = componentProps;
 
-  const { store, selectionMode, keyboardActiveRef, cols, handleEnterSelection, popupRef } =
-    useComboboxRootContext();
+  const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
-
-  const multiple = selectionMode === 'multiple';
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
 
+  const selectionMode = useStore(store, selectors.selectionMode);
+  const cols = useStore(store, selectors.cols);
+  const popupRef = useStore(store, selectors.popupRef);
   const popupProps = useStore(store, selectors.popupProps);
+
+  const multiple = selectionMode === 'multiple';
 
   const setPositionerElement = useEventCallback((element) => {
     store.set('positionerElement', element);
@@ -74,14 +76,14 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         onKeyDown(event) {
           if (event.key === 'Enter') {
             stopEvent(event);
-            handleEnterSelection(event.nativeEvent);
+            store.state.handleEnterSelection(event.nativeEvent);
           }
         },
         onKeyDownCapture() {
-          keyboardActiveRef.current = true;
+          store.state.keyboardActiveRef.current = true;
         },
         onPointerMoveCapture() {
-          keyboardActiveRef.current = false;
+          store.state.keyboardActiveRef.current = false;
         },
       },
       elementProps,

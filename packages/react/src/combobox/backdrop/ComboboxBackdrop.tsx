@@ -25,7 +25,7 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { store } = useComboboxRootContext();
+  const store = useComboboxRootContext();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);

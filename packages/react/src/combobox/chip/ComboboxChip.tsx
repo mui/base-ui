@@ -22,10 +22,11 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { inputRef, store, setSelectedValue, setOpen, disabled, readOnly, setIndices } =
-    useComboboxRootContext();
+  const store = useComboboxRootContext();
   const { setHighlightedChipIndex, chipsRef } = useComboboxChipsContext()!;
 
+  const disabled = useStore(store, selectors.disabled);
+  const readOnly = useStore(store, selectors.readOnly);
   const selectedValue = useStore(store, selectors.selectedValue);
 
   const { ref, index } = useCompositeListItem();
@@ -54,8 +55,8 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 
       stopEvent(event);
 
-      setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
-      setSelectedValue(
+      store.state.setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
+      store.state.setSelectedValue(
         selectedValue.filter((_: any, i: number) => i !== index),
         createBaseUIEventDetails('none', event.nativeEvent),
       );
@@ -64,7 +65,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
       nextIndex = undefined;
     } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       stopEvent(event);
-      setOpen(true, createBaseUIEventDetails('list-navigation', event.nativeEvent));
+      store.state.setOpen(true, createBaseUIEventDetails('list-navigation', event.nativeEvent));
       nextIndex = undefined;
     } else if (
       // Check for printable characters (letters, numbers, symbols)
@@ -106,7 +107,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
           });
 
           if (nextIndex === undefined) {
-            inputRef.current?.focus();
+            store.state.inputRef.current?.focus();
           } else {
             chipsRef.current[nextIndex]?.focus();
           }
@@ -116,7 +117,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
             return;
           }
           event.preventDefault();
-          inputRef.current?.focus();
+          store.state.inputRef.current?.focus();
         },
       },
       elementProps,
