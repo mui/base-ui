@@ -153,13 +153,6 @@ export namespace ComboboxClear {
 
   export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
     /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
-    /**
      * Whether the component should ignore user interaction.
      * @default false
      */
