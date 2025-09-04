@@ -696,7 +696,7 @@ describe('<Field.Root />', () => {
       });
     });
 
-    describe('filled', async () => {
+    describe('filled', () => {
       it('should apply [data-filled] style hook to all components when filled', async () => {
         await render(
           <Field.Root data-testid="root">
