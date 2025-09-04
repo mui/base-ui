@@ -47,6 +47,7 @@ export interface SliderRootContext {
    * The minimum steps between values in a range slider.
    */
   minStepsBetweenValues: number;
+  name: string;
   /**
    * Function to be called when drag ends and the pointer is released.
    */

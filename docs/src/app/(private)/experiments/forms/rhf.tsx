@@ -224,13 +224,16 @@ export default function ExampleForm() {
                 <Slider.Root
                   value={field.value}
                   onValueChange={field.onChange}
-                  inputRef={field.ref}
                   className={styles.Slider}
                 >
                   <Slider.Control className={styles.SliderControl}>
                     <Slider.Track className={styles.SliderTrack}>
                       <Slider.Indicator className={styles.SliderIndicator} />
-                      <Slider.Thumb onBlur={field.onBlur} className={styles.SliderThumb} />
+                      <Slider.Thumb
+                        inputRef={field.ref}
+                        onBlur={field.onBlur}
+                        className={styles.SliderThumb}
+                      />
                     </Slider.Track>
                   </Slider.Control>
                 </Slider.Root>
