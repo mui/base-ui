@@ -129,4 +129,39 @@ describe('e2e', () => {
       await expect(screen.getByTestId('three')).toHaveFocus();
     });
   });
+
+  describe('<Slider />', () => {
+    it('overlapping thumbs', async () => {
+      await renderFixture('RangeSlider');
+
+      // mouse down at the center of the lower thumb but the upper thumb
+      // is moved due to overlap
+      await page.mouse.move(25, 10);
+      await page.mouse.down();
+      await page.mouse.move(100, 10);
+      await page.mouse.up();
+
+      // eslint-disable-next-line testing-library/no-await-sync-queries
+      const output = await screen.getByRole('status');
+      const outputText = await output.evaluate((el) => el.textContent);
+      expect(outputText).to.equal('25 – 100');
+    });
+
+    it('overlapping thumbs at max', async () => {
+      await renderFixture('RangeSliderMax');
+
+      // both thumbs are at max with the upper thumb completely covering the
+      // lower one; the lower one will be moved by the pointer instead so the
+      // slider doesn't get stuck
+      await page.mouse.move(100, 10);
+      await page.mouse.down();
+      await page.mouse.move(50, 10);
+      await page.mouse.up();
+
+      // eslint-disable-next-line testing-library/no-await-sync-queries
+      const output = await screen.getByRole('status');
+      const outputText = await output.evaluate((el) => el.textContent);
+      expect(outputText).to.equal('50 – 100');
+    });
+  });
 });
