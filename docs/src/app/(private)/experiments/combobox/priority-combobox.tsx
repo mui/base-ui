@@ -21,11 +21,14 @@ export default function ExamplePopoverCombobox() {
             className="[--input-container-height:3rem] origin-[var(--transform-origin)] max-w-[15rem] max-h-[min(24rem,var(--available-height))] rounded-lg bg-[canvas] shadow-lg shadow-gray-200 text-gray-900 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
             aria-label="Select country"
           >
-            <div className="w-60 h-[var(--input-container-height)] text-center p-2">
+            <div className="w-60 h-[var(--input-container-height)] text-center p-2 grid gap-2 grid-cols-[1fr_1.4rem]">
               <Combobox.Input
                 placeholder="Set priority to..."
-                className="h-10 w-full font-normal rounded-md pl-3.5 text-base text-gray-900 focus:outline focus:outline-0"
+                className="h-10 w-full font-normal col-start-1 pl-3.5 text-base text-gray-900 focus:outline focus:outline-0"
               />
+              <div className="align-self-center h-[1.4rem] grid-col-start-2 border border-1 border-gray-300 rounded-md self-center justify-center text-gray-800 text-xs flex">
+                P
+              </div>
             </div>
             <Combobox.Separator className="border-t border-gray-200" />
             <Combobox.Empty className="p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
