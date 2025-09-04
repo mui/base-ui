@@ -12,8 +12,8 @@ _Sep 3, 2025_
   For example, `onOpenChange(open, event, reason)` becomes `onOpenChange(open, eventDetails)`, where `eventDetails` contains `event` and `reason` properties.
   ```diff
   -onOpenChange: (open, event, reason) => {
-  +onOpenChange: (open, eventDetails) => {
   -  if (reason === 'escape-key') {
+  +onOpenChange: (open, eventDetails) => {
   +  if (eventDetails.reason === 'escape-key') {
        // ...
      }
