@@ -74,7 +74,7 @@ async function submitForm(event: React.FormEvent<HTMLFormElement>, values: Value
 
   if (!result.success) {
     return {
-      errors: result.error.flatten().fieldErrors,
+      errors: z.flattenError(result.error).fieldErrors,
     };
   }
 
