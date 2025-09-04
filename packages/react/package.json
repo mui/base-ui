@@ -1,6 +1,6 @@
 {
   "name": "@base-ui-components/react",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
   "keywords": [
@@ -28,10 +28,12 @@
     ".": "./src/index.ts",
     "./accordion": "./src/accordion/index.ts",
     "./alert-dialog": "./src/alert-dialog/index.ts",
+    "./autocomplete": "./src/autocomplete/index.ts",
     "./avatar": "./src/avatar/index.ts",
     "./checkbox": "./src/checkbox/index.ts",
     "./checkbox-group": "./src/checkbox-group/index.ts",
     "./collapsible": "./src/collapsible/index.ts",
+    "./combobox": "./src/combobox/index.ts",
     "./context-menu": "./src/context-menu/index.ts",
     "./dialog": "./src/dialog/index.ts",
     "./direction-provider": "./src/direction-provider/index.ts",

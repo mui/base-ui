@@ -1,6 +1,6 @@
 {
   "name": "@base-ui-components/monorepo",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -65,7 +65,7 @@
     "@babel/node": "^7.28.0",
     "@babel/plugin-transform-react-constant-elements": "^7.27.1",
     "@base-ui-components/monorepo-tests": "workspace:*",
-    "@mui/internal-code-infra": "^0.0.3-canary.0",
+    "@mui/internal-code-infra": "^0.0.3-canary.1",
     "@mui/internal-docs-utils": "^2.0.1",
     "@mui/internal-markdown": "^2.0.7",
     "@mui/internal-scripts": "^2.0.10",
