@@ -1879,7 +1879,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(root).not.to.have.attribute('data-focused');
     });
 
-    describe('prop: validate', async () => {
+    describe('prop: validate', () => {
       it('runs on blur by default', async () => {
         await render(
           <Field.Root validate={() => 'error'}>

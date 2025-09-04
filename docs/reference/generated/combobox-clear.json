@@ -30,6 +30,19 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Clear.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-popup-open": {
+      "description": "Present when the corresponding popup is open."
+    },
+    "data-disabled": {
+      "description": "Present when the button is disabled."
+    },
+    "data-starting-style": {
+      "description": "Present when the button is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the button is animating out."
+    }
+  },
   "cssVariables": {}
 }

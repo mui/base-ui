@@ -465,7 +465,7 @@ describe('<Tabs.Root />', () => {
               });
             });
 
-            describe('with `activateOnFocus = true`', async () => {
+            describe('with `activateOnFocus = true`', () => {
               it('moves focus to the last tab while activating it if focus is on the first tab', async () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
