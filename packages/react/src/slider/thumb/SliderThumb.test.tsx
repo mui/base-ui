@@ -186,7 +186,7 @@ describe('<Slider.Thumb />', () => {
     });
   });
 
-  describe('prop: tabIndex', async () => {
+  describe('prop: tabIndex', () => {
     it('can be removed from the tab sequence', async () => {
       const { user } = await render(
         <Slider.Root defaultValue={50}>
@@ -203,7 +203,7 @@ describe('<Slider.Thumb />', () => {
     });
   });
 
-  describe('prop: children', async () => {
+  describe('prop: children', () => {
     it('renders the nested input as a sibling to children', async () => {
       await render(
         <Slider.Root defaultValue={50}>
