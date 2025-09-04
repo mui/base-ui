@@ -204,7 +204,7 @@ export default function ExampleCreatableCombobox() {
             <form onSubmit={handleCreateSubmit}>
               <input
                 ref={createInputRef}
-                className="w-full h-10 rounded-md border border-gray-200 bg-[canvas] text-gray-900 px-2.5 outline-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                className="w-full h-10 rounded-md border border-gray-200 bg-[canvas] text-gray-900 px-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
                 placeholder="Label name"
                 defaultValue={pendingQueryRef.current}
               />
