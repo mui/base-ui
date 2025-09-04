@@ -125,10 +125,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       activeIndex = 0;
       let hasEnabledItems = false;
 
-      // get default value from the first non disabled tab
-      for (const tabMetadata of map.values()) {
-        if (tabMetadata && tabMetadata.disabled === false) {
-          activeIndex = tabMetadata.index;
+      // Find first not disabled item
+      for (const item of map.values()) {
+        if (item && item.disabled === false) {
+          activeIndex = item.index;
           hasEnabledItems = true;
           break;
         }
