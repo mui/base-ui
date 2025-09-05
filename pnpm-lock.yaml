@@ -194,7 +194,7 @@ importers:
         specifier: ^15.0.1
         version: 15.0.1
       remark-mdx:
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1
       rimraf:
         specifier: ^6.0.1
@@ -269,10 +269,10 @@ importers:
         specifier: ^11.14.1
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.1.12)(react@19.1.1))(@types/react@19.1.12)(react@19.1.1)
       '@mdx-js/loader':
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1(webpack@5.101.3(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.101.3)))
       '@mdx-js/react':
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1(@types/react@19.1.12)(react@19.1.1)
       '@mui/system':
         specifier: 7.3.2
@@ -393,7 +393,7 @@ importers:
         version: 5.0.1
     devDependencies:
       '@mdx-js/mdx':
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1
       '@mui/internal-docs-utils':
         specifier: ^2.0.1
