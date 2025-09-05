@@ -380,7 +380,7 @@ importers:
         specifier: 3.1.0
         version: 3.1.0
       shiki:
-        specifier: ^3.11.0
+        specifier: ^3.12.2
         version: 3.12.2
       to-vfile:
         specifier: ^8.0.0
