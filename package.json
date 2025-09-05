@@ -106,7 +106,7 @@
     "markdownlint-cli2": "^0.18.1",
     "nx": "^21.4.0",
     "postcss": "^8.5.6",
-    "postcss-loader": "^8.1.1",
+    "postcss-loader": "^8.2.0",
     "postcss-styled-syntax": "^0.7.1",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
