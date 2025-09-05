@@ -6,7 +6,7 @@ import { Select } from '@base-ui-components/react/select';
 import { Menu } from '@base-ui-components/react/menu';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { Tooltip } from '@base-ui-components/react/tooltip';
-import { styled } from '@mui/system';
+import styles from './popups-in-popups.module.css';
 
 export default function PopupsInPopups() {
   const [modal, setModal] = React.useState(true);
@@ -32,21 +32,21 @@ export default function PopupsInPopups() {
       </label>
       <div>
         <Dialog.Root modal={modal}>
-          <Dialog.Trigger render={<Trigger />}>Open Dialog</Dialog.Trigger>
+          <Dialog.Trigger className={styles.Trigger}>Open Dialog</Dialog.Trigger>
 
-          {withBackdrop && <Dialog.Backdrop render={<Backdrop />} />}
+          {withBackdrop && <Dialog.Backdrop className={styles.Backdrop} />}
 
           <Dialog.Portal>
-            <DialogPopup>
+            <Dialog.Popup className={styles.DialogPopup}>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <SelectDemo modal={modal} />
                 <MenuDemo modal={modal} />
                 <ExampleCombobox />
               </div>
-              <DialogControls>
-                <DialogCloseButton>Cancel</DialogCloseButton>
-              </DialogControls>
-            </DialogPopup>
+              <div className={styles.DialogControls}>
+                <Dialog.Close className={styles.DialogCloseButton}>Cancel</Dialog.Close>
+              </div>
+            </Dialog.Popup>
           </Dialog.Portal>
         </Dialog.Root>
       </div>
@@ -60,35 +60,35 @@ function SelectDemo({ modal }: Props) {
       <Tooltip.Root>
         <Select.Trigger
           aria-label="Select font"
-          render={<Tooltip.Trigger render={<Trigger />} />}
+          render={<Tooltip.Trigger className={styles.Trigger} />}
           nativeButton
         >
           <Select.Value />
-          <SelectDropdownArrow />
+          <Select.Icon className={styles.SelectDropdownArrow} />
         </Select.Trigger>
         <Tooltip.Portal>
-          <Tooltip.Positioner sideOffset={10} render={<TooltipPositioner />}>
-            <Tooltip.Popup render={<TooltipPopup />}>Choose a font</Tooltip.Popup>
+          <Tooltip.Positioner sideOffset={10} className={styles.TooltipPositioner}>
+            <div className={styles.TooltipPopup}>Choose a font</div>
           </Tooltip.Positioner>
         </Tooltip.Portal>
       </Tooltip.Root>
 
       <Select.Portal>
-        <Select.Positioner sideOffset={5} render={<Positioner />} alignItemWithTrigger={false}>
-          <SelectPopup>
-            <SelectItem value="system">
-              <SelectItemIndicator render={<CheckIcon />} />
+        <Select.Positioner sideOffset={5} className={styles.Positioner} alignItemWithTrigger={false}>
+          <Select.Popup className={styles.SelectPopup}>
+            <Select.Item value="system" className={styles.SelectItem}>
+              <Select.ItemIndicator render={<CheckIcon />} className={styles.SelectItemIndicator} />
               <Select.ItemText>System font</Select.ItemText>
-            </SelectItem>
-            <SelectItem value="arial">
-              <SelectItemIndicator render={<CheckIcon />} />
+            </Select.Item>
+            <Select.Item value="arial" className={styles.SelectItem}>
+              <Select.ItemIndicator render={<CheckIcon />} className={styles.SelectItemIndicator} />
               <Select.ItemText>Arial</Select.ItemText>
-            </SelectItem>
-            <SelectItem value="roboto">
-              <SelectItemIndicator render={<CheckIcon />} />
+            </Select.Item>
+            <Select.Item value="roboto" className={styles.SelectItem}>
+              <Select.ItemIndicator render={<CheckIcon />} className={styles.SelectItemIndicator} />
               <Select.ItemText>Roboto</Select.ItemText>
-            </SelectItem>
-          </SelectPopup>
+            </Select.Item>
+          </Select.Popup>
         </Select.Positioner>
       </Select.Portal>
     </Select.Root>
@@ -104,85 +104,85 @@ const createHandleMenuClick = (menuItem: string) => {
 function MenuDemo({ modal }: Props) {
   return (
     <Menu.Root modal={modal}>
-      <Menu.Trigger render={<Trigger />}>Format</Menu.Trigger>
+      <Menu.Trigger className={styles.Trigger}>Format</Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner side="bottom" align="start" sideOffset={6} render={<Positioner />}>
-          <MenuPopup>
+        <Menu.Positioner side="bottom" align="start" sideOffset={6} className={styles.Positioner}>
+          <Menu.Popup className={styles.MenuPopup}>
             <Menu.SubmenuRoot closeParentOnEsc={false}>
-              <SubmenuTrigger>Text color</SubmenuTrigger>
+              <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>Text color</Menu.SubmenuTrigger>
               <Menu.Portal>
-                <Menu.Positioner align="start" side="right" sideOffset={12} render={<Positioner />}>
-                  <MenuPopup>
-                    <MenuItem onClick={createHandleMenuClick('Text color/Black')}>Black</MenuItem>
-                    <MenuItem onClick={createHandleMenuClick('Text color/Dark grey')}>
+                <Menu.Positioner align="start" side="right" sideOffset={12} className={styles.Positioner}>
+                  <Menu.Popup className={styles.MenuPopup}>
+                    <Menu.Item onClick={createHandleMenuClick('Text color/Black')} className={styles.MenuItem}>Black</Menu.Item>
+                    <Menu.Item onClick={createHandleMenuClick('Text color/Dark grey')} className={styles.MenuItem}>
                       Dark grey
-                    </MenuItem>
-                    <MenuItem onClick={createHandleMenuClick('Text color/Accent')}>Accent</MenuItem>
-                  </MenuPopup>
+                    </Menu.Item>
+                    <Menu.Item onClick={createHandleMenuClick('Text color/Accent')} className={styles.MenuItem}>Accent</Menu.Item>
+                  </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>
             </Menu.SubmenuRoot>
 
             <Menu.SubmenuRoot>
-              <SubmenuTrigger>Style</SubmenuTrigger>
+              <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>Style</Menu.SubmenuTrigger>
               <Menu.Portal>
-                <Menu.Positioner align="start" side="right" sideOffset={12} render={<Positioner />}>
-                  <MenuPopup>
+                <Menu.Positioner align="start" side="right" sideOffset={12} className={styles.Positioner}>
+                  <Menu.Popup className={styles.MenuPopup}>
                     <Menu.SubmenuRoot>
-                      <SubmenuTrigger>Heading</SubmenuTrigger>
+                      <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>Heading</Menu.SubmenuTrigger>
                       <Menu.Portal>
                         <Menu.Positioner
                           align="start"
                           side="right"
                           sideOffset={12}
-                          render={<Positioner />}
+                          className={styles.Positioner}
                         >
-                          <MenuPopup>
-                            <MenuItem onClick={createHandleMenuClick('Style/Heading/Level 1')}>
+                          <Menu.Popup className={styles.MenuPopup}>
+                            <Menu.Item onClick={createHandleMenuClick('Style/Heading/Level 1')} className={styles.MenuItem}>
                               Level 1
-                            </MenuItem>
-                            <MenuItem onClick={createHandleMenuClick('Style/Heading/Level 2')}>
+                            </Menu.Item>
+                            <Menu.Item onClick={createHandleMenuClick('Style/Heading/Level 2')} className={styles.MenuItem}>
                               Level 2
-                            </MenuItem>
-                            <MenuItem onClick={createHandleMenuClick('Style/Heading/Level 3')}>
+                            </Menu.Item>
+                            <Menu.Item onClick={createHandleMenuClick('Style/Heading/Level 3')} className={styles.MenuItem}>
                               Level 3
-                            </MenuItem>
-                          </MenuPopup>
+                            </Menu.Item>
+                          </Menu.Popup>
                         </Menu.Positioner>
                       </Menu.Portal>
                     </Menu.SubmenuRoot>
-                    <MenuItem onClick={createHandleMenuClick('Style/Paragraph')}>
+                    <Menu.Item onClick={createHandleMenuClick('Style/Paragraph')} className={styles.MenuItem}>
                       Paragraph
-                    </MenuItem>
+                    </Menu.Item>
                     <Menu.Root disabled>
-                      <SubmenuTrigger>List</SubmenuTrigger>
+                      <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>List</Menu.SubmenuTrigger>
                       <Menu.Portal>
                         <Menu.Positioner
                           align="start"
                           side="right"
                           sideOffset={12}
-                          render={<Positioner />}
+                          className={styles.Positioner}
                         >
-                          <MenuPopup>
-                            <MenuItem onClick={createHandleMenuClick('Style/List/Ordered')}>
+                          <Menu.Popup className={styles.MenuPopup}>
+                            <Menu.Item onClick={createHandleMenuClick('Style/List/Ordered')} className={styles.MenuItem}>
                               Ordered
-                            </MenuItem>
-                            <MenuItem onClick={createHandleMenuClick('Style/List/Unordered')}>
+                            </Menu.Item>
+                            <Menu.Item onClick={createHandleMenuClick('Style/List/Unordered')} className={styles.MenuItem}>
                               Unordered
-                            </MenuItem>
-                          </MenuPopup>
+                            </Menu.Item>
+                          </Menu.Popup>
                         </Menu.Positioner>
                       </Menu.Portal>
                     </Menu.Root>
-                  </MenuPopup>
+                  </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>
             </Menu.SubmenuRoot>
 
-            <MenuItem onClick={createHandleMenuClick('Clear formatting')}>
+            <Menu.Item onClick={createHandleMenuClick('Clear formatting')} className={styles.MenuItem}>
               Clear formatting
-            </MenuItem>
-          </MenuPopup>
+            </Menu.Item>
+          </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>
     </Menu.Root>
@@ -193,33 +193,9 @@ interface Props {
   modal: boolean;
 }
 
-const blue = {
-  50: '#F0F7FF',
-  100: '#C2E0FF',
-  200: '#99CCF3',
-  300: '#66B2FF',
-  400: '#3399FF',
-  500: '#007FFF',
-  600: '#0072E6',
-  700: '#0059B3',
-  800: '#004C99',
-  900: '#003A75',
-};
-
-const grey = {
-  50: '#F3F6F9',
-  100: '#E5EAF2',
-  200: '#DAE2ED',
-  300: '#C7D0DD',
-  400: '#B0B8C4',
-  500: '#9DA8B7',
-  600: '#6B7A90',
-  700: '#434D5B',
-  800: '#303740',
-  900: '#1C2025',
-};
-
-const Trigger = styled('button')`
+function ExampleCombobox() {
+  const id = React.useId();
+  return (
   font-family: 'IBM Plex Sans', sans-serif;
   display: flex;
   align-items: center;
