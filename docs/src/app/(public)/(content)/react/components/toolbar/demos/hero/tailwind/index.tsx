@@ -42,7 +42,11 @@ export default function ExampleToolbar() {
       </Toolbar.Group>
       <Toolbar.Separator className="m-1 h-4 w-px bg-gray-300" />
       <Select.Root defaultValue="Helvetica">
-        <Toolbar.Button render={<Select.Trigger />} nativeButton={false}  className="flex min-w-[8rem] h-8 text-sm font-medium items-center justify-between gap-3 rounded-md pr-3 pl-3.5 text-gray-600 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default">
+        <Toolbar.Button
+          render={<Select.Trigger />}
+          nativeButton={false}
+          className="flex min-w-[8rem] h-8 text-sm font-medium items-center justify-between gap-3 rounded-md pr-3 pl-3.5 text-gray-600 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default"
+        >
           <Select.Value />
           <Select.Icon className="flex">
             <ChevronUpDownIcon />
