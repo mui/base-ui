@@ -155,7 +155,7 @@ importers:
         specifier: ^0.18.1
         version: 0.18.1
       nx:
-        specifier: ^21.4.0
+        specifier: ^21.4.1
         version: 21.4.1
       postcss:
         specifier: ^8.5.6
