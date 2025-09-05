@@ -19,7 +19,7 @@ export default function ExamplePopoverCombobox() {
         <Combobox.Positioner align="start" sideOffset={4}>
           <Combobox.Popup
             className="[--input-container-height:3rem] origin-[var(--transform-origin)] max-w-[15rem] max-h-[min(24rem,var(--available-height))] rounded-lg bg-[canvas] shadow-[0_1px_2px_rgba(0,0,0,.025),_0_1px_3px_rgba(0,0,0,.025)] shadow-gray-200 text-gray-900 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 bg-clip-padding"
-            aria-label="Select country"
+            aria-label="Select priority"
           >
             <div className="w-60 text-center p-1 px-2 grid gap-2 grid-cols-[1fr_1.4rem]">
               <Combobox.Input
