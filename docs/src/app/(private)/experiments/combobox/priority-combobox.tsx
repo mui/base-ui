@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 
-export default function ExamplePopoverCombobox() {
+function CustomCombobox(props: { items: Priority[] }) {
   return (
-    <Combobox.Root items={priorities} defaultValue={priorities[0]}>
+    <Combobox.Root items={props.items} defaultValue={props.items?.[0]}>
       <Combobox.Trigger className="bg-[canvas] h-8 items-center justify-between rounded-lg border border-gray-200 px-3 text-sm text-gray-900 select-none hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-50 cursor-default bg-clip-padding">
         <Combobox.Value>
           {(priority: Priority) => (
@@ -57,6 +57,10 @@ export default function ExamplePopoverCombobox() {
       </Combobox.Portal>
     </Combobox.Root>
   );
+}
+
+export default function PriorityCombobox() {
+  return <CustomCombobox items={priorities} />;
 }
 
 interface Priority {
