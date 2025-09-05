@@ -323,7 +323,7 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0
       match-sorter:
-        specifier: ^8.0.3
+        specifier: ^8.1.0
         version: 8.1.0
       next:
         specifier: 15.5.0
