@@ -128,7 +128,7 @@ importers:
         specifier: workspace:^
         version: link:docs
       eslint:
-        specifier: ^9.33.0
+        specifier: ^9.34.0
         version: 9.34.0(jiti@2.5.1)
       execa:
         specifier: ^9.6.0
