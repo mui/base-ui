@@ -161,7 +161,7 @@ importers:
         specifier: ^8.5.6
         version: 8.5.6
       postcss-loader:
-        specifier: ^8.1.1
+        specifier: ^8.2.0
         version: 8.2.0(postcss@8.5.6)(typescript@5.9.2)(webpack@5.101.3)
       postcss-styled-syntax:
         specifier: ^0.7.1
