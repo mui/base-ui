@@ -221,7 +221,7 @@ importers:
         specifier: ^5.3.14
         version: 5.3.14(webpack@5.101.3(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.101.3)))
       tsx:
-        specifier: ^4.20.4
+        specifier: ^4.20.5
         version: 4.20.5
       typescript:
         specifier: ^5.9.2
@@ -637,7 +637,7 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       tsx:
-        specifier: ^4.20.4
+        specifier: ^4.20.5
         version: 4.20.5
       typescript-api-extractor:
         specifier: 1.0.0-alpha.8
