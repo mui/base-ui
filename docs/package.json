@@ -70,7 +70,7 @@
     "@types/chai": "^4.3.20",
     "@types/gtag.js": "^0.0.20",
     "@types/hast": "^3.0.4",
-    "@types/node": "^22.17.2",
+    "@types/node": "^22.18.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@types/unist": "^3.0.3",

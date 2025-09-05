@@ -11,7 +11,7 @@ overrides:
   '@babel/preset-react': ^7.27.1
   '@babel/preset-typescript': ^7.27.1
   '@babel/types': ^7.28.2
-  '@types/node': ^22.17.2
+  '@types/node': ^22.18.0
   '@types/react': ^19.1.10
   '@types/react-dom': ^19.1.7
 
@@ -71,7 +71,7 @@ importers:
         specifier: ^4.17.20
         version: 4.17.20
       '@types/node':
-        specifier: ^22.17.2
+        specifier: ^22.18.0
         version: 22.18.0
       '@types/react':
         specifier: ^19.1.10
@@ -417,7 +417,7 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4
       '@types/node':
-        specifier: ^22.17.2
+        specifier: ^22.18.0
         version: 22.18.0
       '@types/react':
         specifier: ^19.1.10
@@ -2219,7 +2219,7 @@ packages:
     resolution: {integrity: sha512-Oau4yL24d2B5IL4ma4UpbQigkVhzPDXLoqy1ggK4gnHg/stmkffJE4oOXHXF3uz0UEpywG68KcyXsyYpA1Re/Q==}
     engines: {node: '>=18'}
     peerDependencies:
-      '@types/node': ^22.17.2
+      '@types/node': ^22.18.0
     peerDependenciesMeta:
       '@types/node':
         optional: true
@@ -10436,7 +10436,7 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
-      '@types/node': ^22.17.2
+      '@types/node': ^22.18.0
       jiti: '>=1.21.0'
       less: ^4.0.0
       lightningcss: ^1.21.0
@@ -10494,7 +10494,7 @@ packages:
     peerDependencies:
       '@edge-runtime/vm': '*'
       '@types/debug': ^4.1.12
-      '@types/node': ^22.17.2
+      '@types/node': ^22.18.0
       '@vitest/browser': 3.2.4
       '@vitest/ui': 3.2.4
       happy-dom: '*'
