@@ -19,7 +19,7 @@ export default function NestedMenu() {
         <Menu.Portal>
           <Menu.Positioner side="bottom" align="start" sideOffset={6} anchor={containerRef}>
             <MenuRootPopup>
-              <Menu.Root openOnHover={false}>
+              <Menu.SubmenuRoot openOnHover={false}>
                 <SubmenuTrigger>Text color</SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner align="start" side="bottom" sideOffset={12}>
@@ -34,14 +34,14 @@ export default function NestedMenu() {
                     </MenuPopup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
 
-              <Menu.Root openOnHover={false}>
+              <Menu.SubmenuRoot openOnHover={false}>
                 <SubmenuTrigger>Style</SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner align="start" side="bottom" sideOffset={12}>
                     <MenuPopup>
-                      <Menu.Root>
+                      <Menu.SubmenuRoot>
                         <SubmenuTrigger>Heading</SubmenuTrigger>
                         <Menu.Portal>
                           <Menu.Positioner align="start" side="right" sideOffset={12}>
@@ -58,11 +58,11 @@ export default function NestedMenu() {
                             </MenuPopup>
                           </Menu.Positioner>
                         </Menu.Portal>
-                      </Menu.Root>
+                      </Menu.SubmenuRoot>
                       <MenuItem onClick={createHandleMenuClick('Style/Paragraph')}>
                         Paragraph
                       </MenuItem>
-                      <Menu.Root disabled>
+                      <Menu.SubmenuRoot disabled>
                         <SubmenuTrigger>List</SubmenuTrigger>
                         <Menu.Portal>
                           <Menu.Positioner align="start" side="bottom" sideOffset={12}>
@@ -76,11 +76,11 @@ export default function NestedMenu() {
                             </MenuPopup>
                           </Menu.Positioner>
                         </Menu.Portal>
-                      </Menu.Root>
+                      </Menu.SubmenuRoot>
                     </MenuPopup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
             </MenuRootPopup>
           </Menu.Positioner>
         </Menu.Portal>

@@ -128,7 +128,7 @@ function MenuDemo({ modal }: Props) {
               <Menu.Portal>
                 <Menu.Positioner align="start" side="right" sideOffset={12} render={<Positioner />}>
                   <MenuPopup>
-                    <Menu.Root>
+                    <Menu.SubmenuRoot>
                       <SubmenuTrigger>Heading</SubmenuTrigger>
                       <Menu.Portal>
                         <Menu.Positioner
@@ -150,7 +150,7 @@ function MenuDemo({ modal }: Props) {
                           </MenuPopup>
                         </Menu.Positioner>
                       </Menu.Portal>
-                    </Menu.Root>
+                    </Menu.SubmenuRoot>
                     <MenuItem onClick={createHandleMenuClick('Style/Paragraph')}>
                       Paragraph
                     </MenuItem>
