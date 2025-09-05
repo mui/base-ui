@@ -539,8 +539,16 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         if (hasQuery) {
           setQueryChangedAfterOpen(true);
         }
-        if (selectionMode === 'none' && autoHighlight) {
-          setIndices({ activeIndex: hasQuery ? 0 : null });
+
+        // Avoid out-of-range indices when the visible list becomes smaller.
+        if (hasQuery) {
+          if (autoHighlight) {
+            setIndices({ activeIndex: 0, selectedIndex: null });
+          } else {
+            setIndices({ selectedIndex: null });
+          }
+        } else if (autoHighlight) {
+          setIndices({ activeIndex: null });
         }
       }
 
@@ -1096,7 +1104,7 @@ interface ComboboxRootProps<ItemValue> {
    */
   openOnInputClick?: boolean;
   /**
-   * Whether to automatically highlight the first item when the popup opens.
+   * Whether to automatically highlight the first item while filtering.
    * @default false
    */
   autoHighlight?: boolean;
