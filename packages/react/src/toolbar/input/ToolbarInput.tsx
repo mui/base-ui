@@ -1,13 +1,12 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
 import { ARROW_LEFT, ARROW_RIGHT, stopEvent } from '../../composite/composite';
-import { CompositeItem } from '../../composite/item/CompositeItem';
-import { useButton } from '../../use-button';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 /**
  * A native input element that integrates with Toolbar keyboard navigation.
@@ -27,18 +26,19 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     ...elementProps
   } = componentProps;
 
+  const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
+
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
   const groupContext = useToolbarGroupContext(true);
 
-  const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
-
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
 
-  const { getButtonProps, buttonRef } = useButton({
+  const { props: focusableWhenDisabledProps } = useFocusableWhenDisabled({
+    composite: true,
     disabled,
     focusableWhenDisabled,
-    native: 'input',
+    isNativeButton: false,
   });
 
   const state: ToolbarInput.State = React.useMemo(
@@ -50,33 +50,35 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     [disabled, focusableWhenDisabled, orientation],
   );
 
-  const element = useRenderElement('input', componentProps, {
-    state,
-    ref: [forwardedRef, buttonRef],
-    props: [
-      {
-        onClick(event) {
-          if (disabled) {
-            event.preventDefault();
-          }
-        },
-        onKeyDown(event) {
-          if (event.key !== ARROW_LEFT && event.key !== ARROW_RIGHT && disabled) {
-            stopEvent(event);
-          }
-        },
-        onPointerDown(event) {
-          if (disabled) {
-            event.preventDefault();
-          }
-        },
-      },
-      elementProps,
-      getButtonProps,
-    ],
-  });
+  const defaultProps: HTMLProps = {
+    onClick(event) {
+      if (disabled) {
+        event.preventDefault();
+      }
+    },
+    onKeyDown(event) {
+      if (event.key !== ARROW_LEFT && event.key !== ARROW_RIGHT && disabled) {
+        stopEvent(event);
+      }
+    },
+    onPointerDown(event) {
+      if (disabled) {
+        event.preventDefault();
+      }
+    },
+  };
 
-  return <CompositeItem<ToolbarRoot.ItemMetadata> metadata={itemMetadata} render={element} />;
+  return (
+    <CompositeItem
+      tag="input"
+      render={render}
+      className={className}
+      metadata={itemMetadata}
+      state={state}
+      refs={[forwardedRef]}
+      props={[defaultProps, elementProps, focusableWhenDisabledProps]}
+    />
+  );
 });
 
 export namespace ToolbarInput {

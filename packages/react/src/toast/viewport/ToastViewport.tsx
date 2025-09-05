@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
-import { activeElement, contains, getTarget, useLatestRef } from '@floating-ui/react/utils';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
+import { FocusGuard } from '../../utils/FocusGuard';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { ToastViewportContext } from './ToastViewportContext';
-import { FocusGuard } from './FocusGuard';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
 
 /**
  * A container viewport for toasts.
@@ -197,10 +199,13 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     resumeTimers();
   }
 
-  const props = {
-    role: 'region',
+  const defaultProps: HTMLProps = {
     tabIndex: -1,
-    'aria-label': `${numToasts} notification${numToasts !== 1 ? 's' : ''} (F6)`,
+    role: 'region',
+    'aria-live': 'polite',
+    'aria-atomic': false,
+    'aria-relevant': 'additions text',
+    'aria-label': 'Notifications',
     onMouseEnter: handleMouseEnter,
     onMouseMove: handleMouseEnter,
     onMouseLeave: handleMouseLeave,
@@ -221,7 +226,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     ref: [forwardedRef, viewportRef],
     state,
     props: [
-      props,
+      defaultProps,
       {
         ...elementProps,
         children: (
@@ -237,10 +242,25 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   const contextValue = React.useMemo(() => ({ viewportRef }), [viewportRef]);
 
+  const highPriorityToasts = React.useMemo(
+    () => toasts.filter((toast) => toast.priority === 'high'),
+    [toasts],
+  );
+
   return (
     <ToastViewportContext.Provider value={contextValue}>
       {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
       {element}
+      {!focused && highPriorityToasts.length > 0 && (
+        <div style={visuallyHidden}>
+          {highPriorityToasts.map((toast) => (
+            <div key={toast.id} role="alert" aria-atomic>
+              <div>{toast.title}</div>
+              <div>{toast.description}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </ToastViewportContext.Provider>
   );
 });

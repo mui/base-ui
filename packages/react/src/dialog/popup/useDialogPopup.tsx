@@ -1,75 +1,34 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeProps } from '../../merge-props';
-import type { DialogOpenChangeReason } from '../root/useDialogRoot';
-import { type InteractionType } from '../../utils/useEnhancedClickHandler';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import type { DialogRoot } from '../root/DialogRoot';
 import { HTMLProps } from '../../utils/types';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
-  const {
-    descriptionElementId,
-    getPopupProps,
-    initialFocus,
-    modal,
-    mounted,
-    openMethod,
-    ref,
-    setPopupElement,
-    titleElementId,
-  } = parameters;
+  const { descriptionElementId, mounted, ref, setPopupElement, titleElementId } = parameters;
 
   const popupRef = React.useRef<HTMLElement>(null);
 
-  const handleRef = useForkRef(ref, popupRef, setPopupElement);
+  const handleRef = useMergedRefs(ref, popupRef, setPopupElement);
 
-  // Default initial focus logic:
-  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
-  // (this is required for Android specifically as iOS handles this automatically).
-  const defaultInitialFocus = React.useCallback((interactionType: InteractionType) => {
-    if (interactionType === 'touch') {
-      return popupRef;
-    }
-
-    return 0;
-  }, []);
-
-  const resolvedInitialFocus = React.useMemo(() => {
-    if (initialFocus == null) {
-      return defaultInitialFocus(openMethod ?? '');
-    }
-
-    if (typeof initialFocus === 'function') {
-      return initialFocus(openMethod ?? '');
-    }
-
-    return initialFocus;
-  }, [defaultInitialFocus, initialFocus, openMethod]);
-
-  const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
-    mergeProps<'div'>(
-      {
-        'aria-labelledby': titleElementId ?? undefined,
-        'aria-describedby': descriptionElementId ?? undefined,
-        'aria-modal': mounted && modal === true ? true : undefined,
-        role: 'dialog',
-        tabIndex: -1,
-        ...getPopupProps(),
-        ref: handleRef,
-        hidden: !mounted,
-        onKeyDown(event) {
-          if (COMPOSITE_KEYS.has(event.key)) {
-            event.stopPropagation();
-          }
-        },
-      },
-      externalProps,
-    );
+  const popupProps: HTMLProps = {
+    'aria-labelledby': titleElementId ?? undefined,
+    'aria-describedby': descriptionElementId ?? undefined,
+    role: 'dialog',
+    tabIndex: -1,
+    ref: handleRef,
+    hidden: !mounted,
+    onKeyDown(event) {
+      if (COMPOSITE_KEYS.has(event.key)) {
+        event.stopPropagation();
+      }
+    },
+  };
 
   return {
-    getRootProps,
-    resolvedInitialFocus,
+    popupProps,
   };
 }
 
@@ -79,16 +38,11 @@ export namespace useDialogPopup {
      * The ref to the dialog element.
      */
     ref: React.Ref<HTMLElement>;
-    modal: boolean | 'trap-focus';
     openMethod: InteractionType | null;
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    setOpen: (
-      open: boolean,
-      event: Event | undefined,
-      reason: DialogOpenChangeReason | undefined,
-    ) => void;
+    setOpen: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
     /**
      * The id of the title element associated with the dialog.
      */
@@ -109,22 +63,12 @@ export namespace useDialogPopup {
      */
     mounted: boolean;
     /**
-     * The resolver for the popup element props.
-     */
-    getPopupProps: () => HTMLProps;
-    /**
      * Callback to register the popup element.
      */
     setPopupElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   }
 
   export interface ReturnValue {
-    /**
-     * Resolver for the root element props.
-     */
-    getRootProps: (
-      externalProps: React.ComponentPropsWithRef<'div'>,
-    ) => React.ComponentPropsWithRef<'div'>;
-    resolvedInitialFocus: React.RefObject<HTMLElement | null> | number;
+    popupProps: HTMLProps;
   }
 }

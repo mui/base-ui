@@ -1,21 +1,21 @@
 import * as React from 'react';
-import type { useSelectPositioner } from './useSelectPositioner';
+import { type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 
-export type SelectPositionerContext = useSelectPositioner.ReturnValue & {
+export interface SelectPositionerContext extends Omit<useAnchorPositioning.ReturnValue, 'side'> {
+  side: 'none' | Side;
   alignItemWithTriggerActive: boolean;
-  controlledItemAnchor: boolean;
-  setControlledItemAnchor: React.Dispatch<React.SetStateAction<boolean>>;
-  scrollUpArrowVisible: boolean;
-  setScrollUpArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  scrollDownArrowVisible: boolean;
-  setScrollDownArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
-};
+  setControlledAlignItemWithTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  scrollUpArrowRef: React.RefObject<HTMLDivElement | null>;
+  scrollDownArrowRef: React.RefObject<HTMLDivElement | null>;
+}
 
-export const SelectPositionerContext = React.createContext<SelectPositionerContext | null>(null);
+export const SelectPositionerContext = React.createContext<SelectPositionerContext | undefined>(
+  undefined,
+);
 
 export function useSelectPositionerContext() {
   const context = React.useContext(SelectPositionerContext);
-  if (context === null) {
+  if (!context) {
     throw new Error(
       'Base UI: SelectPositionerContext is missing. SelectPositioner parts must be placed within <Select.Positioner>.',
     );

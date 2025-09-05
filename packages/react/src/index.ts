@@ -1,9 +1,11 @@
 export * from './accordion';
 export * from './alert-dialog';
+export * from './autocomplete';
 export * from './avatar';
 export * from './checkbox';
 export * from './checkbox-group';
 export * from './collapsible';
+export * from './combobox';
 export * from './context-menu';
 export * from './dialog';
 export * from './direction-provider';
@@ -34,4 +36,5 @@ export * from './toggle-group';
 export * from './toolbar';
 export * from './tooltip';
 export * from './use-render';
-export * as utils from './utils';
+
+export type * from './types';

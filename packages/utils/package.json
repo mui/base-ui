@@ -1,0 +1,63 @@
+{
+  "name": "@base-ui-components/utils",
+  "version": "0.1.1",
+  "description": "A collection of React utility functions for Base UI.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mui/base-ui.git",
+    "directory": "packages/utils"
+  },
+  "license": "MIT",
+  "exports": {
+    "./store": "./src/store/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "type": "commonjs",
+  "scripts": {
+    "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
+    "build": "code-infra build && pnpm build:copy-files",
+    "build:stable": "code-infra build --bundle esm --buildTypes false",
+    "build:copy-files": "code-infra copy-files .npmignore",
+    "test:package": "publint --pack pnpm run ./build && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
+    "release": "pnpm build && pnpm publish",
+    "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
+    "typescript": "tsc -b tsconfig.json"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.28.3",
+    "@floating-ui/utils": "^0.2.10",
+    "reselect": "^5.1.1",
+    "use-sync-external-store": "^1.5.0"
+  },
+  "devDependencies": {
+    "@mui/internal-test-utils": "^2.0.9",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/chai": "^4.3.20",
+    "@types/chai-dom": "^1.11.3",
+    "@types/react": "^19.1.12",
+    "@types/sinon": "^17.0.4",
+    "@types/use-sync-external-store": "^1.5.0",
+    "chai": "^4.5.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "sinon": "^21.0.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "@types/react": "^17 || ^18 || ^19",
+    "react": "^17 || ^18 || ^19",
+    "react-dom": "^17 || ^18 || ^19"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "directory": "build"
+  }
+}

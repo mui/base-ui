@@ -16,7 +16,7 @@ function TestMenubar(props: Menubar.Props) {
             <Menu.Popup>
               <Menu.Item data-testid="file-item-1">Open</Menu.Item>
               <Menu.Item data-testid="file-item-2">Save</Menu.Item>
-              <Menu.Root>
+              <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger data-testid="share-trigger">Share</Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner data-testid="share-menu">
@@ -26,7 +26,7 @@ function TestMenubar(props: Menubar.Props) {
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -49,6 +49,23 @@ function TestMenubar(props: Menubar.Props) {
             <Menu.Popup>
               <Menu.Item data-testid="view-item-1">Zoom In</Menu.Item>
               <Menu.Item data-testid="view-item-2">Zoom Out</Menu.Item>
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger data-testid="layout-trigger">Layout</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner data-testid="layout-menu">
+                    <Menu.Popup>
+                      <Menu.RadioGroup defaultValue="single">
+                        <Menu.RadioItem value="single" data-testid="layout-item-1">
+                          Single column
+                        </Menu.RadioItem>
+                        <Menu.RadioItem value="two" data-testid="layout-item-2">
+                          Two columns
+                        </Menu.RadioItem>
+                      </Menu.RadioGroup>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -195,6 +212,68 @@ describe('<Menubar />', () => {
       await user.keyboard('{Enter}');
       await waitFor(() => {
         expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('closeOnClick on nested items behavior', () => {
+    afterEach(async () => {
+      const { cleanup } = await import('vitest-browser-react');
+      cleanup();
+    });
+
+    it('should respect closeOnClick on nested items when the menu was opened on click', async () => {
+      const { userEvent: user } = await import('@vitest/browser/context');
+      const { render: vbrRender } = await import('vitest-browser-react');
+
+      vbrRender(<TestMenubar />);
+
+      const viewTrigger = screen.getByTestId('view-trigger');
+
+      await user.click(viewTrigger, { delay: 30 });
+      await screen.findByTestId('view-menu');
+
+      const layoutTrigger = screen.getByTestId('layout-trigger');
+      await user.hover(layoutTrigger);
+
+      await screen.findByTestId('layout-menu');
+
+      const layoutItem2 = screen.getByTestId('layout-item-2');
+      await user.click(layoutItem2, { delay: 30 });
+
+      // The layout menu should not close after clicking an item
+      await waitFor(() => {
+        expect(screen.queryByTestId('layout-menu')).to.not.equal(null);
+      });
+    });
+
+    // https://github.com/mui/base-ui/issues/2092
+    it('should respect closeOnClick on nested items when the menu was opened on hover', async () => {
+      const { userEvent: user } = await import('@vitest/browser/context');
+      const { render: vbrRender } = await import('vitest-browser-react');
+
+      vbrRender(<TestMenubar />);
+
+      const fileTrigger = screen.getByTestId('file-trigger');
+      const viewTrigger = screen.getByTestId('view-trigger');
+
+      await user.click(fileTrigger, { delay: 30 });
+      await screen.findByTestId('file-menu');
+
+      await user.hover(viewTrigger);
+      await screen.findByTestId('view-menu');
+
+      const layoutTrigger = screen.getByTestId('layout-trigger');
+      await user.hover(layoutTrigger);
+
+      await screen.findByTestId('layout-menu');
+
+      const layoutItem2 = screen.getByTestId('layout-item-2');
+      await user.click(layoutItem2, { delay: 30 });
+
+      // The layout menu should not close after clicking an item
+      await waitFor(() => {
+        expect(screen.queryByTestId('layout-menu')).to.not.equal(null);
       });
     });
   });
@@ -552,6 +631,58 @@ describe('<Menubar />', () => {
         await user.keyboard('{ArrowLeft}');
         expect(firstItem).toHaveFocus();
       });
+    });
+  });
+
+  it.skipIf(isJSDOM)(
+    'correctly opens new menu on hover after clicking on its trigger and entering from hover (#2222)',
+    async () => {
+      const { user } = await render(<TestMenubar />);
+
+      const fileTrigger = screen.getByTestId('file-trigger');
+      const editTrigger = screen.getByTestId('edit-trigger');
+      await user.click(fileTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
+
+      await user.hover(editTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
+      });
+
+      await user.click(editTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('edit-menu')).to.equal(null);
+      });
+
+      await user.click(fileTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
+
+      await user.hover(editTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
+      });
+    },
+  );
+
+  describe('role', () => {
+    it('sets role="menubar" on the root element', async () => {
+      await render(<TestMenubar />);
+      expect(screen.queryByRole('menubar')).not.to.equal(null);
+    });
+
+    it('sets role="menuitem" on menu triggers', async () => {
+      await render(<TestMenubar />);
+      const menuItems = screen.getAllByRole('menuitem');
+      expect(menuItems).to.have.length(3);
     });
   });
 });

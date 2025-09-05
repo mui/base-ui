@@ -1,16 +1,19 @@
 'use client';
 import * as React from 'react';
-import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
-import { useMenuItem } from '../item/useMenuItem';
+import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
-import { useControlled } from '../../utils/useControlled';
+import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { MenuRoot } from '../root/MenuRoot';
 
 const InnerMenuCheckboxItem = React.memo(
   React.forwardRef(function InnerMenuCheckboxItem(
@@ -32,6 +35,7 @@ const InnerMenuCheckboxItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
+      nodeId,
       ...elementProps
     } = componentProps;
 
@@ -51,10 +55,16 @@ const InnerMenuCheckboxItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
+      nodeId,
+      itemMetadata: REGULAR_ITEM,
     });
 
     const state: MenuCheckboxItem.State = React.useMemo(
-      () => ({ disabled, highlighted, checked }),
+      () => ({
+        disabled,
+        highlighted,
+        checked,
+      }),
       [disabled, highlighted, checked],
     );
 
@@ -66,9 +76,16 @@ const InnerMenuCheckboxItem = React.memo(
         {
           role: 'menuitemcheckbox',
           'aria-checked': checked,
-          onClick: (event: React.MouseEvent) => {
+          onClick(event: React.MouseEvent) {
+            const details = createBaseUIEventDetails('item-press', event.nativeEvent);
+
+            onCheckedChange?.(!checked, details);
+
+            if (details.isCanceled) {
+              return;
+            }
+
             setChecked((currentlyChecked) => !currentlyChecked);
-            onCheckedChange?.(!checked, event.nativeEvent);
           },
         },
         elementProps,
@@ -97,9 +114,11 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
-  const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
+  const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
 
   const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
+  const menuPositionerContext = useMenuPositionerContext(true);
+
   const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -121,6 +140,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
       typingRef={typingRef}
       closeOnClick={closeOnClick}
       nativeButton={nativeButton}
+      nodeId={menuPositionerContext?.floatingContext.nodeId}
     />
   );
 });
@@ -133,6 +153,7 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   typingRef: React.RefObject<boolean>;
   closeOnClick: boolean;
   nativeButton: boolean;
+  nodeId: string | undefined;
 }
 
 export namespace MenuCheckboxItem {
@@ -151,7 +172,7 @@ export namespace MenuCheckboxItem {
     checked: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
     /**
      * Whether the checkbox item is currently ticked.
      *
@@ -168,7 +189,7 @@ export namespace MenuCheckboxItem {
     /**
      * Event handler called when the checkbox item is ticked or unticked.
      */
-    onCheckedChange?: (checked: boolean, event: Event) => void;
+    onCheckedChange?: (checked: boolean, eventDetails: MenuRoot.ChangeEventDetails) => void;
     children?: React.ReactNode;
     /**
      * The click handler for the menu item.
@@ -192,12 +213,5 @@ export namespace MenuCheckboxItem {
      * @default false
      */
     closeOnClick?: boolean;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default false
-     */
-    nativeButton?: boolean;
   }
 }

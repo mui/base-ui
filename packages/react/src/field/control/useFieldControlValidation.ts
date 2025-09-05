@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useTimeout } from '../../utils/useTimeout';
-import { useEventCallback } from '../../utils/useEventCallback';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
@@ -156,7 +156,17 @@ export function useFieldControlValidation() {
       defaultValidationMessage = element.validationMessage;
       validationErrors = [element.validationMessage];
     } else {
-      const resultOrPromise = validate(value);
+      const formValues = Array.from(formRef.current.fields.values()).reduce(
+        (acc, field) => {
+          if (field.name && field.getValueRef) {
+            acc[field.name] = field.getValueRef.current?.();
+          }
+          return acc;
+        },
+        {} as Record<string, unknown>,
+      );
+
+      const resultOrPromise = validate(value, formValues);
       if (
         typeof resultOrPromise === 'object' &&
         resultOrPromise !== null &&

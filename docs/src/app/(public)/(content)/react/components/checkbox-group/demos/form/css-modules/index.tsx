@@ -19,43 +19,35 @@ export default function ExampleCheckboxGroup() {
         setLoading(false);
       }}
     >
-      <Field.Root
-        name="toppings"
-        render={<Fieldset.Root />}
-        className={styles.Fieldset}
-      >
+      <Field.Root name="toppings" render={<Fieldset.Root />} className={styles.Fieldset}>
         <Fieldset.Legend className={styles.Legend}>Extra toppings</Fieldset.Legend>
-        <CheckboxGroup
-          defaultValue={[]}
-          disabled={loading}
-          className={styles.CheckboxGroup}
-        >
-          <label className={styles.Item}>
+        <CheckboxGroup defaultValue={[]} disabled={loading} className={styles.CheckboxGroup}>
+          <Field.Label className={styles.Item}>
             <Checkbox.Root value="anchovies" className={styles.Checkbox}>
               <Checkbox.Indicator className={styles.Indicator}>
                 <CheckIcon className={styles.Icon} />
               </Checkbox.Indicator>
             </Checkbox.Root>
             Anchovies
-          </label>
+          </Field.Label>
 
-          <label className={styles.Item}>
+          <Field.Label className={styles.Item}>
             <Checkbox.Root value="olives" className={styles.Checkbox}>
               <Checkbox.Indicator className={styles.Indicator}>
                 <CheckIcon className={styles.Icon} />
               </Checkbox.Indicator>
             </Checkbox.Root>
             Olives
-          </label>
+          </Field.Label>
 
-          <label className={styles.Item}>
+          <Field.Label className={styles.Item}>
             <Checkbox.Root value="jalapenos" className={styles.Checkbox}>
               <Checkbox.Indicator className={styles.Indicator}>
                 <CheckIcon className={styles.Icon} />
               </Checkbox.Indicator>
             </Checkbox.Root>
             Jalapeños
-          </label>
+          </Field.Label>
         </CheckboxGroup>
       </Field.Root>
       <button type="submit" disabled={loading} className={styles.Button}>

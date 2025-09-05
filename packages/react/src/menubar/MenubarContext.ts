@@ -10,6 +10,7 @@ export interface MenubarContext {
   setHasSubmenuOpen: (open: boolean) => void;
   orientation: MenuRoot.Orientation;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
+  rootId: string | undefined;
 }
 
 export const MenubarContext = React.createContext<MenubarContext | null>(null);

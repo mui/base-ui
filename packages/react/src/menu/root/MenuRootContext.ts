@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { FloatingRootContext } from '@floating-ui/react';
+import type { FloatingRootContext } from '../../floating-ui-react';
 import type { MenuParent, MenuRoot } from './MenuRoot';
 import { HTMLProps } from '../../utils/types';
-import { TransitionStatus } from '../../utils';
+import { TransitionStatus } from '../../utils/useTransitionStatus';
 
 export interface MenuRootContext {
   disabled: boolean;
@@ -19,22 +19,22 @@ export interface MenuRootContext {
   mounted: boolean;
   open: boolean;
   popupRef: React.RefObject<HTMLElement | null>;
-  setOpen: (
-    open: boolean,
-    event: Event | undefined,
-    reason: MenuRoot.OpenChangeReason | undefined,
-  ) => void;
+  setOpen: (open: boolean, eventDetails: MenuRoot.ChangeEventDetails) => void;
   positionerRef: React.RefObject<HTMLElement | null>;
   setPositionerElement: (element: HTMLElement | null) => void;
+  triggerElement: HTMLElement | null;
   setTriggerElement: (element: HTMLElement | null) => void;
   transitionStatus: TransitionStatus;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
-  lastOpenChangeReason: MenuRoot.OpenChangeReason | null;
+  lastOpenChangeReason: MenuRoot.ChangeEventReason | null;
   instantType: 'dismiss' | 'click' | 'group' | undefined;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
   setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
   parent: MenuParent;
+  rootId: string | undefined;
+  allowMouseEnter: boolean;
+  setAllowMouseEnter: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);

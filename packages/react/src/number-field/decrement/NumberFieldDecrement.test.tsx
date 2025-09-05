@@ -11,6 +11,8 @@ describe('<NumberField.Decrement />', () => {
 
   describeConformance(<NumberField.Decrement />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render(node) {
       return render(<NumberField.Root>{node}</NumberField.Root>);
     },
@@ -49,6 +51,47 @@ describe('<NumberField.Decrement />', () => {
     const button = screen.getByRole('button');
     fireEvent.click(button);
     expect(screen.getByRole('textbox')).to.have.value('-1');
+  });
+
+  it('first decrement after external controlled update', async () => {
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(null);
+      return (
+        <NumberField.Root value={value} onValueChange={setValue}>
+          <NumberField.Input />
+          <NumberField.Decrement />
+          <button onClick={() => setValue(1.23456)}>external</button>
+        </NumberField.Root>
+      );
+    }
+
+    const { user } = await render(<Controlled />);
+    const input = screen.getByRole('textbox');
+    const increase = screen.getByLabelText('Decrease');
+
+    await user.click(screen.getByText('external'));
+    expect(input).to.have.value((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+
+    await user.click(increase);
+    expect(input).to.have.value((0.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
+  });
+
+  it('only calls onValueChange once per decrement', async () => {
+    const handleValueChange = spy();
+    const { user } = await render(
+      <NumberField.Root onValueChange={handleValueChange}>
+        <NumberField.Decrement />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+
+    await user.click(button);
+    expect(handleValueChange.callCount).to.equal(1);
+
+    await user.click(button);
+    expect(handleValueChange.callCount).to.equal(2);
   });
 
   describe('press and hold', () => {
@@ -300,7 +343,7 @@ describe('<NumberField.Decrement />', () => {
       const button = screen.getByRole('button');
       fireEvent.click(button);
 
-      expect(screen.getByRole('textbox')).to.have.value('0.7');
+      expect(screen.getByRole('textbox')).to.have.value((0.7).toLocaleString());
     });
 
     it('should snap on decrement when snapOnStep is true', async () => {
@@ -386,6 +429,32 @@ describe('<NumberField.Decrement />', () => {
       fireEvent.pointerDown(button);
       expect(handleValueChange.callCount).to.equal(0);
       expect(input).to.have.value('0');
+    });
+
+    describe('should be provided to className prop as a fn argument', () => {
+      it('when root is disabled', async () => {
+        const classNameSpy = spy();
+        await render(
+          <NumberField.Root disabled>
+            <NumberField.Decrement className={classNameSpy} />
+            <NumberField.Input />
+          </NumberField.Root>,
+        );
+
+        expect(classNameSpy.lastCall.args[0]).to.have.property('disabled', true);
+      });
+
+      it('when button is disabled', async () => {
+        const classNameSpy = spy();
+        await render(
+          <NumberField.Root>
+            <NumberField.Decrement disabled className={classNameSpy} />
+            <NumberField.Input />
+          </NumberField.Root>,
+        );
+
+        expect(classNameSpy.lastCall.args[0]).to.have.property('disabled', true);
+      });
     });
   });
 });

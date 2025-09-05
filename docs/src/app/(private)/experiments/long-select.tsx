@@ -1,12 +1,16 @@
+'use client';
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import styles from './long-select.module.css';
 
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue="af">
+    <Select.Root>
+      <div style={{ width: 1, height: 2000 }} />
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Afghanistan" />
+        <Select.Value>
+          {(value) => countries.find((country) => country.code === value)?.name}
+        </Select.Value>
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
@@ -15,27 +19,30 @@ export default function ExampleSelect() {
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
-            <Select.Arrow className={styles.Arrow}>
-              <ArrowSvg />
-            </Select.Arrow>
-            {countries.map((country) => (
-              <Select.Item
-                key={country.code}
-                className={styles.Item}
-                value={country.code}
-              >
-                <Select.ItemIndicator className={styles.ItemIndicator}>
-                  <CheckIcon className={styles.ItemIndicatorIcon} />
-                </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>
-                  {country.name}
-                </Select.ItemText>
-              </Select.Item>
-            ))}
+            <div role="presentation" className={styles.PopupScroll}>
+              <div aria-hidden style={{ height: 75 }}>
+                Start
+              </div>
+              <Select.Arrow className={styles.Arrow}>
+                <ArrowSvg />
+              </Select.Arrow>
+              {countries.map((country) => (
+                <Select.Item key={country.code} className={styles.Item} value={country.code}>
+                  <Select.ItemIndicator className={styles.ItemIndicator}>
+                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                  </Select.ItemIndicator>
+                  <Select.ItemText className={styles.ItemText}>{country.name}</Select.ItemText>
+                </Select.Item>
+              ))}
+              <div aria-hidden style={{ height: 75 }}>
+                End
+              </div>
+            </div>
           </Select.Popup>
           <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>
       </Select.Portal>
+      <div style={{ width: 1, height: 2000 }} />
     </Select.Root>
   );
 }

@@ -4,12 +4,15 @@ import { spy } from 'sinon';
 import { act } from '@mui/internal-test-utils';
 import { Toggle } from '@base-ui-components/react/toggle';
 import { createRenderer, describeConformance } from '#test-utils';
+import { ToggleGroup } from '../toggle-group/ToggleGroup';
 
 describe('<Toggle />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Toggle />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render,
   }));
 
@@ -98,6 +101,29 @@ describe('<Toggle />', () => {
 
       expect(handlePressed.callCount).to.equal(0);
       expect(button).to.have.attribute('aria-pressed', 'false');
+    });
+  });
+
+  describe('prop: render', () => {
+    it('should pass composite props', async () => {
+      const renderSpy = spy();
+
+      function ToggleRenderComponent({
+        renderProps,
+      }: {
+        renderProps: React.ComponentProps<'button'>;
+      }) {
+        renderSpy(renderProps);
+        return <button type="button" {...renderProps} />;
+      }
+
+      await render(
+        <ToggleGroup defaultValue={['left']}>
+          <Toggle value="left" render={(props) => <ToggleRenderComponent renderProps={props} />} />
+        </ToggleGroup>,
+      );
+
+      expect(renderSpy.lastCall.args[0]).to.have.property('tabIndex', 0);
     });
   });
 });

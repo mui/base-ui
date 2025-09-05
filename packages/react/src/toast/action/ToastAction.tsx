@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -22,9 +22,8 @@ export const ToastAction = React.forwardRef(function ToastAction(
   const computedChildren = toast.actionProps?.children ?? elementProps.children;
   const shouldRender = Boolean(computedChildren);
 
-  const { getButtonProps } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
     native: nativeButton,
   });
 
@@ -36,7 +35,7 @@ export const ToastAction = React.forwardRef(function ToastAction(
   );
 
   const element = useRenderElement('button', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, buttonRef],
     state,
     props: [
       elementProps,
@@ -63,13 +62,5 @@ export namespace ToastAction {
     type: string | undefined;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
-  }
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
 }

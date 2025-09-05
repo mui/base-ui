@@ -4,7 +4,8 @@ import clsx from 'clsx';
 import NextLink from 'next/link';
 import { Dialog } from '@base-ui-components/react/dialog';
 import * as ReactDOM from 'react-dom';
-import { useScrollLock } from '@base-ui-components/react/utils';
+// eslint-disable-next-line no-restricted-imports
+import { useScrollLock } from '@base-ui-components/react/utils/useScrollLock';
 import { HEADER_HEIGHT } from './Header';
 
 const MobileNavStateCallback = React.createContext<(open: boolean) => void>(() => undefined);
@@ -105,7 +106,12 @@ function PopupImpl(props: React.PropsWithChildren) {
       >
         <div className="MobileNavViewportInner">
           {/* We need the area behind the panel to close on tap but also to scroll the viewport. */}
-          <Dialog.Close className="MobileNavBackdropTapArea" tabIndex={-1} render={<div />} />
+          <Dialog.Close
+            className="MobileNavBackdropTapArea"
+            tabIndex={-1}
+            nativeButton={false}
+            render={<div />}
+          />
 
           <nav className="MobileNavPanel">
             {/* Reverse order to place the close button at the end of the DOM, but at sticky top visually */}
@@ -158,29 +164,29 @@ export function Badge(props: React.ComponentProps<'span'>) {
   return <span {...props} className={clsx('MobileNavBadge', props.className)} />;
 }
 
-export function Label(props: React.ComponentProps<'span'>) {
-  return <span {...props} className={clsx('MobileNavLabel', props.className)} />;
-}
-
 interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
   active?: boolean;
   href: string;
   rel?: string;
+  external?: boolean;
 }
 
-export function Item(props: ItemProps) {
+export function Item({ href, external, ...props }: ItemProps) {
   const setOpen = React.useContext(MobileNavStateCallback);
+
+  const LinkComponent = external ? 'a' : NextLink;
+
   return (
     <li {...props} className={clsx('MobileNavItem', props.className)}>
-      <NextLink
+      <LinkComponent
         aria-current={props.active ? 'page' : undefined}
         className="MobileNavLink"
-        href={props.href}
+        href={href}
         rel={props.rel}
         // We handle scroll manually
-        scroll={false}
+        scroll={external ? undefined : false}
         onClick={() => {
-          if (props.href === window.location.pathname) {
+          if (href === window.location.pathname) {
             // If the URL is the same, close, wait a little, and scroll to top smoothly
             setOpen(false);
             setTimeout(() => {
@@ -196,7 +202,7 @@ export function Item(props: ItemProps) {
         }}
       >
         {props.children}
-      </NextLink>
+      </LinkComponent>
     </li>
   );
 }

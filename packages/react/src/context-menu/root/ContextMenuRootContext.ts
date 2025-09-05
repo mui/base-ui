@@ -1,5 +1,6 @@
 import * as React from 'react';
-import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { type BaseUIChangeEventReason } from '../../utils/types';
+import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface ContextMenuRootContext {
   anchor: { getBoundingClientRect: () => DOMRect };
@@ -7,10 +8,11 @@ export interface ContextMenuRootContext {
   backdropRef: React.RefObject<HTMLDivElement | null>;
   internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   actionsRef: React.RefObject<{
-    setOpen: (nextOpen: boolean, event?: Event, reason?: BaseOpenChangeReason) => void;
+    setOpen: (nextOpen: boolean, eventDetails: BaseUIEventDetails<BaseUIChangeEventReason>) => void;
   } | null>;
   positionerRef: React.RefObject<HTMLElement | null>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
+  rootId: string | undefined;
 }
 
 export const ContextMenuRootContext = React.createContext<ContextMenuRootContext | undefined>(

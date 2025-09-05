@@ -9,6 +9,9 @@
 .List {
   display: flex;
   position: relative;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .Trigger {
@@ -122,12 +125,8 @@
   transition-property: opacity, transform, width, height;
   transition-duration: var(--duration);
   transition-timing-function: var(--easing);
-  width: 100%;
+  width: var(--popup-width);
   height: var(--popup-height);
-
-  @media (min-width: 500px) {
-    width: var(--popup-width);
-  }
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -158,6 +157,7 @@
 }
 
 .Content {
+  box-sizing: border-box;
   transition:
     opacity calc(var(--duration) * 0.5) ease,
     transform var(--duration) var(--easing);
@@ -205,6 +205,9 @@
   display: grid;
   list-style: none;
   grid-template-columns: 1fr;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 
   @media (min-width: 640px) {
     grid-template-columns: 12rem 12rem;
@@ -216,9 +219,13 @@
   flex-direction: column;
   justify-content: center;
   max-width: 400px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 .LinkCard {
+  box-sizing: border-box;
   position: relative;
   display: block;
   width: 100%;
@@ -228,6 +235,8 @@
   text-decoration: none;
   color: inherit;
   text-align: left;
+  border: none;
+  background-color: transparent;
 
   &[data-popup-open] {
     background-color: var(--color-gray-50);

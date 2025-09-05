@@ -1,8 +1,9 @@
-import { isFirefox, isIOS, isWebKit } from './detectBrowser';
-import { ownerDocument, ownerWindow } from './owner';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
-import { Timeout } from './useTimeout';
-import { AnimationFrame } from './useAnimationFrame';
+import { isIOS, isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { Timeout } from '@base-ui-components/utils/useTimeout';
+import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { NOOP } from './noop';
 
 /* eslint-disable lines-between-class-members */
 
@@ -54,6 +55,7 @@ function preventScrollStandard(referenceElement: Element | null) {
     scrollLeft = html.scrollLeft;
 
     originalHtmlStyles = {
+      scrollbarGutter: html.style.scrollbarGutter,
       overflowY: html.style.overflowY,
       overflowX: html.style.overflowX,
     };
@@ -70,7 +72,8 @@ function preventScrollStandard(referenceElement: Element | null) {
     };
 
     // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
-    const hasScrollbarGutterStable = htmlStyles.scrollbarGutter?.includes('stable');
+    const supportsStableScrollbarGutter =
+      typeof CSS !== 'undefined' && CSS.supports?.('scrollbar-gutter', 'stable');
 
     const isScrollableY = html.scrollHeight > html.clientHeight;
     const isScrollableX = html.scrollWidth > html.clientWidth;
@@ -94,10 +97,15 @@ function preventScrollStandard(referenceElement: Element | null) {
      */
 
     Object.assign(html.style, {
+      scrollbarGutter: 'stable',
       overflowY:
-        !hasScrollbarGutterStable && (isScrollableY || hasConstantOverflowY) ? 'scroll' : 'hidden',
+        !supportsStableScrollbarGutter && (isScrollableY || hasConstantOverflowY)
+          ? 'scroll'
+          : 'hidden',
       overflowX:
-        !hasScrollbarGutterStable && (isScrollableX || hasConstantOverflowX) ? 'scroll' : 'hidden',
+        !supportsStableScrollbarGutter && (isScrollableX || hasConstantOverflowX)
+          ? 'scroll'
+          : 'hidden',
     });
 
     Object.assign(body.style, {
@@ -173,11 +181,18 @@ class ScrollLocker {
       return;
     }
 
-    const isOverflowHiddenLock = isIOS || (isFirefox && !hasInsetScrollbars(referenceElement));
+    const doc = ownerDocument(referenceElement);
+    const html = doc.documentElement;
+    const htmlOverflowY = ownerWindow(html).getComputedStyle(html).overflowY;
 
-    // Firefox on macOS with overlay scrollbars uses a basic scroll lock that doesn't
-    // need the inset scrollbars handling to prevent overlay scrollbars from appearing
-    // on scroll containers briefly whenever the lock is enabled.
+    // If the site author already hid overflow on <html>, respect it and bail out.
+    if (htmlOverflowY === 'hidden' || htmlOverflowY === 'clip') {
+      this.restore = NOOP;
+      return;
+    }
+
+    const isOverflowHiddenLock = isIOS || !hasInsetScrollbars(referenceElement);
+
     // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
     // side effects and bugs that arise on iOS, it must be researched extensively before
     // being enabled to ensure it doesn't cause the following issues:
@@ -206,8 +221,8 @@ export function useScrollLock(params: {
   const { enabled = true, mounted, open, referenceElement = null } = params;
 
   // https://github.com/mui/base-ui/issues/1135
-  useModernLayoutEffect(() => {
-    if (isWebKit && mounted && !open) {
+  useIsoLayoutEffect(() => {
+    if (enabled && isWebKit && mounted && !open) {
       const doc = ownerDocument(referenceElement);
       const originalUserSelect = doc.body.style.userSelect;
       const originalWebkitUserSelect = doc.body.style.webkitUserSelect;
@@ -219,9 +234,9 @@ export function useScrollLock(params: {
       };
     }
     return undefined;
-  }, [mounted, open, referenceElement]);
+  }, [enabled, mounted, open, referenceElement]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       return undefined;
     }

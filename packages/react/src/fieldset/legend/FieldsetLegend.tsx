@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldsetRootContext } from '../root/FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -22,7 +22,7 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setLegendId(id);
     return () => {
       setLegendId(undefined);

@@ -4,6 +4,8 @@ packages:
   - test
   - test/*
   - scripts/*
+  - examples/*
+
 onlyBuiltDependencies:
   - '@mui/internal-babel-plugin-display-name'
   - '@mui/monorepo'
@@ -13,3 +15,5 @@ onlyBuiltDependencies:
   - nx
   - sharp
   - unrs-resolver
+
+engineStrict: true

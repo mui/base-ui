@@ -1,16 +1,18 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '../../utils/owner';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
+import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useTabsListContext } from '../list/TabsListContext';
+import { activeElement, contains } from '../../floating-ui-react/utils';
 
 /**
  * An individual interactive tab button that toggles the corresponding panel.
@@ -18,7 +20,7 @@ import { useTabsListContext } from '../list/TabsListContext';
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-export const TabsTab = React.forwardRef(function Tab(
+export const TabsTab = React.forwardRef(function TabsTab(
   componentProps: TabsTab.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -38,8 +40,13 @@ export const TabsTab = React.forwardRef(function Tab(
     orientation,
   } = useTabsRootContext();
 
-  const { activateOnFocus, highlightedTabIndex, onTabActivation, setHighlightedTabIndex } =
-    useTabsListContext();
+  const {
+    activateOnFocus,
+    highlightedTabIndex,
+    onTabActivation,
+    setHighlightedTabIndex,
+    tabsListRef,
+  } = useTabsListContext();
 
   const id = useBaseUiId(idProp);
 
@@ -49,8 +56,8 @@ export const TabsTab = React.forwardRef(function Tab(
   );
 
   const {
-    props: compositeItemProps,
-    ref: compositeItemRef,
+    compositeProps,
+    compositeRef,
     index,
     // hook is used instead of the CompositeItem component
     // because the index is needed for Tab internals
@@ -68,17 +75,31 @@ export const TabsTab = React.forwardRef(function Tab(
     return valueProp === selectedTabValue;
   }, [index, selectedTabValue, valueProp]);
 
-  const isSelectionSyncedWithHighlightRef = React.useRef(false);
+  const isNavigatingRef = React.useRef(false);
 
-  useModernLayoutEffect(() => {
-    if (isSelectionSyncedWithHighlightRef.current === true) {
+  // Keep the highlighted item in sync with the currently selected tab
+  // when the value prop changes externally (controlled mode)
+  useIsoLayoutEffect(() => {
+    if (isNavigatingRef.current) {
+      isNavigatingRef.current = false;
       return;
     }
-    if (activateOnFocus && selected && index > -1 && highlightedTabIndex !== index) {
-      setHighlightedTabIndex(index);
-      isSelectionSyncedWithHighlightRef.current = true;
+
+    if (!(selected && index > -1 && highlightedTabIndex !== index)) {
+      return;
     }
-  }, [activateOnFocus, highlightedTabIndex, index, selected, setHighlightedTabIndex]);
+
+    // If focus is currently within the tabs list, don't override the roving
+    // focus highlight. This keeps keyboard navigation relative to the focused
+    // item after an external/asynchronous selection change.
+    const listElement = tabsListRef.current;
+    const activeEl = activeElement(ownerDocument(listElement));
+    if (listElement && activeEl && contains(listElement, activeEl)) {
+      return;
+    }
+
+    setHighlightedTabIndex(index);
+  }, [selected, index, highlightedTabIndex, setHighlightedTabIndex, disabled, tabsListRef]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -86,14 +107,10 @@ export const TabsTab = React.forwardRef(function Tab(
     focusableWhenDisabled: true,
   });
 
-  // const handleRef = useForkRef(compositeItemRef, buttonRef, externalRef);
-
   const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueProp, index) : undefined;
 
   const isPressingRef = React.useRef(false);
   const isMainButtonRef = React.useRef(false);
-
-  const highlighted = index > -1 && index === highlightedTabIndex;
 
   const onClick = useEventCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     if (selected || disabled) {
@@ -108,7 +125,7 @@ export const TabsTab = React.forwardRef(function Tab(
       return;
     }
 
-    if (index > 1 && index !== highlightedTabIndex) {
+    if (index > -1) {
       setHighlightedTabIndex(index);
     }
 
@@ -147,17 +164,17 @@ export const TabsTab = React.forwardRef(function Tab(
   const state: TabsTab.State = React.useMemo(
     () => ({
       disabled,
-      highlighted,
       selected,
       orientation,
     }),
-    [disabled, highlighted, selected, orientation],
+    [disabled, selected, orientation],
   );
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, compositeItemRef],
+    ref: [forwardedRef, buttonRef, compositeRef],
     props: [
+      compositeProps,
       {
         role: 'tab',
         'aria-controls': tabPanelId,
@@ -166,10 +183,13 @@ export const TabsTab = React.forwardRef(function Tab(
         onClick,
         onFocus,
         onPointerDown,
+        [ACTIVE_COMPOSITE_ITEM as string]: selected ? '' : undefined,
+        onKeyDownCapture() {
+          isNavigatingRef.current = true;
+        },
       },
       elementProps,
       getButtonProps,
-      compositeItemProps,
     ],
   });
 
@@ -208,19 +228,11 @@ export namespace TabsTab {
     orientation: TabsRoot.Orientation;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
     /**
      * The value of the Tab.
      * When not specified, the value is the child position index.
-     * @type Tabs.Tab.Value
      */
     value?: Value;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 }

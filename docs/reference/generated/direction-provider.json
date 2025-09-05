@@ -5,10 +5,12 @@
     "direction": {
       "type": "TextDirection",
       "default": "'ltr'",
-      "description": "The reading direction of the text"
+      "description": "The reading direction of the text",
+      "detailedType": "'ltr' | 'rtl' | undefined"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
     }
   },
   "dataAttributes": {},

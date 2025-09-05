@@ -39,18 +39,14 @@ function SelectDemo({ modal, withBackdrop }: Props) {
   return (
     <Select.Root defaultValue="system" modal={modal}>
       <Select.Trigger aria-label="Select font" render={<Trigger />}>
-        <Select.Value placeholder="System font" />
+        <Select.Value />
         <SelectDropdownArrow />
       </Select.Trigger>
 
       {withBackdrop && <Select.Backdrop render={<Backdrop />} />}
 
       <Select.Portal>
-        <Select.Positioner
-          sideOffset={5}
-          render={<Positioner />}
-          alignItemWithTrigger={false}
-        >
+        <Select.Positioner sideOffset={5} render={<Positioner />} alignItemWithTrigger={false}>
           <SelectPopup>
             <SelectItem value="system">
               <SelectItemIndicator render={<CheckIcon />} />
@@ -81,9 +77,7 @@ function MenuDemo({ modal, withBackdrop }: Props) {
       <Menu.Portal>
         <Menu.Positioner align="start" sideOffset={8} render={<Positioner />}>
           <MenuPopup>
-            <MenuItem onClick={() => console.log('Log out clicked')}>
-              Log out
-            </MenuItem>
+            <MenuItem onClick={() => console.log('Log out clicked')}>Log out</MenuItem>
           </MenuPopup>
         </Menu.Positioner>
       </Menu.Portal>
@@ -155,10 +149,7 @@ const CheckIcon = styled(function CheckIcon(props: React.SVGProps<SVGSVGElement>
       viewBox="0 0 24 24"
       fill="none"
     >
-      <path
-        d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
-        fill="currentColor"
-      />
+      <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
     </svg>
   );
 })`
@@ -215,10 +206,7 @@ const SelectPopup = styled(Select.Popup)`
     0 2px 4px rgb(0 0 0 / 0.1),
     0 0 0 1px rgb(0 0 0 / 0.1);
   max-height: var(--available-height);
-  min-width: min(
-    calc(var(--available-width) - 12px),
-    calc(var(--anchor-width) + 20px)
-  );
+  min-width: min(calc(var(--available-width) - 12px), calc(var(--anchor-width) + 20px));
   scroll-padding: 4px;
 
   &[data-side='none'] {

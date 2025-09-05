@@ -31,6 +31,9 @@ import { Menu } from '@base-ui-components/react/menu';
           <Menu.RadioItem />
         </Menu.RadioGroup>
         <Menu.CheckboxItem />
+        <Menu.SubmenuRoot>
+          <Menu.SubmenuTrigger />
+        </Menu.SubmenuRoot>
       </Menu.Popup>
     </Menu.Positioner>
   </Menu.Portal>
@@ -41,7 +44,7 @@ import { Menu } from '@base-ui-components/react/menu';
 
 <Reference
   component="Menu"
-  parts="Root, Trigger, Portal, Positioner, Popup, Arrow, Item,  Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, SubmenuTrigger, Separator"
+  parts="Root, Trigger, Portal, Backdrop, Positioner, Popup, Arrow, Item, SubmenuRoot, SubmenuTrigger, Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, Separator"
 />
 
 ## Examples
@@ -84,20 +87,19 @@ Use the `<Menu.GroupLabel>` part to add a label to a `<Menu.Group>`
 
 ### Nested menu
 
-To create a submenu, nest another menu inside the parent menu. Use the `<Menu.SubmenuTrigger>` part for the menu item that opens the nested menu.
+To create a submenu, nest another menu inside the parent menu with `<Menu.SubmenuRoot>`. Use the `<Menu.SubmenuTrigger>` part for the menu item that opens the nested menu.
 
 ```jsx {11-21} {12}#strong title="Adding a submenu"
 <Menu.Root>
   <Menu.Trigger />
   <Menu.Portal>
-    <Menu.Backdrop />
     <Menu.Positioner>
       <Menu.Popup>
         <Menu.Arrow />
         <Menu.Item />
 
         {/* Submenu */}
-        <Menu.Root>
+        <Menu.SubmenuRoot>
           <Menu.SubmenuTrigger />
           <Menu.Portal>
             <Menu.Positioner>
@@ -107,7 +109,7 @@ To create a submenu, nest another menu inside the parent menu. Use the `<Menu.Su
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
-        </Menu.Root>
+        </Menu.SubmenuRoot>
       </Menu.Popup>
     </Menu.Positioner>
   </Menu.Portal>
@@ -128,22 +130,18 @@ Use the `render` prop to compose a menu item with an anchor element.
 
 In order to open a dialog using a menu, control the dialog state and open it imperatively using the `onClick` handler on the menu item.
 
-Make sure to also use the dialog's `finalFocus` prop to return focus back to the menu trigger.
-
 ```tsx {12-13,17-18,24-25,28-29} title="Connecting a dialog to a menu"
 import * as React from 'react';
-import { Dialog } from '@base-ui/components/dialog';
-import { Menu } from '@base-ui/components/menu';
+import { Dialog } from '@base-ui-components/react/dialog';
+import { Menu } from '@base-ui-components/react/menu';
 
 function ExampleMenu() {
-  const menuTriggerRef = React.useRef<HTMLButtonElement>(null);
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
   return (
     <React.Fragment>
       <Menu.Root>
-        {/* Set the trigger ref */}
-        <Menu.Trigger ref={menuTriggerRef}>Open menu</Menu.Trigger>
+        <Menu.Trigger>Open menu</Menu.Trigger>
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
@@ -158,8 +156,7 @@ function ExampleMenu() {
       <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
         <Dialog.Portal>
           <Dialog.Backdrop />
-          {/* Return focus to the menu trigger when the dialog is closed */}
-          <Dialog.Popup finalFocus={menuTriggerRef}>
+          <Dialog.Popup>
             {/* prettier-ignore */}
             {/* Rest of the dialog */}
           </Dialog.Popup>

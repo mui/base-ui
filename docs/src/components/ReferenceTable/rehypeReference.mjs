@@ -12,6 +12,7 @@ const REFERENCE = 'Reference';
 // The corresponding components exposed in "mdx-components.tsx"
 const ATTRIBUTES_TABLE = 'AttributesReferenceTable';
 const CSS_VARIABLES_TABLE = 'CssVariablesReferenceTable';
+
 const PROPS_TABLE = 'PropsReferenceTable';
 
 /**
@@ -37,6 +38,12 @@ export function rehypeReference() {
       const parts = node.attributes.find(
         /** @param {{ name: string; }} attr */
         (attr) => attr.name === 'parts',
+      )?.value;
+
+      /** @type {string | undefined} */
+      const asParam = node.attributes.find(
+        /** @param {{ name: string; }} attr */
+        (attr) => attr.name === 'as',
       )?.value;
 
       if (!component) {
@@ -103,7 +110,15 @@ export function rehypeReference() {
             subtree.push(
               createMdxElement({
                 name: PROPS_TABLE,
-                props: { data: def.props },
+                props: {
+                  name:
+                    asParam && def.name.startsWith(component)
+                      ? `${asParam}${def.name.substring(component.length)}`
+                      : def.name,
+                  data: def.props,
+                  renameFrom: asParam ? component : undefined,
+                  renameTo: asParam,
+                },
               }),
             );
           }

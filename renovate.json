@@ -1,75 +1,38 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "automerge": false,
-  "commitMessageAction": "Bump",
-  "commitMessageExtra": "to {{newValue}}",
-  "commitMessageTopic": "{{depName}}",
-  "dependencyDashboard": true,
-  "rebaseWhen": "conflicted",
-  "ignoreDeps": [],
-  "labels": ["dependencies"],
+  "extends": ["github>mui/mui-public//renovate/default"],
+  "schedule": "* 2-6 * * 5",
   "lockFileMaintenance": {
-    "enabled": true,
-    "schedule": "before 6:00am on the first day of the month"
+    "schedule": "* 0-4 4 * *"
   },
   "packageRules": [
     {
-      "matchDepTypes": ["peerDependencies"],
-      "rangeStrategy": "widen"
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true,
+      "minimumReleaseAge": "3 days"
     },
     {
-      "groupName": "babel",
-      "matchPackagePatterns": ["^@babel/", "^@types/babel"]
-    },
-    {
-      "groupName": "Emotion",
-      "matchPackagePatterns": "@emotion/*"
+      "groupName": "Floating UI",
+      "description": "Update Floating UI as soon as the new version is released",
+      "matchPackageNames": ["@floating-ui/*"],
+      "schedule": null
     },
     {
       "groupName": "Tailwind CSS",
       "matchPackageNames": ["tailwindcss", "@tailwindcss/*", "prettier-plugin-tailwindcss"]
     },
     {
-      "groupName": "eslint",
-      "matchPackagePatterns": ["eslint", "eslint-*", "@typescript-eslint/*"],
-      "automerge": true
+      "groupName": "MUI public packages",
+      "matchPackageNames": ["@mui/*", "!@mui/internal-*", "!@mui/docs"],
+      "allowedVersions": "!/-dev/"
     },
     {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchPackageNames": ["@mui/*"],
       "automerge": true,
-      "matchPackageNames": ["@types/**"]
-    },
-    {
-      "groupName": "MUI",
-      "matchPackagePatterns": ["@mui/*", "@playwright/test", "mcr.microsoft.com/playwright"],
-      "description": "MUI packages and Playwright. These are updated together as the playwright version used by @mui/internal-test-utils must be the same as mcr.microsoft.com/playwright image.",
-      "allowedVersions": "!/-dev/",
-      "schedule": "before 6:00am on Wednesday"
-    },
-    {
-      "groupName": "Public packages' dependencies",
-      "matchFileNames": ["packages/*/package.json"],
-      "matchDepTypes": ["dependencies", "devDependencies"],
-      "schedule": "before 6:00am on Wednesday"
-    },
-    {
-      "groupName": "React",
-      "matchPackageNames": [
-        "react",
-        "react-dom",
-        "react-is",
-        "@types/react",
-        "@types/react-dom",
-        "@types/react-is"
-      ]
-    },
-    {
-      "groupName": "Node.js",
-      "matchPackageNames": ["node", "@types/node", "cimg/node"],
-      "allowedVersions": "< 19.0.0"
-    },
-    {
-      "groupName": "Vitest",
-      "matchPackagePatterns": ["^vitest$", "^@vitest/"]
+      "minimumReleaseAge": "1 minute"
     },
     {
       "matchDepTypes": ["engines"],
@@ -77,38 +40,9 @@
       "enabled": false
     },
     {
-      "groupName": "CodeSandbox template",
-      "matchPaths": [".codesandbox/template/package.json"],
-      "enabled": false
-    },
-    {
-      "matchDepTypes": ["action"],
-      "pinDigests": true
-    },
-    {
-      "groupName": "GitHub Actions",
-      "matchManagers": ["github-actions"]
-    },
-    {
       "groupName": "chai - incompatible versions",
       "matchPackageNames": ["chai", "@types/chai"],
       "allowedVersions": "< 5.0.0"
-    },
-    {
-      "groupName": "react-docgen - incompatible versions",
-      "matchPackageNames": ["react-docgen"],
-      "allowedVersions": "< 6.0.0"
-    },
-    {
-      "groupName": "eslint - incompatible versions",
-      "matchPackageNames": ["eslint", "@types/eslint"],
-      "allowedVersions": "< 9.0.0"
     }
-  ],
-  "postUpdateOptions": ["pnpmDedupe"],
-  "prConcurrentLimit": 30,
-  "prHourlyLimit": 0,
-  "rangeStrategy": "bump",
-  "schedule": "on the first day of the month before 4:00am",
-  "timezone": "UTC"
+  ]
 }

@@ -31,12 +31,32 @@ describe('<Accordion.Root />', () => {
 
       const root = container.firstElementChild as HTMLElement;
       const trigger = getByRole('button');
-      const panel = queryByText(PANEL_CONTENT_1);
+      const panel = queryByText(PANEL_CONTENT_1) as HTMLElement;
 
       expect(root).to.have.attribute('role', 'region');
-      expect(panel?.getAttribute('id')).to.equal(trigger?.getAttribute('aria-controls'));
+      expect(trigger).to.have.attribute('aria-controls');
+      expect(panel.getAttribute('id')).to.equal(trigger.getAttribute('aria-controls'));
       expect(panel).to.have.attribute('role', 'region');
-      expect(trigger?.getAttribute('id')).to.equal(panel?.getAttribute('aria-labelledby'));
+      expect(trigger.getAttribute('id')).to.equal(panel.getAttribute('aria-labelledby'));
+    });
+
+    it('references manual panel id in trigger aria-controls', async () => {
+      const { getByRole, queryByText } = await render(
+        <Accordion.Root defaultValue={[0]}>
+          <Accordion.Item>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel id="custom-panel-id">{PANEL_CONTENT_1}</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const trigger = getByRole('button');
+      const panel = queryByText(PANEL_CONTENT_1) as HTMLElement;
+
+      expect(trigger).to.have.attribute('aria-controls', 'custom-panel-id');
+      expect(panel).to.have.attribute('id', 'custom-panel-id');
     });
   });
 
@@ -458,6 +478,41 @@ describe('<Accordion.Root />', () => {
         await user.keyboard('[Home]');
         expect(trigger1).toHaveFocus();
       });
+    });
+
+    it('does not affect composite keys on interactive elements in the panel', async () => {
+      const { getByRole, user } = await render(
+        <Accordion.Root defaultValue={[0]}>
+          <Accordion.Item value={0}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>
+              <input type="text" defaultValue="abcd" />
+            </Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item value={1}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>2</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const input = getByRole('textbox') as HTMLInputElement;
+
+      await user.keyboard('[Tab]');
+      await user.keyboard('[Tab]');
+      expect(input).toHaveFocus();
+
+      // Firefox doesn't support document.getSelection() in inputs
+      expect(input.selectionStart).to.equal(0);
+      expect(input.selectionEnd).to.equal(4);
+
+      await user.keyboard('[ArrowLeft]');
+      expect(input.selectionStart).to.equal(0);
+      expect(input.selectionEnd).to.equal(0);
     });
 
     describe('prop: loop', () => {

@@ -4,77 +4,89 @@
   "props": {
     "name": {
       "type": "string",
-      "description": "Identifies the field when a form is submitted."
+      "description": "Identifies the field when a form is submitted.",
+      "detailedType": "string | undefined"
     },
     "defaultValue": {
-      "type": "number | readonly number[]",
-      "description": "The uncontrolled value of the slider when it’s initially rendered.\n\nTo render a controlled slider, use the `value` prop instead."
+      "type": "number | number[]",
+      "description": "The uncontrolled value of the slider when it’s initially rendered.\n\nTo render a controlled slider, use the `value` prop instead.",
+      "detailedType": "number | number[] | undefined"
     },
     "value": {
-      "type": "number | readonly number[]",
-      "description": "The value of the slider.\nFor ranged sliders, provide an array with two values."
+      "type": "number | number[]",
+      "description": "The value of the slider.\nFor ranged sliders, provide an array with two values.",
+      "detailedType": "number | number[] | undefined"
     },
     "onValueChange": {
-      "type": "((value: (number | number[]), event: Event, activeThumbIndex: number) => void)",
-      "description": "Callback function that is fired when the slider's value changed."
+      "type": "((value: number | number[], eventDetails: Slider.Root.ChangeEventDetails, activeThumbIndex: number) => void)",
+      "description": "Callback function that is fired when the slider's value changed.",
+      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.ChangeEventDetails,\n    activeThumbIndex: number,\n  ) => void)\n| undefined"
     },
     "onValueCommitted": {
-      "type": "((value: (number | number[]), event: Event) => void)",
-      "description": "Callback function that is fired when the `pointerup` is triggered."
+      "type": "((value: number | number[], eventDetails: Slider.Root.ChangeEventDetails) => void)",
+      "description": "Callback function that is fired when the `pointerup` is triggered.",
+      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "locale": {
-      "type": "LocalesArgument",
-      "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
+      "type": "Intl.LocalesArgument",
+      "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale.",
+      "detailedType": "Intl.LocalesArgument | undefined"
     },
     "ref": {
-      "type": "RefObject<HTMLDivElement>"
-    },
-    "tabIndex": {
-      "type": "number",
-      "description": "Optional tab index attribute for the thumb components."
+      "type": "RefObject<HTMLDivElement>",
+      "detailedType": "React.RefObject<HTMLDivElement> | undefined"
     },
     "step": {
       "type": "number",
       "default": "1",
-      "description": "The granularity with which the slider can step through values. (A \"discrete\" slider.)\nThe `min` prop serves as the origin for the valid values.\nWe recommend (max - min) to be evenly divisible by the step."
+      "description": "The granularity with which the slider can step through values. (A \"discrete\" slider.)\nThe `min` prop serves as the origin for the valid values.\nWe recommend (max - min) to be evenly divisible by the step.",
+      "detailedType": "number | undefined"
     },
     "largeStep": {
       "type": "number",
       "default": "10",
-      "description": "The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down."
+      "description": "The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.",
+      "detailedType": "number | undefined"
     },
     "minStepsBetweenValues": {
       "type": "number",
       "default": "0",
-      "description": "The minimum steps between values in a range slider."
+      "description": "The minimum steps between values in a range slider.",
+      "detailedType": "number | undefined"
     },
     "min": {
       "type": "number",
       "default": "0",
-      "description": "The minimum allowed value of the slider.\nShould not be equal to max."
+      "description": "The minimum allowed value of the slider.\nShould not be equal to max.",
+      "detailedType": "number | undefined"
     },
     "max": {
       "type": "number",
       "default": "100",
-      "description": "The maximum allowed value of the slider.\nShould not be equal to min."
+      "description": "The maximum allowed value of the slider.\nShould not be equal to min.",
+      "detailedType": "number | undefined"
     },
     "format": {
-      "type": "NumberFormatOptions",
-      "description": "Options to format the input value."
+      "type": "Intl.NumberFormatOptions",
+      "description": "Options to format the input value.",
+      "detailedType": "Intl.NumberFormatOptions | undefined"
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the slider should ignore user interaction."
+      "description": "Whether the slider should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "orientation": {
       "type": "Orientation",
       "default": "'horizontal'",
-      "description": "The component orientation."
+      "description": "The component orientation.",
+      "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "inputRef": {
       "type": "Ref<HTMLInputElement>",
-      "description": "A ref to access the hidden input element."
+      "description": "A ref to access the hidden input element.",
+      "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "className": {
       "type": "string | ((state: Slider.Root.State) => string)",
@@ -82,7 +94,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Slider.Root.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Slider.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -1,18 +1,74 @@
-import sortBy from 'lodash/sortBy.js';
+/* eslint-disable no-await-in-loop */
+import sortBy from 'lodash/sortBy';
 import * as tae from 'typescript-api-extractor';
 import fs from 'fs';
 import path from 'path';
+import _ from 'lodash';
+import * as prettier from 'prettier';
 
-export function formatProperties(props: tae.PropertyNode[]) {
+export async function formatProperties(
+  props: tae.PropertyNode[],
+  allExports: tae.ExportNode[] | undefined = undefined,
+) {
   const result: Record<string, any> = {};
 
   for (const prop of props) {
-    result[prop.name] = {
-      type: formatType(prop.type, prop.optional, prop.documentation?.tags),
+    const exampleTag = prop.documentation?.tags
+      ?.filter((tag) => tag.name === 'example')
+      .map((tag) => tag.value)
+      .join('\n');
+
+    let detailedType = formatType(prop.type, prop.optional, prop.documentation?.tags);
+    if (prop.name !== 'className' && prop.name !== 'render' && allExports) {
+      detailedType = formatDetailedType(prop.type, allExports);
+    }
+
+    const formattedDetailedType = await prettier.format(`type _ = ${detailedType}`, {
+      parser: 'typescript',
+      singleQuote: true,
+      semi: false,
+      printWidth: 60,
+    });
+
+    // Improve readability by formatting complex types with Prettier.
+    // Prettier either formats the type on a single line or multiple lines.
+    // If it's on a single line, we remove the `type _ = ` prefix.
+    // If it's on multiple lines, we remove the first line (`type _ =`) and de-indent the rest.
+    const lines = formattedDetailedType.trimEnd().split('\n');
+    if (lines.length === 1) {
+      detailedType = lines[0].replace(/^type _ = /, '');
+    } else {
+      const codeLines = lines.slice(1);
+      const nonEmptyLines = codeLines.filter((l) => l.trim() !== '');
+      if (nonEmptyLines.length > 0) {
+        const minIndent = Math.min(...nonEmptyLines.map((l) => l.match(/^\s*/)?.[0].length ?? 0));
+
+        if (Number.isFinite(minIndent) && minIndent > 0) {
+          detailedType = codeLines.map((l) => l.substring(minIndent)).join('\n');
+        } else {
+          detailedType = codeLines.join('\n');
+        }
+      } else {
+        detailedType = codeLines.join('\n');
+      }
+    }
+
+    const formattedType = formatType(prop.type, prop.optional, prop.documentation?.tags);
+
+    const resultObject: Record<string, any> = {
+      type: formattedType,
       default: prop.documentation?.defaultValue,
       required: !prop.optional || undefined,
       description: prop.documentation?.description,
+      example: exampleTag || undefined,
+      detailedType,
     };
+
+    if (detailedType === formattedType) {
+      delete resultObject.detailedType;
+    }
+
+    result[prop.name] = resultObject;
   }
 
   return result;
@@ -22,15 +78,66 @@ export function formatParameters(params: tae.Parameter[]) {
   const result: Record<string, any> = {};
 
   for (const param of params) {
+    const exampleTag = param.documentation?.tags
+      ?.filter((tag) => tag.name === 'example')
+      .map((tag) => tag.value)
+      .join('\n');
+
     result[param.name] = {
       type: formatType(param.type, param.optional, param.documentation?.tags, true),
       default: param.defaultValue,
       optional: param.optional || undefined,
       description: param.documentation?.description,
+      example: exampleTag || undefined,
     };
   }
 
   return result;
+}
+
+export function formatDetailedType(
+  type: tae.AnyType,
+  allExports: tae.ExportNode[],
+  visited = new Set<string>(),
+): string {
+  // Prevent infinite recursion
+  if (type instanceof tae.ExternalTypeNode) {
+    const qualifiedName = getFullyQualifiedName(type.typeName);
+    if (visited.has(qualifiedName)) {
+      return qualifiedName;
+    }
+    visited.add(qualifiedName);
+
+    const exportNode = allExports.find((node) => node.name === type.typeName.name);
+    if (exportNode) {
+      return formatDetailedType(
+        (exportNode.type as unknown as tae.AnyType) ?? type,
+        allExports,
+        visited,
+      );
+    }
+
+    // Manually expand known external aliases when declaration is not in local exports
+    switch (true) {
+      case qualifiedName.endsWith('Padding'):
+        return '{ top?: number; right?: number; bottom?: number; left?: number } | number';
+      default:
+        return qualifiedName;
+    }
+  }
+
+  if (type instanceof tae.UnionNode) {
+    const memberTypes = type.types.map((t) => formatDetailedType(t, allExports, visited));
+    return _.uniq(memberTypes).join(' | ');
+  }
+
+  if (type instanceof tae.IntersectionNode) {
+    const memberTypes = type.types.map((t) => formatDetailedType(t, allExports, visited));
+    return _.uniq(memberTypes).join(' & ');
+  }
+
+  // For objects and everything else, reuse existing formatter with object expansion enabled
+  return formatType(type, false, undefined, true);
 }
 
 export function formatEnum(enumNode: tae.EnumNode) {
@@ -46,7 +153,7 @@ export function formatEnum(enumNode: tae.EnumNode) {
 }
 
 export function formatType(
-  type: tae.TypeNode,
+  type: tae.AnyType,
   removeUndefined: boolean,
   jsdocTags: tae.DocumentationTag[] | undefined = undefined,
   expandObjects: boolean = false,
@@ -58,43 +165,60 @@ export function formatType(
     return typeValue;
   }
 
-  if (type instanceof tae.ReferenceNode) {
-    if (/^ReactElement(<.*>)?/.test(type.name)) {
+  if (type instanceof tae.ExternalTypeNode) {
+    if (/^ReactElement(<.*>)?/.test(type.typeName.name || '')) {
       return 'ReactElement';
     }
 
-    return type.name;
+    if (type.typeName.namespaces?.length === 1 && type.typeName.namespaces[0] === 'React') {
+      return createNameWithTypeArguments(type.typeName);
+    }
+
+    return getFullyQualifiedName(type.typeName);
   }
 
   if (type instanceof tae.IntrinsicNode) {
-    return type.name;
+    return type.typeName ? getFullyQualifiedName(type.typeName) : type.intrinsic;
   }
 
   if (type instanceof tae.UnionNode) {
-    if (type.name) {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+    if (type.typeName) {
+      return getFullyQualifiedName(type.typeName);
     }
 
-    const memberTypes = type.types;
+    let memberTypes = type.types;
 
     if (removeUndefined) {
-      const types = memberTypes.filter(
-        (t) => !(t instanceof tae.IntrinsicNode && t.name === 'undefined'),
+      memberTypes = memberTypes.filter(
+        (t) => !(t instanceof tae.IntrinsicNode && t.intrinsic === 'undefined'),
       );
-
-      return orderMembers(types)
-        .map((t) => formatType(t, removeUndefined))
-        .join(' | ');
     }
 
-    return orderMembers(memberTypes)
-      .map((t) => formatType(t, removeUndefined))
-      .join(' | ');
+    // Deduplicates types in unions.
+    // Plain unions are handled by TypeScript API Extractor, but we also display unions in type parameters constraints,
+    // so we need to merge those here.
+    const flattenedMemberTypes = memberTypes.flatMap((t) => {
+      if (t instanceof tae.UnionNode) {
+        return t.typeName ? t : t.types;
+      }
+
+      if (t instanceof tae.TypeParameterNode && t.constraint instanceof tae.UnionNode) {
+        return t.constraint.types;
+      }
+
+      return t;
+    });
+
+    const formattedMemeberTypes = _.uniq(
+      orderMembers(flattenedMemberTypes).map((t) => formatType(t, removeUndefined)),
+    );
+
+    return formattedMemeberTypes.join(' | ');
   }
 
   if (type instanceof tae.IntersectionNode) {
-    if (type.name) {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+    if (type.typeName) {
+      return getFullyQualifiedName(type.typeName);
     }
 
     return orderMembers(type.types)
@@ -103,8 +227,8 @@ export function formatType(
   }
 
   if (type instanceof tae.ObjectNode) {
-    if (type.name && !expandObjects) {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+    if (type.typeName && !expandObjects) {
+      return getFullyQualifiedName(type.typeName);
     }
 
     if (isObjectEmpty(type.properties)) {
@@ -112,7 +236,7 @@ export function formatType(
     }
 
     return `{ ${type.properties
-      .map((m) => `${m.name}: ${formatType(m.type, m.optional)}`)
+      .map((m) => `${m.name}${m.optional ? '?' : ''}: ${formatType(m.type, m.optional)}`)
       .join(', ')} }`;
   }
 
@@ -131,8 +255,10 @@ export function formatType(
   }
 
   if (type instanceof tae.FunctionNode) {
-    if (type.name && type.name !== 'ComponentRenderFn') {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+    // If object expansion is requested, we want to fully expand the function signature instead
+    // of returning the aliased type name (e.g., OffsetFunction).
+    if (!expandObjects && type.typeName && !type.typeName.name?.startsWith('ComponentRenderFn')) {
+      return getFullyQualifiedName(type.typeName);
     }
 
     const functionSignature = type.callSignatures
@@ -148,15 +274,15 @@ export function formatType(
   }
 
   if (type instanceof tae.TupleNode) {
-    if (type.name) {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+    if (type.typeName) {
+      return getFullyQualifiedName(type.typeName);
     }
 
-    return `[${type.types.map((member: tae.TypeNode) => formatType(member, false)).join(', ')}]`;
+    return `[${type.types.map((member: tae.AnyType) => formatType(member, false)).join(', ')}]`;
   }
 
   if (type instanceof tae.TypeParameterNode) {
-    return type.constraint ?? type.name;
+    return type.constraint !== undefined ? formatType(type.constraint, removeUndefined) : type.name;
   }
 
   return 'unknown';
@@ -176,14 +302,16 @@ const componentNames: string[] = fs
   .filter((dirent) => dirent.isDirectory())
   .map((dirent) => kebabToPascal(dirent.name));
 
-function getFullyQualifiedName(localName: string, namespaces: string[]): string {
-  if (namespaces.length === 0) {
-    return localName;
+function getFullyQualifiedName(typeName: tae.TypeName): string {
+  const nameWithTypeArgs = createNameWithTypeArguments(typeName);
+
+  if (!typeName.namespaces || typeName.namespaces.length === 0) {
+    return nameWithTypeArgs;
   }
 
   // Our components are defined in the source as [ComponentName][Part], but exported as [ComponentName].[Part].
   // The following code adjusts the namespaces to match the exported names.
-  const joinedNamespaces = namespaces.map((namespace) => {
+  const joinedNamespaces = typeName.namespaces.map((namespace) => {
     const componentNameInNamespace = componentNames.find((componentName) =>
       new RegExp(`^${componentName}[A-Z]`).test(namespace),
     );
@@ -196,22 +324,34 @@ function getFullyQualifiedName(localName: string, namespaces: string[]): string 
     return namespace;
   });
 
-  return `${joinedNamespaces}.${localName}`;
+  return `${joinedNamespaces}.${nameWithTypeArgs}`;
+}
+
+function createNameWithTypeArguments(typeName: tae.TypeName) {
+  if (
+    typeName.typeArguments &&
+    typeName.typeArguments.length > 0 &&
+    typeName.typeArguments.some((ta) => ta.equalToDefault === false)
+  ) {
+    return `${typeName.name}<${typeName.typeArguments.map((ta) => formatType(ta.type, false)).join(', ')}>`;
+  }
+
+  return typeName.name;
 }
 
 /**
  * Looks for 'any', 'null' and 'undefined' types and moves them to the end of the array of types.
  */
-function orderMembers(members: readonly tae.TypeNode[]): readonly tae.TypeNode[] {
+function orderMembers(members: readonly tae.AnyType[]): readonly tae.AnyType[] {
   let orderedMembers = pushToEnd(members, 'any');
   orderedMembers = pushToEnd(orderedMembers, 'null');
   orderedMembers = pushToEnd(orderedMembers, 'undefined');
   return orderedMembers;
 }
 
-function pushToEnd(members: readonly tae.TypeNode[], name: string): readonly tae.TypeNode[] {
-  const index = members.findIndex((member: tae.TypeNode) => {
-    return member instanceof tae.IntrinsicNode && member.name === name;
+function pushToEnd(members: readonly tae.AnyType[], name: string): readonly tae.AnyType[] {
+  const index = members.findIndex((member: tae.AnyType) => {
+    return member instanceof tae.IntrinsicNode && member.intrinsic === name;
   });
 
   if (index !== -1) {

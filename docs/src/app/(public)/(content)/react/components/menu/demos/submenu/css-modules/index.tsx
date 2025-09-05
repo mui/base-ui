@@ -16,17 +16,13 @@ export default function ExampleMenu() {
             </Menu.Arrow>
             <Menu.Item className={styles.Item}>Add to Library</Menu.Item>
 
-            <Menu.Root>
+            <Menu.SubmenuRoot>
               <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
                 Add to Playlist
                 <ChevronRightIcon />
               </Menu.SubmenuTrigger>
               <Menu.Portal>
-                <Menu.Positioner
-                  className={styles.Positioner}
-                  alignOffset={-4}
-                  sideOffset={-4}
-                >
+                <Menu.Positioner className={styles.Positioner} alignOffset={-4} sideOffset={-4}>
                   <Menu.Popup className={styles.Popup}>
                     <Menu.Item className={styles.Item}>Get Up!</Menu.Item>
                     <Menu.Item className={styles.Item}>Inside Out</Menu.Item>
@@ -36,7 +32,7 @@ export default function ExampleMenu() {
                   </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>
-            </Menu.Root>
+            </Menu.SubmenuRoot>
 
             <Menu.Separator className={styles.Separator} />
             <Menu.Item className={styles.Item}>Play Next</Menu.Item>

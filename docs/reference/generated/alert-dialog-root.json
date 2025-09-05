@@ -5,26 +5,32 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the dialog is initially open.\n\nTo render a controlled dialog, use the `open` prop instead."
+      "description": "Whether the dialog is initially open.\n\nTo render a controlled dialog, use the `open` prop instead.",
+      "detailedType": "boolean | undefined"
     },
     "open": {
       "type": "boolean",
-      "description": "Whether the dialog is currently open."
+      "description": "Whether the dialog is currently open.",
+      "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "(open: boolean, event?: Event, reason?: AlertDialog.Root.OpenChangeReason) => void",
-      "description": "Event handler called when the dialog is opened or closed."
+      "type": "((open: boolean, eventDetails: AlertDialog.Root.ChangeEventDetails) => void)",
+      "description": "Event handler called when the dialog is opened or closed.",
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: AlertDialog.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<{ unmount: () => void; }>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the dialog will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the dialog manually.\nUseful when the dialog's animation is controlled by an external library."
+      "type": "RefObject<AlertDialog.Root.Actions>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the dialog will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the dialog manually.\nUseful when the dialog's animation is controlled by an external library.",
+      "detailedType": "| React.RefObject<AlertDialog.Root.Actions>\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
-      "description": "Event handler called after any animations complete when the dialog is opened or closed."
+      "description": "Event handler called after any animations complete when the dialog is opened or closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
     }
   },
   "dataAttributes": {},

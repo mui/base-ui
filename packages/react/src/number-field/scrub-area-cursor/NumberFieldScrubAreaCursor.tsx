@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import { isWebKit } from '../../utils/detectBrowser';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import { ownerDocument } from '../../utils/owner';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useNumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
 import { useRenderElement } from '../../utils/useRenderElement';

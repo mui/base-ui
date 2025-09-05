@@ -5,12 +5,14 @@
     "activateOnFocus": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether to automatically change the active tab on arrow key focus.\nOtherwise, tabs will be activated using Enter or Spacebar key press."
+      "description": "Whether to automatically change the active tab on arrow key focus.\nOtherwise, tabs will be activated using Enter or Spacebar key press.",
+      "detailedType": "boolean | undefined"
     },
     "loop": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
+      "detailedType": "boolean | undefined"
     },
     "className": {
       "type": "string | ((state: Tabs.List.State) => string)",
@@ -18,7 +20,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Tabs.List.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tabs.List.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -4,96 +4,110 @@
   "props": {
     "name": {
       "type": "string",
-      "description": "Identifies the field when a form is submitted."
+      "description": "Identifies the field when a form is submitted.",
+      "detailedType": "string | undefined"
     },
     "defaultValue": {
       "type": "number",
-      "description": "The uncontrolled value of the field when it’s initially rendered.\n\nTo render a controlled number field, use the `value` prop instead."
+      "description": "The uncontrolled value of the field when it’s initially rendered.\n\nTo render a controlled number field, use the `value` prop instead.",
+      "detailedType": "number | undefined"
     },
     "value": {
       "type": "number | null",
-      "description": "The raw numeric value of the field."
+      "description": "The raw numeric value of the field.",
+      "detailedType": "number | null | undefined"
     },
     "onValueChange": {
-      "type": "((value: number | null, event: Event | undefined) => void)",
-      "description": "Callback fired when the number value changes."
+      "type": "((value: number | null, eventDetails: NumberField.Root.ChangeEventDetails) => void)",
+      "description": "Callback fired when the number value changes.",
+      "detailedType": "| ((\n    value: number | null,\n    eventDetails: NumberField.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "locale": {
-      "type": "LocalesArgument",
+      "type": "Intl.LocalesArgument",
       "description": "The locale of the input element.\nDefaults to the user's runtime locale."
     },
     "snapOnStep": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the value should snap to the nearest step when incrementing or decrementing."
+      "description": "Whether the value should snap to the nearest step when incrementing or decrementing.",
+      "detailedType": "boolean | undefined"
     },
     "step": {
       "type": "number",
       "default": "1",
-      "description": "Amount to increment and decrement with the buttons and arrow keys,\nor to scrub with pointer movement in the scrub area."
+      "description": "Amount to increment and decrement with the buttons and arrow keys,\nor to scrub with pointer movement in the scrub area.",
+      "detailedType": "number | undefined"
     },
     "smallStep": {
       "type": "number",
       "default": "0.1",
-      "description": "The small step value of the input element when incrementing while the meta key is held. Snaps\nto multiples of this value."
+      "description": "The small step value of the input element when incrementing while the meta key is held. Snaps\nto multiples of this value.",
+      "detailedType": "number | undefined"
     },
     "largeStep": {
       "type": "number",
       "default": "10",
-      "description": "The large step value of the input element when incrementing while the shift key is held. Snaps\nto multiples of this value."
+      "description": "The large step value of the input element when incrementing while the shift key is held. Snaps\nto multiples of this value.",
+      "detailedType": "number | undefined"
     },
     "min": {
       "type": "number",
-      "description": "The minimum value of the input element."
+      "description": "The minimum value of the input element.",
+      "detailedType": "number | undefined"
     },
     "max": {
       "type": "number",
-      "description": "The maximum value of the input element."
+      "description": "The maximum value of the input element.",
+      "detailedType": "number | undefined"
     },
     "allowWheelScrub": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to allow the user to scrub the input value with the mouse wheel while focused and\nhovering over the input."
+      "description": "Whether to allow the user to scrub the input value with the mouse wheel while focused and\nhovering over the input.",
+      "detailedType": "boolean | undefined"
     },
     "format": {
-      "type": "NumberFormatOptions",
-      "description": "Options to format the input value."
+      "type": "Intl.NumberFormatOptions",
+      "description": "Options to format the input value.",
+      "detailedType": "Intl.NumberFormatOptions | undefined"
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the user should be unable to change the field value."
+      "description": "Whether the user should be unable to change the field value.",
+      "detailedType": "boolean | undefined"
     },
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the user must enter a value before submitting a form."
-    },
-    "invalid": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the field is forcefully marked as invalid."
+      "description": "Whether the user must enter a value before submitting a form.",
+      "detailedType": "boolean | undefined"
     },
     "inputRef": {
       "type": "Ref<HTMLInputElement>",
-      "description": "A ref to access the hidden input element."
+      "description": "A ref to access the hidden input element.",
+      "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "id": {
       "type": "string",
-      "description": "The id of the input element."
+      "description": "The id of the input element.",
+      "detailedType": "string | undefined"
     },
     "className": {
       "type": "string | ((state: NumberField.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: NumberField.Root.State) => string)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NumberField.Root.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NumberField.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
@@ -11,6 +11,7 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStyleHookMapping } from './styleHooks';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
+import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -59,9 +60,16 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       activationDirection: TabsTab.ActivationDirection,
       event: Event | undefined,
     ) => {
+      const details = createBaseUIEventDetails('none', event);
+
+      onValueChangeProp?.(newValue, details);
+
+      if (details.isCanceled) {
+        return;
+      }
+
       setValue(newValue);
       setTabActivationDirection(activationDirection);
-      onValueChangeProp?.(newValue, event);
     },
   );
 
@@ -193,13 +201,7 @@ export namespace TabsRoot {
   export type Orientation = BaseOrientation;
 
   export type State = {
-    /**
-     * @type Tabs.Root.Orientation
-     */
     orientation: Orientation;
-    /**
-     * @type Tabs.Tab.ActivationDirection
-     */
     tabActivationDirection: TabsTab.ActivationDirection;
   };
 
@@ -207,25 +209,25 @@ export namespace TabsRoot {
     /**
      * The value of the currently selected `Tab`. Use when the component is controlled.
      * When the value is `null`, no Tab will be selected.
-     * @type Tabs.Tab.Value
      */
     value?: TabsTab.Value;
     /**
      * The default value. Use when the component is not controlled.
      * When the value is `null`, no Tab will be selected.
-     * @type Tabs.Tab.Value
      * @default 0
      */
     defaultValue?: TabsTab.Value;
     /**
      * The component orientation (layout flow direction).
-     * @type Tabs.Root.Orientation
      * @default 'horizontal'
      */
     orientation?: Orientation;
     /**
      * Callback invoked when new value is being set.
      */
-    onValueChange?: (value: TabsTab.Value, event?: Event) => void;
+    onValueChange?: (value: TabsTab.Value, eventDetails: ChangeEventDetails) => void;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui-components/utils/warn';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { warn } from '../../utils/warn';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
@@ -12,7 +11,9 @@ import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
-import { usePanelResize } from '../../utils/usePanelResize';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useRenderElement } from '../../utils/useRenderElement';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
  * A collapsible panel with the accordion item contents.
@@ -51,11 +52,12 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     setKeepMounted,
     setMounted,
     setOpen,
-    setPanelId,
     setVisible,
     transitionDimensionRef,
     visible,
     width,
+    setPanelIdState,
+    transitionStatus,
   } = useCollapsibleRootContext();
 
   const hiddenUntilFound = hiddenUntilFoundProp ?? contextHiddenUntilFound;
@@ -63,7 +65,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (keepMountedProp === false && hiddenUntilFound) {
         warn(
           'The `keepMounted={false}` prop on a Accordion.Panel will be ignored when using `contextHiddenUntilFound` on the Panel or the Root since it requires the panel to remain mounted when closed.',
@@ -72,15 +74,35 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     }, [hiddenUntilFound, keepMountedProp]);
   }
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
+    if (idProp) {
+      setPanelIdState(idProp);
+      return () => {
+        setPanelIdState(undefined);
+      };
+    }
+    return undefined;
+  }, [idProp, setPanelIdState]);
+
+  useIsoLayoutEffect(() => {
     setHiddenUntilFound(hiddenUntilFound);
   }, [setHiddenUntilFound, hiddenUntilFound]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 
-  usePanelResize(panelRef, setDimensions, open);
+  useOpenChangeComplete({
+    open: open && transitionStatus === 'idle',
+    ref: panelRef,
+    onComplete() {
+      if (!open) {
+        return;
+      }
+
+      setDimensions({ width: undefined, height: undefined });
+    },
+  });
 
   const { props } = useCollapsiblePanel({
     abortControllerRef,
@@ -98,7 +120,6 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     setDimensions,
     setMounted,
     setOpen,
-    setPanelId,
     setVisible,
     transitionDimensionRef,
     visible,
@@ -107,8 +128,16 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   const { state, triggerId } = useAccordionItemContext();
 
+  const panelState: AccordionPanel.State = React.useMemo(
+    () => ({
+      ...state,
+      transitionStatus,
+    }),
+    [state, transitionStatus],
+  );
+
   const element = useRenderElement('div', componentProps, {
-    state,
+    state: panelState,
     ref: [forwardedRef, panelRef],
     props: [
       props,
@@ -116,10 +145,10 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
         'aria-labelledby': triggerId,
         role: 'region',
         style: {
-          [AccordionPanelCssVars.accordionPanelHeight as string]: height
-            ? `${height}px`
-            : undefined,
-          [AccordionPanelCssVars.accordionPanelWidth as string]: width ? `${width}px` : undefined,
+          [AccordionPanelCssVars.accordionPanelHeight as string]:
+            height === undefined ? 'auto' : `${height}px`,
+          [AccordionPanelCssVars.accordionPanelWidth as string]:
+            width === undefined ? 'auto' : `${width}px`,
         },
       },
       elementProps,
@@ -136,6 +165,10 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 });
 
 export namespace AccordionPanel {
+  export interface State extends AccordionItem.State {
+    transitionStatus: TransitionStatus;
+  }
+
   export interface Props
     extends BaseUIComponentProps<'div', AccordionItem.State>,
       Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}

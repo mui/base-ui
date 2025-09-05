@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { stopEvent, useModernLayoutEffect } from '@floating-ui/react/utils';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -13,6 +14,7 @@ import { styleHookMapping } from '../utils/styleHooks';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 
 const customStyleHookMapping = {
   ...fieldValidityMapping,
@@ -82,12 +84,14 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     commitValidation,
     value,
     controlRef: inputRef,
+    name,
+    getValue: () => value ?? null,
   });
 
   const prevValueRef = React.useRef(value);
   const prevInputValueRef = React.useRef(inputValue);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (prevValueRef.current === value && prevInputValueRef.current === inputValue) {
       return;
     }
@@ -99,7 +103,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     }
   }, [value, inputValue, name, clearErrors, validationMode, commitValidation]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (prevValueRef.current === value || validationMode === 'onChange') {
       return;
     }
@@ -111,7 +115,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     commitValidation(value, true);
   }, [commitValidation, validationMode, value]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     prevValueRef.current = value;
     prevInputValueRef.current = inputValue;
   }, [value, inputValue]);
@@ -165,13 +169,44 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+      const formatOptions = formatOptionsRef.current;
+      const parsedValue = parseNumber(inputValue, locale, formatOptions);
+      const canonicalText = formatNumber(parsedValue, locale, formatOptions);
+      const maxPrecisionText = formatNumberMaxPrecision(parsedValue, locale, formatOptions);
+      const canonical = parseNumber(canonicalText, locale, formatOptions);
+      const maxPrecision = parseNumber(maxPrecisionText, locale, formatOptions);
 
-      if (parsedValue !== null) {
-        blockRevalidationRef.current = true;
-        setValue(parsedValue, event.nativeEvent);
-        if (validationMode === 'onBlur') {
-          commitValidation(parsedValue);
+      if (parsedValue === null) {
+        return;
+      }
+
+      blockRevalidationRef.current = true;
+
+      if (validationMode === 'onBlur') {
+        commitValidation(canonical);
+      }
+
+      const hasExplicitPrecision =
+        formatOptions?.maximumFractionDigits != null ||
+        formatOptions?.minimumFractionDigits != null;
+
+      if (hasExplicitPrecision) {
+        // When the consumer explicitly requests a precision, always round the number to that
+        // precision and normalize the displayed text accordingly.
+        if (value !== canonical) {
+          setValue(canonical, event.nativeEvent);
+        }
+        if (inputValue !== canonicalText) {
+          setInputValue(canonicalText);
+        }
+      } else if (value !== maxPrecision) {
+        // Default behaviour: preserve max precision until it differs from canonical
+        setValue(canonical, event.nativeEvent);
+      } else {
+        const shouldPreserveFullPrecision =
+          parsedValue === value && inputValue === maxPrecisionText;
+        if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
+          setInputValue(canonicalText);
         }
       }
     },
@@ -316,5 +351,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 export namespace NumberFieldInput {
   export interface State extends NumberFieldRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'input', State> {}
+  export interface Props extends BaseUIComponentProps<'input', State> {
+    /**
+     * A string value that provides a user-friendly name for the role of the input.
+     * @default 'Number field'
+     */
+    'aria-roledescription'?: React.AriaAttributes['aria-roledescription'] | undefined;
+  }
 }

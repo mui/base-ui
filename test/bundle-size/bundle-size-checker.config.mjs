@@ -9,17 +9,13 @@ import { defineConfig } from '@mui/internal-bundle-size-checker';
 
 const rootDir = path.resolve(import.meta.dirname, '../..');
 
-/**
- * Generates the entrypoints configuration by scanning the exports field in package.json.
- */
-export default defineConfig(async () => {
+async function getBaseUiExports() {
   // Read the package.json to get exports
   const packageJsonPath = path.join(rootDir, 'packages/react/package.json');
   const packageJsonContent = await fs.readFile(packageJsonPath, 'utf8');
   const packageJson = JSON.parse(packageJsonContent);
-  const externals = Object.keys(packageJson.peerDependencies || {});
 
-  // Get all export paths from package.json
+  // Get all export paths from @base-ui-components/react package.json
   const exports = packageJson.exports;
   const entrypoints = Object.keys(exports).map((exportKey) => {
     // Convert from "./accordion" to "@base-ui-components/react/accordion"
@@ -30,15 +26,47 @@ export default defineConfig(async () => {
     return entrypoint;
   });
 
+  return entrypoints;
+}
+
+async function getUtilsExports() {
+  // Read top-level files to get utils exports
+  const utilsDir = path.join(rootDir, 'packages/utils/src');
+  const files = await fs.readdir(utilsDir);
+
+  // Get file stats concurrently
+  const fileStats = await Promise.all(
+    files.map(async (file) => {
+      const filePath = path.join(utilsDir, file);
+      const stat = await fs.stat(filePath);
+      return { file, stat };
+    }),
+  );
+
+  const entrypoints = fileStats
+    .filter(({ file, stat }) => {
+      // For files, only include .ts and .tsx files
+      if (stat.isFile() && !(file.endsWith('.ts') || file.endsWith('.tsx'))) {
+        return false;
+      }
+      // Exclude test files
+      if (file.includes('.test.')) {
+        return false;
+      }
+      return true;
+    })
+    .map(({ file }) => `@base-ui-components/utils/${file.replace(/\.(js|ts|tsx)$/, '')}`);
+
+  return entrypoints;
+}
+
+/**
+ * Generates the entrypoints configuration by scanning the exports field in package.json.
+ */
+export default defineConfig(async () => {
   return {
-    entrypoints: [
-      ...entrypoints,
-      {
-        id: 'Base UI checkbox',
-        import: './base-entry.js',
-        externals,
-      },
-    ],
+    entrypoints: [...(await getBaseUiExports()), ...(await getUtilsExports())],
     upload: !!process.env.CI,
+    comment: true,
   };
 });

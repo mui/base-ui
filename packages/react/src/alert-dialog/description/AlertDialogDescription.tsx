@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
-
-const state = {};
 
 /**
  * A paragraph with additional information about the alert dialog.
@@ -23,7 +21,7 @@ export const AlertDialogDescription = React.forwardRef(function AlertDialogDescr
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setDescriptionElementId(id);
     return () => {
       setDescriptionElementId(undefined);
@@ -31,9 +29,8 @@ export const AlertDialogDescription = React.forwardRef(function AlertDialogDescr
   }, [id, setDescriptionElementId]);
 
   return useRenderElement('p', componentProps, {
-    state,
     ref: forwardedRef,
-    props: [elementProps, { id }],
+    props: [{ id }, elementProps],
   });
 });
 

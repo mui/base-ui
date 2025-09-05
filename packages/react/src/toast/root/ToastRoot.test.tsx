@@ -47,53 +47,6 @@ describe('<Toast.Root />', () => {
     expect(screen.queryByTestId('root')).to.equal(null);
   });
 
-  it('renders title and description inside role=status node one tick later', async () => {
-    function AccessibilityTestButton() {
-      const { add } = Toast.useToastManager();
-      return (
-        <button
-          type="button"
-          onClick={() => {
-            add({
-              title: 'title',
-              description: 'description',
-            });
-          }}
-        >
-          add
-        </button>
-      );
-    }
-
-    function AccessibilityTestList() {
-      return Toast.useToastManager().toasts.map((toastItem) => (
-        <Toast.Root key={toastItem.id} toast={toastItem} data-testid="root">
-          <Toast.Title>{toastItem.title}</Toast.Title>
-          <Toast.Description data-testid="description">{toastItem.description}</Toast.Description>
-          <Toast.Close aria-label="close" />
-        </Toast.Root>
-      ));
-    }
-
-    await render(
-      <Toast.Provider>
-        <Toast.Viewport>
-          <AccessibilityTestList />
-        </Toast.Viewport>
-        <AccessibilityTestButton />
-      </Toast.Provider>,
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: 'add' }));
-
-    const status = screen.getByRole('status');
-    expect(status).not.to.have.text('titledescription');
-
-    await waitFor(() => {
-      expect(status).to.have.text('titledescription');
-    });
-  });
-
   describe.skipIf(isJSDOM)('swipe behavior', () => {
     function SwipeTestButton() {
       const { add } = Toast.useToastManager();

@@ -2,7 +2,8 @@
 import * as React from 'react';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
-import { type DialogOpenChangeReason, useDialogRoot } from '../../dialog/root/useDialogRoot';
+import { useDialogRoot } from '../../dialog/root/useDialogRoot';
+import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups all parts of the alert dialog.
@@ -53,19 +54,23 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
 };
 
 export namespace AlertDialogRoot {
-  export interface Props extends Omit<DialogRoot.Props, 'modal' | 'dismissible' | 'onOpenChange'> {
+  export interface Props
+    extends Omit<DialogRoot.Props, 'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef'> {
     /**
      * Event handler called when the dialog is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: AlertDialog.Root.OpenChangeReason) => void
      */
-    onOpenChange?: (
-      open: boolean,
-      event: Event | undefined,
-      reason: DialogOpenChangeReason | undefined,
-    ) => void;
+    onOpenChange?: (open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void;
+    /**
+     * A ref to imperative actions.
+     * - `unmount`: When specified, the dialog will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the dialog manually.
+     * Useful when the dialog's animation is controlled by an external library.
+     */
+    actionsRef?: React.RefObject<AlertDialogRoot.Actions>;
   }
 
   export type Actions = DialogRoot.Actions;
 
-  export type OpenChangeReason = DialogOpenChangeReason;
+  export type ChangeEventReason = DialogRoot.ChangeEventReason;
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

@@ -1,9 +1,15 @@
 'use client';
 import * as React from 'react';
 import { useMediaQuery } from '@base-ui-components/react/unstable-use-media-query';
-import { useModernLayoutEffect } from '@base-ui-components/react/utils';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
 let boundDataGaListener = false;
+
+declare global {
+  interface Window {
+    dataLayer: unknown[];
+  }
+}
 
 /**
  * basically just a `useAnalytics` hook.
@@ -20,14 +26,12 @@ export const GoogleAnalytics = React.memo(function GoogleAnalytics(props: Google
     userLanguage,
   } = props;
 
-  useModernLayoutEffect(() => {
-    // @ts-expect-error
+  useIsoLayoutEffect(() => {
     window.dataLayer = window.dataLayer || [];
 
-    function gtag(...args: unknown[]) {
-      // @ts-expect-error
-      window.dataLayer.push([...args]);
-    }
+    const gtag: Gtag.Gtag = function gtag(command, ...args) {
+      window.dataLayer.push([command, ...args]);
+    };
 
     window.gtag = gtag;
 

@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useRenderElement } from '../utils/useRenderElement';
-import type { BaseUIComponentProps, Orientation } from '../utils/types';
+import type { BaseUIComponentProps, HTMLProps, Orientation } from '../utils/types';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useControlled } from '../utils/useControlled';
-import { useDirection } from '../direction-provider/DirectionContext';
-import { useEventCallback } from '../utils/useEventCallback';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
+import { BaseUIEventDetails, createBaseUIEventDetails } from '../utils/createBaseUIEventDetails';
 
 const customStyleHookMapping = {
   multiple(value: boolean) {
@@ -40,8 +40,6 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     render,
     ...elementProps
   } = componentProps;
-
-  const direction = useDirection();
 
   const toolbarContext = useToolbarRootContext(true);
 
@@ -75,8 +73,15 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
       newGroupValue = nextPressed ? [newValue] : [];
     }
     if (Array.isArray(newGroupValue)) {
+      const details = createBaseUIEventDetails('none', event);
+
+      onValueChange?.(newGroupValue, details);
+
+      if (details.isCanceled) {
+        return;
+      }
+
       setValueState(newGroupValue);
-      onValueChange?.(newGroupValue, event);
     }
   });
 
@@ -95,15 +100,15 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     [disabled, orientation, setGroupValue, groupValue],
   );
 
+  const defaultProps: HTMLProps = {
+    role: 'group',
+  };
+
   const element = useRenderElement('div', componentProps, {
+    enabled: Boolean(toolbarContext),
     state,
     ref: forwardedRef,
-    props: [
-      {
-        role: 'group',
-      },
-      elementProps,
-    ],
+    props: [defaultProps, elementProps],
     customStyleHookMapping,
   });
 
@@ -112,7 +117,16 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
       {toolbarContext ? (
         element
       ) : (
-        <CompositeRoot direction={direction} loop={loop} render={element} stopEventPropagation />
+        <CompositeRoot
+          render={render}
+          className={className}
+          state={state}
+          refs={[forwardedRef]}
+          props={[defaultProps, elementProps]}
+          customStyleHookMapping={customStyleHookMapping}
+          loop={loop}
+          stopEventPropagation
+        />
       )}
     </ToggleGroupContext.Provider>
   );
@@ -142,11 +156,8 @@ export namespace ToggleGroup {
     defaultValue?: readonly any[];
     /**
      * Callback fired when the pressed states of the toggle group changes.
-     *
-     * @param {any[]} groupValue An array of the `value`s of all the pressed items.
-     * @param {Event} event The corresponding event that initiated the change.
      */
-    onValueChange?: (groupValue: any[], event: Event) => void;
+    onValueChange?: (groupValue: any[], eventDetails: ChangeEventDetails) => void;
     /**
      * Whether the toggle group should ignore user interaction.
      * @default false
@@ -170,4 +181,7 @@ export namespace ToggleGroup {
      */
     toggleMultiple?: boolean;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

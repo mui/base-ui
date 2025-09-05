@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
-import { useEventCallback } from '../utils/useEventCallback';
+import type { BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
 
 const EMPTY: string[] = [];
 
@@ -27,7 +28,7 @@ export function useCheckboxGroupParent(
       indeterminate,
       checked,
       'aria-controls': allValues.map((v) => `${id}-${v}`).join(' '),
-      onCheckedChange(_, event) {
+      onCheckedChange(_, eventDetails) {
         const uncontrolledState = uncontrolledStateRef.current;
 
         // None except the disabled ones that are checked, which can't be changed.
@@ -48,21 +49,21 @@ export function useCheckboxGroupParent(
 
         if (allOnOrOff) {
           if (value.length === all.length) {
-            onValueChange(none, event);
+            onValueChange(none, eventDetails);
           } else {
-            onValueChange(all, event);
+            onValueChange(all, eventDetails);
           }
           return;
         }
 
         if (status === 'mixed') {
-          onValueChange(all, event);
+          onValueChange(all, eventDetails);
           setStatus('on');
         } else if (status === 'on') {
-          onValueChange(none, event);
+          onValueChange(none, eventDetails);
           setStatus('off');
         } else if (status === 'off') {
-          onValueChange(uncontrolledState, event);
+          onValueChange(uncontrolledState, eventDetails);
           setStatus('mixed');
         }
       },
@@ -75,7 +76,7 @@ export function useCheckboxGroupParent(
       name,
       id: `${id}-${name}`,
       checked: value.includes(name),
-      onCheckedChange(nextChecked, event) {
+      onCheckedChange(nextChecked, eventDetails) {
         const newValue = value.slice();
         if (nextChecked) {
           newValue.push(name);
@@ -83,7 +84,7 @@ export function useCheckboxGroupParent(
           newValue.splice(newValue.indexOf(name), 1);
         }
         uncontrolledStateRef.current = newValue;
-        onValueChange(newValue, event);
+        onValueChange(newValue, eventDetails);
         setStatus('mixed');
       },
     }),
@@ -106,25 +107,25 @@ export namespace useCheckboxGroupParent {
   export interface Parameters {
     allValues?: string[];
     value?: string[];
-    onValueChange?: (value: string[], event: Event) => void;
+    onValueChange?: (value: string[], eventDetails: BaseUIEventDetails<'none'>) => void;
   }
 
   export interface ReturnValue {
     id: string | undefined;
     indeterminate: boolean;
-    disabledStatesRef: React.MutableRefObject<Map<string, boolean>>;
+    disabledStatesRef: React.RefObject<Map<string, boolean>>;
     getParentProps: () => {
       id: string | undefined;
       indeterminate: boolean;
       checked: boolean;
       'aria-controls': string;
-      onCheckedChange: (checked: boolean, event: Event) => void;
+      onCheckedChange: (checked: boolean, eventDetails: BaseUIEventDetails<'none'>) => void;
     };
     getChildProps: (name: string) => {
       name: string;
       id: string;
       checked: boolean;
-      onCheckedChange: (checked: boolean, event: Event) => void;
+      onCheckedChange: (checked: boolean, eventDetails: BaseUIEventDetails<'none'>) => void;
     };
   }
 }

@@ -1,27 +1,52 @@
 {
   "name": "SliderThumb",
-  "description": "The draggable part of the the slider at the tip of the indicator.\nRenders a `<div>` element.",
+  "description": "The draggable part of the the slider at the tip of the indicator.\nRenders a `<div>` element and a nested `<input type=\"range\">`.",
   "props": {
     "getAriaLabel": {
       "type": "((index: number) => string) | null",
-      "description": "Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb"
+      "description": "A function which returns a string value for the [`aria-label`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label) attribute of the `input`.",
+      "detailedType": "((index: number) => string) | null | undefined"
     },
     "getAriaValueText": {
       "type": "((formattedValue: string, value: number, index: number) => string) | null",
-      "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users."
+      "description": "A function which returns a string value for the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.\nThis is important for screen reader users.",
+      "detailedType": "| ((\n    formattedValue: string,\n    value: number,\n    index: number,\n  ) => string)\n| null\n| undefined"
+    },
+    "index": {
+      "type": "number",
+      "description": "The index of the thumb which corresponds to the index of its value in the\n`value` or `defaultValue` array.\nThis prop is required to support server-side rendering for range sliders\nwith multiple thumbs.",
+      "example": "```tsx\n<Slider.Root value={[10, 20]}>\n  <Slider.Thumb index={0} />\n  <Slider.Thumb index={1} />\n</Slider.Root>\n```",
+      "detailedType": "number | undefined"
+    },
+    "onBlur": {
+      "type": "FocusEventHandler<HTMLInputElement>",
+      "description": "A blur handler forwarded to the `input`.",
+      "detailedType": "| React.FocusEventHandler<HTMLInputElement>\n| undefined"
+    },
+    "onFocus": {
+      "type": "FocusEventHandler<HTMLInputElement>",
+      "description": "A focus handler forwarded to the `input`.",
+      "detailedType": "| React.FocusEventHandler<HTMLInputElement>\n| undefined"
+    },
+    "tabIndex": {
+      "type": "number",
+      "description": "Optional tab index attribute forwarded to the `input`.",
+      "detailedType": "number | undefined"
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the thumb should ignore user interaction."
+      "description": "Whether the thumb should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "className": {
       "type": "string | ((state: Slider.Thumb.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "((props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, inputProps: DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, state: Slider.Thumb.State) => ReactElement) | ReactElement & { ref: Ref<Element> }",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "type": "ReactElement | ((props: HTMLProps, state: Slider.Thumb.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Slider.Thumb.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

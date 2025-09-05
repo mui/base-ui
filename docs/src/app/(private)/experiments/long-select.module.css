@@ -16,18 +16,14 @@
   line-height: 1.5rem;
   color: var(--color-gray-900);
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   min-width: 9rem;
-  margin-top: 10rem;
 
   @media (hover: hover) {
     &:hover {
       background-color: var(--color-gray-100);
     }
-  }
-
-  &:active {
-    background-color: var(--color-gray-100);
   }
 
   &[data-popup-open] {
@@ -44,16 +40,26 @@
   display: flex;
 }
 
+.Positioner {
+  outline: none;
+  z-index: 1;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 .Popup {
   box-sizing: border-box;
   padding-block: 0.25rem;
   border-radius: 0.375rem;
   background-color: canvas;
+  background-clip: padding-box;
   color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
   transition:
     transform 150ms,
     opacity 150ms;
+  overflow-y: auto;
+  max-height: var(--available-height);
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -65,6 +71,7 @@
     transition: none;
     transform: none;
     opacity: 1;
+    scroll-padding-block: 1.25rem;
   }
 
   @media (prefers-color-scheme: light) {
@@ -76,7 +83,6 @@
 
   @media (prefers-color-scheme: dark) {
     outline: 1px solid var(--color-gray-300);
-    outline-offset: -1px;
   }
 }
 
@@ -128,19 +134,25 @@
   padding-block: 0.5rem;
   padding-left: 0.625rem;
   padding-right: 1rem;
-  min-width: min(var(--anchor-width), 200px);
-  width: 200px;
+  min-width: var(--anchor-width);
   display: grid;
   gap: 0.5rem;
   align-items: center;
   grid-template-columns: 0.75rem 1fr;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
-  scroll-margin-block: 1.5rem;
+  scroll-margin-block: 0.25rem;
+
+  @media (pointer: coarse) {
+    padding-block: 0.625rem;
+    font-size: 0.925rem;
+  }
 
   [data-side='none'] & {
     font-size: 1rem;
     padding-right: 3rem;
+    min-width: calc(var(--anchor-width) + 1rem);
   }
 
   &[data-highlighted] {
@@ -176,11 +188,16 @@
 
 .ScrollArrow {
   width: 100%;
-  background: white;
+  background: canvas;
   z-index: 1;
   text-align: center;
   cursor: default;
   border-radius: 0.375rem;
+  height: 1rem;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &::before {
     content: '';

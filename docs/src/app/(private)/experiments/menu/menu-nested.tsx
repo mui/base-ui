@@ -18,17 +18,13 @@ export default function NestedMenu() {
         <Menu.Portal>
           <Menu.Positioner side="bottom" align="start" sideOffset={6}>
             <MenuPopup>
-              <Menu.Root>
+              <Menu.SubmenuRoot>
                 <SubmenuTrigger>Text color</SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner align="start" side="right" sideOffset={12}>
                     <MenuPopup>
-                      <MenuItem onClick={createHandleMenuClick('Text color/Black')}>
-                        Black
-                      </MenuItem>
-                      <MenuItem
-                        onClick={createHandleMenuClick('Text color/Dark grey')}
-                      >
+                      <MenuItem onClick={createHandleMenuClick('Text color/Black')}>Black</MenuItem>
+                      <MenuItem onClick={createHandleMenuClick('Text color/Dark grey')}>
                         Dark grey
                       </MenuItem>
                       <MenuItem onClick={createHandleMenuClick('Text color/Accent')}>
@@ -37,79 +33,53 @@ export default function NestedMenu() {
                     </MenuPopup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
 
-              <Menu.Root>
+              <Menu.SubmenuRoot>
                 <SubmenuTrigger>Style</SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner align="start" side="right" sideOffset={12}>
                     <MenuPopup>
-                      <Menu.Root>
+                      <Menu.SubmenuRoot>
                         <SubmenuTrigger>Heading</SubmenuTrigger>
                         <Menu.Portal>
-                          <Menu.Positioner
-                            align="start"
-                            side="right"
-                            sideOffset={12}
-                          >
+                          <Menu.Positioner align="start" side="right" sideOffset={12}>
                             <MenuPopup>
-                              <MenuItem
-                                onClick={createHandleMenuClick(
-                                  'Style/Heading/Level 1',
-                                )}
-                              >
+                              <MenuItem onClick={createHandleMenuClick('Style/Heading/Level 1')}>
                                 Level 1
                               </MenuItem>
-                              <MenuItem
-                                onClick={createHandleMenuClick(
-                                  'Style/Heading/Level 2',
-                                )}
-                              >
+                              <MenuItem onClick={createHandleMenuClick('Style/Heading/Level 2')}>
                                 Level 2
                               </MenuItem>
-                              <MenuItem
-                                onClick={createHandleMenuClick(
-                                  'Style/Heading/Level 3',
-                                )}
-                              >
+                              <MenuItem onClick={createHandleMenuClick('Style/Heading/Level 3')}>
                                 Level 3
                               </MenuItem>
                             </MenuPopup>
                           </Menu.Positioner>
                         </Menu.Portal>
-                      </Menu.Root>
+                      </Menu.SubmenuRoot>
                       <MenuItem onClick={createHandleMenuClick('Style/Paragraph')}>
                         Paragraph
                       </MenuItem>
-                      <Menu.Root disabled>
+                      <Menu.SubmenuRoot disabled>
                         <SubmenuTrigger>List</SubmenuTrigger>
                         <Menu.Portal>
-                          <Menu.Positioner
-                            align="start"
-                            side="right"
-                            sideOffset={12}
-                          >
+                          <Menu.Positioner align="start" side="right" sideOffset={12}>
                             <MenuPopup>
-                              <MenuItem
-                                onClick={createHandleMenuClick('Style/List/Ordered')}
-                              >
+                              <MenuItem onClick={createHandleMenuClick('Style/List/Ordered')}>
                                 Ordered
                               </MenuItem>
-                              <MenuItem
-                                onClick={createHandleMenuClick(
-                                  'Style/List/Unordered',
-                                )}
-                              >
+                              <MenuItem onClick={createHandleMenuClick('Style/List/Unordered')}>
                                 Unordered
                               </MenuItem>
                             </MenuPopup>
                           </Menu.Positioner>
                         </Menu.Portal>
-                      </Menu.Root>
+                      </Menu.SubmenuRoot>
                     </MenuPopup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
 
               <MenuItem onClick={createHandleMenuClick('Clear formatting')}>
                 Clear formatting
@@ -193,7 +163,7 @@ const MenuItem = styled(Menu.Item)(
   border-radius: 8px;
   cursor: default;
   user-select: none;
-  
+
   &:last-of-type {
     border-bottom: none;
   }

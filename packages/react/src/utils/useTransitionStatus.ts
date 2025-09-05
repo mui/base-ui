@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
-import { AnimationFrame } from './useAnimationFrame';
+import * as ReactDOM from 'react-dom';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 
 export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 
@@ -10,7 +11,11 @@ export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
  * @param open - a boolean that determines if the element is open.
  * @param enableIdleState - a boolean that enables the `'idle'` state between `'starting'` and `'ending'`
  */
-export function useTransitionStatus(open: boolean, enableIdleState: boolean = false) {
+export function useTransitionStatus(
+  open: boolean,
+  enableIdleState: boolean = false,
+  deferEndingState: boolean = false,
+) {
   const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>(
     open && enableIdleState ? 'idle' : undefined,
   );
@@ -21,7 +26,7 @@ export function useTransitionStatus(open: boolean, enableIdleState: boolean = fa
     setTransitionStatus('starting');
   }
 
-  if (!open && mounted && transitionStatus !== 'ending') {
+  if (!open && mounted && transitionStatus !== 'ending' && !deferEndingState) {
     setTransitionStatus('ending');
   }
 
@@ -29,13 +34,29 @@ export function useTransitionStatus(open: boolean, enableIdleState: boolean = fa
     setTransitionStatus(undefined);
   }
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
+    if (!open && mounted && transitionStatus !== 'ending' && deferEndingState) {
+      const frame = AnimationFrame.request(() => {
+        setTransitionStatus('ending');
+      });
+
+      return () => {
+        AnimationFrame.cancel(frame);
+      };
+    }
+
+    return undefined;
+  }, [open, mounted, transitionStatus, deferEndingState]);
+
+  useIsoLayoutEffect(() => {
     if (!open || enableIdleState) {
       return undefined;
     }
 
     const frame = AnimationFrame.request(() => {
-      setTransitionStatus(undefined);
+      ReactDOM.flushSync(() => {
+        setTransitionStatus(undefined);
+      });
     });
 
     return () => {
@@ -43,7 +64,7 @@ export function useTransitionStatus(open: boolean, enableIdleState: boolean = fa
     };
   }, [enableIdleState, open]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!open || !enableIdleState) {
       return undefined;
     }

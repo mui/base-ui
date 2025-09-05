@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useId } from '@base-ui-components/utils/useId';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { useId } from '../../utils/useId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -29,7 +29,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
 
   const { setDescriptionId } = useToastRootContext();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!shouldRender) {
       return undefined;
     }

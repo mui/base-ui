@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingPortal } from '@floating-ui/react';
+import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuPortalContext } from './MenuPortalContext';
 
@@ -38,6 +38,6 @@ export namespace MenuPortal {
     /**
      * A parent element to render the portal element into.
      */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
+    container?: FloatingPortalProps['root'];
   }
 }

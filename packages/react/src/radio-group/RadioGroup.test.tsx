@@ -154,51 +154,83 @@ describe('<RadioGroup />', () => {
     expect(indicator).to.have.attribute('data-required', '');
   });
 
-  it('should set the name attribute on the input', async () => {
-    await render(<RadioGroup name="radio-group" />);
+  it('should set the name attribute on the input only when a value is selected', async () => {
+    await render(
+      <RadioGroup name="radio-group">
+        <Radio.Root value="a" data-testid="radio" />
+      </RadioGroup>,
+    );
     const group = screen.getByRole('radiogroup');
+    const radio = screen.getByTestId('radio');
+
+    expect(group.nextElementSibling).to.not.have.attribute('name');
+
+    act(() => {
+      radio.click();
+    });
     expect(group.nextElementSibling).to.have.attribute('name', 'radio-group');
   });
 
-  it('should include the radio value in the form submission', async ({ skip }) => {
-    if (isJSDOM) {
-      // FormData is not available in JSDOM
-      skip();
-    }
+  it.skipIf(isJSDOM)(
+    'should return null when no radio is selected (matching native behavior)',
+    async () => {
+      await render(
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            expect(formData.get('test-group')).to.equal(null);
+          }}
+        >
+          <RadioGroup name="test-group">
+            <Radio.Root value="option-a" />
+            <Radio.Root value="option-b" />
+          </RadioGroup>
+          <button type="submit">Submit</button>
+        </form>,
+      );
 
-    let stringifiedFormData = '';
+      const submitButton = screen.getByRole('button');
+      submitButton.click();
+    },
+  );
 
+  it.skipIf(isJSDOM)('should return null in form data when no radio is selected', async () => {
     await render(
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          const formData = new FormData(event.currentTarget);
-          stringifiedFormData = new URLSearchParams(formData as any).toString();
-        }}
-      >
+      <form data-testid="form">
         <RadioGroup name="group">
           <Radio.Root value="a" />
           <Radio.Root value="b" />
           <Radio.Root value="c" />
         </RadioGroup>
-        <button type="submit">Submit</button>
       </form>,
     );
 
-    const [radioA] = screen.getAllByRole('radio');
-    const submitButton = screen.getByRole('button');
+    const form = screen.getByTestId('form') as HTMLFormElement;
+    const formData = new FormData(form);
+    expect(formData.get('group')).to.equal(null);
+  });
 
-    submitButton.click();
+  it.skipIf(isJSDOM)('should include selected radio value in form data', async () => {
+    await render(
+      <form data-testid="form">
+        <RadioGroup name="group">
+          <Radio.Root value="a" data-testid="radio-a" />
+          <Radio.Root value="b" />
+          <Radio.Root value="c" />
+        </RadioGroup>
+      </form>,
+    );
 
-    expect(stringifiedFormData).to.equal('group=');
+    const radio = screen.getByTestId('radio-a');
+    const form = screen.getByTestId('form') as HTMLFormElement;
 
     await act(async () => {
-      radioA.click();
+      radio.click();
     });
 
-    submitButton.click();
-
-    expect(stringifiedFormData).to.equal('group=a');
+    const formData = new FormData(form);
+    expect(formData.get('group')).to.equal('a');
   });
 
   it('should automatically select radio upon navigation', async () => {
@@ -389,7 +421,7 @@ describe('<RadioGroup />', () => {
   });
 
   describe('Field', () => {
-    it('passes the `name` prop to the hidden input', async () => {
+    it('passes the `name` prop to the hidden input only when a value is selected', async () => {
       await render(
         <Field.Root name="test" data-testid="field">
           <RadioGroup name="group">
@@ -398,7 +430,17 @@ describe('<RadioGroup />', () => {
         </Field.Root>,
       );
 
-      const input = screen.getByTestId('field').querySelector('input[name="test"]');
+      // Initially, no name attribute when no value is selected
+      let input = screen.getByTestId('field').querySelector('input[name="test"]');
+      expect(input).to.equal(null);
+
+      // After selecting, should have name attribute
+      const radio = screen.getByTestId('item');
+      act(() => {
+        radio.click();
+      });
+
+      input = screen.getByTestId('field').querySelector('input[name="test"]');
       expect(input).not.to.equal(null);
     });
 
@@ -429,38 +471,79 @@ describe('<RadioGroup />', () => {
       });
     });
 
-    describe('with Field.Root', () => {
-      it('should receive disabled prop from Field.Root', () => {
-        render(
-          <Field.Root disabled>
-            <RadioGroup>
-              <Radio.Root value="a" data-testid="radio" />
-            </RadioGroup>
-          </Field.Root>,
-        );
+    describe('Field', () => {
+      describe('Field.Root', () => {
+        it('should receive disabled prop from Field.Root', () => {
+          render(
+            <Field.Root disabled>
+              <RadioGroup>
+                <Radio.Root value="a" data-testid="radio" />
+              </RadioGroup>
+            </Field.Root>,
+          );
 
-        const radioGroup = screen.getByRole('radiogroup');
-        const radio = screen.getByTestId('radio');
+          const radioGroup = screen.getByRole('radiogroup');
+          const radio = screen.getByTestId('radio');
 
-        expect(radioGroup).to.have.attribute('aria-disabled', 'true');
-        expect(radioGroup).to.have.attribute('data-disabled');
-        expect(radio).to.have.attribute('aria-disabled', 'true');
-        expect(radio).to.have.attribute('data-disabled');
+          expect(radioGroup).to.have.attribute('aria-disabled', 'true');
+          expect(radioGroup).to.have.attribute('data-disabled');
+          expect(radio).to.have.attribute('aria-disabled', 'true');
+          expect(radio).to.have.attribute('data-disabled');
+        });
+
+        it('should receive name prop from Field.Root only when a value is selected', async () => {
+          await render(
+            <Field.Root name="field-radio">
+              <RadioGroup>
+                <Radio.Root value="a" data-testid="radio" />
+              </RadioGroup>
+            </Field.Root>,
+          );
+
+          const group = screen.getByRole('radiogroup');
+          const radio = screen.getByTestId('radio');
+          const input = group.nextElementSibling as HTMLInputElement;
+
+          // Initially, no name attribute when no value is selected
+          expect(input).to.not.have.attribute('name');
+
+          // After selecting, should have name attribute from Field.Root
+          act(() => {
+            radio.click();
+          });
+
+          expect(input).to.have.attribute('name', 'field-radio');
+        });
       });
 
-      it('should receive name prop from Field.Root', async () => {
-        await render(
-          <Field.Root name="field-radio">
-            <RadioGroup>
-              <Radio.Root value="a" data-testid="radio" />
-            </RadioGroup>
-          </Field.Root>,
-        );
+      describe('Field.Label', () => {
+        it('associates implicitly', async () => {
+          const changeSpy = spy();
+          const { container } = await render(
+            <Field.Root name="options">
+              <RadioGroup onValueChange={changeSpy}>
+                <Field.Label>
+                  <Radio.Root value="apple" data-testid="radio1" />
+                  Apple
+                </Field.Label>
+                <Field.Label>
+                  <Radio.Root value="banana" data-testid="radio2" />
+                  Banana
+                </Field.Label>
+              </RadioGroup>
+            </Field.Root>,
+          );
 
-        const group = screen.getByRole('radiogroup');
-        const input = group.nextElementSibling as HTMLInputElement;
+          const labels = container.querySelectorAll('label');
+          expect(labels.length).to.equal(2);
+          labels.forEach((label) => {
+            expect(label).to.not.have.attribute('for');
+          });
 
-        expect(input).to.have.attribute('name', 'field-radio');
+          fireEvent.click(screen.getByText('Apple'));
+          expect(changeSpy.callCount).to.equal(1);
+          expect(changeSpy.args[0][0]).to.equal('apple');
+        });
       });
     });
 

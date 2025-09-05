@@ -1,4 +1,16 @@
-export const nav = [
+export interface NavItemn {
+  label: string;
+  href: string;
+  external?: boolean;
+  isNew?: boolean;
+}
+
+export interface NavGroup {
+  label: string;
+  links: NavItemn[];
+}
+
+export const nav: NavGroup[] = [
   {
     label: 'Overview',
     links: [
@@ -35,6 +47,11 @@ export const nav = [
         label: 'Composition',
         href: '/react/handbook/composition',
       },
+      {
+        label: 'llms.txt',
+        external: true,
+        href: '/llms.txt',
+      },
     ],
   },
   {
@@ -47,6 +64,11 @@ export const nav = [
       {
         label: 'Alert Dialog',
         href: '/react/components/alert-dialog',
+      },
+      {
+        label: 'Autocomplete',
+        href: '/react/components/autocomplete',
+        isNew: true,
       },
       {
         label: 'Avatar',
@@ -65,9 +87,13 @@ export const nav = [
         href: '/react/components/collapsible',
       },
       {
+        label: 'Combobox',
+        href: '/react/components/combobox',
+        isNew: true,
+      },
+      {
         label: 'Context Menu',
         href: '/react/components/context-menu',
-        isNew: true,
       },
       {
         label: 'Dialog',
@@ -96,7 +122,6 @@ export const nav = [
       {
         label: 'Menubar',
         href: '/react/components/menubar',
-        isNew: true,
       },
       {
         label: 'Meter',
@@ -105,7 +130,6 @@ export const nav = [
       {
         label: 'Navigation Menu',
         href: '/react/components/navigation-menu',
-        isNew: true,
       },
       {
         label: 'Number Field',

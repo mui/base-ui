@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor, flushMicrotasks } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { Menu } from '@base-ui-components/react/menu';
@@ -44,7 +44,6 @@ describe('<Dialog.Root />', () => {
 
     const popup = queryByRole('dialog');
     expect(popup).not.to.equal(null);
-    expect(popup).to.not.have.attribute('aria-modal');
 
     expect(getByText('title text').getAttribute('id')).to.equal(
       popup?.getAttribute('aria-labelledby'),
@@ -102,13 +101,13 @@ describe('<Dialog.Root />', () => {
       await user.click(openButton);
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[2]).to.equal('trigger-press');
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal('trigger-press');
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       expect(handleOpenChange.callCount).to.equal(2);
-      expect(handleOpenChange.secondCall.args[2]).to.equal('close-press');
+      expect(handleOpenChange.secondCall.args[1].reason).to.equal('close-press');
     });
 
     it('calls onOpenChange with the reason for change when pressed Esc while the dialog is open', async () => {
@@ -128,7 +127,7 @@ describe('<Dialog.Root />', () => {
       await user.keyboard('[Escape]');
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[2]).to.equal('escape-key');
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal('escape-key');
     });
 
     it('calls onOpenChange with the reason for change when user clicks backdrop while the modal dialog is open', async () => {
@@ -148,7 +147,7 @@ describe('<Dialog.Root />', () => {
       await user.click(screen.getByRole('presentation', { hidden: true }));
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal('outside-press');
     });
 
     it('calls onOpenChange with the reason for change when user clicks outside while the non-modal dialog is open', async () => {
@@ -168,7 +167,7 @@ describe('<Dialog.Root />', () => {
       await user.click(document.body);
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal('outside-press');
     });
 
     describe.skipIf(isJSDOM)('clicks on user backdrop', () => {
@@ -190,7 +189,7 @@ describe('<Dialog.Root />', () => {
         await user.click(document.querySelector('[data-backdrop]') as HTMLElement);
 
         expect(handleOpenChange.callCount).to.equal(1);
-        expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
+        expect(handleOpenChange.firstCall.args[1].reason).to.equal('outside-press');
       });
 
       it('does not change open state on non-main button clicks', async () => {
@@ -277,6 +276,7 @@ describe('<Dialog.Root />', () => {
         const outside = getByTestId('outside');
 
         fireEvent.mouseDown(outside);
+        fireEvent.click(outside);
         expect(handleOpenChange.calledOnce).to.equal(expectDismissed);
 
         if (expectDismissed) {
@@ -285,6 +285,57 @@ describe('<Dialog.Root />', () => {
           expect(queryByRole('dialog')).not.to.equal(null);
         }
       });
+    });
+  });
+
+  describe('outside press event with backdrops', () => {
+    it('uses intentional outside press with user backdrop (mouse): closes on click, not on mousedown', async () => {
+      const handleOpenChange = spy();
+
+      const { queryByRole } = await render(
+        <Dialog.Root defaultOpen onOpenChange={handleOpenChange} modal={false}>
+          <Dialog.Portal>
+            <Dialog.Backdrop data-testid="backdrop" />
+            <Dialog.Popup />
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const backdrop = screen.getByTestId('backdrop');
+
+      fireEvent.mouseDown(backdrop);
+      expect(queryByRole('dialog')).not.to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
+
+      fireEvent.click(backdrop);
+      await waitFor(() => {
+        expect(queryByRole('dialog')).to.equal(null);
+      });
+      expect(handleOpenChange.callCount).to.equal(1);
+    });
+
+    it('uses intentional outside press with internal backdrop (modal=true): closes on click, not on mousedown', async () => {
+      const handleOpenChange = spy();
+
+      const { queryByRole } = await render(
+        <Dialog.Root defaultOpen onOpenChange={handleOpenChange} modal>
+          <Dialog.Portal>
+            <Dialog.Popup />
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const internalBackdrop = screen.getByRole('presentation', { hidden: true });
+
+      fireEvent.mouseDown(internalBackdrop);
+      expect(queryByRole('dialog')).not.to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
+
+      fireEvent.click(internalBackdrop);
+      await waitFor(() => {
+        expect(queryByRole('dialog')).to.equal(null);
+      });
+      expect(handleOpenChange.callCount).to.equal(1);
     });
   });
 
@@ -386,6 +437,31 @@ describe('<Dialog.Root />', () => {
     });
   });
 
+  describe('BaseUIEventDetails', () => {
+    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+      const { user } = await render(
+        <Dialog.Root
+          onOpenChange={(nextOpen, eventDetails) => {
+            if (nextOpen) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup>Dialog</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).to.equal(null);
+    });
+  });
+
   it('does not dismiss previous modal dialog when clicking new modal dialog', async () => {
     function App() {
       const [openNested, setOpenNested] = React.useState(false);
@@ -467,31 +543,31 @@ describe('<Dialog.Root />', () => {
       );
     }
 
-    const { user } = await render(<App />);
+    await render(<App />);
 
     const trigger = screen.getByRole('button', { name: 'Trigger' });
-    await user.click(trigger);
+    fireEvent.click(trigger);
 
     const nestedButton1 = screen.getByRole('button', { name: 'Open nested 1' });
-    await user.click(nestedButton1);
+    fireEvent.click(nestedButton1);
 
     const nestedButton2 = screen.getByRole('button', { name: 'Open nested 2' });
-    await user.click(nestedButton2);
+    fireEvent.click(nestedButton2);
 
     const backdrops = Array.from(document.querySelectorAll('[role="presentation"]'));
-    await user.click(backdrops[backdrops.length - 1]);
+    fireEvent.click(backdrops[backdrops.length - 1]);
 
     await waitFor(() => {
       expect(screen.queryByTestId('level-3')).to.equal(null);
     });
 
-    await user.click(backdrops[backdrops.length - 2]);
+    fireEvent.click(backdrops[backdrops.length - 2]);
 
     await waitFor(() => {
       expect(screen.queryByTestId('level-2')).to.equal(null);
     });
 
-    await user.click(backdrops[backdrops.length - 3]);
+    fireEvent.click(backdrops[backdrops.length - 3]);
 
     await waitFor(() => {
       expect(screen.queryByTestId('level-1')).to.equal(null);
@@ -616,6 +692,51 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByRole('dialog')).to.equal(null);
       });
     });
+
+    it('should not close the parent menu when Escape is pressed in a nested dialog', async () => {
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open menu</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Dialog.Root>
+                  <Menu.Item closeOnClick={false} render={<Dialog.Trigger nativeButton={false} />}>
+                    Open dialog
+                  </Menu.Item>
+                  <Dialog.Portal>
+                    <Dialog.Popup />
+                  </Dialog.Portal>
+                </Dialog.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const menuTrigger = screen.getByRole('button', { name: 'Open menu' });
+      await user.click(menuTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      const dialogTrigger = screen.getByRole('menuitem', { name: 'Open dialog' });
+      await user.click(dialogTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+    });
   });
 
   describe('prop: actionsRef', () => {
@@ -649,6 +770,44 @@ describe('<Dialog.Root />', () => {
       });
 
       await act(async () => actionsRef.current.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('pointerdown removal', () => {
+    it('moves focus to the popup when a focused child is removed on pointerdown and outside press still dismisses', async () => {
+      function Test() {
+        const [showButton, setShowButton] = React.useState(true);
+        return (
+          <Dialog.Root defaultOpen modal="trap-focus">
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="popup">
+                {showButton && (
+                  <button data-testid="remove" onPointerDown={() => setShowButton(false)}>
+                    Remove on pointer down
+                  </button>
+                )}
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const removeButton = screen.getByTestId('remove');
+      fireEvent.pointerDown(removeButton);
+
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => {
+        expect(popup).toHaveFocus();
+      });
+
+      await user.click(document.body);
 
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).to.equal(null);

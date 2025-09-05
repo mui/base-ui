@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useOnMount } from '@base-ui-components/utils/useOnMount';
+import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { warn } from '@base-ui-components/utils/warn';
 import { HTMLProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useForkRef } from '../../utils/useForkRef';
-import { useOnMount } from '../../utils/useOnMount';
-import { AnimationFrame } from '../../utils/useAnimationFrame';
-import { warn } from '../../utils/warn';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
@@ -30,7 +30,6 @@ export function useCollapsiblePanel(
     setDimensions,
     setMounted,
     setOpen,
-    setPanelId,
     setVisible,
     transitionDimensionRef,
     visible,
@@ -54,17 +53,6 @@ export function useCollapsiblePanel(
     return !open && !mounted;
   }, [open, mounted, visible, animationTypeRef]);
 
-  useModernLayoutEffect(() => {
-    if (!keepMounted && !open) {
-      setPanelId(undefined);
-    } else {
-      setPanelId(idParam);
-    }
-    return () => {
-      setPanelId(undefined);
-    };
-  }, [idParam, setPanelId, keepMounted, open]);
-
   /**
    * When `keepMounted` is `true` this runs once as soon as it exists in the DOM
    * regardless of initial open state.
@@ -79,13 +67,23 @@ export function useCollapsiblePanel(
     }
     if (animationTypeRef.current == null || transitionDimensionRef.current == null) {
       const panelStyles = getComputedStyle(element);
+
+      const hasAnimation = panelStyles.animationName !== 'none' && panelStyles.animationName !== '';
+      const hasTransition =
+        panelStyles.transitionDuration !== '0s' && panelStyles.transitionDuration !== '';
+
       /**
        * animationTypeRef is safe to read in render because it's only ever set
        * once here during the first render and never again.
        * https://react.dev/learn/referencing-values-with-refs#best-practices-for-refs
        */
-      if (panelStyles.animationName !== 'none' && panelStyles.transitionDuration !== '0s') {
-        warn('CSS transitions and CSS animations both detected');
+      if (hasAnimation && hasTransition) {
+        if (process.env.NODE_ENV !== 'production') {
+          warn(
+            'CSS transitions and CSS animations both detected on Collapsible or Accordion panel.',
+            'Only one of either animation type should be used.',
+          );
+        }
       } else if (panelStyles.animationName === 'none' && panelStyles.transitionDuration !== '0s') {
         animationTypeRef.current = 'css-transition';
       } else if (panelStyles.animationName !== 'none' && panelStyles.transitionDuration === '0s') {
@@ -154,15 +152,10 @@ export function useCollapsiblePanel(
     };
   });
 
-  const mergedPanelRef = useForkRef(externalRef, panelRef, handlePanelRef);
+  const mergedPanelRef = useMergedRefs(externalRef, panelRef, handlePanelRef);
 
-  /**
-   * This handles CSS transitions for 2 cases when we can't rely on the trigger handler:
-   * 1. When `keepMounted={false}`, the panel may not exist in the DOM
-   * 2. When controlled, the open state may change externally without involving the trigger
-   */
-  useModernLayoutEffect(() => {
-    if (animationTypeRef.current !== 'css-transition' || keepMounted) {
+  useIsoLayoutEffect(() => {
+    if (animationTypeRef.current !== 'css-transition') {
       return undefined;
     }
 
@@ -201,17 +194,29 @@ export function useCollapsiblePanel(
       });
     } else {
       /* closing */
-      resizeFrame = AnimationFrame.request(() => {
-        setDimensions({ height: 0, width: 0 });
-      });
+      setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
       abortControllerRef.current = new AbortController();
+      const signal = abortControllerRef.current.signal;
 
-      runOnceAnimationsFinish(() => {
-        panel.style.removeProperty('content-visibility');
-        setMounted(false);
-        abortControllerRef.current = null;
-      }, abortControllerRef.current.signal);
+      let frame2 = -1;
+      const frame1 = AnimationFrame.request(() => {
+        // Wait until the `[data-ending-style]` attribute is added.
+        frame2 = AnimationFrame.request(() => {
+          runOnceAnimationsFinish(() => {
+            setDimensions({ height: 0, width: 0 });
+            panel.style.removeProperty('content-visibility');
+            panel.style.removeProperty('display');
+            setMounted(false);
+            abortControllerRef.current = null;
+          }, signal);
+        });
+      });
+
+      return () => {
+        AnimationFrame.cancel(frame1);
+        AnimationFrame.cancel(frame2);
+      };
     }
 
     return () => {
@@ -231,7 +236,7 @@ export function useCollapsiblePanel(
     transitionDimensionRef,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (animationTypeRef.current !== 'css-animation') {
       return;
     }
@@ -285,7 +290,7 @@ export function useCollapsiblePanel(
     return () => AnimationFrame.cancel(frame);
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!hiddenUntilFound) {
       return undefined;
     }
@@ -317,7 +322,7 @@ export function useCollapsiblePanel(
     };
   }, [hiddenUntilFound, open, panelRef, setDimensions]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const panel = panelRef.current;
 
     if (panel && hiddenUntilFound && hidden) {
@@ -412,7 +417,6 @@ export namespace useCollapsiblePanel {
     setDimensions: React.Dispatch<React.SetStateAction<Dimensions>>;
     setMounted: (nextMounted: boolean) => void;
     setOpen: (nextOpen: boolean) => void;
-    setPanelId: (id: string | undefined) => void;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
     transitionDimensionRef: React.RefObject<'height' | 'width' | null>;
     /**

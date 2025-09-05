@@ -1,7 +1,10 @@
 'use client';
-
 import * as React from 'react';
-import { InteractionType, useEnhancedClickHandler } from './useEnhancedClickHandler';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import {
+  InteractionType,
+  useEnhancedClickHandler,
+} from '@base-ui-components/utils/useEnhancedClickHandler';
 
 /**
  * Determines the interaction type (keyboard, mouse, touch, etc.) that opened the component.
@@ -11,29 +14,29 @@ import { InteractionType, useEnhancedClickHandler } from './useEnhancedClickHand
 export function useOpenInteractionType(open: boolean) {
   const [openMethod, setOpenMethod] = React.useState<InteractionType | null>(null);
 
-  if (!open && openMethod !== null) {
-    setOpenMethod(null);
-  }
-
-  const handleTriggerClick = React.useCallback(
+  const handleTriggerClick = useEventCallback(
     (_: React.MouseEvent, interactionType: InteractionType) => {
       if (!open) {
         setOpenMethod(interactionType);
       }
     },
-    [open, setOpenMethod],
   );
+
+  const reset = useEventCallback(() => {
+    setOpenMethod(null);
+  });
 
   const { onClick, onPointerDown } = useEnhancedClickHandler(handleTriggerClick);
 
   return React.useMemo(
     () => ({
       openMethod,
+      reset,
       triggerProps: {
         onClick,
         onPointerDown,
       },
     }),
-    [openMethod, onClick, onPointerDown],
+    [openMethod, reset, onClick, onPointerDown],
   );
 }

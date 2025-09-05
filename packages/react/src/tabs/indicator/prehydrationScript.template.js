@@ -14,32 +14,22 @@
     return;
   }
 
-  const {
-    left: tabLeft,
-    right: tabRight,
-    top: tabTop,
-    bottom: tabBottom,
-    width: tabWidth,
-  } = activeTab.getBoundingClientRect();
-
-  const {
-    left: listLeft,
-    right: listRight,
-    top: listTop,
-    bottom: listBottom,
-    width: listWidth,
-  } = list.getBoundingClientRect();
-
-  if (tabWidth === 0 || listWidth === 0) {
+  if (activeTab.offsetWidth === 0 || list.offsetWidth === 0) {
     return;
   }
 
-  const left = tabLeft - listLeft;
-  const right = listRight - tabRight;
-  const top = tabTop - listTop;
-  const bottom = listBottom - tabBottom;
-  const width = tabRight - tabLeft;
-  const height = tabBottom - tabTop;
+  const direction = getComputedStyle(list).direction;
+
+  const left = activeTab.offsetLeft - list.clientLeft;
+  const { width: rectWidth, height: rectHeight } = activeTab.getBoundingClientRect();
+  const width = Math.floor(rectWidth);
+  const height = Math.floor(rectHeight);
+  const right =
+    direction === 'ltr'
+      ? list.scrollWidth - activeTab.offsetLeft - width - list.clientLeft
+      : activeTab.offsetLeft - list.clientLeft;
+  const top = activeTab.offsetTop - list.clientTop;
+  const bottom = list.scrollHeight - activeTab.offsetTop - height - list.clientTop;
 
   function setProp(name, value) {
     indicator.style.setProperty(`--active-tab-${name}`, `${value}px`);

@@ -2,13 +2,21 @@
   "name": "NumberFieldInput",
   "description": "The native input control in the number field.\nRenders an `<input>` element.",
   "props": {
+    "aria-roledescription": {
+      "type": "string",
+      "default": "'Number field'",
+      "description": "A string value that provides a user-friendly name for the role of the input.",
+      "detailedType": "string | undefined"
+    },
     "className": {
       "type": "string | ((state: NumberField.Input.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: NumberField.Input.State) => string)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NumberField.Input.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NumberField.Input.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

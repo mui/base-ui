@@ -1,0 +1,167 @@
+{
+  "name": "ComboboxRoot",
+  "description": "Groups all parts of the combobox.\nDoesn't render its own HTML element.",
+  "props": {
+    "name": {
+      "type": "string",
+      "description": "Identifies the field when a form is submitted.",
+      "detailedType": "string | undefined"
+    },
+    "defaultValue": {
+      "type": "SelectedValue[] | SelectedValue | null",
+      "description": "The uncontrolled selected value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `value` prop instead.",
+      "detailedType": "SelectedValue[] | SelectedValue | null | undefined"
+    },
+    "value": {
+      "type": "SelectedValue[] | SelectedValue",
+      "description": "The selected value of the combobox. Use when controlled.",
+      "detailedType": "SelectedValue[] | SelectedValue | undefined"
+    },
+    "onValueChange": {
+      "type": "((value: SelectedValue[] | SelectedValue, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
+      "description": "Callback fired when the selected value of the combobox changes.",
+      "detailedType": "| ((\n    value: SelectedValue[] | SelectedValue,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the popup is initially open.\n\nTo render a controlled popup, use the `open` prop instead.",
+      "detailedType": "boolean | undefined"
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Whether the popup is currently open.",
+      "detailedType": "boolean | undefined"
+    },
+    "onOpenChange": {
+      "type": "((open: boolean, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
+      "description": "Event handler called when the popup is opened or closed.",
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "actionsRef": {
+      "type": "RefObject<Combobox.Root.Actions>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
+      "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
+    },
+    "cols": {
+      "type": "number",
+      "default": "1",
+      "description": "The maximum number of columns present when the items are rendered in grid layout.\nA value of more than `1` turns the listbox into a grid.",
+      "detailedType": "number | undefined"
+    },
+    "defaultInputValue": {
+      "type": "string | number | string[]",
+      "description": "The uncontrolled input value when initially rendered.",
+      "detailedType": "string | number | string[] | undefined"
+    },
+    "filter": {
+      "type": "((itemValue: any, query: string, itemToStringLabel: ((itemValue: any) => string) | undefined) => boolean) | null",
+      "description": "Filter function used to match items vs input query.\nThe `itemToStringLabel` function is provided to help convert items to strings for comparison.",
+      "detailedType": "| ((\n    itemValue: any,\n    query: string,\n    itemToStringLabel:\n      | ((itemValue: any) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
+    },
+    "inputValue": {
+      "type": "string | number | string[]",
+      "description": "The input value of the combobox.",
+      "detailedType": "string | number | string[] | undefined"
+    },
+    "itemToStringLabel": {
+      "type": "((itemValue: ItemValue) => string)",
+      "description": "When items' values are objects, converts its value to a string label for input display.",
+      "detailedType": "((itemValue: ItemValue) => string) | undefined"
+    },
+    "itemToStringValue": {
+      "type": "((itemValue: ItemValue) => string)",
+      "description": "When items' values are objects, converts its value to a string value for form submission.",
+      "detailedType": "((itemValue: ItemValue) => string) | undefined"
+    },
+    "items": {
+      "type": "ItemValue[] | Group<ItemValue>[]",
+      "description": "The items to be displayed in the list.",
+      "detailedType": "ItemValue[] | Group<ItemValue>[] | undefined"
+    },
+    "limit": {
+      "type": "number",
+      "default": "-1",
+      "description": "The maximum number of items to display in the list.",
+      "detailedType": "number | undefined"
+    },
+    "locale": {
+      "type": "Intl.LocalesArgument",
+      "description": "The locale to use for string comparison.\nDefaults to the user's runtime locale.",
+      "detailedType": "Intl.LocalesArgument | undefined"
+    },
+    "modal": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Determines if the popup enters a modal state when open.\n- `true`: user interaction is limited to the popup: document page scroll is locked and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.",
+      "detailedType": "boolean | undefined"
+    },
+    "multiple": {
+      "type": "boolean | undefined",
+      "default": "false",
+      "description": "Whether multiple items can be selected.",
+      "detailedType": "boolean | undefined | undefined"
+    },
+    "onInputValueChange": {
+      "type": "((value: string, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
+      "description": "Callback fired when the input value of the combobox changes.",
+      "detailedType": "| ((\n    value: string,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "onItemHighlighted": {
+      "type": "((itemValue: any, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",
+      "description": "Callback fired when the user navigates the list and highlights an item.\nPasses the item and the type of navigation or `undefined` when no item is highlighted.\n- `keyboard`: The item was highlighted via keyboard navigation.\n- `pointer`: The item was highlighted via pointer navigation.\n- `none`: The item was highlighted via programmatic navigation.",
+      "detailedType": "| ((\n    itemValue: any,\n    data: {\n      type: 'none' | 'keyboard' | 'pointer'\n      index: number\n    },\n  ) => void)\n| undefined"
+    },
+    "onOpenChangeComplete": {
+      "type": "((open: boolean) => void)",
+      "description": "Event handler called after any animations complete when the popup is opened or closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
+    },
+    "openOnInputClick": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the popup opens when clicking the input.",
+      "detailedType": "boolean | undefined"
+    },
+    "virtualized": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the items are being externally virtualized.",
+      "detailedType": "boolean | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
+    "readOnly": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user should be unable to choose a different option from the popup.",
+      "detailedType": "boolean | undefined"
+    },
+    "required": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user must choose a value before submitting a form.",
+      "detailedType": "boolean | undefined"
+    },
+    "inputRef": {
+      "type": "RefObject<HTMLInputElement>",
+      "description": "A ref to the hidden input element.",
+      "detailedType": "React.RefObject<HTMLInputElement> | undefined"
+    },
+    "id": {
+      "type": "string",
+      "description": "The id of the component.",
+      "detailedType": "string | undefined"
+    },
+    "children": {
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode | undefined"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
