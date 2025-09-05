@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
 import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
 import { CollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
@@ -12,7 +13,6 @@ import type { AccordionRoot } from '../root/AccordionRoot';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStyleHookMapping } from './styleHooks';
-import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Groups an accordion header with the corresponding panel.
@@ -43,7 +43,9 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     value: openValues,
   } = useAccordionRootContext();
 
-  const value = valueProp ?? index;
+  const fallbackValue = useBaseUiId();
+
+  const value = valueProp ?? fallbackValue;
 
   const disabled = disabledProp || contextDisabled;
 
