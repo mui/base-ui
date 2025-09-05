@@ -136,6 +136,7 @@ export default function App() {
               <Toolbar.Button
                 disabled={SELECT_DISABLED}
                 render={<Select.Trigger />}
+                nativeButton={false}
                 className={styles.select.Select}
               >
                 <Select.Value />
