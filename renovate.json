@@ -31,8 +31,7 @@
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "matchPackageNames": ["@mui/*"],
-      "automerge": true,
-      "minimumReleaseAge": "1 minute"
+      "automerge": false
     },
     {
       "matchDepTypes": ["engines"],
