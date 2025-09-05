@@ -6,7 +6,7 @@ import { Select } from '@base-ui-components/react/select';
 import { Menu } from '@base-ui-components/react/menu';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { Tooltip } from '@base-ui-components/react/tooltip';
-import styles from './popups-in-popups.module.css'
+import styles from './popups-in-popups.module.css';
 
 export default function PopupsInPopups() {
   const [modal, setModal] = React.useState(true);
@@ -74,7 +74,11 @@ function SelectDemo({ modal }: Props) {
       </Tooltip.Root>
 
       <Select.Portal>
-        <Select.Positioner sideOffset={5} className={styles.Positioner} alignItemWithTrigger={false}>
+        <Select.Positioner
+          sideOffset={5}
+          className={styles.Positioner}
+          alignItemWithTrigger={false}
+        >
           <Select.Popup className={styles.SelectPopup}>
             <Select.Item className={styles.SelectItem} value="system">
               <Select.ItemIndicator className={styles.SelectItemIndicator} render={<CheckIcon />} />
@@ -109,15 +113,35 @@ function MenuDemo({ modal }: Props) {
         <Menu.Positioner side="bottom" align="start" sideOffset={6} className={styles.Positioner}>
           <Menu.Popup className={styles.MenuPopup}>
             <Menu.SubmenuRoot closeParentOnEsc={false}>
-              <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>Text color</Menu.SubmenuTrigger>
+              <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
+                Text color
+              </Menu.SubmenuTrigger>
               <Menu.Portal>
-                <Menu.Positioner align="start" side="right" sideOffset={12} className={styles.Positioner}>
+                <Menu.Positioner
+                  align="start"
+                  side="right"
+                  sideOffset={12}
+                  className={styles.Positioner}
+                >
                   <Menu.Popup className={styles.MenuPopup}>
-                    <Menu.Item className={styles.MenuItem} onClick={createHandleMenuClick('Text color/Black')}>Black</Menu.Item>
-                    <Menu.Item className={styles.MenuItem} onClick={createHandleMenuClick('Text color/Dark grey')}>
+                    <Menu.Item
+                      className={styles.MenuItem}
+                      onClick={createHandleMenuClick('Text color/Black')}
+                    >
+                      Black
+                    </Menu.Item>
+                    <Menu.Item
+                      className={styles.MenuItem}
+                      onClick={createHandleMenuClick('Text color/Dark grey')}
+                    >
                       Dark grey
                     </Menu.Item>
-                    <Menu.Item className={styles.MenuItem} onClick={createHandleMenuClick('Text color/Accent')}>Accent</Menu.Item>
+                    <Menu.Item
+                      className={styles.MenuItem}
+                      onClick={createHandleMenuClick('Text color/Accent')}
+                    >
+                      Accent
+                    </Menu.Item>
                   </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>
@@ -126,10 +150,17 @@ function MenuDemo({ modal }: Props) {
             <Menu.SubmenuRoot>
               <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>Style</Menu.SubmenuTrigger>
               <Menu.Portal>
-                <Menu.Positioner align="start" side="right" sideOffset={12} className={styles.Positioner}>
+                <Menu.Positioner
+                  align="start"
+                  side="right"
+                  sideOffset={12}
+                  className={styles.Positioner}
+                >
                   <Menu.Popup className={styles.MenuPopup}>
                     <Menu.SubmenuRoot>
-                      <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>Heading</Menu.SubmenuTrigger>
+                      <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
+                        Heading
+                      </Menu.SubmenuTrigger>
                       <Menu.Portal>
                         <Menu.Positioner
                           align="start"
@@ -138,24 +169,38 @@ function MenuDemo({ modal }: Props) {
                           className={styles.Positioner}
                         >
                           <Menu.Popup className={styles.MenuPopup}>
-                            <Menu.Item className={styles.MenuItem} onClick={createHandleMenuClick('Style/Heading/Level 1')}>
+                            <Menu.Item
+                              className={styles.MenuItem}
+                              onClick={createHandleMenuClick('Style/Heading/Level 1')}
+                            >
                               Level 1
                             </Menu.Item>
-                            <Menu.Item className={styles.MenuItem} onClick={createHandleMenuClick('Style/Heading/Level 2')}>
+                            <Menu.Item
+                              className={styles.MenuItem}
+                              onClick={createHandleMenuClick('Style/Heading/Level 2')}
+                            >
                               Level 2
                             </Menu.Item>
-                            <Menu.Item className={styles.MenuItem} onClick={createHandleMenuClick('Style/Heading/Level 3')}>
+                            <Menu.Item
+                              className={styles.MenuItem}
+                              onClick={createHandleMenuClick('Style/Heading/Level 3')}
+                            >
                               Level 3
                             </Menu.Item>
                           </Menu.Popup>
                         </Menu.Positioner>
                       </Menu.Portal>
                     </Menu.SubmenuRoot>
-                    <Menu.Item className={styles.MenuItem} onClick={createHandleMenuClick('Style/Paragraph')}>
+                    <Menu.Item
+                      className={styles.MenuItem}
+                      onClick={createHandleMenuClick('Style/Paragraph')}
+                    >
                       Paragraph
                     </Menu.Item>
                     <Menu.Root disabled>
-                      <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>List</Menu.SubmenuTrigger>
+                      <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
+                        List
+                      </Menu.SubmenuTrigger>
                       <Menu.Portal>
                         <Menu.Positioner
                           align="start"
@@ -164,10 +209,16 @@ function MenuDemo({ modal }: Props) {
                           className={styles.Positioner}
                         >
                           <Menu.Popup className={styles.MenuPopup}>
-                            <Menu.Item className={styles.MenuItem} onClick={createHandleMenuClick('Style/List/Ordered')}>
+                            <Menu.Item
+                              className={styles.MenuItem}
+                              onClick={createHandleMenuClick('Style/List/Ordered')}
+                            >
                               Ordered
                             </Menu.Item>
-                            <Menu.Item className={styles.MenuItem} onClick={createHandleMenuClick('Style/List/Unordered')}>
+                            <Menu.Item
+                              className={styles.MenuItem}
+                              onClick={createHandleMenuClick('Style/List/Unordered')}
+                            >
                               Unordered
                             </Menu.Item>
                           </Menu.Popup>
@@ -179,7 +230,10 @@ function MenuDemo({ modal }: Props) {
               </Menu.Portal>
             </Menu.SubmenuRoot>
 
-            <Menu.Item className={styles.MenuItem} onClick={createHandleMenuClick('Clear formatting')}>
+            <Menu.Item
+              className={styles.MenuItem}
+              onClick={createHandleMenuClick('Clear formatting')}
+            >
               Clear formatting
             </Menu.Item>
           </Menu.Popup>
@@ -192,32 +246,6 @@ function MenuDemo({ modal }: Props) {
 interface Props {
   modal: boolean;
 }
-
-const blue = {
-  50: '#F0F7FF',
-  100: '#C2E0FF',
-  200: '#99CCF3',
-  300: '#66B2FF',
-  400: '#3399FF',
-  500: '#007FFF',
-  600: '#0072E6',
-  700: '#0059B3',
-  800: '#004C99',
-  900: '#003A75',
-};
-
-const grey = {
-  50: '#F3F6F9',
-  100: '#E5EAF2',
-  200: '#DAE2ED',
-  300: '#C7D0DD',
-  400: '#B0B8C4',
-  500: '#9DA8B7',
-  600: '#6B7A90',
-  700: '#434D5B',
-  800: '#303740',
-  900: '#1C2025',
-};
 
 function ExampleCombobox() {
   const id = React.useId();

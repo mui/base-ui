@@ -14,7 +14,7 @@
   cursor: default;
 
   &:hover {
-    background-color: #0072E6;
+    background-color: #0072e6;
   }
 
   &:focus-visible {

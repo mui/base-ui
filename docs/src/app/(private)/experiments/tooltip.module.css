@@ -93,19 +93,19 @@
 
 .AnchorButton {
   border: none;
-  background: #0072E6;
+  background: #0072e6;
   color: white;
   padding: 8px 16px;
   border-radius: 4px;
   font-size: 16px;
 
   &:focus-visible {
-    outline: 2px solid #3399FF;
+    outline: 2px solid #3399ff;
     outline-offset: 2px;
   }
 
   &:hover,
   &[data-popup-open] {
-    background: #004C99;
+    background: #004c99;
   }
 }
