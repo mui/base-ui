@@ -236,8 +236,3 @@
   backdrop-filter: blur(4px);
   z-index: 2000;
 }
-
-.CheckIcon {
-  width: 100%;
-  height: 100%;
-}

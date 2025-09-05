@@ -128,7 +128,6 @@ const CheckIcon = function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      className={styles.CheckIcon}
     >
       <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
     </svg>

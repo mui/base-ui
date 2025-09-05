@@ -235,7 +235,6 @@
   font-family: 'IBM Plex Sans', sans-serif;
   transform: translate(-50%, -50%);
   padding: 16px;
-  z-index: 2100;
 
   @media (prefers-color-scheme: dark) {
     background: var(--color-gray-900);
