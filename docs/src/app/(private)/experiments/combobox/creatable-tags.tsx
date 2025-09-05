@@ -4,17 +4,17 @@ import { Combobox as BaseCombobox } from '@base-ui-components/react/combobox';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 
 const INITIAL_ITEMS = [
-  'Red',
-  'Green',
-  'Blue',
-  'Yellow',
-  'Purple',
-  'Orange',
   'Black',
-  'White',
-  'Gray',
+  'Blue',
   'Cyan',
+  'Gray',
+  'Green',
   'Magenta',
+  'Orange',
+  'Purple',
+  'Red',
+  'White',
+  'Yellow',
 ];
 
 interface ComboboxProps {
@@ -41,7 +41,7 @@ export default function Experiment() {
         selectedItems={selectedItems}
         onSelectedItemsChange={setSelectedItems}
         onCreate={(label) => {
-          setItems((prev) => [...prev, label]);
+          setItems((prev) => [...prev, label].sort());
         }}
         placeholder="Red, Green, Blue..."
       />
