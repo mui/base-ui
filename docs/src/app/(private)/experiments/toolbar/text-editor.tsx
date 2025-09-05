@@ -331,7 +331,7 @@ export default function App() {
                     <Menu.Item className={styles.menu.Item}>Keyboard Shortcuts</Menu.Item>
                     <Menu.Item className={styles.menu.Item}>Release Notes</Menu.Item>
                     <Menu.Separator className={styles.menu.Separator} />
-                    <Menu.Root>
+                    <Menu.SubmenuRoot>
                       <Menu.SubmenuTrigger className={styles.menu.SubmenuTrigger}>
                         Debug
                         <ChevronRightIcon />
@@ -352,7 +352,7 @@ export default function App() {
                           </Menu.Popup>
                         </Menu.Positioner>
                       </Menu.Portal>
-                    </Menu.Root>
+                    </Menu.SubmenuRoot>
                     <Menu.Separator className={styles.menu.Separator} />
                     <Menu.Item className={styles.menu.Item}>Log Out</Menu.Item>
                   </Menu.Popup>
