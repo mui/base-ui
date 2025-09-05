@@ -70,7 +70,7 @@
     "@mui/internal-markdown": "^2.0.7",
     "@mui/internal-scripts": "^2.0.10",
     "@mui/internal-test-utils": "^2.0.10",
-    "@mui/monorepo": "github:mui/material-ui#v7.3.1",
+    "@mui/monorepo": "github:mui/material-ui#v7.3.2",
     "@octokit/rest": "^22.0.0",
     "@playwright/test": "1.54.2",
     "@tailwindcss/postcss": "4.1.12",
