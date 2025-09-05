@@ -1,20 +1,22 @@
 import getBaseConfig from '@mui/internal-code-infra/babel-config';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const errorCodesPath = new URL(import.meta.resolve('./docs/public/static/error-codes.json'))
-  .pathname;
-const missingError = process.env.MUI_EXTRACT_ERROR_CODES === 'true' ? 'write' : 'annotate';
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const errorCodesPath = path.join(dirname, 'docs/src/error-codes.json');
 
 export default function getBabelConfig(api) {
   const baseConfig = getBaseConfig(api);
 
   const plugins = [
     [
-      'babel-plugin-macros',
+      '@mui/internal-babel-plugin-minify-errors',
       {
-        muiError: {
-          errorCodesPath,
-          missingError,
-        },
+        missingError: 'annotate',
+        runtimeModule: '#formatErrorMessage',
+        detection: 'opt-out',
+        errorCodesPath,
       },
     ],
   ];
