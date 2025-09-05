@@ -69,7 +69,8 @@
     "./use-render": "./src/use-render/index.ts"
   },
   "imports": {
-    "#test-utils": "./test/index.ts"
+    "#test-utils": "./test/index.ts",
+    "#formatErrorMessage": "@base-ui-components/utils/formatErrorMessage"
   },
   "type": "commonjs",
   "scripts": {
