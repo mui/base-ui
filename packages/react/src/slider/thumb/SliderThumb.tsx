@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -7,6 +8,7 @@ import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { valueToPercent } from '../../utils/valueToPercent';
 import {
   ARROW_DOWN,
   ARROW_UP,
@@ -19,6 +21,7 @@ import {
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { valueArrayToPercentages } from '../utils/valueArrayToPercentages';
@@ -106,11 +109,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const {
     active: activeIndex,
+    controlRef,
     disabled: contextDisabled,
-    pressedInputRef,
     fieldControlValidation,
     formatOptionsRef,
     handleInputChange,
+    inset,
     labelId,
     largeStep,
     locale,
@@ -118,13 +122,18 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     min,
     minStepsBetweenValues,
     orientation,
+    pressedInputRef,
+    pressedThumbCenterOffsetRef,
+    pressedThumbIndexRef,
     setActive,
+    setIndicatorPosition,
     state,
     step,
     values: sliderValues,
   } = useSliderRootContext();
 
   const disabled = disabledProp || contextDisabled;
+  const range = sliderValues.length > 1;
 
   const direction = useDirection();
   const { controlId, setControlId, setTouched, setFocused, validationMode } = useFieldRootContext();
@@ -151,34 +160,74 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     metadata: thumbMetadata,
   });
 
-  const index = indexProp ?? compositeIndex;
+  const index = !range ? 0 : (indexProp ?? compositeIndex);
 
   const thumbValue = sliderValues[index];
 
   const percentageValues = valueArrayToPercentages(sliderValues.slice(), min, max);
-  // for SSR, don't wait for the index if there's only one thumb
-  const percent = percentageValues.length === 1 ? percentageValues[0] : percentageValues[index];
+  const derivedPercent = !range ? percentageValues[0] : percentageValues[index];
+
+  const [percentState, setPercentState] = React.useState<number | undefined>();
+
+  const getInsetPosition = useEventCallback(() => {
+    const control = controlRef.current;
+    const thumb = thumbRef.current;
+    if (!control || !thumb) {
+      return;
+    }
+    const thumbRect = thumb.getBoundingClientRect();
+    const controlRect = control.getBoundingClientRect();
+
+    const side = orientation === 'horizontal' ? 'width' : 'height';
+    const controlTotalTravelPx = controlRect[side] - thumbRect[side];
+    // console.log('controlTotalTravelPx', controlTotalTravelPx);
+    const valuePercent = valueToPercent(thumbValue, min, max);
+    // px distance between the thumb center and the starting edge (inline-start or bottom)
+    const thumbOffsetFromControlEdge =
+      thumbRect[side] / 2 + (controlTotalTravelPx * valuePercent) / 100;
+    const insetPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
+    // console.log('insetPercent', insetPercent);
+    setPercentState(insetPercent);
+    if (index === 0) {
+      setIndicatorPosition((prevPosition) => [insetPercent, prevPosition[1]]);
+    } else if (index === sliderValues.length - 1) {
+      setIndicatorPosition((prevPosition) => [prevPosition[0], insetPercent]);
+    }
+  });
+
+  useIsoLayoutEffect(() => {
+    if (inset) {
+      queueMicrotask(getInsetPosition);
+    }
+  }, [getInsetPosition, inset]);
+
+  useIsoLayoutEffect(() => {
+    if (inset) {
+      getInsetPosition();
+    }
+  }, [getInsetPosition, inset, thumbValue]);
 
   const isRtl = direction === 'rtl';
 
   const getThumbStyle = React.useCallback(() => {
     const isVertical = orientation === 'vertical';
 
-    if (!Number.isFinite(percent)) {
+    if (!inset && !Number.isFinite(derivedPercent)) {
       return visuallyHidden;
     }
 
     return {
+      visibility: inset && percentState === undefined ? 'hidden' : undefined,
       position: 'absolute',
       [{
         horizontal: 'insetInlineStart',
         vertical: 'bottom',
-      }[orientation]]: `${percent}%`,
+      }[orientation]]: `${inset ? percentState : derivedPercent}%`,
       [isVertical ? 'left' : 'top']: '50%',
       transform: `translate(${(isVertical || !isRtl ? -1 : 1) * 50}%, ${(isVertical ? 1 : -1) * 50}%)`,
       zIndex: activeIndex === index ? 1 : undefined,
     } satisfies React.CSSProperties;
-  }, [activeIndex, isRtl, orientation, percent, index]);
+  }, [activeIndex, inset, isRtl, orientation, derivedPercent, percentState, index]);
 
   let cssWritingMode: React.CSSProperties['writingMode'];
   if (orientation === 'vertical') {
@@ -230,7 +279,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
         if (validationMode === 'onBlur') {
           fieldControlValidation.commitValidation(
-            getSliderValue(thumbValue, index, min, max, sliderValues.length > 1, sliderValues),
+            getSliderValue(thumbValue, index, min, max, range, sliderValues),
           );
         }
       },
@@ -243,7 +292,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
 
         let newValue = null;
-        const isRange = sliderValues.length > 1;
         const roundedValue = roundValueToStep(thumbValue, step, min);
         switch (event.key) {
           case ARROW_UP:
@@ -279,7 +327,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           case END:
             newValue = max;
 
-            if (isRange) {
+            if (range) {
               newValue = Number.isFinite(sliderValues[index + 1])
                 ? sliderValues[index + 1] - step * minStepsBetweenValues
                 : max;
@@ -288,7 +336,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           case HOME:
             newValue = min;
 
-            if (isRange) {
+            if (range) {
               newValue = Number.isFinite(sliderValues[index - 1])
                 ? sliderValues[index - 1] + step * minStepsBetweenValues
                 : min;
@@ -337,7 +385,17 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         id,
         onBlur: onBlurProp,
         onFocus: onFocusProp,
-        onPointerDown() {
+        onPointerDown(event) {
+          pressedThumbIndexRef.current = index;
+
+          if (thumbRef.current != null) {
+            const axis = orientation === 'horizontal' ? 'x' : 'y';
+            const midpoint = getMidpoint(thumbRef.current);
+            const offset =
+              (orientation === 'horizontal' ? event.clientX : event.clientY) - midpoint[axis];
+            pressedThumbCenterOffsetRef.current = offset;
+          }
+
           if (inputRef.current != null && pressedInputRef.current !== inputRef.current) {
             pressedInputRef.current = inputRef.current;
           }

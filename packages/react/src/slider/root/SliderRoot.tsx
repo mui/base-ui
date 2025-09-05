@@ -60,6 +60,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     disabled: disabledProp = false,
     id: idProp,
     inputRef: inputRefProp,
+    inset = false,
     format,
     largeStep = 10,
     locale,
@@ -120,10 +121,18 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
+  // The input element nested in the pressed thumb.
   const pressedInputRef = React.useRef<HTMLInputElement>(null);
-  const inputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
+  // The px distance between the pointer and the center of a pressed thumb.
+  const pressedThumbCenterOffsetRef = React.useRef<number | null>(null);
+  // The index of the pressed thumb, or the closest thumb if the `Control` was pressed.
+  // This is updated on pointerdown, which is sooner than the `active/activeIndex`
+  // state which is updated later when the nested `input` receives focus.
+  const pressedThumbIndexRef = React.useRef(-1);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
+
   const formatOptionsRef = useLatestRef(format);
+  const inputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -133,6 +142,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
+
+  const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
+    undefined,
+    undefined,
+  ]);
 
   useField({
     id,
@@ -270,12 +284,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const contextValue: SliderRootContext = React.useMemo(
     () => ({
       active,
+      controlRef,
       disabled,
       dragging,
       fieldControlValidation,
-      pressedInputRef,
       formatOptionsRef,
       handleInputChange,
+      indicatorPosition,
+      inset,
       labelId: ariaLabelledby,
       largeStep,
       lastChangedValueRef,
@@ -285,10 +301,13 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       minStepsBetweenValues,
       onValueCommitted,
       orientation,
-      range,
+      pressedInputRef,
+      pressedThumbCenterOffsetRef,
+      pressedThumbIndexRef,
       registerFieldControlRef,
       setActive,
       setDragging,
+      setIndicatorPosition,
       setValue,
       state,
       step,
@@ -298,13 +317,15 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }),
     [
       active,
+      controlRef,
       ariaLabelledby,
       disabled,
       dragging,
       fieldControlValidation,
-      pressedInputRef,
       formatOptionsRef,
       handleInputChange,
+      indicatorPosition,
+      inset,
       largeStep,
       lastChangedValueRef,
       locale,
@@ -313,10 +334,13 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       minStepsBetweenValues,
       onValueCommitted,
       orientation,
-      range,
+      pressedInputRef,
+      pressedThumbCenterOffsetRef,
+      pressedThumbIndexRef,
       registerFieldControlRef,
       setActive,
       setDragging,
+      setIndicatorPosition,
       setValue,
       state,
       step,
@@ -442,6 +466,11 @@ export namespace SliderRoot {
      * Options to format the input value.
      */
     format?: Intl.NumberFormatOptions;
+    /**
+     * When `true` thumbs are inset within `Slider.Control`.
+     * @default false
+     */
+    inset?: boolean;
     /**
      * A ref to access the hidden input element.
      */

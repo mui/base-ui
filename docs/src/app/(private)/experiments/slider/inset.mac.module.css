@@ -1,3 +1,4 @@
+/* CSS workaround around centered thumb positioning */
 .Slider {
   --thumb-radius: 0.625rem;
   --track-height: calc(var(--thumb-radius) * 2);
