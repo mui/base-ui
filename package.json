@@ -76,7 +76,7 @@
     "@tailwindcss/postcss": "4.1.12",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.20",
-    "@types/node": "^22.17.2",
+    "@types/node": "^22.18.0",
     "@types/react": "^19.1.10",
     "@types/yargs": "^17.0.33",
     "@vitejs/plugin-react": "^5.0.1",
@@ -147,7 +147,7 @@
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/types": "^7.28.2",
-    "@types/node": "^22.17.2",
+    "@types/node": "^22.18.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7"
   }
