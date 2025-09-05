@@ -1,0 +1,79 @@
+.ScrollAreaRoot {
+  width: 300px;
+  height: 100vh;
+  border-radius: 6px;
+  background: #f5f5f5;
+}
+
+.ScrollAreaViewport {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+}
+
+.ScrollAreaViewport:focus-visible {
+  outline: 2px solid rgb(0 0 0 / 0.5);
+}
+
+.ScrollAreaScrollbar {
+  visibility: hidden;
+  background: transparent;
+  box-sizing: border-box;
+  transition: opacity 0.2s, background 0.2s, visibility 0.2s;
+  opacity: 0;
+  display: flex;
+}
+
+.ScrollAreaScrollbar:hover {
+  background: rgb(0 0 0 / 0.1);
+}
+
+.ScrollAreaScrollbar[data-orientation='vertical'] {
+  padding-block: 20px;
+  width: 10px;
+}
+
+.ScrollAreaScrollbar[data-orientation='horizontal'] {
+  padding-inline: 20px;
+  flex-direction: column;
+  height: 10px;
+}
+
+.ScrollAreaScrollbar[data-hovering],
+.ScrollAreaScrollbar[data-scrolling],
+.ScrollAreaScrollbar:hover {
+  visibility: visible;
+  opacity: 1;
+}
+
+.ScrollAreaScrollbar[data-scrolling]:not(:hover) {
+  transition: none;
+}
+
+.ScrollAreaThumb {
+  background: rgb(0 0 0 / 0.5);
+  border-radius: 20px;
+  flex: 1;
+  position: relative;
+}
+
+.ScrollAreaThumb[data-orientation='vertical'] {
+  margin-block: 10px;
+}
+
+.ScrollAreaThumb[data-orientation='horizontal'] {
+  margin-inline: 10px;
+}
+
+.ScrollAreaThumb::before {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 22px;
+  min-height: 22px;
+}
