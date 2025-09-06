@@ -601,13 +601,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       if (
         selectionMode === 'single' &&
         nextValue != null &&
-        eventDetails.reason !== 'input-change'
+        eventDetails.reason !== 'input-change' &&
+        queryChangedAfterOpen
       ) {
-        setOpen(false, createBaseUIEventDetails('item-press', eventDetails.event as any));
-
-        if (queryChangedAfterOpen) {
-          setCloseQuery(query);
-        }
+        setCloseQuery(query);
       }
     },
   );

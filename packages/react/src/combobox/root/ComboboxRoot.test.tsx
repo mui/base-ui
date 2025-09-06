@@ -37,6 +37,85 @@ describe('<Combobox.Root />', () => {
 
   describe('selection behavior', () => {
     describe('single', () => {
+      it('fires onOpenChange once with reason item-press on mouse click', async () => {
+        const items = ['apple', 'banana'];
+        const onOpenChange = spy();
+
+        const { user } = await render(
+          <Combobox.Root items={items} onOpenChange={onOpenChange}>
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByRole('combobox');
+        await user.click(input);
+        await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+        onOpenChange.resetHistory();
+        await user.click(screen.getByRole('option', { name: 'apple' }));
+
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).to.equal(null);
+        });
+
+        expect(onOpenChange.callCount).to.equal(1);
+        expect(onOpenChange.lastCall.args[0]).to.equal(false);
+        expect(onOpenChange.lastCall.args[1].reason).to.equal('item-press');
+      });
+
+      it('fires onOpenChange once with reason item-press on Enter selection', async () => {
+        const items = ['apple', 'banana'];
+        const onOpenChange = spy();
+
+        const { user } = await render(
+          <Combobox.Root items={items} onOpenChange={onOpenChange}>
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByRole('combobox');
+        await user.click(input);
+        await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+        await user.keyboard('{ArrowDown}');
+        onOpenChange.resetHistory();
+        await user.keyboard('{Enter}');
+
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).to.equal(null);
+        });
+
+        expect(onOpenChange.callCount).to.equal(1);
+        expect(onOpenChange.lastCall.args[0]).to.equal(false);
+        expect(onOpenChange.lastCall.args[1].reason).to.equal('item-press');
+      });
+
       it('should auto-close popup after selection when open state is uncontrolled', async () => {
         const items = ['apple', 'banana', 'cherry'];
 
