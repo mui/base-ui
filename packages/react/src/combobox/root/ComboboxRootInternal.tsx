@@ -49,7 +49,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { HTMLProps } from '../../utils/types';
-import { useValueChanged } from './utils/useValueChanged';
+import { useValueChanged } from '../../utils/useValueChanged';
 import { NOOP } from '../../utils/noop';
 
 /**

@@ -12,7 +12,6 @@ export type State = {
     | Array<{ label: React.ReactNode; value: any }>
     | undefined;
   value: any;
-  label: string;
 
   open: boolean;
   mounted: boolean;
@@ -41,7 +40,6 @@ export const selectors = {
 
   items: createSelector((state: State) => state.items),
   value: createSelector((state: State) => state.value),
-  label: createSelector((state: State) => state.label),
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),

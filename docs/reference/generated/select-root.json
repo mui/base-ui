@@ -92,7 +92,7 @@
     },
     "id": {
       "type": "string",
-      "description": "The id of the Select.",
+      "description": "The id of the select.",
       "detailedType": "string | undefined"
     },
     "children": {

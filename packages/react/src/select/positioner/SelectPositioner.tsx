@@ -178,14 +178,21 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
     const eventDetails = createBaseUIEventDetails('none');
 
-    if (prevSize !== 0 && !store.state.multiple && value !== null) {
-      const valueIndex = valuesRef.current.indexOf(value);
-      if (valueIndex === -1) {
-        const initial = initialValueRef.current;
-        const hasInitial = initial != null && valuesRef.current.includes(initial);
-        const nextValue = hasInitial ? initial : null;
-        setValue(nextValue, eventDetails);
+    if (prevSize !== 0 && !store.state.multiple) {
+      let nextValue = value;
+
+      if (value !== null) {
+        const valueIndex = valuesRef.current.indexOf(value);
+        if (valueIndex === -1) {
+          const initial = initialValueRef.current;
+          const hasInitial = initial != null && valuesRef.current.includes(initial);
+          nextValue = hasInitial ? initial : null;
+          setValue(nextValue, eventDetails);
+        }
       }
+
+      const nextSelectedIndex = nextValue === null ? -1 : valuesRef.current.indexOf(nextValue);
+      store.set('selectedIndex', nextSelectedIndex === -1 ? null : nextSelectedIndex);
     }
 
     if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
