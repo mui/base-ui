@@ -43,12 +43,6 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
       "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
     },
-    "cols": {
-      "type": "number",
-      "default": "1",
-      "description": "The maximum number of columns present when the items are rendered in grid layout.\nA value of more than `1` turns the listbox into a grid.",
-      "detailedType": "number | undefined"
-    },
     "defaultInputValue": {
       "type": "string | number | string[]",
       "description": "The uncontrolled input value when initially rendered.",
@@ -58,6 +52,12 @@
       "type": "((itemValue: any, query: string, itemToStringLabel: ((itemValue: any) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.\nThe `itemToStringLabel` function is provided to help convert items to strings for comparison.",
       "detailedType": "| ((\n    itemValue: any,\n    query: string,\n    itemToStringLabel:\n      | ((itemValue: any) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
+    },
+    "grid": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether list items are presented in a grid layout.\nWhen enabled, arrow keys navigate across rows and columns inferred from DOM rows.",
+      "detailedType": "boolean | undefined"
     },
     "inputValue": {
       "type": "string | number | string[]",
