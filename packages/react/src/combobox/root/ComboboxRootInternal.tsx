@@ -520,12 +520,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const setInputValue = useEventCallback(
     (next: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
-      if (eventDetails.reason === 'input-clear' && open) {
-        hadInputClearRef.current = true;
-        // Defer clearing until close transition completes to avoid flicker
-        return;
-      }
-
       props.onInputValueChange?.(next, eventDetails);
 
       if (eventDetails.isCanceled) {
@@ -556,11 +550,18 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         return;
       }
 
-      if (selectionMode === 'single' && !nextOpen && queryChangedAfterOpen) {
-        setCloseQuery(query);
-        // Avoid a flicker when closing the popup with an empty query.
-        if (query === '') {
-          setQueryChangedAfterOpen(false);
+      if (!nextOpen && queryChangedAfterOpen) {
+        if (selectionMode === 'single') {
+          setCloseQuery(query);
+          // Avoid a flicker when closing the popup with an empty query.
+          if (query === '') {
+            setQueryChangedAfterOpen(false);
+          }
+        } else if (selectionMode === 'multiple') {
+          // Freeze the current query so filtering remains stable while exiting.
+          // For multiple selection, clear the input immediately on close while retaining filtering via closeQuery.
+          setCloseQuery(query);
+          setInputValue('', createBaseUIEventDetails('input-clear', eventDetails.event));
         }
       }
 
@@ -589,13 +590,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
           stringifyItem(nextValue, itemToStringLabel),
           createBaseUIEventDetails(eventDetails.reason, eventDetails.event),
         );
-      }
-
-      const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-      if (multiple && hadInputValue) {
-        setInputValue('', createBaseUIEventDetails(eventDetails.reason, eventDetails.event));
-        // Reset active index and clear any highlighted item since the list will re-filter.
-        setIndices({ activeIndex: null });
       }
 
       if (
@@ -655,24 +649,15 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       setIndices({ activeIndex: null });
     }
 
-    // If an input-clear was requested while open, perform it here after close completes
-    // to avoid mid-exit flicker.
-    if (hadInputClearRef.current && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', createBaseUIEventDetails('input-clear'));
-      hadInputClearRef.current = false;
-    }
-
-    // If explicitly requested by a wrapper (e.g., FilterableMenu), clear the input
-    // after close completes regardless of selection mode. This ensures the next open
-    // starts from a blank query without requiring external state resets.
-    if (props.clearInputOnCloseComplete && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', createBaseUIEventDetails('input-clear'));
-    }
-
     // Multiple selection mode:
     // If the user typed a filter and didn't select in multiple mode, clear the input
     // after close completes to avoid mid-exit flicker and start fresh on next open.
-    if (selectionMode === 'multiple' && inputRef.current && inputRef.current.value !== '') {
+    if (
+      selectionMode === 'multiple' &&
+      inputRef.current &&
+      inputRef.current.value !== '' &&
+      !hadInputClearRef.current
+    ) {
       setInputValue('', createBaseUIEventDetails('input-clear'));
     }
 
@@ -1201,12 +1186,6 @@ interface ComboboxRootProps<ItemValue> {
    * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument;
-  /**
-   * INTERNAL: Clears the input value after close animation completes.
-   * Useful for wrappers like FilterableMenu so they don't need to reset externally.
-   * @default false
-   */
-  clearInputOnCloseComplete?: boolean;
   /**
    * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
    */

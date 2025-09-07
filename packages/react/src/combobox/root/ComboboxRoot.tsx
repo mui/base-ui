@@ -43,7 +43,6 @@ export namespace ComboboxRoot {
     Multiple extends boolean | undefined = false,
   > = Omit<
     ComboboxRootInternal.Props<any, ModeFromMultiple<Multiple>>,
-    | 'clearInputOnCloseComplete'
     | 'fillInputOnItemPress'
     | 'autoComplete'
     | 'autoHighlight'
