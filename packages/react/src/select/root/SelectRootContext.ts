@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useFloatingRootContext, type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
-import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';
 import type { SelectRoot } from './SelectRoot';
 import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -31,7 +30,6 @@ export interface SelectRootContext {
     allowSelectedMouseUp: boolean;
   }>;
   selectedItemTextRef: React.MutableRefObject<HTMLSpanElement | null>;
-  fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
   /**
    * Called by each <Select.Item> when it knows its stable list index.
    * Allows the root to map option values to their DOM positions.

@@ -624,6 +624,29 @@ describe('<Field.Root />', () => {
     });
   });
 
+  it('provides fieldControlValidation via context', async () => {
+    const { useFieldRootContext } = await import('./FieldRootContext');
+    function Probe() {
+      const ctx = useFieldRootContext();
+      return (
+        <div
+          data-testid="probe"
+          data-has-validation={ctx.fieldControlValidation ? '' : undefined}
+        />
+      );
+    }
+
+    await render(
+      <Field.Root>
+        <Probe />
+        <Field.Control />
+      </Field.Root>,
+    );
+
+    const el = screen.getByTestId('probe');
+    expect(el).to.have.attribute('data-has-validation');
+  });
+
   describe('style hooks', () => {
     describe('touched', () => {
       it('should apply [data-touched] style hook to all components when touched', async () => {

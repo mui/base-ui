@@ -8,6 +8,7 @@ import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 import type { HTMLProps } from '../../utils/types';
+import type { FieldRoot, FieldValidityData } from '../root/FieldRoot';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
@@ -33,7 +34,24 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
   return onlyValueMissing;
 }
 
-export function useFieldControlValidation() {
+export interface FieldControlValidationParams {
+  setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
+  validate: (
+    value: unknown,
+    formValues: Record<string, unknown>,
+  ) => string | string[] | null | Promise<string | string[] | null>;
+  messageIds: string[];
+  validityData: FieldValidityData;
+  validationMode: 'onBlur' | 'onChange';
+  validationDebounceTime: number;
+  invalid: boolean | undefined;
+  markedDirtyRef: React.MutableRefObject<boolean>;
+  controlId: string | null | undefined;
+  state: FieldRoot.State;
+  name: string | undefined;
+}
+
+export function useFieldControlValidationFrom(params: FieldControlValidationParams) {
   const {
     setValidityData,
     validate,
@@ -46,7 +64,7 @@ export function useFieldControlValidation() {
     controlId,
     state,
     name,
-  } = useFieldRootContext();
+  } = params;
 
   const { formRef, clearErrors } = useFormContext();
 
@@ -289,11 +307,18 @@ export function useFieldControlValidation() {
   );
 }
 
+export function useFieldControlValidation() {
+  const ctx = useFieldRootContext();
+  return useFieldControlValidationFrom(ctx);
+}
+
 export namespace useFieldControlValidation {
   export interface ReturnValue {
     getValidationProps: (props?: HTMLProps) => HTMLProps;
-    getInputValidationProps: (props?: HTMLProps) => HTMLProps;
-    inputRef: React.MutableRefObject<any>;
+    getInputValidationProps: (
+      props?: React.ComponentProps<'input'>,
+    ) => React.ComponentProps<'input'>;
+    inputRef: React.RefObject<HTMLInputElement | null>;
     commitValidation: (value: unknown, revalidate?: boolean) => void;
   }
 }

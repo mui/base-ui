@@ -44,11 +44,11 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     setTouched,
     setFocused,
     validationMode,
+    fieldControlValidation,
   } = useFieldRootContext();
   const store = useComboboxRootContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
-  const fieldControlValidation = useStore(store, selectors.fieldControlValidation);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const listElement = useStore(store, selectors.listElement);
@@ -112,7 +112,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           if (validationMode === 'onBlur') {
             const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
-            fieldControlValidation?.commitValidation(valueToValidate);
+            fieldControlValidation.commitValidation(valueToValidate);
           }
 
           if (disabled || readOnly) {
@@ -159,9 +159,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
         },
       },
-      fieldControlValidation
-        ? fieldControlValidation.getValidationProps(elementProps)
-        : elementProps,
+      fieldControlValidation.getValidationProps,
+      elementProps,
       getButtonProps,
     ],
     customStyleHookMapping,

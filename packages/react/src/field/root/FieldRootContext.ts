@@ -3,6 +3,8 @@ import * as React from 'react';
 import { NOOP } from '../../utils/noop';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { FieldRoot, FieldValidityData } from './FieldRoot';
+import { useFieldControlValidation } from '../control/useFieldControlValidation';
+import { mergeProps } from '../../merge-props';
 
 export interface FieldRootContext {
   invalid: boolean | undefined;
@@ -35,7 +37,8 @@ export interface FieldRootContext {
   validationMode: 'onBlur' | 'onChange';
   validationDebounceTime: number;
   state: FieldRoot.State;
-  markedDirtyRef: React.MutableRefObject<boolean>;
+  markedDirtyRef: React.RefObject<boolean>;
+  fieldControlValidation: useFieldControlValidation.ReturnValue;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContext>({
@@ -76,6 +79,12 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
     focused: false,
   },
   markedDirtyRef: { current: false },
+  fieldControlValidation: {
+    getValidationProps: (props = {}) => props,
+    getInputValidationProps: (props = {}) => mergeProps({ onChange: NOOP }, props),
+    inputRef: { current: null },
+    commitValidation: NOOP,
+  },
 });
 
 export function useFieldRootContext(optional = true) {

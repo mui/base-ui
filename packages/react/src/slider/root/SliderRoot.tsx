@@ -21,7 +21,7 @@ import { activeElement } from '../../floating-ui-react/utils';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFormContext } from '../../form/FormContext';
 import { asc } from '../utils/asc';
@@ -101,9 +101,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setDirty,
     validityData,
     validationMode,
+    fieldControlValidation,
   } = useFieldRootContext();
-
-  const fieldControlValidation = useFieldControlValidation();
 
   const ariaLabelledby = ariaLabelledByProp ?? labelId;
   const disabled = fieldDisabled || disabledProp;
@@ -369,7 +368,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
               disabled,
               name,
               ref: inputRef,
-              value: valueUnwrapped,
+              value: valueUnwrapped as any,
               onFocus: handleHiddenInputFocus,
               style: visuallyHidden,
               tabIndex: -1,
