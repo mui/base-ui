@@ -24,10 +24,10 @@ export const FocusGuard = React.forwardRef(function FocusGuard(
 
   const restProps = {
     ref,
-    tabIndex: 0,
     // Role is only for VoiceOver
     role,
     'aria-hidden': role ? undefined : true,
+    tabIndex: role ? 0 : -1,
     style: visuallyHidden,
   };
 
