@@ -6,9 +6,9 @@ const demoPopover = Popover.createHandle<{ text: string }>();
 
 export default function PopoverDetachedTriggersFullDemo() {
   return (
-    <React.Fragment>
+    <div className="flex gap-2">
       <Popover.Trigger
-        className="flex size-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100"
+        className="flex size-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none font-bold hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100"
         handle={demoPopover}
         payload={{ text: 'Trigger 1' }}
       >
@@ -16,7 +16,7 @@ export default function PopoverDetachedTriggersFullDemo() {
       </Popover.Trigger>
 
       <Popover.Trigger
-        className="flex size-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100"
+        className="flex size-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none font-bold hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100"
         handle={demoPopover}
         payload={{ text: 'T2' }}
       >
@@ -24,7 +24,7 @@ export default function PopoverDetachedTriggersFullDemo() {
       </Popover.Trigger>
 
       <Popover.Trigger
-        className="flex size-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100"
+        className="flex size-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none font-bold hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100"
         handle={demoPopover}
         payload={{ text: 'The Third Trigger' }}
       >
@@ -36,7 +36,7 @@ export default function PopoverDetachedTriggersFullDemo() {
           <Popover.Portal>
             <Popover.Positioner
               sideOffset={8}
-              className="transition-[top,left,right,bottom] duration-500 ease-[linear(0,0.808_15.1%,0.963_19.7%,1.047_24.6%,1.071_31.7%,0.996_57%,1)] data-[instant]:transition-none"
+              className="transition-[top,left,right,bottom] duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] data-[instant]:transition-none"
             >
               <Popover.Popup className="origin-[var(--transform-origin)] max-w-[500px] w-[var(--popup-width,auto)] h-[var(--popup-height,auto)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[width,height,opacity,transform] duration-150 ease-out data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
                 <Popover.Arrow className="flex data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
@@ -99,6 +99,6 @@ export default function PopoverDetachedTriggersFullDemo() {
           }
         }
       `}</style>
-    </React.Fragment>
+    </div>
   );
 }

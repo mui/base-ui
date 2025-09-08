@@ -7,7 +7,7 @@ const demoPopover = Popover.createHandle<{ text: string }>();
 
 export default function PopoverDetachedTriggersFullDemo() {
   return (
-    <React.Fragment>
+    <div className={styles.Container}>
       <Popover.Trigger
         className={styles.IconButton}
         handle={demoPopover}
@@ -50,6 +50,6 @@ export default function PopoverDetachedTriggersFullDemo() {
           </Popover.Portal>
         )}
       </Popover.Root>
-    </React.Fragment>
+    </div>
   );
 }

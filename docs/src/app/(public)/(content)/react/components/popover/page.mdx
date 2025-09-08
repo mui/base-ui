@@ -126,14 +126,26 @@ const demoPopover = Popover.createHandle<{ text: string }>();
 </Popover.Root>
 ```
 
-Since the popup part is reused between triggers, its position and dimensions can be animated.
-To animate the position, apply CSS transitions to the `left`, `right`, `top`, and `bottom` properties of the **Positioner**.
-Target the **Popup's** `width` and `height` properties to animate dimensions.
+### Animating the Popover
 
-The popover also supports transitions between content.
-Wrap the content you wish to transition in the `Viewport` part and apply the transition styles to it.
-The `Viewport` part is only required if you want to animate the content.
-It renders an element (`div` by default) with a `data-activation-direction` attribute set to `left` | `right` | `down` | `up` and a children divs marked with `data-current` (when no transition is active) or `data-next` and `data-previous`.
-The `data-activation-direction` attribute specifies the position of the new trigger relative to the previous one, which can be used to apply different styles based on the direction of the transition.
+You can animate a popover as it moves between different trigger elements. This includes animating its position, size, and content.
+
+#### Position and Size
+
+To animate the popover's position, apply CSS transitions to the `left`, `right`, `top`, and `bottom` properties of the **Positioner** part. To animate its size, transition the `width` and `height` of the **Popup** part.
+
+#### Content
+
+The popover also supports content transitions. This is useful when different triggers display different content within the same popover.
+
+To enable content animations, wrap the content in the `Viewport` part. This part provides features to create direction-aware animations. It renders a `div` with a `data-activation-direction` attribute (`left`, `right`, `up`, or `down`) that indicates the new trigger's position relative to the previous one.
+
+Inside the `Viewport`, the content is further wrapped in `div`s with data attributes to help with styling:
+
+- `data-current`: The currently visible content.
+- `data-previous`: The outgoing content during a transition.
+- `data-next`: The incoming content during a transition.
+
+You can use these attributes to style the enter and exit animations.
 
 <Demo path="./demos/detached-triggers-full" />

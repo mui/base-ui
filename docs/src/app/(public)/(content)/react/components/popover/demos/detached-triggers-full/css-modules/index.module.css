@@ -13,6 +13,8 @@
   background-color: var(--color-gray-50);
   color: var(--color-gray-900);
   user-select: none;
+  font-size: 1rem;
+  font-weight: bold;
 
   @media (hover: hover) {
     &:hover {
@@ -40,11 +42,10 @@
 }
 
 .Positioner {
-  --spring-transition: linear(0, 0.808 15.1%, 0.963 19.7%, 1.047 24.6%, 1.071 31.7%, 0.996 57%, 1);
-
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
   transition-property: top, left, right, bottom;
-  transition-timing-function: var(--spring-transition);
-  transition-duration: 0.5s;
+  transition-timing-function: var(--easing);
+  transition-duration: 0.35s;
 
   /* Disable transitions when data-instant is set (used for the initial positioning of the popup) */
   &[data-instant] {
@@ -233,4 +234,9 @@
   display: flex;
   justify-content: end;
   gap: 1rem;
+}
+
+.Container {
+  display: flex;
+  gap: 8px;
 }
