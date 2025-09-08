@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Get associated PRs
         id: get-prs
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         with:
           script: |
             const issue_number = context.payload.issue.number;
@@ -109,7 +109,7 @@ jobs:
 
       - name: Add comment to issue
         if: steps.get-prs.outputs.has_pr == 'true'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         with:
           script: |
             // Get PR number from the previous step's output
