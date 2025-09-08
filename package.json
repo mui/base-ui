@@ -149,7 +149,6 @@
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/types": "^7.28.2",
-    "@mui/internal-babel-plugin-minify-errors": "https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@405bc3a",
     "@types/node": "^22.18.1",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9"
