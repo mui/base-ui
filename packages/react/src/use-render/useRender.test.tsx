@@ -71,7 +71,7 @@ describe('useRender', () => {
   });
 
   describe('param: defaultTagName', () => {
-    it('renders div by default if no element tag and no render prop is provided', async () => {
+    it('renders div by default if no defaultTagName and no render params are provided', async () => {
       function TestComponent() {
         return useRender({});
       }
