@@ -38,7 +38,7 @@ describe('<Popover.Trigger />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
 
       await user.keyboard('[Tab]');
-      expect(document.activeElement).to.not.equal(trigger);
+      expect(document.activeElement).not.to.equal(trigger);
     });
 
     it('custom element', async () => {
@@ -62,7 +62,7 @@ describe('<Popover.Trigger />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
 
       await user.keyboard('[Tab]');
-      expect(document.activeElement).to.not.equal(trigger);
+      expect(document.activeElement).not.to.equal(trigger);
     });
   });
 

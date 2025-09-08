@@ -141,7 +141,7 @@ describe('<AlertDialog.Popup />', () => {
       });
     });
 
-    it('should not move focus when initialFocus is null', async () => {
+    it('should not move focus when initialFocus is false', async () => {
       function TestComponent() {
         return (
           <div>
@@ -149,7 +149,7 @@ describe('<AlertDialog.Popup />', () => {
               <AlertDialog.Backdrop />
               <AlertDialog.Trigger>Open</AlertDialog.Trigger>
               <AlertDialog.Portal>
-                <AlertDialog.Popup data-testid="dialog" initialFocus={null}>
+                <AlertDialog.Popup data-testid="dialog" initialFocus={false}>
                   <input data-testid="input-1" />
                 </AlertDialog.Popup>
               </AlertDialog.Portal>
@@ -166,7 +166,31 @@ describe('<AlertDialog.Popup />', () => {
       });
     });
 
-    it('should default focus when initialFocus returns null', async () => {
+    it('should default focus when initialFocus returns true', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <AlertDialog.Root>
+              <AlertDialog.Backdrop />
+              <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="dialog" initialFocus={() => true}>
+                  <input data-testid="input-1" />
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      await user.click(getByText('Open'));
+      await waitFor(() => {
+        expect(getByTestId('input-1')).toHaveFocus();
+      });
+    });
+
+    it('uses default behavior when initialFocus returns null', async () => {
       function TestComponent() {
         return (
           <div>
@@ -285,7 +309,7 @@ describe('<AlertDialog.Popup />', () => {
       });
     });
 
-    it('should not move focus when finalFocus is null', async () => {
+    it('should not move focus when finalFocus is false', async () => {
       function TestComponent() {
         return (
           <div>
@@ -293,7 +317,7 @@ describe('<AlertDialog.Popup />', () => {
               <AlertDialog.Backdrop />
               <AlertDialog.Trigger>Open</AlertDialog.Trigger>
               <AlertDialog.Portal>
-                <AlertDialog.Popup finalFocus={null}>
+                <AlertDialog.Popup finalFocus={false}>
                   <AlertDialog.Close>Close</AlertDialog.Close>
                 </AlertDialog.Popup>
               </AlertDialog.Portal>
@@ -311,7 +335,33 @@ describe('<AlertDialog.Popup />', () => {
       });
     });
 
-    it('should move focus to the trigger when finalFocus returns null', async () => {
+    it('should move focus to the trigger when finalFocus returns true', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <AlertDialog.Root>
+              <AlertDialog.Backdrop />
+              <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup finalFocus={() => true}>
+                  <AlertDialog.Close>Close</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+      await user.click(trigger);
+      await user.click(getByText('Close'));
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
+
+    it('uses default behavior when finalFocus returns null', async () => {
       function TestComponent() {
         return (
           <div>

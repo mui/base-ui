@@ -67,5 +67,6 @@ export default defineConfig(async () => {
   return {
     entrypoints: [...(await getBaseUiExports()), ...(await getUtilsExports())],
     upload: !!process.env.CI,
+    comment: true,
   };
 });

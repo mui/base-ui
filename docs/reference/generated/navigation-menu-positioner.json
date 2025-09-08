@@ -25,7 +25,7 @@
       "type": "Side",
       "default": "'bottom'",
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions.",
-      "detailedType": "| 'top'\n| 'right'\n| 'bottom'\n| 'left'\n| 'inline-end'\n| 'inline-start'\n| undefined"
+      "detailedType": "| 'top'\n| 'bottom'\n| 'left'\n| 'right'\n| 'inline-end'\n| 'inline-start'\n| undefined"
     },
     "sideOffset": {
       "type": "number | OffsetFunction",
@@ -49,7 +49,7 @@
       "type": "Boundary",
       "default": "'clipping-ancestors'",
       "description": "An element or a rectangle that delimits the area that the popup is confined to.",
-      "detailedType": "| Element\n| Element[]\n| Rect\n| 'clipping-ancestors'\n| undefined"
+      "detailedType": "| Element\n| Element[]\n| 'clipping-ancestors'\n| Rect\n| undefined"
     },
     "collisionPadding": {
       "type": "Padding",
