@@ -120,7 +120,7 @@ export function useClick(
           const details = createBaseUIEventDetails('trigger-press', nativeEvent);
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
-              onOpenChange(true, details, event.currentTarget as HTMLElement;
+              onOpenChange(true, details, event.currentTarget as HTMLElement);
             });
           } else {
             onOpenChange(nextOpen, details, event.currentTarget as HTMLElement);
@@ -158,7 +158,7 @@ export function useClick(
                 openEventType === 'keyup'
               : true)
           );
-       const details = createBaseUIEventDetails('trigger-press', event.nativeEvent);
+        const details = createBaseUIEventDetails('trigger-press', event.nativeEvent);
 
         if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
           touchOpenTimeout.start(touchOpenDelay, () => {
