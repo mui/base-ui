@@ -76,7 +76,7 @@ describe('useRender', () => {
         return useRender({});
       }
 
-      const { container, setProps } = await render(<TestComponent />);
+      const { container } = await render(<TestComponent />);
       expect(container.firstElementChild).to.have.property('tagName', 'DIV');
     });
 
