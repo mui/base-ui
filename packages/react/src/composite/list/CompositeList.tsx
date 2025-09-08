@@ -63,9 +63,17 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
       return undefined;
     }
 
-    const mutationObserver = new MutationObserver(() => {
-      lastTickRef.current = {};
-      setMapTick(lastTickRef.current);
+    const mutationObserver = new MutationObserver((entries) => {
+      const diff = new Set<Node>();
+      const updateDiff = (node: Node) => (diff.has(node) ? diff.delete(node) : diff.add(node));
+      entries.forEach((entry) => {
+        entry.removedNodes.forEach(updateDiff);
+        entry.addedNodes.forEach(updateDiff);
+      });
+      if (diff.size === 0) {
+        lastTickRef.current = {};
+        setMapTick(lastTickRef.current);
+      }
     });
 
     sortedMap.forEach((_, node) => {
