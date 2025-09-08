@@ -5,6 +5,7 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
+import { EMPTY_OBJECT } from '../../utils/constants';
 import { CompositeListContext } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
@@ -28,7 +29,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   // information for list navigation.
 
   const map = useRefWithInit(createMap<Metadata>).current;
-  const [mapTick, setMapTick] = React.useState({});
+  const [mapTick, setMapTick] = React.useState(EMPTY_OBJECT);
   const lastTickRef = React.useRef(mapTick);
 
   const register = useEventCallback((node: Element, metadata: Metadata) => {
