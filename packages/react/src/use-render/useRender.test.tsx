@@ -71,6 +71,15 @@ describe('useRender', () => {
   });
 
   describe('param: defaultTagName', () => {
+    it('renders div by default if no element tag and no render prop is provided', async () => {
+      function TestComponent() {
+        return useRender({});
+      }
+
+      const { container, setProps } = await render(<TestComponent />);
+      expect(container.firstElementChild).to.have.property('tagName', 'DIV');
+    });
+
     it('renders the element with the default tag with no render prop', async () => {
       function TestComponent({
         defaultTagName,
