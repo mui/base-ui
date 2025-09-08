@@ -7,6 +7,7 @@ import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext'
 import { useFormContext } from '../../form/FormContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useFieldControlValidationFrom } from '../control/useFieldControlValidation';
 
 /**
  * Groups all parts of the field.
@@ -82,6 +83,20 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     [disabled, touched, dirty, valid, filled, focused],
   );
 
+  const fieldControlValidation = useFieldControlValidationFrom({
+    setValidityData,
+    validate,
+    messageIds,
+    validityData,
+    validationMode,
+    validationDebounceTime,
+    invalid,
+    markedDirtyRef,
+    controlId,
+    state,
+    name,
+  });
+
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
       invalid,
@@ -108,6 +123,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
       validationDebounceTime,
       state,
       markedDirtyRef,
+      fieldControlValidation,
     }),
     [
       invalid,
@@ -128,6 +144,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
       validationMode,
       validationDebounceTime,
       state,
+      fieldControlValidation,
     ],
   );
 

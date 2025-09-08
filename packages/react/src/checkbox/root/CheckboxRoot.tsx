@@ -13,7 +13,7 @@ import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
@@ -65,6 +65,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     state: fieldState,
     validationMode,
     validityData,
+    fieldControlValidation: ctxFieldControlValidation,
   } = useFieldRootContext();
 
   const groupContext = useCheckboxGroupContext();
@@ -104,9 +105,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     native: nativeButton,
   });
 
-  const localFieldControlValidation = useFieldControlValidation();
-  const fieldControlValidation =
-    groupContext?.fieldControlValidation ?? localFieldControlValidation;
+  const fieldControlValidation = groupContext?.fieldControlValidation ?? ctxFieldControlValidation;
 
   const [checked, setCheckedState] = useControlled({
     controlled: value && groupValue && !parent ? groupValue.includes(value) : groupChecked,

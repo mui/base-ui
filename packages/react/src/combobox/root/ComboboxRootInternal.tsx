@@ -32,7 +32,7 @@ import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -107,15 +107,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
+    fieldControlValidation,
   } = useFieldRootContext();
-  const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
-  const commitValidation = fieldControlValidation.commitValidation;
 
   useIsoLayoutEffect(() => {
     setControlId(id);
@@ -293,7 +292,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         disabled,
         readOnly,
         required,
-        fieldControlValidation,
         cols,
         isGrouped,
         virtualized,
@@ -381,7 +379,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   useField({
     id,
-    commitValidation,
+    commitValidation: fieldControlValidation.commitValidation,
     value: formValue,
     controlRef: inputRef,
     name,
@@ -459,10 +457,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
 
     clearErrors(name);
-    commitValidation?.(selectedValue, true);
+    fieldControlValidation.commitValidation(selectedValue, true);
 
     if (validationMode === 'onChange') {
-      commitValidation?.(selectedValue);
+      fieldControlValidation.commitValidation(selectedValue);
     }
 
     updateValue(selectedValue);
@@ -474,10 +472,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
 
     clearErrors(name);
-    commitValidation?.(inputValue, true);
+    fieldControlValidation.commitValidation(inputValue, true);
 
     if (validationMode === 'onChange') {
-      commitValidation?.(inputValue);
+      fieldControlValidation.commitValidation(inputValue);
     }
 
     updateValue(inputValue);
@@ -872,7 +870,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       disabled,
       readOnly,
       required,
-      fieldControlValidation,
       cols,
       isGrouped,
       virtualized,
@@ -902,7 +899,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     disabled,
     readOnly,
     required,
-    fieldControlValidation,
     cols,
     isGrouped,
     virtualized,

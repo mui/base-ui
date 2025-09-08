@@ -67,14 +67,15 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
-  const { labelId, validationMode, setTouched, setFocused, invalid } = useFieldRootContext();
+  const { labelId, validationMode, setTouched, setFocused, invalid, fieldControlValidation } =
+    useFieldRootContext();
 
   const {
     getInputValidationProps,
     getValidationProps,
     commitValidation,
     inputRef: inputValidationRef,
-  } = useFieldControlValidation();
+  } = fieldControlValidation;
 
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);

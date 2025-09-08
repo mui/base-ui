@@ -10,7 +10,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useField } from '../useField';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useFieldControlValidation } from './useFieldControlValidation';
+
 import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
@@ -61,10 +61,11 @@ export const FieldControl = React.forwardRef(function FieldControl(
     setFocused,
     setFilled,
     validationMode,
+    fieldControlValidation,
   } = useFieldRootContext();
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
-    useFieldControlValidation();
+    fieldControlValidation;
 
   const id = useBaseUiId(idProp);
 

@@ -17,7 +17,7 @@ import {
   useTypeahead,
   FloatingRootContext,
 } from '../../floating-ui-react';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -54,8 +54,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
+    fieldControlValidation,
   } = useFieldRootContext();
-  const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
 
