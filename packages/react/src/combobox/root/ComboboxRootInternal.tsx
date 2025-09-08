@@ -550,6 +550,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
+      if (open === nextOpen) {
+        return;
+      }
+
       props.onOpenChange?.(nextOpen, eventDetails);
 
       if (eventDetails.isCanceled) {

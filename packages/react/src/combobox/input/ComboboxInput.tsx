@@ -194,6 +194,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               const trimmed = nextVal.trim();
               if (trimmed !== '') {
                 store.state.setOpen(true, createBaseUIEventDetails('none', event.nativeEvent));
+
                 if (!(selectionMode === 'none' && autoHighlight)) {
                   store.state.setIndices({
                     activeIndex: null,
@@ -232,6 +233,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             const trimmed = event.currentTarget.value.trim();
             if (trimmed !== '') {
               store.state.setOpen(true, createBaseUIEventDetails('none', event.nativeEvent));
+
               // When autoHighlight is enabled for autocomplete, keep the highlight (will be set to 0 in root).
               if (!(selectionMode === 'none' && autoHighlight)) {
                 store.state.setIndices({
