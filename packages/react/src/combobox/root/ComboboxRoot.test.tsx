@@ -62,7 +62,7 @@ describe('<Combobox.Root />', () => {
 
         const input = screen.getByRole('combobox');
         await user.click(input);
-        await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+        expect(screen.getByRole('listbox')).not.to.equal(null);
 
         onOpenChange.resetHistory();
         await user.click(screen.getByRole('option', { name: 'apple' }));
