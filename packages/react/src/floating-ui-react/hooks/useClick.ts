@@ -106,10 +106,10 @@ export function useClick(
           const details = createBaseUIEventDetails('trigger-press', nativeEvent);
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
-              onOpenChange(true, details);
+              onOpenChange(true, details, nativeEvent.target as HTMLElement);
             });
           } else {
-            onOpenChange(nextOpen, details);
+            onOpenChange(nextOpen, details, nativeEvent.target as HTMLElement);
           }
           return;
         }
