@@ -92,7 +92,7 @@ describe('<Collapsible.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('aria-controls');
 
-      expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
+      expect(queryByText(PANEL_CONTENT)).not.to.equal(null);
       expect(queryByText(PANEL_CONTENT)).toBeVisible();
       expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
       expect(trigger).to.have.attribute('data-panel-open');
@@ -122,7 +122,7 @@ describe('<Collapsible.Root />', () => {
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('aria-controls');
-      expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
+      expect(queryByText(PANEL_CONTENT)).not.to.equal(null);
       expect(queryByText(PANEL_CONTENT)).toBeVisible();
       expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
       expect(trigger).to.have.attribute('data-panel-open');
@@ -174,7 +174,7 @@ describe('<Collapsible.Root />', () => {
         expect(trigger).to.have.attribute('aria-expanded', 'true');
         expect(trigger).to.have.attribute('data-panel-open');
         expect(queryByText(PANEL_CONTENT)).toBeVisible();
-        expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
+        expect(queryByText(PANEL_CONTENT)).not.to.equal(null);
         expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
 
         await user.keyboard(`[${key}]`);
