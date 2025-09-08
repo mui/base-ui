@@ -4,7 +4,6 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import { CompositeListContext } from './CompositeListContext';
 
@@ -60,7 +59,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   }, [map, mapTick]);
 
   useIsoLayoutEffect(() => {
-    if (isReactVersionAtLeast(19) || typeof MutationObserver !== 'function') {
+    if (typeof MutationObserver !== 'function') {
       return undefined;
     }
 
