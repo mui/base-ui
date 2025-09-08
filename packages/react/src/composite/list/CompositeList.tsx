@@ -59,7 +59,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   }, [map, mapTick]);
 
   useIsoLayoutEffect(() => {
-    if (typeof MutationObserver !== 'function') {
+    if (typeof MutationObserver !== 'function' || sortedMap.size === 0) {
       return undefined;
     }
 
