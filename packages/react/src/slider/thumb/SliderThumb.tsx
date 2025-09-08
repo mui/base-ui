@@ -111,6 +111,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     fieldControlValidation,
     formatOptionsRef,
     handleInputChange,
+    inverted,
     labelId,
     largeStep,
     locale,
@@ -171,14 +172,14 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     return {
       position: 'absolute',
       [{
-        horizontal: 'insetInlineStart',
-        vertical: 'bottom',
+        horizontal: inverted ? 'insetInlineEnd' : 'insetInlineStart',
+        vertical: inverted ? 'top' : 'bottom',
       }[orientation]]: `${percent}%`,
       [isVertical ? 'left' : 'top']: '50%',
-      transform: `translate(${(isVertical || !isRtl ? -1 : 1) * 50}%, ${(isVertical ? 1 : -1) * 50}%)`,
+      transform: `translate(${(isVertical || !isRtl ? -1 : 1) * 50}%, ${(isVertical && !inverted ? 1 : -1) * 50}%)`,
       zIndex: activeIndex === index ? 1 : undefined,
     } satisfies React.CSSProperties;
-  }, [activeIndex, isRtl, orientation, percent, index]);
+  }, [activeIndex, isRtl, orientation, percent, index, inverted]);
 
   let cssWritingMode: React.CSSProperties['writingMode'];
   if (orientation === 'vertical') {
