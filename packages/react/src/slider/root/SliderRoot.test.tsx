@@ -1809,7 +1809,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('should receive name prop from Field.Root', async () => {
-      const { container } = await render(
+      await render(
         <Field.Root name="field-slider">
           <Slider.Root>
             <Slider.Control>
@@ -1819,8 +1819,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         </Field.Root>,
       );
 
-      const hiddenInput = container.querySelector('input[aria-hidden="true"]');
-      expect(hiddenInput).to.have.attribute('name', 'field-slider');
+      expect(screen.getByRole('slider')).to.have.attribute('name', 'field-slider');
     });
 
     it('[data-touched]', async () => {

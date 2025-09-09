@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { BaseUIComponentProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
@@ -95,6 +96,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaValueText: getAriaValueTextProp,
     id: idProp,
     index: indexProp,
+    inputRef: inputRefProp,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
@@ -117,6 +119,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     max,
     min,
     minStepsBetweenValues,
+    name,
     orientation,
     pressedInputRef,
     pressedThumbCenterOffsetRef,
@@ -216,6 +219,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       id: inputId,
       max,
       min,
+      name,
       onChange(event: React.ChangeEvent<HTMLInputElement>) {
         handleInputChange(event.target.valueAsNumber, index, event);
       },
@@ -318,16 +322,18 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       type: 'range',
       value: thumbValue ?? '',
     },
-    fieldControlValidation.getValidationProps,
+    fieldControlValidation.getInputValidationProps,
   );
+
+  const mergedInputRef = useMergedRefs(inputRef, fieldControlValidation.inputRef, inputRefProp);
 
   const children = childrenProp ? (
     <React.Fragment>
       {childrenProp}
-      <input ref={inputRef} {...inputProps} />
+      <input ref={mergedInputRef} {...inputProps} />
     </React.Fragment>
   ) : (
-    <input ref={inputRef} {...inputProps} />
+    <input ref={mergedInputRef} {...inputProps} />
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -408,6 +414,10 @@ export namespace SliderThumb {
      * ```
      */
     index?: number | undefined;
+    /**
+     * A ref to access the nested input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
     /**
      * A blur handler forwarded to the `input`.
      */

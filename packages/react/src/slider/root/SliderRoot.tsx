@@ -3,10 +3,8 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import {
@@ -59,7 +57,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     defaultValue,
     disabled: disabledProp = false,
     id: idProp,
-    inputRef: inputRefProp,
     format,
     largeStep = 10,
     locale,
@@ -131,7 +128,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
 
   const formatOptionsRef = useLatestRef(format);
-  const inputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -223,11 +219,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     },
   );
 
-  const handleHiddenInputFocus = useEventCallback(() => {
-    // focus the first thumb if the hidden input receives focus
-    thumbRefs.current?.[0]?.focus();
-  });
-
   if (process.env.NODE_ENV !== 'production') {
     if (min >= max) {
       warn('Slider `max` must be greater than `min`.');
@@ -291,6 +282,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       max,
       min,
       minStepsBetweenValues,
+      name,
       onValueCommitted,
       orientation,
       pressedInputRef,
@@ -321,6 +313,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       max,
       min,
       minStepsBetweenValues,
+      name,
       onValueCommitted,
       orientation,
       pressedInputRef,
@@ -357,38 +350,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     <SliderRootContext.Provider value={contextValue}>
       <CompositeList elementsRef={thumbRefs} onMapChange={setThumbMap}>
         {element}
-        {range ? (
-          values.map((value, index) => {
-            return (
-              <input
-                key={`${name}-input-${index}`}
-                {...fieldControlValidation.getInputValidationProps({
-                  disabled,
-                  name,
-                  ref: inputRef,
-                  value,
-                  onFocus: handleHiddenInputFocus,
-                  style: visuallyHidden,
-                  tabIndex: -1,
-                  'aria-hidden': true,
-                })}
-              />
-            );
-          })
-        ) : (
-          <input
-            {...fieldControlValidation.getInputValidationProps({
-              disabled,
-              name,
-              ref: inputRef,
-              value: valueUnwrapped,
-              onFocus: handleHiddenInputFocus,
-              style: visuallyHidden,
-              tabIndex: -1,
-              'aria-hidden': true,
-            })}
-          />
-        )}
       </CompositeList>
     </SliderRootContext.Provider>
   );
@@ -454,10 +415,6 @@ export namespace SliderRoot {
      * Options to format the input value.
      */
     format?: Intl.NumberFormatOptions;
-    /**
-     * A ref to access the hidden input element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
     /**
      * The locale used by `Intl.NumberFormat` when formatting the value.
      * Defaults to the user's runtime locale.
