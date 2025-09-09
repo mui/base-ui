@@ -105,6 +105,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         onPointerEnter: trackPointerType,
         onFocus() {
           setFocused(true);
+
+          if (disabled || readOnly) {
+            return;
+          }
+
+          focusTimeout.start(0, store.state.forceMount);
         },
         onBlur() {
           setTouched(true);
@@ -112,14 +118,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           if (validationMode === 'onBlur') {
             const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
-            fieldControlValidation?.commitValidation(valueToValidate);
+            fieldControlValidation.commitValidation(valueToValidate);
           }
-
-          if (disabled || readOnly) {
-            return;
-          }
-
-          focusTimeout.start(0, () => store.state.forceMount());
         },
         onMouseDown(event) {
           if (disabled || readOnly) {
