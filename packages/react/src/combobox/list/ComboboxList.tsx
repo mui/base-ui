@@ -75,6 +75,10 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         'aria-multiselectable': multiple ? 'true' : undefined,
         onKeyDown(event) {
           if (event.key === 'Enter') {
+            if (store.state.activeIndex == null) {
+              // Allow form submission when no item is highlighted.
+              return;
+            }
             stopEvent(event);
             store.state.handleEnterSelection(event.nativeEvent);
           }

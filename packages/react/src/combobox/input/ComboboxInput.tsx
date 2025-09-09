@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -342,13 +343,21 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           if (event.key === 'Enter' && open) {
-            stopEvent(event);
-
-            if (store.state.activeIndex === null) {
+            const hasActive = store.state.activeIndex !== null;
+            if (!hasActive) {
               store.state.setOpen(false, createBaseUIEventDetails('none', event.nativeEvent));
               return;
             }
 
+            if (store.state.alwaysSubmitOnEnter) {
+              // Commit the input value update synchronously so the form reads the committed value.
+              ReactDOM.flushSync(() => {
+                store.state.handleEnterSelection(event.nativeEvent);
+              });
+              return;
+            }
+
+            stopEvent(event);
             store.state.handleEnterSelection(event.nativeEvent);
           }
         },

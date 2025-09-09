@@ -97,6 +97,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     limit = -1,
     autoComplete = 'list',
     locale,
+    alwaysSubmitOnEnter = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -318,6 +319,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         itemToStringLabel,
         modal,
         autoHighlight,
+        alwaysSubmitOnEnter,
         mounted: false,
         forceMounted: false,
         transitionStatus: 'idle',
@@ -914,6 +916,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       itemToStringLabel,
       modal,
       autoHighlight,
+      alwaysSubmitOnEnter,
     });
   }, [
     store,
@@ -944,6 +947,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     itemToStringLabel,
     modal,
     autoHighlight,
+    alwaysSubmitOnEnter,
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
@@ -1236,6 +1240,12 @@ interface ComboboxRootProps<ItemValue> {
    * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument;
+  /**
+   * Whether pressing Enter in the input should always allow forms to submit.
+   * By default, pressing Enter in the input will stop form submission if an item is highlighted.
+   * @default false
+   */
+  alwaysSubmitOnEnter?: boolean;
   /**
    * INTERNAL: Clears the input value after close animation completes.
    * Useful for wrappers like FilterableMenu so they don't need to reset externally.
