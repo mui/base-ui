@@ -193,7 +193,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             if (!readOnly && !disabled) {
               const trimmed = nextVal.trim();
               if (trimmed !== '') {
-                store.state.setOpen(true, createBaseUIEventDetails('none', event.nativeEvent));
+                store.state.setOpen(
+                  true,
+                  createBaseUIEventDetails('input-change', event.nativeEvent),
+                );
                 if (!(selectionMode === 'none' && autoHighlight)) {
                   store.state.setIndices({
                     activeIndex: null,
@@ -231,7 +234,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (!readOnly && !disabled) {
             const trimmed = event.currentTarget.value.trim();
             if (trimmed !== '') {
-              store.state.setOpen(true, createBaseUIEventDetails('none', event.nativeEvent));
+              store.state.setOpen(
+                true,
+                createBaseUIEventDetails('input-change', event.nativeEvent),
+              );
               // When autoHighlight is enabled for autocomplete, keep the highlight (will be set to 0 in root).
               if (!(selectionMode === 'none' && autoHighlight)) {
                 store.state.setIndices({
@@ -288,7 +294,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
                 ? selectedValue.length === 0
                 : selectedValue === null;
 
-            const details = createBaseUIEventDetails('none', event.nativeEvent);
+            const details = createBaseUIEventDetails('escape-key', event.nativeEvent);
             const value = selectionMode === 'multiple' ? [] : null;
             store.state.setInputValue('', details);
             store.state.setSelectedValue(value, details);

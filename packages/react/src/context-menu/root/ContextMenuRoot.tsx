@@ -4,8 +4,8 @@ import { useId } from '@base-ui-components/utils/useId';
 import { ContextMenuRootContext } from './ContextMenuRootContext';
 import { Menu } from '../../menu';
 import { MenuRootContext } from '../../menu/root/MenuRootContext';
-import { BaseUIEventDetails } from '../../types';
-import { BaseUIChangeEventReason } from '../../utils/types';
+import type { BaseUIEventDetails } from '../../types';
+import type { MenuRoot } from '../../menu/root/MenuRoot';
 
 /**
  * A component that creates a context menu activated by right clicking or long pressing.
@@ -64,6 +64,6 @@ export namespace ContextMenuRoot {
     onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
   }
 
-  export type ChangeEventReason = BaseUIChangeEventReason | 'sibling-open';
+  export type ChangeEventReason = MenuRoot.ChangeEventReason;
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

@@ -61,10 +61,17 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     return false;
   }, [openValues, value]);
 
-  const onOpenChange = useEventCallback((nextOpen: boolean) => {
-    handleValueChange(value, nextOpen);
-    onOpenChangeProp?.(nextOpen);
-  });
+  const onOpenChange = useEventCallback(
+    (nextOpen: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => {
+      onOpenChangeProp?.(nextOpen, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      handleValueChange(value, nextOpen);
+    },
+  );
 
   const collapsible = useCollapsibleRoot({
     open: isOpen,

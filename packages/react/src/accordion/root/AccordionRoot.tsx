@@ -230,6 +230,6 @@ export namespace AccordionRoot {
     orientation?: Orientation;
   }
 
-  export type ChangeEventReason = 'none';
+  export type ChangeEventReason = 'trigger-press' | 'none';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

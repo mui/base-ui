@@ -3,10 +3,10 @@ import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { TabsRoot } from '../root/TabsRoot';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import type { TabsRoot } from '../root/TabsRoot';
 import type { TabsTab } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
 
@@ -50,12 +50,14 @@ export const TabsList = React.forwardRef(function TabsList(
     getTabElementBySelectedValue,
   );
 
-  const onTabActivation = useEventCallback((newValue: any, event: Event) => {
-    if (newValue !== value) {
-      const activationDirection = detectActivationDirection(newValue);
-      onValueChange(newValue, activationDirection, event);
-    }
-  });
+  const onTabActivation = useEventCallback(
+    (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
+      if (newValue !== value) {
+        const activationDirection = detectActivationDirection(newValue);
+        onValueChange(newValue, activationDirection, eventDetails);
+      }
+    },
+  );
 
   const state: TabsList.State = React.useMemo(
     () => ({
