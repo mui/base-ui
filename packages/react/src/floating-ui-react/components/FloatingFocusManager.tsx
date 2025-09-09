@@ -241,7 +241,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     onOpenChange,
     events,
     dataRef,
-    elements: { domReference, floating },
+    elements: { domReference, floating, triggers },
   } = context;
 
   const getNodeId = useEventCallback(() => dataRef.current.floatingContext?.nodeId);
@@ -407,6 +407,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           contains(floating, relatedTarget) ||
           contains(relatedTarget, floating) ||
           contains(portalContext?.portalNode, relatedTarget) ||
+          triggers?.some((trigger) => contains(trigger, relatedTarget)) ||
           relatedTarget?.hasAttribute(createAttribute('focus-guard')) ||
           (tree &&
             (getNodeChildren(tree.nodesRef.current, nodeId).find(
@@ -536,6 +537,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     blurTimeout,
     pointerDownTimeout,
     restoreFocusFrame,
+    triggers,
   ]);
 
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
