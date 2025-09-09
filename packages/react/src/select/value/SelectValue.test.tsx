@@ -327,6 +327,70 @@ describe('<Select.Value />', () => {
     });
   });
 
+  describe('prop: itemToStringLabel', () => {
+    it('uses custom itemToStringLabel function', async () => {
+      const items = [
+        { country: 'United States', code: 'US' },
+        { country: 'Canada', code: 'CA' },
+      ];
+
+      await render(
+        <Select.Root
+          value={items[1]}
+          itemToStringLabel={(i: any) => i.country}
+          itemToStringValue={(i: any) => i.code}
+        >
+          <Select.Trigger>
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {items.map((it) => (
+                  <Select.Item key={it.code} value={it}>
+                    {it.country}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Canada');
+    });
+
+    it('falls back to label/value properties when functions are not provided', async () => {
+      const items = [
+        { label: 'United States', value: 'US' },
+        { label: 'Canada', value: 'CA' },
+      ];
+
+      const { container } = await render(
+        <Select.Root name="country" value={items[1]}>
+          <Select.Trigger>
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {items.map((it) => (
+                  <Select.Item key={it.value} value={it}>
+                    {it.label}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Canada');
+      const hiddenInput = container.querySelector('input[name="country"]');
+      expect(hiddenInput).to.have.value('CA');
+    });
+  });
+
   describe('children prop takes precedence over items', () => {
     it('uses children string over items object', async () => {
       const items = {

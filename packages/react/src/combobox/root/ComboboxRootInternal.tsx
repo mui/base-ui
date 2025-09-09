@@ -37,14 +37,7 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import {
-  type Group,
-  isGroupedItems,
-  stringifyItem,
-  stringifyItemValue,
-  createCollatorItemFilter,
-  createSingleSelectionCollatorFilter,
-} from './utils';
+import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { EMPTY_ARRAY } from '../../utils/constants';
@@ -52,6 +45,12 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { HTMLProps } from '../../utils/types';
 import { useValueChanged } from './utils/useValueChanged';
 import { NOOP } from '../../utils/noop';
+import {
+  stringifyAsLabel,
+  stringifyAsValue,
+  Group,
+  isGroupedItems,
+} from '../../utils/resolveValueLabel';
 
 /**
  * @internal
@@ -375,7 +374,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const forceMount = useEventCallback(() => {
     if (items) {
       // Ensure typeahead works on a closed list.
-      labelsRef.current = flatFilteredItems.map((item) => stringifyItem(item, itemToStringLabel));
+      labelsRef.current = flatFilteredItems.map((item) =>
+        stringifyAsLabel(item, itemToStringLabel),
+      );
     } else {
       store.set('forceMounted', true);
     }
@@ -445,7 +446,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
     // Keep the input text in sync when the input is rendered outside the popup.
     if (!store.state.inputInsidePopup) {
-      const stringVal = stringifyItem(fallback, itemToStringLabel);
+      const stringVal = stringifyAsLabel(fallback, itemToStringLabel);
       if (inputRef.current && inputRef.current.value !== stringVal) {
         setInputValueUnwrapped(stringVal);
       }
@@ -615,7 +616,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
       if (shouldFillInput) {
         setInputValue(
-          stringifyItem(nextValue, itemToStringLabel),
+          stringifyAsLabel(nextValue, itemToStringLabel),
           createBaseUIEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
@@ -747,7 +748,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
           setInputValue('', createBaseUIEventDetails('input-clear'));
         }
       } else {
-        const stringVal = stringifyItem(selectedValue, itemToStringLabel);
+        const stringVal = stringifyAsLabel(selectedValue, itemToStringLabel);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
           const reason = stringVal === '' ? 'input-clear' : 'item-press';
@@ -922,7 +923,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     });
   });
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     store.apply({
       id,
       selectedValue,
@@ -998,7 +999,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     if (Array.isArray(formValue)) {
       return '';
     }
-    return stringifyItemValue(formValue, itemToStringValue);
+    return stringifyAsValue(formValue, itemToStringValue);
   }, [formValue, itemToStringValue]);
 
   const hiddenInputs = React.useMemo(() => {
@@ -1007,7 +1008,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
 
     return selectedValue.map((value: Value) => {
-      const currentSerializedValue = stringifyItemValue(value, itemToStringValue);
+      const currentSerializedValue = stringifyAsValue(value, itemToStringValue);
       return (
         <input
           key={currentSerializedValue}
@@ -1043,6 +1044,11 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
             const details = createBaseUIEventDetails('input-change', event.nativeEvent);
 
             function handleChange() {
+              // Browser autofill only writes a single scalar value.
+              if (multiple) {
+                return;
+              }
+
               if (selectionMode === 'none') {
                 setDirty(nextValue !== validityData.initialValue);
                 setInputValue(nextValue, details);
@@ -1053,19 +1059,20 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
                 return;
               }
 
-              const exactValue = valuesRef.current.find(
-                (v: any) =>
-                  v === nextValue ||
-                  (typeof selectedValue === 'string' &&
-                    nextValue.toLowerCase() === v.toLowerCase()),
-              );
+              const matchingValue = valuesRef.current.find((v) => {
+                const candidate = stringifyAsValue(v, itemToStringValue);
+                if (candidate.toLowerCase() === nextValue.toLowerCase()) {
+                  return true;
+                }
+                return false;
+              });
 
-              if (exactValue != null) {
-                setDirty(exactValue !== validityData.initialValue);
-                setSelectedValue?.(exactValue, details);
+              if (matchingValue != null) {
+                setDirty(matchingValue !== validityData.initialValue);
+                setSelectedValue?.(matchingValue, details);
 
                 if (validationMode === 'onChange') {
-                  fieldControlValidation.commitValidation(exactValue);
+                  fieldControlValidation.commitValidation(matchingValue);
                 }
               }
             }
@@ -1235,11 +1242,13 @@ interface ComboboxRootProps<ItemValue> {
         itemToStringLabel?: (itemValue: ItemValue) => string,
       ) => boolean);
   /**
-   * When items' values are objects, converts its value to a string label for display.
+   * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
+   * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
    */
   itemToStringLabel?: (itemValue: ItemValue) => string;
   /**
-   * When items' values are objects, converts its value to a string value for form submission.
+   * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.
+   * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
    */
   itemToStringValue?: (itemValue: ItemValue) => string;
   /**

@@ -11,6 +11,9 @@ export type State = {
     | Record<string, React.ReactNode>
     | Array<{ label: React.ReactNode; value: any }>
     | undefined;
+  itemToStringLabel: ((item: any) => string) | undefined;
+  itemToStringValue: ((item: any) => string) | undefined;
+
   value: any;
   label: string;
 
@@ -40,6 +43,9 @@ export const selectors = {
   multiple: createSelector((state: State) => state.multiple),
 
   items: createSelector((state: State) => state.items),
+  itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
+  itemToStringValue: createSelector((state: State) => state.itemToStringValue),
+
   value: createSelector((state: State) => state.value),
   label: createSelector((state: State) => state.label),
 
