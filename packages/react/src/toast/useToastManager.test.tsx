@@ -368,7 +368,7 @@ describe('useToast', () => {
 
         expect(highRoot.getAttribute('role')).to.equal('alertdialog');
         expect(highRoot.getAttribute('aria-modal')).to.equal('false');
-        expect(screen.getByRole('alert')).to.not.equal(null);
+        expect(screen.getByRole('alert')).not.to.equal(null);
         expect(screen.getByRole('alert').getAttribute('aria-atomic')).to.equal('true');
 
         const closeHighButton = screen.getByLabelText('close-press');
