@@ -43,6 +43,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     onOpenChangeComplete,
     items,
     multiple = false,
+    itemToStringLabel,
+    itemToStringValue,
   } = params;
 
   const { clearErrors } = useFormContext();
@@ -486,6 +488,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       disabled,
       readOnly,
       multiple,
+      itemToStringLabel,
+      itemToStringValue,
       setValue,
       setOpen,
       listRef,
@@ -513,6 +517,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       disabled,
       readOnly,
       multiple,
+      itemToStringLabel,
+      itemToStringValue,
       setValue,
       setOpen,
       listRef,

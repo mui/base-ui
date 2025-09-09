@@ -6,6 +6,7 @@ import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { serializeValue } from '../../utils/serializeValue';
+import { stringifyItemValue } from '../../combobox/root/utils';
 import {
   type BaseUIEventDetails,
   createBaseUIEventDetails,
@@ -39,6 +40,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     onOpenChangeComplete,
     items,
     multiple,
+    itemToStringLabel,
+    itemToStringValue,
     children,
   } = props;
 
@@ -59,6 +62,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     onOpenChangeComplete,
     items,
     multiple,
+    itemToStringLabel,
+    itemToStringValue,
   });
   const store = rootContext.store;
   const isMultiple = multiple ?? false;
@@ -72,8 +77,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       return '';
     }
 
+    if (!isMultiple) {
+      return stringifyItemValue(value, rootContext.itemToStringValue);
+    }
+
     return serializeValue(value);
-  }, [isMultiple, value]);
+  }, [isMultiple, value, rootContext.itemToStringValue]);
 
   const hiddenInputs = React.useMemo(() => {
     if (!isMultiple || !Array.isArray(value) || !rootContext.name) {
@@ -81,7 +90,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     }
 
     return value.map((v) => {
-      const currentSerializedValue = serializeValue(v);
+      const currentSerializedValue = stringifyItemValue(v, rootContext.itemToStringValue);
       return (
         <input
           key={currentSerializedValue}
@@ -91,7 +100,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         />
       );
     });
-  }, [isMultiple, value, rootContext.name]);
+  }, [isMultiple, value, rootContext.name, rootContext.itemToStringValue]);
 
   return (
     <SelectRootContext.Provider value={rootContext}>
@@ -111,36 +120,35 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               }
 
               const nextValue = event.target.value;
+              const details = createBaseUIEventDetails('none', event.nativeEvent);
 
-              store.set('forceMount', true);
-
-              queueMicrotask(() => {
+              function handleChange() {
                 if (isMultiple) {
-                  // Browser autofill only ever writes one scalar value per field.
-                  // Because a multi-select expects an array, every mainstream engine skips it.
-                  // Reliably pre-selecting multiple options therefore has to be done in
-                  // application code, not via browser autofill.
-                } else {
-                  // Handle single selection
-                  const exactValue = rootContext.valuesRef.current.find(
-                    (v) =>
-                      v === nextValue ||
-                      (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
-                  );
+                  // Browser autofill only writes a single scalar value.
+                  return;
+                }
 
-                  if (exactValue != null) {
-                    setDirty(exactValue !== validityData.initialValue);
-                    rootContext.setValue?.(
-                      exactValue,
-                      createBaseUIEventDetails('none', event.nativeEvent),
-                    );
+                // Handle single selection: match against registered values using serialization
+                const exactValue = rootContext.valuesRef.current.find((v) => {
+                  const candidate = stringifyItemValue(v, itemToStringValue);
+                  if (candidate.toLowerCase() === nextValue.toLowerCase()) {
+                    return true;
+                  }
+                  return false;
+                });
 
-                    if (validationMode === 'onChange') {
-                      rootContext.fieldControlValidation.commitValidation(exactValue);
-                    }
+                if (exactValue != null) {
+                  setDirty(exactValue !== validityData.initialValue);
+                  rootContext.setValue?.(exactValue, details);
+
+                  if (validationMode === 'onChange') {
+                    rootContext.fieldControlValidation.commitValidation(exactValue);
                   }
                 }
-              });
+              }
+
+              store.set('forceMount', true);
+              queueMicrotask(handleChange);
             },
             id: id || controlId || undefined,
             name: isMultiple ? undefined : rootContext.name,
@@ -257,6 +265,14 @@ interface SelectRootProps<Value> {
    * ```
    */
   items?: Record<string, React.ReactNode> | Array<{ label: React.ReactNode; value: Value }>;
+  /**
+   * When items' values are objects, converts its value to a string label for display and typeahead.
+   */
+  itemToStringLabel?: (itemValue: Value) => string;
+  /**
+   * When items' values are objects, converts its value to a string value for form submission.
+   */
+  itemToStringValue?: (itemValue: Value) => string;
 }
 
 type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true

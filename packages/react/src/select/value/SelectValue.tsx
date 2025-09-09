@@ -4,6 +4,8 @@ import { useStore } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
+import { stringifyItem } from '../../combobox/root/utils';
+import { resolveSelectedLabel, resolveMultipleLabels } from '../../utils/resolveValueLabel';
 import { selectors } from '../store';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
@@ -23,9 +25,11 @@ export const SelectValue = React.forwardRef(function SelectValue(
 ) {
   const { className, render, children: childrenProp, ...elementProps } = componentProps;
 
-  const { store, valueRef } = useSelectRootContext();
+  const { store, valueRef, itemToStringLabel } = useSelectRootContext();
+
   const value = useStore(store, selectors.value);
   const items = useStore(store, selectors.items);
+
   const isChildrenPropFunction = typeof childrenProp === 'function';
 
   const labelFromItems = React.useMemo(() => {
@@ -35,19 +39,15 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
     // `multiple` selects should always use a custom `children` render function
     if (Array.isArray(value)) {
-      return value.join(', ');
+      return resolveMultipleLabels(value, itemToStringLabel);
     }
 
     if (!items) {
       return undefined;
     }
 
-    if (Array.isArray(items)) {
-      return items.find((item) => item.value === value)?.label;
-    }
-
-    return items[value];
-  }, [value, items, isChildrenPropFunction]);
+    return resolveSelectedLabel(value, items, itemToStringLabel);
+  }, [isChildrenPropFunction, value, items, itemToStringLabel]);
 
   const state: SelectValue.State = React.useMemo(
     () => ({
@@ -59,7 +59,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const children =
     typeof childrenProp === 'function'
       ? childrenProp(value)
-      : (childrenProp ?? labelFromItems ?? value);
+      : (childrenProp ?? labelFromItems ?? stringifyItem(value, itemToStringLabel));
 
   const element = useRenderElement('span', componentProps, {
     state,

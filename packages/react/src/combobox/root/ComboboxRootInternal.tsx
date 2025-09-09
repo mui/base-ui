@@ -973,6 +973,11 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
             const details = createBaseUIEventDetails('input-change', event.nativeEvent);
 
             function handleChange() {
+              // Browser autofill only writes a single scalar value.
+              if (multiple) {
+                return;
+              }
+
               if (selectionMode === 'none') {
                 setDirty(nextValue !== validityData.initialValue);
                 setInputValue(nextValue, details);
@@ -983,12 +988,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
                 return;
               }
 
-              const exactValue = valuesRef.current.find(
-                (v: any) =>
-                  v === nextValue ||
-                  (typeof selectedValue === 'string' &&
-                    nextValue.toLowerCase() === v.toLowerCase()),
-              );
+              const exactValue = valuesRef.current.find((v) => {
+                const candidate = stringifyItemValue(v, itemToStringValue);
+                if (candidate.toLowerCase() === nextValue.toLowerCase()) {
+                  return true;
+                }
+                return false;
+              });
 
               if (exactValue != null) {
                 setDirty(exactValue !== validityData.initialValue);

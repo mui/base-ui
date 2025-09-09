@@ -192,6 +192,145 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('prop: itemToStringValue', () => {
+    it('uses itemToStringValue for form submission', async () => {
+      const items = [
+        { country: 'United States', code: 'US' },
+        { country: 'Canada', code: 'CA' },
+        { country: 'Australia', code: 'AU' },
+      ];
+
+      const { container } = await render(
+        <Select.Root
+          name="country"
+          defaultValue={items[0]}
+          itemToStringLabel={(item) => item.country}
+          itemToStringValue={(item) => item.code}
+        >
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {items.map((it) => (
+                  <Select.Item key={it.code} value={it}>
+                    {it.country}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const hiddenInput = container.querySelector('input[name="country"]');
+      expect(hiddenInput).to.have.value('US');
+    });
+
+    it('uses itemToStringValue for multiple selection form submission', async () => {
+      const items = [
+        { country: 'United States', code: 'US' },
+        { country: 'Canada', code: 'CA' },
+        { country: 'Australia', code: 'AU' },
+      ];
+
+      const { container } = await render(
+        <Select.Root
+          name="countries"
+          multiple
+          defaultValue={[items[0], items[1]]}
+          itemToStringLabel={(item) => item.country}
+          itemToStringValue={(item) => item.code}
+        >
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {items.map((it) => (
+                  <Select.Item key={it.code} value={it}>
+                    {it.country}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const hiddenInputs = container.querySelectorAll('input[name="countries"]');
+      expect(hiddenInputs).to.have.length(2);
+      expect(hiddenInputs[0]).to.have.value('US');
+      expect(hiddenInputs[1]).to.have.value('CA');
+    });
+  });
+
+  describe('prop: itemToStringLabel', () => {
+    const items = [
+      { country: 'United States', code: 'US' },
+      { country: 'Canada', code: 'CA' },
+      { country: 'Australia', code: 'AU' },
+    ];
+
+    it('uses itemToStringLabel for trigger text when value is object', async () => {
+      await render(
+        <Select.Root
+          defaultValue={items[1]}
+          itemToStringLabel={(item) => item.country}
+          itemToStringValue={(item) => item.code}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {items.map((it) => (
+                  <Select.Item key={it.code} value={it}>
+                    {it.country}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.text('Canada');
+    });
+
+    it('updates trigger text with itemToStringLabel after selecting object item', async () => {
+      const { user } = await render(
+        <Select.Root
+          defaultOpen
+          itemToStringLabel={(item: any) => item.country}
+          itemToStringValue={(item: any) => item.code}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {items.map((it) => (
+                  <Select.Item key={it.code} value={it}>
+                    {it.country}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByRole('option', { name: 'Canada' }));
+      expect(screen.getByTestId('trigger')).to.have.text('Canada');
+    });
+  });
+
   describe('prop: onValueChange', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {
@@ -395,7 +534,7 @@ describe('<Select.Root />', () => {
   });
 
   it('should handle browser autofill', async () => {
-    const { container } = await render(
+    const { container, user } = await render(
       <Select.Root name="select">
         <Select.Trigger data-testid="trigger">
           <Select.Value />
@@ -416,13 +555,53 @@ describe('<Select.Root />', () => {
     fireEvent.change(container.querySelector('[name="select"]')!, { target: { value: 'b' } });
     await flushMicrotasks();
 
-    fireEvent.click(trigger);
+    await user.click(trigger);
+
+    expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-selected', '');
+  });
+
+  it('should handle browser autofill with object values', async () => {
+    const items = [
+      { country: 'United States', code: 'US' },
+      { country: 'Canada', code: 'CA' },
+    ];
+
+    const { container, user } = await render(
+      <Select.Root
+        name="country"
+        itemToStringLabel={(item: any) => item.country}
+        itemToStringValue={(item: any) => item.code}
+      >
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              {items.map((it) => (
+                <Select.Item key={it.code} value={it}>
+                  {it.country}
+                </Select.Item>
+              ))}
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+
+    fireEvent.change(container.querySelector('[name="country"]')!, { target: { value: 'CA' } });
     await flushMicrotasks();
 
-    expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
-      'data-selected',
-      '',
-    );
+    await user.click(trigger);
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Canada', hidden: false })).to.have.attribute(
+        'data-selected',
+        '',
+      );
+    });
   });
 
   describe('prop: modal', () => {

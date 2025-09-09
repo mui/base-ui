@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { isGroupedItems, stringifyItem } from '../root/utils';
+import { resolveSelectedLabel } from '../../utils/resolveValueLabel';
 import { selectors } from '../store';
 
 /**
@@ -22,54 +23,26 @@ export function ComboboxValue(props: ComboboxValue.Props) {
 
   const isChildrenPropDefined = childrenProp !== undefined;
 
-  const memoizedItemDerivatives = React.useMemo(() => {
+  const nullItemLabel = React.useMemo(() => {
     if (isChildrenPropDefined || !Array.isArray(items)) {
-      return {
-        flatItems: undefined,
-        valueToLabel: undefined,
-        nullItemLabel: undefined,
-      };
+      return undefined;
     }
 
     const flatItems = isGroupedItems(items) ? items.flatMap((g) => g.items) : items;
 
-    let valueToLabel: Map<any, React.ReactNode> | undefined;
-    let nullItemLabel: React.ReactNode | undefined;
-
     for (let i = 0; i < flatItems.length; i += 1) {
       const item = flatItems[i];
-
       if (item == null) {
-        if (nullItemLabel === undefined) {
-          nullItemLabel = stringifyItem(item, itemToStringLabel);
-        }
-        continue;
+        return stringifyItem(item, itemToStringLabel);
       }
-
-      if (typeof item === 'object') {
-        const hasValueKey = 'value' in item;
-        const hasLabelKey = 'label' in item;
-
-        if (hasValueKey) {
-          if (item.value == null && nullItemLabel === undefined) {
-            nullItemLabel = hasLabelKey ? item.label : stringifyItem(item, itemToStringLabel);
-          }
-
-          if (hasLabelKey) {
-            valueToLabel ??= new Map();
-            if (!valueToLabel.has(item.value)) {
-              valueToLabel.set(item.value, item.label);
-            }
-          }
-        }
+      if (typeof item === 'object' && 'value' in item && item.value == null) {
+        return 'label' in item && item.label != null
+          ? item.label
+          : stringifyItem(item, itemToStringLabel);
       }
     }
 
-    return {
-      flatItems,
-      valueToLabel,
-      nullItemLabel,
-    };
+    return undefined;
   }, [items, itemToStringLabel, isChildrenPropDefined]);
 
   if (typeof childrenProp === 'function') {
@@ -80,28 +53,14 @@ export function ComboboxValue(props: ComboboxValue.Props) {
     return childrenProp;
   }
 
-  if (
-    selectedValue &&
-    typeof selectedValue === 'object' &&
-    'label' in selectedValue &&
-    selectedValue.label != null
-  ) {
-    return selectedValue.label;
+  if (Array.isArray(items) && selectedValue == null && nullItemLabel !== undefined) {
+    return nullItemLabel;
   }
 
-  if (Array.isArray(items)) {
-    if (selectedValue == null && memoizedItemDerivatives.nullItemLabel !== undefined) {
-      return memoizedItemDerivatives.nullItemLabel;
-    }
-
-    // When a value is selected and items are value/label pairs, render label.
-    // e.g. items: [{ value: 'uk', label: 'United Kingdom' }], selectedValue: 'uk' → 'United Kingdom'
-    if (selectedValue != null && memoizedItemDerivatives.valueToLabel?.has(selectedValue)) {
-      return memoizedItemDerivatives.valueToLabel.get(selectedValue);
-    }
-  }
-
-  return stringifyItem(selectedValue, itemToStringLabel);
+  return (
+    resolveSelectedLabel(selectedValue, items, itemToStringLabel) ??
+    stringifyItem(selectedValue, itemToStringLabel)
+  );
 }
 
 export namespace ComboboxValue {
