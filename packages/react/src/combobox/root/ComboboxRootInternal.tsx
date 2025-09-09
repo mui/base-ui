@@ -856,7 +856,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     store.apply({
       id,
       selectedValue,
-      inputValue,
       open,
       mounted,
       transitionStatus,
@@ -886,7 +885,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     store,
     id,
     selectedValue,
-    inputValue,
     open,
     mounted,
     transitionStatus,
@@ -912,6 +910,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     modal,
     autoHighlight,
   ]);
+
+  React.useEffect(() => {
+    store.apply({ inputValue });
+  }, [store, inputValue]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
 
