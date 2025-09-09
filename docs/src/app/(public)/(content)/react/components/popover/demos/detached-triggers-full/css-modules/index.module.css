@@ -43,9 +43,10 @@
 
 .Positioner {
   --easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --animation-duration: 0.35s;
   transition-property: top, left, right, bottom;
   transition-timing-function: var(--easing);
-  transition-duration: 0.35s;
+  transition-duration: var(--animation-duration);
 
   /* Disable transitions when data-instant is set (used for the initial positioning of the popup) */
   &[data-instant] {
@@ -54,9 +55,6 @@
 }
 
 .Popup {
-  /* Extracted to a variable to sync the size change with content transition animations */
-  --animation-duration: 0.15s;
-
   border-radius: 0.5rem;
   background-color: canvas;
   color: var(--color-gray-900);

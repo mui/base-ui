@@ -38,12 +38,12 @@ export default function PopoverDetachedTriggersFullDemo() {
               sideOffset={8}
               className="transition-[top,left,right,bottom] duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] data-[instant]:transition-none"
             >
-              <Popover.Popup className="origin-[var(--transform-origin)] max-w-[500px] w-[var(--popup-width,auto)] h-[var(--popup-height,auto)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[width,height,opacity,transform] duration-150 ease-out data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+              <Popover.Popup className="origin-[var(--transform-origin)] max-w-[500px] w-[var(--popup-width,auto)] h-[var(--popup-height,auto)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[width,height,opacity,transform,scale] duration-350 ease-out data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
                 <Popover.Arrow className="flex data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
                   <ArrowSvg />
                 </Popover.Arrow>
 
-                <Popover.Viewport className="relative overflow-hidden w-full h-full px-6 py-4 [&_[data-next]]:w-[calc(var(--popup-width)-3rem)] data-[activation-direction~='right']:[&_[data-previous]]:animate-[slide-out-to-left_150ms_ease-out] data-[activation-direction~='right']:[&_[data-next]]:animate-[slide-in-from-right_150ms_ease-out] data-[activation-direction~='left']:[&_[data-previous]]:animate-[slide-out-to-right_150ms_ease-out] data-[activation-direction~='left']:[&_[data-next]]:animate-[slide-in-from-left_150ms_ease-out]">
+                <Popover.Viewport className="relative overflow-hidden w-full h-full px-6 py-4 [&_[data-next]]:w-[calc(var(--popup-width)-3rem)] data-[activation-direction~='right']:[&_[data-previous]]:animate-[slide-out-to-left_350ms_ease-out] data-[activation-direction~='right']:[&_[data-next]]:animate-[slide-in-from-right_350ms_ease-out] data-[activation-direction~='left']:[&_[data-previous]]:animate-[slide-out-to-right_350ms_ease-out] data-[activation-direction~='left']:[&_[data-next]]:animate-[slide-in-from-left_350ms_ease-out]">
                   <Popover.Title className="m-0 text-base font-medium">Popover</Popover.Title>
                   {payload !== undefined && (
                     <Popover.Description className="m-0 text-base text-gray-600">
