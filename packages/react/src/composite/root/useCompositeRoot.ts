@@ -99,7 +99,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const mergedRef = useMergedRefs(rootRef, externalRef);
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
-  const mapRef = useRefWithInit(createMap<CompositeMetadata<any>>);
+  const mapRef = useRefWithInit(createMap);
   const hasSetDefaultIndexRef = React.useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
@@ -362,8 +362,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   );
 }
 
-function createMap<Metadata>() {
-  return new Map<Element, CompositeMetadata<Metadata>>();
+function createMap() {
+  return new Map<Element, CompositeMetadata<any>>();
 }
 
 function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {
