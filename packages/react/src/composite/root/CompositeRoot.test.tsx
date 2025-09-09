@@ -703,4 +703,33 @@ describe('Composite', () => {
       expect(item3).toHaveFocus();
     });
   });
+
+  describe('nested', () => {
+    it('navigates within the scope', async () => {
+      const { getByTestId, user } = render(
+        <CompositeRoot>
+          <CompositeRoot>
+            <CompositeItem data-testid="nested.1">1</CompositeItem>
+            <CompositeItem data-testid="nested.2">2</CompositeItem>
+            <CompositeItem data-testid="nested.3">3</CompositeItem>
+          </CompositeRoot>
+          <CompositeItem data-testid="1">1</CompositeItem>
+          <CompositeItem data-testid="2">2</CompositeItem>
+          <CompositeItem data-testid="3">3</CompositeItem>
+        </CompositeRoot>,
+      );
+
+      const nestedItem1 = getByTestId('nested.1');
+      const nestedItem2 = getByTestId('nested.2');
+
+      act(() => nestedItem1.focus());
+      await user.keyboard('{ArrowDown}');
+      expect(nestedItem2).toHaveFocus();
+
+      const item1 = getByTestId('1');
+      act(() => item1.focus());
+      await user.keyboard('{ArrowDown}');
+      expect(getByTestId('2')).toHaveFocus();
+    });
+  });
 });
