@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { ComboboxRootInternal } from './ComboboxRootInternal';
-import type { Group } from './utils';
+import type { Group } from '../../utils/resolveValueLabel';
 
 /**
  * Groups all parts of the combobox.
@@ -69,11 +69,13 @@ export namespace ComboboxRoot {
      */
     items?: ItemValue[] | Group<ItemValue>[];
     /**
-     * When items' values are objects, converts its value to a string label for input display.
+     * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
+     * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
      */
     itemToStringLabel?: (itemValue: ItemValue) => string;
     /**
-     * When items' values are objects, converts its value to a string value for form submission.
+     * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.
+     * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
      */
     itemToStringValue?: (itemValue: ItemValue) => string;
     /**

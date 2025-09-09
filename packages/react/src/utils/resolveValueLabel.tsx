@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { stringifyItem } from '../combobox/root/utils';
+import { serializeValue } from './serializeValue';
 
 type ItemRecord = Record<string, React.ReactNode>;
 type ItemsInput = ItemRecord | LabeledItem[] | Group<LabeledItem>[] | undefined;
@@ -10,9 +10,44 @@ interface LabeledItem {
   label: React.ReactNode;
 }
 
-interface Group<Item = any> {
+export interface Group<Item = any> {
   value: unknown;
   items: Item[];
+}
+
+export function isGroupedItems(items: (any | Group<any>)[] | undefined): items is Group<any>[] {
+  return (
+    items != null &&
+    items.length > 0 &&
+    typeof items[0] === 'object' &&
+    items[0] != null &&
+    'items' in (items[0] as object)
+  );
+}
+
+export function stringifyAsLabel(item: any, itemToStringLabel?: (item: any) => string) {
+  if (itemToStringLabel && item != null) {
+    return itemToStringLabel(item) ?? '';
+  }
+  if (item && typeof item === 'object') {
+    if ('label' in item && item.label != null) {
+      return String(item.label);
+    }
+    if ('value' in item) {
+      return String(item.value);
+    }
+  }
+  return serializeValue(item);
+}
+
+export function stringifyAsValue(item: any, itemToStringValue?: (item: any) => string) {
+  if (itemToStringValue && item != null) {
+    return itemToStringValue(item) ?? '';
+  }
+  if (item && typeof item === 'object' && 'value' in item && 'label' in item) {
+    return serializeValue(item.value);
+  }
+  return serializeValue(item);
 }
 
 export function resolveSelectedLabel(
@@ -20,6 +55,10 @@ export function resolveSelectedLabel(
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
 ): React.ReactNode {
+  if (itemToStringLabel && value != null) {
+    return itemToStringLabel(value);
+  }
+
   // Custom object with explicit label takes precedence
   if (value && typeof value === 'object' && 'label' in value && value.label != null) {
     return value.label;
@@ -27,15 +66,14 @@ export function resolveSelectedLabel(
 
   // Items provided as plain record map
   if (items && !Array.isArray(items)) {
-    return items[value] ?? stringifyItem(value, itemToStringLabel);
+    return items[value] ?? stringifyAsLabel(value, itemToStringLabel);
   }
 
   // Items provided as array (flat or grouped)
   if (Array.isArray(items)) {
-    const flatItems: LabeledItem[] =
-      Array.isArray(items) && items.length > 0 && 'items' in items[0]
-        ? (items as Group<LabeledItem>[]).flatMap((g) => g.items)
-        : (items as LabeledItem[]);
+    const flatItems: LabeledItem[] = isGroupedItems(items)
+      ? (items as Group<LabeledItem>[]).flatMap((g) => g.items)
+      : (items as LabeledItem[]);
 
     // If no value selected, prefer the null option label when available
     if (value == null) {
@@ -43,7 +81,7 @@ export function resolveSelectedLabel(
       if (nullItem && nullItem.label != null) {
         return nullItem.label;
       }
-      return stringifyItem(value, itemToStringLabel);
+      return stringifyAsLabel(value, itemToStringLabel);
     }
 
     // Primitive selected value: map to first matching item's label
@@ -52,7 +90,7 @@ export function resolveSelectedLabel(
       if (match && match.label != null) {
         return match.label;
       }
-      return stringifyItem(value, itemToStringLabel);
+      return stringifyAsLabel(value, itemToStringLabel);
     }
 
     // Object without explicit label: try matching by its `value` property
@@ -64,7 +102,7 @@ export function resolveSelectedLabel(
     }
   }
 
-  return stringifyItem(value, itemToStringLabel);
+  return stringifyAsLabel(value, itemToStringLabel);
 }
 
 export function resolveMultipleLabels(
@@ -74,5 +112,5 @@ export function resolveMultipleLabels(
   if (!Array.isArray(values) || values.length === 0) {
     return '';
   }
-  return values.map((v) => stringifyItem(v, itemToStringLabel)).join(', ');
+  return values.map((v) => stringifyAsLabel(v, itemToStringLabel)).join(', ');
 }

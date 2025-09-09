@@ -66,12 +66,12 @@
     },
     "itemToStringLabel": {
       "type": "((itemValue: ItemValue) => string)",
-      "description": "When items' values are objects, converts its value to a string label for input display.",
+      "description": "When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.\nIf the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.",
       "detailedType": "((itemValue: ItemValue) => string) | undefined"
     },
     "itemToStringValue": {
       "type": "((itemValue: ItemValue) => string)",
-      "description": "When items' values are objects, converts its value to a string value for form submission.",
+      "description": "When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.\nIf the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.",
       "detailedType": "((itemValue: ItemValue) => string) | undefined"
     },
     "items": {

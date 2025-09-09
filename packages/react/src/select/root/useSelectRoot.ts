@@ -109,6 +109,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         id,
         modal,
         multiple,
+        itemToStringLabel,
+        itemToStringValue,
         value,
         label: '',
         open,
@@ -452,8 +454,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     });
   });
 
-  // Store values that depend on other hooks
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     store.apply({
       id,
       modal,
@@ -465,6 +466,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
       items,
+      itemToStringLabel,
+      itemToStringValue,
     });
   }, [
     store,
@@ -478,6 +481,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     getFloatingProps,
     getReferenceProps,
     items,
+    itemToStringLabel,
+    itemToStringValue,
   ]);
 
   const rootContext: SelectRootContext = React.useMemo(

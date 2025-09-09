@@ -359,9 +359,7 @@ describe('<Select.Value />', () => {
 
       expect(screen.getByTestId('value')).to.have.text('Canada');
     });
-  });
 
-  describe('object values fallback when functions are not provided', () => {
     it('falls back to label/value properties when functions are not provided', async () => {
       const items = [
         { label: 'United States', value: 'US' },
@@ -389,8 +387,6 @@ describe('<Select.Value />', () => {
 
       expect(screen.getByTestId('value')).to.have.text('Canada');
       const hiddenInput = container.querySelector('input[name="country"]');
-      // When functions aren't provided, fallback stringification uses object's label for display
-      // and value for serialization. Our Select serializes to the object value when both label/value exist.
       expect(hiddenInput).to.have.value('CA');
     });
   });

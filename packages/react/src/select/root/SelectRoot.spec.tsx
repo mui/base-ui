@@ -1,6 +1,58 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 
+const objectItems = [
+  { value: 'a', label: 'apple' },
+  { value: 'b', label: 'banana' },
+  { value: 'c', label: 'cherry' },
+];
+
+<Select.Root
+  items={objectItems}
+  defaultValue="a"
+  itemToStringLabel={(item) => item}
+  itemToStringValue={(item) => item}
+  onValueChange={(value) => {
+    value.startsWith('a');
+  }}
+/>;
+
+<Select.Root
+  items={objectItems}
+  value="a"
+  itemToStringLabel={(item) => item}
+  itemToStringValue={(item) => item}
+  onValueChange={(value) => {
+    value.startsWith('a');
+  }}
+/>;
+
+type Obj = { code: string };
+const objectValueItems: Array<{ value: Obj; label: string }> = [
+  { value: { code: 'a' }, label: 'apple' },
+  { value: { code: 'b' }, label: 'banana' },
+];
+
+<Select.Root
+  items={objectValueItems}
+  defaultValue={objectValueItems[0].value}
+  itemToStringLabel={(item) => item.code}
+  itemToStringValue={(item) => item.code}
+  onValueChange={(value) => {
+    value.code;
+  }}
+/>;
+
+<Select.Root
+  items={objectValueItems}
+  value={objectValueItems[0].value}
+  itemToStringLabel={(item) => item.code}
+  itemToStringValue={(item) => item.code}
+  onValueChange={(value) => {
+    value.code;
+  }}
+/>;
+
 <Select.Root
   multiple
   // @ts-expect-error

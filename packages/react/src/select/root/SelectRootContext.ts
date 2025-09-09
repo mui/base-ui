@@ -13,8 +13,6 @@ export interface SelectRootContext {
   readOnly: boolean;
   required: boolean;
   multiple: boolean;
-  itemToStringLabel?: (itemValue: any) => string;
-  itemToStringValue?: (itemValue: any) => string;
   setValue: (nextValue: any, eventDetails: BaseUIEventDetails<'none'>) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;

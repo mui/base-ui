@@ -5,13 +5,12 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { serializeValue } from '../../utils/serializeValue';
-import { stringifyItemValue } from '../../combobox/root/utils';
 import {
   type BaseUIEventDetails,
   createBaseUIEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import type { BaseUIChangeEventReason } from '../../utils/types';
+import { stringifyAsValue } from '../../utils/resolveValueLabel';
 
 /**
  * Groups all parts of the select.
@@ -76,13 +75,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     if (isMultiple && Array.isArray(value) && value.length === 0) {
       return '';
     }
-
-    if (!isMultiple) {
-      return stringifyItemValue(value, rootContext.itemToStringValue);
-    }
-
-    return serializeValue(value);
-  }, [isMultiple, value, rootContext.itemToStringValue]);
+    return stringifyAsValue(value, itemToStringValue);
+  }, [isMultiple, value, itemToStringValue]);
 
   const hiddenInputs = React.useMemo(() => {
     if (!isMultiple || !Array.isArray(value) || !rootContext.name) {
@@ -90,7 +84,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     }
 
     return value.map((v) => {
-      const currentSerializedValue = stringifyItemValue(v, rootContext.itemToStringValue);
+      const currentSerializedValue = stringifyAsValue(v, itemToStringValue);
       return (
         <input
           key={currentSerializedValue}
@@ -100,7 +94,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         />
       );
     });
-  }, [isMultiple, value, rootContext.name, rootContext.itemToStringValue]);
+  }, [isMultiple, value, rootContext.name, itemToStringValue]);
 
   return (
     <SelectRootContext.Provider value={rootContext}>
@@ -129,20 +123,20 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                 }
 
                 // Handle single selection: match against registered values using serialization
-                const exactValue = rootContext.valuesRef.current.find((v) => {
-                  const candidate = stringifyItemValue(v, itemToStringValue);
+                const matchingValue = rootContext.valuesRef.current.find((v) => {
+                  const candidate = stringifyAsValue(v, itemToStringValue);
                   if (candidate.toLowerCase() === nextValue.toLowerCase()) {
                     return true;
                   }
                   return false;
                 });
 
-                if (exactValue != null) {
-                  setDirty(exactValue !== validityData.initialValue);
-                  rootContext.setValue?.(exactValue, details);
+                if (matchingValue != null) {
+                  setDirty(matchingValue !== validityData.initialValue);
+                  rootContext.setValue?.(matchingValue, details);
 
                   if (validationMode === 'onChange') {
-                    rootContext.fieldControlValidation.commitValidation(exactValue);
+                    rootContext.fieldControlValidation.commitValidation(matchingValue);
                   }
                 }
               }
@@ -266,11 +260,13 @@ interface SelectRootProps<Value> {
    */
   items?: Record<string, React.ReactNode> | Array<{ label: React.ReactNode; value: Value }>;
   /**
-   * When items' values are objects, converts its value to a string label for display and typeahead.
+   * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.
+   * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
    */
   itemToStringLabel?: (itemValue: Value) => string;
   /**
-   * When items' values are objects, converts its value to a string value for form submission.
+   * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for form submission.
+   * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
    */
   itemToStringValue?: (itemValue: Value) => string;
 }

@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { isGroupedItems, stringifyItem } from '../root/utils';
 import { resolveSelectedLabel } from '../../utils/resolveValueLabel';
 import { selectors } from '../store';
 
@@ -21,30 +20,6 @@ export function ComboboxValue(props: ComboboxValue.Props) {
   const selectedValue = useStore(store, selectors.selectedValue);
   const items = useStore(store, selectors.items);
 
-  const isChildrenPropDefined = childrenProp !== undefined;
-
-  const nullItemLabel = React.useMemo(() => {
-    if (isChildrenPropDefined || !Array.isArray(items)) {
-      return undefined;
-    }
-
-    const flatItems = isGroupedItems(items) ? items.flatMap((g) => g.items) : items;
-
-    for (let i = 0; i < flatItems.length; i += 1) {
-      const item = flatItems[i];
-      if (item == null) {
-        return stringifyItem(item, itemToStringLabel);
-      }
-      if (typeof item === 'object' && 'value' in item && item.value == null) {
-        return 'label' in item && item.label != null
-          ? item.label
-          : stringifyItem(item, itemToStringLabel);
-      }
-    }
-
-    return undefined;
-  }, [items, itemToStringLabel, isChildrenPropDefined]);
-
   if (typeof childrenProp === 'function') {
     return childrenProp(selectedValue);
   }
@@ -53,14 +28,7 @@ export function ComboboxValue(props: ComboboxValue.Props) {
     return childrenProp;
   }
 
-  if (Array.isArray(items) && selectedValue == null && nullItemLabel !== undefined) {
-    return nullItemLabel;
-  }
-
-  return (
-    resolveSelectedLabel(selectedValue, items, itemToStringLabel) ??
-    stringifyItem(selectedValue, itemToStringLabel)
-  );
+  return resolveSelectedLabel(selectedValue, items, itemToStringLabel);
 }
 
 export namespace ComboboxValue {
