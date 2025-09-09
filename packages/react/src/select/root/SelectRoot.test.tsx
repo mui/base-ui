@@ -557,7 +557,9 @@ describe('<Select.Root />', () => {
 
     await user.click(trigger);
 
-    expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-selected', '');
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-selected', '');
+    });
   });
 
   it('should handle browser autofill with object values', async () => {
