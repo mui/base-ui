@@ -117,8 +117,16 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
+  // The input element nested in the pressed thumb.
   const pressedInputRef = React.useRef<HTMLInputElement>(null);
+  // The px distance between the pointer and the center of a pressed thumb.
+  const pressedThumbCenterOffsetRef = React.useRef<number | null>(null);
+  // The index of the pressed thumb, or the closest thumb if the `Control` was pressed.
+  // This is updated on pointerdown, which is sooner than the `active/activeIndex`
+  // state which is updated later when the nested `input` receives focus.
+  const pressedThumbIndexRef = React.useRef(-1);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
+
   const formatOptionsRef = useLatestRef(format);
 
   // We can't use the :active browser pseudo-classes.
@@ -261,10 +269,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const contextValue: SliderRootContext = React.useMemo(
     () => ({
       active,
+      controlRef,
       disabled,
       dragging,
       fieldControlValidation,
-      pressedInputRef,
       formatOptionsRef,
       handleInputChange,
       labelId: ariaLabelledby,
@@ -277,7 +285,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       name,
       onValueCommitted,
       orientation,
-      range,
+      pressedInputRef,
+      pressedThumbCenterOffsetRef,
+      pressedThumbIndexRef,
       registerFieldControlRef,
       setActive,
       setDragging,
@@ -290,11 +300,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }),
     [
       active,
+      controlRef,
       ariaLabelledby,
       disabled,
       dragging,
       fieldControlValidation,
-      pressedInputRef,
       formatOptionsRef,
       handleInputChange,
       largeStep,
@@ -306,7 +316,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       name,
       onValueCommitted,
       orientation,
-      range,
+      pressedInputRef,
+      pressedThumbCenterOffsetRef,
+      pressedThumbIndexRef,
       registerFieldControlRef,
       setActive,
       setDragging,

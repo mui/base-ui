@@ -12,10 +12,10 @@ export interface SliderRootContext {
    * The index of the active thumb.
    */
   active: number;
+  controlRef: React.RefObject<HTMLElement | null>;
   dragging: boolean;
   disabled: boolean;
   fieldControlValidation: useFieldControlValidation.ReturnValue;
-  pressedInputRef: React.RefObject<HTMLInputElement | null>;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   handleInputChange: (
     valueInput: number,
@@ -60,10 +60,9 @@ export interface SliderRootContext {
    * @default 'horizontal'
    */
   orientation: Orientation;
-  /**
-   * Whether the slider is a range slider.
-   */
-  range: boolean;
+  pressedInputRef: React.RefObject<HTMLInputElement | null>;
+  pressedThumbCenterOffsetRef: React.RefObject<number | null>;
+  pressedThumbIndexRef: React.RefObject<number>;
   registerFieldControlRef: React.RefCallback<Element> | null;
   setActive: React.Dispatch<React.SetStateAction<number>>;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
