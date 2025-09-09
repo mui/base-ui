@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styles from './index.module.css';
+import styles from './icons.module.css';
 
 export function ArrowSvg(props: React.ComponentProps<'svg'>) {
   return (
