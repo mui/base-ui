@@ -137,7 +137,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       ref: mergedRef,
       onFocus(event) {
         const element = rootRef.current;
-        if (!element || !isNativeInput(event.target)) {
+        if (
+          !element ||
+          !isNativeInput(event.target) ||
+          !mapRef.current.has(event.target as Element)
+        ) {
           return;
         }
         event.target.setSelectionRange(0, event.target.value.length ?? 0);
