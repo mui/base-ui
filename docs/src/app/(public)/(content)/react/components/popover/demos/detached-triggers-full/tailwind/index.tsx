@@ -113,7 +113,9 @@ function NotificationsPanel() {
 function ProfilePanel() {
   return (
     <div className="grid grid-cols-[auto_auto] gap-x-4 -mx-2">
-      <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 m-0 text-base font-medium">Jason Eventon</Popover.Title>
+      <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 m-0 text-base font-medium">
+        Jason Eventon
+      </Popover.Title>
       <Avatar.Root className="col-start-1 col-end-2 row-start-1 row-end-3 inline-flex justify-center items-center align-middle rounded-full select-none font-medium text-gray-900 bg-gray-100 text-base leading-none overflow-hidden h-12 w-12">
         <Avatar.Image
           src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
@@ -122,10 +124,16 @@ function ProfilePanel() {
           className="object-cover w-full h-full"
         />
       </Avatar.Root>
-      <span className="col-start-2 col-end-3 row-start-2 row-end-3 text-sm text-gray-600">Pro plan</span>
+      <span className="col-start-2 col-end-3 row-start-2 row-end-3 text-sm text-gray-600">
+        Pro plan
+      </span>
       <div className="col-start-1 col-end-3 row-start-3 row-end-4 flex flex-col gap-2 mt-2 pt-2 border-t border-gray-200 text-sm">
-        <a href="#" className="text-gray-900 no-underline hover:underline">Profile settings</a>
-        <a href="#" className="text-gray-900 no-underline hover:underline">Log out</a>
+        <a href="#" className="text-gray-900 no-underline hover:underline">
+          Profile settings
+        </a>
+        <a href="#" className="text-gray-900 no-underline hover:underline">
+          Log out
+        </a>
       </div>
     </div>
   );
@@ -135,7 +143,9 @@ function ActivityPanel() {
   return (
     <React.Fragment>
       <Popover.Title className="m-0 text-base font-medium">Activity</Popover.Title>
-      <Popover.Description className="m-0 text-base text-gray-600">No recent activity.</Popover.Description>
+      <Popover.Description className="m-0 text-base text-gray-600">
+        No recent activity.
+      </Popover.Description>
     </React.Fragment>
   );
 }
