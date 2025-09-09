@@ -4,7 +4,7 @@ import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -54,10 +54,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const triggerProps = useStore(store, selectors.triggerProps);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
-  const inputValue = useStore(store, selectors.inputValue);
 
-  const [composingValue, setComposingValue] = React.useState<string | null>(null);
-  const isComposingRef = React.useRef(false);
+  // `inputValue` can't be placed in the store.
+  // https://github.com/mui/base-ui/issues/2703
+  const inputValue = useComboboxInputValueContext();
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
@@ -145,7 +145,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       triggerProps,
       {
         type: 'text',
-        value: componentProps.value ?? composingValue ?? inputValue,
+        value: inputValue,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
         disabled,
@@ -163,62 +163,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             fieldControlValidation?.commitValidation(valueToValidate);
           }
         },
-        onCompositionStart(event) {
-          isComposingRef.current = true;
-          setComposingValue(event.currentTarget.value);
-        },
-        onCompositionEnd(event) {
-          isComposingRef.current = false;
-          const next = event.currentTarget.value;
-          setComposingValue(null);
-          store.state.setInputValue(
-            next,
-            createBaseUIEventDetails('input-change', event.nativeEvent),
-          );
-        },
         onChange(event: React.ChangeEvent<HTMLInputElement>) {
-          // During IME composition, avoid propagating controlled updates to preserve
-          // its state.
-          if (isComposingRef.current) {
-            const nextVal = event.currentTarget.value;
-            setComposingValue(nextVal);
-
-            if (nextVal === '' && !openOnInputClick && !hasPositionerParent) {
-              store.state.setOpen(
-                false,
-                createBaseUIEventDetails('input-clear', event.nativeEvent),
-              );
-            }
-
-            if (!readOnly && !disabled) {
-              const trimmed = nextVal.trim();
-              if (trimmed !== '') {
-                store.state.setOpen(true, createBaseUIEventDetails('none', event.nativeEvent));
-                if (!(selectionMode === 'none' && autoHighlight)) {
-                  store.state.setIndices({
-                    activeIndex: null,
-                    selectedIndex: null,
-                    type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
-                  });
-                }
-              }
-            }
-
-            if (
-              open &&
-              store.state.activeIndex !== null &&
-              !(selectionMode === 'none' && autoHighlight && nextVal.trim() !== '')
-            ) {
-              store.state.setIndices({
-                activeIndex: null,
-                selectedIndex: null,
-                type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
-              });
-            }
-
-            return;
-          }
-
           store.state.setInputValue(
             event.currentTarget.value,
             createBaseUIEventDetails('input-change', event.nativeEvent),

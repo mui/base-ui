@@ -6,7 +6,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
-import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -57,7 +57,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
-  const inputValue = useStore(store, selectors.inputValue);
+
+  const inputValue = useComboboxInputValueContext();
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
