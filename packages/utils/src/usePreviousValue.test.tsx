@@ -1,15 +1,16 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, createRenderer } from '@mui/internal-test-utils';
-import { usePreviousRenderValue } from './usePreviousRenderValue';
+import { usePreviousValue } from './usePreviousValue';
 
 interface TestComponentProps {
   value: any;
+  unrelatedProp?: any;
   children: (previous: any) => React.ReactNode;
 }
 
 function TestComponent({ value, children }: TestComponentProps) {
-  const previous = usePreviousRenderValue(value);
+  const previous = usePreviousValue(value);
   return children(previous);
 }
 
@@ -71,6 +72,26 @@ describe('usePrevious', () => {
 
     setProps({ value: false });
     expect(previousValue).to.equal(true);
+  });
+
+  it('should ignore renders where the value does not change', () => {
+    let previousValue: any;
+    const { setProps } = render(
+      <TestComponent value="stable">
+        {(previous) => {
+          previousValue = previous;
+          return null;
+        }}
+      </TestComponent>,
+    );
+
+    expect(previousValue).to.equal(null);
+
+    setProps({ unrelatedProp: 1 });
+    expect(previousValue).to.equal(null);
+
+    setProps({ unrelatedProp: 2 });
+    expect(previousValue).to.equal(null);
   });
 
   it('should work with object values', () => {
