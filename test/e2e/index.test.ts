@@ -1,37 +1,15 @@
-import { expect } from 'chai';
-import { chromium, ElementHandle, Page, Browser } from '@playwright/test';
+import { chromium, expect, Page, Browser } from '@playwright/test';
 import { describe, it, beforeAll } from 'vitest';
-import type {
-  ByRoleMatcher,
-  ByRoleOptions,
-  Matcher,
-  MatcherOptions,
-  SelectorMatcherOptions,
-} from '@testing-library/dom';
-import '@mui/internal-test-utils/initMatchers';
 import '@mui/internal-test-utils/initPlaywrightMatchers';
 
 const BASE_URL = 'http://localhost:5173';
 
-function sleep(duration: number): Promise<void> {
+function delay(duration: number): Promise<void> {
   return new Promise<void>((resolve) => {
     setTimeout(() => {
       resolve();
     }, duration);
   });
-}
-
-interface PlaywrightScreen {
-  getByLabelText: (
-    labelText: Matcher,
-    options?: SelectorMatcherOptions,
-  ) => Promise<ElementHandle<HTMLElement>>;
-  getByRole: (role: ByRoleMatcher, options?: ByRoleOptions) => Promise<ElementHandle<HTMLElement>>;
-  getByTestId: (testId: string, options?: MatcherOptions) => Promise<ElementHandle<HTMLElement>>;
-  getByText: (
-    text: Matcher,
-    options?: SelectorMatcherOptions,
-  ) => Promise<ElementHandle<HTMLElement>>;
 }
 
 /**
@@ -53,7 +31,7 @@ async function attemptGoto(page: Page, url: string): Promise<boolean> {
       didNavigate = true;
     } catch (error) {
       // eslint-disable-next-line no-await-in-loop
-      await sleep(retryTimeoutMS);
+      await delay(retryTimeoutMS);
     }
   }
 
@@ -63,32 +41,6 @@ async function attemptGoto(page: Page, url: string): Promise<boolean> {
 describe('e2e', () => {
   let browser: Browser;
   let page: Page;
-  const screen: PlaywrightScreen = {
-    getByLabelText: (...inputArgs) => {
-      return page.evaluateHandle(
-        (args) => window.DomTestingLibrary.getByLabelText(document.body, ...args),
-        inputArgs,
-      );
-    },
-    getByRole: (...inputArgs) => {
-      return page.evaluateHandle(
-        (args) => window.DomTestingLibrary.getByRole(document.body, ...args),
-        inputArgs,
-      );
-    },
-    getByText: (...inputArgs) => {
-      return page.evaluateHandle(
-        (args) => window.DomTestingLibrary.getByText(document.body, ...args),
-        inputArgs,
-      );
-    },
-    getByTestId: (...inputArgs) => {
-      return page.evaluateHandle(
-        (args) => window.DomTestingLibrary.getByTestId(document.body, ...args),
-        inputArgs,
-      );
-    },
-  };
 
   async function renderFixture(fixturePath: string) {
     await page.goto(`${BASE_URL}/e2e-fixtures/${fixturePath}#no-dev`);
@@ -117,16 +69,16 @@ describe('e2e', () => {
       await renderFixture('Radio');
 
       await page.keyboard.press('Tab');
-      await expect(screen.getByTestId('one')).toHaveFocus();
+      await expect(page.getByTestId('one')).toBeFocused();
 
       await page.keyboard.press('ArrowRight');
-      await expect(screen.getByTestId('two')).toHaveFocus();
+      await expect(page.getByTestId('two')).toBeFocused();
 
       await page.keyboard.press('ArrowLeft');
-      await expect(screen.getByTestId('one')).toHaveFocus();
+      await expect(page.getByTestId('one')).toBeFocused();
 
       await page.keyboard.press('ArrowLeft');
-      await expect(screen.getByTestId('three')).toHaveFocus();
+      await expect(page.getByTestId('three')).toBeFocused();
     });
   });
 
@@ -141,10 +93,9 @@ describe('e2e', () => {
       await page.mouse.move(100, 10);
       await page.mouse.up();
 
-      // eslint-disable-next-line testing-library/no-await-sync-queries
-      const output = await screen.getByRole('status');
+      const output = page.getByRole('status');
       const outputText = await output.evaluate((el) => el.textContent);
-      expect(outputText).to.equal('25 – 100');
+      expect(outputText).toBe('25 – 100');
     });
 
     it('overlapping thumbs at max', async () => {
@@ -158,10 +109,9 @@ describe('e2e', () => {
       await page.mouse.move(50, 10);
       await page.mouse.up();
 
-      // eslint-disable-next-line testing-library/no-await-sync-queries
-      const output = await screen.getByRole('status');
+      const output = page.getByRole('status');
       const outputText = await output.evaluate((el) => el.textContent);
-      expect(outputText).to.equal('50 – 100');
+      expect(outputText).toBe('50 – 100');
     });
   });
 });
