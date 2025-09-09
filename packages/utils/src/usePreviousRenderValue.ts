@@ -1,30 +1,22 @@
 'use client';
-import { useRefWithInit } from './useRefWithInit';
-import { useIsoLayoutEffect } from './useIsoLayoutEffect';
+import * as React from 'react';
 
 /**
  * Returns a value from the previous render.
  * @param value Current value.
  */
 export function usePreviousRenderValue<T>(value: T): T | null {
-  const previous = useRefWithInit(createPreviousRef, value).current;
+  const [state, setState] = React.useState<{ current: T; previous: T | null }>({
+    current: value,
+    previous: null,
+  });
 
-  previous.next = value;
+  if (state.current !== value) {
+    setState({
+      current: value,
+      previous: state.current,
+    });
+  }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useIsoLayoutEffect(previous.effect);
-
-  return previous.current;
-}
-
-function createPreviousRef<T>(value: T) {
-  const previous = {
-    current: null as T | null,
-    next: value,
-    effect: () => {
-      previous.current = previous.next;
-    },
-  };
-
-  return previous;
+  return state.previous;
 }
