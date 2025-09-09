@@ -93,9 +93,7 @@ describe('e2e', () => {
       await page.mouse.move(100, 10);
       await page.mouse.up();
 
-      const output = page.getByRole('status');
-      const outputText = await output.evaluate((el) => el.textContent);
-      expect(outputText).toBe('25 – 100');
+      await expect(page.getByRole('status')).toHaveText('25 – 100');
     });
 
     it('overlapping thumbs at max', async () => {
@@ -109,9 +107,7 @@ describe('e2e', () => {
       await page.mouse.move(50, 10);
       await page.mouse.up();
 
-      const output = page.getByRole('status');
-      const outputText = await output.evaluate((el) => el.textContent);
-      expect(outputText).toBe('50 – 100');
+      await expect(page.getByRole('status')).toHaveText('50 – 100');
     });
   });
 });
