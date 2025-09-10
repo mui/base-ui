@@ -7,12 +7,12 @@ export function Root(props: React.ComponentProps<'dl'>) {
 }
 
 function Inner(props: React.ComponentProps<'div'>) {
-  return <div {...props} className={clsx('DescriptionListInner gap-3 w-full', props.className)} />;
+  return <div {...props} className={clsx('DescriptionListInner', props.className)} />;
 }
 
 export function Term(props: React.ComponentProps<'dt'>) {
   return (
-    <dt {...props} className={clsx('DescriptionTerm', props.className)}>
+    <dt {...props} className={clsx('DescriptionListTerm', props.className)}>
       <Inner>{props.children}</Inner>
     </dt>
   );
@@ -20,7 +20,7 @@ export function Term(props: React.ComponentProps<'dt'>) {
 
 export function Details(props: React.ComponentProps<'dd'>) {
   return (
-    <dd {...props} className={clsx('DescriptionDetails', props.className)}>
+    <dd {...props} className={clsx('DescriptionListDetails', props.className)}>
       <Inner>{props.children}</Inner>
     </dd>
   );
