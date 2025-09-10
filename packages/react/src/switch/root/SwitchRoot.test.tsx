@@ -562,7 +562,7 @@ describe('<Switch.Root />', () => {
           const button = screen.getByRole('switch');
 
           await waitFor(() => {
-            expect(label.getAttribute('for')).to.not.equal(null);
+            expect(label.getAttribute('for')).not.to.equal(null);
           });
 
           expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
@@ -587,7 +587,7 @@ describe('<Switch.Root />', () => {
           const button = screen.getByRole('switch');
 
           await waitFor(() => {
-            expect(label.getAttribute('for')).to.not.equal(null);
+            expect(label.getAttribute('for')).not.to.equal(null);
           });
 
           expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
