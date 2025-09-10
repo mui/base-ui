@@ -15,7 +15,7 @@ import { selectors } from '../store';
  */
 export const SelectIcon = React.forwardRef(function SelectIcon(
   componentProps: SelectIcon.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
 
