@@ -716,6 +716,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
+  // Ensures that the active index is not set to 0 when the list is empty.
+  // This avoids needing to press ArrowDown twice under certain conditions.
+  React.useEffect(() => {
+    if (autoHighlight && flatFilteredItems.length === 0) {
+      setIndices({ activeIndex: null });
+    }
+  }, [autoHighlight, flatFilteredItems.length, setIndices]);
+
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
     onOpenChange: setOpen,

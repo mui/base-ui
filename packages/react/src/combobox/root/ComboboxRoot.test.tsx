@@ -1544,6 +1544,50 @@ describe('<Combobox.Root />', () => {
       // With autoHighlight, the first (and only) item should be highlighted
       await waitFor(() => expect(input).to.have.attribute('aria-activedescendant', epsilon.id));
     });
+
+    it('navigates on first ArrowDown after editing selection to a new matching query', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['Apple', 'Grape', 'Grapefruit']} autoHighlight>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      // Open and select Apple
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+      // Edit input to "Ape" (matches Grape and Grapefruit)
+      await user.click(input);
+      await user.clear(input);
+      await user.type(input, 'Ape');
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const grape = screen.getByRole('option', { name: 'Grape' });
+      const grapefruit = screen.getByRole('option', { name: 'Grapefruit' });
+
+      // With autoHighlight, first match is highlighted immediately
+      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant', grape.id));
+
+      // One ArrowDown should move to the next match (no double keypress needed)
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant', grapefruit.id));
+    });
   });
 
   describe('prop: onItemHighlighted', () => {
