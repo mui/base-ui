@@ -106,7 +106,7 @@
 }
 
 .Positioner {
-  --easing: ease-out;
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
   --animation-duration: 0.35s;
 
   width: var(--positioner-width);

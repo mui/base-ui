@@ -40,21 +40,41 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     // Start observing the element.
     observer.observe(popupElement);
 
+    const originalPositionProperty = popupElement.style.getPropertyValue('position');
+    const originalTransformProperty = popupElement.style.getPropertyValue('transform');
+
     // Initial render (for each time the popup opens).
     if (isInitialRender.current || previousDimensionsRef.current === null) {
       popupElement.style.setProperty('--popup-width', 'auto');
       popupElement.style.setProperty('--popup-height', 'auto');
+      popupElement.style.setProperty('transform', 'none');
+      popupElement.style.setProperty('position', 'static');
+
+      positionerElement.style.setProperty('--positioner-width', 'auto');
+      positionerElement.style.setProperty('--positioner-height', 'auto');
 
       const dimensions = popupElement.getBoundingClientRect();
+
       positionerElement.style.setProperty('--positioner-width', `${dimensions.width}px`);
       positionerElement.style.setProperty('--positioner-height', `${dimensions.height}px`);
+
+      if (originalPositionProperty) {
+        popupElement.style.setProperty('position', originalPositionProperty);
+      } else {
+        popupElement.style.removeProperty('position');
+      }
+
+      if (originalTransformProperty) {
+        popupElement.style.setProperty('transform', originalTransformProperty);
+      } else {
+        popupElement.style.removeProperty('transform');
+      }
 
       isInitialRender.current = false;
       return undefined;
     }
 
     // Subsequent renders while open (when `content` changes).
-    const originalPositionProperty = popupElement.style.getPropertyValue('position');
     popupElement.style.setProperty('--popup-width', 'auto');
     popupElement.style.setProperty('--popup-height', 'auto');
     popupElement.style.setProperty('position', 'static');

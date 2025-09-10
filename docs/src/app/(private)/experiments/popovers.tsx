@@ -28,7 +28,7 @@ const contents = [
     </p>
   </React.Fragment>,
   <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>,
-  <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>,
+  <p>Ut enim ad minim veniam, quis nostrud exercitation.</p>,
   <p>Lorem</p>,
   <React.Fragment>
     <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.</p>
