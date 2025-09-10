@@ -12,18 +12,18 @@ import { TableCode } from '../TableCode';
 import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
 function ExpandedCode(props: React.ComponentProps<'code'>) {
-  const { className = '', ...rest } = props;
+  const { className = '', ...other } = props;
   const cleaned = className
     .split(' ')
     .filter((c) => c !== 'Code')
     .join(' ');
-  return <code {...rest} className={cleaned} />;
+  return <code {...other} className={cleaned} />;
 }
 
 function ExpandedPre(props: React.ComponentProps<'pre'>) {
   return (
-    <Accordion.Scrollable gradientColor="var(--color-gray-50)">
-      <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: 'none' }} />
+    <Accordion.Scrollable component="div" gradientColor="var(--color-gray-50)">
+      <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: undefined }} />
     </Accordion.Scrollable>
   );
 }
@@ -117,7 +117,7 @@ export async function PropsReferenceAccordion({
 
         const PropType = await createMdxComponent(`\`${displayType}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ code: TableCode }),
+          useMDXComponents: () => ({ ...inlineMdxComponents, code: TableCode }),
         });
 
         const PropDetailedType = await createMdxComponent(
@@ -125,8 +125,10 @@ export async function PropsReferenceAccordion({
           {
             rehypePlugins: rehypeSyntaxHighlighting,
             useMDXComponents: () => ({
-              code: ExpandedCode,
+              ...inlineMdxComponents,
+              figure: 'figure',
               pre: ExpandedPre,
+              code: ExpandedCode,
             }),
           },
         );
@@ -136,12 +138,12 @@ export async function PropsReferenceAccordion({
 
         const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ code: TableCode }),
+          useMDXComponents: () => ({ ...inlineMdxComponents, code: TableCode }),
         });
 
         const PropDefault = await createMdxComponent(`\`${prop.required ? '—' : prop.default}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ code: TableCode }),
+          useMDXComponents: () => ({ ...inlineMdxComponents, code: TableCode }),
         });
 
         const PropDescription = prop.description
@@ -154,7 +156,12 @@ export async function PropsReferenceAccordion({
         const ExampleSnippet = prop.example
           ? await createMdxComponent(prop.example, {
               rehypePlugins: rehypeSyntaxHighlighting,
-              useMDXComponents: () => inlineMdxComponents,
+              useMDXComponents: () => ({
+                ...inlineMdxComponents,
+                figure: 'figure',
+                pre: ExpandedPre,
+                code: ExpandedCode,
+              }),
             })
           : null;
 
@@ -222,44 +229,34 @@ export async function PropsReferenceAccordion({
                       </Link>
                     </DescriptionList.Details>
                   </DescriptionList.Item>
-
                   {PropDescription != null && (
                     <DescriptionList.Item>
-                      <DescriptionList.Separator className="max-xs:pt-2">
-                        <DescriptionList.Term>Description</DescriptionList.Term>
-                      </DescriptionList.Separator>
+                      <DescriptionList.Term className="max-xs:pt-2">
+                        Description
+                      </DescriptionList.Term>
                       {/* one-off override of the default mt/mb on CodeBlock.Root */}
                       <DescriptionList.Details className="[&_[role='figure']]:mt-1 [&_[role='figure']]:mb-1">
                         <PropDescription />
                       </DescriptionList.Details>
                     </DescriptionList.Item>
                   )}
-
                   <DescriptionList.Item>
-                    <DescriptionList.Separator className="max-xs:pt-2">
-                      <DescriptionList.Term>Type</DescriptionList.Term>
-                    </DescriptionList.Separator>
+                    <DescriptionList.Term className="max-xs:pt-2">Type</DescriptionList.Term>
                     <DescriptionList.Details>
                       <PropDetailedType />
                     </DescriptionList.Details>
                   </DescriptionList.Item>
-
                   {prop.default !== undefined && (
                     <DescriptionList.Item>
-                      <DescriptionList.Separator className="max-xs:pt-2">
-                        <DescriptionList.Term>Default</DescriptionList.Term>
-                      </DescriptionList.Separator>
+                      <DescriptionList.Term className="max-xs:pt-2">Default</DescriptionList.Term>
                       <DescriptionList.Details>
                         <PropDefault />
                       </DescriptionList.Details>
                     </DescriptionList.Item>
                   )}
-
                   {ExampleSnippet != null && (
                     <DescriptionList.Item>
-                      <DescriptionList.Separator className="max-xs:pt-2">
-                        <DescriptionList.Term>Example</DescriptionList.Term>
-                      </DescriptionList.Separator>
+                      <DescriptionList.Term className="max-xs:pt-2">Example</DescriptionList.Term>
                       <DescriptionList.Details className="*:my-0">
                         <ExampleSnippet />
                       </DescriptionList.Details>

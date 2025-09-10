@@ -67,10 +67,8 @@ export async function CssVariablesReferenceTable({
               CSS Variable
             </Table.ColumnHeader>
             <Table.ColumnHeader className="w-10 xs:w-2/3">
-              <div className="sr-only xs:not-sr-only xs:contents">Description</div>
+              <span className="sr-only xs:not-sr-only xs:contents">Description</span>
             </Table.ColumnHeader>
-            {/* A cell to maintain a layout consistent with the props table */}
-            <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden role="presentation" />
           </Table.Row>
         </Table.Head>
         <Table.Body>
@@ -87,7 +85,7 @@ export async function CssVariablesReferenceTable({
                 <Table.RowHeader>
                   <TableCode className="text-navy">{name}</TableCode>
                 </Table.RowHeader>
-                <Table.Cell colSpan={2}>
+                <Table.Cell>
                   <CssVaribleDescription />
                 </Table.Cell>
               </Table.Row>

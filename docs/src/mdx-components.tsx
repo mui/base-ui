@@ -84,7 +84,6 @@ export const mdxComponents: MDXComponents = {
   th: (props: React.ComponentProps<'th'>) =>
     props.scope === 'row' ? <Table.RowHeader {...props} /> : <Table.ColumnHeader {...props} />,
   td: Table.Cell,
-
   // Custom components
   Demo:
     process.env.DISABLE_DEMO_SSR === 'true'
@@ -115,7 +114,7 @@ export const mdxComponents: MDXComponents = {
 
 export const inlineMdxComponents: MDXComponents = {
   ...mdxComponents,
-  p: (props) => <p {...props} />,
+  p: (props) => props.children,
 };
 
 export function useMDXComponents(): MDXComponents {
