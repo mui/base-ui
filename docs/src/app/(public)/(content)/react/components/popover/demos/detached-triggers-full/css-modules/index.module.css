@@ -42,9 +42,14 @@
 }
 
 .Positioner {
-  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --easing: ease-out;
   --animation-duration: 0.35s;
-  transition-property: top, left, right, bottom;
+
+  width: var(--positioner-width);
+  height: var(--positioner-height);
+  max-width: var(--available-width);
+
+  transition-property: top, left, right, bottom, transform;
   transition-timing-function: var(--easing);
   transition-duration: var(--animation-duration);
 
@@ -55,6 +60,7 @@
 }
 
 .Popup {
+  position: relative;
   border-radius: 0.5rem;
   background-color: canvas;
   color: var(--color-gray-900);
@@ -68,7 +74,7 @@
 
   /* width and height are essential for the resize animation; opacity and transform handle the enter/exit animation */
   transition-property: width, height, opacity, transform;
-  transition-timing-function: ease-out;
+  transition-timing-function: var(--easing);
   transition-duration: var(--animation-duration);
 
   &[data-starting-style],
@@ -107,21 +113,21 @@
 
   &[data-activation-direction~='right'] {
     [data-previous] {
-      animation: slide-out-to-left var(--animation-duration) ease-out;
+      animation: slide-out-to-left var(--animation-duration) var(--easing);
     }
 
     [data-next] {
-      animation: slide-in-from-right var(--animation-duration) ease-out;
+      animation: slide-in-from-right var(--animation-duration) var(--easing);
     }
   }
 
   &[data-activation-direction~='left'] {
     [data-previous] {
-      animation: slide-out-to-right var(--animation-duration) ease-out;
+      animation: slide-out-to-right var(--animation-duration) var(--easing);
     }
 
     [data-next] {
-      animation: slide-in-from-left var(--animation-duration) ease-out;
+      animation: slide-in-from-left var(--animation-duration) var(--easing);
     }
   }
 }
@@ -176,6 +182,7 @@
 
 .Arrow {
   display: flex;
+  transition: left calc(var(--animation-duration)) var(--easing);
 
   &[data-side='top'] {
     bottom: -8px;

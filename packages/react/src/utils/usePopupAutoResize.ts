@@ -7,10 +7,10 @@ import { useAnimationsFinished } from './useAnimationsFinished';
  * Allows the element to automatically resize based on its content while supporting animations.
  */
 export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
-  const { element, open, content, enabled = true } = parameters;
+  const { popupElement, positionerElement, open, content, enabled = true } = parameters;
 
   const isInitialRender = React.useRef(true);
-  const runOnceAnimationsFinish = useAnimationsFinished(element, true);
+  const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true);
   const animationFrame = useAnimationFrame();
   const previousDimensionsRef = React.useRef<{ width: number; height: number } | null>(null);
 
@@ -22,7 +22,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       return undefined;
     }
 
-    if (!element) {
+    if (!popupElement || !positionerElement) {
       return undefined;
     }
 
@@ -38,48 +38,79 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     });
 
     // Start observing the element.
-    observer.observe(element);
+    observer.observe(popupElement);
 
     // Initial render (for each time the popup opens).
     if (isInitialRender.current || previousDimensionsRef.current === null) {
-      element.style.setProperty('--popup-width', 'auto');
-      element.style.setProperty('--popup-height', 'auto');
+      popupElement.style.setProperty('--popup-width', 'auto');
+      popupElement.style.setProperty('--popup-height', 'auto');
+
+      const dimensions = popupElement.getBoundingClientRect();
+      positionerElement.style.setProperty('--positioner-width', `${dimensions.width}px`);
+      positionerElement.style.setProperty('--positioner-height', `${dimensions.height}px`);
+
       isInitialRender.current = false;
       return undefined;
     }
 
     // Subsequent renders while open (when `content` changes).
-    element.style.setProperty('--popup-width', 'auto');
-    element.style.setProperty('--popup-height', 'auto');
+    const originalPositionProperty = popupElement.style.getPropertyValue('position');
+    popupElement.style.setProperty('--popup-width', 'auto');
+    popupElement.style.setProperty('--popup-height', 'auto');
+    popupElement.style.setProperty('position', 'static');
+    positionerElement.style.removeProperty('--positioner-width');
+    positionerElement.style.removeProperty('--positioner-height');
 
-    const newDimensions = element.getBoundingClientRect();
-    element.style.setProperty('--popup-width', `${previousDimensionsRef.current.width}px`);
-    element.style.setProperty('--popup-height', `${previousDimensionsRef.current.height}px`);
+    const newDimensions = popupElement.getBoundingClientRect();
+
+    popupElement.style.setProperty('--popup-width', `${previousDimensionsRef.current.width}px`);
+    popupElement.style.setProperty('--popup-height', `${previousDimensionsRef.current.height}px`);
+    if (originalPositionProperty) {
+      popupElement.style.setProperty('position', originalPositionProperty);
+    } else {
+      popupElement.style.removeProperty('position');
+    }
+
+    positionerElement.style.setProperty('--positioner-width', `${newDimensions.width}px`);
+    positionerElement.style.setProperty('--positioner-height', `${newDimensions.height}px`);
 
     const abortController = new AbortController();
 
     animationFrame.request(() => {
-      element.style.setProperty('--popup-width', `${newDimensions.width}px`);
-      element.style.setProperty('--popup-height', `${newDimensions.height}px`);
+      popupElement.style.setProperty('--popup-width', `${newDimensions.width}px`);
+      popupElement.style.setProperty('--popup-height', `${newDimensions.height}px`);
 
       runOnceAnimationsFinish(() => {
-        element.style.setProperty('--popup-width', 'auto');
-        element.style.setProperty('--popup-height', 'auto');
+        popupElement.style.setProperty('--popup-width', 'auto');
+        popupElement.style.setProperty('--popup-height', 'auto');
       }, abortController.signal);
     });
 
     return () => {
+      observer.disconnect();
       abortController.abort();
       animationFrame.cancel();
     };
-  }, [content, element, open, runOnceAnimationsFinish, animationFrame, enabled]);
+  }, [
+    content,
+    popupElement,
+    positionerElement,
+    open,
+    runOnceAnimationsFinish,
+    animationFrame,
+    enabled,
+  ]);
 }
 
 interface UsePopupAutoResizeParameters {
   /**
    * Element to resize.
    */
-  element: HTMLElement | null;
+  popupElement: HTMLElement | null;
+  /*
+   * Positioner element (parent of the popup)
+   */
+  positionerElement: HTMLElement | null;
   /**
    * Whether the popup is open.
    */
