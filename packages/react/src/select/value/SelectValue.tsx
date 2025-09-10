@@ -52,6 +52,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const state: SelectValue.State = React.useMemo(
     () => ({
       value,
+      placeholder: value === null,
     }),
     [value],
   );
