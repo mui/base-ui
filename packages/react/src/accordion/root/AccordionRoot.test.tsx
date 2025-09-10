@@ -82,7 +82,7 @@ describe('<Accordion.Root />', () => {
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('data-panel-open');
-      expect(queryByText(PANEL_CONTENT_1)).to.not.equal(null);
+      expect(queryByText(PANEL_CONTENT_1)).not.to.equal(null);
       expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
       expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
@@ -135,7 +135,7 @@ describe('<Accordion.Root />', () => {
           </Accordion.Root>,
         );
 
-        expect(queryByText(PANEL_CONTENT_1)).to.not.equal(null);
+        expect(queryByText(PANEL_CONTENT_1)).not.to.equal(null);
         expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
         expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
@@ -166,7 +166,7 @@ describe('<Accordion.Root />', () => {
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('data-panel-open');
-      expect(queryByText(PANEL_CONTENT_1)).to.not.equal(null);
+      expect(queryByText(PANEL_CONTENT_1)).not.to.equal(null);
       expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
       expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
@@ -219,7 +219,7 @@ describe('<Accordion.Root />', () => {
           </Accordion.Root>,
         );
 
-        expect(queryByText(PANEL_CONTENT_1)).to.not.equal(null);
+        expect(queryByText(PANEL_CONTENT_1)).not.to.equal(null);
         expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
         expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
@@ -317,7 +317,7 @@ describe('<Accordion.Root />', () => {
 
         expect(trigger).to.have.attribute('aria-expanded', 'true');
         expect(trigger).to.have.attribute('data-panel-open');
-        expect(queryByText(PANEL_CONTENT_1)).to.not.equal(null);
+        expect(queryByText(PANEL_CONTENT_1)).not.to.equal(null);
         expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
         expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
