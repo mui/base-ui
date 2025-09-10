@@ -65,6 +65,8 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
             <Table.ColumnHeader className="w-10 xs:w-2/3">
               <span className="sr-only xs:not-sr-only xs:contents">Description</span>
             </Table.ColumnHeader>
+            {/* A cell to maintain a layout consistent with the props table */}
+            <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden />
           </Table.Row>
         </Table.Head>
         <Table.Body>
@@ -81,7 +83,7 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
                 <Table.RowHeader>
                   <TableCode className="text-navy">{name}</TableCode>
                 </Table.RowHeader>
-                <Table.Cell>
+                <Table.Cell colSpan={2}>
                   <AttributeDescription />
                 </Table.Cell>
               </Table.Row>
