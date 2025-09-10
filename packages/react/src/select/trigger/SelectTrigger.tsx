@@ -160,6 +160,10 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         store.set('touchModality', pointerType === 'touch');
       },
       onKeyDown(event) {
+        if (disabled || readOnly) {
+          return;
+        }
+
         keyboardActiveRef.current = true;
 
         if (event.key === 'ArrowDown') {
