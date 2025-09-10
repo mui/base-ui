@@ -125,7 +125,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       activeIndex = 0;
       let hasEnabledItems = false;
 
-      // Find first not disabled item
+      // Find first non-disabled item
       for (const item of map.keys()) {
         if (item && !isElementDisabled(item as HTMLElement)) {
           activeIndex = map.get(item).index;
