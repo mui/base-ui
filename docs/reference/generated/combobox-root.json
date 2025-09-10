@@ -43,6 +43,12 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
       "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
     },
+    "autoHighlight": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to automatically highlight the first item while filtering.",
+      "detailedType": "boolean | undefined"
+    },
     "cols": {
       "type": "number",
       "default": "1",

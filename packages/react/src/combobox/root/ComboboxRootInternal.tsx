@@ -248,6 +248,8 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     return filteredItems as Value[];
   }, [filteredItems, isGrouped]);
 
+  const hasItems = items !== undefined;
+
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -539,8 +541,16 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         if (hasQuery) {
           setQueryChangedAfterOpen(true);
         }
-        if (selectionMode === 'none' && autoHighlight) {
-          setIndices({ activeIndex: hasQuery ? 0 : null });
+
+        // Avoid out-of-range indices when the visible list becomes smaller.
+        if (hasQuery) {
+          if (autoHighlight) {
+            setIndices({ activeIndex: 0, selectedIndex: null });
+          } else {
+            setIndices({ selectedIndex: null });
+          }
+        } else if (autoHighlight) {
+          setIndices({ activeIndex: null });
         }
       }
 
@@ -708,6 +718,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   });
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+
+  // Ensures that the active index is not set to 0 when the list is empty.
+  // This avoids needing to press ArrowDown twice under certain conditions.
+  React.useEffect(() => {
+    if (hasItems && autoHighlight && flatFilteredItems.length === 0) {
+      setIndices({ activeIndex: null });
+    }
+  }, [hasItems, autoHighlight, flatFilteredItems.length, setIndices]);
 
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
@@ -1097,7 +1115,7 @@ interface ComboboxRootProps<ItemValue> {
    */
   openOnInputClick?: boolean;
   /**
-   * Whether to automatically highlight the first item when the popup opens.
+   * Whether to automatically highlight the first item while filtering.
    * @default false
    */
   autoHighlight?: boolean;
