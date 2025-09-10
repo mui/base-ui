@@ -22,7 +22,7 @@ export function useRender<
 
   renderParams.customStyleHookMapping = renderParams.stateAttributesMapping;
 
-  return useRenderElement(renderParams.defaultTagName, renderParams, renderParams);
+  return useRenderElement(renderParams.defaultTagName ?? 'div', renderParams, renderParams);
 }
 
 export namespace useRender {
