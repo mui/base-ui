@@ -145,7 +145,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       triggerProps,
       {
         type: 'text',
-        value: inputValue,
+        value: componentProps.value ?? inputValue,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
         disabled,
