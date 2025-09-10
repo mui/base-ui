@@ -142,6 +142,19 @@ export namespace AccordionItem {
   export interface Props
     extends BaseUIComponentProps<'div', State>,
       Partial<Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'>> {
+    /**
+     * A unique value that identifies this accordion item.
+     * If no value is provided, a unique ID will be generated automatically.
+     * Use when controlling the accordion programmatically, or to set an initial
+     * open state.
+     * @example
+     * ```tsx
+     * <Accordion.Root value={['a']}>
+     *   <Accordion.Item value="a" /> // initially open
+     *   <Accordion.Item value="b" /> // initially closed
+     * </Accordion.Root>
+     * ```
+     */
     value?: AccordionItemValue;
   }
 }
