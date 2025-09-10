@@ -5,7 +5,7 @@ import styles from './index.module.css';
 export default function ExampleCombobox() {
   const id = React.useId();
   return (
-    <Combobox.Root items={fruits} autoHighlight>
+    <Combobox.Root items={fruits}>
       <div className={styles.Label}>
         <label htmlFor={id}>Choose a fruit</label>
         <div className={styles.InputWrapper}>

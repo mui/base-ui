@@ -248,6 +248,8 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     return filteredItems as Value[];
   }, [filteredItems, isGrouped]);
 
+  const hasItems = items !== undefined;
+
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -719,10 +721,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   // Ensures that the active index is not set to 0 when the list is empty.
   // This avoids needing to press ArrowDown twice under certain conditions.
   React.useEffect(() => {
-    if (autoHighlight && flatFilteredItems.length === 0) {
+    if (hasItems && autoHighlight && flatFilteredItems.length === 0) {
       setIndices({ activeIndex: null });
     }
-  }, [autoHighlight, flatFilteredItems.length, setIndices]);
+  }, [hasItems, autoHighlight, flatFilteredItems.length, setIndices]);
 
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
