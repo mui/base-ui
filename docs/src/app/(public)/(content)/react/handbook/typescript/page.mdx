@@ -27,12 +27,8 @@ function MyTooltip(props: Tooltip.Root.Props) {
 The `State` type is the internal state of the component.
 For example, `Positioner` components (such as `Popover.Positioner`) have state that describes the position of the element in relation to their anchor.
 
-{/* prettier-ignore */}
 ```tsx title="Positioner state"
-function renderPopoverPositioner(
-  props: Popover.Positioner.Props,
-  state: Popover.Positioner.State,
-) {
+function renderPositioner(props: Popover.Positioner.Props, state: Popover.Positioner.State) {
   return (
     <div {...props}>
       <ul>
@@ -46,7 +42,7 @@ function renderPopoverPositioner(
   );
 }
 
-<Popover.Positioner render={renderPopoverPositioner} />;
+<Popover.Positioner render={renderPositioner} />;
 ```
 
 ### Events
