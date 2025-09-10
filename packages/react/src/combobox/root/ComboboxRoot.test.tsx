@@ -1355,6 +1355,241 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  describe('prop: autoHighlight', () => {
+    it('does not auto-highlight on initial open when no selection', async () => {
+      await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} autoHighlight defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+      expect(input).not.to.have.attribute('aria-activedescendant');
+    });
+
+    it('shows the selected item as selected on initial open (no active highlight)', async () => {
+      await render(
+        <Combobox.Root
+          items={['apple', 'banana', 'cherry']}
+          defaultValue="banana"
+          autoHighlight
+          defaultOpen
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      const banana = screen.getByRole('option', { name: 'banana' });
+
+      expect(banana).to.have.attribute('aria-selected', 'true');
+      // Highlight is applied only after filtering begins
+      expect(input).not.to.have.attribute('aria-activedescendant');
+    });
+
+    it('highlights the first matching item after typing (single mode)', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} autoHighlight>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.type(input, 'ch');
+
+      const cherry = await screen.findByRole('option', { name: 'cherry' });
+      expect(input).to.have.attribute('aria-activedescendant', cherry.id);
+    });
+
+    it('clears highlight when query is cleared back to empty', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} autoHighlight>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.type(input, 'a');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+      await user.clear(input);
+
+      expect(input).not.to.have.attribute('aria-activedescendant');
+    });
+
+    it('highlights the first matching item after typing (multiple mode)', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} multiple autoHighlight>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.type(input, 'ba');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      const activeId = input.getAttribute('aria-activedescendant');
+      expect(activeId).to.not.equal(null);
+      const activeEl = document.getElementById(activeId!);
+      expect(activeEl?.textContent).to.equal('banana');
+    });
+
+    it('keeps highlight in sync after selecting then backspacing to a single match', async () => {
+      const items = ['alpha', 'beta', 'gamma', 'delta', 'epsilon'];
+      const { user } = await render(
+        <Combobox.Root items={items} autoHighlight>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      // Select index 4
+      await user.click(screen.getByRole('option', { name: 'epsilon' }));
+      await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
+
+      // Reopen and press Backspace to narrow to a single match
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      // Backspace once: from 'epsilon' -> 'epsilo', which should still only match 'epsilon'
+      await user.keyboard('{Backspace}');
+      const epsilon = await screen.findByRole('option', { name: 'epsilon' });
+      // With autoHighlight, the first (and only) item should be highlighted
+      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant', epsilon.id));
+    });
+
+    it('navigates on first ArrowDown after editing selection to a new matching query', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['Apple', 'Grape', 'Grapefruit']} autoHighlight>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      // Open and select Apple
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+      // Edit input to "Ape" (matches Grape and Grapefruit)
+      await user.click(input);
+      await user.clear(input);
+      await user.type(input, 'Ape');
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const grape = screen.getByRole('option', { name: 'Grape' });
+      const grapefruit = screen.getByRole('option', { name: 'Grapefruit' });
+
+      // With autoHighlight, first match is highlighted immediately
+      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant', grape.id));
+
+      // One ArrowDown should move to the next match (no double keypress needed)
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant', grapefruit.id));
+    });
+  });
+
   describe('prop: onItemHighlighted', () => {
     it('fires on keyboard navigation', async () => {
       const items = ['a', 'b', 'c'];

@@ -38,8 +38,8 @@ importers:
         specifier: workspace:*
         version: link:test
       '@mui/internal-code-infra':
-        specifier: ^0.0.3-canary.5
-        version: 0.0.3-canary.5(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(prettier@3.6.2)(typescript@5.9.2)
+        specifier: ^0.0.3-canary.8
+        version: 0.0.3-canary.8(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(prettier@3.6.2)(typescript@5.9.2)
       '@mui/internal-docs-utils':
         specifier: ^2.0.1
         version: 2.0.2
@@ -2190,8 +2190,8 @@ packages:
     resolution: {integrity: sha512-9hqDvOezGxIztw/9FdWmg+M+jzM8fspsR/MqssBUHYUvLxYUy3P0MO3iTy/GJHkZvvL53hJTI3XD6NjSuaeIgw==}
     hasBin: true
 
-  '@mui/internal-code-infra@0.0.3-canary.5':
-    resolution: {integrity: sha512-Dn87Jqor0IMyKz6rhL+jpk7AIzEeYbm2mdv9uoWTQ7CLLUavYZf/YT1Hy4b0YuXBYd1HoMQB2u74ggcrHM8U2g==}
+  '@mui/internal-code-infra@0.0.3-canary.8':
+    resolution: {integrity: sha512-i3lBteEV+U0n9cjpktwHlEjN+pvQKNddh8P70snBvb/2VpeSO4QuJCPudOG2lZz0sZ/SGqqrHTNmx+sQPeJy0g==}
     hasBin: true
     peerDependencies:
       eslint: ^9.0.0
@@ -12666,7 +12666,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.0.3-canary.5(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(prettier@3.6.2)(typescript@5.9.2)':
+  '@mui/internal-code-infra@0.0.3-canary.8(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(prettier@3.6.2)(typescript@5.9.2)':
     dependencies:
       '@argos-ci/core': 4.1.2
       '@babel/cli': 7.28.3(@babel/core@7.28.3)
