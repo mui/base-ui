@@ -49,12 +49,6 @@
       "description": "Whether to automatically highlight the first item while filtering.",
       "detailedType": "boolean | undefined"
     },
-    "cols": {
-      "type": "number",
-      "default": "1",
-      "description": "The maximum number of columns present when the items are rendered in grid layout.\nA value of more than `1` turns the listbox into a grid.",
-      "detailedType": "number | undefined"
-    },
     "defaultInputValue": {
       "type": "string | number | string[]",
       "description": "The uncontrolled input value when initially rendered.",
