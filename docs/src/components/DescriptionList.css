@@ -58,9 +58,6 @@
   .DescriptionDetails {
     @apply text-sm;
     color: var(--color-foreground);
-
-    display: flex;
-    gap: 0.5rem;
     grid-column: span 2;
   }
 
