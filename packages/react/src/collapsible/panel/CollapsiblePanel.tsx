@@ -161,7 +161,7 @@ export namespace CollapsiblePanel {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Allows the browser’s built-in page search to find and expand the panel contents.
      *

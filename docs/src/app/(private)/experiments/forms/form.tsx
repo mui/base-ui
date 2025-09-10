@@ -32,7 +32,7 @@ const schema = z.object({
   input: z.string().min(1, 'This field is required'),
   checkbox: z.enum(['on']),
   switch: z.enum(['on']),
-  slider: z.number().min(40),
+  slider: z.number().max(90, 'Too loud'),
   'range-slider': z.array(z.number()),
   'number-field': z.number().min(0).max(100),
   select: z.enum(['sans', 'serif', 'mono', 'cursive']),
@@ -58,7 +58,11 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   },
 };
 
-async function submitForm(event: React.FormEvent<HTMLFormElement>, values: Values) {
+async function submitForm(
+  event: React.FormEvent<HTMLFormElement>,
+  values: Values,
+  native: boolean,
+) {
   event.preventDefault();
 
   const formData = new FormData(event.currentTarget);
@@ -70,11 +74,17 @@ async function submitForm(event: React.FormEvent<HTMLFormElement>, values: Value
   entries['range-slider'] = formData.getAll('range-slider').map((v) => parseFloat(v as string));
   entries['multi-select'] = formData.getAll('multi-select');
 
+  if (native) {
+    return {
+      errors: {},
+    };
+  }
+
   const result = schema.safeParse(entries);
 
   if (!result.success) {
     return {
-      errors: result.error.flatten().fieldErrors,
+      errors: z.flattenError(result.error).fieldErrors,
     };
   }
 
@@ -102,9 +112,13 @@ export default function Page() {
         errors={errors}
         onClearErrors={setErrors}
         onSubmit={async (event) => {
-          const response = await submitForm(event, {
-            numberField: numberFieldValueRef.current,
-          });
+          const response = await submitForm(
+            event,
+            {
+              numberField: numberFieldValueRef.current,
+            },
+            native,
+          );
           setErrors(response.errors);
         }}
       >

@@ -56,7 +56,7 @@ describe('useButton', () => {
       );
 
       const button = getByRole('button');
-      expect(document.activeElement).to.not.equal(button);
+      expect(document.activeElement).not.to.equal(button);
 
       expect(handleFocus.callCount).to.equal(0);
       await user.keyboard('[Tab]');
@@ -79,7 +79,7 @@ describe('useButton', () => {
       expect(handleBlur.callCount).to.equal(0);
       await user.keyboard('[Tab]');
       expect(handleBlur.callCount).to.equal(1);
-      expect(document.activeElement).to.not.equal(button);
+      expect(document.activeElement).not.to.equal(button);
     });
   });
 

@@ -33,6 +33,7 @@ export default function ExampleCreatableCombobox() {
       return;
     }
 
+    // Ensure we don't collide with an existing id (e.g., value "docs" vs. existing id "docs")
     const existingIds = new Set(labels.map((l) => l.id));
     let uniqueId = baseId;
     if (existingIds.has(uniqueId)) {
@@ -62,6 +63,7 @@ export default function ExampleCreatableCombobox() {
   const trimmed = query.trim();
   const lowered = trimmed.toLocaleLowerCase();
   const exactExists = labels.some((l) => l.value.trim().toLocaleLowerCase() === lowered);
+  // Show the creatable item alongside matches if there's no exact match
   const itemsForView: Array<LabelItem> =
     trimmed !== '' && !exactExists
       ? [...labels, { creatable: trimmed, id: `create:${lowered}`, value: `Create "${trimmed}"` }]
@@ -88,6 +90,9 @@ export default function ExampleCreatableCombobox() {
         onInputValueChange={setQuery}
         onOpenChange={(open, details) => {
           if ('key' in details.event && details.event.key === 'Enter') {
+            // When pressing Enter:
+            // - If the typed value exactly matches an existing item, add that item to the selected chips
+            // - Otherwise, create a new item
             if (trimmed === '') {
               return;
             }
@@ -157,6 +162,7 @@ export default function ExampleCreatableCombobox() {
                     <Combobox.Item
                       key={item.id}
                       className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none [@media(hover:hover)]:[&[data-highlighted]]:relative [@media(hover:hover)]:[&[data-highlighted]]:z-0 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50 [@media(hover:hover)]:[&[data-highlighted]]:before:absolute [@media(hover:hover)]:[&[data-highlighted]]:before:inset-x-2 [@media(hover:hover)]:[&[data-highlighted]]:before:inset-y-0 [@media(hover:hover)]:[&[data-highlighted]]:before:z-[-1] [@media(hover:hover)]:[&[data-highlighted]]:before:rounded-sm [@media(hover:hover)]:[&[data-highlighted]]:before:bg-gray-900"
+                      value={item}
                     >
                       <span className="col-start-1">
                         <PlusIcon className="size-3" />
@@ -198,7 +204,7 @@ export default function ExampleCreatableCombobox() {
             <form onSubmit={handleCreateSubmit}>
               <input
                 ref={createInputRef}
-                className="w-full h-10 rounded-md border border-gray-200 bg-[canvas] text-gray-900 px-2.5 outline-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                className="w-full h-10 rounded-md border border-gray-200 bg-[canvas] text-gray-900 px-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
                 placeholder="Label name"
                 defaultValue={pendingQueryRef.current}
               />

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
-import { createRenderer, describeConformance } from '#test-utils';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 
 describe('<Combobox.Clear />', () => {
@@ -107,5 +107,108 @@ describe('<Combobox.Clear />', () => {
 
     fireEvent.click(clear);
     expect(screen.getByTestId('clear')).not.to.equal(null);
+  });
+
+  describe.skipIf(isJSDOM)('animations', () => {
+    it('triggers enter animation via data-starting-style when becoming visible', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let animationFinished = false;
+      const notifyAnimationFinished = () => {
+        animationFinished = true;
+      };
+
+      const style = `
+        .animation-test-indicator {
+          transition: opacity 1ms;
+        }
+
+        .animation-test-indicator[data-starting-style],
+        .animation-test-indicator[data-ending-style] {
+          opacity: 0;
+        }
+      `;
+
+      const { user } = await render(
+        <div>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Combobox.Root>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Clear
+              className="animation-test-indicator"
+              data-testid="clear"
+              onTransitionEnd={notifyAnimationFinished}
+            />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="a">a</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </div>,
+      );
+
+      expect(screen.queryByTestId('clear')).to.equal(null);
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await user.click(screen.getByRole('option', { name: 'a' }));
+
+      await waitFor(() => {
+        expect(animationFinished).to.equal(true);
+      });
+      expect(screen.getByTestId('clear')).not.to.equal(null);
+    });
+
+    it('triggers exit animation via data-ending-style before unmount', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let animationFinished = false;
+      const notifyAnimationFinished = () => {
+        animationFinished = true;
+      };
+
+      const style = `
+        .animation-test-indicator {
+          transition: opacity 1ms;
+        }
+
+        .animation-test-indicator[data-starting-style],
+        .animation-test-indicator[data-ending-style] {
+          opacity: 0;
+        }
+      `;
+
+      const { user } = await render(
+        <div>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Combobox.Root defaultValue="a">
+            <Combobox.Input data-testid="input" />
+            <Combobox.Clear
+              className="animation-test-indicator"
+              data-testid="clear"
+              keepMounted
+              onTransitionEnd={notifyAnimationFinished}
+            />
+          </Combobox.Root>
+        </div>,
+      );
+
+      const clear = screen.getByTestId('clear');
+      expect(clear).not.to.equal(null);
+
+      await user.click(clear);
+
+      await waitFor(() => {
+        expect(animationFinished).to.equal(true);
+      });
+    });
   });
 });

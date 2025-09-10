@@ -324,4 +324,41 @@ describe('<Combobox.Trigger />', () => {
       expect(trigger).to.have.attribute('aria-controls', listbox.id);
     });
   });
+
+  describe('typeahead', () => {
+    it('selects item when typing on focused trigger (input inside popup)', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value data-testid="value" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).not.to.have.text('apple');
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('a');
+
+      expect(trigger).to.have.text('apple');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+  });
 });

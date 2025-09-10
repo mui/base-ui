@@ -12,8 +12,12 @@ import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxClear.State> = transitionStatusMapping;
+const customStyleHookMapping: CustomStyleHookMapping<ComboboxClear.State> = {
+  ...transitionStatusMapping,
+  ...triggerOpenStateMapping,
+};
 
 /**
  * Clears the value when clicked.
@@ -82,7 +86,6 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    enabled: visible,
     ref: [forwardedRef, buttonRef, clearRef],
     props: [
       {

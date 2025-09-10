@@ -43,7 +43,7 @@ describe('<Toast.Title />', () => {
     const titleId = titleElement.id;
 
     const rootElement = screen.getByTestId('root');
-    expect(rootElement).to.not.equal(null);
+    expect(rootElement).not.to.equal(null);
     expect(rootElement.getAttribute('aria-labelledby')).to.equal(titleId);
   });
 
@@ -87,7 +87,7 @@ describe('<Toast.Title />', () => {
     await user.click(button);
 
     const titleElement = screen.getByTestId('title');
-    expect(titleElement).to.not.equal(null);
+    expect(titleElement).not.to.equal(null);
     expect(titleElement.textContent).to.equal('title');
   });
 });
