@@ -61,6 +61,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
+  const [composingValue, setComposingValue] = React.useState<string | null>(null);
+  const isComposingRef = React.useRef(false);
+
   const setInputElement = useEventCallback((element) => {
     store.apply({
       inputElement: element,
@@ -145,7 +148,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       triggerProps,
       {
         type: 'text',
-        value: componentProps.value ?? inputValue,
+        value: componentProps.value ?? composingValue ?? inputValue,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
         disabled,
@@ -163,7 +166,62 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             fieldControlValidation?.commitValidation(valueToValidate);
           }
         },
+        onCompositionStart(event) {
+          isComposingRef.current = true;
+          setComposingValue(event.currentTarget.value);
+        },
+        onCompositionEnd(event) {
+          isComposingRef.current = false;
+          const next = event.currentTarget.value;
+          setComposingValue(null);
+          store.state.setInputValue(
+            next,
+            createBaseUIEventDetails('input-change', event.nativeEvent),
+          );
+        },
         onChange(event: React.ChangeEvent<HTMLInputElement>) {
+          // During IME composition, avoid propagating controlled updates to preserve
+          // its state.
+          if (isComposingRef.current) {
+            const nextVal = event.currentTarget.value;
+            setComposingValue(nextVal);
+
+            if (nextVal === '' && !openOnInputClick && !hasPositionerParent) {
+              store.state.setOpen(
+                false,
+                createBaseUIEventDetails('input-clear', event.nativeEvent),
+              );
+            }
+
+            if (!readOnly && !disabled) {
+              const trimmed = nextVal.trim();
+              if (trimmed !== '') {
+                store.state.setOpen(true, createBaseUIEventDetails('none', event.nativeEvent));
+                if (!autoHighlight) {
+                  store.state.setIndices({
+                    activeIndex: null,
+                    selectedIndex: null,
+                    type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
+                  });
+                }
+              }
+            }
+
+            if (
+              open &&
+              store.state.activeIndex !== null &&
+              !(autoHighlight && nextVal.trim() !== '')
+            ) {
+              store.state.setIndices({
+                activeIndex: null,
+                selectedIndex: null,
+                type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
+              });
+            }
+
+            return;
+          }
+
           store.state.setInputValue(
             event.currentTarget.value,
             createBaseUIEventDetails('input-change', event.nativeEvent),
