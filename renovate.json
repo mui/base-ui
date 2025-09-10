@@ -7,12 +7,6 @@
   },
   "packageRules": [
     {
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": true,
-      "minimumReleaseAge": "3 days"
-    },
-    {
       "groupName": "Floating UI",
       "description": "Update Floating UI as soon as the new version is released",
       "matchPackageNames": ["@floating-ui/*"],
@@ -26,13 +20,6 @@
       "groupName": "MUI public packages",
       "matchPackageNames": ["@mui/*", "!@mui/internal-*", "!@mui/docs"],
       "allowedVersions": "!/-dev/"
-    },
-    {
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "matchPackageNames": ["@mui/*"],
-      "automerge": false,
-      "minimumReleaseAge": "1 minute"
     },
     {
       "matchDepTypes": ["engines"],

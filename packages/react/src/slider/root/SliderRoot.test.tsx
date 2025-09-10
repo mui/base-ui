@@ -144,7 +144,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
   describe.skipIf(isJSDOM || isWebKit)('rtl', () => {
     it('should handle RTL', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = spy((newValue) => newValue);
       const { getByTestId } = await render(
         <div dir="rtl">
           <DirectionProvider direction="rtl">
@@ -169,8 +169,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
 
       expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[0][0]).to.equal(80);
-      expect(handleValueChange.args[1][0]).to.equal(78);
+      expect(handleValueChange.firstCall.returnValue).to.equal(80);
+      expect(handleValueChange.lastCall.returnValue).to.equal(78);
     });
   });
 
@@ -633,7 +633,11 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it.skipIf(isJSDOM || isWebKit)('should support touch events', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
-        <TestRangeSlider defaultValue={[20, 30]} onValueChange={handleValueChange} />,
+        <TestRangeSlider
+          defaultValue={[20, 30]}
+          style={{ width: '100px' }}
+          onValueChange={handleValueChange}
+        />,
       );
       const sliderControl = getByTestId('control');
       stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
@@ -1020,7 +1024,13 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         const handleValueChange = spy();
 
         await render(
-          <TestRangeSlider min={0} max={5} onValueChange={handleValueChange} value={value} />,
+          <TestRangeSlider
+            min={0}
+            max={5}
+            onValueChange={handleValueChange}
+            value={value}
+            style={{ width: '100px' }}
+          />,
         );
 
         const sliderControl = screen.getByTestId('control');
@@ -1799,7 +1809,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('should receive name prop from Field.Root', async () => {
-      const { container } = await render(
+      await render(
         <Field.Root name="field-slider">
           <Slider.Root>
             <Slider.Control>
@@ -1809,8 +1819,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         </Field.Root>,
       );
 
-      const hiddenInput = container.querySelector('input[aria-hidden="true"]');
-      expect(hiddenInput).to.have.attribute('name', 'field-slider');
+      expect(screen.getByRole('slider')).to.have.attribute('name', 'field-slider');
     });
 
     it('[data-touched]', async () => {
