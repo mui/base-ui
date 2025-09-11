@@ -9,9 +9,9 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { DEFAULT_STEP } from '../utils/constants';
 import {
-  ARABIC_RE,
-  HAN_RE,
-  FULLWIDTH_RE,
+  ARABIC_DETECT_RE,
+  HAN_DETECT_RE,
+  FULLWIDTH_DETECT_RE,
   getNumberLocaleDetails,
   parseNumber,
   UNICODE_MINUS_SIGNS,
@@ -307,9 +307,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       });
 
       const isLatinNumeral = /^[0-9]$/.test(event.key);
-      const isArabicNumeral = ARABIC_RE.test(event.key);
-      const isHanNumeral = HAN_RE.test(event.key);
-      const isFullwidthNumeral = FULLWIDTH_RE.test(event.key);
+      const isArabicNumeral = ARABIC_DETECT_RE.test(event.key);
+      const isHanNumeral = HAN_DETECT_RE.test(event.key);
+      const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(event.key);
       const isNavigateKey = NAVIGATE_KEYS.has(event.key);
 
       if (

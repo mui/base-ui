@@ -37,9 +37,10 @@ export const PERCENT_RE = new RegExp(`[${PERCENTAGES.join('')}]`);
 export const PERMILLE_RE = new RegExp(`[${PERMILLE.join('')}]`);
 
 // Detection regexes (non-global to avoid lastIndex side effects)
-const ARABIC_DETECT_RE = /[٠١٢٣٤٥٦٧٨٩]/;
-const PERSIAN_DETECT_RE = /[۰۱۲۳۴۵۶۷۸۹]/;
-const HAN_DETECT_RE = /[零〇一二三四五六七八九]/;
+export const ARABIC_DETECT_RE = /[٠١٢٣٤٥٦٧٨٩]/;
+export const PERSIAN_DETECT_RE = /[۰۱۲۳۴۵۶۷۸۹]/;
+export const HAN_DETECT_RE = /[零〇一二三四五六七八九]/;
+export const FULLWIDTH_DETECT_RE = new RegExp(`[${FULLWIDTH_NUMERALS.join('')}]`);
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const escapeClassChar = (s: string) => s.replace(/[-\\\]^]/g, (m) => `\\${m}`); // escape for use inside [...]
