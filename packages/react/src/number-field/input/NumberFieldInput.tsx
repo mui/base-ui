@@ -8,12 +8,13 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { DEFAULT_STEP } from '../utils/constants';
-import { ARABIC_RE, HAN_RE, getNumberLocaleDetails, parseNumber } from '../utils/parse';
+import { ARABIC_NUMERALS, HAN_NUMERALS, getNumberLocaleDetails, parseNumber } from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 
 const customStyleHookMapping = {
@@ -30,6 +31,9 @@ const NAVIGATE_KEYS = new Set([
   'Enter',
   'Escape',
 ]);
+
+const ARABIC_DIGITS = new Set(ARABIC_NUMERALS);
+const HAN_DIGITS = new Set(HAN_NUMERALS);
 
 /**
  * The native input control in the number field.
@@ -64,6 +68,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     locale,
     inputRef,
     value,
+    onValueCommitted,
+    lastChangedValueRef,
+    valueRef,
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
@@ -166,6 +173,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         if (validationMode === 'onBlur') {
           commitValidation(null);
         }
+        onValueCommitted(null, createBaseUIEventDetails('none', event.nativeEvent));
         return;
       }
 
@@ -209,6 +217,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           setInputValue(canonicalText);
         }
       }
+
+      onValueCommitted(canonical, createBaseUIEventDetails('none', event.nativeEvent));
     },
     onChange(event) {
       // Workaround for https://github.com/facebook/react/issues/9023
@@ -225,14 +235,36 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
+      // For trusted user typing, update the input text immediately and only fire onValueChange
+      // if the typed value is currently parseable into a number. This preserves good UX for IME
+      // composition/partial input while still providing live numeric updates when possible.
+      const allowedNonNumericKeys = getAllowedNonNumericKeys();
+      const isValidCharacterString = Array.from(targetValue).every((ch) => {
+        const isAsciiDigit = ch >= '0' && ch <= '9';
+        const isArabicNumeral = ARABIC_DIGITS.has(ch);
+        const isHanNumeral = HAN_DIGITS.has(ch);
+        const isMinus = ch === '-';
+        return (
+          isAsciiDigit ||
+          isArabicNumeral ||
+          isHanNumeral ||
+          isMinus ||
+          allowedNonNumericKeys.has(ch)
+        );
+      });
+
       if (event.isTrusted) {
         setInputValue(targetValue);
+        const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
+        if (parsedValue !== null && isValidCharacterString) {
+          setValue(parsedValue, event.nativeEvent);
+        }
         return;
       }
 
       const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
 
-      if (parsedValue !== null) {
+      if (parsedValue !== null && isValidCharacterString) {
         setInputValue(targetValue);
         setValue(parsedValue, event.nativeEvent);
       }
@@ -278,9 +310,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         }
       });
 
-      const isLatinNumeral = /^[0-9]$/.test(event.key);
-      const isArabicNumeral = ARABIC_RE.test(event.key);
-      const isHanNumeral = HAN_RE.test(event.key);
+      const isAsciiDigit = event.key >= '0' && event.key <= '9';
+      const isArabicNumeral = ARABIC_DIGITS.has(event.key);
+      const isHanNumeral = HAN_DIGITS.has(event.key);
       const isNavigateKey = NAVIGATE_KEYS.has(event.key);
 
       if (
@@ -292,7 +324,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         event.ctrlKey ||
         event.metaKey ||
         isAllowedNonNumericKey ||
-        isLatinNumeral ||
+        isAsciiDigit ||
         isArabicNumeral ||
         isHanNumeral ||
         isNavigateKey
@@ -308,14 +340,20 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Prevent insertion of text or caret from moving.
       stopEvent(event);
 
+      const details = createBaseUIEventDetails('none', nativeEvent);
+
       if (event.key === 'ArrowUp') {
         incrementValue(amount, 1, parsedValue, nativeEvent);
+        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
       } else if (event.key === 'ArrowDown') {
         incrementValue(amount, -1, parsedValue, nativeEvent);
+        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
       } else if (event.key === 'Home' && min != null) {
         setValue(min, nativeEvent);
+        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
       } else if (event.key === 'End' && max != null) {
         setValue(max, nativeEvent);
+        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
       }
     },
     onPaste(event) {
