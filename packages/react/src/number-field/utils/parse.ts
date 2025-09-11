@@ -1,6 +1,20 @@
 import { getFormatter } from '../../utils/formatNumber';
 
-export const HAN_NUMERALS = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+export const HAN_NUMERALS = ['零', '〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+// Map Han numeral characters to ASCII digits. Includes both forms of zero.
+export const HAN_NUMERAL_TO_DIGIT: Record<string, string> = {
+  零: '0',
+  〇: '0',
+  一: '1',
+  二: '2',
+  三: '3',
+  四: '4',
+  五: '5',
+  六: '6',
+  七: '7',
+  八: '8',
+  九: '9',
+};
 export const ARABIC_NUMERALS = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
 export const PERSIAN_NUMERALS = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
 export const FULLWIDTH_NUMERALS = ['０', '１', '２', '３', '４', '５', '６', '７', '８', '９'];
@@ -25,7 +39,7 @@ export const PERMILLE_RE = new RegExp(`[${PERMILLE.join('')}]`);
 // Detection regexes (non-global to avoid lastIndex side effects)
 const ARABIC_DETECT_RE = /[٠١٢٣٤٥٦٧٨٩]/;
 const PERSIAN_DETECT_RE = /[۰۱۲۳۴۵۶۷۸۹]/;
-const HAN_DETECT_RE = /[零一二三四五六七八九]/;
+const HAN_DETECT_RE = /[零〇一二三四五六七八九]/;
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const escapeClassChar = (s: string) => s.replace(/[-\\\]^]/g, (m) => `\\${m}`); // escape for use inside [...]
@@ -71,7 +85,7 @@ export function parseNumber(
 
   // "(...)" is negative
   let isParenthesizedNegative = false;
-  if (/^\(\s*.+\s*\)$/.test(input)) {
+  if (/^(?:\(|（)\s*.+\s*(?:\)|）)$/.test(input)) {
     isParenthesizedNegative = true;
     input = input.slice(1, -1);
   }
@@ -145,7 +159,7 @@ export function parseNumber(
     { regex: ARABIC_RE, replacement: (ch) => String(ARABIC_NUMERALS.indexOf(ch)) },
     { regex: PERSIAN_RE, replacement: (ch) => String(PERSIAN_NUMERALS.indexOf(ch)) },
     { regex: FULLWIDTH_RE, replacement: (ch) => String(FULLWIDTH_NUMERALS.indexOf(ch)) },
-    { regex: HAN_RE, replacement: (ch) => String(HAN_NUMERALS.indexOf(ch)) },
+    { regex: HAN_RE, replacement: (ch) => HAN_NUMERAL_TO_DIGIT[ch] },
   ];
 
   let unformatted = replacements.reduce((acc, { regex, replacement }) => {

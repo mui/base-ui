@@ -117,5 +117,110 @@ describe('NumberField parse', () => {
       // First '.' is decimal; subsequent '.' are removed
       expect(parseNumber('1.234.567.89')).to.equal(1234567.89);
     });
+
+    it('parses number with mixed separators (FR)', () => {
+      expect(parseNumber('1.234.567,89', 'fr-FR')).to.equal(1234567.89);
+    });
+
+    it('parses number with mixed separators (US)', () => {
+      expect(parseNumber('1.234.567,89', 'en-US')).to.equal(1234.56789);
+    });
+
+    it('returns null for empty and whitespace-only input', () => {
+      expect(parseNumber('')).to.equal(null);
+      expect(parseNumber('   ')).to.equal(null);
+    });
+
+    it('returns null for just a sign', () => {
+      expect(parseNumber('-')).to.equal(null);
+      expect(parseNumber('+')).to.equal(null);
+    });
+
+    it('handles ASCII leading and trailing signs', () => {
+      expect(parseNumber('+1234')).to.equal(1234);
+      expect(parseNumber('1234+')).to.equal(1234);
+      expect(parseNumber('-1234')).to.equal(-1234);
+      expect(parseNumber('1234-')).to.equal(-1234);
+    });
+
+    it('handles fullwidth parentheses for negative numbers', () => {
+      expect(parseNumber('（1,234.5）')).to.equal(-1234.5);
+    });
+
+    it('supports multiple unicode minus variants', () => {
+      expect(parseNumber('‒123')).to.equal(-123); // figure dash
+      expect(parseNumber('–123')).to.equal(-123); // en dash
+      expect(parseNumber('—123')).to.equal(-123); // em dash
+      expect(parseNumber('－123')).to.equal(-123); // fullwidth hyphen-minus
+      expect(parseNumber('﹣123')).to.equal(-123); // small hyphen-minus
+    });
+
+    it('supports additional unicode plus variants', () => {
+      expect(parseNumber('﹢123')).to.equal(123); // small plus sign
+    });
+
+    it('handles additional percent symbol variants', () => {
+      expect(parseNumber('12％')).to.equal(0.12); // fullwidth percent
+      expect(parseNumber('12﹪')).to.equal(0.12); // small percent
+      expect(parseNumber('12٪')).to.equal(0.12); // Arabic percent sign with ASCII digits
+    });
+
+    it('parses Arabic punctuation with ASCII digits', () => {
+      expect(parseNumber('1٬234٫56')).to.equal(1234.56);
+    });
+
+    it('removes various Unicode space groupings (fr-FR)', () => {
+      expect(parseNumber('1\u202F234,56', 'fr-FR')).to.equal(1234.56); // narrow no-break space
+      expect(parseNumber('1\u2009234,56', 'fr-FR')).to.equal(1234.56); // thin space
+      expect(parseNumber('1\u2007234,56', 'fr-FR')).to.equal(1234.56); // figure space
+      expect(parseNumber('1\u00A0234,56', 'fr-FR')).to.equal(1234.56); // no-break space
+    });
+
+    it('handles Swiss grouping apostrophe', () => {
+      // de-CH uses RIGHT SINGLE QUOTATION MARK (U+2019) as group separator
+      expect(parseNumber('1’234.56', 'de-CH')).to.equal(1234.56);
+    });
+
+    it('parses de-DE formatted numbers', () => {
+      expect(parseNumber('1.234,56', 'de-DE')).to.equal(1234.56);
+      expect(parseNumber('1.234.567,89', 'de-DE')).to.equal(1234567.89);
+    });
+
+    it('parses currency prefix/suffix across locales', () => {
+      const en = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(
+        1234.56,
+      );
+      const fr = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(
+        1234.56,
+      );
+      expect(parseNumber(en, 'en-US', { style: 'currency', currency: 'EUR' })).to.equal(1234.56);
+      expect(parseNumber(fr, 'fr-FR', { style: 'currency', currency: 'EUR' })).to.equal(1234.56);
+    });
+
+    it('parses units with different formats', () => {
+      expect(
+        parseNumber('12 km/h', 'en-US', { style: 'unit', unit: 'kilometer-per-hour' }),
+      ).to.equal(12);
+      expect(parseNumber('12 m/s', 'en-US', { style: 'unit', unit: 'meter-per-second' })).to.equal(
+        12,
+      );
+    });
+
+    it('treats bidi/format controls as ignorable in the middle of input', () => {
+      expect(parseNumber('1\u202A234\u202C.56')).to.equal(1234.56); // LRE...PDF
+      expect(parseNumber('\u202A12\u202C%')).to.equal(0.12);
+    });
+
+    it('returns null for Infinity with explicit sign and surrounding spaces', () => {
+      expect(parseNumber(' +Infinity ')).to.equal(null);
+      expect(parseNumber(' -∞ ')).to.equal(null);
+      expect(parseNumber('+Infinity')).to.equal(null);
+    });
+
+    it('collapses multiple consecutive dots keeping only the last as decimal', () => {
+      expect(parseNumber('1..5')).to.equal(1.5);
+      expect(parseNumber('123..456..789.01')).to.equal(123456789.01);
+      expect(parseNumber('....5')).to.equal(0.5);
+    });
   });
 });
