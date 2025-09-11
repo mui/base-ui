@@ -4,7 +4,7 @@ import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -54,12 +54,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const triggerProps = useStore(store, selectors.triggerProps);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
-  const inputValue = useStore(store, selectors.inputValue);
+
+  // `inputValue` can't be placed in the store.
+  // https://github.com/mui/base-ui/issues/2703
+  const inputValue = useComboboxInputValueContext();
+
+  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
-
-  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
   const setInputElement = useEventCallback((element) => {
     store.apply({
@@ -194,7 +197,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               const trimmed = nextVal.trim();
               if (trimmed !== '') {
                 store.state.setOpen(true, createBaseUIEventDetails('none', event.nativeEvent));
-                if (!(selectionMode === 'none' && autoHighlight)) {
+                if (!autoHighlight) {
                   store.state.setIndices({
                     activeIndex: null,
                     selectedIndex: null,
@@ -207,7 +210,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             if (
               open &&
               store.state.activeIndex !== null &&
-              !(selectionMode === 'none' && autoHighlight && nextVal.trim() !== '')
+              !(autoHighlight && nextVal.trim() !== '')
             ) {
               store.state.setIndices({
                 activeIndex: null,

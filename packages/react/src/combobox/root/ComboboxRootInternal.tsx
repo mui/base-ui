@@ -27,6 +27,7 @@ import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
   ComboboxRootContext,
+  ComboboxInputValueContext,
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
@@ -1059,13 +1060,15 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     <ComboboxRootContext.Provider value={store}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
         <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
-          {virtualized ? (
-            children
-          ) : (
-            <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
-              {children}
-            </CompositeList>
-          )}
+          <ComboboxInputValueContext.Provider value={inputValue}>
+            {virtualized ? (
+              children
+            ) : (
+              <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
+                {children}
+              </CompositeList>
+            )}
+          </ComboboxInputValueContext.Provider>
         </ComboboxDerivedItemsContext.Provider>
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>

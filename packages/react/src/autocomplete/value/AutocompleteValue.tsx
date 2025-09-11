@@ -1,8 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
-import { useComboboxRootContext } from '../../combobox/root/ComboboxRootContext';
-import { selectors } from '../../combobox/store';
+import { useComboboxInputValueContext } from '../../combobox/root/ComboboxRootContext';
 
 /**
  * The current value of the autocomplete.
@@ -13,9 +11,7 @@ import { selectors } from '../../combobox/store';
 export function AutocompleteValue(props: AutocompleteValue.Props) {
   const { children } = props;
 
-  const store = useComboboxRootContext();
-
-  const inputValue = useStore(store, selectors.inputValue);
+  const inputValue = useComboboxInputValueContext();
 
   if (typeof children === 'function') {
     return children(String(inputValue));
