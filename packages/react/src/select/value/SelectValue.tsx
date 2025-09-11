@@ -4,7 +4,11 @@ import { useStore } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { resolveSelectedLabel, resolveMultipleLabels } from '../../utils/resolveValueLabel';
+import {
+  resolveSelectedLabel,
+  resolveMultipleLabels,
+  stringifyAsValue,
+} from '../../utils/resolveValueLabel';
 import { selectors } from '../store';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
@@ -24,17 +28,28 @@ export const SelectValue = React.forwardRef(function SelectValue(
 ) {
   const { className, render, children: childrenProp, ...elementProps } = componentProps;
 
-  const { store, valueRef } = useSelectRootContext();
+  const { store, valueRef, multiple } = useSelectRootContext();
+
+  const isMultiple = multiple ?? false;
 
   const value = useStore(store, selectors.value);
   const items = useStore(store, selectors.items);
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
+  const itemToStringValue = useStore(store, selectors.itemToStringValue);
+
+  const serializedValue = React.useMemo(() => {
+    if (isMultiple && Array.isArray(value) && value.length === 0) {
+      return '';
+    }
+    return stringifyAsValue(value, itemToStringValue);
+  }, [isMultiple, value, itemToStringValue]);
 
   const state: SelectValue.State = React.useMemo(
     () => ({
       value,
+      placeholder: !serializedValue,
     }),
-    [value],
+    [value, serializedValue],
   );
 
   const children =
