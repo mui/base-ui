@@ -108,6 +108,58 @@ describe('<NumberField.Input />', () => {
     expect(input).to.have.value('10');
   });
 
+  it('allows unicode plus/minus, permille and fullwidth digits on keydown', async () => {
+    await render(
+      <NumberField.Root>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    function dispatchKey(key: string) {
+      const evt = new window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      return input.dispatchEvent(evt);
+    }
+
+    expect(dispatchKey('−')).to.equal(true); // MINUS SIGN U+2212
+    expect(dispatchKey('＋')).to.equal(true); // FULLWIDTH PLUS SIGN U+FF0B
+    expect(dispatchKey('‰')).to.equal(true);
+    expect(dispatchKey('１')).to.equal(true);
+  });
+
+  it('applies locale-aware decimal/group gating (de-DE)', async () => {
+    await render(
+      <NumberField.Root locale="de-DE">
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    const dispatchKey = (key: string) => {
+      const evt = new window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      return input.dispatchEvent(evt);
+    };
+
+    // de-DE: decimal is ',' and group is '.'
+    // First comma is allowed
+    expect(dispatchKey(',')).to.equal(true);
+    // Simulate a typical user value with a digit before decimal to let change handler accept it
+    fireEvent.change(input, { target: { value: '1,' } });
+    expect(input).to.have.value('1,');
+
+    // Second comma should be blocked
+    expect(dispatchKey(',')).to.equal(false);
+
+    // Grouping '.' should be allowed multiple times
+    expect(dispatchKey('.')).to.equal(true);
+    fireEvent.change(input, { target: { value: '1.,' } });
+    expect(dispatchKey('.')).to.equal(true);
+  });
+
   it('commits formatted value only on blur', async () => {
     await render(
       <NumberField.Root>

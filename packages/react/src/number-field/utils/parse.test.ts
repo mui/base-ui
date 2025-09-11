@@ -114,7 +114,7 @@ describe('NumberField parse', () => {
     });
 
     it('collapses extra dots from mixed-locale inputs', () => {
-      // First '.' is decimal; subsequent '.' are removed
+      // Last '.' is decimal; previous '.' are removed
       expect(parseNumber('1.234.567.89')).to.equal(1234567.89);
     });
 

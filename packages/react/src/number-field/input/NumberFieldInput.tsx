@@ -8,7 +8,15 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { DEFAULT_STEP } from '../utils/constants';
-import { ARABIC_RE, HAN_RE, getNumberLocaleDetails, parseNumber } from '../utils/parse';
+import {
+  ARABIC_RE,
+  HAN_RE,
+  FULLWIDTH_RE,
+  getNumberLocaleDetails,
+  parseNumber,
+  UNICODE_MINUS_SIGNS,
+  UNICODE_PLUS_SIGNS,
+} from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useField } from '../../field/useField';
@@ -251,7 +259,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       let isAllowedNonNumericKey = allowedNonNumericKeys.has(event.key);
 
       const { decimal, currency, percentSign } = getNumberLocaleDetails(
-        [],
+        locale,
         formatOptionsRef.current,
       );
 
@@ -259,12 +267,32 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const selectionEnd = event.currentTarget.selectionEnd;
       const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
 
-      // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
-      // is selected, or if only the minus sign is highlighted.
-      if (event.key === '-' && allowedNonNumericKeys.has('-')) {
-        const isMinusHighlighted =
-          selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
-        isAllowedNonNumericKey = !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
+      // Normalize handling of plus/minus signs (ASCII and unicode variants)
+      const anyMinus = ['-'].concat(UNICODE_MINUS_SIGNS);
+      const anyPlus = ['+'].concat(UNICODE_PLUS_SIGNS);
+
+      const containsAny = (s: string, chars: string[]) => chars.some((ch) => s.includes(ch));
+      const selectionIsExactlyCharAt = (index: number) =>
+        selectionStart === index && selectionEnd === index + 1;
+
+      if (anyMinus.includes(event.key) && anyMinus.some((k) => allowedNonNumericKeys.has(k))) {
+        // Only allow one sign unless replacing the existing one or all text is selected
+        const existingIndex = anyMinus.map((ch) => inputValue.indexOf(ch)).find((i) => i !== -1);
+        const isReplacingExisting =
+          existingIndex != null && existingIndex !== -1 && selectionIsExactlyCharAt(existingIndex);
+        isAllowedNonNumericKey =
+          !containsAny(inputValue, anyMinus.concat(anyPlus)) ||
+          isAllSelected ||
+          isReplacingExisting;
+      }
+      if (anyPlus.includes(event.key) && anyPlus.some((k) => allowedNonNumericKeys.has(k))) {
+        const existingIndex = anyPlus.map((ch) => inputValue.indexOf(ch)).find((i) => i !== -1);
+        const isReplacingExisting =
+          existingIndex != null && existingIndex !== -1 && selectionIsExactlyCharAt(existingIndex);
+        isAllowedNonNumericKey =
+          !containsAny(inputValue, anyMinus.concat(anyPlus)) ||
+          isAllSelected ||
+          isReplacingExisting;
       }
 
       // Only allow one of each symbol.
@@ -281,6 +309,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const isLatinNumeral = /^[0-9]$/.test(event.key);
       const isArabicNumeral = ARABIC_RE.test(event.key);
       const isHanNumeral = HAN_RE.test(event.key);
+      const isFullwidthNumeral = FULLWIDTH_RE.test(event.key);
       const isNavigateKey = NAVIGATE_KEYS.has(event.key);
 
       if (
@@ -294,6 +323,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         isAllowedNonNumericKey ||
         isLatinNumeral ||
         isArabicNumeral ||
+        isFullwidthNumeral ||
         isHanNumeral ||
         isNavigateKey
       ) {
