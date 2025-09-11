@@ -14,9 +14,9 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { fieldValidityMapping } from '../../field/utils/constants';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxTrigger.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxTrigger.State> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
 };
@@ -164,7 +164,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         : elementProps,
       getButtonProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

@@ -4,7 +4,7 @@ import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { formatNumber } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
-import { progressStyleHookMapping } from './styleHooks';
+import { progressStateAttributesMapping } from './stateAttributesMapping';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 
 function formatValue(
@@ -96,7 +96,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     state,
     ref: forwardedRef,
     props: [defaultProps, elementProps],
-    customStyleHookMapping: progressStyleHookMapping,
+    stateAttributesMapping: progressStateAttributesMapping,
   });
 
   return (

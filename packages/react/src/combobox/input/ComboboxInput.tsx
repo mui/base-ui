@@ -9,14 +9,14 @@ import { selectors } from '../store';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../../field/utils/constants';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxInput.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
 };
@@ -360,7 +360,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         ? fieldControlValidation.getValidationProps(elementProps)
         : elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

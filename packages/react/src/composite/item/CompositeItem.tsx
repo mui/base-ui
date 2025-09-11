@@ -4,7 +4,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useCompositeItem } from './useCompositeItem';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { EMPTY_OBJECT, EMPTY_ARRAY } from '../../utils/constants';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
 /**
  * @internal
@@ -19,7 +19,7 @@ export function CompositeItem<Metadata, State extends Record<string, any>>(
     props = EMPTY_ARRAY,
     refs = EMPTY_ARRAY,
     metadata,
-    customStyleHookMapping,
+    stateAttributesMapping,
     tag = 'div',
     ...elementProps
   } = componentProps;
@@ -30,7 +30,7 @@ export function CompositeItem<Metadata, State extends Record<string, any>>(
     state,
     ref: [...refs, compositeRef],
     props: [compositeProps, ...props, elementProps],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 }
 
@@ -42,7 +42,7 @@ export namespace CompositeItem {
     refs?: React.Ref<HTMLElement | null>[];
     props?: Array<Record<string, any> | (() => Record<string, any>)>;
     state?: State;
-    customStyleHookMapping?: CustomStyleHookMapping<State>;
+    stateAttributesMapping?: StateAttributesMapping<State>;
     tag?: keyof React.JSX.IntrinsicElements;
   }
 }

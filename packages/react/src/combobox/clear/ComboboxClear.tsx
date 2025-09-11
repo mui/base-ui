@@ -8,13 +8,13 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxClear.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxClear.State> = {
   ...transitionStatusMapping,
   ...triggerOpenStateMapping,
 };
@@ -130,7 +130,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
       elementProps,
       getButtonProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   const shouldRender = keepMounted || mounted;

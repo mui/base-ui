@@ -36,7 +36,7 @@ export const ComboboxArrow = React.forwardRef(function ComboboxArrow(
 
   return useRenderElement('div', componentProps, {
     ref: [arrowRef, forwardedRef],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
     state,
     props: {
       style: arrowStyles,

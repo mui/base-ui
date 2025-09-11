@@ -11,7 +11,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import type { AccordionRoot } from '../root/AccordionRoot';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
-import { accordionStyleHookMapping } from './styleHooks';
+import { accordionStateAttributesMapping } from './stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -117,7 +117,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     state,
     ref: mergedRef,
     props: elementProps,
-    customStyleHookMapping: accordionStyleHookMapping,
+    stateAttributesMapping: accordionStateAttributesMapping,
   });
 
   return (
