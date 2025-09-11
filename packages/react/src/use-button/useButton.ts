@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { error } from '@base-ui-components/utils/error';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -62,7 +63,8 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   // delete the `disabled` attribute from DOM
   useIsoLayoutEffect(() => {
     const element = buttonRef.current;
-    if (!(element instanceof HTMLButtonElement)) {
+
+    if (!isButtonElement(element)) {
       return;
     }
 
@@ -175,6 +177,12 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     getButtonProps,
     buttonRef,
   };
+}
+
+function isButtonElement(
+  elem: HTMLButtonElement | HTMLAnchorElement | HTMLElement | null,
+): elem is HTMLButtonElement {
+  return isHTMLElement(elem) && elem.tagName === 'BUTTON';
 }
 
 interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {

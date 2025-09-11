@@ -5,7 +5,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
-import { collapsibleStyleHookMapping } from './styleHooks';
+import { collapsibleStateAttributesMapping } from './stateAttributesMapping';
 import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
@@ -60,7 +60,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: collapsibleStyleHookMapping,
+    stateAttributesMapping: collapsibleStateAttributesMapping,
   });
 
   if (componentProps.render !== null) {

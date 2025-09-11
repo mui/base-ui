@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
 import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
 import { CollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
@@ -11,7 +12,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import type { AccordionRoot } from '../root/AccordionRoot';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
-import { accordionStyleHookMapping } from './styleHooks';
+import { accordionStateAttributesMapping } from './stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
@@ -44,7 +45,9 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     value: openValues,
   } = useAccordionRootContext();
 
-  const value = valueProp ?? index;
+  const fallbackValue = useBaseUiId();
+
+  const value = valueProp ?? fallbackValue;
 
   const disabled = disabledProp || contextDisabled;
 
@@ -125,7 +128,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     state,
     ref: mergedRef,
     props: elementProps,
-    customStyleHookMapping: accordionStyleHookMapping,
+    stateAttributesMapping: accordionStateAttributesMapping,
   });
 
   return (
@@ -148,6 +151,19 @@ export namespace AccordionItem {
   export interface Props
     extends BaseUIComponentProps<'div', State>,
       Partial<Pick<useCollapsibleRoot.Parameters, 'disabled'>> {
+    /**
+     * A unique value that identifies this accordion item.
+     * If no value is provided, a unique ID will be generated automatically.
+     * Use when controlling the accordion programmatically, or to set an initial
+     * open state.
+     * @example
+     * ```tsx
+     * <Accordion.Root value={['a']}>
+     *   <Accordion.Item value="a" /> // initially open
+     *   <Accordion.Item value="b" /> // initially closed
+     * </Accordion.Root>
+     * ```
+     */
     value?: AccordionItemValue;
     /**
      * Event handler called when the panel is opened or closed.

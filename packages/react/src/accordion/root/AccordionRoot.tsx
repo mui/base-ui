@@ -14,7 +14,7 @@ import {
   type BaseUIEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 
-const rootStyleHookMapping = {
+const rootStateAttributesMapping = {
   value: () => null,
 };
 
@@ -152,7 +152,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
       },
       elementProps,
     ],
-    customStyleHookMapping: rootStyleHookMapping,
+    stateAttributesMapping: rootStateAttributesMapping,
   });
 
   return (

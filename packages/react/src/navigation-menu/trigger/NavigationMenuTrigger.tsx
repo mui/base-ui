@@ -433,7 +433,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         render={render}
         className={className}
         state={state}
-        customStyleHookMapping={pressableTriggerOpenStateMapping}
+        stateAttributesMapping={pressableTriggerOpenStateMapping}
         refs={[forwardedRef, setTriggerElement, buttonRef]}
         props={[getReferenceProps, defaultProps, elementProps, getButtonProps]}
       />

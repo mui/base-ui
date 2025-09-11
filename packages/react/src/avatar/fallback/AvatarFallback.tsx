@@ -5,7 +5,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRoot } from '../root/AvatarRoot';
-import { avatarStyleHookMapping } from '../root/styleHooks';
+import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
 
 /**
  * Rendered when the image fails to load or when no image is provided.
@@ -41,7 +41,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: avatarStyleHookMapping,
+    stateAttributesMapping: avatarStateAttributesMapping,
     enabled: imageLoadingStatus !== 'loaded' && delayPassed,
   });
 

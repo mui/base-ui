@@ -10,7 +10,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
-import { itemMapping } from '../utils/styleHookMapping';
+import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -70,7 +70,7 @@ const InnerMenuCheckboxItem = React.memo(
 
     const element = useRenderElement('div', componentProps, {
       state,
-      customStyleHookMapping: itemMapping,
+      stateAttributesMapping: itemMapping,
       props: [
         itemProps,
         {
