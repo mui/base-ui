@@ -138,9 +138,13 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
-          store.state.setOpen(!open, createBaseUIEventDetails('trigger-press', event.nativeEvent));
+          const nextOpen = !open;
+          store.state.setOpen(
+            nextOpen,
+            createBaseUIEventDetails('trigger-press', event.nativeEvent),
+          );
 
-          if (currentPointerTypeRef.current !== 'touch') {
+          if (nextOpen && currentPointerTypeRef.current !== 'touch') {
             store.state.inputRef.current?.focus();
           }
         },
