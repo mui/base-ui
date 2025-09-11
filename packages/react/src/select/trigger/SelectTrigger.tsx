@@ -159,12 +159,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       onPointerDown({ pointerType }) {
         store.set('touchModality', pointerType === 'touch');
       },
-      onKeyDown(event) {
+      onKeyDown() {
         keyboardActiveRef.current = true;
-
-        if (event.key === 'ArrowDown') {
-          setOpen(true, createBaseUIEventDetails('list-navigation', event.nativeEvent));
-        }
       },
       onMouseDown(event) {
         if (open) {
