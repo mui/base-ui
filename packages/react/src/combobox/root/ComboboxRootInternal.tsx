@@ -74,7 +74,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     defaultSelectedValue = null,
     selectedValue: selectedValueProp,
     onSelectedValueChange,
-    defaultInputValue = '',
+    defaultInputValue: defaultInputValueProp,
     inputValue: inputValueProp,
     selectionMode = 'none',
     onItemHighlighted: onItemHighlightedProp,
@@ -155,9 +155,23 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     itemToStringLabel,
   ]);
 
+  // If neither inputValue nor defaultInputValue are provided, derive it from the
+  // selected value for single mode so the input reflects the selection on mount.
+  const initialDefaultInputValue = useRefWithInit<React.ComponentProps<'input'>['defaultValue']>(
+    () => {
+      if (inputValueProp !== undefined || defaultInputValueProp !== undefined) {
+        return defaultInputValueProp ?? '';
+      }
+      if (selectionMode === 'single') {
+        return stringifyItem(selectedValue, itemToStringLabel);
+      }
+      return '';
+    },
+  ).current;
+
   const [inputValue, setInputValueUnwrapped] = useControlled({
     controlled: inputValueProp,
-    default: defaultInputValue,
+    default: initialDefaultInputValue,
     name: 'Combobox',
     state: 'value',
   });
@@ -449,7 +463,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   ]);
 
   useValueChanged(queryRef, query, () => {
-    if (!open || query === '' || query === String(defaultInputValue)) {
+    if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
     }
     setQueryChangedAfterOpen(true);
