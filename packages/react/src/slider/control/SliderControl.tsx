@@ -12,7 +12,7 @@ import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useSliderRootContext } from '../root/SliderRootContext';
-import { sliderStyleHookMapping } from '../root/styleHooks';
+import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRoot } from '../root/SliderRoot';
 import { getMidpoint } from '../utils/getMidpoint';
 import { replaceArrayItemAtIndex } from '../utils/replaceArrayItemAtIndex';
@@ -422,7 +422,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       },
       elementProps,
     ],
-    customStyleHookMapping: sliderStyleHookMapping,
+    stateAttributesMapping: sliderStateAttributesMapping,
   });
 
   return element;

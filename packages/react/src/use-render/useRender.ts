@@ -2,7 +2,7 @@ import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { HTMLProps } from '../utils/types';
 import { useRenderElement } from '../utils/useRenderElement';
-import { StateAttributesMapping } from '../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../utils/getStateAttributesProps';
 
 /**
  * Renders a Base UI element.
@@ -16,13 +16,7 @@ export function useRender<
 >(
   params: useRender.Parameters<State, RenderedElementType, Enabled>,
 ): useRender.ReturnValue<Enabled> {
-  const renderParams = params as useRender.Parameters<State, RenderedElementType, Enabled> & {
-    customStyleHookMapping?: StateAttributesMapping<State>;
-  };
-
-  renderParams.customStyleHookMapping = renderParams.stateAttributesMapping;
-
-  return useRenderElement(renderParams.defaultTagName ?? 'div', renderParams, renderParams);
+  return useRenderElement(params.defaultTagName ?? 'div', params, params);
 }
 
 export namespace useRender {

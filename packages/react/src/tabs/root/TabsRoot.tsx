@@ -8,7 +8,7 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { TabsRootContext } from './TabsRootContext';
-import { tabsStyleHookMapping } from './styleHooks';
+import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
 import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -185,7 +185,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: tabsStyleHookMapping,
+    stateAttributesMapping: tabsStateAttributesMapping,
   });
 
   return (
