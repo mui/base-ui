@@ -110,8 +110,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(root).to.have.attribute('aria-labelledby', 'labelId');
 
       expect(slider).to.have.attribute('aria-valuenow', '30');
-      expect(slider).to.have.attribute('aria-valuemin', '0');
-      expect(slider).to.have.attribute('aria-valuemax', '100');
       expect(slider).to.have.attribute('aria-orientation', 'horizontal');
       expect(slider).to.have.attribute('aria-labelledby', 'labelId');
       expect(slider).to.have.attribute('step', '1');
@@ -455,9 +453,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   });
 
   describe('prop: max', () => {
-    it('should set the max and aria-valuemax on the input', async () => {
+    it('sets the max attribute on the input', async () => {
       await render(<TestSlider defaultValue={150} step={100} max={750} />);
-      expect(screen.getByRole('slider')).to.have.attribute('aria-valuemax', '750');
       expect(screen.getByRole('slider')).to.have.attribute('max', '750');
     });
 
@@ -524,9 +521,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   });
 
   describe('prop: min', () => {
-    it('should set the min and aria-valuemin on the input', async () => {
-      await render(<TestSlider defaultValue={150} step={100} min={150} />);
-      expect(screen.getByRole('slider')).to.have.attribute('aria-valuemin', '150');
+    it('sets the min attribute on the input', async () => {
+      await render(<TestSlider defaultValue={150} step={100} min={150} max={200} />);
       expect(screen.getByRole('slider')).to.have.attribute('min', '150');
     });
 
