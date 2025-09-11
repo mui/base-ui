@@ -10,7 +10,7 @@ import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
 import { BaseUIEventDetails, createBaseUIEventDetails } from '../utils/createBaseUIEventDetails';
 
-const customStyleHookMapping = {
+const stateAttributesMapping = {
   multiple(value: boolean) {
     if (value) {
       return { [ToggleGroupDataAttributes.multiple]: '' } as Record<string, string>;
@@ -109,7 +109,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     state,
     ref: forwardedRef,
     props: [defaultProps, elementProps],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (
@@ -123,7 +123,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
           state={state}
           refs={[forwardedRef]}
           props={[defaultProps, elementProps]}
-          customStyleHookMapping={customStyleHookMapping}
+          stateAttributesMapping={stateAttributesMapping}
           loop={loop}
           stopEventPropagation
         />

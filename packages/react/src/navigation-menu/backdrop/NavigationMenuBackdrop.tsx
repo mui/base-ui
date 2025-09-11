@@ -4,11 +4,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<NavigationMenuBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<NavigationMenuBackdrop.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -49,7 +49,7 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
       },
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;
