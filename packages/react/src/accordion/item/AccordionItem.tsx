@@ -13,6 +13,7 @@ import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStyleHookMapping } from './styleHooks';
 import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups an accordion header with the corresponding panel.
@@ -146,7 +147,14 @@ export namespace AccordionItem {
 
   export interface Props
     extends BaseUIComponentProps<'div', State>,
-      Partial<Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'>> {
+      Partial<Pick<useCollapsibleRoot.Parameters, 'disabled'>> {
     value?: AccordionItemValue;
+    /**
+     * Event handler called when the panel is opened or closed.
+     */
+    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
   }
+
+  export type ChangeEventReason = 'trigger-press' | 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }
