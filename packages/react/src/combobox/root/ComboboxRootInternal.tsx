@@ -27,6 +27,7 @@ import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
   ComboboxRootContext,
+  ComboboxInputValueContext,
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
@@ -74,7 +75,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     defaultSelectedValue = null,
     selectedValue: selectedValueProp,
     onSelectedValueChange,
-    defaultInputValue = '',
+    defaultInputValue: defaultInputValueProp,
     inputValue: inputValueProp,
     selectionMode = 'none',
     onItemHighlighted: onItemHighlightedProp,
@@ -155,9 +156,23 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     itemToStringLabel,
   ]);
 
+  // If neither inputValue nor defaultInputValue are provided, derive it from the
+  // selected value for single mode so the input reflects the selection on mount.
+  const initialDefaultInputValue = useRefWithInit<React.ComponentProps<'input'>['defaultValue']>(
+    () => {
+      if (inputValueProp !== undefined || defaultInputValueProp !== undefined) {
+        return defaultInputValueProp ?? '';
+      }
+      if (selectionMode === 'single') {
+        return stringifyItem(selectedValue, itemToStringLabel);
+      }
+      return '';
+    },
+  ).current;
+
   const [inputValue, setInputValueUnwrapped] = useControlled({
     controlled: inputValueProp,
-    default: defaultInputValue,
+    default: initialDefaultInputValue,
     name: 'Combobox',
     state: 'value',
   });
@@ -247,6 +262,8 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
     return filteredItems as Value[];
   }, [filteredItems, isGrouped]);
+
+  const hasItems = items !== undefined;
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
@@ -447,7 +464,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   ]);
 
   useValueChanged(queryRef, query, () => {
-    if (!open || query === '' || query === String(defaultInputValue)) {
+    if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
     }
     setQueryChangedAfterOpen(true);
@@ -539,8 +556,16 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         if (hasQuery) {
           setQueryChangedAfterOpen(true);
         }
-        if (selectionMode === 'none' && autoHighlight) {
-          setIndices({ activeIndex: hasQuery ? 0 : null });
+
+        // Avoid out-of-range indices when the visible list becomes smaller.
+        if (hasQuery) {
+          if (autoHighlight) {
+            setIndices({ activeIndex: 0, selectedIndex: null });
+          } else {
+            setIndices({ selectedIndex: null });
+          }
+        } else if (autoHighlight) {
+          setIndices({ activeIndex: null });
         }
       }
 
@@ -707,6 +732,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   });
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+
+  // Ensures that the active index is not set to 0 when the list is empty.
+  // This avoids needing to press ArrowDown twice under certain conditions.
+  React.useEffect(() => {
+    if (hasItems && autoHighlight && flatFilteredItems.length === 0) {
+      setIndices({ activeIndex: null });
+    }
+  }, [hasItems, autoHighlight, flatFilteredItems.length, setIndices]);
 
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
@@ -1027,13 +1060,15 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     <ComboboxRootContext.Provider value={store}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
         <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
-          {virtualized ? (
-            children
-          ) : (
-            <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
-              {children}
-            </CompositeList>
-          )}
+          <ComboboxInputValueContext.Provider value={inputValue}>
+            {virtualized ? (
+              children
+            ) : (
+              <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
+                {children}
+              </CompositeList>
+            )}
+          </ComboboxInputValueContext.Provider>
         </ComboboxDerivedItemsContext.Provider>
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
@@ -1096,7 +1131,7 @@ interface ComboboxRootProps<ItemValue> {
    */
   openOnInputClick?: boolean;
   /**
-   * Whether to automatically highlight the first item when the popup opens.
+   * Whether to automatically highlight the first item while filtering.
    * @default false
    */
   autoHighlight?: boolean;
