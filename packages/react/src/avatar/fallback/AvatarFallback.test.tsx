@@ -68,7 +68,7 @@ describe('<Avatar.Fallback />', () => {
 
       clock.tick(100);
 
-      expect(queryByText('AC')).to.not.equal(null);
+      expect(queryByText('AC')).not.to.equal(null);
     });
   });
 });

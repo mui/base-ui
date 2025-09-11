@@ -749,7 +749,7 @@ describe('<Select.Root />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(expect(document.activeElement)).to.not.equal(trigger);
+      expect(expect(document.activeElement)).not.to.equal(trigger);
 
       await user.click(trigger);
       expect(handleOpenChange.callCount).to.equal(0);
@@ -786,7 +786,7 @@ describe('<Select.Root />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(expect(document.activeElement)).to.not.equal(trigger);
+      expect(expect(document.activeElement)).not.to.equal(trigger);
 
       await user.click(trigger);
       expect(handleOpenChange.callCount).to.equal(0);
