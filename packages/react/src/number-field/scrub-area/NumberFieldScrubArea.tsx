@@ -258,9 +258,11 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
         } catch (error) {
           setIsPointerLockDenied(true);
         } finally {
-          ReactDOM.flushSync(() => {
-            onScrubbingChange(true, event.nativeEvent);
-          });
+          if (isScrubbingRef.current) {
+            ReactDOM.flushSync(() => {
+              onScrubbingChange(true, event.nativeEvent);
+            });
+          }
         }
       }
     },
