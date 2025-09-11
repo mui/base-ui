@@ -643,6 +643,11 @@ describe('<Menubar />', () => {
       // Trigger should be disabled
       expect(fileTrigger).to.have.attribute('disabled');
 
+      // It should not be reachable via Tab
+      await user.tab();
+      expect(fileTrigger).not.toHaveFocus();
+      expect(document.body).toHaveFocus();
+
       // Clicking should not open the menu
       await user.click(fileTrigger);
       expect(screen.queryByTestId('file-menu')).to.equal(null);
