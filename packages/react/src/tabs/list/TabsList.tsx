@@ -4,7 +4,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { tabsStyleHookMapping } from '../root/styleHooks';
+import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRoot } from '../root/TabsRoot';
 import type { TabsTab } from '../tab/TabsTab';
@@ -97,7 +97,7 @@ export const TabsList = React.forwardRef(function TabsList(
         state={state}
         refs={[forwardedRef, tabsListRef]}
         props={[defaultProps, elementProps]}
-        customStyleHookMapping={tabsStyleHookMapping}
+        stateAttributesMapping={tabsStateAttributesMapping}
         highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
         loop={loop}

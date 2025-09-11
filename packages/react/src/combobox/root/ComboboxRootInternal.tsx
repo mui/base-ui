@@ -27,6 +27,7 @@ import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
   ComboboxRootContext,
+  ComboboxInputValueContext,
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
@@ -74,7 +75,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     defaultSelectedValue = null,
     selectedValue: selectedValueProp,
     onSelectedValueChange,
-    defaultInputValue = '',
+    defaultInputValue: defaultInputValueProp,
     inputValue: inputValueProp,
     selectionMode = 'none',
     onItemHighlighted: onItemHighlightedProp,
@@ -155,9 +156,23 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     itemToStringLabel,
   ]);
 
+  // If neither inputValue nor defaultInputValue are provided, derive it from the
+  // selected value for single mode so the input reflects the selection on mount.
+  const initialDefaultInputValue = useRefWithInit<React.ComponentProps<'input'>['defaultValue']>(
+    () => {
+      if (inputValueProp !== undefined || defaultInputValueProp !== undefined) {
+        return defaultInputValueProp ?? '';
+      }
+      if (selectionMode === 'single') {
+        return stringifyItem(selectedValue, itemToStringLabel);
+      }
+      return '';
+    },
+  ).current;
+
   const [inputValue, setInputValueUnwrapped] = useControlled({
     controlled: inputValueProp,
-    default: defaultInputValue,
+    default: initialDefaultInputValue,
     name: 'Combobox',
     state: 'value',
   });
@@ -449,7 +464,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   ]);
 
   useValueChanged(queryRef, query, () => {
-    if (!open || query === '' || query === String(defaultInputValue)) {
+    if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
     }
     setQueryChangedAfterOpen(true);
@@ -1046,13 +1061,15 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     <ComboboxRootContext.Provider value={store}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
         <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
-          {virtualized ? (
-            children
-          ) : (
-            <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
-              {children}
-            </CompositeList>
-          )}
+          <ComboboxInputValueContext.Provider value={inputValue}>
+            {virtualized ? (
+              children
+            ) : (
+              <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
+                {children}
+              </CompositeList>
+            )}
+          </ComboboxInputValueContext.Provider>
         </ComboboxDerivedItemsContext.Provider>
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>

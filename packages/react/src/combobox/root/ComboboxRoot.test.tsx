@@ -1146,6 +1146,73 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  describe('initial input value derivation', () => {
+    it('derives input from defaultValue on first mount when unspecified', async () => {
+      await render(
+        <Combobox.Root defaultValue="apple">
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).to.have.value('apple');
+    });
+
+    it('derives input from defaultValue on first mount with items prop', async () => {
+      const items = [{ value: 'apple', label: 'Apple' }];
+      await render(
+        <Combobox.Root items={items} defaultValue={items[0]}>
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).to.have.value('Apple');
+    });
+
+    it('derives input from controlled value on first mount when unspecified', async () => {
+      await render(
+        <Combobox.Root value="banana">
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).to.have.value('banana');
+    });
+
+    it('defaultInputValue overrides derivation when provided', async () => {
+      await render(
+        <Combobox.Root defaultValue="apple" defaultInputValue="x">
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).to.have.value('x');
+    });
+
+    it('inputValue overrides derivation when provided', async () => {
+      await render(
+        <Combobox.Root value="apple" inputValue="x">
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).to.have.value('x');
+    });
+
+    it('multiple mode initial input remains empty', async () => {
+      const items = [
+        { value: 'a', label: 'A' },
+        { value: 'b', label: 'B' },
+      ];
+      await render(
+        <Combobox.Root multiple items={items}>
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).to.have.value('');
+    });
+  });
+
   describe('prop: cols', () => {
     it('sets grid roles when cols > 1 and rows are used', async () => {
       await render(
