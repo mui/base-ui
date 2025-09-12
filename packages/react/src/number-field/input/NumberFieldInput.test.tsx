@@ -619,6 +619,29 @@ describe('<NumberField.Input />', () => {
     // Without explicit precision formatting, the behavior depends on the step
     // The current implementation preserves full precision until it differs from canonical
     expect(input).to.have.value((1.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
-    expect(onValueChange.callCount).to.equal(callCountBeforeBlur);
+    expect(onValueChange.callCount).to.equal(callCountBeforeBlur + 1);
+  });
+
+  it('commits parsed value on blur and normalizes display for fr-FR', async () => {
+    const onValueChange = spy();
+
+    await render(
+      <NumberField.Root locale="fr-FR" onValueChange={onValueChange}>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+
+    fireEvent.change(input, { target: { value: '1234,5' } });
+    expect(input).to.have.value('1234,5');
+
+    fireEvent.blur(input);
+
+    expect(onValueChange.callCount).to.equal(1);
+    expect(onValueChange.firstCall.args[0]).to.equal(1234.5);
+
+    expect(input.value).to.equal((1234.5).toLocaleString('fr-FR'));
   });
 });
