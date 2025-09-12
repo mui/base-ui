@@ -13,7 +13,7 @@ import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getNumberLocaleDetails, PERCENTAGES } from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
@@ -458,7 +458,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     ref: forwardedRef,
     state,
     props: elementProps,
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping,
   });
 
   return (

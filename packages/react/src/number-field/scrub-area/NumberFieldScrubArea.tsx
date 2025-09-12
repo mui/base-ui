@@ -8,7 +8,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getViewportRect } from '../utils/getViewportRect';
@@ -271,9 +271,11 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
         } catch (error) {
           setIsPointerLockDenied(true);
         } finally {
-          ReactDOM.flushSync(() => {
-            onScrubbingChange(true, event.nativeEvent);
-          });
+          if (isScrubbingRef.current) {
+            ReactDOM.flushSync(() => {
+              onScrubbingChange(true, event.nativeEvent);
+            });
+          }
         }
       }
     },
@@ -283,7 +285,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     ref: [forwardedRef, scrubAreaRef],
     state,
     props: [defaultProps, elementProps],
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping,
   });
 
   const contextValue: NumberFieldScrubAreaContext = React.useMemo(
