@@ -35,6 +35,41 @@ describe('<Combobox.Root />', () => {
     combobox: true,
   });
 
+  it('does not focus input when closing via trigger click (input inside popup)', async () => {
+    const { user } = await render(
+      <Combobox.Root items={['One', 'Two', 'Three']}>
+        <Combobox.Trigger data-testid="trigger">
+          <Combobox.Value />
+        </Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup aria-label="Demo">
+              <Combobox.Input data-testid="input" />
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    await user.click(trigger);
+
+    expect(await screen.findByRole('listbox')).not.to.equal(null);
+
+    const input = await screen.findByRole('combobox');
+    expect(input).toHaveFocus();
+
+    await user.click(trigger);
+    expect(trigger).toHaveFocus();
+  });
+
   describe('selection behavior', () => {
     describe('single', () => {
       it('should auto-close popup after selection when open state is uncontrolled', async () => {
