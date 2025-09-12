@@ -7,7 +7,15 @@ import { useAnimationsFinished } from './useAnimationsFinished';
  * Allows the element to automatically resize based on its content while supporting animations.
  */
 export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
-  const { popupElement, positionerElement, open, content, enabled = true } = parameters;
+  const {
+    popupElement,
+    positionerElement,
+    open,
+    content,
+    enabled = true,
+    onMeasureLayout,
+    onMeasureLayoutComplete,
+  } = parameters;
 
   const isInitialRender = React.useRef(true);
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true);
@@ -27,29 +35,33 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     }
 
     const observer = new ResizeObserver((entries) => {
-      // We only care about the first (and only) observed element.
       const entry = entries[0];
       if (entry) {
-        previousDimensionsRef.current = {
-          width: entry.borderBoxSize[0].inlineSize,
-          height: entry.borderBoxSize[0].blockSize,
-        };
+        if (previousDimensionsRef.current === null) {
+          previousDimensionsRef.current = {
+            width: entry.borderBoxSize[0].inlineSize,
+            height: entry.borderBoxSize[0].blockSize,
+          };
+        } else {
+          previousDimensionsRef.current.width = entry.borderBoxSize[0].inlineSize;
+          previousDimensionsRef.current.height = entry.borderBoxSize[0].blockSize;
+        }
       }
     });
 
-    // Start observing the element.
     observer.observe(popupElement);
 
-    const originalPositionProperty = popupElement.style.getPropertyValue('position');
-    const originalTransformProperty = popupElement.style.getPropertyValue('transform');
+    // Measure the rendered size to enable transitions:
+
+    popupElement.style.setProperty('--popup-width', 'auto');
+    popupElement.style.setProperty('--popup-height', 'auto');
+
+    const restorePopupPosition = overrideElementStyle(popupElement, 'position', 'static');
+    const restorePopupTransform = overrideElementStyle(popupElement, 'transform', 'none');
+    onMeasureLayout?.();
 
     // Initial render (for each time the popup opens).
     if (isInitialRender.current || previousDimensionsRef.current === null) {
-      popupElement.style.setProperty('--popup-width', 'auto');
-      popupElement.style.setProperty('--popup-height', 'auto');
-      popupElement.style.setProperty('transform', 'none');
-      popupElement.style.setProperty('position', 'static');
-
       positionerElement.style.setProperty('--positioner-width', 'auto');
       positionerElement.style.setProperty('--positioner-height', 'auto');
 
@@ -57,39 +69,32 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
 
       positionerElement.style.setProperty('--positioner-width', `${dimensions.width}px`);
       positionerElement.style.setProperty('--positioner-height', `${dimensions.height}px`);
-
-      if (originalPositionProperty) {
-        popupElement.style.setProperty('position', originalPositionProperty);
-      } else {
-        popupElement.style.removeProperty('position');
-      }
-
-      if (originalTransformProperty) {
-        popupElement.style.setProperty('transform', originalTransformProperty);
-      } else {
-        popupElement.style.removeProperty('transform');
-      }
+      restorePopupPosition();
+      restorePopupTransform();
+      onMeasureLayoutComplete?.();
 
       isInitialRender.current = false;
-      return undefined;
+
+      return () => {
+        observer.disconnect();
+      };
     }
 
     // Subsequent renders while open (when `content` changes).
     popupElement.style.setProperty('--popup-width', 'auto');
     popupElement.style.setProperty('--popup-height', 'auto');
-    popupElement.style.setProperty('position', 'static');
     positionerElement.style.removeProperty('--positioner-width');
     positionerElement.style.removeProperty('--positioner-height');
 
-    const newDimensions = popupElement.getBoundingClientRect();
+    const newDimensions = positionerElement.getBoundingClientRect();
+
+    // console.log(positionerElement.outerHTML);
 
     popupElement.style.setProperty('--popup-width', `${previousDimensionsRef.current.width}px`);
     popupElement.style.setProperty('--popup-height', `${previousDimensionsRef.current.height}px`);
-    if (originalPositionProperty) {
-      popupElement.style.setProperty('position', originalPositionProperty);
-    } else {
-      popupElement.style.removeProperty('position');
-    }
+    restorePopupPosition();
+    restorePopupTransform();
+    onMeasureLayoutComplete?.();
 
     positionerElement.style.setProperty('--positioner-width', `${newDimensions.width}px`);
     positionerElement.style.setProperty('--positioner-height', `${newDimensions.height}px`);
@@ -119,6 +124,8 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     runOnceAnimationsFinish,
     animationFrame,
     enabled,
+    onMeasureLayout,
+    onMeasureLayoutComplete,
   ]);
 }
 
@@ -144,4 +151,15 @@ interface UsePopupAutoResizeParameters {
    * Whether the auto-resize is enabled.
    */
   enabled?: boolean;
+  onMeasureLayout?: () => void;
+  onMeasureLayoutComplete?: () => void;
+}
+
+function overrideElementStyle(element: HTMLElement, property: string, value: string) {
+  const originalValue = element.style.getPropertyValue(property);
+  element.style.setProperty(property, value);
+
+  return () => {
+    element.style.setProperty(property, originalValue);
+  };
 }

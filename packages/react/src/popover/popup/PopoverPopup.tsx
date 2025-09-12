@@ -56,6 +56,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const triggers = useStore(store, selectors.triggers);
   const payload = useStore(store, selectors.payload);
   const positionerElement = useStore(store, selectors.positionerElement);
+  const floatingContext = useStore(store, selectors.floatingRootContext);
 
   useOpenChangeComplete({
     open,
@@ -97,12 +98,22 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     [store],
   );
 
+  const handleMeasureLayout = useEventCallback(() => {
+    floatingContext.events.emit('measure-layout');
+  });
+
+  const handleMeasureLayoutComplete = useEventCallback(() => {
+    floatingContext.events.emit('measure-layout-complete');
+  });
+
   usePopupAutoResize({
     popupElement,
     positionerElement,
     open,
     content: payload,
     enabled: triggers.size > 1,
+    onMeasureLayout: handleMeasureLayout,
+    onMeasureLayoutComplete: handleMeasureLayoutComplete,
   });
 
   // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
