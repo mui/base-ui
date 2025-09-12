@@ -149,11 +149,18 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
     const keys = new Set(['.', ',', decimal, group, FULLWIDTH_DECIMAL, FULLWIDTH_GROUP]);
 
+    // If the locale's group separator is a space-like character (e.g. NBSP, NNBSP),
+    // also allow a regular space from the keyboard.
+    if (group && /\p{Zs}/u.test(group)) {
+      keys.add(' ');
+    }
+
     if (formatStyle === 'percent') {
       PERCENTAGES.forEach((key) => keys.add(key));
     }
     // Permille is supported by the parser regardless of format style
     PERMILLE.forEach((key) => keys.add(key));
+
     if (formatStyle === 'currency' && currency) {
       keys.add(currency);
     }

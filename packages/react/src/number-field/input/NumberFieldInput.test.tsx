@@ -160,6 +160,29 @@ describe('<NumberField.Input />', () => {
     expect(dispatchKey('.')).to.equal(true);
   });
 
+  it('allows space key when locale uses space-like grouping (pl-PL)', async () => {
+    await render(
+      <NumberField.Root locale="pl-PL">
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    const dispatchKey = (key: string) => {
+      const evt = new window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      return input.dispatchEvent(evt);
+    };
+
+    // pl-PL grouping is a space-like character; typing plain space from keyboard should be allowed
+    expect(dispatchKey(' ')).to.equal(true);
+
+    // Simulate a typical user value using a regular space as group
+    fireEvent.change(input, { target: { value: '1 234' } });
+    expect(input).to.have.value('1 234');
+  });
+
   it('commits formatted value only on blur', async () => {
     await render(
       <NumberField.Root>
