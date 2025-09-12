@@ -74,6 +74,7 @@ describe('<Combobox.Root />', () => {
         expect(onOpenChange.callCount).to.equal(1);
         expect(onOpenChange.lastCall.args[0]).to.equal(false);
         expect(onOpenChange.lastCall.args[1].reason).to.equal('item-press');
+        expect(onOpenChange.lastCall.args[1].event instanceof MouseEvent).to.equal(true);
       });
 
       it('fires onOpenChange once with reason item-press on Enter selection', async () => {
@@ -114,6 +115,7 @@ describe('<Combobox.Root />', () => {
         expect(onOpenChange.callCount).to.equal(1);
         expect(onOpenChange.lastCall.args[0]).to.equal(false);
         expect(onOpenChange.lastCall.args[1].reason).to.equal('item-press');
+        expect(onOpenChange.lastCall.args[1].event instanceof KeyboardEvent).to.equal(true);
       });
 
       it('should auto-close popup after selection when open state is uncontrolled', async () => {
@@ -556,6 +558,47 @@ describe('<Combobox.Root />', () => {
 
       await waitFor(() => {
         expect(input).to.have.value('cherry');
+      });
+    });
+
+    it('Enter selects when focus is on Listbox', async () => {
+      const items = ['apple', 'banana', 'cherry'];
+
+      const { user } = await render(
+        <Combobox.Root items={items}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List data-testid="listbox">
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+
+      const listbox = screen.getByTestId('listbox');
+      await user.click(listbox);
+      expect(listbox).toHaveFocus();
+
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(input).to.have.value('apple');
       });
     });
 

@@ -71,7 +71,7 @@ describe('<Combobox.Item />', () => {
       expect(handleClick.callCount).to.equal(1);
     });
 
-    it('calls onClick when selected with Enter key', async () => {
+    it('does not call onClick when selected with Enter key (handled by root)', async () => {
       const handleClick = spy();
       const { user } = await render(
         <Combobox.Root items={['one', 'two']} openOnInputClick>
@@ -99,7 +99,7 @@ describe('<Combobox.Item />', () => {
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{Enter}');
 
-      expect(handleClick.callCount).to.equal(1);
+      expect(handleClick.callCount).to.equal(0);
     });
   });
 
