@@ -53,7 +53,6 @@ export const SelectItem = React.memo(
       selectionRef,
       typingRef,
       valuesRef,
-      registerItemIndex,
       keyboardActiveRef,
       multiple,
     } = useSelectRootContext();
@@ -67,6 +66,7 @@ export const SelectItem = React.memo(
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(listItem.index);
+    const hasSetSelectedIndexRef = React.useRef(false);
 
     const hasRegistered = listItem.index !== -1;
 
@@ -81,20 +81,22 @@ export const SelectItem = React.memo(
       return () => {
         delete values[listItem.index];
       };
-    }, [hasRegistered, listItem.index, value, valuesRef]);
+    }, [hasRegistered, listItem.index, value, valuesRef, multiple, store]);
 
     useIsoLayoutEffect(() => {
-      if (hasRegistered) {
-        if (multiple) {
-          const isValueSelected = Array.isArray(rootValue) && rootValue.includes(value);
-          if (isValueSelected) {
-            registerItemIndex(listItem.index);
-          }
-        } else if (value === rootValue) {
-          registerItemIndex(listItem.index);
-        }
+      if (!hasRegistered || hasSetSelectedIndexRef.current) {
+        return;
       }
-    }, [hasRegistered, listItem.index, registerItemIndex, value, rootValue, multiple]);
+
+      const lastSelectedValue = Array.isArray(rootValue)
+        ? rootValue[rootValue.length - 1]
+        : rootValue;
+
+      if (lastSelectedValue != null && lastSelectedValue === value) {
+        store.set('selectedIndex', listItem.index);
+        hasSetSelectedIndexRef.current = true;
+      }
+    }, [hasRegistered, listItem.index, rootValue, value, store]);
 
     const state: SelectItem.State = React.useMemo(
       () => ({
