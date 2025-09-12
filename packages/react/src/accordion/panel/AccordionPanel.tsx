@@ -9,7 +9,7 @@ import { useAccordionRootContext } from '../root/AccordionRootContext';
 import type { AccordionRoot } from '../root/AccordionRoot';
 import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
-import { accordionStyleHookMapping } from '../item/styleHooks';
+import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -153,7 +153,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
       },
       elementProps,
     ],
-    customStyleHookMapping: accordionStyleHookMapping,
+    stateAttributesMapping: accordionStateAttributesMapping,
   });
 
   const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);

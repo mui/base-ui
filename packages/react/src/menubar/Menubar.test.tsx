@@ -634,6 +634,26 @@ describe('<Menubar />', () => {
     });
   });
 
+  describe('prop: disabled', () => {
+    it('disables child menus when menubar is disabled', async () => {
+      const { user } = await render(<TestMenubar disabled />);
+
+      const fileTrigger = screen.getByTestId('file-trigger');
+
+      // Trigger should be disabled
+      expect(fileTrigger).to.have.attribute('disabled');
+
+      // It should not be reachable via Tab
+      await user.tab();
+      expect(fileTrigger).not.toHaveFocus();
+      expect(document.body).toHaveFocus();
+
+      // Clicking should not open the menu
+      await user.click(fileTrigger);
+      expect(screen.queryByTestId('file-menu')).to.equal(null);
+    });
+  });
+
   it.skipIf(isJSDOM)(
     'correctly opens new menu on hover after clicking on its trigger and entering from hover (#2222)',
     async () => {

@@ -32,6 +32,7 @@ export const Menubar = React.forwardRef(function Menubar(
     render,
     className,
     modal = true,
+    disabled = false,
     id: idProp,
     ...elementProps
   } = props;
@@ -78,11 +79,12 @@ export const Menubar = React.forwardRef(function Menubar(
       setHasSubmenuOpen,
       hasSubmenuOpen,
       modal,
+      disabled,
       orientation,
       allowMouseUpTriggerRef,
       rootId: id,
     }),
-    [contentElement, hasSubmenuOpen, modal, orientation, id],
+    [contentElement, hasSubmenuOpen, modal, disabled, orientation, id],
   );
 
   return (

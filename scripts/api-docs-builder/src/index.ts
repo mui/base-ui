@@ -9,7 +9,7 @@ import { hideBin } from 'yargs/helpers';
 import * as tae from 'typescript-api-extractor';
 import kebabCase from 'lodash/kebabCase';
 import ts from 'typescript';
-import glob from 'fast-glob';
+import { globby } from 'globby';
 import { isPublicComponent, formatComponentData } from './componentHandler';
 import { isPublicHook, formatHookData } from './hookHandler';
 
@@ -53,7 +53,7 @@ async function run(options: RunOptions) {
 
 async function getFilesToProcess(options: RunOptions, config: TsConfig): Promise<string[]> {
   if (options.files && options.files.length > 0) {
-    const files = await glob(options.files, {
+    const files = await globby(options.files, {
       cwd: path.dirname(options.configPath),
       absolute: true,
       onlyFiles: true,
@@ -127,7 +127,7 @@ function findAllExports(program: ts.Program, sourceFiles: string[]) {
       const ast = tae.parseFromProgram(file, program);
       allExports.push(...ast.exports);
     } catch (error) {
-      console.error(`⛔ Error processing ${file}: ${error.message}`);
+      console.error(`⛔ Error processing ${file}: ${(error as Error).message}`);
       errorCounter += 1;
     } finally {
       if (!isDebug) {

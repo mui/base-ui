@@ -357,5 +357,38 @@ describe('<Combobox.Input />', () => {
       expect(input.selectionStart).to.equal(input.value.length);
       expect(input.selectionEnd).to.equal(input.value.length);
     });
+
+    it('preserves caret position when controlled and inserting in the middle', async () => {
+      function Controlled() {
+        const [value, setValue] = React.useState('');
+        return (
+          <Combobox.Root inputValue={value} onInputValueChange={setValue}>
+            <Combobox.Input />
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<Controlled />);
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.type(input, 'abcd');
+      expect(input.value).to.equal('abcd');
+
+      // Move caret left twice to position after "ab"
+      await user.keyboard('{ArrowLeft}{ArrowLeft}');
+      expect(input.selectionStart).to.equal(2);
+      expect(input.selectionEnd).to.equal(2);
+
+      await user.keyboard('xxx');
+      expect(input.value).to.equal('abxxxcd');
+      expect(input.selectionStart).to.equal(5);
+      expect(input.selectionEnd).to.equal(5);
+
+      await user.keyboard('y');
+      expect(input.value).to.equal('abxxxycd');
+      expect(input.selectionStart).to.equal(6);
+      expect(input.selectionEnd).to.equal(6);
+    });
   });
 });
