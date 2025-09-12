@@ -5,7 +5,7 @@ import { useStore } from '@base-ui-components/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CalendarDayButtonDataAttributes } from './CalendarDayButtonDataAttributes';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useButton } from '../../use-button';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
@@ -14,7 +14,7 @@ import { useCalendarDayGridCellContext } from '../day-grid-cell/SharedCalendarDa
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { selectors } from '../store';
 
-const customStyleHookMapping: CustomStyleHookMapping<CalendarDayButton.State> = {
+const stateAttributesMapping: StateAttributesMapping<CalendarDayButton.State> = {
   selected(value) {
     return value ? { [CalendarDayButtonDataAttributes.selected]: '' } : null;
   },
@@ -118,7 +118,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     state,
     ref: [buttonRef, forwardedRef],
     props: [props, elementProps, getButtonProps],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return <CompositeItem metadata={itemMetadata} render={element} />;
