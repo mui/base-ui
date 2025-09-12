@@ -48,6 +48,14 @@ export const nav: NavGroup[] = [
         href: '/react/handbook/composition',
       },
       {
+        label: 'Customization',
+        href: '/react/handbook/customization',
+      },
+      {
+        label: 'TypeScript',
+        href: '/react/handbook/typescript',
+      },
+      {
         label: 'llms.txt',
         external: true,
         href: '/llms.txt',
