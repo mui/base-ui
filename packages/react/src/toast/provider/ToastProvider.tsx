@@ -43,14 +43,6 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     }
   }
 
-  // It's not possible to stack a smaller height toast onto a larger height toast, but
-  // the reverse is possible. For simplicity, we'll enforce the expanded state if the
-  // toasts aren't all the same height.
-  const hasDifferingHeights = React.useMemo(() => {
-    const heights = toasts.map((t) => t.height).filter((h) => h !== 0);
-    return heights.length > 0 && new Set(heights).size > 1;
-  }, [toasts]);
-
   const timersRef = React.useRef(new Map<string, TimerInfo>());
   const viewportRef = React.useRef<HTMLElement | null>(null);
   const windowFocusedRef = React.useRef(true);
@@ -348,7 +340,6 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
       viewportRef,
       scheduleTimer,
       windowFocusedRef,
-      hasDifferingHeights,
     }),
     [
       add,
@@ -363,7 +354,6 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
       scheduleTimer,
       toasts,
       update,
-      hasDifferingHeights,
     ],
   ) as ToastContext<any>;
 

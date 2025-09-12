@@ -23,7 +23,6 @@ export interface ToastContextValue<Data extends object> {
   viewportRef: React.RefObject<HTMLElement | null>;
   windowFocusedRef: React.RefObject<boolean>;
   scheduleTimer: (id: string, delay: number, callback: () => void) => void;
-  hasDifferingHeights: boolean;
 }
 
 export type ToastContext<Data extends object> = ToastContextValue<Data>;

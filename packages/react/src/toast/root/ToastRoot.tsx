@@ -89,17 +89,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   const swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
 
-  const {
-    toasts,
-    hovering,
-    focused,
-    close,
-    remove,
-    setToasts,
-    pauseTimers,
-    resumeTimers,
-    hasDifferingHeights,
-  } = useToastContext();
+  const { toasts, hovering, focused, close, remove, setToasts, pauseTimers, resumeTimers } =
+    useToastContext();
 
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     'up' | 'down' | 'left' | 'right' | undefined
@@ -151,7 +142,13 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     function setHeights() {
-      const height = rootRef.current?.offsetHeight;
+      const el = rootRef.current;
+      if (!el) {
+        return;
+      }
+      el.style.height = 'auto';
+      const height = el.offsetHeight;
+      el.style.height = '';
       setToasts((prev) =>
         prev.map((t) =>
           t.id === toast.id
@@ -168,9 +165,14 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
     setHeights();
 
-    if (typeof ResizeObserver === 'function') {
-      const resizeObserver = new ResizeObserver(setHeights);
-      resizeObserver.observe(rootRef.current);
+    if (typeof MutationObserver === 'function') {
+      const resizeObserver = new MutationObserver(setHeights);
+      resizeObserver.observe(rootRef.current, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+        characterDataOldValue: true,
+      });
       return () => {
         resizeObserver.disconnect();
       };
@@ -536,7 +538,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const state: ToastRoot.State = React.useMemo(
     () => ({
       transitionStatus: toast.transitionStatus,
-      expanded: hovering || focused || hasDifferingHeights,
+      expanded: hovering || focused,
       limited: toast.limited || false,
       type: toast.type,
       swiping: toastRoot.swiping,
@@ -545,7 +547,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     [
       hovering,
       focused,
-      hasDifferingHeights,
       toast.transitionStatus,
       toast.limited,
       toast.type,
