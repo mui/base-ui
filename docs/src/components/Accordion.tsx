@@ -138,23 +138,28 @@ export function Content(props: React.ComponentProps<'div'>) {
 }
 
 /* Scroll container with an overscroll overlay graphic for overflowing content inside the trigger */
-export function Scrollable({
-  children,
-  className,
-  gradientColor = 'var(--color-content)',
-  ...props
-}: React.ComponentProps<'span'> & {
-  gradientColor?: string;
-}) {
+export function Scrollable(
+  props: React.ComponentProps<'span'> & {
+    gradientColor?: string;
+    component?: React.ElementType;
+  },
+) {
+  const {
+    children,
+    className,
+    component: Component = 'span',
+    gradientColor = 'var(--color-content)',
+    ...other
+  } = props;
   return (
-    <span
+    <Component
       ref={observeScrollableInner}
       className={clsx('AccordionScrollable', className)}
       style={{ '--scrollable-gradient-color': gradientColor } as React.CSSProperties}
-      {...props}
+      {...other}
     >
-      <span className="AccordionScrollableInner">{children}</span>
-    </span>
+      <Component className="AccordionScrollableInner">{children}</Component>
+    </Component>
   );
 }
 
