@@ -6,6 +6,7 @@ import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { isMouseLikePointerType, isTypeableElement } from '../utils';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { getEmptyContext } from './useFloatingRootContext';
 
 export interface UseClickProps {
   /**
@@ -49,8 +50,11 @@ export interface UseClickProps {
  * Opens or closes the floating element when clicking the reference element.
  * @see https://floating-ui.com/docs/useClick
  */
-export function useClick(context: FloatingRootContext, props: UseClickProps = {}): ElementProps {
-  const { open, onOpenChange, dataRef } = context;
+export function useClick(
+  context: FloatingRootContext | null,
+  props: UseClickProps = {},
+): ElementProps {
+  const { open, onOpenChange, dataRef, elements } = context ?? getEmptyContext();
   const {
     enabled = true,
     event: eventOption = 'click',
@@ -85,13 +89,16 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
 
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
-        const nextOpen = !(
-          open &&
-          toggle &&
-          (openEvent && stickIfOpen
-            ? openEventType === 'click' || openEventType === 'mousedown'
-            : true)
-        );
+        const hasClickedOnInactiveTrigger = elements.domReference !== event.currentTarget;
+        const nextOpen =
+          (open && hasClickedOnInactiveTrigger) ||
+          !(
+            open &&
+            toggle &&
+            (openEvent && stickIfOpen
+              ? openEventType === 'click' || openEventType === 'mousedown'
+              : true)
+          );
 
         // Animations sometimes won't run on a typeable element if using a rAF.
         // Focus is always set on these elements. For touch, we may delay opening.
@@ -99,10 +106,10 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
           const details = createBaseUIEventDetails('trigger-press', nativeEvent);
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
-              onOpenChange(true, details);
+              onOpenChange(true, details, nativeEvent.target as HTMLElement);
             });
           } else {
-            onOpenChange(nextOpen, details);
+            onOpenChange(nextOpen, details, nativeEvent.target as HTMLElement);
           }
           return;
         }
@@ -113,10 +120,10 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
           const details = createBaseUIEventDetails('trigger-press', nativeEvent);
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
-              onOpenChange(true, details);
+              onOpenChange(true, details, event.currentTarget as HTMLElement);
             });
           } else {
-            onOpenChange(nextOpen, details);
+            onOpenChange(nextOpen, details, event.currentTarget as HTMLElement);
           }
         });
       },
@@ -138,24 +145,27 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
 
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
-        const nextOpen = !(
-          open &&
-          toggle &&
-          (openEvent && stickIfOpen
-            ? openEventType === 'click' ||
-              openEventType === 'mousedown' ||
-              openEventType === 'keydown' ||
-              openEventType === 'keyup'
-            : true)
-        );
+        const hasClickedOnInactiveTrigger = elements.domReference !== event.currentTarget;
+        const nextOpen =
+          (open && hasClickedOnInactiveTrigger) ||
+          !(
+            open &&
+            toggle &&
+            (openEvent && stickIfOpen
+              ? openEventType === 'click' ||
+                openEventType === 'mousedown' ||
+                openEventType === 'keydown' ||
+                openEventType === 'keyup'
+              : true)
+          );
         const details = createBaseUIEventDetails('trigger-press', event.nativeEvent);
 
         if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
           touchOpenTimeout.start(touchOpenDelay, () => {
-            onOpenChange(true, details);
+            onOpenChange(true, details, event.currentTarget as HTMLElement);
           });
         } else {
-          onOpenChange(nextOpen, details);
+          onOpenChange(nextOpen, details, event.currentTarget as HTMLElement);
         }
       },
       onKeyDown() {
@@ -173,6 +183,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
       frame,
       touchOpenTimeout,
       touchOpenDelay,
+      elements.domReference,
     ],
   );
 

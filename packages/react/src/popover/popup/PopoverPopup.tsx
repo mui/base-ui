@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui-components/utils/store';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
@@ -13,7 +14,11 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
+
 import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
+import { selectors } from '../store';
+import { useDirection } from '../../direction-provider/DirectionContext';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverPopup.State> = {
   ...baseMapping,
@@ -32,21 +37,26 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 ) {
   const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const {
-    open,
-    instantType,
-    transitionStatus,
-    popupProps,
-    titleId,
-    descriptionId,
-    popupRef,
-    mounted,
-    openReason,
-    onOpenChangeComplete,
-    modal,
-    openMethod,
-  } = usePopoverRootContext();
+  const { popupRef, onOpenChangeComplete, store } = usePopoverRootContext();
+
   const positioner = usePopoverPositionerContext();
+  const direction = useDirection();
+
+  const open = useStore(store, selectors.open);
+  const openMethod = useStore(store, selectors.openMethod);
+  const instantType = useStore(store, selectors.instantType);
+  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const popupProps = useStore(store, selectors.popupProps);
+  const titleId = useStore(store, selectors.titleId);
+  const descriptionId = useStore(store, selectors.descriptionId);
+  const modal = useStore(store, selectors.modal);
+  const mounted = useStore(store, selectors.mounted);
+  const openReason = useStore(store, selectors.openReason);
+  const popupElement = useStore(store, selectors.popupElement);
+  const triggers = useStore(store, selectors.triggers);
+  const payload = useStore(store, selectors.payload);
+  const positionerElement = useStore(store, selectors.positionerElement);
+  const floatingContext = useStore(store, selectors.floatingRootContext);
 
   useOpenChangeComplete({
     open,
@@ -81,14 +91,57 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     [open, positioner.side, positioner.align, instantType, transitionStatus],
   );
 
+  const setPopupElement = React.useCallback(
+    (element: HTMLElement | null) => {
+      store.set('popupElement', element);
+    },
+    [store],
+  );
+
+  const handleMeasureLayout = useEventCallback(() => {
+    floatingContext.events.emit('measure-layout');
+  });
+
+  const handleMeasureLayoutComplete = useEventCallback(() => {
+    floatingContext.events.emit('measure-layout-complete');
+  });
+
+  usePopupAutoResize({
+    popupElement,
+    positionerElement,
+    open,
+    content: payload,
+    enabled: triggers.size > 1,
+    onMeasureLayout: handleMeasureLayout,
+    onMeasureLayoutComplete: handleMeasureLayoutComplete,
+  });
+
+  // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
+  let isOriginSide = positioner.side === 'top';
+  let isPhysicalLeft = positioner.side === 'left';
+  if (direction === 'rtl') {
+    isOriginSide = isOriginSide || positioner.side === 'inline-end';
+    isPhysicalLeft = isPhysicalLeft || positioner.side === 'inline-end';
+  } else {
+    isOriginSide = isOriginSide || positioner.side === 'inline-start';
+    isPhysicalLeft = isPhysicalLeft || positioner.side === 'inline-start';
+  }
+
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, popupRef],
+    ref: [forwardedRef, popupRef, setPopupElement],
     props: [
       popupProps,
       {
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
+        style: isOriginSide
+          ? {
+              position: 'absolute',
+              [positioner.side === 'top' ? 'bottom' : 'top']: '0',
+              [isPhysicalLeft ? 'right' : 'left']: '0',
+            }
+          : {},
       },
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,

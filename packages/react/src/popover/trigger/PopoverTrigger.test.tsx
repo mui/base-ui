@@ -86,8 +86,8 @@ describe('<Popover.Trigger />', () => {
 
     it('should have the data-popup-open but not the data-pressed attribute when open by hover', async () => {
       const { user } = await render(
-        <Popover.Root openOnHover delay={0}>
-          <Popover.Trigger />
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={0} />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup />
@@ -106,8 +106,8 @@ describe('<Popover.Trigger />', () => {
 
     it('should not have the data-popup-open and data-pressed attributes when open by click when `openOnHover=true` and `delay=0`', async () => {
       const { user } = await render(
-        <Popover.Root delay={0} openOnHover>
-          <Popover.Trigger />
+        <Popover.Root>
+          <Popover.Trigger delay={0} openOnHover />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup />
@@ -129,8 +129,8 @@ describe('<Popover.Trigger />', () => {
 
     it('should have the data-popup-open and data-pressed attributes when open by click when `openOnHover=true`', async () => {
       const { user } = await render(
-        <Popover.Root openOnHover>
-          <Popover.Trigger />
+        <Popover.Root>
+          <Popover.Trigger openOnHover />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup />
@@ -158,8 +158,8 @@ describe('<Popover.Trigger />', () => {
 
     it('does not close the popover if the user clicks too quickly', async () => {
       await renderFakeTimers(
-        <Popover.Root delay={0} openOnHover>
-          <Popover.Trigger />
+        <Popover.Root>
+          <Popover.Trigger delay={0} openOnHover />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup />
@@ -181,8 +181,8 @@ describe('<Popover.Trigger />', () => {
 
     it('closes the popover if the user clicks patiently', async () => {
       await renderFakeTimers(
-        <Popover.Root delay={0} openOnHover>
-          <Popover.Trigger />
+        <Popover.Root>
+          <Popover.Trigger delay={0} openOnHover />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup />
@@ -204,8 +204,8 @@ describe('<Popover.Trigger />', () => {
 
     it('sticks if the user clicks impatiently', async () => {
       await renderFakeTimers(
-        <Popover.Root delay={0} openOnHover>
-          <Popover.Trigger />
+        <Popover.Root>
+          <Popover.Trigger delay={0} openOnHover />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup />
@@ -232,8 +232,8 @@ describe('<Popover.Trigger />', () => {
 
     it('does not stick if the user clicks patiently', async () => {
       await renderFakeTimers(
-        <Popover.Root delay={0} openOnHover>
-          <Popover.Trigger />
+        <Popover.Root>
+          <Popover.Trigger delay={0} openOnHover />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup />
@@ -256,8 +256,10 @@ describe('<Popover.Trigger />', () => {
 
     it('should keep the popover open when re-hovered and clicked within the patient threshold', async () => {
       await render(
-        <Popover.Root openOnHover delay={100}>
-          <Popover.Trigger>Open</Popover.Trigger>
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={100}>
+            Open
+          </Popover.Trigger>
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>Content</Popover.Popup>
