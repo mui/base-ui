@@ -36,7 +36,7 @@
 .Viewport {
   position: fixed;
   z-index: 1;
-  width: 275px;
+  width: 250px;
   margin: 0 auto;
   bottom: 1rem;
   right: 1rem;
@@ -83,6 +83,7 @@
   cursor: default;
   z-index: calc(1000 - var(--toast-index));
   height: var(--toast-index-0-height, var(--toast-height));
+  transform-origin: bottom center;
   transform: translateX(var(--toast-swipe-movement-x))
     translateY(calc(var(--toast-swipe-movement-y) - (var(--toast-index) * var(--peek))))
     scaleX(calc(max(0, 1 - (var(--toast-index) * 0.1))));
@@ -155,33 +156,6 @@
   font-size: 0.925rem;
   line-height: 1.25rem;
   margin: 0;
-}
-
-.Actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.UndoButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 2rem;
-  padding: 0 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.25rem;
-  border-radius: 0.25rem;
-  margin-top: 0.5rem;
-  background-color: var(--color-gray-900);
-  color: var(--color-gray-50);
-  border: none;
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
-  }
 }
 
 .Close {

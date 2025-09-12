@@ -10,6 +10,11 @@ export enum ToastRootCssVars {
    */
   offsetY = '--toast-offset-y',
   /**
+   * Indicates the measured natural height of the toast in pixels.
+   * @type {number}
+   */
+  height = '--toast-height',
+  /**
    * Indicates the horizontal swipe movement of the toast.
    * @type {number}
    */
