@@ -1132,6 +1132,23 @@ describe('<Combobox.Root />', () => {
 
       expect(screen.getByRole('combobox')).to.have.value('');
     });
+
+    it('does not set input value for input-inside-popup pattern', async () => {
+      await render(
+        <Combobox.Root defaultOpen defaultValue="apple">
+          <Combobox.Trigger>Trigger</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).to.have.value('');
+    });
   });
 
   describe('prop: cols', () => {
