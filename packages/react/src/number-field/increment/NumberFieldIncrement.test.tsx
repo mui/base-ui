@@ -76,6 +76,24 @@ describe('<NumberField.Increment />', () => {
     expect(input).to.have.value((2.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
   });
 
+  it('only calls onValueChange once per increment', async () => {
+    const handleValueChange = spy();
+    const { user } = await render(
+      <NumberField.Root onValueChange={handleValueChange}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+
+    await user.click(button);
+    expect(handleValueChange.callCount).to.equal(1);
+
+    await user.click(button);
+    expect(handleValueChange.callCount).to.equal(2);
+  });
+
   describe('press and hold', () => {
     clock.withFakeTimers();
 
@@ -413,7 +431,7 @@ describe('<NumberField.Increment />', () => {
       expect(input).to.have.value('0');
     });
 
-    describe('should be provided to className prop as a fn argument', async () => {
+    describe('should be provided to className prop as a fn argument', () => {
       it('when root is disabled', async () => {
         const classNameSpy = spy();
         await render(

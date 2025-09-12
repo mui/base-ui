@@ -143,7 +143,7 @@ describe('<Field.Root />', () => {
       await flushMicrotasks();
 
       await waitFor(() => {
-        expect(screen.queryByText('value missing')).to.not.equal(null);
+        expect(screen.queryByText('value missing')).not.to.equal(null);
       });
       await waitFor(() => {
         expect(screen.queryByText('custom error')).to.equal(null);
@@ -157,7 +157,7 @@ describe('<Field.Root />', () => {
         expect(screen.queryByText('value missing')).to.equal(null);
       });
       await waitFor(() => {
-        expect(screen.queryByText('custom error')).to.not.equal(null);
+        expect(screen.queryByText('custom error')).not.to.equal(null);
       });
     });
 
@@ -696,7 +696,7 @@ describe('<Field.Root />', () => {
       });
     });
 
-    describe('filled', async () => {
+    describe('filled', () => {
       it('should apply [data-filled] style hook to all components when filled', async () => {
         await render(
           <Field.Root data-testid="root">

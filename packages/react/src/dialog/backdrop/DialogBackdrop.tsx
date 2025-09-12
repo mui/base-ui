@@ -4,11 +4,11 @@ import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type BaseUIComponentProps } from '../../utils/types';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<DialogBackdrop.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -37,7 +37,7 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   return useRenderElement('div', componentProps, {
     state,
     ref: [backdropRef, forwardedRef],
-    customStyleHookMapping,
+    stateAttributesMapping,
     props: [
       {
         role: 'presentation',

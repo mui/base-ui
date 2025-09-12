@@ -18,7 +18,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
             <SideNav.List>
               {section.links.map((link) => (
                 <SideNav.Item key={link.href} href={link.href} external={link.external}>
-                  <SideNav.Label>{link.label}</SideNav.Label>
+                  {link.label}
                   {link.isNew && <SideNav.Badge>New</SideNav.Badge>}
                 </SideNav.Item>
               ))}

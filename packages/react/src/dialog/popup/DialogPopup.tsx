@@ -10,16 +10,16 @@ import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { type BaseUIComponentProps } from '../../utils/types';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { DialogPopupCssVars } from './DialogPopupCssVars';
 import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
-const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<DialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
   nestedDialogOpen(value) {
@@ -90,8 +90,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     if (interactionType === 'touch') {
       return popupRef.current;
     }
-
-    return 0;
+    return true;
   });
 
   const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
@@ -120,7 +119,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       },
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (
@@ -148,28 +147,30 @@ export namespace DialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Determines the element to focus when the dialog is opened.
-     * By default, the first focusable element is focused.
      *
-     * - `null`: Do not focus any element.
-     * - `RefObject`: Focus the ref element. Falls back to default behavior when `null`.
-     * - `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the open. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.
+     * - `false`: Do not move focus.
+     * - `true`: Move focus based on the default behavior (first tabbable element or popup).
+     * - `RefObject`: Move focus to the ref element.
+     * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+     *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
      */
     initialFocus?:
-      | null
+      | boolean
       | React.RefObject<HTMLElement | null>
-      | ((openType: InteractionType) => HTMLElement | null | void);
+      | ((openType: InteractionType) => boolean | HTMLElement | null | void);
     /**
      * Determines the element to focus when the dialog is closed.
-     * By default, focus returns to the trigger.
      *
-     * - `null`: Do not focus any element.
-     * - `RefObject`: Focus the ref element. Falls back to default behavior when `null`.
-     * - `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the close. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.
+     * - `false`: Do not move focus.
+     * - `true`: Move focus based on the default behavior (trigger or previously focused element).
+     * - `RefObject`: Move focus to the ref element.
+     * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+     *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
      */
     finalFocus?:
-      | null
+      | boolean
       | React.RefObject<HTMLElement | null>
-      | ((closeType: InteractionType) => HTMLElement | null | void);
+      | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
   }
 
   export interface State {

@@ -15,3 +15,5 @@ onlyBuiltDependencies:
   - nx
   - sharp
   - unrs-resolver
+
+engineStrict: true

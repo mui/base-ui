@@ -13,7 +13,7 @@ import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getNumberLocaleDetails, PERCENTAGES } from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
@@ -167,10 +167,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const setValue = useEventCallback(
     (unvalidatedValue: number | null, event?: React.MouseEvent | Event, dir?: 1 | -1) => {
       const eventWithOptionalKeyState = event as EventWithOptionalKeyState;
-      let nativeEvent: Event | undefined;
-      if (event) {
-        nativeEvent = isReactEvent(event) ? event.nativeEvent : event;
-      }
+      const nativeEvent = event && isReactEvent(event) ? event.nativeEvent : event;
 
       const details = createBaseUIEventDetails('none', nativeEvent);
       const validatedValue = toValidatedNumber(unvalidatedValue, {
@@ -183,14 +180,21 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         small: eventWithOptionalKeyState?.altKey ?? false,
       });
 
-      onValueChange?.(validatedValue, details);
+      // Determine whether we should notify about a change even if the numeric value is unchanged.
+      // This is needed when the user input is clamped/snapped to the same current value, or when
+      // the source value differs but validation normalizes to the existing value.
+      const shouldFireChange = validatedValue !== value || unvalidatedValue !== value;
 
-      if (details.isCanceled) {
-        return;
+      if (shouldFireChange) {
+        onValueChange?.(validatedValue, details);
+
+        if (details.isCanceled) {
+          return;
+        }
+
+        setValueUnwrapped(validatedValue);
+        setDirty(validatedValue !== validityData.initialValue);
       }
-
-      setValueUnwrapped(validatedValue);
-      setDirty(validatedValue !== validityData.initialValue);
 
       // Keep the visible input in sync immediately when programmatic changes occur
       // (increment/decrement, wheel, etc). During direct typing we don't want
@@ -441,7 +445,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     ref: forwardedRef,
     state,
     props: elementProps,
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping,
   });
 
   return (
