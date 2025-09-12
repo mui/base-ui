@@ -26,7 +26,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import type { FloatingUIOpenChangeDetails, BaseUIChangeEventReason } from '../../utils/types';
+import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import {
   ContextMenuRootContext,
@@ -246,7 +246,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       const details: FloatingUIOpenChangeDetails = {
         open: nextOpen,
         nativeEvent: eventDetails.event,
-        reason: eventDetails.reason as BaseUIChangeEventReason,
+        reason: eventDetails.reason,
         nested,
       };
 
@@ -656,8 +656,20 @@ export namespace MenuRoot {
     unmount: () => void;
   }
 
+  export type ChangeEventReason =
+    | 'trigger-hover'
+    | 'trigger-focus'
+    | 'trigger-press'
+    | 'outside-press'
+    | 'focus-out'
+    | 'list-navigation'
+    | 'escape-key'
+    | 'item-press'
+    | 'close-press'
+    | 'sibling-open'
+    | 'cancel-open'
+    | 'none';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
-  export type ChangeEventReason = BaseUIChangeEventReason | 'sibling-open';
 
   export type Orientation = 'horizontal' | 'vertical';
 

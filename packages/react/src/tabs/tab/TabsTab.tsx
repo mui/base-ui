@@ -12,6 +12,7 @@ import { useCompositeItem } from '../../composite/item/useCompositeItem';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useTabsListContext } from '../list/TabsListContext';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 
 /**
@@ -117,7 +118,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
       return;
     }
 
-    onTabActivation(tabValue, event.nativeEvent);
+    onTabActivation(tabValue, createBaseUIEventDetails('none', event.nativeEvent));
   });
 
   const onFocus = useEventCallback((event: React.FocusEvent<HTMLButtonElement>) => {
@@ -134,10 +135,10 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
 
     if (
-      (activateOnFocus && !isPressingRef.current) || // keyboard focus
-      (isPressingRef.current && isMainButtonRef.current) // focus caused by pointerdown
+      (activateOnFocus && !isPressingRef.current) || // keyboard or touch focus
+      (isPressingRef.current && isMainButtonRef.current) // mouse focus
     ) {
-      onTabActivation(tabValue, event.nativeEvent);
+      onTabActivation(tabValue, createBaseUIEventDetails('none', event.nativeEvent));
     }
   });
 

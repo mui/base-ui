@@ -7,9 +7,11 @@ import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { warn } from '@base-ui-components/utils/warn';
 import { HTMLProps } from '../../utils/types';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
+import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 
 export function useCollapsiblePanel(
   parameters: useCollapsiblePanel.Parameters,
@@ -351,10 +353,10 @@ export function useCollapsiblePanel(
         return undefined;
       }
 
-      function handleBeforeMatch() {
+      function handleBeforeMatch(event: Event) {
         isBeforeMatchRef.current = true;
         setOpen(true);
-        onOpenChange(true);
+        onOpenChange(true, createBaseUIEventDetails('none', event));
       }
 
       panel.addEventListener('beforematch', handleBeforeMatch);
@@ -407,7 +409,7 @@ export namespace useCollapsiblePanel {
      * Whether the collapsible panel is currently mounted.
      */
     mounted: boolean;
-    onOpenChange: (open: boolean) => void;
+    onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
     /**
      * Whether the collapsible panel is currently open.
      */

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { TabsTab } from '../tab/TabsTab';
+import type { TabsRoot } from './TabsRoot';
 
 export interface TabsRootContext {
   /**
@@ -13,7 +14,7 @@ export interface TabsRootContext {
   onValueChange: (
     value: TabsTab.Value,
     activationDirection: TabsTab.ActivationDirection,
-    event: Event,
+    eventDetails: TabsRoot.ChangeEventDetails,
   ) => void;
   /**
    * The component orientation (layout flow direction).

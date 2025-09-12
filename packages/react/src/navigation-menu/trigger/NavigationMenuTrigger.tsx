@@ -340,7 +340,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           itemValue,
           createBaseUIEventDetails(
             event.type === 'mouseenter' ? 'trigger-hover' : 'trigger-press',
-            event.nativeEvent as any,
+            event.nativeEvent,
           ),
         );
       }

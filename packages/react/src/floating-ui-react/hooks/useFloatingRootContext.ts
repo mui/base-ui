@@ -11,7 +11,7 @@ import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
-  onOpenChange?: (open: boolean, eventDetails: BaseUIEventDetails) => void;
+  onOpenChange?(open: boolean, eventDetails: BaseUIEventDetails<string>): void;
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
@@ -47,19 +47,21 @@ export function useFloatingRootContext(
     elementsProp.reference,
   );
 
-  const onOpenChange = useEventCallback((newOpen: boolean, eventDetails: BaseUIEventDetails) => {
-    dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
-    if (!options.noEmit) {
-      const details: FloatingUIOpenChangeDetails = {
-        open: newOpen,
-        reason: eventDetails.reason,
-        nativeEvent: eventDetails.event,
-        nested,
-      };
-      events.emit('openchange', details);
-    }
-    onOpenChangeProp?.(newOpen, eventDetails);
-  });
+  const onOpenChange = useEventCallback(
+    (newOpen: boolean, eventDetails: BaseUIEventDetails<string>) => {
+      dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
+      if (!options.noEmit) {
+        const details: FloatingUIOpenChangeDetails = {
+          open: newOpen,
+          reason: eventDetails.reason,
+          nativeEvent: eventDetails.event,
+          nested,
+        };
+        events.emit('openchange', details);
+      }
+      onOpenChangeProp?.(newOpen, eventDetails);
+    },
+  );
 
   const refs = React.useMemo(
     () => ({
