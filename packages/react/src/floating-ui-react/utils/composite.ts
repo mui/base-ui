@@ -211,6 +211,9 @@ export function getGridNavigatedIndex(
           } else {
             nextIndex = maxCol > col ? offset : offset - cols;
           }
+          if (onLoop) {
+            nextIndex = onLoop(event, prevIndex, nextIndex);
+          }
         }
       }
 
