@@ -2,7 +2,7 @@ name: Check if PR has label
 
 on:
   pull_request:
-    types: [opened, reopened, labeled, unlabeled]
+    types: [opened, unlabeled, synchronize]
 
 permissions: {}
 
