@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { screen, fireEvent, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 
 describe('<NumberField.Decrement />', () => {
@@ -329,6 +329,27 @@ describe('<NumberField.Decrement />', () => {
     fireEvent.click(button, { detail: 1 });
 
     expect(input).to.have.value('-2');
+  });
+
+  it.skipIf(isJSDOM)('fires onValueCommitted once on first soft tap (touch)', async () => {
+    const onValueCommitted = spy();
+    await render(
+      <NumberField.Root defaultValue={0} onValueCommitted={onValueCommitted}>
+        <NumberField.Decrement />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByLabelText('Decrease');
+
+    fireEvent.touchStart(button);
+    fireEvent.pointerDown(button, { pointerType: 'touch' });
+    fireEvent.touchEnd(button);
+    fireEvent.mouseEnter(button);
+    fireEvent.click(button, { detail: 1 });
+
+    expect(onValueCommitted.callCount).to.equal(1);
+    expect(onValueCommitted.firstCall.args[0]).to.equal(-1);
   });
 
   describe('prop: snapOnStep', () => {

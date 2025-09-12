@@ -48,6 +48,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     defaultValue,
     value: valueProp,
     onValueChange: onValueChangeProp,
+    onValueCommitted: onValueCommittedProp,
     allowWheelScrub = false,
     snapOnStep = false,
     format,
@@ -109,6 +110,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const formatOptionsRef = useLatestRef(format);
   const onValueChange = useEventCallback(onValueChangeProp);
+  const onValueCommitted = useEventCallback(onValueCommittedProp);
 
   const startTickTimeout = useTimeout();
   const tickInterval = useInterval();
@@ -116,6 +118,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const isPressedRef = React.useRef(false);
   const movesAfterTouchRef = React.useRef(0);
   const allowInputSyncRef = React.useRef(true);
+  const lastChangedValueRef = React.useRef<number | null>(null);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
 
   useIsoLayoutEffect(() => {
@@ -183,9 +186,13 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       // Determine whether we should notify about a change even if the numeric value is unchanged.
       // This is needed when the user input is clamped/snapped to the same current value, or when
       // the source value differs but validation normalizes to the existing value.
-      const shouldFireChange = validatedValue !== value || unvalidatedValue !== value;
+      const shouldFireChange =
+        validatedValue !== value ||
+        unvalidatedValue !== value ||
+        allowInputSyncRef.current === false;
 
       if (shouldFireChange) {
+        lastChangedValueRef.current = validatedValue;
         onValueChange?.(validatedValue, details);
 
         if (details.isCanceled) {
@@ -254,9 +261,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
       win.addEventListener(
         'pointerup',
-        () => {
+        (event) => {
           isPressedRef.current = false;
           stopAutoChange();
+          const committed = lastChangedValueRef.current ?? valueRef.current;
+          onValueCommitted(committed, createBaseUIEventDetails('none', event));
         },
         { once: true },
       );
@@ -391,6 +400,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       allowInputSyncRef,
       formatOptionsRef,
       valueRef,
+      lastChangedValueRef,
       isPressedRef,
       intentionalTouchCheckTimeout,
       movesAfterTouchRef,
@@ -406,6 +416,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       isScrubbing,
       setIsScrubbing,
       state,
+      onValueCommitted,
     }),
     [
       inputRef,
@@ -424,6 +435,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       allowInputSyncRef,
       formatOptionsRef,
       valueRef,
+      lastChangedValueRef,
       isPressedRef,
       intentionalTouchCheckTimeout,
       movesAfterTouchRef,
@@ -438,6 +450,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       locale,
       isScrubbing,
       state,
+      onValueCommitted,
     ],
   );
 
@@ -545,6 +558,14 @@ export namespace NumberFieldRoot {
      * Callback fired when the number value changes.
      */
     onValueChange?: (value: number | null, eventDetails: ChangeEventDetails) => void;
+    /**
+     * Callback function that is fired when the value is committed. It runs later than `onValueChange`, when:
+     * - The input is blurred after typing a value.
+     * - The pointer is released after scrubbing or pressing the increment/decrement buttons.
+     *
+     * **Warning**: This is a generic event not a change event.
+     */
+    onValueCommitted?: (value: number | null, eventDetails: ChangeEventDetails) => void;
     /**
      * The locale of the input element.
      * Defaults to the user's runtime locale.

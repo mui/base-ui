@@ -48,6 +48,8 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     stopAutoChange,
     value,
     valueRef,
+    lastChangedValueRef,
+    onValueCommitted,
   } = useNumberFieldRootContext();
 
   const disabled = disabledProp || contextDisabled;
@@ -74,6 +76,8 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     intentionalTouchCheckTimeout,
     movesAfterTouchRef,
     locale,
+    lastChangedValueRef,
+    onValueCommitted,
   });
 
   const { getButtonProps, buttonRef } = useButton({
