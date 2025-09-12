@@ -35,7 +35,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     setPrevFocusElement,
     hovering,
     focused,
-    hasDifferingHeights,
   } = useToastContext();
 
   const handlingFocusGuardRef = React.useRef(false);
@@ -217,9 +216,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   const state: ToastViewport.State = React.useMemo(
     () => ({
-      expanded: hovering || focused || hasDifferingHeights,
+      expanded: hovering || focused,
     }),
-    [hovering, focused, hasDifferingHeights],
+    [hovering, focused],
   );
 
   const element = useRenderElement('div', componentProps, {
