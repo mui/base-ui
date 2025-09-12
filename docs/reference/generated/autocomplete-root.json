@@ -43,6 +43,12 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the autocomplete will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the autocomplete manually.\nUseful when the autocomplete's animation is controlled by an external library.",
       "detailedType": "| React.RefObject<Autocomplete.Root.Actions>\n| undefined"
     },
+    "alwaysSubmitOnEnter": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether pressing Enter in the input should always allow forms to submit.\nBy default, pressing Enter in the input will stop form submission if an item is highlighted.",
+      "detailedType": "boolean | undefined"
+    },
     "autoHighlight": {
       "type": "boolean",
       "default": "false",
