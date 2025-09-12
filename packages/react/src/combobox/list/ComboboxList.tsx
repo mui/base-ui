@@ -26,7 +26,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
 
   const selectionMode = useStore(store, selectors.selectionMode);
-  const cols = useStore(store, selectors.cols);
+  const grid = useStore(store, selectors.grid);
   const popupRef = useStore(store, selectors.popupRef);
   const popupProps = useStore(store, selectors.popupProps);
 
@@ -71,7 +71,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         children: resolvedChildren,
         tabIndex: -1,
         id: floatingRootContext.floatingId,
-        role: cols > 1 ? 'grid' : 'listbox',
+        role: grid ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
         onKeyDown(event) {
           if (event.key === 'Enter') {
