@@ -5,6 +5,7 @@ import { act, fireEvent } from '@mui/internal-test-utils';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useButton } from './useButton';
+import { CompositeRoot } from '../composite/root/CompositeRoot';
 
 describe('useButton', () => {
   const { render, renderToString } = createRenderer();
@@ -24,6 +25,40 @@ describe('useButton', () => {
       const button = getByRole('button');
       await act(() => button.focus());
       expect(button).toHaveFocus();
+    });
+
+    it('force overrides disabled attribute when put in a composite', async () => {
+      function TestButton(props: { buttonKey?: React.Key }) {
+        const { getButtonProps, buttonRef } = useButton({
+          disabled: true,
+          focusableWhenDisabled: true,
+        });
+        return (
+          <button ref={buttonRef} key={props.buttonKey} {...getButtonProps({ disabled: true })} />
+        );
+      }
+
+      const { rerender, getByRole } = await render(
+        <CompositeRoot>
+          <TestButton />
+        </CompositeRoot>,
+      );
+
+      async function verify() {
+        const button = getByRole('button');
+        await act(() => button.focus());
+        expect(button).toHaveFocus();
+      }
+
+      await verify();
+
+      // Ensure it works after ref change
+      await rerender(
+        <CompositeRoot>
+          <TestButton buttonKey="rerender" />
+        </CompositeRoot>,
+      );
+      await verify();
     });
 
     it('prevents interactions except focus and blur', async () => {
