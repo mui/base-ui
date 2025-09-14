@@ -7,16 +7,16 @@ import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
-const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<MenuPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -91,7 +91,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, popupRef],
-    customStyleHookMapping,
+    stateAttributesMapping,
     props: [
       popupProps,
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,

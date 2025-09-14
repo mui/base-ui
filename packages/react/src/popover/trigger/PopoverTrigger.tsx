@@ -7,7 +7,7 @@ import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
 } from '../../utils/popupStateMapping';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 
@@ -44,7 +44,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     native: nativeButton,
   });
 
-  const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(
+  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = React.useMemo(
     () => ({
       open(value) {
         if (value && openReason === 'trigger-press') {
@@ -66,7 +66,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       elementProps,
       getButtonProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

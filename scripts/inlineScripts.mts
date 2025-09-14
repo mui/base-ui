@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import glob from 'fast-glob';
+import { globby } from 'globby';
 import { minify } from 'terser';
 
 const currentDirectory = fileURLToPath(new URL('.', import.meta.url));
@@ -17,7 +17,7 @@ const preamble = [
  * The minified code is then exported as a string literal.
  */
 async function run() {
-  const files = await glob('**/*.template.js', {
+  const files = await globby('**/*.template.js', {
     absolute: true,
     cwd: path.resolve(currentDirectory, '../packages/react/src'),
   });
