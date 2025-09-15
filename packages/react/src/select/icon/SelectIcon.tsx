@@ -32,13 +32,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
   const element = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
-    props: [
-      {
-        'aria-hidden': true,
-        children: '▼',
-      },
-      elementProps,
-    ],
+    props: [{ 'aria-hidden': true, children: '▼' }, elementProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });
 
