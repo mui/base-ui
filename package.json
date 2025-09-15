@@ -69,7 +69,7 @@
     "@playwright/test": "1.54.2",
     "@tailwindcss/postcss": "4.1.12",
     "@types/lodash": "^4.17.20",
-    "@types/node": "^22.18.0",
+    "@types/node": "^22.18.3",
     "@types/react": "^19.1.12",
     "@types/yargs": "^17.0.33",
     "@vitejs/plugin-react": "^5.0.2",
@@ -129,7 +129,7 @@
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/types": "^7.28.4",
-    "@types/node": "^22.18.1",
+    "@types/node": "^22.18.3",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9"
   }
