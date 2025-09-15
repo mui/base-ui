@@ -43,7 +43,7 @@
 
 .Positioner {
   --easing: cubic-bezier(0.22, 1, 0.36, 1);
-  --animation-duration: 0.65s;
+  --animation-duration: 0.35s;
 
   width: var(--positioner-width);
   height: var(--positioner-height);
@@ -105,9 +105,13 @@
   height: 100%;
   padding: 1rem var(--viewport-inline-padding);
 
+  [data-previous],
   [data-next] {
-    /* This freezes the width of the new content while transitioning in.
-       Width is set to the content area of the parent popup (--popup-width measures the border-box) */
+    /* This freezes the width of the content while transitioning.
+       Width is set to the content area of the parent popup (--popup-width measures the border-box).
+       The 'previous` container received the width of the previous content, while the `next` container
+        receives the width of the new content.
+    */
     width: calc(var(--popup-width) - 2 * var(--viewport-inline-padding));
   }
 
@@ -133,48 +137,64 @@
 }
 
 @keyframes slide-out-to-left {
-  from {
+  0% {
     transform: translateX(0);
     opacity: 1;
   }
 
-  to {
+  50% {
+    opacity: 0;
+  }
+
+  100% {
     transform: translateX(-50%);
     opacity: 0;
   }
 }
 
 @keyframes slide-in-from-right {
-  from {
+  0% {
     transform: translateX(50%);
     opacity: 0;
   }
 
-  to {
+  50% {
+    opacity: 1;
+  }
+
+  100% {
     transform: translateX(0);
     opacity: 1;
   }
 }
 
 @keyframes slide-out-to-right {
-  from {
+  0% {
     transform: translateX(0);
     opacity: 1;
   }
 
-  to {
+  50% {
+    opacity: 0;
+  }
+
+  100% {
     transform: translateX(50%);
     opacity: 0;
   }
 }
 
 @keyframes slide-in-from-left {
-  from {
+  0% {
     transform: translateX(-50%);
     opacity: 0;
   }
 
-  to {
+  50% {
+    opacity: 1;
+  }
+
+  100% {
     transform: translateX(0);
     opacity: 1;
   }

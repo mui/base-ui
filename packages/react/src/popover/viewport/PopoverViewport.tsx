@@ -171,8 +171,8 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
           inert={inertValue(true)}
           ref={previousContainerRef}
           style={{
-            width: previousContentDimensions?.width,
-            height: previousContentDimensions?.height,
+            '--popup-width': `${previousContentDimensions?.width}px`,
+            '--popup-height': `${previousContentDimensions?.height}px`,
             position: 'absolute',
           }}
           key={'previous'}
