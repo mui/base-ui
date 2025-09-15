@@ -1,5 +1,5 @@
 import * as React from 'react';
-import glob from 'fast-glob';
+import { globbySync } from 'globby';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { dirname, resolve } from 'node:path';
@@ -10,7 +10,7 @@ import classes from './ExperimentsList.module.css';
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const experimentsRootDirectory = resolve(currentDirectory, '../../app/(private)/experiments');
 
-const allExperimentFiles = glob.globSync(
+const allExperimentFiles = globbySync(
   ['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'],
   { cwd: experimentsRootDirectory },
 );

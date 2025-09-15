@@ -159,7 +159,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     state,
     props: [positioner.props, elementProps],
     ref: [forwardedRef, setPositionerElement],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return (

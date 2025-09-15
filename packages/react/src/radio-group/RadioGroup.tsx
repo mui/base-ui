@@ -233,7 +233,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
         state={state}
         props={[defaultProps, fieldControlValidation.getValidationProps, elementProps]}
         refs={[forwardedRef]}
-        customStyleHookMapping={fieldValidityMapping}
+        stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
         stopEventPropagation

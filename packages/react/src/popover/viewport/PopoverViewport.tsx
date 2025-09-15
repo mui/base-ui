@@ -9,10 +9,10 @@ import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { selectors } from '../store';
 
-const customStyleHookMapping: CustomStyleHookMapping<PopoverViewport.State> = {
+const stateAttributesMapping: StateAttributesMapping<PopoverViewport.State> = {
   activationDirection: (value) =>
     value
       ? {
@@ -100,7 +100,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     nextContainerElement?.style.removeProperty('transition');
   });
 
-  /*React.useEffect(() => {
+  React.useEffect(() => {
     floatingContext.events.on('measure-layout', handleMeasureLayout);
     floatingContext.events.on('measure-layout-complete', handleMeasureLayoutComplete);
 
@@ -108,7 +108,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       floatingContext.events.off('measure-layout', handleMeasureLayout);
       floatingContext.events.off('measure-layout-complete', handleMeasureLayoutComplete);
     };
-  }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);*/
+  }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);
 
   const lastHandledTriggerRef = React.useRef<HTMLElement | null>(null);
 
@@ -212,7 +212,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     state,
     ref: forwardedRef,
     props: [elementProps, { children: childrenToRender }],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 });
 

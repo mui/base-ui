@@ -36,7 +36,7 @@ export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
     state,
     ref: [arrowRef, forwardedRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return element;
