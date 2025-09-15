@@ -17,8 +17,6 @@ import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
-import { getTarget } from '../../floating-ui-react/utils';
 
 /**
  * An individual item in the list.
@@ -56,10 +54,8 @@ export const ComboboxItem = React.memo(
     const listRef = useStore(store, selectors.listRef);
     const valuesRef = useStore(store, selectors.valuesRef);
     const allValuesRef = useStore(store, selectors.allValuesRef);
-    const inputRef = useStore(store, selectors.inputRef);
 
     const selectable = selectionMode !== 'none';
-    const multiple = selectionMode === 'multiple';
     const index = indexProp ?? (virtualized ? flatFilteredItems.indexOf(value) : listItem.index);
 
     const rootId = useStore(store, selectors.id);
@@ -162,45 +158,7 @@ export const ComboboxItem = React.memo(
         if (disabled || readOnly) {
           return;
         }
-
-        const eventDetails = createBaseUIEventDetails('item-press', event.nativeEvent);
-
-        // Let the link handle the click.
-        const target = getTarget(event.nativeEvent) as HTMLElement | null;
-        const href = target?.closest('a')?.getAttribute('href');
-        const hasNavigableHref = href != null && href !== '';
-        if (hasNavigableHref) {
-          // If on the same page, close the popup to avoid it lingering.
-          if (href.startsWith('#')) {
-            store.state.setOpen(false, eventDetails);
-          }
-          return;
-        }
-
-        if (multiple) {
-          const currentSelectedValue = rootSelectedValue as any[];
-          const isCurrentlySelected =
-            Array.isArray(currentSelectedValue) && currentSelectedValue.includes(value);
-
-          let nextValue: any[];
-          if (isCurrentlySelected) {
-            nextValue = currentSelectedValue.filter((v) => v !== value);
-          } else {
-            nextValue = Array.isArray(currentSelectedValue)
-              ? [...currentSelectedValue, value]
-              : [value];
-          }
-
-          store.state.setSelectedValue(nextValue, eventDetails);
-
-          const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-          if (wasFiltering) {
-            store.state.setOpen(false, eventDetails);
-          }
-        } else {
-          store.state.setSelectedValue(value, eventDetails);
-          store.state.setOpen(false, eventDetails);
-        }
+        store.state.handleSelection(event.nativeEvent, value);
       },
     };
 

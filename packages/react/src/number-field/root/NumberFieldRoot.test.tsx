@@ -1185,6 +1185,177 @@ describe('<NumberField />', () => {
     });
   });
 
+  describe('integration: exotic inputs and IME', () => {
+    it('parses Persian digits and separators via change events', async () => {
+      const onValueChange = spy();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(null);
+        return (
+          <NumberField
+            value={value}
+            onValueChange={(v) => {
+              onValueChange(v);
+              setValue(v);
+            }}
+          />
+        );
+      }
+      await render(<App />);
+
+      const input = screen.getByRole('textbox');
+      // ۱۲٫۳۴ => 12.34
+      fireEvent.change(input, { target: { value: '۱۲٫۳۴' } });
+
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(12.34);
+    });
+
+    it('parses Persian digits with Arabic group/decimal separators', async () => {
+      const onValueChange = spy();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(null);
+        return (
+          <NumberField
+            value={value}
+            onValueChange={(v) => {
+              onValueChange(v);
+              setValue(v);
+            }}
+          />
+        );
+      }
+      await render(<App />);
+
+      const input = screen.getByRole('textbox');
+      // ۱۲٬۳۴۵٫۶۷ => 12345.67
+      fireEvent.change(input, { target: { value: '۱۲٬۳۴۵٫۶۷' } });
+
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(12345.67);
+    });
+
+    it('parses fullwidth digits and punctuation', async () => {
+      const onValueChange = spy();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(null);
+        return (
+          <NumberField
+            value={value}
+            onValueChange={(v) => {
+              onValueChange(v);
+              setValue(v);
+            }}
+          />
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '１，２３４．５６' } });
+
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(1234.56);
+    });
+
+    it('parses percent and permille signs in exotic forms', async () => {
+      const onValueChange = spy();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(null);
+        return (
+          <NumberField
+            value={value}
+            onValueChange={(v) => {
+              onValueChange(v);
+              setValue(v);
+            }}
+          />
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '١٢٪' } });
+
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(0.12);
+
+      // reset by typing again
+      fireEvent.change(input, { target: { value: '12؉' } });
+      expect(onValueChange.callCount).to.equal(2);
+      expect(onValueChange.secondCall.args[0]).to.equal(0.012);
+    });
+
+    it('parses trailing unicode minus and parentheses negatives', async () => {
+      const onValueChange = spy();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(null);
+        return (
+          <NumberField
+            value={value}
+            onValueChange={(v) => {
+              onValueChange(v);
+              setValue(v);
+            }}
+          />
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '1234−' } });
+
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(-1234);
+
+      fireEvent.change(input, { target: { value: '(1,234.5)' } });
+
+      expect(onValueChange.callCount).to.equal(2);
+      expect(onValueChange.secondCall.args[0]).to.equal(-1234.5);
+    });
+
+    it('collapses extra dots from mixed-locale inputs', async () => {
+      const onValueChange = spy();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(null);
+        return (
+          <NumberField
+            value={value}
+            onValueChange={(v) => {
+              onValueChange(v);
+              setValue(v);
+            }}
+          />
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '1.234.567.89' } });
+
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(1234567.89);
+    });
+
+    it('allows composition key events (IME) without preventing default', async () => {
+      await render(<NumberField />);
+
+      const input = screen.getByRole('textbox');
+
+      await act(async () => input.focus());
+
+      const preventDefaultSpy = spy();
+
+      // 229 indicates a composition key event
+      fireEvent.keyDown(input, { which: 229, preventDefault: preventDefaultSpy });
+      expect(preventDefaultSpy).to.have.property('callCount', 0);
+    });
+  });
+
   describe.skipIf(isJSDOM)('pasting', () => {
     it('should allow pasting a valid number', async () => {
       await render(<NumberField />);

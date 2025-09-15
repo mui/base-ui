@@ -15,7 +15,15 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { getNumberLocaleDetails, PERCENTAGES } from '../utils/parse';
+import {
+  getNumberLocaleDetails,
+  PERCENTAGES,
+  UNICODE_MINUS_SIGNS,
+  UNICODE_PLUS_SIGNS,
+  PERMILLE,
+  FULLWIDTH_DECIMAL,
+  FULLWIDTH_GROUP,
+} from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
@@ -142,17 +150,26 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const getAllowedNonNumericKeys = useEventCallback(() => {
     const { decimal, group, currency } = getNumberLocaleDetails(locale, format);
 
-    const keys = new Set(['.', ',', decimal, group]);
+    const keys = new Set(['.', ',', decimal, group, FULLWIDTH_DECIMAL, FULLWIDTH_GROUP]);
+
+    // If the locale's group separator is a space-like character (e.g. NBSP, NNBSP),
+    // also allow a regular space from the keyboard.
+    if (group && /\p{Zs}/u.test(group)) {
+      keys.add(' ');
+    }
 
     if (formatStyle === 'percent') {
       PERCENTAGES.forEach((key) => keys.add(key));
     }
+    // Permille is supported by the parser regardless of format style
+    PERMILLE.forEach((key) => keys.add(key));
+
     if (formatStyle === 'currency' && currency) {
       keys.add(currency);
     }
-    if (minWithDefault < 0) {
-      keys.add('-');
-    }
+    // Allow plus sign in all cases; minus sign only when negatives are valid
+    ['+'].concat(UNICODE_PLUS_SIGNS).forEach((key) => keys.add(key));
+    (minWithDefault < 0 ? ['-'].concat(UNICODE_MINUS_SIGNS) : []).forEach((key) => keys.add(key));
 
     return keys;
   });
