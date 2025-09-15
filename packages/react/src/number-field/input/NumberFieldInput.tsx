@@ -14,8 +14,10 @@ import {
   FULLWIDTH_DETECT_RE,
   getNumberLocaleDetails,
   parseNumber,
-  UNICODE_MINUS_SIGNS,
-  UNICODE_PLUS_SIGNS,
+  ANY_MINUS_RE,
+  ANY_PLUS_RE,
+  ANY_MINUS_DETECT_RE,
+  ANY_PLUS_DETECT_RE,
 } from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../utils/stateAttributesMapping';
@@ -262,30 +264,32 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const selectionEnd = event.currentTarget.selectionEnd;
       const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
 
-      // Normalize handling of plus/minus signs (ASCII and unicode variants)
-      const anyMinus = ['-'].concat(UNICODE_MINUS_SIGNS);
-      const anyPlus = ['+'].concat(UNICODE_PLUS_SIGNS);
-
-      const containsAny = (s: string, chars: string[]) => chars.some((ch) => s.includes(ch));
+      // Normalize handling of plus/minus signs via precomputed regexes
       const selectionIsExactlyCharAt = (index: number) =>
         selectionStart === index && selectionEnd === index + 1;
 
-      if (anyMinus.includes(event.key) && anyMinus.some((k) => allowedNonNumericKeys.has(k))) {
+      if (
+        ANY_MINUS_DETECT_RE.test(event.key) &&
+        Array.from(allowedNonNumericKeys).some((k) => ANY_MINUS_DETECT_RE.test(k || ''))
+      ) {
         // Only allow one sign unless replacing the existing one or all text is selected
-        const existingIndex = anyMinus.map((ch) => inputValue.indexOf(ch)).find((i) => i !== -1);
+        const existingIndex = inputValue.search(ANY_MINUS_RE);
         const isReplacingExisting =
           existingIndex != null && existingIndex !== -1 && selectionIsExactlyCharAt(existingIndex);
         isAllowedNonNumericKey =
-          !containsAny(inputValue, anyMinus.concat(anyPlus)) ||
+          !(ANY_MINUS_DETECT_RE.test(inputValue) || ANY_PLUS_DETECT_RE.test(inputValue)) ||
           isAllSelected ||
           isReplacingExisting;
       }
-      if (anyPlus.includes(event.key) && anyPlus.some((k) => allowedNonNumericKeys.has(k))) {
-        const existingIndex = anyPlus.map((ch) => inputValue.indexOf(ch)).find((i) => i !== -1);
+      if (
+        ANY_PLUS_DETECT_RE.test(event.key) &&
+        Array.from(allowedNonNumericKeys).some((k) => ANY_PLUS_DETECT_RE.test(k || ''))
+      ) {
+        const existingIndex = inputValue.search(ANY_PLUS_RE);
         const isReplacingExisting =
           existingIndex != null && existingIndex !== -1 && selectionIsExactlyCharAt(existingIndex);
         isAllowedNonNumericKey =
-          !containsAny(inputValue, anyMinus.concat(anyPlus)) ||
+          !(ANY_MINUS_DETECT_RE.test(inputValue) || ANY_PLUS_DETECT_RE.test(inputValue)) ||
           isAllSelected ||
           isReplacingExisting;
       }

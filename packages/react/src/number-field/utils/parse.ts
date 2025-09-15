@@ -47,6 +47,14 @@ const escapeClassChar = (s: string) => s.replace(/[-\\\]^]/g, (m) => `\\${m}`); 
 
 const charClassFrom = (chars: string[]) => `[${chars.map(escapeClassChar).join('')}]`;
 
+const ANY_MINUS_CLASS = charClassFrom(['-'].concat(UNICODE_MINUS_SIGNS));
+const ANY_PLUS_CLASS = charClassFrom(['+'].concat(UNICODE_PLUS_SIGNS));
+
+export const ANY_MINUS_RE = new RegExp(ANY_MINUS_CLASS, 'gu');
+export const ANY_PLUS_RE = new RegExp(ANY_PLUS_CLASS, 'gu');
+export const ANY_MINUS_DETECT_RE = new RegExp(ANY_MINUS_CLASS);
+export const ANY_PLUS_DETECT_RE = new RegExp(ANY_PLUS_CLASS);
+
 export function getNumberLocaleDetails(
   locale?: Intl.LocalesArgument,
   options?: Intl.NumberFormatOptions,
@@ -92,8 +100,6 @@ export function parseNumber(
   }
 
   // Normalize unicode minus/plus to ASCII, handle leading/trailing signs
-  const ANY_MINUS_RE = new RegExp(charClassFrom(['-'].concat(UNICODE_MINUS_SIGNS)), 'gu');
-  const ANY_PLUS_RE = new RegExp(charClassFrom(['+'].concat(UNICODE_PLUS_SIGNS)), 'gu');
   input = input.replace(ANY_MINUS_RE, '-').replace(ANY_PLUS_RE, '+');
 
   let isNegative = isParenthesizedNegative;
