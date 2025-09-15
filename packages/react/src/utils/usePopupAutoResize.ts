@@ -69,9 +69,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
 
       const dimensions = getCssDimensions(popupElement);
 
-      // DEBUG
-      showDebugElement(positionerElement);
-
       positionerElement.style.setProperty('--positioner-width', `${dimensions.width}px`);
       positionerElement.style.setProperty('--positioner-height', `${dimensions.height}px`);
       restorePopupPosition();
@@ -92,9 +89,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     positionerElement.style.removeProperty('--positioner-height');
 
     const newDimensions = getCssDimensions(positionerElement);
-
-    // DEBUG
-    showDebugElement(positionerElement);
 
     popupElement.style.setProperty('--popup-width', `${previousDimensionsRef.current.width}px`);
     popupElement.style.setProperty('--popup-height', `${previousDimensionsRef.current.height}px`);
@@ -171,42 +165,4 @@ function overrideElementStyle(element: HTMLElement, property: string, value: str
   return () => {
     element.style.setProperty(property, originalValue);
   };
-}
-
-function showDebugElement(element: HTMLElement) {
-  const clone = element.cloneNode(true) as HTMLElement;
-  clone.style.opacity = '1';
-  clone.style.position = 'static';
-  Array.from(clone.children).forEach((c) => {
-    (c as HTMLElement).style.opacity = '1';
-  });
-  let wrapper = document.getElementById('debug-popup-clone');
-  if (!wrapper) {
-    wrapper = document.createElement('div');
-    wrapper.id = 'debug-popup-clone';
-    wrapper.style.position = 'fixed';
-    wrapper.style.top = '20px';
-    wrapper.style.right = '20px';
-    wrapper.style.zIndex = '9999';
-    wrapper.style.backgroundColor = 'white';
-    wrapper.style.outline = '2px solid orangered';
-    document.body.appendChild(wrapper);
-  } else {
-    wrapper.innerHTML = '';
-  }
-
-  wrapper.appendChild(clone);
-  const dimensions = getCssDimensions(element);
-  const info = document.createElement('div');
-  info.innerText = `${dimensions.width.toFixed(3)} x ${dimensions.height.toFixed(3)}`;
-  info.style.position = 'absolute';
-  info.style.bottom = '-24px';
-  info.style.right = '-2px';
-  info.style.backgroundColor = 'orangered';
-  info.style.color = 'white';
-  info.style.height = '24px';
-  info.style.lineHeight = '24px';
-  info.style.padding = '0 8px';
-
-  clone.appendChild(info);
 }
