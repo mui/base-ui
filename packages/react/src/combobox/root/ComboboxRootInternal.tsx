@@ -341,7 +341,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         setSelectedValue: NOOP,
         setIndices: NOOP,
         onItemHighlighted: NOOP,
-        handleEnterSelection: NOOP,
+        handleSelection: NOOP,
         getItemProps() {
           return {};
         },
@@ -575,6 +575,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
+      if (open === nextOpen) {
+        return;
+      }
+
       props.onOpenChange?.(nextOpen, eventDetails);
 
       if (eventDetails.isCanceled) {
@@ -626,13 +630,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       if (
         selectionMode === 'single' &&
         nextValue != null &&
-        eventDetails.reason !== 'input-change'
+        eventDetails.reason !== 'input-change' &&
+        queryChangedAfterOpen
       ) {
-        setOpen(false, createBaseUIEventDetails('item-press', eventDetails.event as any));
-
-        if (queryChangedAfterOpen) {
-          setCloseQuery(query);
-        }
+        setCloseQuery(query);
       }
     },
   );
@@ -661,11 +662,47 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
   }, [open, selectedValue, syncSelectedIndex]);
 
-  const handleEnterSelection = useEventCallback(() => {
-    if (activeIndex != null) {
-      listRef.current[activeIndex]?.click();
-    }
-  });
+  const handleSelection = useEventCallback(
+    (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
+      let value = passedValue;
+      if (value === undefined) {
+        if (activeIndex === null) {
+          return;
+        }
+        value = valuesRef.current[activeIndex];
+      }
+
+      const targetEl = getTarget(event) as HTMLElement | null;
+      const eventDetails = createBaseUIEventDetails('item-press', event);
+
+      // Let the link handle the click.
+      const href = targetEl?.closest('a')?.getAttribute('href');
+      if (href) {
+        if (href.startsWith('#')) {
+          setOpen(false, eventDetails);
+        }
+        return;
+      }
+
+      if (multiple) {
+        const currentSelectedValue = Array.isArray(selectedValue) ? selectedValue : [];
+        const isCurrentlySelected = currentSelectedValue.includes(value);
+        const nextValue = isCurrentlySelected
+          ? currentSelectedValue.filter((v) => v !== value)
+          : [...currentSelectedValue, value];
+
+        setSelectedValue(nextValue, eventDetails);
+
+        const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
+        if (wasFiltering) {
+          setOpen(false, eventDetails);
+        }
+      } else {
+        setSelectedValue(value, eventDetails);
+        setOpen(false, eventDetails);
+      }
+    },
+  );
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -880,7 +917,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       setSelectedValue,
       setIndices,
       onItemHighlighted,
-      handleEnterSelection,
+      handleSelection,
       forceMount,
     });
   });
