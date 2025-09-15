@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { FloatingFocusManager } from '../../floating-ui-react';
+import { Dimensions, FloatingFocusManager } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
@@ -102,9 +102,14 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     floatingContext.events.emit('measure-layout');
   });
 
-  const handleMeasureLayoutComplete = useEventCallback(() => {
-    floatingContext.events.emit('measure-layout-complete');
-  });
+  const handleMeasureLayoutComplete = useEventCallback(
+    (previousDimensions: Dimensions | null, nextDimensions: Dimensions) => {
+      floatingContext.events.emit('measure-layout-complete', {
+        previousDimensions,
+        nextDimensions,
+      });
+    },
+  );
 
   usePopupAutoResize({
     popupElement,

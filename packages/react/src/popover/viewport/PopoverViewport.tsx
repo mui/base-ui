@@ -11,6 +11,7 @@ import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { selectors } from '../store';
+import { Dimensions } from '../../floating-ui-react/types';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverViewport.State> = {
   activationDirection: (value) =>
@@ -47,12 +48,10 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const [newTriggerOffset, setNewTriggerOffset] = React.useState<Offset | null>(null);
 
   const currentContainerRef = React.useRef<HTMLDivElement>(null);
-  const [nextContainerElement, setNextContainerElement] = React.useState<HTMLDivElement | null>(
-    null,
-  );
+  const nextContainerRef = React.useRef<HTMLDivElement>(null);
   const previousContainerRef = React.useRef<HTMLDivElement>(null);
 
-  const onAnimationsFinished = useAnimationsFinished(nextContainerElement, true);
+  const onAnimationsFinished = useAnimationsFinished(nextContainerRef, true);
   const cleanupTimeout = useAnimationFrame();
 
   const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
@@ -69,7 +68,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     // So clicking quickly on T1, T2, T3 will result in the following sequence:
     // 1. T1 -> T2: previousContent = T1, currentContent = T2
     // 2. T2 -> T3: previousContent = T2, currentContent = T3
-    const source = currentContainerRef?.current ?? nextContainerElement;
+    const source = currentContainerRef.current ?? nextContainerRef.current;
     if (!source) {
       return;
     }
@@ -83,21 +82,30 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   });
 
   const handleMeasureLayout = useEventCallback(() => {
-    console.log('Measure layout - pausing animations');
     currentContainerRef.current?.style.setProperty('animation', 'none');
     currentContainerRef.current?.style.setProperty('transition', 'none');
 
-    nextContainerElement?.style.setProperty('animation', 'none');
-    nextContainerElement?.style.setProperty('transition', 'none');
+    previousContainerRef.current?.style.setProperty('display', 'none');
+
+    nextContainerRef.current?.style.setProperty('animation', 'none');
+    nextContainerRef.current?.style.setProperty('transition', 'none');
   });
 
-  const handleMeasureLayoutComplete = useEventCallback(() => {
-    console.log('Measure layout complete - resuming animations');
+  type MeasureLayoutCompleteData = {
+    previousDimensions: Dimensions | null;
+    nextDimensions: Dimensions;
+  };
+
+  const handleMeasureLayoutComplete = useEventCallback((data: MeasureLayoutCompleteData) => {
     currentContainerRef.current?.style.removeProperty('animation');
     currentContainerRef.current?.style.removeProperty('transition');
 
-    nextContainerElement?.style.removeProperty('animation');
-    nextContainerElement?.style.removeProperty('transition');
+    previousContainerRef.current?.style.removeProperty('display');
+
+    nextContainerRef.current?.style.removeProperty('animation');
+    nextContainerRef.current?.style.removeProperty('transition');
+
+    setPreviousContentDimensions(data.previousDimensions);
   });
 
   React.useEffect(() => {
@@ -123,21 +131,6 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       capturedNodeRef.current &&
       previousContentNode?.innerHTML !== capturedNodeRef.current.innerHTML
     ) {
-      // Capture the current content dimensions, so we can set them on the previous content while transitioning.
-      // This makes the previuous content independent of the popup size changes, preventing layout shifts during the transition.
-      const currentContentRect = currentContainerRef.current?.getBoundingClientRect();
-      if (currentContentRect) {
-        setPreviousContentDimensions({
-          width: currentContentRect.width,
-          height: currentContentRect.height,
-        });
-      }
-
-      console.log({
-        previousContentNode: previousContentNode?.outerHTML,
-        capturedNodeRef: capturedNodeRef.current.outerHTML,
-      });
-
       setPreviousContentNode(capturedNodeRef.current);
 
       // Calculate the relative position between the previous and new trigger,
@@ -147,7 +140,6 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
       cleanupTimeout.request(() => {
         onAnimationsFinished(() => {
-          console.log('Animations finished');
           setPreviousContentNode(null);
           setPreviousContentDimensions(null);
           capturedNodeRef.current = null;
@@ -185,7 +177,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
           }}
           key={'previous'}
         />
-        <div data-next ref={setNextContainerElement}>
+        <div data-next ref={nextContainerRef}>
           {children}
         </div>
       </React.Fragment>
