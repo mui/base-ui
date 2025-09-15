@@ -75,8 +75,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const checked = checkedValue === value;
 
+  const radioRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const ref = useMergedRefs(inputRefProp, inputRef);
+  const mergedInputRef = useMergedRefs(inputRefProp, inputRef);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current?.checked) {
@@ -137,7 +138,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   });
 
   useIsoLayoutEffect(() => {
-    const element = buttonRef.current;
+    const element = radioRef?.current;
 
     if (!element || !fieldItemContext) {
       return undefined;
@@ -154,14 +155,14 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     return () => {
       setControlId(undefined);
     };
-  }, [buttonRef, fieldItemContext, idProp, radioId, setControlId]);
+  }, [fieldItemContext, idProp, radioId, setControlId]);
 
   const inputId = useBaseUiId();
 
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
     () => ({
       type: 'radio',
-      ref,
+      ref: mergedInputRef,
       // Set `id` to stop Chrome warning about an unassociated input
       id: inputId,
       tabIndex: -1,
@@ -197,8 +198,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
       checked,
       disabled,
       inputId,
+      mergedInputRef,
       readOnly,
-      ref,
       required,
       setCheckedValue,
       setDirty,
@@ -224,7 +225,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const isRadioGroup = setCheckedValue !== NOOP;
 
-  const refs = [forwardedRef, registerControlRef, buttonRef];
+  const refs = [forwardedRef, registerControlRef, radioRef, buttonRef];
   const props = [
     rootProps,
     fieldControlValidation?.getValidationProps ?? EMPTY_OBJECT,
