@@ -33,7 +33,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
     state,
     ref: forwardedRef,
     props: [{ 'aria-hidden': true, children: '▼' }, elementProps],
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
   });
 
   return element;
