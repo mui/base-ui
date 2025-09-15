@@ -53,7 +53,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     onOpenChange,
     onOpenChangeComplete,
     defaultOpen = false,
-    disabled = false,
+    disabled: disabledProp = false,
     modal: modalProp,
     loop = true,
     orientation = 'vertical',
@@ -128,6 +128,9 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const modal =
     (parent.type === undefined || parent.type === 'context-menu') && (modalProp ?? true);
+
+  // Inherit disabled from Menubar parent when present
+  const disabled = disabledProp || (parent.type === 'menubar' && parent.context.disabled) || false;
 
   // If this menu is a submenu, it should inherit `allowMouseEnter` from its
   // parent. Otherwise it manages the state on its own.

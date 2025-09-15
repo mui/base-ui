@@ -1,8 +1,8 @@
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import type { ProgressRoot } from './ProgressRoot';
 import { ProgressRootDataAttributes } from './ProgressRootDataAttributes';
 
-export const progressStyleHookMapping: CustomStyleHookMapping<ProgressRoot.State> = {
+export const progressStateAttributesMapping: StateAttributesMapping<ProgressRoot.State> = {
   status(value): Record<string, string> | null {
     if (value === 'progressing') {
       return { [ProgressRootDataAttributes.progressing]: '' };

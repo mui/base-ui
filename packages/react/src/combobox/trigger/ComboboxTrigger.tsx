@@ -6,7 +6,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
-import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -14,9 +14,9 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { fieldValidityMapping } from '../../field/utils/constants';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxTrigger.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxTrigger.State> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
 };
@@ -57,7 +57,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
-  const inputValue = useStore(store, selectors.inputValue);
+
+  const inputValue = useComboboxInputValueContext();
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
@@ -105,6 +106,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         onPointerEnter: trackPointerType,
         onFocus() {
           setFocused(true);
+
+          if (disabled || readOnly) {
+            return;
+          }
+
+          focusTimeout.start(0, store.state.forceMount);
         },
         onBlur() {
           setTouched(true);
@@ -112,14 +119,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           if (validationMode === 'onBlur') {
             const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
-            fieldControlValidation?.commitValidation(valueToValidate);
+            fieldControlValidation.commitValidation(valueToValidate);
           }
-
-          if (disabled || readOnly) {
-            return;
-          }
-
-          focusTimeout.start(0, () => store.state.forceMount());
         },
         onMouseDown(event) {
           if (disabled || readOnly) {
@@ -138,9 +139,13 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
-          store.state.setOpen(!open, createBaseUIEventDetails('trigger-press', event.nativeEvent));
+          const nextOpen = !open;
+          store.state.setOpen(
+            nextOpen,
+            createBaseUIEventDetails('trigger-press', event.nativeEvent),
+          );
 
-          if (currentPointerTypeRef.current !== 'touch') {
+          if (nextOpen && currentPointerTypeRef.current !== 'touch') {
             store.state.inputRef.current?.focus();
           }
         },
@@ -164,7 +169,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         : elementProps,
       getButtonProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

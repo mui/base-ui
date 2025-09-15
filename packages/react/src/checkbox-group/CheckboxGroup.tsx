@@ -132,7 +132,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       },
       elementProps,
     ],
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   return (

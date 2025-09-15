@@ -42,7 +42,7 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
     ref: forwardedRef,
     state,
     props: [{ id }, elementProps],
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   return element;

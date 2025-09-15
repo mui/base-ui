@@ -29,6 +29,8 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const cols = useStore(store, selectors.cols);
   const popupRef = useStore(store, selectors.popupRef);
   const popupProps = useStore(store, selectors.popupProps);
+  const disabled = useStore(store, selectors.disabled);
+  const readOnly = useStore(store, selectors.readOnly);
 
   const multiple = selectionMode === 'multiple';
 
@@ -74,9 +76,13 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         role: cols > 1 ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
         onKeyDown(event) {
-          if (event.key === 'Enter') {
+          if (disabled || readOnly) {
+            return;
+          }
+
+          if (event.key === 'Enter' && store.state.activeIndex !== null) {
             stopEvent(event);
-            store.state.handleEnterSelection(event.nativeEvent);
+            store.state.handleSelection(event.nativeEvent);
           }
         },
         onKeyDownCapture() {

@@ -154,7 +154,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setPositionerElement],
     state,
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
     props: [defaultProps, elementProps],
   });
 

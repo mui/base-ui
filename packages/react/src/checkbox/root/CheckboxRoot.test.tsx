@@ -651,7 +651,7 @@ describe('<Checkbox.Root />', () => {
         const button = screen.getByTestId('button');
 
         await waitFor(() => {
-          expect(label.getAttribute('for')).to.not.equal(null);
+          expect(label.getAttribute('for')).not.to.equal(null);
         });
 
         expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
