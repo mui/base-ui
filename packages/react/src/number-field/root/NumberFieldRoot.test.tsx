@@ -1259,13 +1259,14 @@ describe('<NumberField />', () => {
       expect(onValueChange.firstCall.args[0]).to.equal(1234.56);
     });
 
-    it('parses percent and permille signs in exotic forms', async () => {
+    it('parses percent and permille signs in exotic forms when formatted as percent', async () => {
       const onValueChange = spy();
       function App() {
         const [value, setValue] = React.useState<number | null>(null);
         return (
           <NumberField
             value={value}
+            format={{ style: 'percent' }}
             onValueChange={(v) => {
               onValueChange(v);
               setValue(v);
@@ -1288,7 +1289,23 @@ describe('<NumberField />', () => {
       expect(onValueChange.secondCall.args[0]).to.equal(0.012);
     });
 
-    it('parses trailing unicode minus and parentheses negatives', async () => {
+    it('ignores percent and permille symbols when not formatted as percent', async () => {
+      const onValueChange = spy();
+      await render(<NumberField onValueChange={onValueChange} />);
+
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '12' } });
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(12);
+
+      fireEvent.change(input, { target: { value: '12%' } });
+      fireEvent.change(input, { target: { value: '12‰' } });
+
+      expect(onValueChange.callCount).to.equal(1);
+      expect(input).to.have.value('12');
+    });
+
+    it('parses trailing unicode minus', async () => {
       const onValueChange = spy();
       function App() {
         const [value, setValue] = React.useState<number | null>(null);
@@ -1310,11 +1327,30 @@ describe('<NumberField />', () => {
 
       expect(onValueChange.callCount).to.equal(1);
       expect(onValueChange.firstCall.args[0]).to.equal(-1234);
+    });
 
+    it('treats parentheses negatives as invalid input', async () => {
+      const onValueChange = spy();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(null);
+        return (
+          <NumberField
+            value={value}
+            onValueChange={(v) => {
+              onValueChange(v);
+              setValue(v);
+            }}
+          />
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: '(1,234.5)' } });
 
-      expect(onValueChange.callCount).to.equal(2);
-      expect(onValueChange.secondCall.args[0]).to.equal(-1234.5);
+      expect(onValueChange.callCount).to.equal(0);
+      expect(input).to.have.value('');
     });
 
     it('collapses extra dots from mixed-locale inputs', async () => {

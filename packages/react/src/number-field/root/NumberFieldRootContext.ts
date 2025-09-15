@@ -29,6 +29,7 @@ export interface NumberFieldRootContext {
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   valueRef: React.RefObject<number | null>;
   lastChangedValueRef: React.RefObject<number | null>;
+  hasPendingCommitRef: React.RefObject<boolean>;
   isPressedRef: React.RefObject<boolean | null>;
   intentionalTouchCheckTimeout: Timeout;
   movesAfterTouchRef: React.RefObject<number | null>;

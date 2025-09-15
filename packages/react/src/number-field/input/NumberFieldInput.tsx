@@ -10,6 +10,7 @@ import { fieldValidityMapping } from '../../field/utils/constants';
 import { DEFAULT_STEP } from '../utils/constants';
 import {
   ARABIC_DETECT_RE,
+  PERSIAN_DETECT_RE,
   HAN_DETECT_RE,
   FULLWIDTH_DETECT_RE,
   getNumberLocaleDetails,
@@ -41,9 +42,6 @@ const NAVIGATE_KEYS = new Set([
   'Enter',
   'Escape',
 ]);
-
-const ARABIC_DIGITS = new Set(ARABIC_NUMERALS);
-const HAN_DIGITS = new Set(HAN_NUMERALS);
 
 /**
  * The native input control in the number field.
@@ -80,6 +78,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     value,
     onValueCommitted,
     lastChangedValueRef,
+    hasPendingCommitRef,
     valueRef,
   } = useNumberFieldRootContext();
 
@@ -176,6 +175,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       setTouched(true);
       setFocused(false);
 
+      const hadManualInput = !allowInputSyncRef.current;
+      const hadPendingProgrammaticChange = hasPendingCommitRef.current;
+
       allowInputSyncRef.current = true;
 
       if (inputValue.trim() === '') {
@@ -206,11 +208,18 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           ? Number(parsedValue.toFixed(maxFrac))
           : parsedValue;
 
+      const nextEventDetails = createBaseUIEventDetails('none', event.nativeEvent);
+      const shouldUpdateValue = value !== committed;
+      const shouldCommit = hadManualInput || shouldUpdateValue || hadPendingProgrammaticChange;
+
       if (validationMode === 'onBlur') {
         commitValidation(committed);
       }
-      if (value !== committed) {
+      if (shouldUpdateValue) {
         setValue(committed, event.nativeEvent);
+      }
+      if (shouldCommit) {
+        onValueCommitted(committed, nextEventDetails);
       }
 
       // Normalize only the displayed text
@@ -222,8 +231,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
         setInputValue(canonicalText);
       }
-
-      onValueCommitted(canonical, createBaseUIEventDetails('none', event.nativeEvent));
     },
     onChange(event) {
       // Workaround for https://github.com/facebook/react/issues/9023
@@ -246,17 +253,25 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const allowedNonNumericKeys = getAllowedNonNumericKeys();
       const isValidCharacterString = Array.from(targetValue).every((ch) => {
         const isAsciiDigit = ch >= '0' && ch <= '9';
-        const isArabicNumeral = ARABIC_DIGITS.has(ch);
-        const isHanNumeral = HAN_DIGITS.has(ch);
-        const isMinus = ch === '-';
+        const isArabicNumeral = ARABIC_DETECT_RE.test(ch);
+        const isHanNumeral = HAN_DETECT_RE.test(ch);
+        const isPersianNumeral = PERSIAN_DETECT_RE.test(ch);
+        const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(ch);
+        const isMinus = ANY_MINUS_DETECT_RE.test(ch);
         return (
           isAsciiDigit ||
           isArabicNumeral ||
           isHanNumeral ||
+          isPersianNumeral ||
+          isFullwidthNumeral ||
           isMinus ||
           allowedNonNumericKeys.has(ch)
         );
       });
+
+      if (!isValidCharacterString) {
+        return;
+      }
 
       if (event.isTrusted) {
         setInputValue(targetValue);
@@ -269,7 +284,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
 
-      if (parsedValue !== null && isValidCharacterString) {
+      if (parsedValue !== null) {
         setInputValue(targetValue);
         setValue(parsedValue, event.nativeEvent);
       }
@@ -338,7 +353,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       });
 
       const isAsciiDigit = event.key >= '0' && event.key <= '9';
-      const isLatinNumeral = /^[0-9]$/.test(event.key);
       const isArabicNumeral = ARABIC_DETECT_RE.test(event.key);
       const isHanNumeral = HAN_DETECT_RE.test(event.key);
       const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(event.key);
