@@ -352,13 +352,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             if (store.state.alwaysSubmitOnEnter) {
               // Commit the input value update synchronously so the form reads the committed value.
               ReactDOM.flushSync(() => {
-                store.state.handleEnterSelection(event.nativeEvent);
+                store.state.handleSelection(event.nativeEvent);
               });
               return;
             }
 
             stopEvent(event);
-            store.state.handleEnterSelection(event.nativeEvent);
+            store.state.handleSelection(event.nativeEvent);
           }
         },
         onPointerMove() {
