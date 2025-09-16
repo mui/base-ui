@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { getStyleHookProps } from './getStyleHookProps';
+import { getStateAttributesProps } from './getStateAttributesProps';
 
-describe('getStyleHookProps', () => {
+describe('getStateAttributesProps', () => {
   it('converts the state fields to data attributes', () => {
     const state = {
       checked: true,
@@ -9,7 +9,7 @@ describe('getStyleHookProps', () => {
       count: 42,
     };
 
-    const result = getStyleHookProps(state);
+    const result = getStateAttributesProps(state);
     expect(result).to.deep.equal({
       'data-checked': '',
       'data-orientation': 'vertical',
@@ -22,7 +22,7 @@ describe('getStyleHookProps', () => {
       readOnly: true,
     };
 
-    const result = getStyleHookProps(state);
+    const result = getStateAttributesProps(state);
     expect(result).to.deep.equal({
       'data-readonly': '',
     });
@@ -34,7 +34,7 @@ describe('getStyleHookProps', () => {
       disabled: false,
     };
 
-    const result = getStyleHookProps(state);
+    const result = getStateAttributesProps(state);
     expect(result).to.deep.equal({ 'data-required': '' });
   });
 
@@ -44,7 +44,7 @@ describe('getStyleHookProps', () => {
       disabled: false,
     };
 
-    const result = getStyleHookProps(state);
+    const result = getStateAttributesProps(state);
     expect(result).not.to.haveOwnProperty('data-disabled');
   });
 
@@ -55,7 +55,7 @@ describe('getStyleHookProps', () => {
       count: 42,
     };
 
-    const result = getStyleHookProps(state, {
+    const result = getStateAttributesProps(state, {
       checked: (value) => ({ 'data-state': value ? 'checked' : 'unchecked' }),
     });
 
@@ -72,7 +72,7 @@ describe('getStyleHookProps', () => {
       orientation: 'vertical',
     };
 
-    const result = getStyleHookProps(state, {
+    const result = getStateAttributesProps(state, {
       checked: (value) => (value === true ? { 'data-state': 'checked' } : null),
     });
 

@@ -33,7 +33,7 @@ export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
     state,
     ref: forwardedRef,
     props: [{ 'aria-hidden': true, children: '▼' }, elementProps],
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
   });
 
   return element;

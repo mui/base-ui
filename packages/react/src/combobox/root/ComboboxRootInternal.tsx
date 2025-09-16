@@ -27,6 +27,7 @@ import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
   ComboboxRootContext,
+  ComboboxInputValueContext,
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
@@ -74,7 +75,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     defaultSelectedValue = null,
     selectedValue: selectedValueProp,
     onSelectedValueChange,
-    defaultInputValue = '',
+    defaultInputValue: defaultInputValueProp,
     inputValue: inputValueProp,
     selectionMode = 'none',
     onItemHighlighted: onItemHighlightedProp,
@@ -155,9 +156,23 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     itemToStringLabel,
   ]);
 
+  // If neither inputValue nor defaultInputValue are provided, derive it from the
+  // selected value for single mode so the input reflects the selection on mount.
+  const initialDefaultInputValue = useRefWithInit<React.ComponentProps<'input'>['defaultValue']>(
+    () => {
+      if (inputValueProp !== undefined || defaultInputValueProp !== undefined) {
+        return defaultInputValueProp ?? '';
+      }
+      if (selectionMode === 'single') {
+        return stringifyItem(selectedValue, itemToStringLabel);
+      }
+      return '';
+    },
+  ).current;
+
   const [inputValue, setInputValueUnwrapped] = useControlled({
     controlled: inputValueProp,
-    default: defaultInputValue,
+    default: initialDefaultInputValue,
     name: 'Combobox',
     state: 'value',
   });
@@ -326,7 +341,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         setSelectedValue: NOOP,
         setIndices: NOOP,
         onItemHighlighted: NOOP,
-        handleEnterSelection: NOOP,
+        handleSelection: NOOP,
         getItemProps() {
           return {};
         },
@@ -449,7 +464,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   ]);
 
   useValueChanged(queryRef, query, () => {
-    if (!open || query === '' || query === String(defaultInputValue)) {
+    if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
     }
     setQueryChangedAfterOpen(true);
@@ -560,6 +575,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
+      if (open === nextOpen) {
+        return;
+      }
+
       props.onOpenChange?.(nextOpen, eventDetails);
 
       if (eventDetails.isCanceled) {
@@ -611,13 +630,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       if (
         selectionMode === 'single' &&
         nextValue != null &&
-        eventDetails.reason !== 'input-change'
+        eventDetails.reason !== 'input-change' &&
+        queryChangedAfterOpen
       ) {
-        setOpen(false, createBaseUIEventDetails('item-press', eventDetails.event as any));
-
-        if (queryChangedAfterOpen) {
-          setCloseQuery(query);
-        }
+        setCloseQuery(query);
       }
     },
   );
@@ -646,11 +662,47 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
   }, [open, selectedValue, syncSelectedIndex]);
 
-  const handleEnterSelection = useEventCallback(() => {
-    if (activeIndex != null) {
-      listRef.current[activeIndex]?.click();
-    }
-  });
+  const handleSelection = useEventCallback(
+    (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
+      let value = passedValue;
+      if (value === undefined) {
+        if (activeIndex === null) {
+          return;
+        }
+        value = valuesRef.current[activeIndex];
+      }
+
+      const targetEl = getTarget(event) as HTMLElement | null;
+      const eventDetails = createBaseUIEventDetails('item-press', event);
+
+      // Let the link handle the click.
+      const href = targetEl?.closest('a')?.getAttribute('href');
+      if (href) {
+        if (href.startsWith('#')) {
+          setOpen(false, eventDetails);
+        }
+        return;
+      }
+
+      if (multiple) {
+        const currentSelectedValue = Array.isArray(selectedValue) ? selectedValue : [];
+        const isCurrentlySelected = currentSelectedValue.includes(value);
+        const nextValue = isCurrentlySelected
+          ? currentSelectedValue.filter((v) => v !== value)
+          : [...currentSelectedValue, value];
+
+        setSelectedValue(nextValue, eventDetails);
+
+        const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
+        if (wasFiltering) {
+          setOpen(false, eventDetails);
+        }
+      } else {
+        setSelectedValue(value, eventDetails);
+        setOpen(false, eventDetails);
+      }
+    },
+  );
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -865,7 +917,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       setSelectedValue,
       setIndices,
       onItemHighlighted,
-      handleEnterSelection,
+      handleSelection,
       forceMount,
     });
   });
@@ -1045,13 +1097,15 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     <ComboboxRootContext.Provider value={store}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
         <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
-          {virtualized ? (
-            children
-          ) : (
-            <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
-              {children}
-            </CompositeList>
-          )}
+          <ComboboxInputValueContext.Provider value={inputValue}>
+            {virtualized ? (
+              children
+            ) : (
+              <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
+                {children}
+              </CompositeList>
+            )}
+          </ComboboxInputValueContext.Provider>
         </ComboboxDerivedItemsContext.Provider>
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>

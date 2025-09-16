@@ -108,6 +108,81 @@ describe('<NumberField.Input />', () => {
     expect(input).to.have.value('10');
   });
 
+  it('allows unicode plus/minus, permille and fullwidth digits on keydown', async () => {
+    await render(
+      <NumberField.Root>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    function dispatchKey(key: string) {
+      const evt = new window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      return input.dispatchEvent(evt);
+    }
+
+    expect(dispatchKey('−')).to.equal(true); // MINUS SIGN U+2212
+    expect(dispatchKey('＋')).to.equal(true); // FULLWIDTH PLUS SIGN U+FF0B
+    expect(dispatchKey('‰')).to.equal(true);
+    expect(dispatchKey('１')).to.equal(true);
+  });
+
+  it('applies locale-aware decimal/group gating (de-DE)', async () => {
+    await render(
+      <NumberField.Root locale="de-DE">
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    const dispatchKey = (key: string) => {
+      const evt = new window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      return input.dispatchEvent(evt);
+    };
+
+    // de-DE: decimal is ',' and group is '.'
+    // First comma is allowed
+    expect(dispatchKey(',')).to.equal(true);
+    // Simulate a typical user value with a digit before decimal to let change handler accept it
+    fireEvent.change(input, { target: { value: '1,' } });
+    expect(input).to.have.value('1,');
+
+    // Second comma should be blocked
+    expect(dispatchKey(',')).to.equal(false);
+
+    // Grouping '.' should be allowed multiple times
+    expect(dispatchKey('.')).to.equal(true);
+    fireEvent.change(input, { target: { value: '1.,' } });
+    expect(dispatchKey('.')).to.equal(true);
+  });
+
+  it('allows space key when locale uses space-like grouping (pl-PL)', async () => {
+    await render(
+      <NumberField.Root locale="pl-PL">
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    const dispatchKey = (key: string) => {
+      const evt = new window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      return input.dispatchEvent(evt);
+    };
+
+    // pl-PL grouping is a space-like character; typing plain space from keyboard should be allowed
+    expect(dispatchKey(' ')).to.equal(true);
+
+    // Simulate a typical user value using a regular space as group
+    fireEvent.change(input, { target: { value: '1 234' } });
+    expect(input).to.have.value('1 234');
+  });
+
   it('commits formatted value only on blur', async () => {
     await render(
       <NumberField.Root>
@@ -544,6 +619,29 @@ describe('<NumberField.Input />', () => {
     // Without explicit precision formatting, the behavior depends on the step
     // The current implementation preserves full precision until it differs from canonical
     expect(input).to.have.value((1.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
-    expect(onValueChange.callCount).to.equal(callCountBeforeBlur);
+    expect(onValueChange.callCount).to.equal(callCountBeforeBlur + 1);
+  });
+
+  it('commits parsed value on blur and normalizes display for fr-FR', async () => {
+    const onValueChange = spy();
+
+    await render(
+      <NumberField.Root locale="fr-FR" onValueChange={onValueChange}>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+
+    fireEvent.change(input, { target: { value: '1234,5' } });
+    expect(input).to.have.value('1234,5');
+
+    fireEvent.blur(input);
+
+    expect(onValueChange.callCount).to.equal(1);
+    expect(onValueChange.firstCall.args[0]).to.equal(1234.5);
+
+    expect(input.value).to.equal((1234.5).toLocaleString('fr-FR'));
   });
 });

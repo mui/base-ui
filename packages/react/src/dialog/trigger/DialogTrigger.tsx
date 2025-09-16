@@ -49,7 +49,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
       elementProps,
       getButtonProps,
     ],
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
   });
 });
 

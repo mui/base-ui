@@ -6,15 +6,15 @@ import { activeElement, contains, getTarget } from '../../floating-ui-react/util
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useToastContext } from '../provider/ToastProviderContext';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
 
-const customStyleHookMapping: CustomStyleHookMapping<ToastRoot.State> = {
+const stateAttributesMapping: StateAttributesMapping<ToastRoot.State> = {
   ...transitionStatusMapping,
   swipeDirection(value) {
     return value ? { 'data-swipe-direction': value } : null;
@@ -563,7 +563,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, toastRoot.rootRef],
     state,
-    customStyleHookMapping,
+    stateAttributesMapping,
     props: [defaultProps, elementProps],
   });
 

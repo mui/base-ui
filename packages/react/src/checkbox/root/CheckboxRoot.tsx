@@ -5,7 +5,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
+import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -277,7 +277,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     [fieldState, computedChecked, disabled, readOnly, required, computedIndeterminate],
   );
 
-  const customStyleHookMapping = useCustomStyleHookMapping(state);
+  const stateAttributesMapping = useStateAttributesMapping(state);
 
   const element = useRenderElement('button', componentProps, {
     state,
@@ -301,7 +301,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       otherGroupProps,
       getButtonProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (

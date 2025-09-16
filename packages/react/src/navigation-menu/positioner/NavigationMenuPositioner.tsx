@@ -224,7 +224,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     state,
     ref: [forwardedRef, setPositionerElement, positionerRef],
     props: [defaultProps, elementProps],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return (

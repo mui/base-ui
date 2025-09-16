@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { EMPTY_OBJECT } from '../../utils/constants';
 import { CompositeListContext } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
@@ -27,18 +28,18 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   // information for list navigation.
 
   const map = useRefWithInit(createMap<Metadata>).current;
-  const [mapTick, setMapTick] = React.useState(0);
+  const [mapTick, setMapTick] = React.useState(EMPTY_OBJECT);
   const lastTickRef = React.useRef(mapTick);
 
   const register = useEventCallback((node: Element, metadata: Metadata) => {
     map.set(node, metadata ?? null);
-    lastTickRef.current += 1;
+    lastTickRef.current = {};
     setMapTick(lastTickRef.current);
   });
 
   const unregister = useEventCallback((node: Element) => {
     map.delete(node);
-    lastTickRef.current += 1;
+    lastTickRef.current = {};
     setMapTick(lastTickRef.current);
   });
 
@@ -58,6 +59,35 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   }, [map, mapTick]);
 
   useIsoLayoutEffect(() => {
+    if (typeof MutationObserver !== 'function' || sortedMap.size === 0) {
+      return undefined;
+    }
+
+    const mutationObserver = new MutationObserver((entries) => {
+      const diff = new Set<Node>();
+      const updateDiff = (node: Node) => (diff.has(node) ? diff.delete(node) : diff.add(node));
+      entries.forEach((entry) => {
+        entry.removedNodes.forEach(updateDiff);
+        entry.addedNodes.forEach(updateDiff);
+      });
+      if (diff.size === 0) {
+        lastTickRef.current = {};
+        setMapTick(lastTickRef.current);
+      }
+    });
+
+    sortedMap.forEach((_, node) => {
+      if (node.parentElement) {
+        mutationObserver.observe(node.parentElement, { childList: true });
+      }
+    });
+
+    return () => {
+      mutationObserver.disconnect();
+    };
+  }, [sortedMap]);
+
+  useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
     if (shouldUpdateLengths) {
       if (elementsRef.current.length !== sortedMap.size) {
@@ -66,10 +96,11 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
       if (labelsRef && labelsRef.current.length !== sortedMap.size) {
         labelsRef.current.length = sortedMap.size;
       }
+      nextIndexRef.current = sortedMap.size;
     }
 
     onMapChange?.(sortedMap);
-  }, [onMapChange, sortedMap, elementsRef, labelsRef, mapTick, lastTickRef]);
+  }, [onMapChange, sortedMap, elementsRef, labelsRef, mapTick]);
 
   const subscribeMapChange = useEventCallback((fn) => {
     listeners.add(fn);
