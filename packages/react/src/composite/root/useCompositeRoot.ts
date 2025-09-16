@@ -218,12 +218,13 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           // as if every item was 1x1, then convert back to real indices.
           const cellMap = createGridCellMap(sizes, cols, dense);
           const minGridIndex = cellMap.findIndex(
-            (index) => index != null && !isListIndexDisabled(elementsRef, index, disabledIndices),
+            (index) =>
+              index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices),
           );
           // last enabled index
           const maxGridIndex = cellMap.reduce(
             (foundIndex: number, index, cellIndex) =>
-              index != null && !isListIndexDisabled(elementsRef, index, disabledIndices)
+              index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices)
                 ? cellIndex
                 : foundIndex,
             -1,
@@ -231,11 +232,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
           nextIndex = cellMap[
             getGridNavigatedIndex(
-              {
-                current: cellMap.map((itemIndex) =>
-                  itemIndex ? elementsRef.current[itemIndex] : null,
-                ),
-              },
+              cellMap.map((itemIndex) => (itemIndex ? elementsRef.current[itemIndex] : null)),
               {
                 event,
                 orientation,
@@ -248,7 +245,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
                   [
                     ...(disabledIndices ||
                       elementsRef.current.map((_, index) =>
-                        isListIndexDisabled(elementsRef, index) ? index : undefined,
+                        isListIndexDisabled(elementsRef.current, index) ? index : undefined,
                       )),
                     undefined,
                   ],
@@ -316,7 +313,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
             }
           } else {
-            nextIndex = findNonDisabledListIndex(elementsRef, {
+            nextIndex = findNonDisabledListIndex(elementsRef.current, {
               startingIndex: nextIndex,
               decrement: backwardKeys.includes(event.key),
               disabledIndices,
@@ -324,7 +321,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           }
         }
 
-        if (nextIndex !== highlightedIndex && !isIndexOutOfListBounds(elementsRef, nextIndex)) {
+        if (
+          nextIndex !== highlightedIndex &&
+          !isIndexOutOfListBounds(elementsRef.current, nextIndex)
+        ) {
           if (stopEventPropagation) {
             event.stopPropagation();
           }
