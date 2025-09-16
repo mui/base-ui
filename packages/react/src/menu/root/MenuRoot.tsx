@@ -26,10 +26,8 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import {
-  type BaseOpenChangeReason,
-  translateOpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
+import type { FloatingUIOpenChangeDetails, BaseUIChangeEventReason } from '../../utils/types';
+import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import {
   ContextMenuRootContext,
   useContextMenuRootContext,
@@ -55,7 +53,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     onOpenChange,
     onOpenChangeComplete,
     defaultOpen = false,
-    disabled = false,
+    disabled: disabledProp = false,
     modal: modalProp,
     loop = true,
     orientation = 'vertical',
@@ -74,7 +72,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [lastOpenChangeReason, setLastOpenChangeReason] =
-    React.useState<MenuRoot.OpenChangeReason | null>(null);
+    React.useState<MenuRoot.ChangeEventReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
   const [allowMouseEnterState, setAllowMouseEnterState] = React.useState(false);
 
@@ -130,6 +128,9 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const modal =
     (parent.type === undefined || parent.type === 'context-menu') && (modalProp ?? true);
+
+  // Inherit disabled from Menubar parent when present
+  const disabled = disabledProp || (parent.type === 'menubar' && parent.context.disabled) || false;
 
   // If this menu is a submenu, it should inherit `allowMouseEnter` from its
   // parent. Otherwise it manages the state on its own.
@@ -229,21 +230,33 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const allowTouchToCloseTimeout = useTimeout();
 
   const setOpen = useEventCallback(
-    (
-      nextOpen: boolean,
-      event: Event | undefined,
-      reason: MenuRoot.OpenChangeReason | undefined,
-    ) => {
-      floatingEvents?.emit('openchange', { open: nextOpen, event, reason, nested });
+    (nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) => {
+      const reason = eventDetails.reason;
 
       if (open === nextOpen) {
         return;
       }
 
+      onOpenChange?.(nextOpen, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      const details: FloatingUIOpenChangeDetails = {
+        open: nextOpen,
+        nativeEvent: eventDetails.event,
+        reason: eventDetails.reason as BaseUIChangeEventReason,
+        nested,
+      };
+
+      floatingEvents?.emit('openchange', details);
+
+      const nativeEvent = eventDetails.event as Event;
       if (
         nextOpen === false &&
-        event?.type === 'click' &&
-        (event as PointerEvent).pointerType === 'touch' &&
+        nativeEvent?.type === 'click' &&
+        (nativeEvent as PointerEvent).pointerType === 'touch' &&
         !allowTouchToCloseRef.current
       ) {
         return;
@@ -277,15 +290,14 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
       const isKeyboardClick =
         (reason === 'trigger-press' || reason === 'item-press') &&
-        (event as MouseEvent).detail === 0 &&
-        event?.isTrusted;
+        (nativeEvent as MouseEvent).detail === 0 &&
+        nativeEvent?.isTrusted;
       const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
       function changeState() {
-        onOpenChange?.(nextOpen, event, reason);
         setOpenUnwrapped(nextOpen);
         setLastOpenChangeReason(reason ?? null);
-        openEventRef.current = event ?? null;
+        openEventRef.current = eventDetails.event ?? null;
       }
 
       if (reason === 'trigger-hover') {
@@ -345,10 +357,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       floating: positionerElement,
     },
     open,
-    onOpenChange(openValue, eventValue, reasonValue) {
-      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
-    },
-    noEmit: true,
+    onOpenChange: setOpen,
   });
 
   floatingEvents = floatingRootContext.events;
@@ -589,11 +598,7 @@ export namespace MenuRoot {
     /**
      * Event handler called when the menu is opened or closed.
      */
-    onOpenChange?: (
-      open: boolean,
-      event: Event | undefined,
-      reason: OpenChangeReason | undefined,
-    ) => void;
+    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * Event handler called after any animations complete when the menu is closed.
      */
@@ -651,7 +656,8 @@ export namespace MenuRoot {
     unmount: () => void;
   }
 
-  export type OpenChangeReason = BaseOpenChangeReason | 'sibling-open';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventReason = BaseUIChangeEventReason | 'sibling-open';
 
   export type Orientation = 'horizontal' | 'vertical';
 

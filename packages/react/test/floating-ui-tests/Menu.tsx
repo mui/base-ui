@@ -262,7 +262,7 @@ export const MenuComponent = React.forwardRef<
               <FloatingFocusManager
                 context={context}
                 modal={false}
-                initialFocus={isNested ? -1 : 0}
+                initialFocus={!isNested}
                 returnFocus={!isNested}
               >
                 <div

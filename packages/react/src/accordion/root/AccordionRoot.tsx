@@ -9,8 +9,12 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import {
+  createBaseUIEventDetails,
+  type BaseUIEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 
-const rootStyleHookMapping = {
+const rootStateAttributesMapping = {
   value: () => null,
 };
 
@@ -75,19 +79,29 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   const handleValueChange = React.useCallback(
     (newValue: number | string, nextOpen: boolean) => {
+      const details = createBaseUIEventDetails('none');
       if (!openMultiple) {
         const nextValue = value[0] === newValue ? [] : [newValue];
+        onValueChange(nextValue, details);
+        if (details.isCanceled) {
+          return;
+        }
         setValue(nextValue);
-        onValueChange(nextValue);
       } else if (nextOpen) {
         const nextOpenValues = value.slice();
         nextOpenValues.push(newValue);
+        onValueChange(nextOpenValues, details);
+        if (details.isCanceled) {
+          return;
+        }
         setValue(nextOpenValues);
-        onValueChange(nextOpenValues);
       } else {
         const nextOpenValues = value.filter((v) => v !== newValue);
+        onValueChange(nextOpenValues, details);
+        if (details.isCanceled) {
+          return;
+        }
         setValue(nextOpenValues);
-        onValueChange(nextOpenValues);
       }
     },
     [onValueChange, openMultiple, setValue, value],
@@ -138,7 +152,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
       },
       elementProps,
     ],
-    customStyleHookMapping: rootStyleHookMapping,
+    stateAttributesMapping: rootStateAttributesMapping,
   });
 
   return (
@@ -202,7 +216,7 @@ export namespace AccordionRoot {
      * Event handler called when an accordion item is expanded or collapsed.
      * Provides the new value as an argument.
      */
-    onValueChange?: (value: AccordionValue) => void;
+    onValueChange?: (value: AccordionValue, eventDetails: ChangeEventDetails) => void;
     /**
      * Whether multiple items can be open at the same time.
      * @default true
@@ -215,4 +229,7 @@ export namespace AccordionRoot {
      */
     orientation?: Orientation;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

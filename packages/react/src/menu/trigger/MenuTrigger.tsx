@@ -161,7 +161,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const element = useRenderElement('button', componentProps, {
     enabled: !isMenubar,
-    customStyleHookMapping: pressableTriggerOpenStateMapping,
+    stateAttributesMapping: pressableTriggerOpenStateMapping,
     state,
     ref,
     props,
@@ -176,7 +176,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         state={state}
         refs={ref}
         props={props}
-        customStyleHookMapping={pressableTriggerOpenStateMapping}
+        stateAttributesMapping={pressableTriggerOpenStateMapping}
       />
     );
   }

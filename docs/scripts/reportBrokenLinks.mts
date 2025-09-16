@@ -2,7 +2,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFile, writeFile } from 'node:fs/promises';
-import glob from 'fast-glob';
+import { globby } from 'globby';
 import * as jsxRuntime from 'react/jsx-runtime';
 import { evaluate } from '@mdx-js/mdx';
 import rehypeExtractToc, { type Toc, type TocEntry } from '@stefanprobst/rehype-extract-toc';
@@ -54,7 +54,7 @@ async function run() {
 }
 
 function findMarkdownPages(rootDirectory: string): Promise<string[]> {
-  return glob('**/*.{md,mdx}', {
+  return globby('**/*.{md,mdx}', {
     cwd: rootDirectory,
     ignore: ['**/node_modules/**', '.next/**', 'build/**', 'export/**'],
   });

@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { NOOP } from '../utils/noop';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
+import type { BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
 
 export interface RadioGroupContext {
   disabled: boolean | undefined;
@@ -9,8 +10,8 @@ export interface RadioGroupContext {
   required: boolean | undefined;
   name: string | undefined;
   checkedValue: unknown;
-  setCheckedValue: React.Dispatch<React.SetStateAction<unknown>>;
-  onValueChange: (value: unknown, event: Event) => void;
+  setCheckedValue: (value: unknown, eventDetails: BaseUIEventDetails<'none'>) => void;
+  onValueChange: (value: unknown, eventDetails: BaseUIEventDetails<'none'>) => void;
   touched: boolean;
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   fieldControlValidation?: ReturnType<typeof useFieldControlValidation>;

@@ -363,6 +363,37 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('BaseUIEventDetails', () => {
+    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+      await render(
+        <Select.Root
+          onOpenChange={(nextOpen, eventDetails) => {
+            if (nextOpen) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+  });
+
   it('should handle browser autofill', async () => {
     const { container } = await render(
       <Select.Root name="select">
@@ -718,7 +749,7 @@ describe('<Select.Root />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(expect(document.activeElement)).to.not.equal(trigger);
+      expect(expect(document.activeElement)).not.to.equal(trigger);
 
       await user.click(trigger);
       expect(handleOpenChange.callCount).to.equal(0);
@@ -755,7 +786,7 @@ describe('<Select.Root />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(expect(document.activeElement)).to.not.equal(trigger);
+      expect(expect(document.activeElement)).not.to.equal(trigger);
 
       await user.click(trigger);
       expect(handleOpenChange.callCount).to.equal(0);
@@ -772,6 +803,78 @@ describe('<Select.Root />', () => {
       await waitFor(() => {
         expect(handleOpenChange.callCount).to.equal(1);
       });
+    });
+  });
+
+  describe('prop: readOnly', () => {
+    it('sets the readOnly state', async () => {
+      const handleOpenChange = spy();
+      const { user } = await render(
+        <Select.Root defaultValue="b" onOpenChange={handleOpenChange} readOnly>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+      expect(trigger).to.have.attribute('aria-readonly', 'true');
+      expect(trigger).to.have.attribute('data-readonly');
+
+      await user.keyboard('[Tab]');
+      expect(trigger).toHaveFocus();
+
+      await user.click(trigger);
+      expect(handleOpenChange.callCount).to.equal(0);
+    });
+
+    it('should not open the select when clicked', async () => {
+      const handleOpenChange = spy();
+      const { user } = await render(
+        <Select.Root onOpenChange={handleOpenChange} readOnly>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+
+      await user.click(trigger);
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
+    });
+
+    it('should not open the select when using keyboard', async () => {
+      const handleOpenChange = spy();
+      const { user } = await render(
+        <Select.Root onOpenChange={handleOpenChange} readOnly>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(document.activeElement).to.equal(trigger);
+
+      await user.keyboard('[ArrowDown]');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
+
+      await user.keyboard('[Enter]');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
+
+      await user.keyboard('[Space]');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
     });
   });
 

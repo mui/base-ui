@@ -53,7 +53,7 @@ beforeAll(() => {
 function App(
   props: Partial<
     Omit<FloatingFocusManagerProps, 'initialFocus'> & {
-      initialFocus?: 'two' | number;
+      initialFocus?: 'two' | boolean;
     }
   >,
 ) {
@@ -136,19 +136,13 @@ function Dialog({ render, open: passedOpen = false, children }: DialogProps) {
 
 describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
   describe('initialFocus', () => {
-    test('number', async () => {
-      const { rerender } = render(<App />);
+    test('default behavior focuses first tabbable element', async () => {
+      render(<App />);
 
       fireEvent.click(screen.getByTestId('reference'));
       await flushMicrotasks();
 
       expect(screen.getByTestId('one')).toHaveFocus();
-
-      rerender(<App initialFocus={1} />);
-      expect(screen.getByTestId('two')).not.toHaveFocus();
-
-      rerender(<App initialFocus={2} />);
-      expect(screen.getByTestId('three')).not.toHaveFocus();
     });
 
     test('ref', async () => {
@@ -497,6 +491,50 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       expect(screen.getByText('reference')).toHaveFocus();
 
       HTMLElement.prototype.focus = originalFocus;
+    });
+
+    test('removes fallback element when return element is falsy', async () => {
+      function App() {
+        const [isOpen, setIsOpen] = React.useState(false);
+
+        const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
+
+        const click = useClick(context);
+        const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+
+        return (
+          <>
+            <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+            <FloatingPortal>
+              {isOpen && (
+                <FloatingFocusManager context={context} returnFocus={() => undefined}>
+                  <div ref={refs.setFloating} {...getFloatingProps()}>
+                    <button data-testid="close" onClick={() => setIsOpen(false)} />
+                  </div>
+                </FloatingFocusManager>
+              )}
+            </FloatingPortal>
+          </>
+        );
+      }
+
+      render(<App />);
+
+      const reference = screen.getByTestId('reference');
+      await userEvent.click(reference);
+
+      const fallback = reference.nextElementSibling as HTMLElement | null;
+      await waitFor(() => {
+        expect(fallback).not.toBeNull();
+      });
+      expect(fallback?.getAttribute('aria-hidden')).toBe('true');
+      expect(fallback?.getAttribute('tabindex')).toBe('-1');
+
+      await userEvent.click(screen.getByTestId('close'));
+
+      await waitFor(() => {
+        expect(fallback && fallback.isConnected).toBe(false);
+      });
     });
   });
 
@@ -1226,6 +1264,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
     function App({ restoreFocus = true }: { restoreFocus?: boolean }) {
       const [isOpen, setIsOpen] = React.useState(false);
       const [removed, setRemoved] = React.useState(false);
+      const twoRef = React.useRef<HTMLButtonElement | null>(null);
 
       const { refs, context } = useFloating({
         open: isOpen,
@@ -1240,10 +1279,14 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
           <button onClick={() => setRemoved(true)}>remove</button>
           <button ref={refs.setReference} {...getReferenceProps()} data-testid="reference" />
           {isOpen && (
-            <FloatingFocusManager context={context} restoreFocus={restoreFocus} initialFocus={1}>
+            <FloatingFocusManager
+              context={context}
+              restoreFocus={restoreFocus}
+              initialFocus={twoRef}
+            >
               <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating">
                 <button>one</button>
-                {!removed && <button>two</button>}
+                {!removed && <button ref={twoRef}>two</button>}
                 <button>three</button>
               </div>
             </FloatingFocusManager>
@@ -1369,7 +1412,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
           />
           {isOpen && (
             <FloatingPortal>
-              <FloatingFocusManager context={context} initialFocus={-1} modal={false}>
+              <FloatingFocusManager context={context} initialFocus={false} modal={false}>
                 <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                   <button>one</button>
                   <button>two</button>
@@ -1522,7 +1565,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
             role="combobox"
           />
           {isOpen && (
-            <FloatingFocusManager context={context} initialFocus={-1}>
+            <FloatingFocusManager context={context} initialFocus={false}>
               <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating">
                 <button tabIndex={-1}>one</button>
               </div>
@@ -1673,7 +1716,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
         <>
           <button data-testid="reference" ref={refs.setReference} onClick={() => setIsOpen(true)} />
           {isOpen && (
-            <FloatingFocusManager context={context} initialFocus={-1} modal={false}>
+            <FloatingFocusManager context={context} initialFocus={false} modal={false}>
               <div ref={refs.setFloating} data-testid="floating" role="dialog" />
             </FloatingFocusManager>
           )}
@@ -1715,7 +1758,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
             ref
           </button>
           {isOpen && (
-            <FloatingFocusManager context={context} initialFocus={-1} modal={false}>
+            <FloatingFocusManager context={context} initialFocus={false} modal={false}>
               <div
                 ref={refs.setFloating}
                 role="listbox"

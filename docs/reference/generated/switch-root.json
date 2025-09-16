@@ -19,9 +19,9 @@
       "detailedType": "boolean | undefined"
     },
     "onCheckedChange": {
-      "type": "((checked: boolean, event: Event) => void)",
+      "type": "((checked: boolean, eventDetails: Switch.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the switch is activated or deactivated.",
-      "detailedType": "| ((checked: boolean, event: Event) => void)\n| undefined"
+      "detailedType": "| ((\n    checked: boolean,\n    eventDetails: Switch.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "nativeButton": {
       "type": "boolean",

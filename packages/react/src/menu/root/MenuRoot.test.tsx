@@ -38,6 +38,36 @@ describe('<Menu.Root />', () => {
     expectedPopupRole: 'menu',
   });
 
+  describe('BaseUIEventDetails', () => {
+    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+      const { getByRole } = await render(
+        <Menu.Root
+          onOpenChange={(nextOpen, eventDetails) => {
+            if (nextOpen) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Menu.Trigger>Open menu</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open menu' });
+      await userEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).to.equal(null);
+      });
+    });
+  });
+
   describe('keyboard navigation', () => {
     it('changes the highlighted item using the arrow keys', async () => {
       const { getByRole, getByTestId } = await render(
@@ -1510,7 +1540,7 @@ describe('<Menu.Root />', () => {
       expect(openChangeSpy.callCount).to.equal(2);
       expect(openChangeSpy.firstCall.args[0]).to.equal(true);
       expect(openChangeSpy.lastCall.args[0]).to.equal(false);
-      expect(openChangeSpy.lastCall.args[2]).to.equal('item-press');
+      expect(openChangeSpy.lastCall.args[1].reason).to.equal('item-press');
     });
 
     it('closes the menu on click, drag outside, release', async () => {
@@ -1549,7 +1579,7 @@ describe('<Menu.Root />', () => {
       expect(openChangeSpy.callCount).to.equal(2);
       expect(openChangeSpy.firstCall.args[0]).to.equal(true);
       expect(openChangeSpy.lastCall.args[0]).to.equal(false);
-      expect(openChangeSpy.lastCall.args[2]).to.equal('cancel-open');
+      expect(openChangeSpy.lastCall.args[1].reason).to.equal('cancel-open');
     });
   });
 });

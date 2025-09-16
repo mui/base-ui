@@ -4,6 +4,25 @@ export type HTMLProps<T = any> = React.HTMLAttributes<T> & {
   ref?: React.Ref<T> | undefined;
 };
 
+export interface FloatingUIOpenChangeDetails {
+  open: boolean;
+  reason: BaseUIChangeEventReason;
+  nativeEvent: Event;
+  nested: boolean;
+}
+
+export type BaseUIChangeEventReason =
+  | 'trigger-press'
+  | 'trigger-hover'
+  | 'trigger-focus'
+  | 'focus-out'
+  | 'escape-key'
+  | 'outside-press'
+  | 'list-navigation'
+  | 'item-press'
+  | 'cancel-open'
+  | 'none';
+
 export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
   preventBaseUIHandler: () => void;
   readonly baseUIHandlerPrevented?: boolean;

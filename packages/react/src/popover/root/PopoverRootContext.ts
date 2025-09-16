@@ -4,18 +4,12 @@ import type { InteractionType } from '@base-ui-components/utils/useEnhancedClick
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
-import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
-
-export type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press';
+import type { PopoverRoot } from './PopoverRoot';
 
 export interface PopoverRootContext {
   open: boolean;
   openOnHover: boolean;
-  setOpen: (
-    open: boolean,
-    event: Event | undefined,
-    reason: PopoverOpenChangeReason | undefined,
-  ) => void;
+  setOpen: (open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void;
   triggerElement: Element | null;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
@@ -37,7 +31,7 @@ export interface PopoverRootContext {
   triggerProps: HTMLProps;
   popupProps: HTMLProps;
   openMethod: InteractionType | null;
-  openReason: PopoverOpenChangeReason | null;
+  openReason: PopoverRoot.ChangeEventReason | null;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   modal: boolean | 'trap-focus';
 }

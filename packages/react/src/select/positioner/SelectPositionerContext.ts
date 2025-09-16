@@ -5,6 +5,8 @@ export interface SelectPositionerContext extends Omit<useAnchorPositioning.Retur
   side: 'none' | Side;
   alignItemWithTriggerActive: boolean;
   setControlledAlignItemWithTrigger: React.Dispatch<React.SetStateAction<boolean>>;
+  scrollUpArrowRef: React.RefObject<HTMLDivElement | null>;
+  scrollDownArrowRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const SelectPositionerContext = React.createContext<SelectPositionerContext | undefined>(

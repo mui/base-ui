@@ -44,7 +44,6 @@ export default function MultiSelectExample() {
           sideOffset={8}
           alignItemWithTrigger={false}
         >
-          <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
             {values.map((value) => (
               <Select.Item key={value} value={value} className={styles.Item}>
@@ -55,7 +54,6 @@ export default function MultiSelectExample() {
               </Select.Item>
             ))}
           </Select.Popup>
-          <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>
       </Select.Portal>
     </Select.Root>
