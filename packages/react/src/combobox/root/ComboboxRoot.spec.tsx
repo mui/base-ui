@@ -43,6 +43,41 @@ const objectItems = [
 />;
 
 <Combobox.Root
+  items={objectItems}
+  defaultValue={objectItems[0]}
+  itemToStringLabel={(item) => {
+    // @ts-expect-error
+    item.x;
+    return item.label;
+  }}
+  itemToStringValue={(item) => {
+    // @ts-expect-error
+    item.x;
+    return item.value;
+  }}
+  isItemEqualToValue={(a, b) => {
+    // @ts-expect-error
+    a.x === b.x;
+    return a.value === b.value;
+  }}
+/>;
+
+<Combobox.Root
+  defaultValue="a"
+  itemToStringLabel={(item) => {
+    return item;
+  }}
+  itemToStringValue={(item) => {
+    return item;
+  }}
+  isItemEqualToValue={(a, b) => {
+    // @ts-expect-error
+    a.x === b.x;
+    return a === b;
+  }}
+/>;
+
+<Combobox.Root
   multiple
   // @ts-expect-error
   defaultValue="javascript"

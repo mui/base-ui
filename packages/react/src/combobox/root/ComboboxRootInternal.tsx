@@ -51,6 +51,7 @@ import {
   Group,
   isGroupedItems,
 } from '../../utils/resolveValueLabel';
+import { defaultItemEquality, findItemIndex, itemIncludes } from '../../utils/itemEquality';
 
 /**
  * @internal
@@ -90,6 +91,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     autoHighlight = false,
     itemToStringLabel,
     itemToStringValue,
+    isItemEqualToValue = defaultItemEquality,
     virtualized = false,
     fillInputOnItemPress = true,
     modal = false,
@@ -163,7 +165,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         return defaultInputValueProp ?? '';
       }
       if (selectionMode === 'single') {
-        return stringifyItem(selectedValue, itemToStringLabel);
+        return stringifyAsLabel(selectedValue, itemToStringLabel);
       }
       return '';
     },
@@ -315,6 +317,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         virtualized,
         openOnInputClick,
         itemToStringLabel,
+        isItemEqualToValue,
         modal,
         autoHighlight,
         mounted: false,
@@ -426,20 +429,26 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
     if (multiple) {
       const current = Array.isArray(selectedValue) ? selectedValue : EMPTY_ARRAY;
-      const next = current.filter((v) => registry.includes(v));
+      const next = current.filter((v) => itemIncludes(registry, v, store.state.isItemEqualToValue));
       if (next.length !== current.length) {
         setSelectedValueUnwrapped(next);
       }
       return;
     }
 
-    const isStillPresent = selectedValue == null ? true : registry.includes(selectedValue);
+    const isStillPresent =
+      selectedValue == null
+        ? true
+        : itemIncludes(registry, selectedValue, store.state.isItemEqualToValue);
     if (isStillPresent) {
       return;
     }
 
     let fallback = null;
-    if (defaultSelectedValue != null && registry.includes(defaultSelectedValue as Value)) {
+    if (
+      defaultSelectedValue != null &&
+      itemIncludes(registry, defaultSelectedValue, store.state.isItemEqualToValue)
+    ) {
       fallback = defaultSelectedValue;
     }
     setSelectedValueUnwrapped(fallback);
@@ -649,10 +658,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     if (multiple) {
       const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
       const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = registry.indexOf(lastValue);
+      const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
       setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
     } else {
-      const index = registry.indexOf(selectedValue);
+      const index = findItemIndex(registry, selectedValue, isItemEqualToValue);
       setIndices({ selectedIndex: index === -1 ? null : index });
     }
   });
@@ -952,6 +961,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       itemToStringLabel,
       modal,
       autoHighlight,
+      isItemEqualToValue,
     });
   }, [
     store,
@@ -982,6 +992,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     itemToStringLabel,
     modal,
     autoHighlight,
+    isItemEqualToValue,
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
@@ -1251,6 +1262,11 @@ interface ComboboxRootProps<ItemValue> {
    * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
    */
   itemToStringValue?: (itemValue: ItemValue) => string;
+  /**
+   * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
+   * Defaults to `Object.is` comparison.
+   */
+  isItemEqualToValue?: (itemValue: ItemValue, selectedValue: ItemValue) => boolean;
   /**
    * Whether the items are being externally virtualized.
    * @default false

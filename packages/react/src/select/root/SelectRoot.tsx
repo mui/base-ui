@@ -41,6 +41,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     multiple,
     itemToStringLabel,
     itemToStringValue,
+    isItemEqualToValue,
     children,
   } = props;
 
@@ -63,6 +64,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     multiple,
     itemToStringLabel,
     itemToStringValue,
+    isItemEqualToValue,
   });
   const store = rootContext.store;
   const isMultiple = multiple ?? false;
@@ -269,6 +271,11 @@ interface SelectRootProps<Value> {
    * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
    */
   itemToStringValue?: (itemValue: Value) => string;
+  /**
+   * Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.
+   * Defaults to `Object.is` comparison.
+   */
+  isItemEqualToValue?: (itemValue: Value, value: Value) => boolean;
 }
 
 type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true

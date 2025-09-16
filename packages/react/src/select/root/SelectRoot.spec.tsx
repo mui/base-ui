@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { expectType } from '#test-utils';
 import { Select } from '@base-ui-components/react/select';
 
 const objectItems = [
@@ -10,8 +11,14 @@ const objectItems = [
 <Select.Root
   items={objectItems}
   defaultValue="a"
-  itemToStringLabel={(item) => item}
-  itemToStringValue={(item) => item}
+  itemToStringLabel={(item) => {
+    item.startsWith('a');
+    return item;
+  }}
+  itemToStringValue={(item) => {
+    item.startsWith('a');
+    return item;
+  }}
   onValueChange={(value) => {
     value.startsWith('a');
   }}
@@ -20,8 +27,14 @@ const objectItems = [
 <Select.Root
   items={objectItems}
   value="a"
-  itemToStringLabel={(item) => item}
-  itemToStringValue={(item) => item}
+  itemToStringLabel={(item) => {
+    item.startsWith('a');
+    return item;
+  }}
+  itemToStringValue={(item) => {
+    item.startsWith('a');
+    return item;
+  }}
   onValueChange={(value) => {
     value.startsWith('a');
   }}
@@ -50,6 +63,28 @@ const objectValueItems: Array<{ value: Obj; label: string }> = [
   itemToStringValue={(item) => item.code}
   onValueChange={(value) => {
     value.code;
+  }}
+/>;
+
+<Select.Root
+  value="a"
+  isItemEqualToValue={(item, value) => {
+    expectType<string, typeof item>(item);
+    expectType<string, typeof value>(value);
+    item.toUpperCase();
+    value?.toUpperCase();
+    return item === value;
+  }}
+/>;
+
+<Select.Root
+  value={objectValueItems[0]}
+  isItemEqualToValue={(item, value) => {
+    expectType<(typeof objectValueItems)[number], typeof item>(item);
+    expectType<(typeof objectValueItems)[number], typeof value>(value);
+    item.value.code;
+    value?.value.code;
+    return value != null && item.value.code === value.value.code;
   }}
 />;
 

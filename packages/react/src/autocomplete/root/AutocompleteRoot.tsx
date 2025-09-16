@@ -142,6 +142,7 @@ export namespace AutocompleteRoot {
       | 'fillInputOnItemPress'
       | 'clearInputOnCloseComplete'
       | 'itemToStringValue'
+      | 'isItemEqualToValue'
       // Different names
       | 'inputValue' // value
       | 'defaultInputValue' // defaultValue
@@ -181,7 +182,7 @@ export namespace AutocompleteRoot {
      */
     onValueChange?: (value: string, eventDetails: ChangeEventDetails) => void;
     /**
-     * When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for display in the input.
+     * When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.
      * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
      */
     itemToStringValue?: (itemValue: ItemValue) => string;

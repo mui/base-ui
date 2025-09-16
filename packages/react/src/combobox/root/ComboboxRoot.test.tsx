@@ -3023,4 +3023,48 @@ describe('<Combobox.Root />', () => {
       );
     });
   });
+
+  describe('prop: isItemEqualToValue', () => {
+    it('matches object values using the provided comparator', async () => {
+      const users = [
+        { id: 1, name: 'Alice' },
+        { id: 2, name: 'Bob' },
+      ];
+
+      await render(
+        <Combobox.Root
+          items={users}
+          value={{ id: 2, name: 'Bob' }}
+          itemToStringLabel={(item) => item.name}
+          itemToStringValue={(item) => String(item.id)}
+          isItemEqualToValue={(item, value) => item.id === value.id}
+          defaultOpen
+        >
+          <Combobox.Input data-testid="input" />
+          <span data-testid="value">
+            <Combobox.Value />
+          </span>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item.id} value={item}>
+                      {item.name}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Bob');
+      expect(screen.getByRole('option', { name: 'Bob' })).to.have.attribute(
+        'aria-selected',
+        'true',
+      );
+    });
+  });
 });

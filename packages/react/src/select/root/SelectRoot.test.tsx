@@ -2373,4 +2373,46 @@ describe('<Select.Root />', () => {
       expect(screen.getByRole('option', { name: 'c' })).to.have.attribute('data-selected', '');
     });
   });
+
+  describe('prop: isItemEqualToValue', () => {
+    it('matches object values using the provided comparator', async () => {
+      const users = [
+        { id: 1, name: 'Alice' },
+        { id: 2, name: 'Bob' },
+      ];
+
+      await render(
+        <Select.Root
+          value={{ id: 2, name: 'Bob' }}
+          itemToStringLabel={(item) => item.name}
+          itemToStringValue={(item) => String(item.id)}
+          isItemEqualToValue={(item, value) => value != null && item.id === value.id}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {users.map((user) => (
+                  <Select.Item key={user.id} value={user}>
+                    {user.name}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.text('Bob');
+
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Bob' })).to.have.attribute('data-selected', '');
+      });
+    });
+  });
 });

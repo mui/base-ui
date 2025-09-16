@@ -13,6 +13,7 @@ export type State = {
     | undefined;
   itemToStringLabel: ((item: any) => string) | undefined;
   itemToStringValue: ((item: any) => string) | undefined;
+  isItemEqualToValue: (item: any, value: any) => boolean;
 
   value: any;
   label: string;
@@ -45,6 +46,7 @@ export const selectors = {
   items: createSelector((state: State) => state.items),
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
   itemToStringValue: createSelector((state: State) => state.itemToStringValue),
+  isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
 
   value: createSelector((state: State) => state.value),
   label: createSelector((state: State) => state.label),
@@ -60,12 +62,16 @@ export const selectors = {
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
 
   isSelected: createSelector((state: State, index: number, value: any) => {
+    const comparer = state.isItemEqualToValue;
     if (state.multiple) {
-      return Array.isArray(state.value) && state.value.includes(value);
+      return Array.isArray(state.value) && state.value.some((item) => comparer(item, value));
     }
     // `selectedIndex` is only updated after the items mount for the first time,
     // the value check avoids a re-render for the initially selected item.
-    return state.selectedIndex === index || state.value === value;
+    if (state.selectedIndex === index && state.selectedIndex !== null) {
+      return true;
+    }
+    return comparer(state.value, value);
   }),
   isSelectedByFocus: createSelector((state: State, index: number) => {
     return state.selectedIndex === index;

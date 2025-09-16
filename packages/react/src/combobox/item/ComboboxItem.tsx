@@ -17,6 +17,7 @@ import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
+import { findItemIndex } from '../../utils/itemEquality';
 
 /**
  * An individual item in the list.
@@ -54,9 +55,15 @@ export const ComboboxItem = React.memo(
     const listRef = useStore(store, selectors.listRef);
     const valuesRef = useStore(store, selectors.valuesRef);
     const allValuesRef = useStore(store, selectors.allValuesRef);
+    const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const selectable = selectionMode !== 'none';
-    const index = indexProp ?? (virtualized ? flatFilteredItems.indexOf(value) : listItem.index);
+    const virtualizedIndex = virtualized
+      ? findItemIndex(flatFilteredItems, value, isItemEqualToValue)
+      : listItem.index;
+    const computedIndex =
+      virtualized && virtualizedIndex !== -1 ? virtualizedIndex : listItem.index;
+    const index = indexProp ?? computedIndex;
 
     const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
@@ -118,10 +125,10 @@ export const ComboboxItem = React.memo(
         ? rootSelectedValue[rootSelectedValue.length - 1]
         : rootSelectedValue;
 
-      if (lastSelectedValue != null && lastSelectedValue === value) {
+      if (lastSelectedValue != null && isItemEqualToValue(lastSelectedValue, value)) {
         store.set('selectedIndex', index);
       }
-    }, [hasRegistered, items, store, index, value, rootSelectedValue]);
+    }, [hasRegistered, items, store, index, value, rootSelectedValue, isItemEqualToValue]);
 
     const state: ComboboxItem.State = React.useMemo(
       () => ({

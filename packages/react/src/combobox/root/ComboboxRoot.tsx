@@ -9,6 +9,19 @@ import type { Group } from '../../utils/resolveValueLabel';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/autocomplete)
  */
+export function ComboboxRoot<ItemValue, Multiple extends boolean | undefined = false>(
+  props: Omit<ComboboxRoot.Props<ItemValue, ItemValue, Multiple>, 'items'> & {
+    /**
+     * The items to be displayed in the list.
+     * Can be either a flat array of items or an array of groups with items.
+     */ items?: undefined;
+  },
+): React.JSX.Element;
+export function ComboboxRoot<
+  ItemValue,
+  SelectedValue = ItemValue,
+  Multiple extends boolean | undefined = false,
+>(props: ComboboxRoot.Props<ItemValue, SelectedValue, Multiple>): React.JSX.Element;
 export function ComboboxRoot<
   ItemValue,
   SelectedValue = ItemValue,
@@ -50,6 +63,7 @@ export namespace ComboboxRoot {
     | 'items'
     | 'itemToStringLabel'
     | 'itemToStringValue'
+    | 'isItemEqualToValue'
     // Different names
     | 'selectionMode'
     | 'defaultSelectedValue'
@@ -65,6 +79,7 @@ export namespace ComboboxRoot {
     multiple?: Multiple;
     /**
      * The items to be displayed in the list.
+     * Can be either a flat array of items or an array of groups with items.
      */
     items?: ItemValue[] | Group<ItemValue>[];
     /**
@@ -77,6 +92,11 @@ export namespace ComboboxRoot {
      * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
      */
     itemToStringValue?: (itemValue: ItemValue) => string;
+    /**
+     * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
+     * Defaults to `Object.is` comparison.
+     */
+    isItemEqualToValue?: (itemValue: ItemValue, selectedValue: ItemValue) => boolean;
     /**
      * The uncontrolled selected value of the combobox when it's initially rendered.
      *

@@ -62,7 +62,7 @@
     },
     "itemToStringValue": {
       "type": "((itemValue: Value) => string)",
-      "description": "When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for display in the input.\nIf the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.",
+      "description": "When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.\nIf the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.",
       "detailedType": "((itemValue: Value) => string) | undefined"
     },
     "items": {
