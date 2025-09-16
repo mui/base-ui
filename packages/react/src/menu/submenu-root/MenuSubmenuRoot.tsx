@@ -31,4 +31,7 @@ export namespace MenuSubmenuRoot {
   }
 
   export interface State {}
+
+  export type ChangeEventReason = MenuRoot.ChangeEventReason;
+  export type ChangeEventDetails = MenuRoot.ChangeEventDetails;
 }
