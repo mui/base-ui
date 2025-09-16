@@ -111,26 +111,44 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
   );
 
+  // If there's just one trigger, we can skip the auto-resize logic as
+  // the popover will always be anchored to the same position.
+  const autoresizeEnabled = triggers.size > 1;
+
   usePopupAutoResize({
     popupElement,
     positionerElement,
     open,
     content: payload,
-    enabled: triggers.size > 1,
+    enabled: autoresizeEnabled,
     onMeasureLayout: handleMeasureLayout,
     onMeasureLayoutComplete: handleMeasureLayoutComplete,
   });
 
-  // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
-  let isOriginSide = positioner.side === 'top';
-  let isPhysicalLeft = positioner.side === 'left';
-  if (direction === 'rtl') {
-    isOriginSide = isOriginSide || positioner.side === 'inline-end';
-    isPhysicalLeft = isPhysicalLeft || positioner.side === 'inline-end';
-  } else {
-    isOriginSide = isOriginSide || positioner.side === 'inline-start';
-    isPhysicalLeft = isPhysicalLeft || positioner.side === 'inline-start';
-  }
+  const anchoringStyles: React.CSSProperties = React.useMemo(() => {
+    if (!autoresizeEnabled) {
+      return EMPTY_OBJECT;
+    }
+
+    // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
+    let isOriginSide = positioner.side === 'top';
+    let isPhysicalLeft = positioner.side === 'left';
+    if (direction === 'rtl') {
+      isOriginSide = isOriginSide || positioner.side === 'inline-end';
+      isPhysicalLeft = isPhysicalLeft || positioner.side === 'inline-end';
+    } else {
+      isOriginSide = isOriginSide || positioner.side === 'inline-start';
+      isPhysicalLeft = isPhysicalLeft || positioner.side === 'inline-start';
+    }
+
+    return isOriginSide
+      ? {
+          position: 'absolute',
+          [positioner.side === 'top' ? 'bottom' : 'top']: '0',
+          [isPhysicalLeft ? 'right' : 'left']: '0',
+        }
+      : EMPTY_OBJECT;
+  }, [positioner.side, direction, autoresizeEnabled]);
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -140,13 +158,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       {
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
-        style: isOriginSide
-          ? {
-              position: 'absolute',
-              [positioner.side === 'top' ? 'bottom' : 'top']: '0',
-              [isPhysicalLeft ? 'right' : 'left']: '0',
-            }
-          : {},
+        style: anchoringStyles,
       },
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
