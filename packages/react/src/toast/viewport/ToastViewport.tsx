@@ -159,11 +159,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   function handleMouseLeave() {
-    const activeEl = activeElement(ownerDocument(viewportRef.current));
-    if (contains(viewportRef.current, activeEl) && isFocusVisible(activeEl)) {
-      return;
-    }
-
     resumeTimers();
     setHovering(false);
   }
@@ -178,16 +173,14 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       return;
     }
 
-    // If the window was previously blurred, the focus must be visible to
-    // pause the timers, since for pointers it's unexpected that focus is
-    // considered inside the viewport at this point.
+    // Only set focused when the active element inside is focus-visible.
+    // This prevents the viewport from staying expanded when clicking
+    // inside without keyboard navigation.
     const activeEl = activeElement(ownerDocument(viewportRef.current));
-    if (!windowFocusedRef.current && !isFocusVisible(activeEl)) {
-      return;
+    if (contains(viewportRef.current, activeEl) && isFocusVisible(activeEl)) {
+      setFocused(true);
+      pauseTimers();
     }
-
-    setFocused(true);
-    pauseTimers();
   }
 
   function handleBlur(event: React.FocusEvent) {
