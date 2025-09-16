@@ -39,6 +39,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const { store } = usePopoverRootContext();
 
   const activeTrigger = useStore(store, selectors.activeTriggerElement);
+  const open = useStore(store, selectors.open);
   const previousActiveTrigger = usePreviousValue(activeTrigger);
 
   const floatingContext = useStore(store, selectors.floatingRootContext);
@@ -125,6 +126,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     // When a trigger changes, set the captured children HTML to state,
     // so we can render both new and old content.
     if (
+      open &&
       activeTrigger &&
       previousActiveTrigger &&
       activeTrigger !== previousActiveTrigger &&
@@ -148,6 +150,12 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       });
 
       lastHandledTriggerRef.current = activeTrigger;
+    } else if (!open) {
+      setPreviousContentNode(null);
+      setPreviousContentDimensions(null);
+      setNewTriggerOffset(null);
+      capturedNodeRef.current = null;
+      lastHandledTriggerRef.current = null;
     }
   }, [
     activeTrigger,
@@ -155,6 +163,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     previousContentNode,
     onAnimationsFinished,
     cleanupTimeout,
+    open,
   ]);
 
   let childrenToRender: React.ReactNode;
@@ -199,9 +208,9 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
   const state = React.useMemo(() => {
     return {
-      activationDirection: getActivationDirection(newTriggerOffset),
+      activationDirection: open ? getActivationDirection(newTriggerOffset) : undefined,
     };
-  }, [newTriggerOffset]);
+  }, [newTriggerOffset, open]);
 
   return useRenderElement('div', componentProps, {
     state,

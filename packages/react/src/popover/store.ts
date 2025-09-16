@@ -93,7 +93,7 @@ export const selectors = {
 
   activeTriggerId: createSelector((state: State) => state.activeTriggerId),
   activeTriggerElement: createSelector((state: State) =>
-    state.activeTriggerId != null
+    state.open && state.activeTriggerId != null
       ? (state.triggers.get(state.activeTriggerId)?.element ?? null)
       : null,
   ),
