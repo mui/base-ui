@@ -3,7 +3,7 @@ import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
-import { HTMLProps } from '../../utils/types';
+import { BaseUIEvent, HTMLProps } from '../../utils/types';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalSupportedObject } from '../../models';
 import { unstable_useWeekList as useWeekList } from '../../use-week-list';
@@ -18,9 +18,14 @@ import {
   ARROW_UP,
   HORIZONTAL_KEYS,
   VERTICAL_KEYS,
+  HOME,
+  END,
+  PAGE_UP,
+  PAGE_DOWN,
 } from '../../composite/composite';
 
 const BACKWARD_KEYS = new Set([ARROW_UP, ARROW_LEFT]);
+const CUSTOM_NAVIGATION_KEYS = new Set([HOME, END, PAGE_UP, PAGE_DOWN]);
 
 export function useSharedCalendarDayGridBody(
   parameters: useSharedCalendarDayGridBody.Parameters,
@@ -28,17 +33,18 @@ export function useSharedCalendarDayGridBody(
   const { fixedWeekNumber, children, offset = 0 } = parameters;
 
   const adapter = useTemporalAdapter();
-  const { store, registerDayGrid, setVisibleDate } = useSharedCalendarRootContext();
-  const visibleDate = useStore(store, selectors.visibleDate);
+  const { store, registerDayGrid, setVisibleDate, currentMonthDayGridRef } =
+    useSharedCalendarRootContext();
+  const visibleMonth = useStore(store, selectors.visibleMonth);
   const referenceDate = useStore(store, selectors.referenceDate);
   const selectedDates = useStore(store, selectors.selectedDates);
   const ref = React.useRef<HTMLDivElement>(null);
   const [highlightedIndex, setHighlightedIndex] = React.useState(0);
+  const executeAfterItemMapUpdate = React.useRef<(newMap: any) => void>(null);
 
   const month = React.useMemo(() => {
-    const cleanVisibleDate = adapter.startOfMonth(visibleDate);
-    return offset === 0 ? cleanVisibleDate : adapter.addMonths(cleanVisibleDate, offset);
-  }, [adapter, visibleDate, offset]);
+    return offset === 0 ? visibleMonth : adapter.addMonths(visibleMonth, offset);
+  }, [adapter, visibleMonth, offset]);
 
   React.useEffect(() => {
     return registerDayGrid(month);
@@ -91,6 +97,8 @@ export function useSharedCalendarDayGridBody(
     () => new Map<Node, CompositeMetadata<useSharedCalendarDayGridBody.ItemMetadata> | null>(),
   );
 
+  const items = React.useMemo(() => Array.from(itemMap.keys()) as HTMLElement[], [itemMap]);
+
   const disabledIndices = React.useMemo(() => {
     const output: number[] = [];
     for (const itemMetadata of itemMap.values()) {
@@ -100,6 +108,120 @@ export function useSharedCalendarDayGridBody(
     }
     return output;
   }, [itemMap]);
+
+  const handleItemMapUpdate = useEventCallback((newMap: typeof itemMap) => {
+    setItemMap(newMap);
+    if (executeAfterItemMapUpdate.current) {
+      queueMicrotask(() => {
+        executeAfterItemMapUpdate.current?.(newMap);
+        executeAfterItemMapUpdate.current = null;
+      });
+    }
+  });
+
+  const focusNextNonDisabledElement = ({
+    elements = items,
+    newHighlightedIndex,
+    decrement,
+    amount,
+  }: {
+    elements?: Array<HTMLElement | null> | undefined;
+    newHighlightedIndex: number;
+    decrement: boolean;
+    amount: number;
+  }) => {
+    // Find a non disabled index if the new initially guessed index is disabled
+    if (isListIndexDisabled(elements, newHighlightedIndex, disabledIndices)) {
+      newHighlightedIndex = findNonDisabledListIndex(elements, {
+        startingIndex: newHighlightedIndex,
+        decrement,
+        disabledIndices,
+        amount,
+      });
+    }
+    if (newHighlightedIndex > -1) {
+      setHighlightedIndex(newHighlightedIndex);
+      const newHighlightedElement = elements[newHighlightedIndex];
+      if (newHighlightedElement) {
+        newHighlightedElement.focus();
+      }
+    }
+  };
+
+  const handleKeyboardNavigation = (event: BaseUIEvent<React.KeyboardEvent>) => {
+    const eventKey = event.key;
+    if (!CUSTOM_NAVIGATION_KEYS.has(eventKey)) {
+      return;
+    }
+    switch (eventKey) {
+      case HOME:
+      case END: {
+        // allow for default composite navigation in case we are on the first or last day of the week
+        if ((highlightedIndex + 1) % 7 === (eventKey === HOME ? 1 : 0)) {
+          return;
+        }
+        // prevent default composite navigation and handle it ourselves
+        event.preventDefault();
+        event.preventBaseUIHandler();
+        const currentWeekStartIndex = Math.floor(highlightedIndex / 7) * 7;
+        const newHighlightedIndex =
+          eventKey === HOME ? currentWeekStartIndex : currentWeekStartIndex + 6;
+        focusNextNonDisabledElement({
+          elements: items,
+          newHighlightedIndex,
+          decrement: eventKey === HOME,
+          amount: 1,
+        });
+        break;
+      }
+
+      case PAGE_UP:
+      case PAGE_DOWN: {
+        event.preventDefault();
+        // Without knowing the current day we can not move to next month and focus the same day
+        if (!currentMonthDayGridRef.current) {
+          return;
+        }
+        const decrement = eventKey === PAGE_UP;
+        let amount = 1;
+        if (event.shiftKey) {
+          amount = 12;
+        }
+        const gridDays = Object.values(currentMonthDayGridRef.current).flat();
+        const currentDay = gridDays[highlightedIndex];
+        if (!currentDay) {
+          return;
+        }
+        const dayOfMonth = adapter.getDate(currentDay);
+        setVisibleDate(adapter.addMonths(visibleMonth, decrement ? -amount : amount), false);
+        executeAfterItemMapUpdate.current = (newMap: typeof itemMap) => {
+          // Short-circuit if the day grid has not been remounted
+          if (!currentMonthDayGridRef.current) {
+            return;
+          }
+          const newGridDays: TemporalSupportedObject[] = Object.values(
+            currentMonthDayGridRef.current,
+          ).flat();
+          // Try to find the same day in the new month
+          const sameDayInNewMonthIndex = newGridDays.findIndex(
+            (day) => adapter.getDate(day) === dayOfMonth,
+          );
+          const newItems = Array.from(newMap.keys()) as HTMLElement[];
+          focusNextNonDisabledElement({
+            elements: newItems,
+            newHighlightedIndex: sameDayInNewMonthIndex,
+            decrement: eventKey === PAGE_UP,
+            amount: 1,
+          });
+        };
+
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+  };
 
   const handleItemLooping = useEventCallback(
     (
@@ -122,22 +244,13 @@ export function useSharedCalendarDayGridBody(
         // Guess the same weekday in the last week of the previous month
         newHighlightedIndex = weeks.length * 7 - (7 - (startingIndex % 7));
       }
-      // Find a non disabled index if the new initially guessed index is disabled
-      if (isListIndexDisabled(elementsRef, newHighlightedIndex, disabledIndices)) {
-        newHighlightedIndex = findNonDisabledListIndex(elementsRef, {
-          startingIndex: newHighlightedIndex,
-          decrement,
-          disabledIndices,
-          amount: isHorizontal ? 1 : 7,
-        });
-      }
-      if (newHighlightedIndex > -1) {
-        setHighlightedIndex(newHighlightedIndex);
-        const newHighlightedElement = elementsRef.current[newHighlightedIndex];
-        if (newHighlightedElement) {
-          newHighlightedElement.focus();
-        }
-      }
+
+      focusNextNonDisabledElement({
+        elements: elementsRef.current,
+        newHighlightedIndex,
+        decrement,
+        amount: isHorizontal ? 1 : 7,
+      });
     },
   );
 
@@ -146,27 +259,30 @@ export function useSharedCalendarDayGridBody(
     disabledIndices,
     orientation: 'horizontal',
     enableHomeAndEndKeys: true,
-    onMapChange: setItemMap,
+    onMapChange: handleItemMapUpdate,
     highlightedIndex,
+    // @ts-expect-error TODO: temporary solution
+    onKeyDown: handleKeyboardNavigation,
     onHighlightedIndexChange: setHighlightedIndex,
     onLoop: (event, prevIndex, nextIndex, elementsRef) => {
       event.preventDefault();
-      if (VERTICAL_KEYS.has(event.key)) {
-        const newWeekDay = elementsRef.current[prevIndex - (event.key === ARROW_UP ? 7 : -7)];
+      const eventKey = event.key;
+      if (VERTICAL_KEYS.has(eventKey)) {
+        const newWeekDay = elementsRef.current[prevIndex - (eventKey === ARROW_UP ? 7 : -7)];
         if (newWeekDay && newWeekDay.dataset.disabled !== undefined) {
           return prevIndex;
         }
-      } else if (HORIZONTAL_KEYS.has(event.key)) {
-        const newDay = elementsRef.current[prevIndex + (event.key === ARROW_LEFT ? -1 : 1)];
+      } else if (HORIZONTAL_KEYS.has(eventKey)) {
+        const newDay = elementsRef.current[prevIndex + (eventKey === ARROW_LEFT ? -1 : 1)];
         if (newDay && newDay.dataset.disabled !== undefined) {
           return prevIndex;
         }
       }
-      const decrement = BACKWARD_KEYS.has(event.key);
-      setVisibleDate(adapter.addMonths(visibleDate, decrement ? -1 : 1), false);
+      const decrement = BACKWARD_KEYS.has(eventKey);
+      setVisibleDate(adapter.addMonths(visibleMonth, decrement ? -1 : 1), false);
       // Ensure the `handleItemLooping` uses the latest state/render after the visible date update
       queueMicrotask(() => {
-        handleItemLooping(event.key, prevIndex, elementsRef, decrement);
+        handleItemLooping(eventKey, prevIndex, elementsRef, decrement);
       });
       // Return existing index to avoid `composite` handling this highlight update
       return prevIndex;

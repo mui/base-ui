@@ -187,6 +187,14 @@ export const selectors = {
    */
   visibleDate: createSelector((state: CalendarState) => state.visibleDate),
   /**
+   * Returns the current visible month.
+   */
+  visibleMonth: createSelector(
+    (state: CalendarState) => state.adapter,
+    (state: CalendarState) => state.visibleDate,
+    (adapter, visibleDate) => adapter.startOfMonth(visibleDate),
+  ),
+  /**
    * Returns the current value with the timezone to render applied.
    */
   valueWithTimezoneToRender: valueWithTimezoneToRenderSelector,

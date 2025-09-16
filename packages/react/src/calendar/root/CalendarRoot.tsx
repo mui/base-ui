@@ -88,6 +88,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
   });
 
   const visibleDate = useStore(store, selectors.visibleDate);
+  const visibleMonth = useStore(store, selectors.visibleMonth);
   const publicContext: CalendarContext = React.useMemo(() => ({ visibleDate }), [visibleDate]);
 
   const resolvedChildren = React.useMemo(() => {
@@ -100,11 +101,11 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
 
   // TODO: Improve localization support (right now it doesn't work well with RTL languages)
   const ariaLabel = React.useMemo(() => {
-    const formattedVisibleDate = adapter.format(visibleDate, 'fullMonthAndYear').toLowerCase();
+    const formattedVisibleMonth = adapter.format(visibleMonth, 'fullMonthAndYear').toLowerCase();
     const prefix = ariaLabelProp ? `${ariaLabelProp}, ` : '';
 
-    return `${prefix}${formattedVisibleDate}`;
-  }, [adapter, ariaLabelProp, visibleDate]);
+    return `${prefix}${formattedVisibleMonth}`;
+  }, [adapter, ariaLabelProp, visibleMonth]);
 
   const element = useRenderElement('div', componentProps, {
     state,

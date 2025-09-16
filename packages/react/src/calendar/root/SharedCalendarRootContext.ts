@@ -19,6 +19,18 @@ export interface SharedCalendarRootContext {
    * Register a day grid.
    */
   registerDayGrid: (month: TemporalSupportedObject) => () => void;
+  /**
+   * Register the current month's day grid row/week.
+   */
+  registerCurrentMonthDayGrid: (
+    week: TemporalSupportedObject,
+    days: TemporalSupportedObject[],
+  ) => () => void;
+  /**
+   * The current month day grid days.
+   * The keys are the week's first day UTC milliseconds and the values are the days of that week.
+   */
+  currentMonthDayGridRef: React.RefObject<Record<number, TemporalSupportedObject[]> | null>;
 }
 
 export const SharedCalendarRootContext = React.createContext<SharedCalendarRootContext | undefined>(

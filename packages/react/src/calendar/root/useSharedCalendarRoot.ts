@@ -118,6 +118,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
   }, [manager, value, invalid, validationProps]);
 
   const dayGridsRef = React.useRef<Record<number, TemporalSupportedObject>>({});
+  const currentMonthDayGridRef = React.useRef<Record<number, TemporalSupportedObject[]>>(null);
 
   const registerDayGrid = useEventCallback((month: TemporalSupportedObject) => {
     const id = Math.random();
@@ -127,6 +128,21 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       delete dayGridsRef.current[id];
     };
   });
+
+  const registerCurrentMonthDayGrid = useEventCallback(
+    (week: TemporalSupportedObject, days: TemporalSupportedObject[]) => {
+      if (currentMonthDayGridRef.current == null) {
+        currentMonthDayGridRef.current = {};
+      }
+      const weekTime = adapter.toJsDate(week).getTime();
+      if (currentMonthDayGridRef.current[weekTime] == null) {
+        currentMonthDayGridRef.current[weekTime] = days;
+      }
+      return () => {
+        delete currentMonthDayGridRef.current?.[weekTime];
+      };
+    },
+  );
 
   const isDateCellVisible = (date: TemporalSupportedObject) => {
     if (Object.values(dayGridsRef.current).length > 0) {
@@ -221,9 +237,11 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       store,
       setVisibleDate: handleVisibleDateChange,
       registerDayGrid,
+      registerCurrentMonthDayGrid,
+      currentMonthDayGridRef,
       selectDate,
     }),
-    [store, handleVisibleDateChange, registerDayGrid, selectDate],
+    [store, handleVisibleDateChange, registerDayGrid, registerCurrentMonthDayGrid, selectDate],
   );
 
   useIsoLayoutEffect(() => {
