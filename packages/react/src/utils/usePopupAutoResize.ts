@@ -151,7 +151,16 @@ interface UsePopupAutoResizeParameters {
    * Whether the auto-resize is enabled.
    */
   enabled?: boolean;
+  /**
+   * Callback fired immediately before measuring the dimensions of the new content.
+   */
   onMeasureLayout?: () => void;
+  /**
+   * Callback fired after the new dimensions have been measured.
+   *
+   * @param previousDimensions Dimensions before the change, or `null` if this is the first measurement.
+   * @param newDimensions Newly measured dimensions.
+   */
   onMeasureLayoutComplete?: (
     previousDimensions: Dimensions | null,
     newDimensions: Dimensions,

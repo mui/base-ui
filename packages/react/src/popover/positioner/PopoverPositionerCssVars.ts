@@ -24,4 +24,14 @@ export enum PopoverPositionerCssVars {
    * @type {string}
    */
   transformOrigin = '--transform-origin',
+  /**
+   * The width of the popover.
+   * It is important to set `width` to this value when using CSS to animate size changes.
+   */
+  popoverWidth = '--popover-width',
+  /**
+   * The height of the popover.
+   * It is important to set `height` to this value when using CSS to animate size changes.
+   */
+  popoverHeight = '--popover-height',
 }

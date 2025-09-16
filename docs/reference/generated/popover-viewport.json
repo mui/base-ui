@@ -18,6 +18,27 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Popover.Viewport.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
-  "cssVariables": {}
+  "dataAttributes": {
+    "data-activation-direction": {
+      "description": "Indicates the direction from which the popup was activated.\nThis can be used to create directional animations based on how the popup was triggered.\nContains space-separated values for both horizontal and vertical axes.",
+      "type": "`${'left' | 'right'} {'top' | 'bottom'}`"
+    },
+    "data-current": {
+      "description": "Applied to the direct child of the viewport when no transitions are present.\nThis element is replaced with 'previous' and 'next' containers when transitions occur."
+    },
+    "data-next": {
+      "description": "Applied to the direct child of the viewport that contains the entering content when transitions are present."
+    },
+    "data-previous": {
+      "description": "Applied to the direct child of the viewport that contains the exiting content when transitions are present."
+    }
+  },
+  "cssVariables": {
+    "--popup-height": {
+      "description": "The height of the parent popup.\nThis variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.\nIt can be used to freeze the dimensions of the popup when animating between different content."
+    },
+    "--popup-width": {
+      "description": "The width of the parent popup.\nThis variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.\nIt can be used to freeze the dimensions of the popup when animating between different content."
+    }
+  }
 }

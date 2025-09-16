@@ -12,6 +12,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { selectors } from '../store';
 import { Dimensions } from '../../floating-ui-react/types';
+import { PopoverViewportCssVars } from './PopoverViewportCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverViewport.State> = {
   activationDirection: (value) =>
@@ -170,11 +171,13 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
           data-previous
           inert={inertValue(true)}
           ref={previousContainerRef}
-          style={{
-            '--popup-width': `${previousContentDimensions?.width}px`,
-            '--popup-height': `${previousContentDimensions?.height}px`,
-            position: 'absolute',
-          }}
+          style={
+            {
+              [PopoverViewportCssVars.popupWidth]: `${previousContentDimensions?.width}px`,
+              [PopoverViewportCssVars.popupHeight]: `${previousContentDimensions?.height}px`,
+              position: 'absolute',
+            } as React.CSSProperties
+          }
           key={'previous'}
         />
         <div data-next ref={nextContainerRef}>
