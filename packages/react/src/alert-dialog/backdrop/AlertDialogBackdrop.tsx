@@ -4,11 +4,11 @@ import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<AlertDialogBackdrop.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -48,7 +48,7 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
       },
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
     enabled: forceRender || !nested,
   });
 });

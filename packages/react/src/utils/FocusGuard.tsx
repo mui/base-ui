@@ -23,13 +23,19 @@ export const FocusGuard = React.forwardRef(function FocusGuard(
   }, []);
 
   const restProps = {
-    ref,
     tabIndex: 0,
     // Role is only for VoiceOver
     role,
-    'aria-hidden': role ? undefined : true,
-    style: visuallyHidden,
   };
 
-  return <span {...props} {...restProps} data-base-ui-focus-guard="" />;
+  return (
+    <span
+      {...props}
+      ref={ref}
+      style={visuallyHidden}
+      aria-hidden={role ? undefined : true}
+      {...restProps}
+      data-base-ui-focus-guard=""
+    />
+  );
 });

@@ -26,7 +26,7 @@ import { roundValueToStep } from '../utils/roundValueToStep';
 import { valueArrayToPercentages } from '../utils/valueArrayToPercentages';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
-import { sliderStyleHookMapping } from '../root/styleHooks';
+import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 
 const PAGE_UP = 'PageUp';
@@ -199,8 +199,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       'aria-labelledby': ariaLabelledByProp ?? labelId,
       'aria-describedby': ariaDescribedByProp,
       'aria-orientation': orientation,
-      'aria-valuemax': max,
-      'aria-valuemin': min,
       'aria-valuenow': thumbValue,
       'aria-valuetext':
         typeof getAriaValueTextProp === 'function'
@@ -366,7 +364,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       },
       elementProps,
     ],
-    customStyleHookMapping: sliderStyleHookMapping,
+    stateAttributesMapping: sliderStateAttributesMapping,
   });
 
   return element;

@@ -4,7 +4,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import glob from 'fast-glob';
+import { globby } from 'globby';
 import * as prettier from 'prettier';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
@@ -106,7 +106,7 @@ async function generateLlmsTxt() {
     // Counter for total files processed
     let totalFiles = 0;
 
-    const mdxFiles = await glob('**/*/page.mdx', {
+    const mdxFiles = await globby('**/*/page.mdx', {
       cwd: MDX_SOURCE_DIR,
       absolute: true,
     });

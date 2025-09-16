@@ -3,7 +3,7 @@ import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import glob from 'fast-glob';
+import { globbySync } from 'globby';
 import { Sidebar } from 'docs/src/components/Experiments/Sidebar';
 import { ExperimentRoot } from 'docs/src/components/Experiments/ExperimentRoot';
 import classes from 'docs/src/components/Experiments/ExperimentRoot.module.css';
@@ -49,7 +49,7 @@ export default async function Page(props: Props) {
 }
 
 export async function generateStaticParams() {
-  const files = glob.globSync(['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'], {
+  const files = globbySync(['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'], {
     cwd: experimentsRootDirectory,
   });
 

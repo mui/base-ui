@@ -223,7 +223,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
     ref: [forwardedRef, setPositionerElement],
     props: {
       ...positionerProps,

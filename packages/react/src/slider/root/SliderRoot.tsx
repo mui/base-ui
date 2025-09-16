@@ -26,7 +26,7 @@ import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
-import { sliderStyleHookMapping } from './styleHooks';
+import { sliderStateAttributesMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
 
 function areValuesEqual(
@@ -104,7 +104,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const ariaLabelledby = ariaLabelledByProp ?? labelId;
   const disabled = fieldDisabled || disabledProp;
-  const name = fieldName ?? nameProp ?? '';
+  const name = fieldName || nameProp;
 
   // The internal value is potentially unsorted, e.g. to support frozen arrays
   // https://github.com/mui/material-ui/pull/28472
@@ -343,7 +343,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation.getValidationProps,
       elementProps,
     ],
-    customStyleHookMapping: sliderStyleHookMapping,
+    stateAttributesMapping: sliderStateAttributesMapping,
   });
 
   return (
