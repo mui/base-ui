@@ -66,6 +66,7 @@ export interface SliderRootContext {
   pressedThumbCenterOffsetRef: React.RefObject<number | null>;
   pressedThumbIndexRef: React.RefObject<number>;
   registerFieldControlRef: React.RefCallback<Element> | null;
+  renderBeforeHydration: boolean;
   setActive: React.Dispatch<React.SetStateAction<number>>;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
   setIndicatorPosition: React.Dispatch<React.SetStateAction<(number | undefined)[]>>;

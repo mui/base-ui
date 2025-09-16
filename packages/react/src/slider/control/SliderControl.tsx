@@ -92,6 +92,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     pressedThumbCenterOffsetRef,
     pressedThumbIndexRef,
     registerFieldControlRef,
+    renderBeforeHydration,
     setActive,
     setDragging,
     setValue,
@@ -376,6 +377,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     ref: [forwardedRef, registerFieldControlRef, controlRef, setStylesRef],
     props: [
       {
+        ['data-base-ui-slider-control' as string]: renderBeforeHydration ? '' : undefined,
         onPointerDown(event) {
           const control = controlRef.current;
 

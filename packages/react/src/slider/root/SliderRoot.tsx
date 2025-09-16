@@ -69,6 +69,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
+    renderBeforeHydration = false,
     step = 1,
     value: valueProp,
     ...elementProps
@@ -297,6 +298,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
       registerFieldControlRef,
+      renderBeforeHydration,
       setActive,
       setDragging,
       setIndicatorPosition,
@@ -331,6 +333,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
       registerFieldControlRef,
+      renderBeforeHydration,
       setActive,
       setDragging,
       setIndicatorPosition,
@@ -463,6 +466,12 @@ export namespace SliderRoot {
      * @default 'horizontal'
      */
     orientation?: Orientation;
+    /**
+     * Whether to render inset sliders before React hydration.
+     * This minimizes the time that the thumb and indicator aren’t visible after server-side rendering.
+     * @default false`
+     */
+    renderBeforeHydration?: boolean;
     /**
      * The granularity with which the slider can step through values. (A "discrete" slider.)
      * The `min` prop serves as the origin for the valid values.

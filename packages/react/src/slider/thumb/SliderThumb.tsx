@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -29,6 +30,8 @@ import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
+
+import Prehydration from './Prehydration';
 
 const PAGE_UP = 'PageUp';
 const PAGE_DOWN = 'PageDown';
@@ -127,6 +130,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     pressedInputRef,
     pressedThumbCenterOffsetRef,
     pressedThumbIndexRef,
+    renderBeforeHydration,
     setActive,
     setIndicatorPosition,
     state,
@@ -166,10 +170,14 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   });
 
   const index = !range ? 0 : (indexProp ?? compositeIndex);
+  const last = index === sliderValues.length - 1;
   const thumbValue = sliderValues[index];
   const thumbValuePercent = valueToPercent(thumbValue, min, max);
 
+  const [isMounted, setIsMounted] = React.useState(false);
   const [positionPercent, setPositionPercent] = React.useState<number | undefined>();
+
+  useOnMount(() => setIsMounted(true));
 
   const getInsetPosition = useEventCallback(() => {
     const control = controlRef.current;
@@ -192,7 +200,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     setPositionPercent(nextPositionPercent);
     if (index === 0) {
       setIndicatorPosition((prevPosition) => [nextPositionPercent, prevPosition[1]]);
-    } else if (index === sliderValues.length - 1) {
+    } else if (last) {
       setIndicatorPosition((prevPosition) => [prevPosition[0], nextPositionPercent]);
     }
   });
@@ -210,19 +218,46 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   }, [getInsetPosition, inset, thumbValuePercent]);
 
   const getThumbStyle = React.useCallback(() => {
-    if (!inset && !Number.isFinite(thumbValuePercent)) {
-      return visuallyHidden;
+    const startEdge = vertical ? 'bottom' : 'insetInlineStart';
+    const crossOffsetProperty = vertical ? 'left' : 'top';
+
+    if (!inset) {
+      if (!Number.isFinite(thumbValuePercent)) {
+        return visuallyHidden;
+      }
+
+      return {
+        position: 'absolute',
+        [startEdge]: `${thumbValuePercent}%`,
+        [crossOffsetProperty]: '50%',
+        translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
+        zIndex: activeIndex === index ? 1 : undefined,
+      } satisfies React.CSSProperties;
     }
 
     return {
-      visibility: inset && positionPercent === undefined ? 'hidden' : undefined,
+      ['--position' as string]: `${positionPercent}%`,
+      visibility:
+        (renderBeforeHydration && !isMounted) || positionPercent === undefined
+          ? 'hidden'
+          : undefined,
       position: 'absolute',
-      [vertical ? 'bottom' : 'insetInlineStart']: `${inset ? positionPercent : thumbValuePercent}%`,
-      [vertical ? 'left' : 'top']: '50%',
-      transform: `translate(${(vertical || !rtl ? -1 : 1) * 50}%, ${(vertical ? 1 : -1) * 50}%)`,
+      [startEdge]: 'var(--position)',
+      [crossOffsetProperty]: '50%',
+      translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
       zIndex: activeIndex === index ? 1 : undefined,
     } satisfies React.CSSProperties;
-  }, [activeIndex, inset, rtl, vertical, thumbValuePercent, positionPercent, index]);
+  }, [
+    activeIndex,
+    index,
+    inset,
+    isMounted,
+    positionPercent,
+    renderBeforeHydration,
+    rtl,
+    thumbValuePercent,
+    vertical,
+  ]);
 
   let cssWritingMode: React.CSSProperties['writingMode'];
   if (orientation === 'vertical') {
@@ -362,22 +397,24 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const mergedInputRef = useMergedRefs(inputRef, fieldControlValidation.inputRef, inputRefProp);
 
-  const children = childrenProp ? (
-    <React.Fragment>
-      {childrenProp}
-      <input ref={mergedInputRef} {...inputProps} />
-    </React.Fragment>
-  ) : (
-    <input ref={mergedInputRef} {...inputProps} />
-  );
-
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, listItemRef, thumbRef],
     props: [
       {
         [SliderThumbDataAttributes.index as string]: index,
-        children,
+        children: (
+          <React.Fragment>
+            {childrenProp}
+            <input ref={mergedInputRef} {...inputProps} />
+            {inset &&
+              !isMounted &&
+              renderBeforeHydration &&
+              // this must be rendered with the last thumb to ensure all
+              // preceding thumbs are already rendered in the DOM
+              last && <Prehydration />}
+          </React.Fragment>
+        ),
         id,
         onBlur: onBlurProp,
         onFocus: onFocusProp,
@@ -397,6 +434,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           }
         },
         style: getThumbStyle(),
+        suppressHydrationWarning: renderBeforeHydration || undefined,
         tabIndex: -1,
       },
       elementProps,
