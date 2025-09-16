@@ -10,7 +10,6 @@ function Prehydration() {
       // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{
         __html: `(${(() => {
-          // console.log('prehydration');
           const firstThumb = document.currentScript?.parentElement;
           if (!firstThumb) {
             return;
@@ -60,7 +59,6 @@ function Prehydration() {
             thumb.style.setProperty(`--position`, `${percent}%`);
 
             if (Number.isFinite(percent)) {
-              // console.log('value', value, 'percent', percent);
               thumb.style.removeProperty('visibility');
 
               if (indicator) {
