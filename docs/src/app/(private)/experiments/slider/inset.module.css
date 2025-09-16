@@ -3,17 +3,14 @@
   --track-height: 0.625rem;
   --track-width: 6.25rem; /* 100px */
 
-  --indicator-bg: var(--color-blue);
-  --thumb-bg: var(--color-blue);
+  --base-color: var(--color-blue);
+
+  --indicator-bg: var(--base-color);
+  --thumb-bg: var(--base-color);
   --track-outer-border-color: var(--color-gray-400);
 
   --track-bg: var(--color-gray-200);
-  --dragging-color: oklch(69% 50% 264);
-
-  @media (prefers-color-scheme: dark) {
-    --track-bg: var(--color-gray-200);
-    --dragging-color: var(--color-blue);
-  }
+  --dragging-color: color-mix(in srgb, var(--base-color) 85%, white 15%);
 }
 
 .Control {
@@ -53,10 +50,8 @@
 
   user-select: none;
 
-  opacity: 0.65;
-
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
+    outline: 2px solid var(--base-color);
     outline-offset: 2px;
   }
 
