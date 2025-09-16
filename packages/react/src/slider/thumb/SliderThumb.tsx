@@ -198,8 +198,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       'aria-labelledby': ariaLabelledByProp ?? labelId,
       'aria-describedby': ariaDescribedByProp,
       'aria-orientation': orientation,
-      'aria-valuemax': max,
-      'aria-valuemin': min,
       'aria-valuenow': thumbValue,
       'aria-valuetext':
         typeof getAriaValueTextProp === 'function'
