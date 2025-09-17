@@ -144,7 +144,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const setOpen = useEventCallback(function setOpen(
     nextOpen: boolean,
     eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-    trigger: HTMLElement | undefined,
   ) {
     const isHover = eventDetails.reason === 'trigger-hover';
     const isKeyboardClick =
@@ -159,7 +158,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     onOpenChange?.(
       nextOpen,
       eventDetails as PopoverRoot.ChangeEventDetails,
-      nextOpen ? (trigger?.id ?? null) : null,
+      nextOpen ? (eventDetails.trigger?.id ?? null) : null,
     );
 
     if (eventDetails.isCanceled) {
@@ -171,13 +170,13 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       nativeEvent: eventDetails.event,
       reason: eventDetails.reason as BaseUIChangeEventReason,
       nested,
-      triggerElement: trigger,
+      triggerElement: eventDetails.trigger,
     };
 
     floatingEvents?.emit('openchange', details);
 
     function changeState() {
-      const newTriggerId = trigger?.id ?? null;
+      const newTriggerId = eventDetails.trigger?.id ?? null;
       setOpenState(nextOpen);
       setTriggerId(newTriggerId);
 
@@ -186,7 +185,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       }
 
       store.set('open', nextOpen);
-      store.set('activeTriggerId', trigger?.id ?? null);
+      store.set('activeTriggerId', eventDetails.trigger?.id ?? null);
     }
 
     if (isHover) {
@@ -216,7 +215,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   });
 
   const handleImperativeClose = React.useCallback(() => {
-    setOpen(false, createPopoverEventDetails('imperative-action'), undefined);
+    setOpen(false, createPopoverEventDetails('imperative-action'));
   }, [setOpen]);
 
   useOpenChangeComplete({
@@ -245,9 +244,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       ),
     },
     open,
-    onOpenChange(nextOpen, details, triggerElement) {
-      setOpen(nextOpen, details, triggerElement);
-    },
+    onOpenChange: setOpen,
   });
 
   floatingEvents = floatingContext.events;
@@ -381,5 +378,6 @@ export namespace PopoverRoot {
   export type ChangeEventReason = BaseUIChangeEventReason | 'close-press' | 'imperative-action';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason> & {
     preventUnmountOnClose(): void;
+    trigger: HTMLElement | undefined;
   };
 }

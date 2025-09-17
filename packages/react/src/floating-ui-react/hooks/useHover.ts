@@ -187,8 +187,11 @@ export function useHover(
       if (isHoverOpen()) {
         onOpenChange(
           false,
-          createBaseUIEventDetails('trigger-hover', event),
-          (event.currentTarget as HTMLElement) ?? undefined,
+          createBaseUIEventDetails(
+            'trigger-hover',
+            event,
+            (event.currentTarget as HTMLElement) ?? undefined,
+          ),
         );
       }
     }
@@ -205,11 +208,11 @@ export function useHover(
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
         timeout.start(closeDelay, () =>
-          onOpenChange(false, createBaseUIEventDetails('trigger-hover', event), undefined),
+          onOpenChange(false, createBaseUIEventDetails('trigger-hover', event)),
         );
       } else if (runElseBranch) {
         timeout.clear();
-        onOpenChange(false, createBaseUIEventDetails('trigger-hover', event), undefined);
+        onOpenChange(false, createBaseUIEventDetails('trigger-hover', event));
       }
     },
     [delayRef, onOpenChange, timeout],
@@ -263,11 +266,11 @@ export function useHover(
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
-            onOpenChange(true, createBaseUIEventDetails('trigger-hover', event), trigger);
+            onOpenChange(true, createBaseUIEventDetails('trigger-hover', event, trigger));
           }
         });
       } else if (!open || isOverInactiveTrigger) {
-        onOpenChange(true, createBaseUIEventDetails('trigger-hover', event), trigger);
+        onOpenChange(true, createBaseUIEventDetails('trigger-hover', event, trigger));
       }
     }
 
@@ -530,7 +533,7 @@ export function useHover(
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && (!openRef.current || isOverInactiveTrigger)) {
-            onOpenChange(true, createBaseUIEventDetails('trigger-hover', nativeEvent), trigger);
+            onOpenChange(true, createBaseUIEventDetails('trigger-hover', nativeEvent, trigger));
           }
         }
 

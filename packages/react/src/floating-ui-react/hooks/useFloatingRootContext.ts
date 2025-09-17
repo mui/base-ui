@@ -53,26 +53,20 @@ export function useFloatingRootContext(
     elementsProp.reference,
   );
 
-  const onOpenChange = useEventCallback(
-    (
-      newOpen: boolean,
-      eventDetails: BaseUIEventDetails,
-      triggerElement: HTMLElement | undefined,
-    ) => {
-      dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
-      if (!options.noEmit) {
-        const details: FloatingUIOpenChangeDetails = {
-          open: newOpen,
-          reason: eventDetails.reason,
-          nativeEvent: eventDetails.event,
-          nested,
-          triggerElement,
-        };
-        events.emit('openchange', details);
-      }
-      onOpenChangeProp?.(newOpen, eventDetails, triggerElement);
-    },
-  );
+  const onOpenChange = useEventCallback((newOpen: boolean, eventDetails: BaseUIEventDetails) => {
+    dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
+    if (!options.noEmit) {
+      const details: FloatingUIOpenChangeDetails = {
+        open: newOpen,
+        reason: eventDetails.reason,
+        nativeEvent: eventDetails.event,
+        nested,
+        triggerElement: eventDetails.trigger,
+      };
+      events.emit('openchange', details);
+    }
+    onOpenChangeProp?.(newOpen, eventDetails);
+  });
 
   const refs = React.useMemo(
     () => ({

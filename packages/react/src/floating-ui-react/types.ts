@@ -131,11 +131,7 @@ export interface ContextData {
   [key: string]: any;
 }
 
-export type OpenChangeCallback = (
-  open: boolean,
-  eventDetails: BaseUIEventDetails,
-  triggerElement?: HTMLElement | undefined,
-) => void;
+export type OpenChangeCallback = (open: boolean, eventDetails: BaseUIEventDetails) => void;
 
 export interface FloatingRootContext<RT extends ReferenceType = ReferenceType> {
   dataRef: React.MutableRefObject<ContextData>;
