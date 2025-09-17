@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui-components/utils/store';
 import { useDialogClose } from './useDialogClose';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { selectors } from '../store';
 
 /**
  * A button that closes the dialog.
@@ -22,7 +24,10 @@ export const DialogClose = React.forwardRef(function DialogClose(
     nativeButton = true,
     ...elementProps
   } = componentProps;
-  const { open, setOpen } = useDialogRootContext();
+
+  const { store, setOpen } = useDialogRootContext();
+  const open = useStore(store, selectors.open);
+
   const { getRootProps, ref } = useDialogClose({ disabled, open, setOpen, nativeButton });
 
   const state: DialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);

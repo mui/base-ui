@@ -204,7 +204,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       mounted,
       transitionStatus,
       triggerProps: dialogTriggerProps,
-      getPopupProps: getFloatingProps,
+      popupProps: getFloatingProps(),
       setTriggerElement,
       setPopupElement,
       popupRef,
@@ -348,7 +348,7 @@ export namespace useDialogRoot {
     /**
      * Resolver for the Popup element's props.
      */
-    getPopupProps: (externalProps?: HTMLProps) => HTMLProps;
+    popupProps: HTMLProps;
     /**
      * Callback to register the Trigger element DOM node.
      */

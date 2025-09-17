@@ -65,7 +65,7 @@ export namespace useDialogPopup {
     /**
      * Callback to register the popup element.
      */
-    setPopupElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+    setPopupElement: (node: HTMLElement | null) => void;
   }
 
   export interface ReturnValue {
