@@ -58,7 +58,7 @@ function App() {
   }, []);
 
   function computePath(fixture: Fixture) {
-    return `/${fixture.suite}/${fixture.name}`;
+    return `/${fixture.suite}/${fixture.path.slice(11, -4)}`;
   }
 
   return (
