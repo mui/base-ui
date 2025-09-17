@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
+import { format } from 'date-fns';
 import { UnstableTemporalAdapterProvider as TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
-import { UnstableTemporalAdapterLuxon as TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
+import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
 import { Calendar } from '@base-ui-components/react/calendar';
 import styles from './calendar.module.css';
 
-const adapter = new TemporalAdapterLuxon();
+const adapter = new TemporalAdapterDateFns();
 
 export default function CalendarBasic() {
   return (
@@ -17,7 +18,7 @@ export default function CalendarBasic() {
               <Calendar.SetPreviousMonth className={styles.SetPreviousMonth}>
                 ◀
               </Calendar.SetPreviousMonth>
-              <span className={styles.HeaderLabel}>{visibleDate.toFormat('MMMM yyyy')}</span>
+              <span className={styles.HeaderLabel}>{format(visibleDate, 'MMMM yyyy')}</span>
               <Calendar.SetNextMonth className={styles.SetNextMonth}>▶</Calendar.SetNextMonth>
             </header>
             <Calendar.DayGrid className={styles.DayGrid}>

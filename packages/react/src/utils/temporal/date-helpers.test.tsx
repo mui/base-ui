@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import { UnstableTemporalAdapterLuxon as TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
+import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
 import { validateDate } from './validateDate';
 
-const adapter = new TemporalAdapterLuxon();
+const adapter = new TemporalAdapterDateFns();
 
 // TODO: Run this test on all the adapters
 describe('validateDate', () => {

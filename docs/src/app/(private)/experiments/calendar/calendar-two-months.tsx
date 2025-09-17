@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
+import { format, addMonths } from 'date-fns';
 import { UnstableTemporalAdapterProvider as TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
-import { UnstableTemporalAdapterLuxon as TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
+import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
 import { Calendar } from '@base-ui-components/react/calendar';
 import { Separator } from '@base-ui-components/react/separator';
 import styles from './calendar.module.css';
 
-const adapter = new TemporalAdapterLuxon();
+const adapter = new TemporalAdapterDateFns();
 
 function Header() {
   const { visibleDate } = Calendar.useContext();
@@ -18,14 +19,12 @@ function Header() {
         <Calendar.SetPreviousMonth className={clsx(styles.SetPreviousMonth)}>
           ◀
         </Calendar.SetPreviousMonth>
-        <span className={styles.HeaderLabel}>{visibleDate.toFormat('MMMM yyyy')}</span>
+        <span className={styles.HeaderLabel}>{format(visibleDate, 'MMMM yyyy')}</span>
         <span />
       </div>
       <div className={styles.HeaderPanel}>
         <span />
-        <span className={styles.HeaderLabel}>
-          {visibleDate.plus({ month: 1 }).toFormat('MMMM yyyy')}
-        </span>
+        <span className={styles.HeaderLabel}>{format(addMonths(visibleDate, 1), 'MMMM yyyy')}</span>
         <Calendar.SetNextMonth className={clsx(styles.SetNextMonth)}>▶</Calendar.SetNextMonth>
       </div>
     </header>

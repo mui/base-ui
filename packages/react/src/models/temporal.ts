@@ -2,10 +2,10 @@
  * Lookup in which each date library can register its supported date object type.
  *
  * ```
- * // Example taken from the TemporalAdapterLuxon.ts file.
+ * // Example taken from the TemporalAdapterDateFns.ts file.
  * declare module '@base-ui-components/react/models' {
  *   interface TemporalSupportedObjectLookup {
- *     luxon: DateTime;
+ *     'date-fns': Date;
  *   }
  * }
  * ```

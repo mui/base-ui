@@ -60,7 +60,6 @@
     "./switch": "./src/switch/index.ts",
     "./tabs": "./src/tabs/index.ts",
     "./temporal-adapter-date-fns": "./src/temporal-adapter-date-fns/index.ts",
-    "./temporal-adapter-luxon": "./src/temporal-adapter-luxon/index.ts",
     "./temporal-adapter-provider": "./src/temporal-adapter-provider/index.ts",
     "./toast": "./src/toast/index.ts",
     "./toggle": "./src/toggle/index.ts",
@@ -103,15 +102,15 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/chai": "^4.3.20",
     "@types/chai-dom": "^1.11.3",
-    "@types/luxon": "^3.6.2",
+    "@types/luxon": "^3.7.1",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "@types/sinon": "^17.0.4",
     "@types/use-sync-external-store": "^1.5.0",
     "chai": "^4.5.0",
-    "date-fns": "^4.1.0",
     "clsx": "^2.1.1",
-    "luxon": "^3.7.1",
+    "date-fns": "^4.1.0",
+    "luxon": "^3.7.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router": "^7.8.2",
@@ -123,18 +122,11 @@
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",
     "date-fns": "^4.0.0",
-    "luxon": "^3.0.2",
     "react": "^17 || ^18 || ^19",
     "react-dom": "^17 || ^18 || ^19"
   },
   "peerDependenciesMeta": {
     "@types/react": {
-      "optional": true
-    },
-    "date-fns": {
-      "optional": true
-    },
-    "luxon": {
       "optional": true
     }
   },
