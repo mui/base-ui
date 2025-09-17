@@ -252,7 +252,7 @@ describe('<ScrollArea.Root />', () => {
       expect(hScrollbar).to.have.attribute('data-overflow-x-start');
       expect(hScrollbar).to.have.attribute('data-overflow-x-end');
 
-      // Scroll to end -right)
+      // Scroll to end
       fireEvent.scroll(viewport, {
         target: {
           scrollTop: viewport.scrollHeight - viewport.clientHeight,
