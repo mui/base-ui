@@ -131,8 +131,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       previousActiveTrigger &&
       activeTrigger !== previousActiveTrigger &&
       lastHandledTriggerRef.current !== activeTrigger &&
-      capturedNodeRef.current &&
-      previousContentNode?.innerHTML !== capturedNodeRef.current.innerHTML
+      capturedNodeRef.current
     ) {
       setPreviousContentNode(capturedNodeRef.current);
 
