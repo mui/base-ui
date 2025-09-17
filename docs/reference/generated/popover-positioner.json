@@ -122,11 +122,11 @@
       "description": "The available width between the trigger and the edge of the viewport.",
       "type": "number"
     },
-    "--popover-height": {
-      "description": "The height of the popover.\nIt is important to set `height` to this value when using CSS to animate size changes."
+    "--positioner-height": {
+      "description": "The height of the popover's positioner.\nIt is important to set `height` to this value when using CSS to animate size changes."
     },
-    "--popover-width": {
-      "description": "The width of the popover.\nIt is important to set `width` to this value when using CSS to animate size changes."
+    "--positioner-width": {
+      "description": "The width of the popover's positioner.\nIt is important to set `width` to this value when using CSS to animate size changes."
     },
     "--transform-origin": {
       "description": "The coordinates that this element is anchored to. Used for animations and transitions.",

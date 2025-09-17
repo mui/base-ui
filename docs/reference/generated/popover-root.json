@@ -40,7 +40,7 @@
     },
     "triggerId": {
       "type": "string | null",
-      "description": "Id of the trigger that the popover is associated with.\nThis is useful in conjuntion with the `open` prop to create a controlled popover.\nThere's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).",
+      "description": "ID of the trigger that the popover is associated with.\nThis is useful in conjuntion with the `open` prop to create a controlled popover.\nThere's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).",
       "detailedType": "string | null | undefined"
     },
     "children": {

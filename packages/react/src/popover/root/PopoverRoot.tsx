@@ -337,7 +337,7 @@ export namespace PopoverRoot {
      */
     onOpenChangeComplete?: (open: boolean) => void;
     /**
-     * Id of the trigger that the popover is associated with.
+     * ID of the trigger that the popover is associated with.
      * This is useful in conjuntion with the `open` prop to create a controlled popover.
      * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
      */
