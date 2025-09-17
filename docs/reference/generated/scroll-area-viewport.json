@@ -27,10 +27,10 @@
       "description": "Present when there is overflow on the inline start side for the horizontal axis."
     },
     "data-overflow-y-end": {
-      "description": "Present when there is overflow on the block end (bottom) side."
+      "description": "Present when there is overflow on the block end side."
     },
     "data-overflow-y-start": {
-      "description": "Present when there is overflow on the block start (top) side."
+      "description": "Present when there is overflow on the block start side."
     }
   },
   "cssVariables": {}

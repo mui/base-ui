@@ -2,6 +2,12 @@
   "name": "ScrollAreaRoot",
   "description": "Groups all parts of the scroll area.\nRenders a `<div>` element.",
   "props": {
+    "overflowEdgeThreshold": {
+      "type": "number | Partial<{ xStart: number, xEnd: number, yStart: number, yEnd: number }>",
+      "default": "0",
+      "description": "The threshold in pixels that must be passed before the overflow edge attributes are applied.\nAccepts a single number for all edges or an object to configure them individually.",
+      "detailedType": "| number\n| {\n    xStart?: number\n    xEnd?: number\n    yStart?: number\n    yEnd?: number\n  }\n| undefined"
+    },
     "className": {
       "type": "string | ((state: ScrollArea.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
@@ -26,10 +32,10 @@
       "description": "Present when there is overflow on the inline start side for the horizontal axis."
     },
     "data-overflow-y-end": {
-      "description": "Present when there is overflow on the block end (bottom) side."
+      "description": "Present when there is overflow on the block end side."
     },
     "data-overflow-y-start": {
-      "description": "Present when there is overflow on the block start (top) side."
+      "description": "Present when there is overflow on the block start side."
     }
   },
   "cssVariables": {
@@ -39,6 +45,22 @@
     },
     "--scroll-area-corner-width": {
       "description": "The scroll area's corner width.",
+      "type": "number"
+    },
+    "--scroll-area-overflow-x-end": {
+      "description": "The distance from the horizontal inline end edge in pixels.",
+      "type": "number"
+    },
+    "--scroll-area-overflow-x-start": {
+      "description": "The distance from the horizontal inline start edge in pixels.",
+      "type": "number"
+    },
+    "--scroll-area-overflow-y-end": {
+      "description": "The distance from the vertical block end edge in pixels.",
+      "type": "number"
+    },
+    "--scroll-area-overflow-y-start": {
+      "description": "The distance from the vertical block start edge in pixels.",
       "type": "number"
     }
   }

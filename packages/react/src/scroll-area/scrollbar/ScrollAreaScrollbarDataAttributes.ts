@@ -29,11 +29,11 @@ export enum ScrollAreaScrollbarDataAttributes {
    */
   overflowXEnd = 'data-overflow-x-end',
   /**
-   * Present when there is overflow on the block start (top) side.
+   * Present when there is overflow on the block start side.
    */
   overflowYStart = 'data-overflow-y-start',
   /**
-   * Present when there is overflow on the block end (bottom) side.
+   * Present when there is overflow on the block end side.
    */
   overflowYEnd = 'data-overflow-y-end',
 }

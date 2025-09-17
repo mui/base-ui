@@ -9,4 +9,5 @@ export const scrollAreaStateAttributesMapping: StateAttributesMapping<ScrollArea
   overflowXEnd: (value) => (value ? { [ScrollAreaRootDataAttributes.overflowXEnd]: '' } : null),
   overflowYStart: (value) => (value ? { [ScrollAreaRootDataAttributes.overflowYStart]: '' } : null),
   overflowYEnd: (value) => (value ? { [ScrollAreaRootDataAttributes.overflowYEnd]: '' } : null),
+  cornerHidden: () => null,
 };

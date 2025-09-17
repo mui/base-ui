@@ -60,6 +60,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       overflowXEnd: overflowEdges.xEnd,
       overflowYStart: overflowEdges.yStart,
       overflowYEnd: overflowEdges.yEnd,
+      cornerHidden: hiddenState.cornerHidden,
     }),
     [hovering, scrollingX, scrollingY, orientation, hiddenState, overflowEdges],
   );

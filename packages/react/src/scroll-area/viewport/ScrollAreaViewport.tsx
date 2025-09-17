@@ -14,6 +14,7 @@ import { clamp } from '../../utils/clamp';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { onVisible } from '../utils/onVisible';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
+import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
 import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
 
 /**
@@ -30,6 +31,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
   const {
     viewportRef,
+    rootRef,
     scrollbarYRef,
     scrollbarXRef,
     thumbYRef,
@@ -44,6 +46,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     setHovering,
     setOverflowEdges,
     overflowEdges,
+    overflowEdgeThreshold,
   } = useScrollAreaRootContext();
 
   const direction = useDirection();
@@ -78,6 +81,22 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
     const ratioX = viewportWidth / scrollableContentWidth;
     const ratioY = viewportHeight / scrollableContentHeight;
+    const maxScrollLeft = Math.max(0, scrollableContentWidth - viewportWidth);
+    const maxScrollTop = Math.max(0, scrollableContentHeight - viewportHeight);
+
+    let scrollLeftFromStart = 0;
+    let scrollLeftFromEnd = 0;
+    if (!scrollbarXHidden) {
+      if (direction === 'rtl') {
+        scrollLeftFromStart = clamp(-scrollLeft, 0, maxScrollLeft);
+      } else {
+        scrollLeftFromStart = clamp(scrollLeft, 0, maxScrollLeft);
+      }
+      scrollLeftFromEnd = maxScrollLeft - scrollLeftFromStart;
+    }
+
+    const scrollTopFromStart = !scrollbarYHidden ? clamp(scrollTop, 0, maxScrollTop) : 0;
+    const scrollTopFromEnd = !scrollbarYHidden ? maxScrollTop - scrollTopFromStart : 0;
     const nextWidth = scrollbarXHidden ? 0 : viewportWidth;
     const nextHeight = scrollbarYHidden ? 0 : viewportHeight;
 
@@ -114,7 +133,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     if (scrollbarYEl && thumbYEl) {
       const maxThumbOffsetY =
         scrollbarYEl.offsetHeight - clampedNextHeight - scrollbarYOffset - thumbYOffset;
-      const scrollRatioY = scrollTop / (scrollableContentHeight - viewportHeight);
+      const scrollRangeY = scrollableContentHeight - viewportHeight;
+      const scrollRatioY = scrollRangeY === 0 ? 0 : scrollTop / scrollRangeY;
 
       // In Safari, don't allow it to go negative or too far as `scrollTop` considers the rubber
       // band effect.
@@ -127,7 +147,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     if (scrollbarXEl && thumbXEl) {
       const maxThumbOffsetX =
         scrollbarXEl.offsetWidth - clampedNextWidth - scrollbarXOffset - thumbXOffset;
-      const scrollRatioX = scrollLeft / (scrollableContentWidth - viewportWidth);
+      const scrollRangeX = scrollableContentWidth - viewportWidth;
+      const scrollRatioX = scrollRangeX === 0 ? 0 : scrollLeft / scrollRangeX;
 
       // In Safari, don't allow it to go negative or too far as `scrollLeft` considers the rubber
       // band effect.
@@ -137,6 +158,25 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
           : clamp(scrollRatioX * maxThumbOffsetX, 0, maxThumbOffsetX);
 
       thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
+    }
+
+    const clampedScrollLeftStart = clamp(scrollLeftFromStart, 0, maxScrollLeft);
+    const clampedScrollLeftEnd = clamp(scrollLeftFromEnd, 0, maxScrollLeft);
+    const clampedScrollTopStart = clamp(scrollTopFromStart, 0, maxScrollTop);
+    const clampedScrollTopEnd = clamp(scrollTopFromEnd, 0, maxScrollTop);
+
+    const overflowMetricsPx: Array<[ScrollAreaRootCssVars, number]> = [
+      [ScrollAreaRootCssVars.scrollAreaOverflowXStart, clampedScrollLeftStart],
+      [ScrollAreaRootCssVars.scrollAreaOverflowXEnd, clampedScrollLeftEnd],
+      [ScrollAreaRootCssVars.scrollAreaOverflowYStart, clampedScrollTopStart],
+      [ScrollAreaRootCssVars.scrollAreaOverflowYEnd, clampedScrollTopEnd],
+    ];
+
+    const rootEl = rootRef.current;
+    if (rootEl) {
+      for (const [cssVar, value] of overflowMetricsPx) {
+        rootEl.style.setProperty(cssVar, `${value}px`);
+      }
     }
 
     if (cornerEl) {
@@ -168,16 +208,10 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     });
 
     const nextOverflowEdges = {
-      xStart:
-        direction === 'rtl'
-          ? !scrollbarXHidden && scrollLeft < 0
-          : !scrollbarXHidden && scrollLeft > 0,
-      xEnd:
-        direction === 'rtl'
-          ? !scrollbarXHidden && scrollLeft > -(scrollableContentWidth - viewportWidth)
-          : !scrollbarXHidden && scrollLeft < scrollableContentWidth - viewportWidth,
-      yStart: !scrollbarYHidden && scrollTop > 0,
-      yEnd: !scrollbarYHidden && scrollTop < scrollableContentHeight - viewportHeight,
+      xStart: !scrollbarXHidden && clampedScrollLeftStart > overflowEdgeThreshold.xStart,
+      xEnd: !scrollbarXHidden && clampedScrollLeftEnd > overflowEdgeThreshold.xEnd,
+      yStart: !scrollbarYHidden && clampedScrollTopStart > overflowEdgeThreshold.yStart,
+      yEnd: !scrollbarYHidden && clampedScrollTopEnd > overflowEdgeThreshold.yEnd,
     };
 
     setOverflowEdges((prev) => {
@@ -283,8 +317,14 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       overflowXEnd: overflowEdges.xEnd,
       overflowYStart: overflowEdges.yStart,
       overflowYEnd: overflowEdges.yEnd,
+      cornerHidden: hiddenState.cornerHidden,
     }),
-    [hiddenState.scrollbarXHidden, hiddenState.scrollbarYHidden, overflowEdges],
+    [
+      hiddenState.scrollbarXHidden,
+      hiddenState.scrollbarYHidden,
+      hiddenState.cornerHidden,
+      overflowEdges,
+    ],
   );
 
   const element = useRenderElement('div', componentProps, {
