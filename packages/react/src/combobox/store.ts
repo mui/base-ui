@@ -83,6 +83,7 @@ export type State = {
   itemToStringLabel?: (item: any) => string;
   modal: boolean;
   autoHighlight: boolean;
+  hasInputValue: boolean;
 };
 
 export type ComboboxStore = Store<State>;
