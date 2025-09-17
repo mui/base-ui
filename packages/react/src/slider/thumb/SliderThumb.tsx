@@ -30,8 +30,7 @@ import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
-
-import Prehydration from './Prehydration';
+import { script as prehydrationScript } from './prehydrationScript.min';
 
 const PAGE_UP = 'PageUp';
 const PAGE_DOWN = 'PageDown';
@@ -412,7 +411,13 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               renderBeforeHydration &&
               // this must be rendered with the last thumb to ensure all
               // preceding thumbs are already rendered in the DOM
-              last && <Prehydration />}
+              last && (
+                <script
+                  // eslint-disable-next-line react/no-danger
+                  dangerouslySetInnerHTML={{ __html: prehydrationScript }}
+                  suppressHydrationWarning
+                />
+              )}
           </React.Fragment>
         ),
         id,
