@@ -40,3 +40,9 @@ To create a range slider:
 2. Additionally for server-side rendering, specify a numeric `index` for each thumb that corresponds to the index of its value in the value array
 
 <Demo compact path="./demos/range-slider" />
+
+### Inset slider
+
+Pass the `inset` prop to `Slider.Root` to inset the thumbs. The optional `renderBeforeHydration` prop can be used to minimize the time to render the thumb and indicator after server-side rendering.
+
+<Demo compact path="./demos/inset" />
