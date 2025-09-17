@@ -500,7 +500,7 @@ describe('<Accordion.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('prop: openMultiple', () => {
+  describe.skipIf(isJSDOM)('prop: multiple', () => {
     it('multiple items can be open by default', async () => {
       const { getAllByRole, queryByText, user } = await render(
         <Accordion.Root>
@@ -537,7 +537,7 @@ describe('<Accordion.Root />', () => {
 
     it('when false only one item can be open', async () => {
       const { getAllByRole, queryByText, user } = await render(
-        <Accordion.Root openMultiple={false}>
+        <Accordion.Root multiple={false}>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -723,11 +723,11 @@ describe('<Accordion.Root />', () => {
       expect(onValueChange.args[1][0]).to.deep.equal(['two', 'one']);
     });
 
-    it('openMultiple is false', async () => {
+    it('`multiple` is false', async () => {
       const onValueChange = spy();
 
       const { getAllByRole, user } = await render(
-        <Accordion.Root onValueChange={onValueChange} openMultiple={false}>
+        <Accordion.Root onValueChange={onValueChange} multiple={false}>
           <Accordion.Item value="one">
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
