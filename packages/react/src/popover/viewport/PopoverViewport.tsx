@@ -53,7 +53,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const nextContainerRef = React.useRef<HTMLDivElement>(null);
   const previousContainerRef = React.useRef<HTMLDivElement>(null);
 
-  const onAnimationsFinished = useAnimationsFinished(nextContainerRef, true);
+  const onAnimationsFinished = useAnimationsFinished(nextContainerRef, true, false);
   const cleanupTimeout = useAnimationFrame();
 
   const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
