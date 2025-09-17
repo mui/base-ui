@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui-components/utils/store';
 import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { DialogPortalContext } from './DialogPortalContext';
+import { selectors } from '../store';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -13,7 +15,8 @@ import { DialogPortalContext } from './DialogPortalContext';
 export function DialogPortal(props: DialogPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
-  const { mounted } = useDialogRootContext();
+  const { store } = useDialogRootContext();
+  const mounted = useStore(store, selectors.mounted);
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {

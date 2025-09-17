@@ -17,16 +17,16 @@ export const DialogTitle = React.forwardRef(function DialogTitle(
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, id: idProp, ...elementProps } = componentProps;
-  const { setTitleElementId } = useDialogRootContext();
+  const { store } = useDialogRootContext();
 
   const id = useBaseUiId(idProp);
 
   useIsoLayoutEffect(() => {
-    setTitleElementId(id);
+    store.set('titleElementId', id);
     return () => {
-      setTitleElementId(undefined);
+      store.set('titleElementId', undefined);
     };
-  }, [id, setTitleElementId]);
+  }, [id, store]);
 
   return useRenderElement('h2', componentProps, {
     ref: forwardedRef,

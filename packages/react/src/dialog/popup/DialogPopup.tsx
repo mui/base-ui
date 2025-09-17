@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogPopup } from './useDialogPopup';
@@ -18,6 +19,7 @@ import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { selectors } from '../store';
 
 const stateAttributesMapping: StateAttributesMapping<DialogPopup.State> = {
   ...baseMapping,
@@ -40,24 +42,26 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const { className, finalFocus, initialFocus, render, ...elementProps } = componentProps;
 
   const {
-    descriptionElementId,
-    dismissible,
-    floatingRootContext,
-    getPopupProps,
-    modal,
-    mounted,
-    nested,
-    nestedOpenDialogCount,
+    store,
+
     setOpen,
-    open,
-    openMethod,
     popupRef,
-    setPopupElement,
-    titleElementId,
-    transitionStatus,
     onOpenChangeComplete,
     internalBackdropRef,
   } = useDialogRootContext();
+
+  const descriptionElementId = useStore(store, selectors.descriptionElementId);
+  const dismissible = useStore(store, selectors.dismissible);
+  const floatingRootContext = useStore(store, selectors.floatingRootContext);
+  const rootPopupProps = useStore(store, selectors.popupProps);
+  const modal = useStore(store, selectors.modal);
+  const mounted = useStore(store, selectors.mounted);
+  const nested = useStore(store, selectors.nested);
+  const nestedOpenDialogCount = useStore(store, selectors.nestedOpenDialogCount);
+  const open = useStore(store, selectors.open);
+  const openMethod = useStore(store, selectors.openMethod);
+  const titleElementId = useStore(store, selectors.titleElementId);
+  const transitionStatus = useStore(store, selectors.transitionStatus);
 
   useDialogPortalContext();
 
@@ -72,6 +76,13 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   });
 
   const mergedRef = useMergedRefs(forwardedRef, popupRef);
+
+  const setPopupElement = React.useCallback(
+    (node: HTMLElement | null) => {
+      store.set('popupElement', node);
+    },
+    [store],
+  );
 
   const { popupProps } = useDialogPopup({
     descriptionElementId,
@@ -110,7 +121,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [
-      getPopupProps(),
+      rootPopupProps,
       popupProps,
       {
         style: {

@@ -1,9 +1,13 @@
 'use client';
 import * as React from 'react';
-import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { useOptionalDialogRootContext } from './DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
 import { useDialogRoot } from './useDialogRoot';
 import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { DialogStore } from '../store';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
 /**
  * Groups all parts of the dialog.
@@ -14,16 +18,23 @@ import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
   const {
     children,
-    defaultOpen = false,
+    open: openProp,
+    defaultOpen: defaultOpenProp = false,
+    onOpenChange,
+    onOpenChangeComplete,
     dismissible = true,
     modal = true,
-    onOpenChange,
-    open,
     actionsRef,
-    onOpenChangeComplete,
   } = props;
 
   const parentDialogRootContext = useOptionalDialogRootContext();
+
+  const [openState, setOpenState] = useControlled({
+    controlled: openProp,
+    default: defaultOpenProp,
+    name: 'Popover',
+    state: 'open',
+  });
 
   const dialogRoot = useDialogRoot({
     open,
@@ -39,23 +50,42 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
 
   const nested = Boolean(parentDialogRootContext);
 
-  const dialogContextValue = React.useMemo(
-    () => ({
-      ...dialogRoot,
-      nested,
-      onOpenChangeComplete,
-    }),
-    [dialogRoot, nested, onOpenChangeComplete],
-  );
-  const dialogRootContextValue = React.useMemo(() => ({ dismissible }), [dismissible]);
+  const store = useRefWithInit(DialogStore.create, {
+    ...dialogRoot,
+    dismissible,
+    nested,
+    popupElement: null,
+    triggerElement: null,
+  }).current;
 
-  return (
-    <DialogContext.Provider value={dialogContextValue}>
-      <DialogRootContext.Provider value={dialogRootContextValue}>
-        {children}
-      </DialogRootContext.Provider>
-    </DialogContext.Provider>
+  useIsoLayoutEffect(() => {
+    store.set('open', openState);
+  }, [openState, store]);
+
+  const dialogContextValue: DialogContext = React.useMemo(
+    () => ({
+      store,
+      onOpenChangeComplete,
+      popupRef: dialogRoot.popupRef,
+      backdropRef: dialogRoot.backdropRef,
+      internalBackdropRef: dialogRoot.internalBackdropRef,
+      setOpen: dialogRoot.setOpen,
+      onNestedDialogClose: dialogRoot.onNestedDialogClose,
+      onNestedDialogOpen: dialogRoot.onNestedDialogOpen,
+    }),
+    [
+      store,
+      onOpenChangeComplete,
+      dialogRoot.popupRef,
+      dialogRoot.backdropRef,
+      dialogRoot.internalBackdropRef,
+      dialogRoot.setOpen,
+      dialogRoot.onNestedDialogClose,
+      dialogRoot.onNestedDialogOpen,
+    ],
   );
+
+  return <DialogContext.Provider value={dialogContextValue}>{children}</DialogContext.Provider>;
 };
 
 export namespace DialogRoot {
@@ -75,4 +105,20 @@ export namespace DialogRoot {
     | 'focus-out'
     | 'none';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+}
+
+export interface UseControlledWithStoreParameters<Value, Store> {
+  /**
+   * Holds the component value when it's controlled.
+   */
+  controlled: Value | undefined;
+  /**
+   * The default value when uncontrolled.
+   */
+  default: Value | undefined;
+  /**
+   * The component name displayed in warnings.
+   */
+  key: keyof Store;
+  store: Store;
 }
