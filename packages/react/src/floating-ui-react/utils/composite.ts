@@ -240,16 +240,16 @@ export function getGridNavigatedIndex(
           amount: cols,
           disabledIndices,
         });
-      }
 
-      if (loop && prevIndex + cols > maxIndex) {
-        nextIndex = findNonDisabledListIndex(list, {
-          startingIndex: (prevIndex % cols) - cols,
-          amount: cols,
-          disabledIndices,
-        });
-        if (onLoop) {
-          nextIndex = onLoop(event, prevIndex, nextIndex);
+        if (loop && prevIndex + cols > maxIndex) {
+          nextIndex = findNonDisabledListIndex(list, {
+            startingIndex: (prevIndex % cols) - cols,
+            amount: cols,
+            disabledIndices,
+          });
+          if (onLoop) {
+            nextIndex = onLoop(event, prevIndex, nextIndex);
+          }
         }
       }
 
