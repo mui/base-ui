@@ -258,7 +258,7 @@ export function useHover(
       const trigger = (event.currentTarget as HTMLElement) ?? undefined;
 
       const isOverInactiveTrigger =
-        elements.domReference && trigger && !elements.domReference.contains(trigger);
+        elements.domReference && trigger && !contains(elements.domReference, trigger);
 
       if (openDelay) {
         timeout.start(openDelay, () => {
@@ -526,7 +526,7 @@ export function useHover(
         // `true` when there are multiple triggers per floating element and user hovers over the one that
         // wasn't used to open the floating element.
         const isOverInactiveTrigger =
-          elements.domReference && !elements.domReference.contains(event.target as Element);
+          elements.domReference && !contains(elements.domReference, event.target as Element);
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && (!openRef.current || isOverInactiveTrigger)) {
