@@ -36,7 +36,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     keepMounted: keepMountedProp,
     loop = true,
     onValueChange: onValueChangeProp,
-    openMultiple = true,
+    multiple = true,
     orientation = 'vertical',
     value: valueProp,
     defaultValue: defaultValueProp,
@@ -80,7 +80,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
   const handleValueChange = React.useCallback(
     (newValue: number | string, nextOpen: boolean) => {
       const details = createBaseUIEventDetails('none');
-      if (!openMultiple) {
+      if (!multiple) {
         const nextValue = value[0] === newValue ? [] : [newValue];
         onValueChange(nextValue, details);
         if (details.isCanceled) {
@@ -104,7 +104,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
         setValue(nextOpenValues);
       }
     },
-    [onValueChange, openMultiple, setValue, value],
+    [onValueChange, multiple, setValue, value],
   );
 
   const state: AccordionRoot.State = React.useMemo(
@@ -221,7 +221,7 @@ export namespace AccordionRoot {
      * Whether multiple items can be open at the same time.
      * @default true
      */
-    openMultiple?: boolean;
+    multiple?: boolean;
     /**
      * The visual orientation of the accordion.
      * Controls whether roving focus uses left/right or up/down arrow keys.
