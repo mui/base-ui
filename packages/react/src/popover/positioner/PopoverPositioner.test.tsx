@@ -285,7 +285,7 @@ describe('<Popover.Positioner />', () => {
     setProps({ top: 100 });
 
     await waitFor(() => {
-      expect(screen.getByTestId('positioner').style.transform).to.not.equal(initial);
+      expect(screen.getByTestId('positioner').style.transform).not.to.equal(initial);
     });
 
     expect(screen.getByTestId('positioner').style.transform).to.equal(final);
@@ -316,7 +316,7 @@ describe('<Popover.Positioner />', () => {
     setProps({ top: 100 });
 
     await waitFor(() => {
-      expect(screen.getByTestId('positioner').style.transform).to.not.equal(initial);
+      expect(screen.getByTestId('positioner').style.transform).not.to.equal(initial);
     });
 
     expect(screen.getByTestId('positioner').style.transform).to.equal(final);

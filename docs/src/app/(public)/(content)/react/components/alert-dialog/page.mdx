@@ -41,22 +41,18 @@ import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 
 In order to open a dialog using a menu, control the dialog state and open it imperatively using the `onClick` handler on the menu item.
 
-Make sure to also use the dialog's `finalFocus` prop to return focus back to the menu trigger.
-
 ```tsx {12-13,17-18,24-25,28-29} title="Connecting a dialog to a menu"
 import * as React from 'react';
-import { AlertDialog } from '@base-ui/components/alert-dialog';
-import { Menu } from '@base-ui/components/menu';
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import { Menu } from '@base-ui-components/react/menu';
 
 function ExampleMenu() {
-  const menuTriggerRef = React.useRef<HTMLButtonElement>(null);
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
   return (
     <React.Fragment>
       <Menu.Root>
-        {/* Set the trigger ref */}
-        <Menu.Trigger ref={menuTriggerRef}>Open menu</Menu.Trigger>
+        <Menu.Trigger>Open menu</Menu.Trigger>
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
@@ -71,8 +67,7 @@ function ExampleMenu() {
       <AlertDialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
         <AlertDialog.Portal>
           <AlertDialog.Backdrop />
-          {/* Return focus to the menu trigger when the dialog is closed */}
-          <AlertDialog.Popup finalFocus={menuTriggerRef}>
+          <AlertDialog.Popup>
             {/* prettier-ignore */}
             {/* Rest of the dialog */}
           </AlertDialog.Popup>

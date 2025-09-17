@@ -12,6 +12,7 @@ import { ScrollAreaScrollbarDataAttributes } from '../scrollbar/ScrollAreaScroll
 import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { scrollAreaStyleHookMapping } from './styleHooks';
+import { contains } from '../../floating-ui-react/utils';
 
 interface Size {
   width: number;
@@ -45,6 +46,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   const rootId = useBaseUiId();
 
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
   const viewportRef = React.useRef<HTMLDivElement | null>(null);
   const scrollbarYRef = React.useRef<HTMLDivElement | null>(null);
   const scrollbarXRef = React.useRef<HTMLDivElement | null>(null);
@@ -185,13 +187,14 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     }
   });
 
-  function handlePointerEnterOrMove({ pointerType }: React.PointerEvent) {
-    const isTouch = pointerType === 'touch';
+  function handlePointerEnterOrMove(event: React.PointerEvent) {
+    const isTouch = event.pointerType === 'touch';
 
     setTouchModality(isTouch);
 
     if (!isTouch) {
-      setHovering(true);
+      const isTargetRootChild = contains(rootRef.current, event.target as Element);
+      setHovering(isTargetRootChild);
     }
   }
 
@@ -225,8 +228,8 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   };
 
   const element = useRenderElement('div', componentProps, {
-    ref: forwardedRef,
     state,
+    ref: [forwardedRef, rootRef],
     props: [props, elementProps],
     customStyleHookMapping: scrollAreaStyleHookMapping,
   });

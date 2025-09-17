@@ -19,6 +19,7 @@ import type { FieldRoot } from '../field/root/FieldRoot';
 import { mergeProps } from '../merge-props';
 
 import { RadioGroupContext } from './RadioGroupContext';
+import { type BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -63,12 +64,26 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   const name = fieldName ?? nameProp;
   const id = useBaseUiId(idProp);
 
-  const [checkedValue, setCheckedValue] = useControlled({
+  const [checkedValue, setCheckedValueUnwrapped] = useControlled({
     controlled: externalValue,
     default: defaultValue,
     name: 'RadioGroup',
     state: 'value',
   });
+
+  const onValueChange = useEventCallback(onValueChangeProp);
+
+  const setCheckedValue = useEventCallback(
+    (value: unknown, eventDetails: RadioGroup.ChangeEventDetails) => {
+      onValueChange(value, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      setCheckedValueUnwrapped(value);
+    },
+  );
 
   const controlRef = React.useRef<HTMLElement>(null);
   const registerControlRef = useEventCallback((element: HTMLElement | null) => {
@@ -127,8 +142,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     }
   });
 
-  const onValueChange = useEventCallback(onValueChangeProp);
-
   const serializedCheckedValue = React.useMemo(() => {
     if (checkedValue == null) {
       return ''; // avoid uncontrolled -> controlled error
@@ -146,7 +159,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       value: serializedCheckedValue,
       ref: mergedInputRef,
       id,
-      name,
+      name: serializedCheckedValue ? name : undefined,
       disabled,
       readOnly,
       required,
@@ -220,7 +233,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
         state={state}
         props={[defaultProps, fieldControlValidation.getValidationProps, elementProps]}
         refs={[forwardedRef]}
-        customStyleHookMapping={fieldValidityMapping}
+        stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
         stopEventPropagation
@@ -273,10 +286,13 @@ export namespace RadioGroup {
     /**
      * Callback fired when the value changes.
      */
-    onValueChange?: (value: unknown, event: Event) => void;
+    onValueChange?: (value: unknown, eventDetails: ChangeEventDetails) => void;
     /**
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

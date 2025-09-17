@@ -8,9 +8,10 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { TabsRootContext } from './TabsRootContext';
-import { tabsStyleHookMapping } from './styleHooks';
+import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
+import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -59,9 +60,16 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       activationDirection: TabsTab.ActivationDirection,
       event: Event | undefined,
     ) => {
+      const details = createBaseUIEventDetails('none', event);
+
+      onValueChangeProp?.(newValue, details);
+
+      if (details.isCanceled) {
+        return;
+      }
+
       setValue(newValue);
       setTabActivationDirection(activationDirection);
-      onValueChangeProp?.(newValue, event);
     },
   );
 
@@ -177,7 +185,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: tabsStyleHookMapping,
+    stateAttributesMapping: tabsStateAttributesMapping,
   });
 
   return (
@@ -217,6 +225,9 @@ export namespace TabsRoot {
     /**
      * Callback invoked when new value is being set.
      */
-    onValueChange?: (value: TabsTab.Value, event?: Event) => void;
+    onValueChange?: (value: TabsTab.Value, eventDetails: ChangeEventDetails) => void;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

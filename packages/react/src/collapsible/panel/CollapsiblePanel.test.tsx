@@ -34,7 +34,7 @@ describe('<Collapsible.Panel />', () => {
       const trigger = getByRole('button');
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
+      expect(queryByText(PANEL_CONTENT)).not.to.equal(null);
       expect(queryByText(PANEL_CONTENT)).not.toBeVisible();
       expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-closed');
 

@@ -27,7 +27,7 @@ describe('NumberField format', () => {
     });
 
     it('formats a number with different options', () => {
-      expect(getFormatter(undefined, { style: 'percent' }).format(0.1234)).to.equal('12%');
+      expect(getFormatter('en-US', { style: 'percent' }).format(0.1234)).to.equal('12%');
     });
   });
 });

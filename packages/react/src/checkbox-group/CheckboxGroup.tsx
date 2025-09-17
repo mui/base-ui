@@ -13,6 +13,7 @@ import { useField } from '../field/useField';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
+import { BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -53,10 +54,17 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     state: 'value',
   });
 
-  const setValue = useEventCallback((v: string[], event: Event) => {
-    setValueUnwrapped(v);
-    onValueChange?.(v, event);
-  });
+  const setValue = useEventCallback(
+    (v: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => {
+      onValueChange?.(v, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      setValueUnwrapped(v);
+    },
+  );
 
   const parent = useCheckboxGroupParent({
     allValues,
@@ -124,7 +132,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       },
       elementProps,
     ],
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   return (
@@ -157,7 +165,7 @@ export namespace CheckboxGroup {
      * Event handler called when a checkbox in the group is ticked or unticked.
      * Provides the new value as an argument.
      */
-    onValueChange?: (value: string[], event: Event) => void;
+    onValueChange?: (value: string[], eventDetails: ChangeEventDetails) => void;
     /**
      * Names of all checkboxes in the group. Use this when creating a parent checkbox.
      */
@@ -168,4 +176,7 @@ export namespace CheckboxGroup {
      */
     disabled?: boolean;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

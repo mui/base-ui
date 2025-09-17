@@ -239,12 +239,19 @@ function getComponentsFromLabels(labels: string[]): string[] {
     return [GENERAL_CHANGES_HEADER];
   }
 
+  const excludedScopeLabels = ['scope: support-infra', 'scope: code-infra', 'scope: docs-infra'];
+
   const components = labels
     .filter((label) => {
-      return label.startsWith('component:') || label.startsWith('hook:');
+      return (
+        (label.startsWith('component:') ||
+          label.startsWith('hook:') ||
+          label.startsWith('scope:')) &&
+        !excludedScopeLabels.includes(label)
+      );
     })
     .map((label) => {
-      return label.replace('component: ', '').replace('hook: ', '');
+      return label.replace('component: ', '').replace('hook: ', '').replace('scope: ', '');
     });
 
   return components;
@@ -256,8 +263,7 @@ function getScopeFromLabels(labels: string[]): ChangeScope {
   }
 
   if (
-    labels.includes('core') ||
-    labels.includes('scope: infra') ||
+    labels.includes('scope: support-infra') ||
     labels.includes('scope: code-infra') ||
     labels.includes('scope: docs-infra')
   ) {

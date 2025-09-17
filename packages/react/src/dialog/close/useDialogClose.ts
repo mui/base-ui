@@ -4,6 +4,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useButton } from '../../use-button/useButton';
 import { mergeProps } from '../../merge-props';
 import type { HTMLProps } from '../../utils/types';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { DialogRoot } from '../root/DialogRoot';
 
 export function useDialogClose(params: useDialogClose.Parameters): useDialogClose.ReturnValue {
@@ -11,7 +12,7 @@ export function useDialogClose(params: useDialogClose.Parameters): useDialogClos
 
   const handleClick = useEventCallback((event: React.MouseEvent) => {
     if (open) {
-      setOpen(false, event.nativeEvent, 'close-press');
+      setOpen(false, createBaseUIEventDetails('close-press', event.nativeEvent));
     }
   });
 
@@ -42,11 +43,7 @@ export namespace useDialogClose {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    setOpen: (
-      open: boolean,
-      event: Event | undefined,
-      reason: DialogRoot.OpenChangeReason | undefined,
-    ) => void;
+    setOpen: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
     /**
      * Whether the component renders a native `<button>` element when replacing it
      * via the `render` prop.
@@ -61,6 +58,6 @@ export namespace useDialogClose {
      * Resolver for the root element props.
      */
     getRootProps: (externalProps: React.HTMLAttributes<any>) => React.HTMLAttributes<any>;
-    ref: React.RefObject<HTMLElement | null>;
+    ref: React.Ref<HTMLElement>;
   }
 }

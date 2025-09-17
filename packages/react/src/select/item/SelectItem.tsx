@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
@@ -14,6 +15,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * An individual option in the select menu.
@@ -53,9 +55,10 @@ export const SelectItem = React.memo(
       valuesRef,
       registerItemIndex,
       keyboardActiveRef,
-      highlightTimeout,
       multiple,
     } = useSelectRootContext();
+
+    const highlightTimeout = useTimeout();
 
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const selected = useStore(store, selectors.isSelected, listItem.index, value);
@@ -124,10 +127,10 @@ export const SelectItem = React.memo(
         const nextValue = selected
           ? currentValue.filter((v) => v !== value)
           : [...currentValue, value];
-        setValue(nextValue, event);
+        setValue(nextValue, createBaseUIEventDetails('none', event));
       } else {
-        setValue(value, event);
-        setOpen(false, event, 'item-press');
+        setValue(value, createBaseUIEventDetails('none', event));
+        setOpen(false, createBaseUIEventDetails('item-press', event));
       }
     }
 
@@ -160,11 +163,9 @@ export const SelectItem = React.memo(
         selectionRef.current = {
           allowSelectedMouseUp: false,
           allowUnselectedMouseUp: false,
-          allowSelect: true,
         };
       },
       onKeyDown(event) {
-        selectionRef.current.allowSelect = true;
         lastKeyRef.current = event.key;
         store.set('activeIndex', indexRef.current);
       },
@@ -184,10 +185,8 @@ export const SelectItem = React.memo(
           return;
         }
 
-        if (selectionRef.current.allowSelect) {
-          lastKeyRef.current = null;
-          commitSelection(event.nativeEvent);
-        }
+        lastKeyRef.current = null;
+        commitSelection(event.nativeEvent);
       },
       onPointerEnter(event) {
         pointerTypeRef.current = event.pointerType;
@@ -217,11 +216,7 @@ export const SelectItem = React.memo(
           return;
         }
 
-        if (selectionRef.current.allowSelect || !selected) {
-          commitSelection(event.nativeEvent);
-        }
-
-        selectionRef.current.allowSelect = true;
+        commitSelection(event.nativeEvent);
       },
     };
 

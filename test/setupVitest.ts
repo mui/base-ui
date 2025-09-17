@@ -52,7 +52,7 @@ if (isVitestJsdom) {
       return this.instance.clientY;
     }
   }
-  // @ts-expect-error
+  // @ts-expect-error Touch is not defined on window
   globalThis.window.Touch = Touch;
 
   globalThis.requestAnimationFrame = (cb) => {

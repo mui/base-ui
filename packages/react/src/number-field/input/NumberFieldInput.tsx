@@ -8,17 +8,27 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { DEFAULT_STEP } from '../utils/constants';
-import { ARABIC_RE, HAN_RE, getNumberLocaleDetails, parseNumber } from '../utils/parse';
+import {
+  ARABIC_DETECT_RE,
+  HAN_DETECT_RE,
+  FULLWIDTH_DETECT_RE,
+  getNumberLocaleDetails,
+  parseNumber,
+  ANY_MINUS_RE,
+  ANY_PLUS_RE,
+  ANY_MINUS_DETECT_RE,
+  ANY_PLUS_DETECT_RE,
+} from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 
-const customStyleHookMapping = {
+const stateAttributesMapping = {
   ...fieldValidityMapping,
-  ...styleHookMapping,
+  ...numberFieldStateAttributesMapping,
 };
 
 const NAVIGATE_KEYS = new Set([
@@ -171,43 +181,38 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const formatOptions = formatOptionsRef.current;
       const parsedValue = parseNumber(inputValue, locale, formatOptions);
-      const canonicalText = formatNumber(parsedValue, locale, formatOptions);
-      const maxPrecisionText = formatNumberMaxPrecision(parsedValue, locale, formatOptions);
-      const canonical = parseNumber(canonicalText, locale, formatOptions);
-      const maxPrecision = parseNumber(maxPrecisionText, locale, formatOptions);
-
       if (parsedValue === null) {
         return;
       }
 
       blockRevalidationRef.current = true;
 
-      if (validationMode === 'onBlur') {
-        commitValidation(canonical);
-      }
-
+      // If an explicit precision is requested, round the committed numeric value.
       const hasExplicitPrecision =
         formatOptions?.maximumFractionDigits != null ||
         formatOptions?.minimumFractionDigits != null;
 
-      if (hasExplicitPrecision) {
-        // When the consumer explicitly requests a precision, always round the number to that
-        // precision and normalize the displayed text accordingly.
-        if (value !== canonical) {
-          setValue(canonical, event.nativeEvent);
-        }
-        if (inputValue !== canonicalText) {
-          setInputValue(canonicalText);
-        }
-      } else if (value !== maxPrecision) {
-        // Default behaviour: preserve max precision until it differs from canonical
-        setValue(canonical, event.nativeEvent);
-      } else {
-        const shouldPreserveFullPrecision =
-          parsedValue === value && inputValue === maxPrecisionText;
-        if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
-          setInputValue(canonicalText);
-        }
+      const maxFrac = formatOptions?.maximumFractionDigits;
+      const committed =
+        hasExplicitPrecision && typeof maxFrac === 'number'
+          ? Number(parsedValue.toFixed(maxFrac))
+          : parsedValue;
+
+      if (validationMode === 'onBlur') {
+        commitValidation(committed);
+      }
+      if (value !== committed) {
+        setValue(committed, event.nativeEvent);
+      }
+
+      // Normalize only the displayed text
+      const canonicalText = formatNumber(committed, locale, formatOptions);
+      const maxPrecisionText = formatNumberMaxPrecision(parsedValue, locale, formatOptions);
+      const shouldPreserveFullPrecision =
+        !hasExplicitPrecision && parsedValue === value && inputValue === maxPrecisionText;
+
+      if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
+        setInputValue(canonicalText);
       }
     },
     onChange(event) {
@@ -251,7 +256,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       let isAllowedNonNumericKey = allowedNonNumericKeys.has(event.key);
 
       const { decimal, currency, percentSign } = getNumberLocaleDetails(
-        [],
+        locale,
         formatOptionsRef.current,
       );
 
@@ -259,12 +264,34 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const selectionEnd = event.currentTarget.selectionEnd;
       const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
 
-      // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
-      // is selected, or if only the minus sign is highlighted.
-      if (event.key === '-' && allowedNonNumericKeys.has('-')) {
-        const isMinusHighlighted =
-          selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
-        isAllowedNonNumericKey = !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
+      // Normalize handling of plus/minus signs via precomputed regexes
+      const selectionIsExactlyCharAt = (index: number) =>
+        selectionStart === index && selectionEnd === index + 1;
+
+      if (
+        ANY_MINUS_DETECT_RE.test(event.key) &&
+        Array.from(allowedNonNumericKeys).some((k) => ANY_MINUS_DETECT_RE.test(k || ''))
+      ) {
+        // Only allow one sign unless replacing the existing one or all text is selected
+        const existingIndex = inputValue.search(ANY_MINUS_RE);
+        const isReplacingExisting =
+          existingIndex != null && existingIndex !== -1 && selectionIsExactlyCharAt(existingIndex);
+        isAllowedNonNumericKey =
+          !(ANY_MINUS_DETECT_RE.test(inputValue) || ANY_PLUS_DETECT_RE.test(inputValue)) ||
+          isAllSelected ||
+          isReplacingExisting;
+      }
+      if (
+        ANY_PLUS_DETECT_RE.test(event.key) &&
+        Array.from(allowedNonNumericKeys).some((k) => ANY_PLUS_DETECT_RE.test(k || ''))
+      ) {
+        const existingIndex = inputValue.search(ANY_PLUS_RE);
+        const isReplacingExisting =
+          existingIndex != null && existingIndex !== -1 && selectionIsExactlyCharAt(existingIndex);
+        isAllowedNonNumericKey =
+          !(ANY_MINUS_DETECT_RE.test(inputValue) || ANY_PLUS_DETECT_RE.test(inputValue)) ||
+          isAllSelected ||
+          isReplacingExisting;
       }
 
       // Only allow one of each symbol.
@@ -279,8 +306,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       });
 
       const isLatinNumeral = /^[0-9]$/.test(event.key);
-      const isArabicNumeral = ARABIC_RE.test(event.key);
-      const isHanNumeral = HAN_RE.test(event.key);
+      const isArabicNumeral = ARABIC_DETECT_RE.test(event.key);
+      const isHanNumeral = HAN_DETECT_RE.test(event.key);
+      const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(event.key);
       const isNavigateKey = NAVIGATE_KEYS.has(event.key);
 
       if (
@@ -294,6 +322,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         isAllowedNonNumericKey ||
         isLatinNumeral ||
         isArabicNumeral ||
+        isFullwidthNumeral ||
         isHanNumeral ||
         isNavigateKey
       ) {
@@ -342,7 +371,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     ref: [forwardedRef, inputRef, inputValidationRef],
     state,
     props: [inputProps, getInputValidationProps(), getValidationProps(), elementProps],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

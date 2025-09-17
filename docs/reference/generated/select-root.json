@@ -4,81 +4,100 @@
   "props": {
     "name": {
       "type": "string",
-      "description": "Identifies the field when a form is submitted."
+      "description": "Identifies the field when a form is submitted.",
+      "detailedType": "string | undefined"
     },
     "defaultValue": {
       "type": "Value[] | Value | null",
       "default": "null",
-      "description": "The uncontrolled value of the select when it’s initially rendered.\n\nTo render a controlled select, use the `value` prop instead."
+      "description": "The uncontrolled value of the select when it’s initially rendered.\n\nTo render a controlled select, use the `value` prop instead.",
+      "detailedType": "Value[] | Value | null | undefined"
     },
     "value": {
-      "type": "Value[] | Value | null",
-      "description": "The value of the select."
+      "type": "Value[] | Value",
+      "description": "The value of the select.",
+      "detailedType": "Value[] | Value | undefined"
     },
     "onValueChange": {
-      "type": "((value: Value[] | Value, event: Event | undefined) => void)",
-      "description": "Callback fired when the value of the select changes. Use when controlled."
+      "type": "((value: Value[] | Value, eventDetails: Select.Root.ChangeEventDetails) => void)",
+      "description": "Callback fired when the value of the select changes. Use when controlled.",
+      "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the select menu is initially open.\n\nTo render a controlled select menu, use the `open` prop instead."
+      "description": "Whether the select menu is initially open.\n\nTo render a controlled select menu, use the `open` prop instead.",
+      "detailedType": "boolean | undefined"
     },
     "open": {
       "type": "boolean",
-      "description": "Whether the select menu is currently open."
+      "description": "Whether the select menu is currently open.",
+      "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: Select.Root.OpenChangeReason | undefined) => void)",
-      "description": "Event handler called when the select menu is opened or closed."
+      "type": "((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => void)",
+      "description": "Event handler called when the select menu is opened or closed.",
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Select.Root.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the select will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the select manually.\nUseful when the select's animation is controlled by an external library."
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the select will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the select manually.\nUseful when the select's animation is controlled by an external library.",
+      "detailedType": "React.RefObject<Select.Root.Actions> | undefined"
     },
     "items": {
       "type": "Record<string, ReactNode> | ({ label: ReactNode, value: Value })[]",
-      "description": "Data structure of the items rendered in the select menu.\nWhen specified, `<Select.Value>` renders the label of the selected item instead of the raw value."
+      "description": "Data structure of the items rendered in the select menu.\nWhen specified, `<Select.Value>` renders the label of the selected item instead of the raw value.",
+      "example": "```tsx\nconst items = {\n  sans: 'Sans-serif',\n  serif: 'Serif',\n  mono: 'Monospace',\n  cursive: 'Cursive',\n};\n<Select.Root items={items} />\n```",
+      "detailedType": "| Record<string, ReactNode>\n| { label: ReactNode; value: Value }[]\n| undefined"
     },
     "modal": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed."
+      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.",
+      "detailedType": "boolean | undefined"
     },
     "multiple": {
       "type": "boolean | undefined",
       "default": "false",
-      "description": "Whether multiple items can be selected."
+      "description": "Whether multiple items can be selected.",
+      "detailedType": "boolean | undefined | undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
-      "description": "Event handler called after any animations complete when the select menu is opened or closed."
+      "description": "Event handler called after any animations complete when the select menu is opened or closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the user should be unable to choose a different option from the select menu."
+      "description": "Whether the user should be unable to choose a different option from the select menu.",
+      "detailedType": "boolean | undefined"
     },
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the user must choose a value before submitting a form."
+      "description": "Whether the user must choose a value before submitting a form.",
+      "detailedType": "boolean | undefined"
     },
     "inputRef": {
       "type": "Ref<HTMLInputElement>",
-      "description": "A ref to access the hidden input element."
+      "description": "A ref to access the hidden input element.",
+      "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "id": {
       "type": "string",
-      "description": "The id of the Select."
+      "description": "The id of the Select.",
+      "detailedType": "string | undefined"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode | undefined"
     }
   },
   "dataAttributes": {},

@@ -178,7 +178,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     state,
     ref: [forwardedRef, buttonRef],
     props: [props, elementProps, getButtonProps],
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
   });
 
   return element;

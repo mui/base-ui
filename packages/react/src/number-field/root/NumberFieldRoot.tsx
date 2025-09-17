@@ -13,14 +13,24 @@ import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { getNumberLocaleDetails, PERCENTAGES } from '../utils/parse';
+import {
+  getNumberLocaleDetails,
+  PERCENTAGES,
+  UNICODE_MINUS_SIGNS,
+  UNICODE_PLUS_SIGNS,
+  PERMILLE,
+  FULLWIDTH_DECIMAL,
+  FULLWIDTH_GROUP,
+} from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
+import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { isReactEvent } from '../../floating-ui-react/utils';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -137,17 +147,26 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const getAllowedNonNumericKeys = useEventCallback(() => {
     const { decimal, group, currency } = getNumberLocaleDetails(locale, format);
 
-    const keys = new Set(['.', ',', decimal, group]);
+    const keys = new Set(['.', ',', decimal, group, FULLWIDTH_DECIMAL, FULLWIDTH_GROUP]);
+
+    // If the locale's group separator is a space-like character (e.g. NBSP, NNBSP),
+    // also allow a regular space from the keyboard.
+    if (group && /\p{Zs}/u.test(group)) {
+      keys.add(' ');
+    }
 
     if (formatStyle === 'percent') {
       PERCENTAGES.forEach((key) => keys.add(key));
     }
+    // Permille is supported by the parser regardless of format style
+    PERMILLE.forEach((key) => keys.add(key));
+
     if (formatStyle === 'currency' && currency) {
       keys.add(currency);
     }
-    if (minWithDefault < 0) {
-      keys.add('-');
-    }
+    // Allow plus sign in all cases; minus sign only when negatives are valid
+    ['+'].concat(UNICODE_PLUS_SIGNS).forEach((key) => keys.add(key));
+    (minWithDefault < 0 ? ['-'].concat(UNICODE_MINUS_SIGNS) : []).forEach((key) => keys.add(key));
 
     return keys;
   });
@@ -165,6 +184,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const setValue = useEventCallback(
     (unvalidatedValue: number | null, event?: React.MouseEvent | Event, dir?: 1 | -1) => {
       const eventWithOptionalKeyState = event as EventWithOptionalKeyState;
+      const nativeEvent = event && isReactEvent(event) ? event.nativeEvent : event;
+
+      const details = createBaseUIEventDetails('none', nativeEvent);
       const validatedValue = toValidatedNumber(unvalidatedValue, {
         step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
         format: formatOptionsRef.current,
@@ -175,9 +197,21 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         small: eventWithOptionalKeyState?.altKey ?? false,
       });
 
-      onValueChange?.(validatedValue, event && 'nativeEvent' in event ? event.nativeEvent : event);
-      setValueUnwrapped(validatedValue);
-      setDirty(validatedValue !== validityData.initialValue);
+      // Determine whether we should notify about a change even if the numeric value is unchanged.
+      // This is needed when the user input is clamped/snapped to the same current value, or when
+      // the source value differs but validation normalizes to the existing value.
+      const shouldFireChange = validatedValue !== value || unvalidatedValue !== value;
+
+      if (shouldFireChange) {
+        onValueChange?.(validatedValue, details);
+
+        if (details.isCanceled) {
+          return;
+        }
+
+        setValueUnwrapped(validatedValue);
+        setDirty(validatedValue !== validityData.initialValue);
+      }
 
       // Keep the visible input in sync immediately when programmatic changes occur
       // (increment/decrement, wheel, etc). During direct typing we don't want
@@ -428,7 +462,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     ref: forwardedRef,
     state,
     props: elementProps,
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping,
   });
 
   return (
@@ -526,10 +560,8 @@ export namespace NumberFieldRoot {
     format?: Intl.NumberFormatOptions;
     /**
      * Callback fired when the number value changes.
-     * @param {number | null} value The new value.
-     * @param {Event} event The event that triggered the change.
      */
-    onValueChange?: (value: number | null, event?: Event) => void;
+    onValueChange?: (value: number | null, eventDetails: ChangeEventDetails) => void;
     /**
      * The locale of the input element.
      * Defaults to the user's runtime locale.
@@ -567,6 +599,9 @@ export namespace NumberFieldRoot {
      */
     scrubbing: boolean;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }
 
 function getControlledInputValue(

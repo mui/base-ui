@@ -9,11 +9,13 @@
     },
     "aria-valuetext": {
       "type": "string",
-      "description": "A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter."
+      "description": "A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.",
+      "detailedType": "string | undefined"
     },
     "getAriaValueText": {
       "type": "((formattedValue: string, value: number) => string)",
-      "description": "A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter."
+      "description": "A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter.",
+      "detailedType": "| ((formattedValue: string, value: number) => string)\n| undefined"
     },
     "locale": {
       "type": "Intl.LocalesArgument",
@@ -22,16 +24,19 @@
     "min": {
       "type": "number",
       "default": "0",
-      "description": "The minimum value"
+      "description": "The minimum value",
+      "detailedType": "number | undefined"
     },
     "max": {
       "type": "number",
       "default": "100",
-      "description": "The maximum value"
+      "description": "The maximum value",
+      "detailedType": "number | undefined"
     },
     "format": {
       "type": "Intl.NumberFormatOptions",
-      "description": "Options to format the value."
+      "description": "Options to format the value.",
+      "detailedType": "Intl.NumberFormatOptions | undefined"
     },
     "className": {
       "type": "string | ((state: Meter.Root.State) => string)",
@@ -39,7 +44,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Meter.Root.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Meter.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

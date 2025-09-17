@@ -3,22 +3,23 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useId } from '@base-ui-components/utils/useId';
 
-import type {
-  FloatingRootContext,
-  ReferenceElement,
-  ContextData,
-  OpenChangeReason,
-} from '../types';
+import type { FloatingRootContext, ReferenceElement, ContextData } from '../types';
+import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
+import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
-  onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+  onOpenChange?: (open: boolean, eventDetails: BaseUIEventDetails) => void;
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
   };
+  /**
+   * Whether to prevent the auto-emitted `openchange` event.
+   */
+  noEmit?: boolean;
 }
 
 export function useFloatingRootContext(
@@ -46,13 +47,19 @@ export function useFloatingRootContext(
     elementsProp.reference,
   );
 
-  const onOpenChange = useEventCallback(
-    (newOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
-      dataRef.current.openEvent = newOpen ? event : undefined;
-      events.emit('openchange', { open: newOpen, event, reason, nested });
-      onOpenChangeProp?.(newOpen, event, reason);
-    },
-  );
+  const onOpenChange = useEventCallback((newOpen: boolean, eventDetails: BaseUIEventDetails) => {
+    dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
+    if (!options.noEmit) {
+      const details: FloatingUIOpenChangeDetails = {
+        open: newOpen,
+        reason: eventDetails.reason,
+        nativeEvent: eventDetails.event,
+        nested,
+      };
+      events.emit('openchange', details);
+    }
+    onOpenChangeProp?.(newOpen, eventDetails);
+  });
 
   const refs = React.useMemo(
     () => ({

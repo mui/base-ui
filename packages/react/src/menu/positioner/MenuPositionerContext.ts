@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { FloatingContext } from '../../floating-ui-react';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../utils/useAnchorPositioning';
 
 export interface MenuPositionerContext {
   /**
@@ -11,7 +11,7 @@ export interface MenuPositionerContext {
   /**
    * How to align the popup relative to the specified side.
    */
-  align: 'start' | 'end' | 'center';
+  align: Align;
   arrowRef: React.MutableRefObject<Element | null>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
@@ -22,9 +22,11 @@ export const MenuPositionerContext = React.createContext<MenuPositionerContext |
   undefined,
 );
 
-export function useMenuPositionerContext() {
+export function useMenuPositionerContext(optional?: false): MenuPositionerContext;
+export function useMenuPositionerContext(optional: true): MenuPositionerContext | undefined;
+export function useMenuPositionerContext(optional?: boolean) {
   const context = React.useContext(MenuPositionerContext);
-  if (context === undefined) {
+  if (context === undefined && !optional) {
     throw new Error(
       'Base UI: MenuPositionerContext is missing. MenuPositioner parts must be placed within <Menu.Positioner>.',
     );
