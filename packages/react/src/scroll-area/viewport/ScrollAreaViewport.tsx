@@ -13,7 +13,7 @@ import { MIN_THUMB_SIZE } from '../constants';
 import { clamp } from '../../utils/clamp';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { onVisible } from '../utils/onVisible';
-import { scrollAreaStyleHookMapping } from '../root/styleHooks';
+import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
 
 /**
@@ -291,7 +291,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     ref: [forwardedRef, viewportRef],
     state: viewportState,
     props: [props, elementProps],
-    customStyleHookMapping: scrollAreaStyleHookMapping,
+    stateAttributesMapping: scrollAreaStateAttributesMapping,
   });
 
   const contextValue: ScrollAreaViewportContext = React.useMemo(

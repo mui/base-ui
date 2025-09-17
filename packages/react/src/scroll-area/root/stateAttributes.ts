@@ -1,8 +1,8 @@
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import type { ScrollAreaRoot } from './ScrollAreaRoot';
 import { ScrollAreaRootDataAttributes } from './ScrollAreaRootDataAttributes';
 
-export const scrollAreaStyleHookMapping: CustomStyleHookMapping<ScrollAreaRoot.State> = {
+export const scrollAreaStateAttributesMapping: StateAttributesMapping<ScrollAreaRoot.State> = {
   hasOverflowX: (value) => (value ? { [ScrollAreaRootDataAttributes.hasOverflowX]: '' } : null),
   hasOverflowY: (value) => (value ? { [ScrollAreaRootDataAttributes.hasOverflowY]: '' } : null),
   overflowXStart: (value) => (value ? { [ScrollAreaRootDataAttributes.overflowXStart]: '' } : null),

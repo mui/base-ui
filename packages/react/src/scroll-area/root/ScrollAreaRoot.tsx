@@ -11,7 +11,7 @@ import { getOffset } from '../utils/getOffset';
 import { ScrollAreaScrollbarDataAttributes } from '../scrollbar/ScrollAreaScrollbarDataAttributes';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { scrollAreaStyleHookMapping } from './styleHooks';
+import { scrollAreaStateAttributesMapping } from './stateAttributes';
 import { contains } from '../../floating-ui-react/utils';
 
 interface Size {
@@ -231,7 +231,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     state,
     ref: [forwardedRef, rootRef],
     props: [props, elementProps],
-    customStyleHookMapping: scrollAreaStyleHookMapping,
+    stateAttributesMapping: scrollAreaStateAttributesMapping,
   });
 
   const contextValue = React.useMemo(

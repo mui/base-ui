@@ -1,10 +1,10 @@
 export enum ScrollAreaRootDataAttributes {
   /**
-   * Present when the scroll area has horizontal overflow.
+   * Present when the scroll area content is wider than the viewport.
    */
   hasOverflowX = 'data-has-overflow-x',
   /**
-   * Present when the scroll area has vertical overflow.
+   * Present when the scroll area content is taller than the viewport.
    */
   hasOverflowY = 'data-has-overflow-y',
   /**

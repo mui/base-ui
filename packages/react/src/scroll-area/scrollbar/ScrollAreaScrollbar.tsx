@@ -8,7 +8,7 @@ import { getOffset } from '../utils/getOffset';
 import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
 import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { scrollAreaStyleHookMapping } from '../root/styleHooks';
+import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
 
 /**
@@ -211,7 +211,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     ref: [forwardedRef, orientation === 'vertical' ? scrollbarYRef : scrollbarXRef],
     state,
     props: [props, elementProps],
-    customStyleHookMapping: scrollAreaStyleHookMapping,
+    stateAttributesMapping: scrollAreaStateAttributesMapping,
   });
 
   const contextValue = React.useMemo(() => ({ orientation }), [orientation]);

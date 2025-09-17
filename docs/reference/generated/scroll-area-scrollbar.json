@@ -31,10 +31,10 @@
       "type": "'horizontal' | 'vertical'"
     },
     "data-has-overflow-x": {
-      "description": "Present when the scroll area has horizontal overflow."
+      "description": "Present when the scroll area content is wider than the viewport."
     },
     "data-has-overflow-y": {
-      "description": "Present when the scroll area has vertical overflow."
+      "description": "Present when the scroll area content is taller than the viewport."
     },
     "data-hovering": {
       "description": "Present when the pointer is over the scroll area."
