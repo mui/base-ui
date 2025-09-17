@@ -354,7 +354,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               return;
             }
 
-            store.state.handleEnterSelection(event.nativeEvent);
+            store.state.handleSelection(event.nativeEvent);
           }
         },
         onPointerMove() {

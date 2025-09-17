@@ -65,7 +65,7 @@ export type State = {
     info: { type: 'keyboard' | 'pointer' | 'none'; index: number },
   ) => void;
   forceMount: () => void;
-  handleEnterSelection: (event: Event) => void;
+  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
   getItemProps: (
     props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>;
