@@ -25,7 +25,7 @@
       "type": "Side",
       "default": "'bottom'",
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions.",
-      "detailedType": "| 'top'\n| 'bottom'\n| 'left'\n| 'right'\n| 'inline-end'\n| 'inline-start'\n| undefined"
+      "detailedType": "| 'left'\n| 'right'\n| 'top'\n| 'bottom'\n| 'inline-end'\n| 'inline-start'\n| undefined"
     },
     "sideOffset": {
       "type": "number | OffsetFunction",
