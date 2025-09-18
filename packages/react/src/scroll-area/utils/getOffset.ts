@@ -10,5 +10,5 @@ export function getOffset(
   const styles = getComputedStyle(element);
   const name = axis === 'x' ? 'Inline' : 'Block';
 
-  return parseFloat(styles[`${prop}${name}`]);
+  return parseFloat(styles[`${prop}${name}Start`]) + parseFloat(styles[`${prop}${name}End`]);
 }
