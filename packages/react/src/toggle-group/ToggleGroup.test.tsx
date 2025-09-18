@@ -175,10 +175,10 @@ describe('<ToggleGroup />', () => {
     });
   });
 
-  describe('prop: toggleMultiple', () => {
+  describe('prop: multiple', () => {
     it('multiple items can be pressed when true', async () => {
       const { getAllByRole, user } = await render(
-        <ToggleGroup toggleMultiple defaultValue={['one']}>
+        <ToggleGroup multiple defaultValue={['one']}>
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
@@ -197,7 +197,7 @@ describe('<ToggleGroup />', () => {
 
     it('only one item can be pressed when false', async () => {
       const { getAllByRole, user } = await render(
-        <ToggleGroup toggleMultiple={false} defaultValue={['one']}>
+        <ToggleGroup multiple={false} defaultValue={['one']}>
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
