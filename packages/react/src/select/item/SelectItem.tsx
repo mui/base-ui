@@ -138,9 +138,9 @@ export const SelectItem = React.memo(
         const nextValue = selected
           ? removeItem(currentValue, value, isItemEqualToValue)
           : [...currentValue, value];
-        setValue(nextValue, createBaseUIEventDetails('none', event));
+        setValue(nextValue, createBaseUIEventDetails('item-press', event));
       } else {
-        setValue(value, createBaseUIEventDetails('none', event));
+        setValue(value, createBaseUIEventDetails('item-press', event));
         setOpen(false, createBaseUIEventDetails('item-press', event));
       }
     }
