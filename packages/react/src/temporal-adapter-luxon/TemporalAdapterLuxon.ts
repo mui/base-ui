@@ -1,3 +1,7 @@
+// Intentionally ignore TS issues in this file to avoid docs being built with `| DateTime`
+// TODO: Remove if temporal adapters are supported
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 'use client';
 import { DateTime, Info } from 'luxon';
 import {
@@ -30,11 +34,12 @@ const FORMATS: TemporalAdapterFormats = {
   fullMonthAndYear: 'MMMM yyyy',
 };
 
-declare module '@base-ui-components/react/models' {
-  interface TemporalSupportedObjectLookup {
-    luxon: DateTime;
-  }
-}
+// Temporarily disabled to avoid docs being built with `| DateTime`
+// declare module '@base-ui-components/react/models' {
+//   interface TemporalSupportedObjectLookup {
+//     luxon: DateTime;
+//   }
+// }
 
 export class TemporalAdapterLuxon implements TemporalAdapter {
   public isTimezoneCompatible = true;

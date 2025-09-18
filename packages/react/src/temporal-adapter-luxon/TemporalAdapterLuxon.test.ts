@@ -1,3 +1,5 @@
+// TODO: Remove if temporal adapters are supported
+// @ts-nocheck No types available
 import { DateTime, Settings } from 'luxon';
 import { UnstableTemporalAdapterLuxon as TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { describeGregorianAdapter } from '#test-utils';
