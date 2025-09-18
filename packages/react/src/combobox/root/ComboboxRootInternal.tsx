@@ -696,7 +696,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         setSelectedValue(nextValue, eventDetails);
 
         const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-        if (wasFiltering) {
+        if (wasFiltering && !store.state.inputInsidePopup) {
           setOpen(false, eventDetails);
         }
       } else {

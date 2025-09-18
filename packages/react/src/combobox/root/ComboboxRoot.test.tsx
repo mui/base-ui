@@ -1446,6 +1446,43 @@ describe('<Combobox.Root />', () => {
       expect(input).to.have.value('');
     });
 
+    it('does not close popup when filtering with input inside popup in multiple mode', async () => {
+      const items = ['apple', 'apricot', 'banana'];
+      const { user } = await render(
+        <Combobox.Root multiple items={items}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+
+      const input = await screen.findByTestId('input');
+      await user.type(input, 'app');
+      await user.click(screen.getByRole('option', { name: 'apple' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+      expect(input).to.have.value('');
+    });
+
     it('"multiple" clears typed input on close when no selection made', async () => {
       const onInput = spy();
       const { user } = await render(
