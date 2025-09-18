@@ -30,7 +30,7 @@ export default function ExampleInputInsideTrigger() {
               <div className={styles.InputContainer} aria-label={person ? person.name : undefined}>
                 <Combobox.Input
                   id={id}
-                  placeholder={person ? '' : 'Search people…'}
+                  placeholder={person ? '' : 'Select person'}
                   className={styles.Input}
                   onBlur={() => {
                     setInputValue('');

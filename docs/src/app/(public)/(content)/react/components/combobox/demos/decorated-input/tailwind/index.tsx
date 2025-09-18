@@ -26,13 +26,13 @@ export default function ExampleInputInsideTrigger() {
         <Combobox.Value>
           {(person: Person | null) => (
             <div
-              className="relative flex w-[16rem] min-[500px]:w-[20rem]"
+              className="relative group flex w-[16rem] min-[500px]:w-[20rem]"
               aria-label={person ? person.name : undefined}
             >
               <Combobox.Input
                 id={id}
-                placeholder={person ? '' : 'Search people…'}
-                className="h-10 w-full rounded-md font-normal border border-gray-200 pl-9 pr-16 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 cursor-default focus:cursor-text"
+                placeholder={person ? '' : 'Select person'}
+                className="h-10 w-full rounded-md font-normal border border-gray-200 pl-9 pr-16 text-base text-gray-900 bg-[canvas] group-hover:bg-gray-100 group-focus-within:group-hover:bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 cursor-default focus:cursor-text"
                 onBlur={() => {
                   setInputValue('');
                 }}

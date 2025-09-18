@@ -7,6 +7,10 @@
   @media (min-width: 500px) {
     width: 20rem;
   }
+
+  &:hover:not(:focus-within) .Input {
+    background-color: var(--color-gray-100);
+  }
 }
 
 .Input {

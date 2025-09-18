@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -18,6 +19,8 @@ interface Size {
   height: number;
 }
 
+const DEFAULT_SIZE = { width: 0, height: 0 };
+
 /**
  * Groups all parts of the scroll area.
  * Renders a `<div>` element.
@@ -33,8 +36,8 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const [hovering, setHovering] = React.useState(false);
   const [scrollingX, setScrollingX] = React.useState(false);
   const [scrollingY, setScrollingY] = React.useState(false);
-  const [cornerSize, setCornerSize] = React.useState<Size>({ width: 0, height: 0 });
-  const [thumbSize, setThumbSize] = React.useState<Size>({ width: 0, height: 0 });
+  const [cornerSize, setCornerSize] = React.useState<Size>(DEFAULT_SIZE);
+  const [thumbSize, setThumbSize] = React.useState<Size>(DEFAULT_SIZE);
   const [touchModality, setTouchModality] = React.useState(false);
 
   const rootId = useBaseUiId();
