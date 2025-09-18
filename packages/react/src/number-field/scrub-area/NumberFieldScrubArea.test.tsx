@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { screen, waitFor, act } from '@mui/internal-test-utils';
+import { screen, act } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
