@@ -541,6 +541,8 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const setInputValue = useEventCallback(
     (next: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
+      hadInputClearRef.current = eventDetails.reason === 'input-clear';
+
       props.onInputValueChange?.(next, eventDetails);
 
       if (eventDetails.isCanceled) {
@@ -692,7 +694,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         setSelectedValue(nextValue, eventDetails);
 
         const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-        if (wasFiltering && !store.state.inputInsidePopup) {
+        if (!wasFiltering) {
+          return;
+        }
+
+        if (store.state.inputInsidePopup) {
+          setInputValue('', createBaseUIEventDetails('input-clear', eventDetails.event));
+        } else {
           setOpen(false, eventDetails);
         }
       } else {
