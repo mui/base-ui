@@ -5,7 +5,6 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { MenuRoot } from '../root/MenuRoot';
 
 /**
@@ -110,6 +109,6 @@ export namespace MenuRadioGroup {
     disabled: boolean;
   };
 
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
   export type ChangeEventReason = MenuRoot.ChangeEventReason;
+  export type ChangeEventDetails = MenuRoot.ChangeEventDetails;
 }

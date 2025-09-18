@@ -72,6 +72,7 @@ export namespace DialogRoot {
     | 'outside-press'
     | 'escape-key'
     | 'close-press'
+    | 'focus-out'
     | 'none';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

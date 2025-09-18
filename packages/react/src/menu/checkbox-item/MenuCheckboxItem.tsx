@@ -12,7 +12,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { MenuRoot } from '../root/MenuRoot';
 
 const InnerMenuCheckboxItem = React.memo(
@@ -214,6 +214,6 @@ export namespace MenuCheckboxItem {
     closeOnClick?: boolean;
   }
 
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
   export type ChangeEventReason = MenuRoot.ChangeEventReason;
+  export type ChangeEventDetails = MenuRoot.ChangeEventDetails;
 }

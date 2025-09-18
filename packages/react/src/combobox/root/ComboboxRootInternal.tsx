@@ -1347,6 +1347,7 @@ export namespace ComboboxRootInternal {
     | 'item-press'
     | 'escape-key'
     | 'list-navigation'
+    | 'focus-out'
     | 'input-change'
     | 'input-clear'
     | 'clear-press'
