@@ -63,18 +63,18 @@ describe('<NumberField.ScrubArea />', () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -10 }));
     });
 
-    await waitFor(() => expect(input).to.have.value('-10'));
+    expect(input).to.have.value('-10');
     await act(async () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 5 }));
     });
 
-    await waitFor(() => expect(input).to.have.value('-5'));
+    expect(input).to.have.value('-5');
 
     await act(async () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -2 }));
     });
 
-    await waitFor(() => expect(input).to.have.value('-7'));
+    expect(input).to.have.value('-7');
   });
 
   it('calls onValueChange while scrubbing and onValueCommitted on pointerup', async () => {
@@ -101,16 +101,14 @@ describe('<NumberField.ScrubArea />', () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 3 }));
     });
 
-    await waitFor(() => {
-      // One or more changes depending on pixel sensitivity and environment
-      expect(onValueChange.callCount).to.be.greaterThan(0);
-    });
+    // One or more changes depending on pixel sensitivity and environment
+    expect(onValueChange.callCount).to.be.greaterThan(0);
 
     await act(async () => {
       window.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
     });
 
-    await waitFor(() => expect(onValueCommitted.callCount).to.equal(1));
+    expect(onValueCommitted.callCount).to.equal(1);
 
     const lastChange = onValueChange.lastCall.args[0];
     const committed = onValueCommitted.firstCall.args[0];
@@ -136,13 +134,13 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -2 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('0'));
+      expect(input).to.have.value('0');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 2 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('0'));
+      expect(input).to.have.value('0');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 1 }));
@@ -151,37 +149,37 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 1 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('0'));
+      expect(input).to.have.value('0');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 1 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('1'));
+      expect(input).to.have.value('1');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 5 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('6'));
+      expect(input).to.have.value('6');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -4 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('6'));
+      expect(input).to.have.value('6');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -1 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('5'));
+      expect(input).to.have.value('5');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 5 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('10'));
+      expect(input).to.have.value('10');
     });
   });
 
@@ -204,13 +202,13 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 10 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('10'));
+      expect(input).to.have.value('10');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementY: 10 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('10'));
+      expect(input).to.have.value('10');
     });
   });
 });
