@@ -84,6 +84,7 @@ export type State = {
   isItemEqualToValue: (item: any, value: any) => boolean;
   modal: boolean;
   autoHighlight: boolean;
+  hasInputValue: boolean;
 };
 
 export type ComboboxStore = Store<State>;

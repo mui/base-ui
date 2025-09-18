@@ -117,6 +117,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
+  const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const commitValidation = fieldControlValidation.commitValidation;
 
   useIsoLayoutEffect(() => {
@@ -161,7 +162,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   // selected value for single mode so the input reflects the selection on mount.
   const initialDefaultInputValue = useRefWithInit<React.ComponentProps<'input'>['defaultValue']>(
     () => {
-      if (inputValueProp !== undefined || defaultInputValueProp !== undefined) {
+      if (hasInputValue) {
         return defaultInputValueProp ?? '';
       }
       if (selectionMode === 'single') {
@@ -320,6 +321,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         isItemEqualToValue,
         modal,
         autoHighlight,
+        hasInputValue,
         mounted: false,
         forceMounted: false,
         transitionStatus: 'idle',
@@ -962,6 +964,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       modal,
       autoHighlight,
       isItemEqualToValue,
+      hasInputValue,
     });
   }, [
     store,
@@ -993,6 +996,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     modal,
     autoHighlight,
     isItemEqualToValue,
+    hasInputValue,
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
