@@ -58,10 +58,10 @@ describe('<Popover.Viewport />', () => {
         <div>
           <style>
             {`
-              [data-previous] {
+              [data-transitioning] [data-previous] {
                 animation: slide-out 0.3s ease-out forwards;
               }
-              [data-next] {
+              [data-transitioning] [data-current] {
                 animation: slide-in 0.3s ease-out forwards;
               }
               @keyframes slide-out {
@@ -130,25 +130,24 @@ describe('<Popover.Viewport />', () => {
       await user.click(trigger2);
 
       // Check for morphing containers during transition
-      let nextContainer: HTMLElement | null = null;
+      let previousContainer: HTMLElement | null = null;
       await waitFor(() => {
-        nextContainer = document.querySelector('[data-next]');
-        expect(nextContainer).not.to.equal(null);
+        previousContainer = document.querySelector('[data-previous]');
+        expect(previousContainer).not.to.equal(null);
       });
 
-      const previousContainer = document.querySelector('[data-previous]');
-      expect(previousContainer).not.to.equal(null);
       expect(previousContainer).to.have.attribute('inert');
       expect(previousContainer!.textContent).to.equal('Content 0');
 
+      const nextContainer = document.querySelector('[data-current]');
+      expect(nextContainer).not.to.equal(null);
       expect(nextContainer!.textContent).to.equal('Content 1');
 
       // Verify they are cleaned up after animation
       await waitFor(() => {
-        expect(document.querySelector('[data-next]')).to.equal(null);
+        expect(document.querySelector('[data-previous]')).to.equal(null);
       });
 
-      expect(document.querySelector('[data-previous]')).to.equal(null);
       expect(document.querySelector('[data-current]')).toBeVisible();
       expect(screen.getByText('Content 1')).toBeVisible();
     });
@@ -159,10 +158,10 @@ describe('<Popover.Viewport />', () => {
           <div>
             <style>
               {`
-              [data-previous] {
+              [data-transitioning] [data-previous] {
                 animation: slide-out 0.2s ease-out forwards;
               }
-              [data-next] {
+              [data-transitioning] [data-current] {
                 animation: slide-in 0.2s ease-out forwards;
               }
               @keyframes slide-out {
