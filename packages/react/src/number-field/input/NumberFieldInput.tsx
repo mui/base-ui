@@ -276,7 +276,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       if (event.isTrusted) {
         setInputValue(targetValue);
         const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
-        if (parsedValue !== null && isValidCharacterString) {
+        if (parsedValue !== null) {
           setValue(parsedValue, event.nativeEvent);
         }
         return;
