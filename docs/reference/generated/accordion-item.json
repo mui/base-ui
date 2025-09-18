@@ -8,9 +8,9 @@
       "example": "```tsx\n<Accordion.Root value={['a']}>\n  <Accordion.Item value=\"a\" /> // initially open\n  <Accordion.Item value=\"b\" /> // initially closed\n</Accordion.Root>\n```"
     },
     "onOpenChange": {
-      "type": "((open: boolean) => void)",
+      "type": "((open: boolean, eventDetails: Accordion.Item.ChangeEventDetails) => void)",
       "description": "Event handler called when the panel is opened or closed.",
-      "detailedType": "((open: boolean) => void) | undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Accordion.Item.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "disabled": {
       "type": "boolean",

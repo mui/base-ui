@@ -16,7 +16,6 @@ import { type BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import type { BaseUIChangeEventReason } from '../../utils/types';
 
 /**
  * Groups all parts of the preview card.
@@ -223,6 +222,12 @@ export namespace PreviewCardRoot {
     unmount: () => void;
   }
 
-  export type ChangeEventReason = BaseUIChangeEventReason;
+  export type ChangeEventReason =
+    | 'trigger-hover'
+    | 'trigger-focus'
+    | 'trigger-press'
+    | 'outside-press'
+    | 'escape-key'
+    | 'none';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }
