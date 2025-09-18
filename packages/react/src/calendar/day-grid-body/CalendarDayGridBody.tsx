@@ -12,7 +12,7 @@ import { CompositeRoot } from '../../composite/root/CompositeRoot';
  *
  * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
  */
-export const CalendarDayGridBody = React.forwardRef(function CalendarDayGrid(
+export const CalendarDayGridBody = React.forwardRef(function CalendarDayGridBody(
   componentProps: CalendarDayGridBody.Props,
   forwardedRef: React.ForwardedRef<HTMLTableSectionElement>,
 ) {
