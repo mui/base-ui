@@ -21,7 +21,7 @@ import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
 /**
- * Positions the select menu popup.
+ * Positions the select popup popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)

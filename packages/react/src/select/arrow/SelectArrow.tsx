@@ -17,7 +17,7 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectArrow.State> = {
 };
 
 /**
- * Displays an element positioned against the select menu anchor.
+ * Displays an element positioned against the select popup anchor.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -61,7 +61,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
 export namespace SelectArrow {
   export interface State {
     /**
-     * Whether the select menu is currently open.
+     * Whether the select popup is currently open.
      */
     open: boolean;
     side: Side | 'none';
