@@ -200,11 +200,14 @@ describe('<Switch.Root />', () => {
     expect(thumb).not.to.have.attribute('data-checked');
   });
 
-  it('should set the name attribute on the input', async () => {
+  it('should set the name attribute only on the input', async () => {
     const { getByRole } = await render(<Switch.Root name="switch-name" />);
+
+    const switchElement = screen.getByRole('switch');
     const input = getByRole('checkbox', { hidden: true });
 
     expect(input).to.have.attribute('name', 'switch-name');
+    expect(switchElement).not.to.have.attribute('name');
   });
 
   describe('Form', () => {

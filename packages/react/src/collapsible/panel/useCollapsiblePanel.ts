@@ -36,6 +36,7 @@ export function useCollapsiblePanel(
     width,
   } = parameters;
 
+  const computedStylesRef = React.useRef<CSSStyleDeclaration>(null);
   const isBeforeMatchRef = React.useRef(false);
   const latestAnimationNameRef = React.useRef<string>(null);
   const shouldCancelInitialOpenAnimationRef = React.useRef(open);
@@ -67,6 +68,7 @@ export function useCollapsiblePanel(
     }
     if (animationTypeRef.current == null || transitionDimensionRef.current == null) {
       const panelStyles = getComputedStyle(element);
+      computedStylesRef.current = panelStyles;
 
       const hasAnimation = panelStyles.animationName !== 'none' && panelStyles.animationName !== '';
       const hasTransition =
@@ -117,7 +119,11 @@ export function useCollapsiblePanel(
      * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
      * https://github.com/tailwindlabs/tailwindcss/blob/cd154a4f471e7a63cc27cad15dada650de89d52b/packages/tailwindcss/preflight.css#L320-L326
      */
-    element.style.setProperty('display', 'block', 'important');
+    element.style.setProperty(
+      'display',
+      computedStylesRef.current?.display ?? 'block',
+      'important',
+    );
 
     if (height === undefined || width === undefined) {
       setDimensions({ height: element.scrollHeight, width: element.scrollWidth });
@@ -174,7 +180,11 @@ export function useCollapsiblePanel(
 
     if (open) {
       /* opening */
-      panel.style.setProperty('display', 'block', 'important');
+      panel.style.setProperty(
+        'display',
+        computedStylesRef.current?.display ?? 'block',
+        'important',
+      );
 
       /**
        * When `keepMounted={false}` and the panel is initially closed, the very
