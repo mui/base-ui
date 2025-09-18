@@ -104,7 +104,7 @@ describe('<Toggle />', () => {
     });
   });
 
-  describe('prop: render', async () => {
+  describe('prop: render', () => {
     it('should pass composite props', async () => {
       const renderSpy = spy();
 

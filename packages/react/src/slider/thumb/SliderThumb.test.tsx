@@ -8,7 +8,7 @@ import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 
 describe('<Slider.Thumb />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Slider.Thumb />, () => ({
     render: (node) => {
@@ -186,7 +186,7 @@ describe('<Slider.Thumb />', () => {
     });
   });
 
-  describe('prop: tabIndex', async () => {
+  describe('prop: tabIndex', () => {
     it('can be removed from the tab sequence', async () => {
       const { user } = await render(
         <Slider.Root defaultValue={50}>
@@ -203,7 +203,7 @@ describe('<Slider.Thumb />', () => {
     });
   });
 
-  describe('prop: children', async () => {
+  describe('prop: children', () => {
     it('renders the nested input as a sibling to children', async () => {
       await render(
         <Slider.Root defaultValue={50}>
@@ -250,6 +250,37 @@ describe('<Slider.Thumb />', () => {
       const thumb = screen.getByTestId('thumb');
       expect(thumb.querySelector('input[type="range"]')).to.equal(screen.getByRole('slider'));
       expect(thumb.querySelector('[data-testid="child"]')).to.equal(screen.getByTestId('child'));
+    });
+  });
+
+  describe('prop: inputRef', () => {
+    it('can focus the input element', async () => {
+      function App() {
+        const inputRef = React.useRef<HTMLInputElement>(null);
+        return (
+          <React.Fragment>
+            <Slider.Root defaultValue={50}>
+              <Slider.Control>
+                <Slider.Thumb inputRef={inputRef} />
+              </Slider.Control>
+            </Slider.Root>
+            <button
+              onClick={() => {
+                if (inputRef.current) {
+                  inputRef.current.focus();
+                }
+              }}
+            >
+              Button
+            </button>
+          </React.Fragment>
+        );
+      }
+      const { user } = await render(<App />);
+
+      expect(document.body).toHaveFocus();
+      await user.click(screen.getByText('Button'));
+      expect(screen.getByRole('slider')).toHaveFocus();
     });
   });
 
@@ -505,6 +536,55 @@ describe('<Slider.Thumb />', () => {
 
       await user.click(screen.getByRole('button', { name: 'min' }));
       expect(thumbStyles.getPropertyValue('left')).to.equal('0px');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('server-side rendering', () => {
+    it('single thumb', async () => {
+      await renderToString(
+        <Slider.Root
+          defaultValue={30}
+          style={{
+            width: '100px',
+          }}
+        >
+          <Slider.Value />
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Indicator />
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(getComputedStyle(screen.getByTestId('thumb')).getPropertyValue('left')).to.equal(
+        '30px',
+      );
+    });
+
+    it('multiple thumbs', async () => {
+      const { container } = await renderToString(
+        <Slider.Root
+          defaultValue={[30, 40]}
+          style={{
+            width: '100px',
+          }}
+        >
+          <Slider.Value />
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Thumb index={0} data-testid="thumb" />
+              <Slider.Thumb index={1} data-testid="thumb" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const [thumb0, thumb1] = Array.from(container.querySelectorAll('[data-testid="thumb"]'));
+
+      expect(getComputedStyle(thumb0).getPropertyValue('left')).to.equal('30px');
+      expect(getComputedStyle(thumb1).getPropertyValue('left')).to.equal('40px');
     });
   });
 });

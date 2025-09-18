@@ -363,29 +363,10 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       return;
     }
 
-    const list = listRef.current;
-    const firstItem = list.find((item) => item != null);
-    let lastItem: HTMLElement | undefined;
-    for (let i = list.length - 1; i >= 0; i -= 1) {
-      const item = list[i];
-      if (item) {
-        lastItem = item;
-        break;
-      }
-    }
-
-    if (!firstItem || !lastItem) {
-      return;
-    }
-
-    const firstItemTop = firstItem.offsetTop;
-    const lastItemBottom = lastItem.offsetTop + lastItem.offsetHeight;
-
-    const viewportTop = scroller.scrollTop;
-    const viewportBottom = scroller.scrollTop + scroller.clientHeight;
-
-    const shouldShowUp = viewportTop > firstItemTop + 1;
-    const shouldShowDown = viewportBottom < lastItemBottom - 1;
+    const viewportTop = popupElement.scrollTop;
+    const viewportBottom = popupElement.scrollTop + popupElement.clientHeight;
+    const shouldShowUp = viewportTop > 1;
+    const shouldShowDown = viewportBottom < popupElement.scrollHeight - 1;
 
     if (store.state.scrollUpArrowVisible !== shouldShowUp) {
       store.set('scrollUpArrowVisible', shouldShowUp);

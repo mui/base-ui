@@ -14,11 +14,11 @@ import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { styleDisableScrollbar } from '../../utils/styles';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
@@ -26,7 +26,7 @@ import { clearStyles, LIST_FUNCTIONAL_STYLES } from './utils';
 import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
@@ -382,7 +382,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, popupRef],
     state,
-    customStyleHookMapping,
+    stateAttributesMapping,
     props: [
       popupProps,
       defaultProps,
