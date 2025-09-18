@@ -1267,6 +1267,12 @@ interface ComboboxRootProps<ItemValue> {
    */
   locale?: Intl.LocalesArgument;
   /**
+   * Whether pressing Enter in the input should always allow forms to submit.
+   * By default, pressing Enter in the input will stop form submission if an item is highlighted.
+   * @default false
+   */
+  alwaysSubmitOnEnter?: boolean;
+  /**
    * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
    */
   fillInputOnItemPress?: boolean;
