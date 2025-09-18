@@ -85,7 +85,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
               // Allow form submission when no item is highlighted.
               return;
             }
-            
+
             stopEvent(event);
             store.state.handleSelection(event.nativeEvent);
           }
