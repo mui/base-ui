@@ -51,6 +51,6 @@ export default function ScrollAreaInset() {
         </ScrollArea.Scrollbar>
         <ScrollArea.Corner />
       </ScrollArea.Root>
-    </div>
+    </DirectionProvider>
   );
 }

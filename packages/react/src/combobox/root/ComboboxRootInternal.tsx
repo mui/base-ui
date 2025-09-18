@@ -22,7 +22,6 @@ import {
   createBaseUIEventDetails,
   type BaseUIEventDetails,
 } from '../../utils/createBaseUIEventDetails';
-import type { BaseUIChangeEventReason } from '../../utils/types';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
@@ -1343,10 +1342,16 @@ export namespace ComboboxRootInternal {
   }
 
   export type ChangeEventReason =
-    | BaseUIChangeEventReason
+    | 'trigger-press'
+    | 'outside-press'
+    | 'item-press'
+    | 'escape-key'
+    | 'list-navigation'
+    | 'focus-out'
     | 'input-change'
     | 'input-clear'
     | 'clear-press'
-    | 'chip-remove-press';
+    | 'chip-remove-press'
+    | 'none';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

@@ -8,6 +8,8 @@ import { getOffset } from '../utils/getOffset';
 import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
 import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
+import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
 
 /**
  * A vertical or horizontal scrollbar for the scroll area.
@@ -32,6 +34,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     scrollingX,
     scrollingY,
     hiddenState,
+    overflowEdges,
     scrollbarYRef,
     scrollbarXRef,
     viewportRef,
@@ -51,8 +54,15 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
         vertical: scrollingY,
       }[orientation],
       orientation,
+      hasOverflowX: !hiddenState.scrollbarXHidden,
+      hasOverflowY: !hiddenState.scrollbarYHidden,
+      overflowXStart: overflowEdges.xStart,
+      overflowXEnd: overflowEdges.xEnd,
+      overflowYStart: overflowEdges.yStart,
+      overflowYEnd: overflowEdges.yEnd,
+      cornerHidden: hiddenState.cornerHidden,
     }),
-    [hovering, scrollingX, scrollingY, orientation],
+    [hovering, scrollingX, scrollingY, orientation, hiddenState, overflowEdges],
   );
 
   const direction = useDirection();
@@ -202,6 +212,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     ref: [forwardedRef, orientation === 'vertical' ? scrollbarYRef : scrollbarXRef],
     state,
     props: [props, elementProps],
+    stateAttributesMapping: scrollAreaStateAttributesMapping,
   });
 
   const contextValue = React.useMemo(() => ({ orientation }), [orientation]);
@@ -222,9 +233,12 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 });
 
 export namespace ScrollAreaScrollbar {
-  export interface State {
+  export interface State extends ScrollAreaRoot.State {
+    /** Whether the scroll area is being hovered. */
     hovering: boolean;
+    /** Whether the scroll area is being scrolled. */
     scrolling: boolean;
+    /** The orientation of the scrollbar. */
     orientation: 'vertical' | 'horizontal';
   }
 
