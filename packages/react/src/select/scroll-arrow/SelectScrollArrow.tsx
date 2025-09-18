@@ -21,7 +21,8 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 ) {
   const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
 
-  const { store, popupRef, listRef, handleScrollArrowVisibility } = useSelectRootContext();
+  const { store, popupRef, listRef, handleScrollArrowVisibility, scrollArrowsMountedCountRef } =
+    useSelectRootContext();
   const { side, scrollDownArrowRef, scrollUpArrowRef } = useSelectPositionerContext();
 
   const selector =
@@ -36,12 +37,18 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
   useIsoLayoutEffect(() => {
-    store.set('hasScrollArrows', true);
+    scrollArrowsMountedCountRef.current += 1;
+    if (!store.state.hasScrollArrows) {
+      store.set('hasScrollArrows', true);
+    }
+
     return () => {
-      // Assume that both scroll arrows (up/down) are rendered together.
-      store.set('hasScrollArrows', false);
+      scrollArrowsMountedCountRef.current = Math.max(0, scrollArrowsMountedCountRef.current - 1);
+      if (scrollArrowsMountedCountRef.current === 0 && store.state.hasScrollArrows) {
+        store.set('hasScrollArrows', false);
+      }
     };
-  }, [store]);
+  }, [store, scrollArrowsMountedCountRef]);
 
   useOpenChangeComplete({
     open: visible,

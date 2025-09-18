@@ -87,6 +87,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
+  const scrollArrowsMountedCountRef = React.useRef(0);
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
@@ -495,6 +496,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       popupRef,
       scrollHandlerRef,
       handleScrollArrowVisibility,
+      scrollArrowsMountedCountRef,
       getItemProps,
       events: floatingContext.events,
       valueRef,
