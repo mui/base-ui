@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
 
-export default function ExampleInputInsideTrigger() {
+export default function ExampleDecoratedInput() {
   const id = React.useId();
   const [inputValue, setInputValue] = React.useState('');
   const isTyping = inputValue.trim() !== '';
@@ -10,11 +10,11 @@ export default function ExampleInputInsideTrigger() {
   return (
     <Combobox.Root
       items={people}
-      itemToStringLabel={(p) => p.name}
+      itemToStringLabel={(person) => person.name}
       inputValue={inputValue}
       onInputValueChange={(next, eventDetails) => {
         if (eventDetails.reason === 'item-press') {
-          // Keep the input blank after selection for overlay display.
+          // Keep the input blank to display the custom selected value text.
           setInputValue('');
           return;
         }
@@ -27,11 +27,12 @@ export default function ExampleInputInsideTrigger() {
         <div className={styles.Control}>
           <Combobox.Value>
             {(person: Person | null) => (
-              <div className={styles.InputContainer} aria-label={person ? person.name : undefined}>
+              <div className={styles.InputContainer}>
                 <Combobox.Input
                   id={id}
                   placeholder={person ? '' : 'Select person'}
                   className={styles.Input}
+                  aria-label={person && !isTyping ? person.name : undefined}
                   onBlur={() => {
                     setInputValue('');
                   }}
@@ -66,9 +67,9 @@ export default function ExampleInputInsideTrigger() {
             <Combobox.List>
               {(person: Person) => (
                 <Combobox.Item key={person.id} value={person} className={styles.Item}>
-                  <div className={styles.ItemAvatar} aria-hidden>
+                  <Combobox.Icon className={styles.ItemAvatar}>
                     {initials(person.name)}
-                  </div>
+                  </Combobox.Icon>
                   <div className={styles.ItemText}>{person.name}</div>
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />

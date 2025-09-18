@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 
-export default function ExampleInputInsideTrigger() {
+export default function ExampleDecoratedInput() {
   const id = React.useId();
   const [inputValue, setInputValue] = React.useState('');
   const isTyping = inputValue.trim() !== '';
@@ -9,11 +9,11 @@ export default function ExampleInputInsideTrigger() {
   return (
     <Combobox.Root
       items={people}
-      itemToStringLabel={(p) => p.name}
+      itemToStringLabel={(person) => person.name}
       inputValue={inputValue}
       onInputValueChange={(next, eventDetails) => {
         if (eventDetails.reason === 'item-press') {
-          // Keep the input blank after selection for overlay display.
+          // Keep the input blank to display the custom selected value text.
           setInputValue('');
           return;
         }
@@ -25,13 +25,11 @@ export default function ExampleInputInsideTrigger() {
         <label htmlFor={id}>Assignee</label>
         <Combobox.Value>
           {(person: Person | null) => (
-            <div
-              className="relative group flex w-[16rem] min-[500px]:w-[20rem]"
-              aria-label={person ? person.name : undefined}
-            >
+            <div className="relative group flex w-[16rem] min-[500px]:w-[20rem]">
               <Combobox.Input
                 id={id}
                 placeholder={person ? '' : 'Select person'}
+                aria-label={person && !isTyping ? person.name : undefined}
                 className="h-10 w-full rounded-md font-normal border border-gray-200 pl-9 pr-16 text-base text-gray-900 bg-[canvas] group-hover:bg-gray-100 group-focus-within:group-hover:bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 cursor-default focus:cursor-text"
                 onBlur={() => {
                   setInputValue('');
@@ -80,9 +78,9 @@ export default function ExampleInputInsideTrigger() {
                   value={person}
                   className="box-border grid cursor-default select-none grid-cols-[1.25rem_1fr_0.75rem] items-center gap-2 py-2 pr-5 pl-4 text-base leading-4 outline-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-100"
                 >
-                  <div className="col-start-1 inline-flex size-5 items-center justify-center rounded-full bg-blue-800 text-[0.6rem] font-semibold text-white">
+                  <Combobox.Icon className="col-start-1 inline-flex size-5 items-center justify-center rounded-full bg-blue-800 text-[0.6rem] font-semibold text-white">
                     {initials(person.name)}
-                  </div>
+                  </Combobox.Icon>
                   <div className="col-start-2">{person.name}</div>
                   <Combobox.ItemIndicator className="col-start-3">
                     <CheckIcon className="size-3" />
