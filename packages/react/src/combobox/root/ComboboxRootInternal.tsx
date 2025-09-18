@@ -98,6 +98,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     limit = -1,
     autoComplete = 'list',
     locale,
+    alwaysSubmitOnEnter = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -321,6 +322,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         isItemEqualToValue,
         modal,
         autoHighlight,
+        alwaysSubmitOnEnter,
         hasInputValue,
         mounted: false,
         forceMounted: false,
@@ -706,7 +708,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         setSelectedValue(nextValue, eventDetails);
 
         const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-        if (wasFiltering) {
+        if (wasFiltering && !store.state.inputInsidePopup) {
           setOpen(false, eventDetails);
         }
       } else {
@@ -964,6 +966,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       modal,
       autoHighlight,
       isItemEqualToValue,
+      alwaysSubmitOnEnter,
       hasInputValue,
     });
   }, [
@@ -996,6 +999,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     modal,
     autoHighlight,
     isItemEqualToValue,
+    alwaysSubmitOnEnter,
     hasInputValue,
   ]);
 
@@ -1302,6 +1306,12 @@ interface ComboboxRootProps<ItemValue> {
    * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument;
+  /**
+   * Whether pressing Enter in the input should always allow forms to submit.
+   * By default, pressing Enter in the input will stop form submission if an item is highlighted.
+   * @default false
+   */
+  alwaysSubmitOnEnter?: boolean;
   /**
    * INTERNAL: Clears the input value after close animation completes.
    * Useful for wrappers like FilterableMenu so they don't need to reset externally.

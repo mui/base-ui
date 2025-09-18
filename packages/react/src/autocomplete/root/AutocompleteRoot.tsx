@@ -30,6 +30,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
     autoHighlight = false,
     itemToStringValue,
     items,
+    alwaysSubmitOnEnter = false,
     ...other
   } = props;
 
@@ -127,6 +128,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
       onInputValueChange={handleValueChange}
       onItemHighlighted={handleItemHighlighted}
       autoComplete={mode}
+      alwaysSubmitOnEnter={alwaysSubmitOnEnter}
     />
   );
 }

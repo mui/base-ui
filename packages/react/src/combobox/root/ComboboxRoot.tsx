@@ -59,6 +59,7 @@ export namespace ComboboxRoot {
     | 'clearInputOnCloseComplete'
     | 'fillInputOnItemPress'
     | 'autoComplete'
+    | 'alwaysSubmitOnEnter'
     // Prevent `items` from driving generic inference at the callsite
     | 'items'
     | 'itemToStringLabel'
