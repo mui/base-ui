@@ -38,7 +38,7 @@ interface BaseUIEventDetails {
 
 ### Canceling a Base UI event
 
-To leave a component uncontrolled, the event can be canceled with the `cancel()` method:
+An event can be canceled with the `cancel()` method on `eventDetails`:
 
 ```tsx title="Prevent a tooltip from closing when pressing the trigger" "cancel"
 <Tooltip.Root
@@ -52,6 +52,8 @@ To leave a component uncontrolled, the event can be canceled with the `cancel()`
   ...
 </Tooltip.Root>
 ```
+
+This lets you leave the component uncontrolled as its internal state will be prevented from updating. This is an alternative to controlling the component with external state and guarding the state updates conditionally.
 
 ### Allowing propagation of the DOM event
 
