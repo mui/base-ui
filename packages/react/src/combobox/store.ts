@@ -84,6 +84,7 @@ export type State = {
   modal: boolean;
   autoHighlight: boolean;
   alwaysSubmitOnEnter: boolean;
+  hasInputValue: boolean;
 };
 
 export type ComboboxStore = Store<State>;

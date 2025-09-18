@@ -66,6 +66,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const isComposingRef = React.useRef(false);
 
   const setInputElement = useEventCallback((element) => {
+    // The search filter for the input-inside-popup pattern should be empty initially.
+    if (hasPositionerParent && !store.state.hasInputValue) {
+      store.state.setInputValue('', createBaseUIEventDetails('none'));
+    }
+
     store.apply({
       inputElement: element,
       inputInsidePopup: hasPositionerParent,
