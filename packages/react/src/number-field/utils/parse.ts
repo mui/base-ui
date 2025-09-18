@@ -92,17 +92,10 @@ export function parseNumber(
     .replace(/\p{Cf}/gu, '')
     .trim();
 
-  // "(...)" is negative
-  let isParenthesizedNegative = false;
-  if (/^(?:\(|（)\s*.+\s*(?:\)|）)$/.test(input)) {
-    isParenthesizedNegative = true;
-    input = input.slice(1, -1);
-  }
-
   // Normalize unicode minus/plus to ASCII, handle leading/trailing signs
   input = input.replace(ANY_MINUS_RE, '-').replace(ANY_PLUS_RE, '+');
 
-  let isNegative = isParenthesizedNegative;
+  let isNegative = false;
 
   // Trailing sign, e.g. "1234-" / "1234+"
   const trailing = input.match(/([+-])\s*$/);
@@ -193,10 +186,10 @@ export function parseNumber(
   const hasPercentSymbol = PERCENT_RE.test(formattedNumber) || style === 'percent';
   const hasPermilleSymbol = PERMILLE_RE.test(formattedNumber);
 
-  if (!isUnitPercent && hasPercentSymbol) {
-    num /= 100;
-  } else if (hasPermilleSymbol) {
+  if (hasPermilleSymbol) {
     num /= 1000;
+  } else if (!isUnitPercent && hasPercentSymbol) {
+    num /= 100;
   }
 
   if (Number.isNaN(num)) {
