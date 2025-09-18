@@ -226,11 +226,12 @@ describe('<Checkbox.Root />', () => {
     expect(checkbox).not.to.have.attribute('data-checked');
   });
 
-  it('should set the name attribute on the input', async () => {
+  it('should set the name attribute only on the input', async () => {
     const { container } = await render(<Checkbox.Root name="checkbox-name" />);
-    const input = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
 
+    const input = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
     expect(input).to.have.attribute('name', 'checkbox-name');
+    expect(screen.getByRole('checkbox')).not.to.have.attribute('name');
   });
 
   describe('Form', () => {
@@ -651,7 +652,7 @@ describe('<Checkbox.Root />', () => {
         const button = screen.getByTestId('button');
 
         await waitFor(() => {
-          expect(label.getAttribute('for')).to.not.equal(null);
+          expect(label.getAttribute('for')).not.to.equal(null);
         });
 
         expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));

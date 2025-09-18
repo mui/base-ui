@@ -17,11 +17,11 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxPopup.State> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
@@ -89,7 +89,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   // Default initial focus logic:

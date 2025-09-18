@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { BaseUIComponentProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
@@ -19,12 +20,13 @@ import {
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { valueArrayToPercentages } from '../utils/valueArrayToPercentages';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
-import { sliderStyleHookMapping } from '../root/styleHooks';
+import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 
 const PAGE_UP = 'PageUp';
@@ -94,6 +96,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaValueText: getAriaValueTextProp,
     id: idProp,
     index: indexProp,
+    inputRef: inputRefProp,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
@@ -107,7 +110,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const {
     active: activeIndex,
     disabled: contextDisabled,
-    pressedInputRef,
     fieldControlValidation,
     formatOptionsRef,
     handleInputChange,
@@ -117,7 +119,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     max,
     min,
     minStepsBetweenValues,
+    name,
     orientation,
+    pressedInputRef,
+    pressedThumbCenterOffsetRef,
+    pressedThumbIndexRef,
     setActive,
     state,
     step,
@@ -125,6 +131,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   } = useSliderRootContext();
 
   const disabled = disabledProp || contextDisabled;
+  const range = sliderValues.length > 1;
 
   const direction = useDirection();
   const { controlId, setControlId, setTouched, setFocused, validationMode } = useFieldRootContext();
@@ -151,7 +158,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     metadata: thumbMetadata,
   });
 
-  const index = indexProp ?? compositeIndex;
+  const index = !range ? 0 : (indexProp ?? compositeIndex);
 
   const thumbValue = sliderValues[index];
 
@@ -192,8 +199,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       'aria-labelledby': ariaLabelledByProp ?? labelId,
       'aria-describedby': ariaDescribedByProp,
       'aria-orientation': orientation,
-      'aria-valuemax': max,
-      'aria-valuemin': min,
       'aria-valuenow': thumbValue,
       'aria-valuetext':
         typeof getAriaValueTextProp === 'function'
@@ -212,6 +217,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       id: inputId,
       max,
       min,
+      name,
       onChange(event: React.ChangeEvent<HTMLInputElement>) {
         handleInputChange(event.target.valueAsNumber, index, event);
       },
@@ -230,7 +236,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
         if (validationMode === 'onBlur') {
           fieldControlValidation.commitValidation(
-            getSliderValue(thumbValue, index, min, max, sliderValues.length > 1, sliderValues),
+            getSliderValue(thumbValue, index, min, max, range, sliderValues),
           );
         }
       },
@@ -243,7 +249,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
 
         let newValue = null;
-        const isRange = sliderValues.length > 1;
         const roundedValue = roundValueToStep(thumbValue, step, min);
         switch (event.key) {
           case ARROW_UP:
@@ -279,7 +284,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           case END:
             newValue = max;
 
-            if (isRange) {
+            if (range) {
               newValue = Number.isFinite(sliderValues[index + 1])
                 ? sliderValues[index + 1] - step * minStepsBetweenValues
                 : max;
@@ -288,7 +293,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           case HOME:
             newValue = min;
 
-            if (isRange) {
+            if (range) {
               newValue = Number.isFinite(sliderValues[index - 1])
                 ? sliderValues[index - 1] + step * minStepsBetweenValues
                 : min;
@@ -315,16 +320,18 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       type: 'range',
       value: thumbValue ?? '',
     },
-    fieldControlValidation.getValidationProps,
+    fieldControlValidation.getInputValidationProps,
   );
+
+  const mergedInputRef = useMergedRefs(inputRef, fieldControlValidation.inputRef, inputRefProp);
 
   const children = childrenProp ? (
     <React.Fragment>
       {childrenProp}
-      <input ref={inputRef} {...inputProps} />
+      <input ref={mergedInputRef} {...inputProps} />
     </React.Fragment>
   ) : (
-    <input ref={inputRef} {...inputProps} />
+    <input ref={mergedInputRef} {...inputProps} />
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -337,7 +344,17 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         id,
         onBlur: onBlurProp,
         onFocus: onFocusProp,
-        onPointerDown() {
+        onPointerDown(event) {
+          pressedThumbIndexRef.current = index;
+
+          if (thumbRef.current != null) {
+            const axis = orientation === 'horizontal' ? 'x' : 'y';
+            const midpoint = getMidpoint(thumbRef.current);
+            const offset =
+              (orientation === 'horizontal' ? event.clientX : event.clientY) - midpoint[axis];
+            pressedThumbCenterOffsetRef.current = offset;
+          }
+
           if (inputRef.current != null && pressedInputRef.current !== inputRef.current) {
             pressedInputRef.current = inputRef.current;
           }
@@ -347,7 +364,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       },
       elementProps,
     ],
-    customStyleHookMapping: sliderStyleHookMapping,
+    stateAttributesMapping: sliderStateAttributesMapping,
   });
 
   return element;
@@ -395,6 +412,10 @@ export namespace SliderThumb {
      * ```
      */
     index?: number | undefined;
+    /**
+     * A ref to access the nested input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
     /**
      * A blur handler forwarded to the `input`.
      */

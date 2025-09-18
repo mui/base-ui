@@ -14,11 +14,11 @@ export function ComboboxRoot<
   SelectedValue = ItemValue,
   Multiple extends boolean | undefined = false,
 >(props: ComboboxRoot.Props<ItemValue, SelectedValue, Multiple>): React.JSX.Element {
-  const { multiple = false as Multiple, defaultValue, value, onValueChange, ...rest } = props;
+  const { multiple = false as Multiple, defaultValue, value, onValueChange, ...other } = props;
 
   return (
     <ComboboxRootInternal
-      {...(rest as any)}
+      {...(other as any)}
       selectionMode={multiple ? 'multiple' : 'single'}
       selectedValue={value}
       defaultSelectedValue={defaultValue}
@@ -45,7 +45,7 @@ export namespace ComboboxRoot {
     ComboboxRootInternal.Props<any, ModeFromMultiple<Multiple>>,
     | 'fillInputOnItemPress'
     | 'autoComplete'
-    | 'autoHighlight'
+    | 'alwaysSubmitOnEnter'
     // Prevent `items` from driving generic inference at the callsite
     | 'items'
     | 'itemToStringLabel'
