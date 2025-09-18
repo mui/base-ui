@@ -8,8 +8,7 @@ export function getOffset(
   }
 
   const styles = getComputedStyle(element);
-  const start = axis === 'x' ? 'Left' : 'Top';
-  const end = axis === 'x' ? 'Right' : 'Bottom';
+  const name = axis === 'x' ? 'Inline' : 'Block';
 
-  return parseFloat(styles[`${prop}${start}`]) + parseFloat(styles[`${prop}${end}`]);
+  return parseFloat(styles[`${prop}${name}`]);
 }
