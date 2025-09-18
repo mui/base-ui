@@ -143,7 +143,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     state,
     ref: [forwardedRef, setPositionerElement],
     props: [defaultProps, elementProps],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return (

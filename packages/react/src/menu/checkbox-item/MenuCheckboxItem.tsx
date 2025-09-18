@@ -10,7 +10,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
-import { itemMapping } from '../utils/styleHookMapping';
+import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -70,7 +70,7 @@ const InnerMenuCheckboxItem = React.memo(
 
     const element = useRenderElement('div', componentProps, {
       state,
-      customStyleHookMapping: itemMapping,
+      stateAttributesMapping: itemMapping,
       props: [
         itemProps,
         {
@@ -189,8 +189,7 @@ export namespace MenuCheckboxItem {
     /**
      * Event handler called when the checkbox item is ticked or unticked.
      */
-    onCheckedChange?: (checked: boolean, eventDetails: MenuRoot.ChangeEventDetails) => void;
-    children?: React.ReactNode;
+    onCheckedChange?: (checked: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * The click handler for the menu item.
      */
@@ -214,4 +213,7 @@ export namespace MenuCheckboxItem {
      */
     closeOnClick?: boolean;
   }
+
+  export type ChangeEventReason = MenuRoot.ChangeEventReason;
+  export type ChangeEventDetails = MenuRoot.ChangeEventDetails;
 }

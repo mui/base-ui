@@ -12,6 +12,10 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.Icon.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-popup-open": {
+      "description": "Present when the corresponding popup is open."
+    }
+  },
   "cssVariables": {}
 }

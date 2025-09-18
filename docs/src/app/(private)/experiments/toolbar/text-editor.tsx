@@ -245,7 +245,7 @@ export default function App() {
             <Toolbar.Separator className={styles.toolbar.Separator} />
 
             <ToggleGroup
-              toggleMultiple
+              multiple
               defaultValue={[]}
               className={styles.toolbar.ToggleGroup}
               disabled={settings.toolbarDisabled}
