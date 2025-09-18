@@ -26,16 +26,16 @@
       "description": "Present when the scroll area content is taller than the viewport."
     },
     "data-overflow-x-end": {
-      "description": "Present when there is overflow on the inline end side for the horizontal axis."
+      "description": "Present when there is overflow on the horizontal end side."
     },
     "data-overflow-x-start": {
-      "description": "Present when there is overflow on the inline start side for the horizontal axis."
+      "description": "Present when there is overflow on the horizontal start side."
     },
     "data-overflow-y-end": {
-      "description": "Present when there is overflow on the block end side."
+      "description": "Present when there is overflow on the vertical end side."
     },
     "data-overflow-y-start": {
-      "description": "Present when there is overflow on the block start side."
+      "description": "Present when there is overflow on the vertical start side."
     }
   },
   "cssVariables": {
@@ -48,19 +48,19 @@
       "type": "number"
     },
     "--scroll-area-overflow-x-end": {
-      "description": "The distance from the horizontal inline end edge in pixels.",
+      "description": "The distance from the horizontal end edge in pixels.",
       "type": "number"
     },
     "--scroll-area-overflow-x-start": {
-      "description": "The distance from the horizontal inline start edge in pixels.",
+      "description": "The distance from the horizontal start edge in pixels.",
       "type": "number"
     },
     "--scroll-area-overflow-y-end": {
-      "description": "The distance from the vertical block end edge in pixels.",
+      "description": "The distance from the vertical end edge in pixels.",
       "type": "number"
     },
     "--scroll-area-overflow-y-start": {
-      "description": "The distance from the vertical block start edge in pixels.",
+      "description": "The distance from the vertical start edge in pixels.",
       "type": "number"
     }
   }

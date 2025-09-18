@@ -8,19 +8,19 @@ export enum ScrollAreaViewportDataAttributes {
    */
   hasOverflowY = 'data-has-overflow-y',
   /**
-   * Present when there is overflow on the inline start side for the horizontal axis.
+   * Present when there is overflow on the horizontal start side.
    */
   overflowXStart = 'data-overflow-x-start',
   /**
-   * Present when there is overflow on the inline end side for the horizontal axis.
+   * Present when there is overflow on the horizontal end side.
    */
   overflowXEnd = 'data-overflow-x-end',
   /**
-   * Present when there is overflow on the block start side.
+   * Present when there is overflow on the vertical start side.
    */
   overflowYStart = 'data-overflow-y-start',
   /**
-   * Present when there is overflow on the block end side.
+   * Present when there is overflow on the vertical end side.
    */
   overflowYEnd = 'data-overflow-y-end',
 }
