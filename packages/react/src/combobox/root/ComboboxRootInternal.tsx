@@ -96,6 +96,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     limit = -1,
     autoComplete = 'list',
     locale,
+    alwaysSubmitOnEnter = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -115,6 +116,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
+  const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const commitValidation = fieldControlValidation.commitValidation;
 
   useIsoLayoutEffect(() => {
@@ -159,7 +161,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   // selected value for single mode so the input reflects the selection on mount.
   const initialDefaultInputValue = useRefWithInit<React.ComponentProps<'input'>['defaultValue']>(
     () => {
-      if (inputValueProp !== undefined || defaultInputValueProp !== undefined) {
+      if (hasInputValue) {
         return defaultInputValueProp ?? '';
       }
       if (selectionMode === 'single') {
@@ -317,6 +319,8 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         itemToStringLabel,
         modal,
         autoHighlight,
+        alwaysSubmitOnEnter,
+        hasInputValue,
         mounted: false,
         forceMounted: false,
         transitionStatus: 'idle',
@@ -340,7 +344,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         setSelectedValue: NOOP,
         setIndices: NOOP,
         onItemHighlighted: NOOP,
-        handleEnterSelection: NOOP,
+        handleSelection: NOOP,
         getItemProps() {
           return {};
         },
@@ -574,6 +578,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
+      if (open === nextOpen) {
+        return;
+      }
+
       props.onOpenChange?.(nextOpen, eventDetails);
 
       if (eventDetails.isCanceled) {
@@ -625,13 +633,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       if (
         selectionMode === 'single' &&
         nextValue != null &&
-        eventDetails.reason !== 'input-change'
+        eventDetails.reason !== 'input-change' &&
+        queryChangedAfterOpen
       ) {
-        setOpen(false, createBaseUIEventDetails('item-press', eventDetails.event as any));
-
-        if (queryChangedAfterOpen) {
-          setCloseQuery(query);
-        }
+        setCloseQuery(query);
       }
     },
   );
@@ -660,11 +665,47 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
   }, [open, selectedValue, syncSelectedIndex]);
 
-  const handleEnterSelection = useEventCallback(() => {
-    if (activeIndex != null) {
-      listRef.current[activeIndex]?.click();
-    }
-  });
+  const handleSelection = useEventCallback(
+    (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
+      let value = passedValue;
+      if (value === undefined) {
+        if (activeIndex === null) {
+          return;
+        }
+        value = valuesRef.current[activeIndex];
+      }
+
+      const targetEl = getTarget(event) as HTMLElement | null;
+      const eventDetails = createBaseUIEventDetails('item-press', event);
+
+      // Let the link handle the click.
+      const href = targetEl?.closest('a')?.getAttribute('href');
+      if (href) {
+        if (href.startsWith('#')) {
+          setOpen(false, eventDetails);
+        }
+        return;
+      }
+
+      if (multiple) {
+        const currentSelectedValue = Array.isArray(selectedValue) ? selectedValue : [];
+        const isCurrentlySelected = currentSelectedValue.includes(value);
+        const nextValue = isCurrentlySelected
+          ? currentSelectedValue.filter((v) => v !== value)
+          : [...currentSelectedValue, value];
+
+        setSelectedValue(nextValue, eventDetails);
+
+        const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
+        if (wasFiltering && !store.state.inputInsidePopup) {
+          setOpen(false, eventDetails);
+        }
+      } else {
+        setSelectedValue(value, eventDetails);
+        setOpen(false, eventDetails);
+      }
+    },
+  );
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -879,7 +920,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       setSelectedValue,
       setIndices,
       onItemHighlighted,
-      handleEnterSelection,
+      handleSelection,
       forceMount,
     });
   });
@@ -913,6 +954,8 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       itemToStringLabel,
       modal,
       autoHighlight,
+      alwaysSubmitOnEnter,
+      hasInputValue,
     });
   }, [
     store,
@@ -943,6 +986,8 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     itemToStringLabel,
     modal,
     autoHighlight,
+    alwaysSubmitOnEnter,
+    hasInputValue,
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
@@ -1235,6 +1280,12 @@ interface ComboboxRootProps<ItemValue> {
    * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument;
+  /**
+   * Whether pressing Enter in the input should always allow forms to submit.
+   * By default, pressing Enter in the input will stop form submission if an item is highlighted.
+   * @default false
+   */
+  alwaysSubmitOnEnter?: boolean;
   /**
    * INTERNAL: Clears the input value after close animation completes.
    * Useful for wrappers like FilterableMenu so they don't need to reset externally.
