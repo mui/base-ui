@@ -131,12 +131,10 @@ export interface ContextData {
   [key: string]: any;
 }
 
-export type OpenChangeCallback = (open: boolean, eventDetails: BaseUIEventDetails) => void;
-
 export interface FloatingRootContext<RT extends ReferenceType = ReferenceType> {
   dataRef: React.MutableRefObject<ContextData>;
   open: boolean;
-  onOpenChange: OpenChangeCallback;
+  onOpenChange: (open: boolean, eventDetails: BaseUIEventDetails<string>) => void;
   elements: {
     domReference: Element | null;
     reference: RT | null;
@@ -155,7 +153,7 @@ export type FloatingContext<RT extends ReferenceType = ReferenceType> = Omit<
   'refs' | 'elements'
 > & {
   open: boolean;
-  onOpenChange(open: boolean, eventDetails: BaseUIEventDetails): void;
+  onOpenChange(open: boolean, eventDetails: BaseUIEventDetails<string>): void;
   events: FloatingEvents;
   dataRef: React.MutableRefObject<ContextData>;
   nodeId: string | undefined;
@@ -224,7 +222,7 @@ export interface UseFloatingOptions<RT extends ReferenceType = ReferenceType>
    * An event callback that is invoked when the floating element is opened or
    * closed.
    */
-  onOpenChange?(open: boolean, eventDetails: BaseUIEventDetails): void;
+  onOpenChange?(open: boolean, eventDetails: BaseUIEventDetails<string>): void;
   /**
    * Unique node id when using `FloatingTree`.
    */

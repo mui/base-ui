@@ -25,7 +25,7 @@ import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore, selectors } from '../store';
-import type { FloatingUIOpenChangeDetails, BaseUIChangeEventReason } from '../../utils/types';
+import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
@@ -168,7 +168,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     const details: FloatingUIOpenChangeDetails = {
       open: nextOpen,
       nativeEvent: eventDetails.event,
-      reason: eventDetails.reason as BaseUIChangeEventReason,
+      reason: eventDetails.reason,
       nested,
       triggerElement: eventDetails.trigger,
     };
@@ -375,9 +375,18 @@ export namespace PopoverRoot {
     payload: Payload | undefined;
   }) => React.ReactNode;
 
-  export type ChangeEventReason = BaseUIChangeEventReason | 'close-press' | 'imperative-action';
+  export type ChangeEventReason =
+    | 'trigger-hover'
+    | 'trigger-focus'
+    | 'trigger-press'
+    | 'outside-press'
+    | 'escape-key'
+    | 'close-press'
+    | 'focus-out'
+    | 'imperative-action'
+    | 'none';
+
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason> & {
     preventUnmountOnClose(): void;
-    trigger: HTMLElement | undefined;
   };
 }

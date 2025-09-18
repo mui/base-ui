@@ -39,7 +39,7 @@ export default function ToggleGroupDemo() {
       <div dir="rtl">
         <div>
           <div>
-            <ToggleGroup toggleMultiple aria-label="Text formatting" className={classes.group}>
+            <ToggleGroup multiple aria-label="Text formatting" className={classes.group}>
               <Toggle value="bold" aria-label="Toggle bold" className={classes.button}>
                 <BoldIcon />
               </Toggle>

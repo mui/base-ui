@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import styles from './scroll-area-inset.module.css';
 
 export default function ScrollAreaInset() {
   return (
-    <div>
+    <DirectionProvider direction="rtl">
       <p>Scroll content is not clipped by inset scrollbars (user-defined paddings)</p>
-      <ScrollArea.Root className={styles.Root}>
+      <ScrollArea.Root className={styles.Root} style={{ direction: 'rtl' }}>
         <ScrollArea.Viewport className={styles.Viewport}>
           <div className={styles.Content}>
             <p>
@@ -25,6 +26,6 @@ export default function ScrollAreaInset() {
         </ScrollArea.Scrollbar>
         <ScrollArea.Corner />
       </ScrollArea.Root>
-    </div>
+    </DirectionProvider>
   );
 }

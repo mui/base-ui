@@ -3,12 +3,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useId } from '@base-ui-components/utils/useId';
 
-import type {
-  FloatingRootContext,
-  ReferenceElement,
-  ContextData,
-  OpenChangeCallback,
-} from '../types';
+import type { FloatingRootContext, ReferenceElement, ContextData } from '../types';
 import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
@@ -16,7 +11,7 @@ import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
-  onOpenChange?: OpenChangeCallback;
+  onOpenChange?(open: boolean, eventDetails: BaseUIEventDetails<string>): void;
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
@@ -53,20 +48,23 @@ export function useFloatingRootContext(
     elementsProp.reference,
   );
 
-  const onOpenChange = useEventCallback((newOpen: boolean, eventDetails: BaseUIEventDetails) => {
-    dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
-    if (!options.noEmit) {
-      const details: FloatingUIOpenChangeDetails = {
-        open: newOpen,
-        reason: eventDetails.reason,
-        nativeEvent: eventDetails.event,
-        nested,
-        triggerElement: eventDetails.trigger,
-      };
-      events.emit('openchange', details);
-    }
-    onOpenChangeProp?.(newOpen, eventDetails);
-  });
+  const onOpenChange = useEventCallback(
+    (newOpen: boolean, eventDetails: BaseUIEventDetails<string>) => {
+      dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
+      if (!options.noEmit) {
+        const details: FloatingUIOpenChangeDetails = {
+          open: newOpen,
+          reason: eventDetails.reason,
+          nativeEvent: eventDetails.event,
+          nested,
+          triggerElement: eventDetails.trigger,
+        };
+        events.emit('openchange', details);
+      }
+
+      onOpenChangeProp?.(newOpen, eventDetails);
+    },
+  );
 
   const refs = React.useMemo(
     () => ({
