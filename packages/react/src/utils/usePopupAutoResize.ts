@@ -12,21 +12,21 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
   const {
     popupElement,
     positionerElement,
-    open,
     content,
+    mounted,
     enabled = true,
     onMeasureLayout,
     onMeasureLayoutComplete,
   } = parameters;
 
   const isInitialRender = React.useRef(true);
-  const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true);
+  const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true, false);
   const animationFrame = useAnimationFrame();
-  const previousDimensionsRef = React.useRef<{ width: number; height: number } | null>(null);
+  const previousDimensionsRef = React.useRef<Dimensions | null>(null);
 
   useIsoLayoutEffect(() => {
     // Reset the state when the popup is closed.
-    if (!open || !enabled) {
+    if (!mounted || !enabled) {
       isInitialRender.current = true;
       previousDimensionsRef.current = null;
       return undefined;
@@ -41,12 +41,12 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       if (entry) {
         if (previousDimensionsRef.current === null) {
           previousDimensionsRef.current = {
-            width: entry.borderBoxSize[0].inlineSize,
-            height: entry.borderBoxSize[0].blockSize,
+            width: Math.ceil(entry.borderBoxSize[0].inlineSize),
+            height: Math.ceil(entry.borderBoxSize[0].blockSize),
           };
         } else {
-          previousDimensionsRef.current.width = entry.borderBoxSize[0].inlineSize;
-          previousDimensionsRef.current.height = entry.borderBoxSize[0].blockSize;
+          previousDimensionsRef.current.width = Math.ceil(entry.borderBoxSize[0].inlineSize);
+          previousDimensionsRef.current.height = Math.ceil(entry.borderBoxSize[0].blockSize);
         }
       }
     });
@@ -120,10 +120,10 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     content,
     popupElement,
     positionerElement,
-    open,
     runOnceAnimationsFinish,
     animationFrame,
     enabled,
+    mounted,
     onMeasureLayout,
     onMeasureLayoutComplete,
   ]);
@@ -139,9 +139,9 @@ interface UsePopupAutoResizeParameters {
    */
   positionerElement: HTMLElement | null;
   /**
-   * Whether the popup is open.
+   * Whether the popup is mounted.
    */
-  open: boolean;
+  mounted: boolean;
   /*
    * Content that may change and trigger a resize.
    * This doesn't have to be the actual content of the popup, but a value that triggers a resize.

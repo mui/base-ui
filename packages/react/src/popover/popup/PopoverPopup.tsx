@@ -118,7 +118,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   usePopupAutoResize({
     popupElement,
     positionerElement,
-    open,
+    mounted,
     content: payload,
     enabled: autoresizeEnabled,
     onMeasureLayout: handleMeasureLayout,

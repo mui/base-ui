@@ -24,13 +24,13 @@
       "type": "`${'left' | 'right'} {'top' | 'bottom'}`"
     },
     "data-current": {
-      "description": "Applied to the direct child of the viewport when no transitions are present.\nThis element is replaced with 'previous' and 'next' containers when transitions occur."
-    },
-    "data-next": {
-      "description": "Applied to the direct child of the viewport that contains the entering content when transitions are present."
+      "description": "Applied to the direct child of the viewport when no transitions are present or the new content when it's entering."
     },
     "data-previous": {
       "description": "Applied to the direct child of the viewport that contains the exiting content when transitions are present."
+    },
+    "data-transitioning": {
+      "description": "Indicates that the viewport is currently transitioning between old and new content."
     }
   },
   "cssVariables": {

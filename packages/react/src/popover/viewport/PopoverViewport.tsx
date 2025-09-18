@@ -40,7 +40,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
   const activeTrigger = useStore(store, selectors.activeTriggerElement);
   const open = useStore(store, selectors.open);
-  const previousActiveTrigger = usePreviousValue(activeTrigger);
+  const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
 
   const floatingContext = useStore(store, selectors.floatingRootContext);
 
@@ -107,7 +107,9 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     nextContainerRef.current?.style.removeProperty('animation');
     nextContainerRef.current?.style.removeProperty('transition');
 
-    setPreviousContentDimensions(data.previousDimensions);
+    if (!previousContentDimensions) {
+      setPreviousContentDimensions(data.previousDimensions);
+    }
   });
 
   React.useEffect(() => {
@@ -126,7 +128,6 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     // When a trigger changes, set the captured children HTML to state,
     // so we can render both new and old content.
     if (
-      open &&
       activeTrigger &&
       previousActiveTrigger &&
       activeTrigger !== previousActiveTrigger &&
@@ -149,12 +150,6 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       });
 
       lastHandledTriggerRef.current = activeTrigger;
-    } else if (!open) {
-      setPreviousContentNode(null);
-      setPreviousContentDimensions(null);
-      setNewTriggerOffset(null);
-      capturedNodeRef.current = null;
-      lastHandledTriggerRef.current = null;
     }
   }, [
     activeTrigger,
@@ -162,13 +157,13 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     previousContentNode,
     onAnimationsFinished,
     cleanupTimeout,
-    open,
   ]);
 
+  const isTransitioning = previousContentNode != null;
   let childrenToRender: React.ReactNode;
-  if (previousContentNode == null) {
+  if (!isTransitioning) {
     childrenToRender = (
-      <div data-current ref={currentContainerRef}>
+      <div data-current ref={currentContainerRef} key={'current'}>
         {children}
       </div>
     );
@@ -188,7 +183,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
           }
           key={'previous'}
         />
-        <div data-next ref={nextContainerRef}>
+        <div data-current ref={nextContainerRef} key={'current'}>
           {children}
         </div>
       </React.Fragment>
@@ -207,9 +202,10 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
   const state = React.useMemo(() => {
     return {
-      activationDirection: open ? getActivationDirection(newTriggerOffset) : undefined,
+      activationDirection: getActivationDirection(newTriggerOffset),
+      transitioning: isTransitioning,
     };
-  }, [newTriggerOffset, open]);
+  }, [newTriggerOffset, isTransitioning]);
 
   return useRenderElement('div', componentProps, {
     state,

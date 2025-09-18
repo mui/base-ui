@@ -106,7 +106,7 @@
   padding: 1rem var(--viewport-inline-padding);
 
   [data-previous],
-  [data-next] {
+  [data-current] {
     /* This freezes the width of the content while transitioning.
        Width is set to the content area of the parent popup (--popup-width measures the border-box).
        The 'previous` container received the width of the previous content, while the `next` container
@@ -115,23 +115,25 @@
     width: calc(var(--popup-width) - 2 * var(--viewport-inline-padding));
   }
 
-  &[data-activation-direction~='right'] {
-    [data-previous] {
-      animation: slide-out-to-left var(--animation-duration) var(--easing);
+  &[data-transitioning] {
+    &[data-activation-direction~='right'] {
+      [data-previous] {
+        animation: slide-out-to-left var(--animation-duration) var(--easing);
+      }
+
+      [data-current] {
+        animation: slide-in-from-right var(--animation-duration) var(--easing);
+      }
     }
 
-    [data-next] {
-      animation: slide-in-from-right var(--animation-duration) var(--easing);
-    }
-  }
+    &[data-activation-direction~='left'] {
+      [data-previous] {
+        animation: slide-out-to-right var(--animation-duration) var(--easing);
+      }
 
-  &[data-activation-direction~='left'] {
-    [data-previous] {
-      animation: slide-out-to-right var(--animation-duration) var(--easing);
-    }
-
-    [data-next] {
-      animation: slide-in-from-left var(--animation-duration) var(--easing);
+      [data-current] {
+        animation: slide-in-from-left var(--animation-duration) var(--easing);
+      }
     }
   }
 }
