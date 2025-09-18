@@ -78,18 +78,17 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
       store.set('activeIndex', null);
 
       function scrollNextItem() {
-        const popupElement = store.state.listElement ?? popupRef.current;
-        if (!popupElement) {
+        const scroller = store.state.listElement ?? popupRef.current;
+        if (!scroller) {
           return;
         }
 
         store.set('activeIndex', null);
         handleScrollArrowVisibility();
 
-        const isScrolledToTop = popupElement.scrollTop === 0;
+        const isScrolledToTop = scroller.scrollTop === 0;
         const isScrolledToBottom =
-          Math.round(popupElement.scrollTop + popupElement.clientHeight) >=
-          popupElement.scrollHeight;
+          Math.round(scroller.scrollTop + scroller.clientHeight) >= scroller.scrollHeight;
 
         const list = listRef.current;
 
@@ -120,7 +119,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
           if (direction === 'up') {
             let firstVisibleIndex = 0;
-            const scrollTop = popupElement.scrollTop + scrollArrowHeight;
+            const scrollTop = scroller.scrollTop + scrollArrowHeight;
 
             for (let i = 0; i < items.length; i += 1) {
               const item = items[i];
@@ -137,16 +136,15 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
             if (targetIndex < firstVisibleIndex) {
               const targetItem = items[targetIndex];
               if (targetItem) {
-                popupElement.scrollTop = Math.max(0, targetItem.offsetTop - scrollArrowHeight);
+                scroller.scrollTop = Math.max(0, targetItem.offsetTop - scrollArrowHeight);
               }
             } else {
               // Already at the first item; ensure we reach the absolute top to account for group labels.
-              popupElement.scrollTop = 0;
+              scroller.scrollTop = 0;
             }
           } else {
             let lastVisibleIndex = items.length - 1;
-            const scrollBottom =
-              popupElement.scrollTop + popupElement.clientHeight - scrollArrowHeight;
+            const scrollBottom = scroller.scrollTop + scroller.clientHeight - scrollArrowHeight;
 
             for (let i = 0; i < items.length; i += 1) {
               const item = items[i];
@@ -163,15 +161,15 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
             if (targetIndex > lastVisibleIndex) {
               const targetItem = items[targetIndex];
               if (targetItem) {
-                popupElement.scrollTop =
+                scroller.scrollTop =
                   targetItem.offsetTop +
                   targetItem.offsetHeight -
-                  popupElement.clientHeight +
+                  scroller.clientHeight +
                   scrollArrowHeight;
               }
             } else {
               // Already at the last item; ensure we reach the true bottom.
-              popupElement.scrollTop = popupElement.scrollHeight - popupElement.clientHeight;
+              scroller.scrollTop = scroller.scrollHeight - scroller.clientHeight;
             }
           }
         }

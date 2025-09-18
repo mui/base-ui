@@ -363,10 +363,10 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       return;
     }
 
-    const viewportTop = popupElement.scrollTop;
-    const viewportBottom = popupElement.scrollTop + popupElement.clientHeight;
+    const viewportTop = scroller.scrollTop;
+    const viewportBottom = scroller.scrollTop + scroller.clientHeight;
     const shouldShowUp = viewportTop > 1;
-    const shouldShowDown = viewportBottom < popupElement.scrollHeight - 1;
+    const shouldShowDown = viewportBottom < scroller.scrollHeight - 1;
 
     if (store.state.scrollUpArrowVisible !== shouldShowUp) {
       store.set('scrollUpArrowVisible', shouldShowUp);
