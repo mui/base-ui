@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { Metadata,Viewport } from 'next/types';
+import type { Metadata, Viewport } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { DocsProviders } from 'docs/src/components/DocsProviders';
 import 'docs/src/styles.css';
