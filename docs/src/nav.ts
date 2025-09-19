@@ -83,6 +83,11 @@ export const nav: NavGroup[] = [
         href: '/react/components/avatar',
       },
       {
+        label: 'Calendar',
+        href: '/react/components/calendar',
+        isNew: true,
+      },
+      {
         label: 'Checkbox',
         href: '/react/components/checkbox',
       },
@@ -211,6 +216,10 @@ export const nav: NavGroup[] = [
       {
         label: 'Direction Provider',
         href: '/react/utils/direction-provider',
+      },
+      {
+        label: 'Temporal Locale Provider',
+        href: '/react/utils/temporal-locale-provider',
       },
       {
         label: 'useRender',
