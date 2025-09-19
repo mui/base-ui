@@ -5,6 +5,7 @@
   &:focus-visible {
     /* https://github.com/mui/base-ui/pull/2318#issuecomment-3101118590 */
     outline: none;
+
     &::before {
       --focus-v-padding: 0.25rem;
       --focus-h-padding: 0.5rem;
