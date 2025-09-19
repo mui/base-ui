@@ -39,10 +39,7 @@ async function main(parameters: CommandParameters) {
 
   const commits = await findCommits(octokit, previousRelease, release);
   const changelogEntries = await getChangelogEntries(commits, octokit);
-  const changesList = getFormattedChangelogEntries(
-    changelogEntries.filter((entry) => entry.scope === 'public-api'),
-    format,
-  );
+  const changesList = getFormattedChangelogEntries(changelogEntries, format);
 
   const allContributors = getAllContributors(commits);
 
@@ -171,9 +168,9 @@ async function getChangelogEntries(
       title: cleanCommitMessage(commit.message),
       prNumber,
       author: commit.author,
+      group: getGroupFromLabels(labels),
       components: getComponentsFromLabels(labels),
       isBreakingChange: labels.includes('breaking change'),
-      scope: getScopeFromLabels(labels),
     } as ChangelogEntry;
   });
 
@@ -185,6 +182,9 @@ function getFormattedChangelogEntries(
   format: 'changelog' | 'docs',
 ) {
   const changes = new Map<string, { breaking: string[]; nonBreaking: string[] }>();
+
+  // Ignore private changes.
+  changelogEntries = changelogEntries.filter((entry) => entry.group === 'public-change-group-1');
 
   for (const entry of changelogEntries) {
     const { title, prNumber, author, components, isBreakingChange } = entry;
@@ -234,55 +234,65 @@ function getFormattedChangelogEntries(
   });
 }
 
+function getGroupFromLabels(labels: string[]): ChangelogEntryGroup {
+  // Force internal regardless of the existance of product scope label
+  if (
+    labels.includes('docs') ||
+    labels.includes('internal') ||
+    labels.includes('test') ||
+    labels.includes('dependencies')
+  ) {
+    return 'internal-change';
+  }
+
+  const topLevelPublicChange = labels.reduce((acc, label) => {
+    // Those are internal product scopes, we don't want entries for them.
+    if (['scope: support-infra', 'scope: code-infra', 'scope: docs-infra'].includes(label)) {
+      return acc;
+    }
+    if (label.startsWith('scope: ')) {
+      return acc + 1;
+    }
+    return acc;
+  }, 0);
+
+  if (topLevelPublicChange >= 1) {
+    return 'public-change-group-1';
+  }
+
+  return 'internal-change';
+}
+
 function getComponentsFromLabels(labels: string[]): string[] {
-  if (labels.includes('all components')) {
+  if (labels.includes('scope: all components')) {
     return [GENERAL_CHANGES_HEADER];
   }
 
-  const excludedScopeLabels = ['scope: support-infra', 'scope: code-infra', 'scope: docs-infra'];
+  let components = labels
+    .filter((label) => getGroupFromLabels([label]) === 'public-change-group-1')
+    .map((label) => label.replace('scope: ', ''));
 
-  const components = labels
-    .filter((label) => {
-      return (
-        (label.startsWith('component:') ||
-          label.startsWith('hook:') ||
-          label.startsWith('scope:')) &&
-        !excludedScopeLabels.includes(label)
-      );
-    })
-    .map((label) => {
-      return label.replace('component: ', '').replace('hook: ', '').replace('scope: ', '');
-    });
+  // The autocomplete product scope is complex.
+  // We have spit it in two components: Autocomplete and Combobox.
+  // Our users only care about one of the two, but when we work on this product scope, we most of the time
+  // work on both components at the same time (we can't isolate them much).
+  // - If we have "scope: autocomplete" and no component scopes, we assume all components are impacted.
+  // - If we have "scope: autocomplete" and a component scope, we assume only this component is impacted.
+  if (labels.includes('scope: autocomplete')) {
+    if (!labels.includes('component: Autocomplete') && !labels.includes('component: Combobox')) {
+      components.push('Autocomplete');
+      components.push('Combobox');
+    }
+    if (labels.includes('component: Autocomplete')) {
+      components.push('Autocomplete');
+    }
+    if (labels.includes('component: Combobox')) {
+      components.push('Combobox');
+    }
+    components = components.filter((component) => component !== 'autocomplete');
+  }
 
   return components;
-}
-
-function getScopeFromLabels(labels: string[]): ChangeScope {
-  if (labels.includes('docs') || labels.includes('website')) {
-    return 'docs';
-  }
-
-  if (
-    labels.includes('scope: support-infra') ||
-    labels.includes('scope: code-infra') ||
-    labels.includes('scope: docs-infra')
-  ) {
-    return 'infra';
-  }
-
-  if (labels.includes('dependencies')) {
-    return 'dependencies';
-  }
-
-  if (labels.includes('release')) {
-    return 'release';
-  }
-
-  if (labels.includes('internal') || labels.includes('test')) {
-    return 'internal';
-  }
-
-  return 'public-api';
 }
 
 function cleanCommitMessage(commitMessage: string) {
@@ -320,15 +330,15 @@ interface CommandParameters {
   format: 'changelog' | 'docs';
 }
 
-type ChangeScope = 'docs' | 'infra' | 'public-api' | 'internal' | 'dependencies' | 'release';
+type ChangelogEntryGroup = 'public-change-group-1' | 'internal-change';
 
 interface ChangelogEntry {
   title: string;
   prNumber: number;
   author: string;
-  components: string[];
   isBreakingChange: boolean;
-  scope: ChangeScope;
+  group: ChangelogEntryGroup;
+  components: string[];
 }
 
 yargs(hideBin(process.argv))
