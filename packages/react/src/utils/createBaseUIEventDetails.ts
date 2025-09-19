@@ -46,6 +46,10 @@ export type BaseUIEventDetails<Reason extends string> = {
      * Indicates whether the event is allowed to propagate.
      */
     isPropagationAllowed: boolean;
+    /**
+     * The element that triggered the event, if applicable.
+     */
+    trigger: HTMLElement | undefined;
   };
 }[Reason];
 
@@ -56,6 +60,7 @@ export type BaseUIEventDetails<Reason extends string> = {
 export function createBaseUIEventDetails<Reason extends string>(
   reason: Reason,
   event?: ReasonToEvent<Reason>,
+  trigger?: HTMLElement,
 ): BaseUIEventDetails<Reason> {
   let canceled = false;
   let allowPropagation = false;
@@ -74,5 +79,6 @@ export function createBaseUIEventDetails<Reason extends string>(
     get isPropagationAllowed() {
       return allowPropagation;
     },
+    trigger,
   };
 }

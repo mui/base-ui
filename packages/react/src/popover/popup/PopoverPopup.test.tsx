@@ -12,6 +12,7 @@ describe('<Popover.Popup />', () => {
     render(node) {
       return render(
         <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
           <Popover.Portal>
             <Popover.Positioner>{node}</Popover.Positioner>
           </Popover.Portal>
@@ -23,6 +24,7 @@ describe('<Popover.Popup />', () => {
   it('should render the children', async () => {
     await render(
       <Popover.Root open>
+        <Popover.Trigger>Trigger</Popover.Trigger>
         <Popover.Portal>
           <Popover.Positioner>
             <Popover.Popup>Content</Popover.Popup>
