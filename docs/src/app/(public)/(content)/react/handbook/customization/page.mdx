@@ -5,7 +5,7 @@
 
 ## Base UI events
 
-Change events such as `onOpenChange`, `onValueChange`, and `onPressedChange` are custom to Base UI rather than the DOM.
+Change events such as `onOpenChange`, `onValueChange`, and `onPressedChange` are custom to Base UI.
 They can be emitted by various different DOM events, effects, or even during rendering.
 
 ```js title="Base UI event signatures"
@@ -78,14 +78,11 @@ This can also be customized with the `allowPropagation()` method:
 To prevent Base UI from handling a React event like `onClick`, you can use the `preventBaseUIHandler()` method on the event object:
 
 ```tsx title="Prevent Base UI's default behavior"
-<NavigationMenu.Link
-  onClick={(event) => {
-    // Don't close the menu when clicking this link.
+<NumberField.Input
+  onPaste={(event) => {
     event.preventBaseUIHandler();
   }}
->
-  Link
-</NavigationMenu.Link>
+/>
 ```
 
 This should be used as an escape hatch in cases where there isn't a prop yet to customize the behavior.
@@ -93,22 +90,21 @@ In various cases, native events are used instead of React events, so this method
 
 ## Controlling components with state
 
-Most Base UI components can be controlled with your own external state.
+Change event handlers enable a component to be controlled with your own external state.
 
 Components are uncontrolled by default, meaning that they will manage their own state internally.
 
-```tsx title="Uncontrolled mode"
+```tsx title="Uncontrolled dialog"
 <Dialog.Root>
   <Dialog.Trigger /> {/* Opens the dialog when clicked. */}
 </Dialog.Root>
 ```
 
-A component can be made controlled by passing external state to a prop like `open` and the state's setter to its corresponding change handler.
-This also allows you to read the state of the component outside of the root component.
+A component can be made controlled by passing external state to a prop, such as `open` or `value`, and the state's setter to its corresponding change handler, such as `onOpenChange` or `onValueChange`.
 
 For instance, you can open [Dialog](/react/components/dialog) after a timeout, without a trigger:
 
-```tsx title="Opening the dialog after 1 second"
+```tsx title="Controlled dialog"
 const [open, setOpen] = React.useState(false);
 
 React.useEffect(() => {
@@ -124,3 +120,5 @@ return (
   </Dialog.Root>
 );
 ```
+
+This also allows you to read the state of the component outside of the root component.
