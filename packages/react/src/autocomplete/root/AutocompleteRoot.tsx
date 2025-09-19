@@ -94,10 +94,10 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
   }
 
   const handleItemHighlighted: ComboboxRootInternal.Props<Value, 'none'>['onItemHighlighted'] =
-    useEventCallback((highlightedValue, data) => {
-      props.onItemHighlighted?.(highlightedValue, data);
+    useEventCallback((highlightedValue, eventDetails) => {
+      props.onItemHighlighted?.(highlightedValue, eventDetails);
 
-      if (data.type === 'pointer') {
+      if (eventDetails.reason === 'pointer') {
         return;
       }
 
@@ -200,4 +200,7 @@ export namespace AutocompleteRoot {
 
   export type ChangeEventReason = ComboboxRootInternal.ChangeEventReason;
   export type ChangeEventDetails = ComboboxRootInternal.ChangeEventDetails;
+
+  export type HighlightEventReason = ComboboxRootInternal.HighlightEventReason;
+  export type HighlightEventDetails = ComboboxRootInternal.HighlightEventDetails;
 }

@@ -5,7 +5,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { isMouseLikePointerType, isTypeableElement } from '../utils';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface UseClickProps {
   /**
@@ -96,7 +96,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
         // Animations sometimes won't run on a typeable element if using a rAF.
         // Focus is always set on these elements. For touch, we may delay opening.
         if (isTypeableElement(nativeEvent.target)) {
-          const details = createBaseUIEventDetails('trigger-press', nativeEvent);
+          const details = createChangeEventDetails('trigger-press', nativeEvent);
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
               onOpenChange(true, details);
@@ -110,7 +110,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
-          const details = createBaseUIEventDetails('trigger-press', nativeEvent);
+          const details = createChangeEventDetails('trigger-press', nativeEvent);
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
               onOpenChange(true, details);
@@ -148,7 +148,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
               openEventType === 'keyup'
             : true)
         );
-        const details = createBaseUIEventDetails('trigger-press', event.nativeEvent);
+        const details = createChangeEventDetails('trigger-press', event.nativeEvent);
 
         if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
           touchOpenTimeout.start(touchOpenDelay, () => {

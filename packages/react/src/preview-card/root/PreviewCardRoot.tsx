@@ -12,7 +12,7 @@ import {
 } from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { type BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -229,5 +229,5 @@ export namespace PreviewCardRoot {
     | 'outside-press'
     | 'escape-key'
     | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

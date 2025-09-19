@@ -29,7 +29,7 @@ import {
   getPreviousTabbable,
 } from '../utils';
 import type { FloatingRootContext } from '../types';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
@@ -483,7 +483,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           relatedTarget !== getPreviouslyFocusedElement()
         ) {
           preventReturnFocusRef.current = true;
-          onOpenChange(false, createBaseUIEventDetails('focus-out', event));
+          onOpenChange(false, createChangeEventDetails('focus-out', event));
         }
       });
     }

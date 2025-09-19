@@ -19,7 +19,7 @@ import type { FieldRoot } from '../field/root/FieldRoot';
 import { mergeProps } from '../merge-props';
 
 import { RadioGroupContext } from './RadioGroupContext';
-import { type BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
+import { type BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -294,5 +294,5 @@ export namespace RadioGroup {
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

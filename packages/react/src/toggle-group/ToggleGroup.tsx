@@ -8,7 +8,7 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 
 const stateAttributesMapping = {
   multiple(value: boolean) {
@@ -60,30 +60,30 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     state: 'value',
   });
 
-  const setGroupValue = useEventCallback((newValue: string, nextPressed: boolean, event: Event) => {
-    let newGroupValue: any[] | undefined;
-    if (multiple) {
-      newGroupValue = groupValue.slice();
-      if (nextPressed) {
-        newGroupValue.push(newValue);
+  const setGroupValue = useEventCallback(
+    (newValue: string, nextPressed: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => {
+      let newGroupValue: any[] | undefined;
+      if (multiple) {
+        newGroupValue = groupValue.slice();
+        if (nextPressed) {
+          newGroupValue.push(newValue);
+        } else {
+          newGroupValue.splice(groupValue.indexOf(newValue), 1);
+        }
       } else {
-        newGroupValue.splice(groupValue.indexOf(newValue), 1);
+        newGroupValue = nextPressed ? [newValue] : [];
       }
-    } else {
-      newGroupValue = nextPressed ? [newValue] : [];
-    }
-    if (Array.isArray(newGroupValue)) {
-      const details = createBaseUIEventDetails('none', event);
+      if (Array.isArray(newGroupValue)) {
+        onValueChange?.(newGroupValue, eventDetails);
 
-      onValueChange?.(newGroupValue, details);
+        if (eventDetails.isCanceled) {
+          return;
+        }
 
-      if (details.isCanceled) {
-        return;
+        setValueState(newGroupValue);
       }
-
-      setValueState(newGroupValue);
-    }
-  });
+    },
+  );
 
   const state: ToggleGroup.State = React.useMemo(
     () => ({ disabled, multiple, orientation }),
@@ -183,5 +183,5 @@ export namespace ToggleGroup {
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

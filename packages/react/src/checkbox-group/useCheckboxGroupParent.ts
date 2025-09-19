@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
-import type { BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 
 const EMPTY: string[] = [];
 
@@ -107,7 +107,7 @@ export namespace useCheckboxGroupParent {
   export interface Parameters {
     allValues?: string[];
     value?: string[];
-    onValueChange?: (value: string[], eventDetails: BaseUIEventDetails<'none'>) => void;
+    onValueChange?: (value: string[], eventDetails: BaseUIChangeEventDetails<'none'>) => void;
   }
 
   export interface ReturnValue {
@@ -119,13 +119,13 @@ export namespace useCheckboxGroupParent {
       indeterminate: boolean;
       checked: boolean;
       'aria-controls': string;
-      onCheckedChange: (checked: boolean, eventDetails: BaseUIEventDetails<'none'>) => void;
+      onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
     };
     getChildProps: (name: string) => {
       name: string;
       id: string;
       checked: boolean;
-      onCheckedChange: (checked: boolean, eventDetails: BaseUIEventDetails<'none'>) => void;
+      onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
     };
   }
 }

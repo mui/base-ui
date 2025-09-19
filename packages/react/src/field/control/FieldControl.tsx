@@ -11,7 +11,10 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useField } from '../useField';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldControlValidation } from './useFieldControlValidation';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 
 /**
  * The form control to label and validate.
@@ -127,7 +130,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
-          setValue(inputValue, createBaseUIEventDetails('none', event.nativeEvent));
+          setValue(inputValue, createChangeEventDetails('none', event.nativeEvent));
           setDirty(inputValue !== validityData.initialValue);
           setFilled(inputValue !== '');
         },
@@ -171,5 +174,5 @@ export namespace FieldControl {
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

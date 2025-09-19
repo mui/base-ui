@@ -10,7 +10,7 @@
 ### General changes
 
 - **Breaking change:** Base UI event details.
-  Custom event callbacks provide BaseUIEventDetails object as their second parameter.
+  Custom event callbacks provide BaseUIChangeEventDetails object as their second parameter.
   This object contains the source event, reason and methods to customize the behavior (where applicable).
   For example, `onOpenChange(open, event, reason)` becomes `onOpenChange(open, eventDetails)`, where `eventDetails` contains `event` and `reason` properties.
   ([#2382](https://github.com/mui/base-ui/pull/2382))

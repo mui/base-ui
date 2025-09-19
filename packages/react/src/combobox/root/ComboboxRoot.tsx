@@ -108,4 +108,6 @@ export namespace ComboboxRoot {
 
   export type ChangeEventReason = ComboboxRootInternal.ChangeEventReason;
   export type ChangeEventDetails = ComboboxRootInternal.ChangeEventDetails;
+  export type HighlightEventReason = ComboboxRootInternal.HighlightEventReason;
+  export type HighlightEventDetails = ComboboxRootInternal.HighlightEventDetails;
 }
