@@ -10,6 +10,7 @@ import { ToastViewportContext } from './ToastViewportContext';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
+import { ToastViewportCssVars } from './ToastViewportCssVars';
 
 /**
  * A container viewport for toasts.
@@ -33,14 +34,14 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     windowFocusedRef,
     prevFocusElement,
     setPrevFocusElement,
-    hovering,
+    expanded,
     focused,
-    hasDifferingHeights,
   } = useToastContext();
 
   const handlingFocusGuardRef = React.useRef(false);
   const focusedRef = useLatestRef(focused);
   const numToasts = toasts.length;
+  const topHeight = toasts[0]?.height ?? 0;
 
   // Listen globally for F6 so we can force-focus the viewport.
   React.useEffect(() => {
@@ -217,9 +218,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   const state: ToastViewport.State = React.useMemo(
     () => ({
-      expanded: hovering || focused || hasDifferingHeights,
+      expanded,
     }),
-    [hovering, focused, hasDifferingHeights],
+    [expanded],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -228,7 +229,12 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     props: [
       defaultProps,
       {
-        ...elementProps,
+        style: {
+          [ToastViewportCssVars.index0Height as string]: topHeight ? `${topHeight}px` : undefined,
+        },
+      },
+      elementProps,
+      {
         children: (
           <React.Fragment>
             {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}

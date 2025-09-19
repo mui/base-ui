@@ -3,10 +3,10 @@ import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import styles from './index.module.css';
 
-export default function PromiseToastExample() {
+export default function VaryingHeightsToast() {
   return (
     <Toast.Provider>
-      <PromiseDemo />
+      <ToastButton />
       <Toast.Portal>
         <Toast.Viewport className={styles.Viewport}>
           <ToastList />
@@ -16,33 +16,33 @@ export default function PromiseToastExample() {
   );
 }
 
-function PromiseDemo() {
+function ToastButton() {
   const toastManager = Toast.useToastManager();
+  const [count, setCount] = React.useState(0);
 
-  function runPromise() {
-    toastManager.promise(
-      // Simulate an API request with a promise that resolves after 2 seconds
-      new Promise<string>((resolve, reject) => {
-        const shouldSucceed = Math.random() > 0.3; // 70% success rate
-        setTimeout(() => {
-          if (shouldSucceed) {
-            resolve('operation completed');
-          } else {
-            reject(new Error('operation failed'));
-          }
-        }, 2000);
-      }),
-      {
-        loading: 'Loading data...',
-        success: (data: string) => `Success: ${data}`,
-        error: (err: Error) => `Error: ${err.message}`,
-      },
-    );
+  const texts = React.useMemo(
+    () => [
+      'Short message.',
+      'A bit longer message that spans two lines.',
+      'This is a longer description that intentionally takes more vertical space to demonstrate stacking with varying heights.',
+      'An even longer description that should span multiple lines so we can verify the clamped collapsed height and smooth expansion animation when hovering or focusing the viewport.',
+    ],
+    [],
+  );
+
+  function createToast() {
+    setCount((prev) => prev + 1);
+    const description = texts[Math.floor(Math.random() * texts.length)];
+    toastManager.add({
+      title: `Toast ${count + 1} created`,
+      description,
+      timeout: 0,
+    });
   }
 
   return (
-    <button type="button" onClick={runPromise} className={styles.Button}>
-      Run promise
+    <button type="button" className={styles.Button} onClick={createToast}>
+      Create varying height toast
     </button>
   );
 }
