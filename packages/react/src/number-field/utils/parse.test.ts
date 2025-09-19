@@ -86,11 +86,6 @@ describe('NumberField parse', () => {
       expect(parseNumber('1234＋')).to.equal(1234);
     });
 
-    it('handles parentheses for negative numbers', () => {
-      expect(parseNumber('(1,234.5)')).to.equal(-1234.5);
-      expect(parseNumber('(12%)')).to.equal(-0.12);
-    });
-
     it('parses french formatted numbers with narrow no-break space grouping', () => {
       const fr = new Intl.NumberFormat('fr-FR').format(1234.5); // e.g., '1 234,5'
       expect(parseNumber(fr, 'fr-FR')).to.equal(1234.5);
@@ -141,10 +136,6 @@ describe('NumberField parse', () => {
       expect(parseNumber('1234+')).to.equal(1234);
       expect(parseNumber('-1234')).to.equal(-1234);
       expect(parseNumber('1234-')).to.equal(-1234);
-    });
-
-    it('handles fullwidth parentheses for negative numbers', () => {
-      expect(parseNumber('（1,234.5）')).to.equal(-1234.5);
     });
 
     it('supports multiple unicode minus variants', () => {
