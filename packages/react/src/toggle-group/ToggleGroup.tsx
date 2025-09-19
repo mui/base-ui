@@ -10,7 +10,7 @@ import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
 import { BaseUIEventDetails, createBaseUIEventDetails } from '../utils/createBaseUIEventDetails';
 
-const customStyleHookMapping = {
+const stateAttributesMapping = {
   multiple(value: boolean) {
     if (value) {
       return { [ToggleGroupDataAttributes.multiple]: '' } as Record<string, string>;
@@ -34,7 +34,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     loop = true,
     onValueChange,
     orientation = 'horizontal',
-    toggleMultiple = false,
+    multiple = false,
     value: valueProp,
     className,
     render,
@@ -62,7 +62,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
 
   const setGroupValue = useEventCallback((newValue: string, nextPressed: boolean, event: Event) => {
     let newGroupValue: any[] | undefined;
-    if (toggleMultiple) {
+    if (multiple) {
       newGroupValue = groupValue.slice();
       if (nextPressed) {
         newGroupValue.push(newValue);
@@ -86,8 +86,8 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
   });
 
   const state: ToggleGroup.State = React.useMemo(
-    () => ({ disabled, multiple: toggleMultiple, orientation }),
-    [disabled, orientation, toggleMultiple],
+    () => ({ disabled, multiple, orientation }),
+    [disabled, orientation, multiple],
   );
 
   const contextValue: ToggleGroupContext = React.useMemo(
@@ -109,7 +109,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     state,
     ref: forwardedRef,
     props: [defaultProps, elementProps],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (
@@ -123,7 +123,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
           state={state}
           refs={[forwardedRef]}
           props={[defaultProps, elementProps]}
-          customStyleHookMapping={customStyleHookMapping}
+          stateAttributesMapping={stateAttributesMapping}
           loop={loop}
           stopEventPropagation
         />
@@ -179,7 +179,7 @@ export namespace ToggleGroup {
      * When `true` multiple items can be pressed.
      * @default false
      */
-    toggleMultiple?: boolean;
+    multiple?: boolean;
   }
 
   export type ChangeEventReason = 'none';

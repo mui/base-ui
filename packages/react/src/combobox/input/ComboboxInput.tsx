@@ -1,22 +1,23 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../../field/utils/constants';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxInput.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
 };
@@ -54,14 +55,22 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const triggerProps = useStore(store, selectors.triggerProps);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
-  const inputValue = useStore(store, selectors.inputValue);
+
+  // `inputValue` can't be placed in the store.
+  // https://github.com/mui/base-ui/issues/2703
+  const inputValue = useComboboxInputValueContext();
+
+  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
 
-  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
-
   const setInputElement = useEventCallback((element) => {
+    // The search filter for the input-inside-popup pattern should be empty initially.
+    if (hasPositionerParent && !store.state.hasInputValue) {
+      store.state.setInputValue('', createBaseUIEventDetails('none'));
+    }
+
     store.apply({
       inputElement: element,
       inputInsidePopup: hasPositionerParent,
@@ -193,8 +202,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             if (!readOnly && !disabled) {
               const trimmed = nextVal.trim();
               if (trimmed !== '') {
-                store.state.setOpen(true, createBaseUIEventDetails('none', event.nativeEvent));
-                if (!(selectionMode === 'none' && autoHighlight)) {
+                store.state.setOpen(
+                  true,
+                  createBaseUIEventDetails('input-change', event.nativeEvent),
+                );
+                if (!autoHighlight) {
                   store.state.setIndices({
                     activeIndex: null,
                     selectedIndex: null,
@@ -207,7 +219,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             if (
               open &&
               store.state.activeIndex !== null &&
-              !(selectionMode === 'none' && autoHighlight && nextVal.trim() !== '')
+              !(autoHighlight && nextVal.trim() !== '')
             ) {
               store.state.setIndices({
                 activeIndex: null,
@@ -231,7 +243,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (!readOnly && !disabled) {
             const trimmed = event.currentTarget.value.trim();
             if (trimmed !== '') {
-              store.state.setOpen(true, createBaseUIEventDetails('none', event.nativeEvent));
+              store.state.setOpen(
+                true,
+                createBaseUIEventDetails('input-change', event.nativeEvent),
+              );
               // When autoHighlight is enabled, keep the highlight (will be set to 0 in root).
               if (!autoHighlight) {
                 store.state.setIndices({
@@ -288,7 +303,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
                 ? selectedValue.length === 0
                 : selectedValue === null;
 
-            const details = createBaseUIEventDetails('none', event.nativeEvent);
+            const details = createBaseUIEventDetails('escape-key', event.nativeEvent);
             const value = selectionMode === 'multiple' ? [] : null;
             store.state.setInputValue('', details);
             store.state.setSelectedValue(value, details);
@@ -339,14 +354,22 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           if (event.key === 'Enter' && open) {
-            stopEvent(event);
-
-            if (store.state.activeIndex === null) {
+            const hasActive = store.state.activeIndex !== null;
+            if (!hasActive) {
               store.state.setOpen(false, createBaseUIEventDetails('none', event.nativeEvent));
               return;
             }
 
-            store.state.handleEnterSelection(event.nativeEvent);
+            if (store.state.alwaysSubmitOnEnter) {
+              // Commit the input value update synchronously so the form reads the committed value.
+              ReactDOM.flushSync(() => {
+                store.state.handleSelection(event.nativeEvent);
+              });
+              return;
+            }
+
+            stopEvent(event);
+            store.state.handleSelection(event.nativeEvent);
           }
         },
         onPointerMove() {
@@ -360,7 +383,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         ? fieldControlValidation.getValidationProps(elementProps)
         : elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

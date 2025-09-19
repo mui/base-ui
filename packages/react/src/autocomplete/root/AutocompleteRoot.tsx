@@ -29,7 +29,8 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
     autoHighlight = false,
     itemToStringValue,
     items,
-    ...rest
+    alwaysSubmitOnEnter = false,
+    ...other
   } = props;
 
   const enableInline = mode === 'inline' || mode === 'both';
@@ -71,21 +72,21 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
   const collator = useCoreFilter(DEFAULT_FILTER_OPTIONS);
 
   const baseFilter = React.useMemo(() => {
-    if (rest.filter) {
-      return rest.filter;
+    if (other.filter) {
+      return other.filter;
     }
 
     return (item: any, query: string, toString?: (item: any) => string) => {
       return collator.contains(stringifyItem(item, toString), query);
     };
-  }, [rest, collator]);
+  }, [other, collator]);
 
   const query = String(isControlled ? value : internalValue).trim();
 
   // In "both", wrap filtering to use only the typed value, ignoring overlay.
-  let effectiveFilter: typeof rest.filter;
+  let effectiveFilter: typeof other.filter;
   if (mode !== 'both') {
-    effectiveFilter = staticItems ? null : rest.filter;
+    effectiveFilter = staticItems ? null : other.filter;
   } else {
     effectiveFilter = (item: any, _query: string, toString?: (item: any) => string) => {
       return baseFilter(item, query, toString);
@@ -113,7 +114,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
 
   return (
     <ComboboxRootInternal
-      {...rest}
+      {...other}
       items={items as any} // Block `Group` type inference
       itemToStringLabel={itemToStringValue}
       openOnInputClick={openOnInputClick}
@@ -126,6 +127,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
       onInputValueChange={handleValueChange}
       onItemHighlighted={handleItemHighlighted}
       autoComplete={mode}
+      alwaysSubmitOnEnter={alwaysSubmitOnEnter}
     />
   );
 }
