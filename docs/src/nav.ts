@@ -1,13 +1,15 @@
-export interface NavItemn {
+export interface NavItem {
   label: string;
   href: string;
   external?: boolean;
   isNew?: boolean;
+  // Unstable links are hidden from the main nav on production deployed docs.
+  unstable?: boolean;
 }
 
 export interface NavGroup {
   label: string;
-  links: NavItemn[];
+  links: NavItem[];
 }
 
 export const nav: NavGroup[] = [
@@ -86,6 +88,7 @@ export const nav: NavGroup[] = [
         label: 'Calendar',
         href: '/react/components/calendar',
         isNew: true,
+        unstable: true,
       },
       {
         label: 'Checkbox',
@@ -221,6 +224,7 @@ export const nav: NavGroup[] = [
         label: 'Temporal Locale Provider',
         href: '/react/utils/temporal-locale-provider',
         isNew: true,
+        unstable: true,
       },
       {
         label: 'useRender',

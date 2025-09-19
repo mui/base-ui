@@ -8,7 +8,7 @@ import '../../(content)/layout.css';
 export default function Homepage() {
   return (
     <div className="HomepageRoot">
-      <Header />
+      <Header isProduction={true} />
       <div className="ContentLayoutMain">
         <h1 className="mb-4 text-3xl font-bold text-balance">Design Engineer</h1>
         <p className="-mt-2 mb-5 text-lg text-pretty text-gray">

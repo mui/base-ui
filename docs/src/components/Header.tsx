@@ -9,7 +9,7 @@ import { SkipNav } from './SkipNav';
 
 export const HEADER_HEIGHT = 48;
 
-export function Header() {
+export function Header({ isProduction }: { isProduction: boolean }) {
   return (
     <header className="Header">
       <div className="HeaderInner">
@@ -47,12 +47,14 @@ export function Header() {
                   <MobileNav.Section key={section.label}>
                     <MobileNav.Heading>{section.label}</MobileNav.Heading>
                     <MobileNav.List>
-                      {section.links.map((link) => (
-                        <MobileNav.Item key={link.href} href={link.href} external={link.external}>
-                          {link.label}
-                          {link.isNew && <MobileNav.Badge>New</MobileNav.Badge>}
-                        </MobileNav.Item>
-                      ))}
+                      {section.links
+                        .filter((link) => (link.unstable ? !isProduction : true))
+                        .map((link) => (
+                          <MobileNav.Item key={link.href} href={link.href} external={link.external}>
+                            {link.label}
+                            {link.isNew && <MobileNav.Badge>New</MobileNav.Badge>}
+                          </MobileNav.Item>
+                        ))}
                     </MobileNav.List>
                   </MobileNav.Section>
                 ))}
