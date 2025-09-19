@@ -141,7 +141,6 @@ export namespace AutocompleteRoot {
       | 'defaultSelectedValue'
       | 'onSelectedValueChange'
       | 'fillInputOnItemPress'
-      | 'clearInputOnCloseComplete'
       | 'itemToStringValue'
       // Different names
       | 'inputValue' // value
