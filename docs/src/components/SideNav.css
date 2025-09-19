@@ -150,4 +150,5 @@
   letter-spacing: 0.035em;
   padding-inline: 2px;
   translate: 0 -2px;
+  word-break: keep-all;
 }

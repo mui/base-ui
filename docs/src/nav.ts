@@ -220,6 +220,7 @@ export const nav: NavGroup[] = [
       {
         label: 'Temporal Locale Provider',
         href: '/react/utils/temporal-locale-provider',
+        isNew: true,
       },
       {
         label: 'useRender',
