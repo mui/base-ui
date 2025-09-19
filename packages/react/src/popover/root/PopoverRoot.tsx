@@ -72,13 +72,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const triggerElements = useStore(store, selectors.triggers);
 
-  let resolvedTriggerId: string | null = null;
-  if (openState === true && triggerIdProp === undefined && triggerElements.size === 1) {
-    resolvedTriggerId = triggerElements.keys().next().value || null;
-  } else {
-    resolvedTriggerId = triggerId ?? null;
-  }
-
   const open = useStore(store, selectors.open);
   const positionerElement = useStore(store, selectors.positionerElement);
   const activeTriggerElement = useStore(store, selectors.activeTriggerElement);
@@ -89,6 +82,13 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
+
+  let resolvedTriggerId: string | null = null;
+  if (mounted === true && triggerIdProp === undefined && triggerElements.size === 1) {
+    resolvedTriggerId = triggerElements.keys().next().value || null;
+  } else {
+    resolvedTriggerId = triggerId ?? null;
+  }
 
   useIsoLayoutEffect(() => {
     store.set('open', openState);
@@ -185,7 +185,12 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       }
 
       store.set('open', nextOpen);
-      store.set('activeTriggerId', eventDetails.trigger?.id ?? null);
+
+      // If a popup is closing, the `trigger` may be null.
+      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
+      if (newTriggerId || nextOpen) {
+        store.set('activeTriggerId', newTriggerId);
+      }
     }
 
     if (isHover) {
