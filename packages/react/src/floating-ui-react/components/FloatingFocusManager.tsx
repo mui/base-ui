@@ -218,11 +218,11 @@ export interface FloatingFocusManagerProps {
   /**
    * Overrides the element to focus when tabbing forward out of the floating element.
    */
-  nextFocusableRef?: React.RefObject<HTMLElement | null>;
+  nextFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null;
   /**
    * Overrides the element to focus when tabbing backward out of the floating element.
    */
-  previousFocusableRef?: React.RefObject<HTMLElement | null>;
+  previousFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null;
 }
 
 /**
@@ -243,8 +243,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     closeOnFocusOut = true,
     openInteractionType = '',
     getInsideElements: getInsideElementsProp = () => [],
-    nextFocusableRef,
-    previousFocusableRef,
+    nextFocusableElement: nextFocusableRef,
+    previousFocusableElement: previousFocusableRef,
   } = props;
   const {
     open,
@@ -582,8 +582,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       afterGuardRef.current,
       portalContext?.beforeOutsideRef.current,
       portalContext?.afterOutsideRef.current,
-      previousFocusableRef?.current,
-      nextFocusableRef?.current,
+      resolveRef(previousFocusableRef),
+      resolveRef(nextFocusableRef),
       isUntrappedTypeableCombobox ? domReference : null,
     ].filter((x): x is Element => x != null);
 
@@ -876,7 +876,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
                 const nextTabbable = getNextTabbable(domReference);
                 nextTabbable?.focus();
               } else {
-                (previousFocusableRef ?? portalContext.beforeOutsideRef).current?.focus();
+                resolveRef(previousFocusableRef ?? portalContext.beforeOutsideRef)?.focus();
               }
             }
           }}
@@ -899,7 +899,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
                 const prevTabbable = getPreviousTabbable(domReference);
                 prevTabbable?.focus();
               } else {
-                (nextFocusableRef ?? portalContext.afterOutsideRef).current?.focus();
+                resolveRef(nextFocusableRef ?? portalContext.afterOutsideRef)?.focus();
               }
             }
           }}
@@ -907,4 +907,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       )}
     </React.Fragment>
   );
+}
+
+function resolveRef<T extends HTMLElement>(
+  ref: T | React.RefObject<T | null> | null | undefined,
+): T | null | undefined {
+  if (ref == null) {
+    return ref;
+  }
+
+  return 'current' in ref ? ref.current : ref;
 }

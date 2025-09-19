@@ -56,6 +56,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const triggers = useStore(store, selectors.triggers);
   const payload = useStore(store, selectors.payload);
   const positionerElement = useStore(store, selectors.positionerElement);
+  const activeTriggerElement = useStore(store, selectors.activeTriggerElement);
   const floatingContext = useStore(store, selectors.floatingRootContext);
 
   useOpenChangeComplete({
@@ -175,8 +176,8 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       restoreFocus="popup"
-      previousFocusableRef={store.state.popupPreFocusGuardRef}
-      nextFocusableRef={store.state.popupPostFocusGuardRef}
+      previousFocusableElement={activeTriggerElement}
+      nextFocusableElement={store.state.triggerFocusTargetRef}
     >
       {element}
     </FloatingFocusManager>

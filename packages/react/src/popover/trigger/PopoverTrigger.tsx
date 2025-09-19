@@ -178,11 +178,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     stateAttributesMapping,
   });
 
-  const handlePreGuardFocus = useEventCallback(() => {
-    triggerElement?.focus();
-  });
-
-  const handlePostGuardFocus = useEventCallback((event: React.FocusEvent) => {
+  const handleFocusTargetFocus = useEventCallback((event: React.FocusEvent) => {
     const nextTabbable = getNextTabbable(triggerElement);
     nextTabbable?.focus();
     store.setOpen(
@@ -197,8 +193,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     return (
       <React.Fragment>
         {React.createElement(element.type, { ...element.props, key: id })}
-        <FocusGuard ref={store.state.popupPreFocusGuardRef} onFocus={handlePreGuardFocus} />
-        <FocusGuard ref={store.state.popupPostFocusGuardRef} onFocus={handlePostGuardFocus} />
+        <FocusGuard ref={store.state.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
     );
   }
