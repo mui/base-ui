@@ -42,6 +42,18 @@ export const PERSIAN_DETECT_RE = /[۰۱۲۳۴۵۶۷۸۹]/;
 export const HAN_DETECT_RE = /[零〇一二三四五六七八九]/;
 export const FULLWIDTH_DETECT_RE = new RegExp(`[${FULLWIDTH_NUMERALS.join('')}]`);
 
+export const BASE_NON_NUMERIC_SYMBOLS = [
+  '.',
+  ',',
+  FULLWIDTH_DECIMAL,
+  FULLWIDTH_GROUP,
+  '٫',
+  '٬',
+] as const;
+export const SPACE_SEPARATOR_RE = /\p{Zs}/u;
+export const PLUS_SIGNS_WITH_ASCII = ['+', ...UNICODE_PLUS_SIGNS];
+export const MINUS_SIGNS_WITH_ASCII = ['-', ...UNICODE_MINUS_SIGNS];
+
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const escapeClassChar = (s: string) => s.replace(/[-\\\]^]/g, (m) => `\\${m}`); // escape for use inside [...]
 
