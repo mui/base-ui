@@ -249,6 +249,22 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   floatingEvents = floatingContext.events;
 
+  React.useEffect(() => {
+    const handleSetOpenEvent = ({
+      open: nextOpen,
+      eventDetails,
+    }: {
+      open: boolean;
+      eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>;
+    }) => setOpen(nextOpen, eventDetails);
+
+    floatingEvents.on('setOpen', handleSetOpenEvent);
+
+    return () => {
+      floatingEvents?.off('setOpen', handleSetOpenEvent);
+    };
+  }, [floatingEvents, setOpen]);
+
   const dismiss = useDismiss(floatingContext, {
     outsidePressEvent: {
       // Ensure `aria-hidden` on outside elements is removed immediately

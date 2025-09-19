@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Store, createSelector } from '@base-ui-components/utils/store';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { type FloatingRootContext } from '../floating-ui-react';
@@ -39,6 +40,9 @@ export type State = {
   inactiveTriggerProps: HTMLProps;
   popupProps: HTMLProps;
   stickIfOpen: boolean;
+
+  popupPreFocusGuardRef: React.RefObject<HTMLSpanElement | null>;
+  popupPostFocusGuardRef: React.RefObject<HTMLSpanElement | null>;
 };
 
 function createInitialState<Payload>(): State {
@@ -62,6 +66,8 @@ function createInitialState<Payload>(): State {
     inactiveTriggerProps: EMPTY_OBJ as HTMLProps,
     popupProps: EMPTY_OBJ as HTMLProps,
     stickIfOpen: true,
+    popupPreFocusGuardRef: React.createRef<HTMLSpanElement>(),
+    popupPostFocusGuardRef: React.createRef<HTMLSpanElement>(),
   };
 }
 
@@ -80,6 +86,13 @@ export class PopoverStore<Payload = undefined> extends Store<State> {
     const triggers = new Map(this.state.triggers);
     triggers.delete(triggerId);
     this.set('triggers', triggers);
+  }
+
+  setOpen(
+    open: boolean,
+    eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
+  ) {
+    this.state.floatingRootContext.events.emit('setOpen', { open, eventDetails });
   }
 }
 

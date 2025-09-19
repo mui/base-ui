@@ -18,6 +18,9 @@ import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { PopoverStore, selectors } from '../store';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { FocusGuard } from '../../utils/FocusGuard';
+import { getNextTabbable, getPreviousTabbable } from '../../floating-ui-react/utils';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * A button that opens the popover.
@@ -168,12 +171,40 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       localProps.getReferenceProps(),
       isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
       interactionTypeTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id },
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id, key: id },
       elementProps,
       getButtonProps,
     ],
     stateAttributesMapping,
   });
+
+  const handlePreGuardFocus = useEventCallback((event: React.FocusEvent) => {
+    const previousTabbable = getPreviousTabbable(triggerElement);
+    previousTabbable?.focus();
+    store.setOpen(
+      false,
+      createBaseUIEventDetails('focus-out', event.nativeEvent, event.currentTarget as HTMLElement),
+    );
+  });
+
+  const handlePostGuardFocus = useEventCallback((event: React.FocusEvent) => {
+    const nextTabbable = getNextTabbable(triggerElement);
+    nextTabbable?.focus();
+    store.setOpen(
+      false,
+      createBaseUIEventDetails('focus-out', event.nativeEvent, event.currentTarget as HTMLElement),
+    );
+  });
+
+  if (isTriggerActive) {
+    return (
+      <React.Fragment>
+        <FocusGuard ref={store.state.popupPreFocusGuardRef} onFocus={handlePreGuardFocus} />
+        {element}
+        <FocusGuard ref={store.state.popupPostFocusGuardRef} onFocus={handlePostGuardFocus} />
+      </React.Fragment>
+    );
+  }
 
   return element;
 }) as PopoverTrigger.ComponentType;

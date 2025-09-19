@@ -215,6 +215,14 @@ export interface FloatingFocusManagerProps {
    * floating element.
    */
   getInsideElements?: () => Element[];
+  /**
+   * Overrides the element to focus when tabbing forward out of the floating element.
+   */
+  nextFocusableRef?: React.RefObject<HTMLElement | null>;
+  /**
+   * Overrides the element to focus when tabbing backward out of the floating element.
+   */
+  previousFocusableRef?: React.RefObject<HTMLElement | null>;
 }
 
 /**
@@ -235,6 +243,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     closeOnFocusOut = true,
     openInteractionType = '',
     getInsideElements: getInsideElementsProp = () => [],
+    nextFocusableRef,
+    previousFocusableRef,
   } = props;
   const {
     open,
@@ -572,6 +582,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       afterGuardRef.current,
       portalContext?.beforeOutsideRef.current,
       portalContext?.afterOutsideRef.current,
+      previousFocusableRef?.current,
+      nextFocusableRef?.current,
       isUntrappedTypeableCombobox ? domReference : null,
     ].filter((x): x is Element => x != null);
 
@@ -592,6 +604,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     tree,
     getNodeId,
     getInsideElements,
+    nextFocusableRef,
+    previousFocusableRef,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -862,7 +876,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
                 const nextTabbable = getNextTabbable(domReference);
                 nextTabbable?.focus();
               } else {
-                portalContext.beforeOutsideRef.current?.focus();
+                (previousFocusableRef ?? portalContext.beforeOutsideRef).current?.focus();
               }
             }
           }}
@@ -885,7 +899,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
                 const prevTabbable = getPreviousTabbable(domReference);
                 prevTabbable?.focus();
               } else {
-                portalContext.afterOutsideRef.current?.focus();
+                (nextFocusableRef ?? portalContext.afterOutsideRef).current?.focus();
               }
             }
           }}

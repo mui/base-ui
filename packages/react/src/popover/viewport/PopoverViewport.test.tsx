@@ -265,10 +265,10 @@ describe('<Popover.Viewport />', () => {
         <div>
           <style>
             {`
-              [data-previous] {
+              [data-transitioning] [data-previous] {
                 animation: slide-out 0.2s ease-out forwards;
               }
-              [data-next] {
+              [data-transitioning] [data-current] {
                 animation: slide-in 0.2s ease-out forwards;
               }
               @keyframes slide-out {

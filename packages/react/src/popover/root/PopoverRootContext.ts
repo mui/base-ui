@@ -1,14 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { PopoverStore } from '../store';
-import { PopoverRoot } from './PopoverRoot';
 
 export interface PopoverRootContext {
-  setOpen: (
-    open: boolean,
-    eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-    target: HTMLElement | undefined,
-  ) => void;
   popupRef: React.RefObject<HTMLElement | null>;
   backdropRef: React.RefObject<HTMLDivElement | null>;
   internalBackdropRef: React.RefObject<HTMLDivElement | null>;
