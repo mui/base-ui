@@ -20,7 +20,7 @@ export default function App() {
         <Accordion.Root
           className={styles.Root}
           aria-label="Uncontrolled Horizontal Accordion"
-          openMultiple={false}
+          multiple={false}
         >
           {['one', 'two', 'three'].map((value) => (
             <Accordion.Item className={styles.Item} key={value}>
@@ -62,7 +62,7 @@ export default function App() {
           <Accordion.Root
             className={styles.Root}
             aria-label="Controlled Horizontal RTL Accordion"
-            openMultiple={false}
+            multiple={false}
             orientation="horizontal"
             value={val}
             onValueChange={(newValue: Accordion.Root.Props['value']) => {
