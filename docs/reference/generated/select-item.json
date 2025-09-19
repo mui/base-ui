@@ -1,6 +1,6 @@
 {
   "name": "SelectItem",
-  "description": "An individual option in the select menu.\nRenders a `<div>` element.",
+  "description": "An individual option in the select popup.\nRenders a `<div>` element.",
   "props": {
     "label": {
       "type": "string",
