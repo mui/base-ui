@@ -7,5 +7,6 @@ export default {
     'custom-property-empty-line-before': null,
     'comment-empty-line-before': null,
     'at-rule-empty-line-before': null,
+    'property-no-deprecated': null,
   },
 };
