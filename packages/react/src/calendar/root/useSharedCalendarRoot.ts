@@ -93,7 +93,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     });
   }).current;
   const validationProps = useStore(store, selectors.validationProps);
-  const value = useStore(store, selectors.valueWithTimezoneToRender) as TValue;
+  const value = useStore(store, selectors.valueWithTimezoneToRender);
   const referenceDate = useStore(store, selectors.referenceDate);
 
   const setValue = useEventCallback((newValue: TValue) => {
@@ -164,13 +164,15 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
   );
 
   const [prevValue, setPrevValue] = React.useState<TValue>(value);
-  if (value !== prevValue) {
-    setPrevValue(value);
-    const activeDate = getActiveDateFromValue(value);
-    if (adapter.isValid(activeDate)) {
-      handleVisibleDateChange(activeDate, true);
+  React.useEffect(() => {
+    if (!adapter.isEqual(value, prevValue)) {
+      setPrevValue(value);
+      const activeDate = getActiveDateFromValue(value);
+      if (adapter.isValid(activeDate)) {
+        handleVisibleDateChange(activeDate, true);
+      }
     }
-  }
+  }, [value, prevValue, getActiveDateFromValue, adapter, handleVisibleDateChange]);
 
   const selectDate = useEventCallback<SharedCalendarRootContext['selectDate']>(
     (selectedDate: TemporalSupportedObject) => {

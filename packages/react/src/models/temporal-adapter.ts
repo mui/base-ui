@@ -1,4 +1,4 @@
-import { TemporalTimezone, TemporalSupportedObject } from './temporal';
+import { TemporalTimezone, TemporalSupportedObject, TemporalSupportedValue } from './temporal';
 
 export interface TemporalAdapterFormats {
   /**
@@ -94,7 +94,7 @@ export interface TemporalAdapter {
   /**
    * Extracts the timezone from a date.
    */
-  getTimezone(value: TemporalSupportedObject | null): TemporalTimezone;
+  getTimezone(value: TemporalSupportedValue | null): TemporalTimezone;
   /**
    * Converts a date to another timezone.
    */
@@ -110,7 +110,7 @@ export interface TemporalAdapter {
   /**
    * Checks if the date is valid.
    */
-  isValid(value: TemporalSupportedObject | null): value is TemporalSupportedObject;
+  isValid(value: TemporalSupportedValue): value is TemporalSupportedObject;
   /**
    * Formats a date using an adapter format string (see the `AdapterFormats` interface)
    */
@@ -122,10 +122,7 @@ export interface TemporalAdapter {
   /**
    * Checks if the two dates are equal (which means they represent the same timestamp).
    */
-  isEqual(
-    value: TemporalSupportedObject | null,
-    comparing: TemporalSupportedObject | null,
-  ): boolean;
+  isEqual(value: TemporalSupportedValue, comparing: TemporalSupportedValue): boolean;
   /**
    * Checks if the two dates are in the same year (using the timezone of the reference date).
    */
