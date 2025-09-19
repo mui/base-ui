@@ -34,7 +34,7 @@
 .Separator[data-orientation='horizontal'] {
   height: 1px;
   align-self: stretch;
-  /*  margin-block: 2px;*/
+  /*  margin-block: 2px; */
   background-color: var(--color-gray-300);
   margin-block: 24px;
 }
@@ -217,12 +217,12 @@
 
   & button:first-of-type {
     border-radius: var(--border-radius-left);
-    /*    border-inline-end-color: transparent;*/
+    /*    border-inline-end-color: transparent; */
   }
 
   & button:last-of-type {
     border-radius: var(--border-radius-right);
-    /*    border-inline-start-color: transparent;*/
+    /*    border-inline-start-color: transparent; */
   }
 
   & button:first-of-type:dir(rtl) {

@@ -57,7 +57,6 @@
       var(--toast-swipe-movement-y)
   );
   position: absolute;
-  left: 0;
   right: 0;
   margin: 0 auto;
   box-sizing: border-box;
@@ -66,7 +65,7 @@
   border: 1px solid var(--color-gray-200);
   padding: 1rem;
   width: 100%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
   background-clip: padding-box;
   border-radius: 0.5rem;
   bottom: 0;
@@ -106,12 +105,15 @@
     &[data-swipe-direction='up'] {
       transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
     }
+
     &[data-swipe-direction='left'] {
       transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
     }
+
     &[data-swipe-direction='right'] {
       transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
     }
+
     &[data-swipe-direction='down'] {
       transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
     }

@@ -178,6 +178,7 @@
     &[data-activation-direction='left'] {
       transform: translateX(-50%);
     }
+
     &[data-activation-direction='right'] {
       transform: translateX(50%);
     }
@@ -187,6 +188,7 @@
     &[data-activation-direction='left'] {
       transform: translateX(50%);
     }
+
     &[data-activation-direction='right'] {
       transform: translateX(-50%);
     }
@@ -245,9 +247,7 @@
   }
 
   @media (min-width: 425px) {
-    & {
-      padding: 0.75rem;
-    }
+    padding: 0.75rem;
   }
 }
 

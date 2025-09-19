@@ -19,7 +19,7 @@
   }
 }
 
-.Track:after {
+.Track::after {
   content: '';
   background-color: currentColor;
   position: absolute;
@@ -46,7 +46,7 @@
 }
 
 .Indicator {
-  background-color: rgb(40, 205, 65);
+  background-color: rgb(40 205 65);
   border-radius: 3px;
   height: revert-layer !important;
 }

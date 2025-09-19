@@ -42,7 +42,7 @@
   background-color: var(--indicator-bg);
   user-select: none;
 
-  &:before {
+  &::before {
     position: absolute;
     content: '';
     border-radius: 9999px 0 0 9999px;
@@ -61,7 +61,7 @@
   z-index: 1;
   border-radius: 9999px;
   background-color: white;
-  box-shadow: 0px 0px 3px 0px var(--color-gray-300);
+  box-shadow: 0 0 3px 0 var(--color-gray-300);
   user-select: none;
 
   &:has(:focus-visible) {
@@ -69,6 +69,6 @@
   }
 
   &[data-dragging] {
-    box-shadow: 0px 0px 2px 1px var(--color-gray-300);
+    box-shadow: 0 0 2px 1px var(--color-gray-300);
   }
 }
