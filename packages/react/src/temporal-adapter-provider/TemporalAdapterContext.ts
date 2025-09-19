@@ -19,7 +19,7 @@ export function useTemporalAdapter() {
     throw new Error(
       [
         'Base UI: TemporalAdapterContext is missing.',
-        'Calendar parts must be place within <TemporalAdapterProvider />',
+        'Temporal components must be place within <TemporalAdapterProvider />',
       ].join('\n'),
     );
   }
