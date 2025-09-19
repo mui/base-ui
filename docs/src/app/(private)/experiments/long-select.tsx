@@ -5,21 +5,72 @@ import styles from './long-select.module.css';
 
 export default function ExampleSelect() {
   return (
-    <Select.Root>
-      <div style={{ width: 1, height: 2000 }} />
-      <Select.Trigger className={styles.Select}>
-        <Select.Value>
-          {(value) => countries.find((country) => country.code === value)?.name}
-        </Select.Value>
-        <Select.Icon className={styles.SelectIcon}>
-          <ChevronUpDownIcon />
-        </Select.Icon>
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Positioner className={styles.Positioner} sideOffset={8}>
-          <Select.ScrollUpArrow className={styles.ScrollArrow} />
-          <Select.Popup className={styles.Popup}>
-            <div role="presentation" className={styles.PopupScroll}>
+    <div>
+      Scroll down
+      <div style={{ width: 1, height: 2000, background: 'black' }} />
+      <h2>With Select.List (new)</h2>
+      <ul>
+        <li>Scroll arrows rendered inside Select.Popup (handles animations)</li>
+        <li>
+          Scrollbar invisible when in fallback mode as well (alignItemWithTrigger deactivated)
+        </li>
+      </ul>
+      <Select.Root>
+        <Select.Trigger className={styles.Select}>
+          <Select.Value>
+            {(value) => countries.find((country) => country.code === value)?.name}
+          </Select.Value>
+          <Select.Icon className={styles.SelectIcon}>
+            <ChevronUpDownIcon />
+          </Select.Icon>
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner className={styles.Positioner} sideOffset={8}>
+            <Select.Popup className={styles.Popup}>
+              <Select.ScrollUpArrow className={styles.ScrollArrow} />
+              <Select.Arrow className={styles.Arrow}>
+                <ArrowSvg />
+              </Select.Arrow>
+              <Select.List className={styles.List}>
+                <div aria-hidden style={{ height: 75 }}>
+                  Start
+                </div>
+                {countries.map((country) => (
+                  <Select.Item key={country.code} className={styles.Item} value={country.code}>
+                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Select.ItemIndicator>
+                    <Select.ItemText className={styles.ItemText}>{country.name}</Select.ItemText>
+                  </Select.Item>
+                ))}
+                <div aria-hidden style={{ height: 75 }}>
+                  End
+                </div>
+              </Select.List>
+              <Select.ScrollDownArrow className={styles.ScrollArrow} />
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>
+      <br />
+      <h2>Without Select.List (old)</h2>
+      <ul>
+        <li>Scroll arrows rendered inside Select.Positioner</li>
+        <li>Scrollbar visible when in fallback mode (alignItemWithTrigger deactivated)</li>
+      </ul>
+      <Select.Root>
+        <Select.Trigger className={styles.Select}>
+          <Select.Value>
+            {(value) => countries.find((country) => country.code === value)?.name}
+          </Select.Value>
+          <Select.Icon className={styles.SelectIcon}>
+            <ChevronUpDownIcon />
+          </Select.Icon>
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner className={styles.Positioner} sideOffset={8}>
+            <Select.ScrollUpArrow className={styles.ScrollArrow} data-old />
+            <Select.Popup className={styles.Popup} data-old>
               <div aria-hidden style={{ height: 75 }}>
                 Start
               </div>
@@ -37,13 +88,13 @@ export default function ExampleSelect() {
               <div aria-hidden style={{ height: 75 }}>
                 End
               </div>
-            </div>
-          </Select.Popup>
-          <Select.ScrollDownArrow className={styles.ScrollArrow} />
-        </Select.Positioner>
-      </Select.Portal>
-      <div style={{ width: 1, height: 2000 }} />
-    </Select.Root>
+            </Select.Popup>
+            <Select.ScrollDownArrow className={styles.ScrollArrow} data-old />
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>
+      <div style={{ width: 1, height: 2000, background: 'black' }} />
+    </div>
   );
 }
 
