@@ -9,6 +9,7 @@ import { useButton } from '../../use-button';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { findItemIndex } from '../../utils/itemEquality';
 
 /**
  * A button to remove a chip.
@@ -27,6 +28,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
   const readOnly = useStore(store, selectors.readOnly);
   const valuesRef = useStore(store, selectors.valuesRef);
   const selectedValue = useStore(store, selectors.selectedValue);
+  const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,
@@ -62,7 +64,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
 
           // Try current visible list first; if not found, it's filtered out. No need
           // to clear highlight in that case since it can't equal activeIndex.
-          const removedIndex = valuesRef.current.indexOf(removedItem);
+          const removedIndex = findItemIndex(valuesRef.current, removedItem, isItemEqualToValue);
           if (removedIndex !== -1 && activeIndex === removedIndex) {
             store.state.setIndices({
               activeIndex: null,
@@ -92,7 +94,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
             // If the removed chip was the active item, clear highlight
             const activeIndex = store.state.activeIndex;
             const removedItem = selectedValue[index];
-            const removedIndex = valuesRef.current.indexOf(removedItem);
+            const removedIndex = findItemIndex(valuesRef.current, removedItem, isItemEqualToValue);
 
             if (removedIndex !== -1 && activeIndex === removedIndex) {
               store.state.setIndices({

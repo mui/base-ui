@@ -823,9 +823,9 @@ describe('<Combobox.Root />', () => {
   });
 
   it('should handle browser autofill', async () => {
-    const { container } = await render(
-      <Combobox.Root name="combobox" defaultOpen>
-        <Combobox.Input data-testid="input" />
+    const { container, user } = await render(
+      <Combobox.Root name="test">
+        <Combobox.Input />
         <Combobox.Portal>
           <Combobox.Positioner>
             <Combobox.Popup>
@@ -839,16 +839,62 @@ describe('<Combobox.Root />', () => {
       </Combobox.Root>,
     );
 
+    const input = screen.getByRole('combobox');
+
+    fireEvent.change(container.querySelector('[name="test"]')!, { target: { value: 'b' } });
     await flushMicrotasks();
 
-    fireEvent.change(container.querySelector('[name="combobox"]')!, { target: { value: 'b' } });
+    await user.click(input);
 
-    await flushMicrotasks();
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('aria-selected', 'true');
+    });
+  });
 
-    expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
-      'aria-selected',
-      'true',
+  it('should handle browser autofill with object values', async () => {
+    const items = [
+      { country: 'United States', code: 'US' },
+      { country: 'Canada', code: 'CA' },
+    ];
+
+    const { container } = await render(
+      <Combobox.Root
+        name="country"
+        items={items}
+        itemToStringLabel={(item) => item.country}
+        itemToStringValue={(item) => item.code}
+        defaultOpen
+      >
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                {(item: (typeof items)[1]) => (
+                  <Combobox.Item key={item.code} value={item}>
+                    {item.country}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
     );
+
+    const input = screen.getByRole('combobox');
+
+    fireEvent.change(container.querySelector('[name="country"]')!, { target: { value: 'CA' } });
+    await flushMicrotasks();
+
+    fireEvent.click(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Canada' })).to.have.attribute(
+        'aria-selected',
+        'true',
+      );
+    });
   });
 
   describe('prop: id', () => {
@@ -3108,6 +3154,50 @@ describe('<Combobox.Root />', () => {
       expect(screen.getByTestId('input')).to.have.attribute(
         'aria-describedby',
         screen.getByTestId('description').id,
+      );
+    });
+  });
+
+  describe('prop: isItemEqualToValue', () => {
+    it('matches object values using the provided comparator', async () => {
+      const users = [
+        { id: 1, name: 'Alice' },
+        { id: 2, name: 'Bob' },
+      ];
+
+      await render(
+        <Combobox.Root
+          items={users}
+          value={{ id: 2, name: 'Bob' }}
+          itemToStringLabel={(item) => item.name}
+          itemToStringValue={(item) => String(item.id)}
+          isItemEqualToValue={(item, value) => item.id === value.id}
+          defaultOpen
+        >
+          <Combobox.Input data-testid="input" />
+          <span data-testid="value">
+            <Combobox.Value />
+          </span>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item.id} value={item}>
+                      {item.name}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Bob');
+      expect(screen.getByRole('option', { name: 'Bob' })).to.have.attribute(
+        'aria-selected',
+        'true',
       );
     });
   });
