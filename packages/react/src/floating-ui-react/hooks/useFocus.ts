@@ -12,7 +12,7 @@ import {
 } from '../utils';
 
 import type { ElementProps, FloatingRootContext } from '../types';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
@@ -132,7 +132,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
           }
         }
 
-        onOpenChange(true, createBaseUIEventDetails('trigger-focus', event.nativeEvent));
+        onOpenChange(true, createChangeEventDetails('trigger-focus', event.nativeEvent));
       },
       onBlur(event) {
         blockFocusRef.current = false;
@@ -172,7 +172,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
             return;
           }
 
-          onOpenChange(false, createBaseUIEventDetails('trigger-focus', nativeEvent));
+          onOpenChange(false, createChangeEventDetails('trigger-focus', nativeEvent));
         });
       },
     }),

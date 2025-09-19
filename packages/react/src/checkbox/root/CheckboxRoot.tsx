@@ -18,7 +18,10 @@ import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 
 const EMPTY = {};
 export const PARENT_CHECKBOX = 'data-parent';
@@ -204,7 +207,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         }
 
         const nextChecked = event.target.checked;
-        const details = createBaseUIEventDetails('none', event.nativeEvent);
+        const details = createChangeEventDetails('none', event.nativeEvent);
 
         groupOnChange?.(nextChecked, details);
         onCheckedChange(nextChecked, details);
@@ -372,9 +375,6 @@ export namespace CheckboxRoot {
     disabled?: boolean;
     /**
      * Event handler called when the checkbox is ticked or unticked.
-     *
-     * @param {boolean} checked The new checked state.
-     * @param {Event} event The corresponding event that initiated the change.
      */
     onCheckedChange?: (checked: boolean, eventDetails: ChangeEventDetails) => void;
     /**
@@ -410,5 +410,5 @@ export namespace CheckboxRoot {
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

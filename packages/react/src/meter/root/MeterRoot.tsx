@@ -94,9 +94,6 @@ export namespace MeterRoot {
     format?: Intl.NumberFormatOptions;
     /**
      * A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter.
-     * @param {string} formattedValue The formatted value
-     * @param {number} value The raw value
-     * @returns {string}
      */
     getAriaValueText?: (formattedValue: string, value: number) => string;
     /**
