@@ -614,6 +614,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
       expect(handleValueChange.callCount).to.equal(1);
       expect(handleValueChange.args[0][0]).to.equal(10);
+      expect(handleValueChange.args[0][1].activeThumbIndex).to.equal(0);
       expect(handleValueCommitted.callCount).to.equal(1);
       expect(handleValueCommitted.args[0][0]).to.equal(10);
 

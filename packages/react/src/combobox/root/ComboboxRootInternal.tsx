@@ -19,8 +19,10 @@ import {
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
-  createBaseUIEventDetails,
-  type BaseUIEventDetails,
+  createChangeEventDetails,
+  createGenericEventDetails,
+  type BaseUIChangeEventDetails,
+  type BaseUIGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import {
   ComboboxFloatingContext,
@@ -520,20 +522,22 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       type?: 'none' | 'keyboard' | 'pointer';
     }) => {
       store.apply(options);
-      const type = options.type || 'none';
+      const type: ComboboxRootInternal.HighlightEventReason = options.type || 'none';
 
       if (options.activeIndex === undefined) {
         return;
       }
 
       if (options.activeIndex === null) {
-        onItemHighlighted(undefined, { type, index: -1 });
+        onItemHighlighted(undefined, createGenericEventDetails(type, undefined, { index: -1 }));
       } else {
         const activeValue = valuesRef.current[options.activeIndex];
-        onItemHighlighted(activeValue, {
-          type,
-          index: options.activeIndex,
-        });
+        onItemHighlighted(
+          activeValue,
+          createGenericEventDetails(type, undefined, {
+            index: options.activeIndex,
+          }),
+        );
       }
     },
   );
@@ -619,13 +623,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       if (shouldFillInput) {
         setInputValue(
           stringifyItem(nextValue, itemToStringLabel),
-          createBaseUIEventDetails(eventDetails.reason, eventDetails.event),
+          createChangeEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
 
       const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
       if (multiple && hadInputValue) {
-        setInputValue('', createBaseUIEventDetails(eventDetails.reason, eventDetails.event));
+        setInputValue('', createChangeEventDetails(eventDetails.reason, eventDetails.event));
         // Reset active index and clear any highlighted item since the list will re-filter.
         setIndices({ activeIndex: null });
       }
@@ -676,7 +680,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       }
 
       const targetEl = getTarget(event) as HTMLElement | null;
-      const eventDetails = createBaseUIEventDetails('item-press', event);
+      const eventDetails = createChangeEventDetails('item-press', event);
 
       // Let the link handle the click.
       const href = targetEl?.closest('a')?.getAttribute('href');
@@ -723,7 +727,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     // If an input-clear was requested while open, perform it here after close completes
     // to avoid mid-exit flicker.
     if (hadInputClearRef.current && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', createBaseUIEventDetails('input-clear'));
+      setInputValue('', createChangeEventDetails('input-clear'));
       hadInputClearRef.current = false;
     }
 
@@ -731,14 +735,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     // after close completes regardless of selection mode. This ensures the next open
     // starts from a blank query without requiring external state resets.
     if (props.clearInputOnCloseComplete && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', createBaseUIEventDetails('input-clear'));
+      setInputValue('', createChangeEventDetails('input-clear'));
     }
 
     // Multiple selection mode:
     // If the user typed a filter and didn't select in multiple mode, clear the input
     // after close completes to avoid mid-exit flicker and start fresh on next open.
     if (selectionMode === 'multiple' && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', createBaseUIEventDetails('input-clear'));
+      setInputValue('', createChangeEventDetails('input-clear'));
     }
 
     // Single selection mode:
@@ -747,14 +751,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     if (selectionMode === 'single') {
       if (store.state.inputInsidePopup) {
         if (inputRef.current && inputRef.current.value !== '') {
-          setInputValue('', createBaseUIEventDetails('input-clear'));
+          setInputValue('', createChangeEventDetails('input-clear'));
         }
       } else {
         const stringVal = stringifyItem(selectedValue, itemToStringLabel);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
           const reason = stringVal === '' ? 'input-clear' : 'item-press';
-          setInputValue(stringVal, createBaseUIEventDetails(reason));
+          setInputValue(stringVal, createChangeEventDetails(reason));
         }
       }
     }
@@ -896,7 +900,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     onMatch(index) {
       const nextSelectedValue = valuesRef.current[index];
       if (nextSelectedValue !== undefined) {
-        setSelectedValue(nextSelectedValue, createBaseUIEventDetails('none'));
+        setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
       }
     },
   });
@@ -1047,7 +1051,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
             }
 
             const nextValue = event.target.value;
-            const details = createBaseUIEventDetails('input-change', event.nativeEvent);
+            const details = createChangeEventDetails('input-change', event.nativeEvent);
 
             function handleChange() {
               if (selectionMode === 'none') {
@@ -1203,17 +1207,11 @@ interface ComboboxRootProps<ItemValue> {
   actionsRef?: React.RefObject<ComboboxRootInternal.Actions>;
   /**
    * Callback fired when the user navigates the list and highlights an item.
-   * Passes the item and the type of navigation or `undefined` when no item is highlighted.
-   * - `keyboard`: The item was highlighted via keyboard navigation.
-   * - `pointer`: The item was highlighted via pointer navigation.
-   * - `none`: The item was highlighted via programmatic navigation.
+   * Receives the highlighted item value (or `undefined` when no highlight is present), and event details describing the navigation reason and highlighted index.
    */
   onItemHighlighted?: (
     itemValue: ItemValue | undefined,
-    data: {
-      type: 'keyboard' | 'pointer' | 'none';
-      index: number;
-    },
+    eventDetails: ComboboxRootInternal.HighlightEventDetails,
   ) => void;
   /**
    * A ref to the hidden input element.
@@ -1341,6 +1339,13 @@ export namespace ComboboxRootInternal {
     unmount: () => void;
   }
 
+  export type HighlightEventReason = 'keyboard' | 'pointer' | 'none';
+  export type HighlightEventDetails = BaseUIGenericEventDetails<
+    HighlightEventReason,
+    Event,
+    { index: number }
+  >;
+
   export type ChangeEventReason =
     | 'trigger-press'
     | 'outside-press'
@@ -1353,5 +1358,5 @@ export namespace ComboboxRootInternal {
     | 'clear-press'
     | 'chip-remove-press'
     | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

@@ -7,8 +7,8 @@ import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { serializeValue } from '../../utils/serializeValue';
 import {
-  type BaseUIEventDetails,
-  createBaseUIEventDetails,
+  type BaseUIChangeEventDetails,
+  createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 
 /**
@@ -131,7 +131,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                     setDirty(exactValue !== validityData.initialValue);
                     rootContext.setValue?.(
                       exactValue,
-                      createBaseUIEventDetails('none', event.nativeEvent),
+                      createChangeEventDetails('none', event.nativeEvent),
                     );
 
                     if (validationMode === 'onChange') {
@@ -313,5 +313,5 @@ export namespace SelectRoot {
     | 'list-navigation'
     | 'cancel-open'
     | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }
