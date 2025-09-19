@@ -87,7 +87,9 @@ function ActivityPanel() {
   return (
     <React.Fragment>
       <Popover.Title className={styles.Title}>Activity</Popover.Title>
-      <Popover.Description className={styles.Description}>No recent activity.</Popover.Description>
+      <Popover.Description className={styles.Description}>
+        Nothing interesting happened recently.
+      </Popover.Description>
     </React.Fragment>
   );
 }

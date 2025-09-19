@@ -44,7 +44,7 @@ export default function PopoverDetachedTriggersFullDemo() {
                   <ArrowSvg />
                 </Popover.Arrow>
 
-                <Popover.Viewport className="relative overflow-clip w-full h-full p-[1rem_1.5rem] [&_[data-previous]]:w-[calc(var(--popup-width)-3rem)] [&_[data-next]]:w-[calc(var(--popup-width)-3rem)] data-[activation-direction~='right']:[&_[data-previous]]:animate-[slide-out-to-left_0.35s_cubic-bezier(0.22,1,0.36,1)] data-[activation-direction~='right']:[&_[data-next]]:animate-[slide-in-from-right_0.35s_cubic-bezier(0.22,1,0.36,1)] data-[activation-direction~='left']:[&_[data-previous]]:animate-[slide-out-to-right_0.35s_cubic-bezier(0.22,1,0.36,1)] data-[activation-direction~='left']:[&_[data-next]]:animate-[slide-in-from-left_0.35s_cubic-bezier(0.22,1,0.36,1)]">
+                <Popover.Viewport className="relative overflow-clip w-full h-full p-[1rem_1.5rem] [&_[data-previous]]:w-[calc(var(--popup-width)-3rem)] [&_[data-current]]:w-[calc(var(--popup-width)-3rem)] data-[transitioning]:data-[activation-direction~='right']:[&_[data-previous]]:animate-[slide-out-to-left_0.35s_cubic-bezier(0.22,1,0.36,1)] data-[transitioning]:data-[activation-direction~='right']:[&_[data-current]]:animate-[slide-in-from-right_0.35s_cubic-bezier(0.22,1,0.36,1)] data-[transitioning]:data-[activation-direction~='left']:[&_[data-previous]]:animate-[slide-out-to-right_0.35s_cubic-bezier(0.22,1,0.36,1)] data-[transitioning]:data-[activation-direction~='left']:[&_[data-current]]:animate-[slide-in-from-left_0.35s_cubic-bezier(0.22,1,0.36,1)]">
                   {Payload !== undefined && <Payload />}
                 </Popover.Viewport>
               </Popover.Popup>
@@ -156,7 +156,7 @@ function ActivityPanel() {
     <React.Fragment>
       <Popover.Title className="m-0 text-base font-medium">Activity</Popover.Title>
       <Popover.Description className="m-0 text-base text-gray-600">
-        No recent activity.
+        Nothing interesting happened recently.
       </Popover.Description>
     </React.Fragment>
   );

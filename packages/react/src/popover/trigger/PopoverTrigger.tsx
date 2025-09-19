@@ -171,7 +171,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       localProps.getReferenceProps(),
       isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
       interactionTypeTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id, key: id },
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id },
       elementProps,
       getButtonProps,
     ],
@@ -196,17 +196,19 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     );
   });
 
+  // This special `key` handling and `createElement` below are required to
+  // avoid the "A props object containing a "key" prop is being spread into JSX" error.
   if (isTriggerActive) {
     return (
       <React.Fragment>
+        {React.createElement(element.type, { ...element.props, key: id })}
         <FocusGuard ref={store.state.popupPreFocusGuardRef} onFocus={handlePreGuardFocus} />
-        {element}
         <FocusGuard ref={store.state.popupPostFocusGuardRef} onFocus={handlePostGuardFocus} />
       </React.Fragment>
     );
   }
 
-  return element;
+  return React.createElement(element.type, { ...element.props, key: id });
 }) as PopoverTrigger.ComponentType;
 
 export namespace PopoverTrigger {
