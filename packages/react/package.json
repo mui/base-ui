@@ -59,8 +59,6 @@
     "./slider": "./src/slider/index.ts",
     "./switch": "./src/switch/index.ts",
     "./tabs": "./src/tabs/index.ts",
-    "./temporal-adapter-date-fns": "./src/temporal-adapter-date-fns/index.ts",
-    "./temporal-adapter-provider": "./src/temporal-adapter-provider/index.ts",
     "./temporal-locale-provider": "./src/temporal-locale-provider/index.ts",
     "./toast": "./src/toast/index.ts",
     "./toggle": "./src/toggle/index.ts",

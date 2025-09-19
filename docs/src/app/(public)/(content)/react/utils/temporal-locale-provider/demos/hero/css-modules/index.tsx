@@ -1,18 +1,16 @@
 'use client';
 import * as React from 'react';
-import { format } from 'date-fns';
-import { UnstableTemporalAdapterProvider as TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
-import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
+import { format } from 'date-fns/format';
+import { fr } from 'date-fns/locale/fr';
+import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui-components/react/temporal-locale-provider';
 import { Calendar } from '@base-ui-components/react/calendar';
 import styles from './index.module.css';
 
-const adapter = new TemporalAdapterDateFns();
-
 export default function ExampleCalendar() {
   return (
-    <TemporalAdapterProvider adapter={adapter}>
+    <TemporalLocaleProvider locale={fr}>
       <MyCalendar />
-    </TemporalAdapterProvider>
+    </TemporalLocaleProvider>
   );
 }
 
@@ -25,7 +23,9 @@ function MyCalendar() {
             <Calendar.SetPreviousMonth className={styles.SetPreviousMonth}>
               ◀
             </Calendar.SetPreviousMonth>
-            <span className={styles.HeaderLabel}>{format(visibleDate, 'MMMM yyyy')}</span>
+            <span className={styles.HeaderLabel}>
+              {format(visibleDate, 'MMMM yyyy', { locale: fr })}
+            </span>
             <Calendar.SetNextMonth className={styles.SetNextMonth}>▶</Calendar.SetNextMonth>
           </header>
           <Calendar.DayGrid className={styles.DayGrid}>

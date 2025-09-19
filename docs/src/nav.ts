@@ -218,8 +218,8 @@ export const nav: NavGroup[] = [
         href: '/react/utils/direction-provider',
       },
       {
-        label: 'Temporal Adapter Provider',
-        href: '/react/utils/temporal-adapter-provider',
+        label: 'Temporal Locale Provider',
+        href: '/react/utils/temporal-locale-provider',
       },
       {
         label: 'useRender',

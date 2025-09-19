@@ -31,8 +31,8 @@ export namespace TemporalLocaleProvider {
   export interface Props {
     children?: React.ReactNode;
     /**
-     * The temporal locale.
-     * If not provided, the `en-US` locale is used.
+     * The locale to use in temporal components.
+     * @default en-US
      */
     locale?: Locale;
   }

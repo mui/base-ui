@@ -1,14 +1,12 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { format, addMonths } from 'date-fns';
-import { UnstableTemporalAdapterProvider as TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
-import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
+import { format } from 'date-fns/format';
+import { addMonths } from 'date-fns/addMonths';
+import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui-components/react/temporal-locale-provider';
 import { Calendar } from '@base-ui-components/react/calendar';
 import { Separator } from '@base-ui-components/react/separator';
 import styles from './calendar.module.css';
-
-const adapter = new TemporalAdapterDateFns();
 
 function Header() {
   const { visibleDate } = Calendar.useContext();
@@ -64,7 +62,7 @@ function DayGrid(props: { offset: 0 | 1 }) {
 
 export default function CalendarTwoMonths() {
   return (
-    <TemporalAdapterProvider adapter={adapter}>
+    <TemporalLocaleProvider>
       <Calendar.Root monthPageSize={2} className={clsx(styles.Root, styles.RootWithTwoPanels)}>
         <Header />
         <div className={styles.RootWithTwoPanelsContent}>
@@ -73,6 +71,6 @@ export default function CalendarTwoMonths() {
           <DayGrid offset={1} />
         </div>
       </Calendar.Root>
-    </TemporalAdapterProvider>
+    </TemporalLocaleProvider>
   );
 }

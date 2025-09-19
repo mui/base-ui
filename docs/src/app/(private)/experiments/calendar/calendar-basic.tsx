@@ -1,16 +1,13 @@
 'use client';
 import * as React from 'react';
-import { format } from 'date-fns';
-import { UnstableTemporalAdapterProvider as TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
-import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
+import { format } from 'date-fns/format';
+import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui-components/react/temporal-locale-provider';
 import { Calendar } from '@base-ui-components/react/calendar';
 import styles from './calendar.module.css';
 
-const adapter = new TemporalAdapterDateFns();
-
 export default function CalendarBasic() {
   return (
-    <TemporalAdapterProvider adapter={adapter}>
+    <TemporalLocaleProvider>
       <Calendar.Root className={styles.Root}>
         {({ visibleDate }) => (
           <React.Fragment>
@@ -56,6 +53,6 @@ export default function CalendarBasic() {
           </React.Fragment>
         )}
       </Calendar.Root>
-    </TemporalAdapterProvider>
+    </TemporalLocaleProvider>
   );
 }

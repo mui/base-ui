@@ -1,0 +1,18 @@
+{
+  "name": "TemporalLocaleProvider",
+  "description": "Defines the date locale provider for Base UI temporal components.",
+  "props": {
+    "locale": {
+      "type": "Locale",
+      "default": "en-US",
+      "description": "The locale to use in temporal components.",
+      "detailedType": "Locale | undefined"
+    },
+    "children": {
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

@@ -31,7 +31,6 @@ export * from './separator';
 export * from './slider';
 export * from './switch';
 export * from './tabs';
-export * from './temporal-adapter-provider';
 export * from './temporal-locale-provider';
 export * from './toast';
 export * from './toggle';

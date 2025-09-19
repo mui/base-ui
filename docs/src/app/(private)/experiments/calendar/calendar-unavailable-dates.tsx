@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import { addDays, format } from 'date-fns';
-import { UnstableTemporalAdapterProvider as TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
-import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
+import { format } from 'date-fns/format';
+import { addDays } from 'date-fns/addDays';
+import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui-components/react/temporal-locale-provider';
 import { Calendar } from '@base-ui-components/react/calendar';
 import styles from './calendar.module.css';
-
-const adapter = new TemporalAdapterDateFns();
 
 function isDateUnavailable(date: Date) {
   return date.getDay() === 6 || date.getDay() === 0; // Unavailable on weekends
@@ -16,7 +14,7 @@ export default function CalendarUnavailableDates() {
   const minDate = React.useMemo(() => addDays(new Date(), -8), []);
 
   return (
-    <TemporalAdapterProvider adapter={adapter}>
+    <TemporalLocaleProvider>
       <Calendar.Root
         className={styles.Root}
         minDate={minDate}
@@ -66,6 +64,6 @@ export default function CalendarUnavailableDates() {
           </React.Fragment>
         )}
       </Calendar.Root>
-    </TemporalAdapterProvider>
+    </TemporalLocaleProvider>
   );
 }

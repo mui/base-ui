@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { format, startOfWeek, startOfMonth, getWeek } from 'date-fns';
-import { UnstableTemporalAdapterProvider as TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
-import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
+import { format } from 'date-fns/format';
+import { startOfWeek } from 'date-fns/startOfWeek';
+import { startOfMonth } from 'date-fns/startOfMonth';
+import { getWeek } from 'date-fns/getWeek';
+import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui-components/react/temporal-locale-provider';
 import { Calendar } from '@base-ui-components/react/calendar';
 import { unstable_useDayList as useDayList } from '@base-ui-components/react/use-day-list';
 import { unstable_useWeekList as useWeekList } from '@base-ui-components/react/use-week-list';
 import styles from './calendar.module.css';
-
-const adapter = new TemporalAdapterDateFns();
 
 function MyCalendar() {
   const getWeekList = useWeekList();
@@ -83,8 +83,8 @@ function MyCalendar() {
 
 export default function CalendarWeekNumber() {
   return (
-    <TemporalAdapterProvider adapter={adapter}>
+    <TemporalLocaleProvider>
       <MyCalendar />
-    </TemporalAdapterProvider>
+    </TemporalLocaleProvider>
   );
 }
