@@ -27,6 +27,12 @@
       "description": "Callback function that is fired when the `pointerup` is triggered.",
       "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "inset": {
+      "type": "boolean",
+      "default": "false",
+      "description": "When `true` thumbs are inset within `Slider.Control`.",
+      "detailedType": "boolean | undefined"
+    },
     "locale": {
       "type": "Intl.LocalesArgument",
       "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale.",
@@ -35,6 +41,12 @@
     "ref": {
       "type": "RefObject<HTMLDivElement>",
       "detailedType": "React.RefObject<HTMLDivElement> | undefined"
+    },
+    "renderBeforeHydration": {
+      "type": "boolean",
+      "default": "false`",
+      "description": "Whether to render inset sliders before React hydration.\nThis minimizes the time that the thumb and indicator aren’t visible after server-side rendering.",
+      "detailedType": "boolean | undefined"
     },
     "step": {
       "type": "number",

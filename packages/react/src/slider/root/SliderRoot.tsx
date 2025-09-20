@@ -57,6 +57,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     defaultValue,
     disabled: disabledProp = false,
     id: idProp,
+    inset = false,
     format,
     largeStep = 10,
     locale,
@@ -68,6 +69,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
+    renderBeforeHydration = false,
     step = 1,
     value: valueProp,
     ...elementProps
@@ -137,6 +139,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
+
+  const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
+    undefined,
+    undefined,
+  ]);
 
   useField({
     id,
@@ -275,6 +282,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
+      indicatorPosition,
+      inset,
       labelId: ariaLabelledby,
       largeStep,
       lastChangedValueRef,
@@ -289,8 +298,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
       registerFieldControlRef,
+      renderBeforeHydration,
       setActive,
       setDragging,
+      setIndicatorPosition,
       setValue,
       state,
       step,
@@ -307,6 +318,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
+      indicatorPosition,
+      inset,
       largeStep,
       lastChangedValueRef,
       locale,
@@ -320,8 +333,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
       registerFieldControlRef,
+      renderBeforeHydration,
       setActive,
       setDragging,
+      setIndicatorPosition,
       setValue,
       state,
       step,
@@ -416,6 +431,11 @@ export namespace SliderRoot {
      */
     format?: Intl.NumberFormatOptions;
     /**
+     * When `true` thumbs are inset within `Slider.Control`.
+     * @default false
+     */
+    inset?: boolean;
+    /**
      * The locale used by `Intl.NumberFormat` when formatting the value.
      * Defaults to the user's runtime locale.
      */
@@ -446,6 +466,12 @@ export namespace SliderRoot {
      * @default 'horizontal'
      */
     orientation?: Orientation;
+    /**
+     * Whether to render inset sliders before React hydration.
+     * This minimizes the time that the thumb and indicator aren’t visible after server-side rendering.
+     * @default false`
+     */
+    renderBeforeHydration?: boolean;
     /**
      * The granularity with which the slider can step through values. (A "discrete" slider.)
      * The `min` prop serves as the origin for the valid values.
