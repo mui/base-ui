@@ -3,8 +3,8 @@ import { existsSync, statSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import { basename, dirname, extname, resolve, join } from 'node:path';
 import type { DemoFile, DemoVariant } from 'docs/src/blocks/Demo';
-import camelCase from 'lodash/camelCase';
-import upperFirst from 'lodash/upperFirst';
+import camelCase from 'es-toolkit/compat/camelCase';
+import upperFirst from 'es-toolkit/compat/upperFirst';
 import { highlighter } from 'docs/src/syntax-highlighting';
 import { Demo } from './Demo';
 

@@ -5,7 +5,7 @@ import { Octokit } from '@octokit/rest';
 import chalk from 'chalk';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import _ from 'lodash';
+import * as _ from 'es-toolkit/compat';
 import packageJson from '../package.json';
 
 const exec = promisify(childProcess.exec);
