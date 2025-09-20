@@ -1,9 +1,9 @@
 /* eslint-disable no-await-in-loop */
-import sortBy from 'lodash/sortBy';
+import sortBy from 'es-toolkit/compat/sortBy';
 import * as tae from 'typescript-api-extractor';
 import fs from 'fs';
 import path from 'path';
-import _ from 'lodash';
+import * as _ from 'es-toolkit/compat';
 import * as prettier from 'prettier';
 
 export async function formatProperties(
