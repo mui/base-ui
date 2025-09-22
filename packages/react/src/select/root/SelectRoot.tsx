@@ -9,7 +9,6 @@ import {
   type BaseUIEventDetails,
   createBaseUIEventDetails,
 } from '../../utils/createBaseUIEventDetails';
-import type { BaseUIChangeEventReason } from '../../utils/types';
 import { stringifyAsValue } from '../../utils/resolveValueLabel';
 
 /**
