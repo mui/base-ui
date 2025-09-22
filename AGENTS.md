@@ -8,6 +8,7 @@ This repository contains the source code and documentation for Base UI: a headl
 - Source code for public shared utils is in `packages/utils/`.
 - Experiments are located at `docs/src/app/(private)/experiments/`. Use for creating demos that require manual testing in the browser.
 - Public documentation is located at `docs/src/app/(public)/(content)/react/`. Alter the docs where necessary when changes must be visible to library users.
+- When creating public demos on the docs, refer to the `hero` demo for the given component and largely follow its styles (both CSS Modules and Tailwind CSS versions). Other demos may also contain relevant styling. Do not add custom styling beyond the critical layout styles necessary for new demos.
 
 ## Linting, typechecking, and formatting
 
