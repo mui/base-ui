@@ -6,7 +6,6 @@ import base from '@mui/internal-code-infra/stylelint';
 /** @type {import('stylelint').Config} */
 export default {
   extends: base,
-  defaultSeverity: 'warning', // TODO, remove
   rules: {
     // empty lines help with readability
     'declaration-empty-line-before': null,
