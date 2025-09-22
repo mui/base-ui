@@ -1,4 +1,4 @@
-import { TemporalAdapter, TemporalSupportedObject, TemporalTimezone } from '../../models';
+import { TemporalAdapter, TemporalSupportedObject, TemporalTimezone } from '../../types';
 
 export function getCurrentDate(
   adapter: TemporalAdapter,

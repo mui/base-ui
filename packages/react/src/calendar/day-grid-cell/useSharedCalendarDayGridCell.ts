@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { TemporalSupportedObject } from '../../models';
+import { TemporalSupportedObject } from '../../types/temporal';
 import { SharedCalendarDayGridCellContext } from './SharedCalendarDayGridCellContext';
 import { HTMLProps } from '../../utils/types';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';

@@ -3,7 +3,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { Store, useStore } from '@base-ui-components/utils/store';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { TemporalSupportedObject, TemporalSupportedValue } from '../../models';
+import { TemporalSupportedObject, TemporalSupportedValue } from '../../types/temporal';
 import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
 import { validateDate } from '../../utils/temporal/validateDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';

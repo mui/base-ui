@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TemporalAdapterFormats } from '@base-ui-components/react/models';
+import { TemporalAdapterFormats } from '@base-ui-components/react/types';
 import { DescribeGregorianAdapterTestSuite } from './describeGregorianAdapter.types';
 
 export const testFormats: DescribeGregorianAdapterTestSuite = ({ adapter }) => {

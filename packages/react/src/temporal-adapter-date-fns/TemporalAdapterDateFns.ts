@@ -55,7 +55,7 @@ import {
   DateBuilderReturnType,
   TemporalTimezone,
   TemporalAdapter,
-} from '../models';
+} from '../types';
 
 const FORMATS: TemporalAdapterFormats = {
   // Digit formats with leading zeroes
@@ -80,7 +80,7 @@ const FORMATS: TemporalAdapterFormats = {
   fullMonthAndYear: 'MMMM yyyy',
 };
 
-declare module '@base-ui-components/react/models' {
+declare module '@base-ui-components/react/types' {
   interface TemporalSupportedObjectLookup {
     'date-fns': Date;
   }

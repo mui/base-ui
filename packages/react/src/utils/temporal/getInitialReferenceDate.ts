@@ -5,7 +5,7 @@ import {
   isAfterDay,
   isBeforeDay,
 } from './date-helpers';
-import { TemporalAdapter, TemporalTimezone, TemporalSupportedObject } from '../../models';
+import { TemporalAdapter, TemporalTimezone, TemporalSupportedObject } from '../../types';
 
 function roundDate(
   adapter: TemporalAdapter,

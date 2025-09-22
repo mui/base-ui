@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { TemporalSupportedObject } from '../../models';
+import { TemporalSupportedObject } from '../../types/temporal';
 import { unstable_useDayList as useDayList } from '../../use-day-list';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 

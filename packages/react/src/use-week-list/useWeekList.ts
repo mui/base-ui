@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useTemporalAdapter } from '../temporal-adapter-provider/TemporalAdapterContext';
-import { TemporalSupportedObject } from '../models';
+import { TemporalSupportedObject } from '../types/temporal';
 
 export function useWeekList(): useWeekList.ReturnValue {
   const adapter = useTemporalAdapter();

@@ -2,7 +2,7 @@ import {
   TemporalAdapter,
   TemporalSupportedObject,
   TemporalTimezone,
-} from '@base-ui-components/react/models';
+} from '@base-ui-components/react/types';
 
 export interface DescribeGregorianAdapterParameters {
   /**

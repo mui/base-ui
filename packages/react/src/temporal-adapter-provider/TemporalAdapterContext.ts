@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { TemporalAdapter } from '../models/temporal-adapter';
+import { TemporalAdapter } from '../types/temporal-adapter';
 
 export type TemporalAdapterContext = {
   adapter: TemporalAdapter;

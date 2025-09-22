@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TemporalSupportedObject } from '../../models';
+import { TemporalSupportedObject } from '../../types/temporal';
 
 export interface CalendarContext {
   /**

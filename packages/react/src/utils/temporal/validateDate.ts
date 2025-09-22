@@ -1,4 +1,4 @@
-import { TemporalAdapter, TemporalNonRangeValue, TemporalSupportedObject } from '../../models';
+import { TemporalAdapter, TemporalNonRangeValue, TemporalSupportedObject } from '../../types';
 import { isAfterDay, isBeforeDay } from './date-helpers';
 
 export function validateDate(parameters: validateDate.Parameters): validateDate.ReturnValue {

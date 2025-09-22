@@ -3,8 +3,8 @@ import {
   TemporalSupportedObject,
   TemporalSupportedValue,
   TemporalTimezone,
-} from '../models/temporal';
-import { TemporalAdapter } from '../models/temporal-adapter';
+} from '../types/temporal';
+import { TemporalAdapter } from '../types/temporal-adapter';
 import { validateDate } from '../utils/temporal/validateDate';
 import { getInitialReferenceDate } from '../utils/temporal/getInitialReferenceDate';
 import { TemporalManager } from '../utils/temporal/types';

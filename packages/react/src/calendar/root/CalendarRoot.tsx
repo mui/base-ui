@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { TemporalNonRangeValue } from '../../models';
+import { TemporalNonRangeValue } from '../../types/temporal';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useSharedCalendarRoot } from './useSharedCalendarRoot';
 import { useDateManager } from '../../utils/temporal/useDateManager';

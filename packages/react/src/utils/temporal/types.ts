@@ -2,7 +2,7 @@ import {
   TemporalTimezone,
   TemporalSupportedValue,
   TemporalSupportedObject,
-} from '../../models/temporal';
+} from '../../types/temporal';
 
 export interface TemporalTimezoneProps {
   /**
