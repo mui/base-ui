@@ -238,6 +238,9 @@ importers:
       cross-env:
         specifier: ^10.0.0
         version: 10.0.0
+      es-toolkit:
+        specifier: ^1.39.10
+        version: 1.39.10
       estree-util-value-to-estree:
         specifier: ^3.4.0
         version: 3.4.0

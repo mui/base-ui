@@ -29,6 +29,7 @@
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.1",
     "cross-env": "^10.0.0",
+    "es-toolkit": "^1.39.10",
     "estree-util-value-to-estree": "^3.4.0",
     "globby": "^14.1.0",
     "hast": "^1.0.0",
