@@ -9,10 +9,11 @@ This repository contains the source code and documentation for Base UI: a headl
 - Experiments are located at `docs/src/app/(private)/experiments/`. Use for creating demos that require manual testing in the browser.
 - Public documentation is located at `docs/src/app/(public)/(content)/react/`. Alter the docs where necessary when changes must be visible to library users.
 
-## Linting and typechecking
+## Linting, typechecking, and formatting
 
 - Do not randomly cast (for example `as any`) if there are no type errors without doing so. Run `pnpm typescript` to verify types.
-- Ensure your changes pass linting. Run `pnpm eslint` to verify.
+- Ensure your changes pass linting - run `pnpm eslint`.
+- Ensure your changes are formatted correctly - run `pnpm prettier`.
 
 ## Testing
 
