@@ -58,12 +58,9 @@ export const ComboboxItem = React.memo(
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const selectable = selectionMode !== 'none';
-    const virtualizedIndex = virtualized
-      ? findItemIndex(flatFilteredItems, value, isItemEqualToValue)
-      : listItem.index;
-    const computedIndex =
-      virtualized && virtualizedIndex !== -1 ? virtualizedIndex : listItem.index;
-    const index = indexProp ?? computedIndex;
+    const index =
+      indexProp ??
+      (virtualized ? findItemIndex(flatFilteredItems, value, isItemEqualToValue) : listItem.index);
 
     const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
