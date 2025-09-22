@@ -8,8 +8,6 @@ import { nav } from 'docs/src/nav';
 import './layout.css';
 
 export default async function Layout({ children }: React.PropsWithChildren) {
-  // eslint-disable-next-line no-console
-  console.log(process.env.DEPLOY_ENV === 'production');
   const isProduction = process.env.DEPLOY_ENV === 'production';
   return (
     <div className="ContentLayoutRoot">
