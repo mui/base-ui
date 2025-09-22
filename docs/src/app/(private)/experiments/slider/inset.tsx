@@ -10,7 +10,7 @@ function InsetSlider(props: Slider.Root.Props) {
   const prefix = React.useId();
   return (
     <Slider.Root
-      inset
+      thumbAlignment="inset"
       {...props}
       className="rounded-full border border-[var(--track-border-color)] bg-[var(--track-bg)] dark:bg-gray-200"
     >
@@ -51,12 +51,13 @@ function DemoSlider(props: Slider.Root.Props & { wide?: boolean }) {
   const prefix = React.useId();
   return (
     <Slider.Root
-      inset
+      thumbAlignment="inset"
       {...rest}
       className="[--base-color:var(--color-blue)] [--dragging-color:color-mix(in_srgb,var(--base-color)_85%,white_15%)] [--indicator-bg:var(--base-color)] [--thumb-bg:var(--base-color)] [--thumb-radius:0.625rem] [--track-bg:var(--color-gray-200)] [--track-height:0.625rem] [--track-border-color:var(--color-gray-400)] [--track-width:6.25rem]"
       style={
         {
-          ['--base-color']: props.renderBeforeHydration ? 'var(--color-red)' : 'var(--color-blue)',
+          ['--base-color']:
+            props.thumbAlignment !== 'inset-client-only' ? 'var(--color-red)' : 'var(--color-blue)',
           ['--track-width']: wide ? '320px' : undefined,
           ...(styleProp ?? {}),
         } as React.CSSProperties
@@ -94,7 +95,7 @@ function DemoSlider(props: Slider.Root.Props & { wide?: boolean }) {
 function RadixSlider(props: Slider.Root.Props) {
   return (
     <Slider.Root
-      inset
+      thumbAlignment="inset"
       {...props}
       className="relative flex select-none touch-none data-[orientation=horizontal]:items-center data-[orientation=horizontal]:w-[240px] data-[orientation=horizontal]:h-[20px] data-[orientation=vertical]:justify-center data-[orientation=vertical]:h-[240px] data-[orientation=vertical]:w-[20px]"
     >
@@ -155,24 +156,25 @@ export default function App() {
       </div>
 
       <p className="mb-4 self-start">
-        Red sliders use <code>renderBeforeHydration</code>, blue sliders don't
+        Red <code>thumbAlignment="inset"</code>, Blue{' '}
+        <code>thumbAlignment="inset-client-only"</code>
       </p>
       <div className="grid grid-cols-[repeat(2,minmax(min-content,auto))] gap-8 self-start">
+        <DemoSlider defaultValue={30} thumbAlignment="inset-client-only" />
+
+        <DemoSlider defaultValue={30} wide thumbAlignment="inset-client-only" />
+
         <DemoSlider defaultValue={30} />
 
         <DemoSlider defaultValue={30} wide />
 
-        <DemoSlider defaultValue={30} renderBeforeHydration />
+        <DemoSlider defaultValue={[20, 64]} thumbAlignment="inset-client-only" />
 
-        <DemoSlider defaultValue={30} wide renderBeforeHydration />
+        <DemoSlider defaultValue={[20, 64]} wide thumbAlignment="inset-client-only" />
 
         <DemoSlider defaultValue={[20, 64]} />
 
         <DemoSlider defaultValue={[20, 64]} wide />
-
-        <DemoSlider defaultValue={[20, 64]} renderBeforeHydration />
-
-        <DemoSlider defaultValue={[20, 64]} wide renderBeforeHydration />
       </div>
     </React.Fragment>
   );

@@ -57,7 +57,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     defaultValue,
     disabled: disabledProp = false,
     id: idProp,
-    inset = false,
     format,
     largeStep = 10,
     locale,
@@ -69,8 +68,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
-    renderBeforeHydration = false,
     step = 1,
+    thumbAlignment = 'centered',
     value: valueProp,
     ...elementProps
   } = componentProps;
@@ -283,7 +282,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       formatOptionsRef,
       handleInputChange,
       indicatorPosition,
-      inset,
+      inset: thumbAlignment !== 'centered',
       labelId: ariaLabelledby,
       largeStep,
       lastChangedValueRef,
@@ -298,7 +297,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
       registerFieldControlRef,
-      renderBeforeHydration,
+      renderBeforeHydration: thumbAlignment === 'inset',
       setActive,
       setDragging,
       setIndicatorPosition,
@@ -319,7 +318,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       formatOptionsRef,
       handleInputChange,
       indicatorPosition,
-      inset,
       largeStep,
       lastChangedValueRef,
       locale,
@@ -333,13 +331,13 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
       registerFieldControlRef,
-      renderBeforeHydration,
       setActive,
       setDragging,
       setIndicatorPosition,
       setValue,
       state,
       step,
+      thumbAlignment,
       thumbMap,
       thumbRefs,
       values,
@@ -431,11 +429,6 @@ export namespace SliderRoot {
      */
     format?: Intl.NumberFormatOptions;
     /**
-     * When `true` thumbs are inset within `Slider.Control`.
-     * @default false
-     */
-    inset?: boolean;
-    /**
      * The locale used by `Intl.NumberFormat` when formatting the value.
      * Defaults to the user's runtime locale.
      */
@@ -467,12 +460,6 @@ export namespace SliderRoot {
      */
     orientation?: Orientation;
     /**
-     * Whether to render inset sliders before React hydration.
-     * This minimizes the time that the thumb and indicator aren’t visible after server-side rendering.
-     * @default false`
-     */
-    renderBeforeHydration?: boolean;
-    /**
      * The granularity with which the slider can step through values. (A "discrete" slider.)
      * The `min` prop serves as the origin for the valid values.
      * We recommend (max - min) to be evenly divisible by the step.
@@ -484,6 +471,14 @@ export namespace SliderRoot {
      * @default 10
      */
     largeStep?: number;
+    /**
+     * How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`
+     * - `centered`: The center of the thumb is aligned to the edges of the control
+     * - `inset`: The thumb(s) are inset within the control so that the thumb edges are aligned to the edges of the control
+     * - `inset-client-only`: Same as `inset` but renders after React hydration on the client, gaining a smaller bundle size in return
+     * @default 'centered'
+     */
+    thumbAlignment?: 'centered' | 'inset' | 'inset-client-only';
     /**
      * The value of the slider.
      * For ranged sliders, provide an array with two values.

@@ -3,7 +3,7 @@ import { Slider } from '@base-ui-components/react/slider';
 
 export default function InsetSlider() {
   return (
-    <Slider.Root inset defaultValue={30}>
+    <Slider.Root thumbAlignment="inset" defaultValue={30}>
       <Slider.Control className="relative bg-gray-200 flex w-[120px] h-[20px] touch-none items-center select-none">
         <Slider.Thumb
           data-testid="thumb"
