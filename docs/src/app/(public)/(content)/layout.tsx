@@ -9,8 +9,8 @@ import './layout.css';
 
 export default async function Layout({ children }: React.PropsWithChildren) {
   // eslint-disable-next-line no-console
-  console.info(process.env.NODE_ENV);
-  const isProduction = process.env.NODE_ENV === 'production';
+  console.log(process.env.DEPLOY_ENV === 'production');
+  const isProduction = process.env.DEPLOY_ENV === 'production';
   return (
     <div className="ContentLayoutRoot">
       <Header isProduction={isProduction} />
