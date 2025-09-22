@@ -130,6 +130,11 @@ async function generateLlmsTxt() {
           continue;
         }
 
+        if (urlPath.includes('/unstable-')) {
+          // Skip unstable pages/components
+          continue;
+        }
+
         const mdxContent = await fs.readFile(mdxFile, 'utf-8');
 
         const { markdown, title, subtitle, description } = await mdxToMarkdown(
