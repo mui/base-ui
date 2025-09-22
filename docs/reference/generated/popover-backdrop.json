@@ -27,5 +27,10 @@
       "description": "Present when the popup is animating out."
     }
   },
-  "cssVariables": {}
+  "cssVariables": {
+    "--body-client-height": {
+      "description": "Indicates the client height of the document body.",
+      "type": "number"
+    }
+  }
 }

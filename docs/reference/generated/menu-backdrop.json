@@ -26,5 +26,10 @@
       "description": "Present when the menu is animating out."
     }
   },
-  "cssVariables": {}
+  "cssVariables": {
+    "--body-client-height": {
+      "description": "Indicates the client height of the document body.",
+      "type": "number"
+    }
+  }
 }

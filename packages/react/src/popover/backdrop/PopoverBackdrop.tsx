@@ -7,6 +7,8 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useBodyClientHeight } from '../../utils/useBodyClientHeight';
+import { PopoverBackdropCssVars } from './PopoverBackdropCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverBackdrop.State> = {
   ...baseMapping,
@@ -27,6 +29,8 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 
   const { open, mounted, transitionStatus, openReason, backdropRef } = usePopoverRootContext();
 
+  const bodyClientHeight = useBodyClientHeight(backdropRef, open);
+
   const state: PopoverBackdrop.State = React.useMemo(
     () => ({
       open,
@@ -46,6 +50,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
           pointerEvents: openReason === 'trigger-hover' ? 'none' : undefined,
           userSelect: 'none',
           WebkitUserSelect: 'none',
+          [PopoverBackdropCssVars.bodyClientHeight as string]: `${bodyClientHeight}px`,
         },
       },
       elementProps,

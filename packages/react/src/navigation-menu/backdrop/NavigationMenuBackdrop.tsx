@@ -7,6 +7,8 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { useBodyClientHeight } from '../../utils/useBodyClientHeight';
+import { NavigationMenuBackdropCssVars } from './NavigationMenuBackdropCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuBackdrop.State> = {
   ...baseMapping,
@@ -27,6 +29,10 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
 
   const { open, mounted, transitionStatus } = useNavigationMenuRootContext();
 
+  const backdropRef = React.useRef<HTMLDivElement | null>(null);
+
+  const bodyClientHeight = useBodyClientHeight(backdropRef, open);
+
   const state: NavigationMenuBackdrop.State = React.useMemo(
     () => ({
       open,
@@ -37,7 +43,7 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: forwardedRef,
+    ref: [backdropRef, forwardedRef],
     props: [
       {
         role: 'presentation',
@@ -45,6 +51,7 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
         style: {
           userSelect: 'none',
           WebkitUserSelect: 'none',
+          [NavigationMenuBackdropCssVars.bodyClientHeight as string]: `${bodyClientHeight}px`,
         },
       },
       elementProps,

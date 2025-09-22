@@ -38,8 +38,9 @@
 }
 
 .Backdrop {
-  position: fixed;
+  position: absolute;
   inset: 0;
+  height: var(--body-client-height);
   background-color: black;
   opacity: 0.2;
   transition: opacity 150ms;
