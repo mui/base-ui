@@ -23,10 +23,12 @@ export default {
       rules: {
         // https://github.com/zhilidali/stylelint-config-tailwindcss/issues/12
         'declaration-property-value-no-unknown': null,
+        // Remove when ready
         'keyframes-name-pattern': null,
       },
     },
     {
+      // Not fixing experiments for now
       files: ['docs/src/app/[(]private[)]/experiments/**/*'],
       rules: {
         'block-no-redundant-nested-style-rules': null,
