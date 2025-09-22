@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { screen, waitFor, act } from '@mui/internal-test-utils';
+import { screen, act } from '@mui/internal-test-utils';
+import { spy } from 'sinon';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
@@ -62,18 +63,56 @@ describe('<NumberField.ScrubArea />', () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -10 }));
     });
 
-    await waitFor(() => expect(input).to.have.value('-10'));
+    expect(input).to.have.value('-10');
     await act(async () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 5 }));
     });
 
-    await waitFor(() => expect(input).to.have.value('-5'));
+    expect(input).to.have.value('-5');
 
     await act(async () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -2 }));
     });
 
-    await waitFor(() => expect(input).to.have.value('-7'));
+    expect(input).to.have.value('-7');
+  });
+
+  it('calls onValueChange while scrubbing and onValueCommitted on pointerup', async () => {
+    const onValueChange = spy();
+    const onValueCommitted = spy();
+
+    await render(
+      <NumberField.Root
+        defaultValue={0}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+        <NumberField.ScrubArea data-testid="scrub-area">
+          <NumberField.ScrubAreaCursor />
+        </NumberField.ScrubArea>
+      </NumberField.Root>,
+    );
+
+    const scrubArea = screen.getByTestId('scrub-area');
+
+    await act(async () => {
+      scrubArea.dispatchEvent(pointerDownEvent);
+      scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 3 }));
+    });
+
+    // One or more changes depending on pixel sensitivity and environment
+    expect(onValueChange.callCount).to.be.greaterThan(0);
+
+    await act(async () => {
+      window.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+    });
+
+    expect(onValueCommitted.callCount).to.equal(1);
+
+    const lastChange = onValueChange.lastCall.args[0];
+    const committed = onValueCommitted.firstCall.args[0];
+    expect(committed).to.equal(lastChange);
   });
 
   describe('prop: pixelSensitivity', () => {
@@ -95,13 +134,13 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -2 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('0'));
+      expect(input).to.have.value('0');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 2 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('0'));
+      expect(input).to.have.value('0');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 1 }));
@@ -110,37 +149,37 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 1 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('0'));
+      expect(input).to.have.value('0');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 1 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('1'));
+      expect(input).to.have.value('1');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 5 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('6'));
+      expect(input).to.have.value('6');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -4 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('6'));
+      expect(input).to.have.value('6');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -1 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('5'));
+      expect(input).to.have.value('5');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 5 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('10'));
+      expect(input).to.have.value('10');
     });
   });
 
@@ -163,13 +202,13 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 10 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('10'));
+      expect(input).to.have.value('10');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementY: 10 }));
       });
 
-      await waitFor(() => expect(input).to.have.value('10'));
+      expect(input).to.have.value('10');
     });
   });
 });

@@ -95,12 +95,14 @@
   }
 
   .RootLayoutFooter {
-    background-color: var(--color-background);
-    width: 100%;
-    height: var(--header-height);
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    @media (--lg) {
+      background-color: var(--color-background);
+      width: 100%;
+      height: var(--header-height);
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
   }
 }
