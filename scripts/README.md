@@ -59,5 +59,5 @@ Once deployed, it will be accessible at https://base-ui.netlify.app/ for the `do
 
 ### GitHub release
 
-After the documentation deployment is done, review and then publish the release that was created in draft mode during the release step [GitHub releases page](https://github.com/mui/material-ui/releases)
+After the documentation deployment is done, review, and then publish the release that was created in draft mode during the release step [GitHub releases page](https://github.com/mui/base-ui/releases)
 Make sure to check the **Set as a pre-release** checkbox if publishing an unstable version.
