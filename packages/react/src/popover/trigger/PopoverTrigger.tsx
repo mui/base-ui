@@ -180,7 +180,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       localProps.getReferenceProps(),
       isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
       interactionTypeTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id },
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id, key: id },
       elementProps,
       getButtonProps,
     ],
@@ -241,13 +241,13 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     return (
       <React.Fragment>
         <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
-        {React.createElement(element.type, { ...element.props, key: id })}
+        {element}
         <FocusGuard ref={store.state.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
     );
   }
 
-  return React.createElement(element.type, { ...element.props, key: id });
+  return element;
 }) as PopoverTrigger.ComponentType;
 
 export namespace PopoverTrigger {
