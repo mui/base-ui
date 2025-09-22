@@ -824,6 +824,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     loop: true,
     allowEscape: !autoHighlight,
     focusItemOnOpen: queryChangedAfterOpen || selectionMode === 'none' ? false : 'auto',
+    // `cols` > 1 enables grid navigation.
+    // Since <Combobox.Row> infers column sizes (and is required when building a grid),
+    // it works correctly even with a value of `2`.
+    // Floating UI tests don't require `role="row"` wrappers, so retains the number API.
     cols: grid ? 2 : 1,
     orientation: grid ? 'horizontal' : undefined,
     disabledIndices: virtualized
