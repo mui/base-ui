@@ -82,10 +82,6 @@
     translateY(calc(var(--toast-swipe-movement-y) + (min(var(--toast-index), 10) * -20%)))
     scale(calc(max(0, 1 - (var(--toast-index) * 0.1))));
 
-  &::after {
-    top: 100%;
-  }
-
   &[data-expanded] {
     transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
   }
@@ -123,6 +119,7 @@
     content: '';
     position: absolute;
     width: 100%;
+    top: 100%;
     left: 0;
     height: calc(var(--gap) + 1px);
   }
