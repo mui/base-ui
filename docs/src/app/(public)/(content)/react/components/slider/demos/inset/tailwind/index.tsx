@@ -3,7 +3,7 @@ import { Slider } from '@base-ui-components/react/slider';
 
 export default function ExampleInsetSlider() {
   return (
-    <Slider.Root inset renderBeforeHydration defaultValue={25}>
+    <Slider.Root thumbAlignment="inset" defaultValue={25}>
       <Slider.Control className="flex w-56 touch-none items-center select-none">
         <Slider.Track className="h-4 w-full rounded-full bg-gray-200 shadow-[inset_0_0_0_1px] shadow-gray-200 select-none">
           <Slider.Indicator className="rounded-l-full bg-gray-600 select-none" />

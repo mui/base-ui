@@ -43,6 +43,8 @@ To create a range slider:
 
 ### Inset slider
 
-Pass the `inset` prop to `Slider.Root` to inset the thumbs. The optional `renderBeforeHydration` prop can be used to minimize the time to render the thumb and indicator after server-side rendering.
+Set `thumbAlignment="inset"` to inset the thumbs within the control.
+
+A client-only alternative `thumbAlignment="inset-client-only"` can be used which reduces bundle size but only renders after React hydration.
 
 <Demo compact path="./demos/inset" />

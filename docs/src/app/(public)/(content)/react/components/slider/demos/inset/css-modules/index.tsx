@@ -4,7 +4,7 @@ import styles from './index.module.css';
 
 export default function ExampleInsetSlider() {
   return (
-    <Slider.Root inset renderBeforeHydration defaultValue={25}>
+    <Slider.Root thumbAlignment="inset" defaultValue={25}>
       <Slider.Control className={styles.Control}>
         <Slider.Track className={styles.Track}>
           <Slider.Indicator className={styles.Indicator} />
