@@ -1,6 +1,5 @@
 import * as React from 'react';
 import type { Metadata } from 'next/types';
-import { headers } from 'next/headers';
 import * as SideNav from 'docs/src/components/SideNav';
 import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
 import { Header } from 'docs/src/components/Header';
@@ -9,9 +8,9 @@ import { nav } from 'docs/src/nav';
 import './layout.css';
 
 export default async function Layout({ children }: React.PropsWithChildren) {
-  const headersList = await headers();
-  const host = headersList.get('host');
-  const isProduction = host === 'base-ui.com';
+  // eslint-disable-next-line no-console
+  console.info(process.env.NODE_ENV);
+  const isProduction = process.env.NODE_ENV === 'production';
   return (
     <div className="ContentLayoutRoot">
       <Header isProduction={isProduction} />
