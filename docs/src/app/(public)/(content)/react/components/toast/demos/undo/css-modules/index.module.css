@@ -82,7 +82,7 @@
     height 0.25s;
   cursor: default;
   z-index: calc(1000 - var(--toast-index));
-  height: var(--toast-index-0-height, var(--toast-height));
+  height: var(--toast-frontmost-height, var(--toast-height));
   transform: translateX(var(--toast-swipe-movement-x))
     translateY(calc(var(--toast-swipe-movement-y) - (var(--toast-index) * var(--peek))))
     scaleX(calc(max(0, 1 - (var(--toast-index) * 0.1))));

@@ -19,7 +19,7 @@
     }
   },
   "cssVariables": {
-    "--toast-index-0-height": {
+    "--toast-frontmost-height": {
       "description": "Indicates the height of the frontmost toast at index 0 in the list.",
       "type": "number"
     }

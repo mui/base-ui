@@ -342,6 +342,6 @@ A toast with custom data can be created by passing any typed object interface to
 
 ### Varying heights
 
-Toasts with varying heights are stacked by ensuring that the `Toast.Content` element has `overflow: hidden` set, along with all toasts' heights matching the toast at index 0. This prevents taller toasts from overflowing the stack when collapsed.
+Toasts with varying heights are stacked by ensuring that the `Toast.Content` element has `overflow: hidden` set, along with all toasts' heights matching the frontmost toast at index 0. This prevents taller toasts from overflowing the stack when collapsed.
 
 <Demo path="./demos/varying-heights" compact />
