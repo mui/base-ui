@@ -22,11 +22,6 @@
       "allowedVersions": "!/-dev/"
     },
     {
-      "matchDepTypes": ["engines"],
-      "matchFileNames": ["packages/*/package.json"],
-      "enabled": false
-    },
-    {
       "groupName": "chai - incompatible versions",
       "matchPackageNames": ["chai", "@types/chai"],
       "allowedVersions": "< 5.0.0"
