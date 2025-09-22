@@ -394,6 +394,106 @@ describe('<Popover.Root />', () => {
 
       expect(lastInput).toHaveFocus();
     });
+
+    it('moves focus to the element following the trigger when tabbing forward from the open popup', async () => {
+      const { user } = await render(
+        <div>
+          <input />
+          <Popover.Root defaultOpen>
+            <Popover.Trigger>Toggle</Popover.Trigger>
+            <input data-testid="focus-target" />
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup">
+                  <input data-testid="input-inside" />
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <input />
+        </div>,
+      );
+
+      const inputInside = screen.getByTestId('input-inside');
+      await act(async () => inputInside.focus());
+
+      await user.tab();
+
+      expect(screen.getByTestId('focus-target')).toHaveFocus();
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+    });
+
+    it.skipIf(isJSDOM)(
+      'moves focus to the trigger when tabbing backward from the open popup',
+      async () => {
+        const { user } = await render(
+          <div>
+            <input />
+            <Popover.Root defaultOpen>
+              <Popover.Trigger>Toggle</Popover.Trigger>
+              <input />
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">
+                    <input data-testid="input-inside" />
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+            <input />
+          </div>,
+        );
+
+        const inputInside = screen.getByTestId('input-inside');
+        await act(async () => inputInside.focus());
+
+        await user.tab({ shift: true });
+
+        expect(screen.getByRole('button')).toHaveFocus();
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).to.toBeVisible();
+        });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'moves focus to the element preceding the trigger and closes the popup when tabbing backward twice from the open popup',
+      async () => {
+        const { user } = await render(
+          <div>
+            <input data-testid="focus-target" />
+            <Popover.Root defaultOpen>
+              <Popover.Trigger>Toggle</Popover.Trigger>
+              <input />
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">
+                    <input data-testid="input-inside" />
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+            <input />
+          </div>,
+        );
+
+        const inputInside = screen.getByTestId('input-inside');
+        await act(async () => inputInside.focus());
+
+        await user.tab({ shift: true });
+        await user.tab({ shift: true });
+
+        expect(screen.getByTestId('focus-target')).toHaveFocus();
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).to.equal(null);
+        });
+      },
+    );
   });
 
   describe('outside press event with backdrops', () => {

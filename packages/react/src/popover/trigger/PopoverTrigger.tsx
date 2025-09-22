@@ -19,7 +19,7 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { PopoverStore, selectors } from '../store';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { getNextTabbable } from '../../floating-ui-react/utils';
+import { getNextTabbable, getPreviousTabbable } from '../../floating-ui-react/utils';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
@@ -178,6 +178,15 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     stateAttributesMapping,
   });
 
+  const handlePreFocusGuardFocus = useEventCallback((event: React.FocusEvent) => {
+    const previousTabbable = getPreviousTabbable(triggerElement);
+    previousTabbable?.focus();
+    store.setOpen(
+      false,
+      createBaseUIEventDetails('focus-out', event.nativeEvent, event.currentTarget as HTMLElement),
+    );
+  });
+
   const handleFocusTargetFocus = useEventCallback((event: React.FocusEvent) => {
     const nextTabbable = getNextTabbable(triggerElement);
     nextTabbable?.focus();
@@ -192,6 +201,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   if (isTriggerActive) {
     return (
       <React.Fragment>
+        <FocusGuard onFocus={handlePreFocusGuardFocus} />
         {React.createElement(element.type, { ...element.props, key: id })}
         <FocusGuard ref={store.state.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
