@@ -25,7 +25,9 @@ export function PopoverPortal(props: PopoverPortal.Props) {
 
   return (
     <PopoverPortalContext.Provider value={keepMounted}>
-      <FloatingPortal root={container}>{children}</FloatingPortal>
+      <FloatingPortal root={container} renderGuards={false}>
+        {children}
+      </FloatingPortal>
     </PopoverPortalContext.Provider>
   );
 }

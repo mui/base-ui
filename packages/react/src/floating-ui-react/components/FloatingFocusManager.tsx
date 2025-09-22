@@ -223,6 +223,11 @@ export interface FloatingFocusManagerProps {
    * Overrides the element to focus when tabbing backward out of the floating element.
    */
   previousFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null;
+  /**
+   * Ref to the focus guard preceding the floating element content.
+   * Can be usefult to focus the popup progammatically.
+   */
+  beforeContentFocusGuardRef?: React.RefObject<HTMLSpanElement | null>;
 }
 
 /**
@@ -243,8 +248,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     closeOnFocusOut = true,
     openInteractionType = '',
     getInsideElements: getInsideElementsProp = () => [],
-    nextFocusableElement: nextFocusableRef,
-    previousFocusableElement: previousFocusableRef,
+    nextFocusableElement,
+    previousFocusableElement,
+    beforeContentFocusGuardRef,
   } = props;
   const {
     open,
@@ -553,7 +559,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
   const afterGuardRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const mergedBeforeGuardRef = useMergedRefs(beforeGuardRef, portalContext?.beforeInsideRef);
+  const mergedBeforeGuardRef = useMergedRefs(
+    beforeGuardRef,
+    beforeContentFocusGuardRef,
+    portalContext?.beforeInsideRef,
+  );
   const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
   React.useEffect(() => {
@@ -582,8 +592,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       afterGuardRef.current,
       portalContext?.beforeOutsideRef.current,
       portalContext?.afterOutsideRef.current,
-      resolveRef(previousFocusableRef),
-      resolveRef(nextFocusableRef),
+      resolveRef(previousFocusableElement),
+      resolveRef(nextFocusableElement),
       isUntrappedTypeableCombobox ? domReference : null,
     ].filter((x): x is Element => x != null);
 
@@ -604,8 +614,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     tree,
     getNodeId,
     getInsideElements,
-    nextFocusableRef,
-    previousFocusableRef,
+    nextFocusableElement,
+    previousFocusableElement,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -876,7 +886,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
                 const nextTabbable = getNextTabbable(domReference);
                 nextTabbable?.focus();
               } else {
-                resolveRef(previousFocusableRef ?? portalContext.beforeOutsideRef)?.focus();
+                resolveRef(previousFocusableElement ?? portalContext.beforeOutsideRef)?.focus();
               }
             }
           }}
@@ -899,7 +909,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
                 const prevTabbable = getPreviousTabbable(domReference);
                 prevTabbable?.focus();
               } else {
-                resolveRef(nextFocusableRef ?? portalContext.afterOutsideRef)?.focus();
+                resolveRef(nextFocusableElement ?? portalContext.afterOutsideRef)?.focus();
               }
             }
           }}

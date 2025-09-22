@@ -42,6 +42,7 @@ export type State = {
   stickIfOpen: boolean;
 
   triggerFocusTargetRef: React.RefObject<HTMLSpanElement | null>;
+  beforeContentFocusGuardRef: React.RefObject<HTMLSpanElement | null>;
 };
 
 function createInitialState<Payload>(): State {
@@ -66,6 +67,7 @@ function createInitialState<Payload>(): State {
     popupProps: EMPTY_OBJ as HTMLProps,
     stickIfOpen: true,
     triggerFocusTargetRef: React.createRef<HTMLSpanElement>(),
+    beforeContentFocusGuardRef: React.createRef<HTMLSpanElement>(),
   };
 }
 
