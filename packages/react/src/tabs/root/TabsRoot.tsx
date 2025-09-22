@@ -11,7 +11,7 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -58,13 +58,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     (
       newValue: TabsTab.Value,
       activationDirection: TabsTab.ActivationDirection,
-      event: Event | undefined,
+      eventDetails: TabsRoot.ChangeEventDetails,
     ) => {
-      const details = createBaseUIEventDetails('none', event);
+      onValueChangeProp?.(newValue, eventDetails);
 
-      onValueChangeProp?.(newValue, details);
-
-      if (details.isCanceled) {
+      if (eventDetails.isCanceled) {
         return;
       }
 

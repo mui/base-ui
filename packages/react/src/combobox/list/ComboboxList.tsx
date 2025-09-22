@@ -80,7 +80,12 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
             return;
           }
 
-          if (event.key === 'Enter' && store.state.activeIndex !== null) {
+          if (event.key === 'Enter') {
+            if (store.state.activeIndex == null) {
+              // Allow form submission when no item is highlighted.
+              return;
+            }
+
             stopEvent(event);
             store.state.handleSelection(event.nativeEvent);
           }

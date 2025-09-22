@@ -22,7 +22,6 @@ import {
   createBaseUIEventDetails,
   type BaseUIEventDetails,
 } from '../../utils/createBaseUIEventDetails';
-import type { BaseUIChangeEventReason } from '../../utils/types';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
@@ -97,6 +96,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     limit = -1,
     autoComplete = 'list',
     locale,
+    alwaysSubmitOnEnter = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -319,6 +319,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         itemToStringLabel,
         modal,
         autoHighlight,
+        alwaysSubmitOnEnter,
         hasInputValue,
         mounted: false,
         forceMounted: false,
@@ -696,7 +697,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         setSelectedValue(nextValue, eventDetails);
 
         const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-        if (wasFiltering) {
+        if (wasFiltering && !store.state.inputInsidePopup) {
           setOpen(false, eventDetails);
         }
       } else {
@@ -953,6 +954,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       itemToStringLabel,
       modal,
       autoHighlight,
+      alwaysSubmitOnEnter,
       hasInputValue,
     });
   }, [
@@ -984,6 +986,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     itemToStringLabel,
     modal,
     autoHighlight,
+    alwaysSubmitOnEnter,
     hasInputValue,
   ]);
 
@@ -1278,6 +1281,12 @@ interface ComboboxRootProps<ItemValue> {
    */
   locale?: Intl.LocalesArgument;
   /**
+   * Whether pressing Enter in the input should always allow forms to submit.
+   * By default, pressing Enter in the input will stop form submission if an item is highlighted.
+   * @default false
+   */
+  alwaysSubmitOnEnter?: boolean;
+  /**
    * INTERNAL: Clears the input value after close animation completes.
    * Useful for wrappers like FilterableMenu so they don't need to reset externally.
    * @default false
@@ -1333,10 +1342,16 @@ export namespace ComboboxRootInternal {
   }
 
   export type ChangeEventReason =
-    | BaseUIChangeEventReason
+    | 'trigger-press'
+    | 'outside-press'
+    | 'item-press'
+    | 'escape-key'
+    | 'list-navigation'
+    | 'focus-out'
     | 'input-change'
     | 'input-clear'
     | 'clear-press'
-    | 'chip-remove-press';
+    | 'chip-remove-press'
+    | 'none';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

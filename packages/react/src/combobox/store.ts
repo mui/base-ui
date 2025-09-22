@@ -83,6 +83,7 @@ export type State = {
   itemToStringLabel?: (item: any) => string;
   modal: boolean;
   autoHighlight: boolean;
+  alwaysSubmitOnEnter: boolean;
   hasInputValue: boolean;
 };
 
@@ -154,4 +155,5 @@ export const selectors = {
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
+  alwaysSubmitOnEnter: createSelector((state: State) => state.alwaysSubmitOnEnter),
 };
