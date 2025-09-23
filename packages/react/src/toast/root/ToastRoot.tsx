@@ -91,8 +91,17 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   const swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
 
-  const { toasts, focused, close, remove, setToasts, pauseTimers, resumeTimers, expanded } =
-    useToastContext();
+  const {
+    toasts,
+    focused,
+    close,
+    remove,
+    setToasts,
+    pauseTimers,
+    resumeTimers,
+    expanded,
+    setHovering,
+  } = useToastContext();
 
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     'up' | 'down' | 'left' | 'right' | undefined
@@ -235,6 +244,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       });
     }
 
+    setHovering(true);
     setIsSwiping(true);
     setIsRealSwipe(false);
     setLockedDirection(null);
