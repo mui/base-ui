@@ -87,7 +87,6 @@ export const nav: NavGroup[] = [
       {
         label: 'Calendar',
         href: '/react/components/unstable-calendar',
-        isNew: true,
         unstable: true,
       },
       {
@@ -223,7 +222,6 @@ export const nav: NavGroup[] = [
       {
         label: 'Temporal Locale Provider',
         href: '/react/utils/unstable-temporal-locale-provider',
-        isNew: true,
         unstable: true,
       },
       {

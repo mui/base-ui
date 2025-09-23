@@ -23,6 +23,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                   <SideNav.Item key={link.href} href={link.href} external={link.external}>
                     {link.label}
                     {link.isNew && <SideNav.Badge>New</SideNav.Badge>}
+                    {link.unstable && <SideNav.Badge>Preview</SideNav.Badge>}
                   </SideNav.Item>
                 ))}
             </SideNav.List>
