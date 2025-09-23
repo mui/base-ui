@@ -48,7 +48,7 @@ A popover can be controlled by a trigger located either inside or outside the `P
 
 However, if defining the popover's content next to its trigger is not practical, you can use a detached trigger. This involves placing the `Popover.Trigger` outside of `Popover.Root` and linking them with a `handle` created by the `Popover.createHandle()` function.
 
-```jsx title="detached triggers"
+```jsx title="Detached triggers"
 const demoPopover = Popover.createHandle();
 
 <Popover.Trigger handle={demoPopover}>
@@ -66,7 +66,7 @@ const demoPopover = Popover.createHandle();
 
 A single popover can be opened by multiple trigger elements. You can achieve this by using the same `handle` for several detached triggers, or by placing multiple `Popover.Trigger` components inside a single `Popover.Root`.
 
-```jsx title="multiple triggers within root part"
+```jsx title="Multiple triggers within the Root part"
 <Popover.Root>
   <Popover.Trigger>Trigger 1</Popover.Trigger>
   <Popover.Trigger>Trigger 2</Popover.Trigger>
@@ -94,7 +94,7 @@ The popover can render different content depending on which trigger opened it. T
 
 The payload can be strongly typed by providing a type argument to the `createHandle` function:
 
-```jsx title="detached triggers with payload"
+```jsx title="Detached triggers with payload"
 const demoPopover = Popover.createHandle<{ text: string }>();
 
 <Popover.Trigger handle={demoPopover} payload={{ text: 'Trigger 1' }}>
