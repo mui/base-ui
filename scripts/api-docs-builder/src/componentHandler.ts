@@ -7,7 +7,7 @@ export async function formatComponentData(component: tae.ExportNode, allExports:
   const dataAttributes = allExports.find((node) => node.name === `${component.name}DataAttributes`);
   const cssVariables = allExports.find((node) => node.name === `${component.name}CssVars`);
 
-  return {
+  const raw = {
     name: component.name,
     description,
     props: sortObjectByKeys(
@@ -23,7 +23,11 @@ export async function formatComponentData(component: tae.ExportNode, allExports:
     cssVariables: cssVariables
       ? sortObjectByKeys(formatEnum(cssVariables.type as tae.EnumNode), memberOrder.cssVariables)
       : {},
-  };
+  } as Record<string, any>;
+
+  // Post-process type strings to align naming across re-exports and hide internal suffixes.
+  const componentGroup = extractComponentGroup(component.name);
+  return rewriteTypeStringsDeep(raw, componentGroup);
 }
 
 export function isPublicComponent(exportNode: tae.ExportNode) {
@@ -65,4 +69,45 @@ function sortObjectByKeys<T>(obj: Record<string, T>, order: string[]): Record<st
   });
 
   return sortedObj;
+}
+
+function extractComponentGroup(componentExportName: string): string {
+  const match = componentExportName.match(/^[A-Z][a-z0-9]*/);
+  return match ? match[0] : componentExportName;
+}
+
+function rewriteTypeValue(value: string, componentGroup: string): string {
+  let next = value.replaceAll('.RootInternal', '.Root');
+
+  // When documenting Autocomplete (which re-exports Combobox),
+  // display Autocomplete.* instead of Combobox.*
+  if (componentGroup === 'Autocomplete') {
+    next = next.replaceAll(/\bCombobox\./g, 'Autocomplete.');
+  }
+
+  return next;
+}
+
+function rewriteTypeStringsDeep(node: any, componentGroup: string): any {
+  if (node == null) {
+    return node;
+  }
+
+  if (typeof node === 'string') {
+    return rewriteTypeValue(node, componentGroup);
+  }
+
+  if (Array.isArray(node)) {
+    return node.map((item) => rewriteTypeStringsDeep(item, componentGroup));
+  }
+
+  if (typeof node === 'object') {
+    const result: Record<string, any> = {};
+    for (const [key, value] of Object.entries(node)) {
+      result[key] = rewriteTypeStringsDeep(value, componentGroup);
+    }
+    return result;
+  }
+
+  return node;
 }

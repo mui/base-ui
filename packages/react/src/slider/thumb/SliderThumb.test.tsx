@@ -186,7 +186,7 @@ describe('<Slider.Thumb />', () => {
     });
   });
 
-  describe('prop: tabIndex', async () => {
+  describe('prop: tabIndex', () => {
     it('can be removed from the tab sequence', async () => {
       const { user } = await render(
         <Slider.Root defaultValue={50}>
@@ -203,7 +203,7 @@ describe('<Slider.Thumb />', () => {
     });
   });
 
-  describe('prop: children', async () => {
+  describe('prop: children', () => {
     it('renders the nested input as a sibling to children', async () => {
       await render(
         <Slider.Root defaultValue={50}>
@@ -250,6 +250,37 @@ describe('<Slider.Thumb />', () => {
       const thumb = screen.getByTestId('thumb');
       expect(thumb.querySelector('input[type="range"]')).to.equal(screen.getByRole('slider'));
       expect(thumb.querySelector('[data-testid="child"]')).to.equal(screen.getByTestId('child'));
+    });
+  });
+
+  describe('prop: inputRef', () => {
+    it('can focus the input element', async () => {
+      function App() {
+        const inputRef = React.useRef<HTMLInputElement>(null);
+        return (
+          <React.Fragment>
+            <Slider.Root defaultValue={50}>
+              <Slider.Control>
+                <Slider.Thumb inputRef={inputRef} />
+              </Slider.Control>
+            </Slider.Root>
+            <button
+              onClick={() => {
+                if (inputRef.current) {
+                  inputRef.current.focus();
+                }
+              }}
+            >
+              Button
+            </button>
+          </React.Fragment>
+        );
+      }
+      const { user } = await render(<App />);
+
+      expect(document.body).toHaveFocus();
+      await user.click(screen.getByText('Button'));
+      expect(screen.getByRole('slider')).toHaveFocus();
     });
   });
 

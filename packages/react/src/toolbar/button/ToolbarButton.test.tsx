@@ -231,7 +231,7 @@ describe('<Toolbar.Button />', () => {
         await user.keyboard('[Enter]');
         expect(handleClick.callCount).to.equal(1);
         expect(handleOpenChange.callCount).to.equal(1);
-        expect(screen.queryByRole('menu')).to.not.equal(null);
+        expect(screen.queryByRole('menu')).not.to.equal(null);
 
         await waitFor(() => {
           expect(getByTestId('item-1')).toHaveFocus();
@@ -470,7 +470,7 @@ describe('<Toolbar.Button />', () => {
         expect(onOpenChange.callCount).to.equal(0);
 
         await user.keyboard('[Enter]');
-        expect(screen.queryByText('title text')).to.not.equal(null);
+        expect(screen.queryByText('title text')).not.to.equal(null);
         expect(onOpenChange.callCount).to.equal(1);
         expect(onOpenChange.firstCall.args[0]).to.equal(true);
 
@@ -591,7 +591,7 @@ describe('<Toolbar.Button />', () => {
         expect(onOpenChange.callCount).to.equal(0);
 
         await user.keyboard('[Enter]');
-        expect(screen.queryByText('title text')).to.not.equal(null);
+        expect(screen.queryByText('title text')).not.to.equal(null);
         expect(onOpenChange.callCount).to.equal(1);
         expect(onOpenChange.firstCall.args[0]).to.equal(true);
 
@@ -711,7 +711,7 @@ describe('<Toolbar.Button />', () => {
         expect(onOpenChange.callCount).to.equal(0);
 
         await user.keyboard('[Enter]');
-        expect(screen.queryByText('Content')).to.not.equal(null);
+        expect(screen.queryByText('Content')).not.to.equal(null);
         expect(onOpenChange.callCount).to.equal(1);
         expect(onOpenChange.args[0][0]).to.equal(true);
 

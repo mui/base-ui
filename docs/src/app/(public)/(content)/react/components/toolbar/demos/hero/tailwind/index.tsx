@@ -42,12 +42,16 @@ export default function ExampleToolbar() {
       </Toolbar.Group>
       <Toolbar.Separator className="m-1 h-4 w-px bg-gray-300" />
       <Select.Root defaultValue="Helvetica">
-        <Select.Trigger className="flex min-w-[8rem] h-8 text-sm font-medium items-center justify-between gap-3 rounded-md pr-3 pl-3.5 text-gray-600 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default">
+        <Toolbar.Button
+          render={<Select.Trigger />}
+          nativeButton={false}
+          className="flex min-w-[8rem] h-8 text-sm font-medium items-center justify-between gap-3 rounded-md pr-3 pl-3.5 text-gray-600 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default"
+        >
           <Select.Value />
           <Select.Icon className="flex">
             <ChevronUpDownIcon />
           </Select.Icon>
-        </Select.Trigger>
+        </Toolbar.Button>
         <Select.Portal>
           <Select.Positioner className="outline-none select-none" sideOffset={8}>
             <Select.ScrollUpArrow className="top-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute before:top-[-100%] before:left-0 before:h-full before:w-full before:content-[''] data-[direction=down]:bottom-0 data-[direction=down]:before:bottom-[-100%]" />

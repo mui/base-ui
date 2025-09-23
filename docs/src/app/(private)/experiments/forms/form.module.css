@@ -175,6 +175,7 @@
     opacity 150ms;
   overflow-y: auto;
   max-height: var(--available-height);
+  min-width: var(--anchor-width);
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -249,7 +250,6 @@
   padding-block: 0.5rem;
   padding-left: 0.625rem;
   padding-right: 1rem;
-  min-width: var(--anchor-width);
   display: grid;
   gap: 0.5rem;
   align-items: center;
@@ -671,4 +671,10 @@
 .Increment {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
+}
+
+.Empty:not(:empty) {
+  box-sizing: border-box;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
 }

@@ -3,12 +3,14 @@
   "description": "Groups an accordion header with the corresponding panel.\nRenders a `<div>` element.",
   "props": {
     "value": {
-      "type": "AccordionItemValue"
+      "type": "AccordionItemValue",
+      "description": "A unique value that identifies this accordion item.\nIf no value is provided, a unique ID will be generated automatically.\nUse when controlling the accordion programmatically, or to set an initial\nopen state.",
+      "example": "```tsx\n<Accordion.Root value={['a']}>\n  <Accordion.Item value=\"a\" /> // initially open\n  <Accordion.Item value=\"b\" /> // initially closed\n</Accordion.Root>\n```"
     },
     "onOpenChange": {
-      "type": "((open: boolean) => void)",
+      "type": "((open: boolean, eventDetails: Accordion.Item.ChangeEventDetails) => void)",
       "description": "Event handler called when the panel is opened or closed.",
-      "detailedType": "((open: boolean) => void) | undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Accordion.Item.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "disabled": {
       "type": "boolean",

@@ -9,9 +9,9 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Collapsible.Root.State) => string)",
+      "type": "string | ((state: Collapsible.Panel.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Collapsible.Root.State) => string)"
+      "detailedType": "| string\n| ((state: Collapsible.Panel.State) => string)"
     },
     "keepMounted": {
       "type": "boolean",
@@ -20,9 +20,9 @@
       "detailedType": "boolean | undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Collapsible.Panel.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Collapsible.Root.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Collapsible.Panel.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -8,10 +8,10 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { TabsRootContext } from './TabsRootContext';
-import { tabsStyleHookMapping } from './styleHooks';
+import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -58,13 +58,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     (
       newValue: TabsTab.Value,
       activationDirection: TabsTab.ActivationDirection,
-      event: Event | undefined,
+      eventDetails: TabsRoot.ChangeEventDetails,
     ) => {
-      const details = createBaseUIEventDetails('none', event);
+      onValueChangeProp?.(newValue, eventDetails);
 
-      onValueChangeProp?.(newValue, details);
-
-      if (details.isCanceled) {
+      if (eventDetails.isCanceled) {
         return;
       }
 
@@ -185,7 +183,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: tabsStyleHookMapping,
+    stateAttributesMapping: tabsStateAttributesMapping,
   });
 
   return (
