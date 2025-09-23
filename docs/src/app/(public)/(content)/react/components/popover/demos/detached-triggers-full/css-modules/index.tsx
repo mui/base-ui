@@ -5,8 +5,6 @@ import styles from './index.module.css';
 
 const demoPopover = Popover.createHandle<React.ComponentType>();
 
-const USE_VIEWPORT = true;
-
 export default function PopoverDetachedTriggersFullDemo() {
   return (
     <div className={styles.Container}>
@@ -35,13 +33,9 @@ export default function PopoverDetachedTriggersFullDemo() {
                   <ArrowSvg />
                 </Popover.Arrow>
 
-                {USE_VIEWPORT ? (
-                  <Popover.Viewport className={styles.Viewport}>
-                    {Payload !== undefined && <Payload />}
-                  </Popover.Viewport>
-                ) : (
-                  <div className={styles.Viewport}>{Payload !== undefined && <Payload />}</div>
-                )}
+                <Popover.Viewport className={styles.Viewport}>
+                  {Payload !== undefined && <Payload />}
+                </Popover.Viewport>
               </Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
