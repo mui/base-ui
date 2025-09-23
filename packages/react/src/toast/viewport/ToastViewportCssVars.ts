@@ -1,7 +1,7 @@
 export enum ToastViewportCssVars {
   /**
-   * Indicates the height of the frontmost toast at index 0 in the list.
+   * Indicates the height of the frontmost toast.
    * @type {number}
    */
-  index0Height = '--toast-frontmost-height',
+  frontmostHeight = '--toast-frontmost-height',
 }

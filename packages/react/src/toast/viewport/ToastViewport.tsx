@@ -41,7 +41,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   const handlingFocusGuardRef = React.useRef(false);
   const focusedRef = useLatestRef(focused);
   const numToasts = toasts.length;
-  const topHeight = toasts[0]?.height ?? 0;
+  const frontmostHeight = toasts[0]?.height ?? 0;
 
   // Listen globally for F6 so we can force-focus the viewport.
   React.useEffect(() => {
@@ -230,7 +230,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       defaultProps,
       {
         style: {
-          [ToastViewportCssVars.index0Height as string]: topHeight ? `${topHeight}px` : undefined,
+          [ToastViewportCssVars.frontmostHeight as string]: frontmostHeight
+            ? `${frontmostHeight}px`
+            : undefined,
         },
       },
       elementProps,
