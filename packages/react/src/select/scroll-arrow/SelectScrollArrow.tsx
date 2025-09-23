@@ -25,10 +25,14 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     useSelectRootContext();
   const { side, scrollDownArrowRef, scrollUpArrowRef } = useSelectPositionerContext();
 
-  const selector =
+  const visibleSelector =
     direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
 
-  const visible = useStore(store, selector);
+  const stateVisible = useStore(store, visibleSelector);
+  const touchModality = useStore(store, selectors.touchModality);
+
+  // Scroll arrows are disabled for touch modality as they are a hover-only element.
+  const visible = stateVisible && !touchModality;
 
   const timeout = useTimeout();
 
