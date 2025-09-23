@@ -1039,8 +1039,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     orientation: grid ? 'horizontal' : undefined,
     disabledIndices: EMPTY_ARRAY as number[],
     onNavigate(nextActiveIndex, event) {
-      // Retain the highlight only while actually transitioning out or closed.
-      if ((!event && !open) || transitionStatus === 'ending') {
+      // When rendered as a popup, retain the highlight while the popup is closing or closed.
+      if (
+        !inline &&
+        nextActiveIndex === null &&
+        ((!event && !open) || transitionStatus === 'ending')
+      ) {
         return;
       }
 
