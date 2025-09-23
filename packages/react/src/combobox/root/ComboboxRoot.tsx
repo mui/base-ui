@@ -43,9 +43,9 @@ export namespace ComboboxRoot {
     Multiple extends boolean | undefined = false,
   > = Omit<
     ComboboxRootInternal.Props<any, ModeFromMultiple<Multiple>>,
-    | 'clearInputOnCloseComplete'
     | 'fillInputOnItemPress'
     | 'autoComplete'
+    | 'alwaysSubmitOnEnter'
     // Prevent `items` from driving generic inference at the callsite
     | 'items'
     | 'itemToStringLabel'
