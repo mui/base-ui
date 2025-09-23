@@ -16,13 +16,13 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
-  FULLWIDTH_DECIMAL,
-  FULLWIDTH_GROUP,
+  getNumberLocaleDetails,
   PERMILLE,
   PERCENTAGES,
-  UNICODE_MINUS_SIGNS,
-  UNICODE_PLUS_SIGNS,
-  getNumberLocaleDetails,
+  SPACE_SEPARATOR_RE,
+  BASE_NON_NUMERIC_SYMBOLS,
+  MINUS_SIGNS_WITH_ASCII,
+  PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -95,18 +95,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const formatStyle = format?.style;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-
-  const BASE_NON_NUMERIC_SYMBOLS = [
-    '.',
-    ',',
-    FULLWIDTH_DECIMAL,
-    FULLWIDTH_GROUP,
-    '٫',
-    '٬',
-  ] as const;
-  const SPACE_SEPARATOR_RE = /\p{Zs}/u;
-  const PLUS_SIGNS_WITH_ASCII = ['+', ...UNICODE_PLUS_SIGNS];
-  const MINUS_SIGNS_WITH_ASCII = ['-', ...UNICODE_MINUS_SIGNS];
 
   const id = useBaseUiId(idProp);
 
@@ -618,9 +606,12 @@ export namespace NumberFieldRoot {
      */
     onValueChange?: (value: number | null, eventDetails: ChangeEventDetails) => void;
     /**
-     * Callback function that is fired when the value is committed. It runs later than `onValueChange`, when:
+     * Callback function that is fired when the value is committed.
+     * It runs later than `onValueChange`, when:
      * - The input is blurred after typing a value.
      * - The pointer is released after scrubbing or pressing the increment/decrement buttons.
+     *
+     * It runs simultaneously with `onValueChange` when interacting with the keyboard.
      *
      * **Warning**: This is a generic event not a change event.
      */

@@ -105,7 +105,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const ariaLabelledby = ariaLabelledByProp ?? labelId;
   const disabled = fieldDisabled || disabledProp;
-  const name = fieldName || nameProp;
+  const name = fieldName ?? nameProp;
 
   // The internal value is potentially unsorted, e.g. to support frozen arrays
   // https://github.com/mui/material-ui/pull/28472

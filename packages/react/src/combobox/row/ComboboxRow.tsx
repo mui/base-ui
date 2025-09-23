@@ -6,7 +6,7 @@ import { ComboboxRowContext } from './ComboboxRowContext';
 
 /**
  * Displays a single row of items in a grid list.
- * Specify `cols` on the root component to indicate the number of columns.
+ * Enable `grid` on the root component to turn the listbox into a grid.
  * Renders a `<div>` element.
  */
 export const ComboboxRow = React.forwardRef(function ComboboxRow(
