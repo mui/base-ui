@@ -27,29 +27,27 @@ export const ToastContent = React.forwardRef(function ToastContent(
       return undefined;
     }
 
-    function updateHeight() {
-      recalculateHeight();
-    }
-
-    updateHeight();
+    recalculateHeight();
 
     if (typeof ResizeObserver !== 'function') {
       return undefined;
     }
 
-    const resizeObserver = new ResizeObserver(updateHeight);
+    const resizeObserver = new ResizeObserver(recalculateHeight);
     resizeObserver.observe(node);
     return () => {
       resizeObserver.disconnect();
     };
   }, [recalculateHeight]);
 
+  const behind = index > 0;
+
   const state: ToastContent.State = React.useMemo(
     () => ({
       expanded,
-      behind: index > 0,
+      behind,
     }),
-    [expanded, index],
+    [expanded, behind],
   );
 
   const element = useRenderElement('div', componentProps, {
