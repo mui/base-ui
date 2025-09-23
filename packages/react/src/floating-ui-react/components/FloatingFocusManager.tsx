@@ -37,6 +37,7 @@ import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
+import { resolveRef } from '../../utils/resolveRef';
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
   const win = ownerWindow(event.target);
@@ -643,10 +644,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       let elToFocus: FocusableElement | null | undefined;
       if (resolvedInitialFocus === true || resolvedInitialFocus === null) {
         elToFocus = focusableElements[0] || floatingFocusElement;
-      } else if ('current' in resolvedInitialFocus) {
-        elToFocus = resolvedInitialFocus.current;
       } else {
-        elToFocus = resolvedInitialFocus;
+        resolveRef(resolvedInitialFocus);
       }
       elToFocus = elToFocus || focusableElements[0] || floatingFocusElement;
 
@@ -751,11 +750,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       const fallback = domReference || getPreviouslyFocusedElement() || fallbackEl;
 
-      if ('current' in resolvedReturnFocusValue) {
-        return resolvedReturnFocusValue.current || fallback;
-      }
-
-      return resolvedReturnFocusValue || fallback;
+      return resolveRef(resolvedReturnFocusValue) || fallback;
     }
 
     return () => {
@@ -917,14 +912,4 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       )}
     </React.Fragment>
   );
-}
-
-function resolveRef<T extends HTMLElement>(
-  ref: T | React.RefObject<T | null> | null | undefined,
-): T | null | undefined {
-  if (ref == null) {
-    return ref;
-  }
-
-  return 'current' in ref ? ref.current : ref;
 }

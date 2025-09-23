@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { resolveRef } from './resolveRef';
 
 /**
  * Executes a function once all animations have finished on the provided element.
@@ -34,19 +35,9 @@ export function useAnimationsFinished(
     ) => {
       frame.cancel();
 
-      if (elementOrRef == null) {
+      const element = resolveRef(elementOrRef);
+      if (element == null) {
         return;
-      }
-
-      let element: HTMLElement;
-      if ('current' in elementOrRef) {
-        if (elementOrRef.current == null) {
-          return;
-        }
-
-        element = elementOrRef.current;
-      } else {
-        element = elementOrRef;
       }
 
       if (typeof element.getAnimations !== 'function' || globalThis.BASE_UI_ANIMATIONS_DISABLED) {
