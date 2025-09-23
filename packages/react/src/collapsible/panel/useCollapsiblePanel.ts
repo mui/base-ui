@@ -38,7 +38,6 @@ export function useCollapsiblePanel(
     width,
   } = parameters;
 
-  const computedStylesRef = React.useRef<CSSStyleDeclaration>(null);
   const isBeforeMatchRef = React.useRef(false);
   const latestAnimationNameRef = React.useRef<string>(null);
   const shouldCancelInitialOpenAnimationRef = React.useRef(open);
@@ -70,7 +69,6 @@ export function useCollapsiblePanel(
     }
     if (animationTypeRef.current == null || transitionDimensionRef.current == null) {
       const panelStyles = getComputedStyle(element);
-      computedStylesRef.current = panelStyles;
 
       const hasAnimation = panelStyles.animationName !== 'none' && panelStyles.animationName !== '';
       const hasTransition =
@@ -121,11 +119,7 @@ export function useCollapsiblePanel(
      * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
      * https://github.com/tailwindlabs/tailwindcss/blob/cd154a4f471e7a63cc27cad15dada650de89d52b/packages/tailwindcss/preflight.css#L320-L326
      */
-    element.style.setProperty(
-      'display',
-      computedStylesRef.current?.display ?? 'block',
-      'important',
-    );
+    element.style.setProperty('display', getComputedStyle(element).display || 'block', 'important');
 
     if (height === undefined || width === undefined) {
       setDimensions({ height: element.scrollHeight, width: element.scrollWidth });
@@ -181,12 +175,15 @@ export function useCollapsiblePanel(
     }
 
     if (open) {
+      const originalStyles = {
+        'justify-content': panel.style.justifyContent,
+        'align-items': panel.style.alignItems,
+      };
+
       /* opening */
-      panel.style.setProperty(
-        'display',
-        computedStylesRef.current?.display ?? 'block',
-        'important',
-      );
+      panel.style.setProperty('display', getComputedStyle(panel).display || 'block', 'important');
+      panel.style.setProperty('justify-content', 'unset', 'important');
+      panel.style.setProperty('align-items', 'unset', 'important');
 
       /**
        * When `keepMounted={false}` and the panel is initially closed, the very
@@ -203,6 +200,13 @@ export function useCollapsiblePanel(
 
       resizeFrame = AnimationFrame.request(() => {
         panel.style.removeProperty('display');
+        Object.entries(originalStyles).forEach(([key, value]) => {
+          if (value === '') {
+            panel.style.removeProperty(key);
+          } else {
+            panel.style.setProperty(key, value);
+          }
+        });
       });
     } else {
       /* closing */
