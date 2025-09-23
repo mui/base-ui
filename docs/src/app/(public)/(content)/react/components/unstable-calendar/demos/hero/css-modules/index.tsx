@@ -1,4 +1,3 @@
-'use client';
 import * as React from 'react';
 import { format } from 'date-fns/format';
 import { Calendar } from '@base-ui-components/react/calendar';
