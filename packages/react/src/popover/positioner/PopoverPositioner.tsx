@@ -57,6 +57,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const triggerElement = useStore(store, selectors.activeTriggerElement);
   const modal = useStore(store, selectors.modal);
   const positionerElement = useStore(store, selectors.positionerElement);
+  const instantType = useStore(store, selectors.instantType);
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
@@ -81,8 +82,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     collisionAvoidance,
     adaptiveOrigin,
   });
-
-  const [instant, setInstant] = React.useState(true);
 
   const defaultProps: HTMLProps = React.useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
@@ -124,18 +123,19 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       currentTriggerElement &&
       currentTriggerElement !== prevTriggerElement
     ) {
-      setInstant(false);
+      store.set('instantType', undefined);
       const ac = new AbortController();
       runOnceAnimationsFinish(() => {
-        setInstant(true);
+        store.set('instantType', 'trigger-change');
       }, ac.signal);
+
       return () => {
         ac.abort();
       };
     }
 
     return undefined;
-  }, [floatingRootContext?.elements.domReference, runOnceAnimationsFinish]);
+  }, [floatingRootContext?.elements.domReference, runOnceAnimationsFinish, store]);
 
   const state: PopoverPositioner.State = React.useMemo(
     () => ({
@@ -143,9 +143,9 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       side: positioner.side,
       align: positioner.align,
       anchorHidden: positioner.anchorHidden,
-      instant,
+      instant: instantType,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden, instant],
+    [open, positioner.side, positioner.align, positioner.anchorHidden, instantType],
   );
 
   const setPositionerElement = React.useCallback(
@@ -188,7 +188,7 @@ export namespace PopoverPositioner {
     /**
      * Whether CSS transitions should be disabled.
      */
-    instant: boolean;
+    instant: string | undefined;
   }
 
   export interface Props

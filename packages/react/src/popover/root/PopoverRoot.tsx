@@ -208,6 +208,8 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
     if (isKeyboardClick || isDismissClose) {
       store.set('instantType', isKeyboardClick ? 'click' : 'dismiss');
+    } else if (eventDetails.reason === 'focus-out') {
+      store.set('instantType', 'focus');
     } else {
       store.set('instantType', undefined);
     }
