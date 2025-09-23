@@ -160,8 +160,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   function handleMouseLeave() {
-    resumeTimers();
-    setHovering(false);
+    if (!toasts.some((toast) => toast.transitionStatus === 'ending')) {
+      resumeTimers();
+      setHovering(false);
+    }
   }
 
   function handleFocus() {
