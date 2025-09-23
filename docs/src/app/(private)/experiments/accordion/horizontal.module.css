@@ -35,11 +35,9 @@
   &:has([data-value='one']) {
     background-color: var(--color-gray-100);
   }
-
   &:has([data-value='two']) {
     background-color: var(--color-gray-200);
   }
-
   &:has([data-value='three']) {
     background-color: var(--color-gray-300);
   }

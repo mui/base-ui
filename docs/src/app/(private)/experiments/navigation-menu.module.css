@@ -181,7 +181,6 @@
     &[data-activation-direction='left'] {
       transform: translateX(-50%);
     }
-
     &[data-activation-direction='right'] {
       transform: translateX(50%);
     }
@@ -191,7 +190,6 @@
     &[data-activation-direction='left'] {
       transform: translateX(50%);
     }
-
     &[data-activation-direction='right'] {
       transform: translateX(-50%);
     }
