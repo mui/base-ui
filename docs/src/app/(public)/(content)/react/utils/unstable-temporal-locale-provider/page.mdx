@@ -27,24 +27,10 @@ import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-
 
 ## Examples
 
-### Use without explicit locale
+### Nesting locales
 
-If you don't provide a locale, the provider will use the default `en-US` locale.
+The `TemporalLocaleProvider` can be nested to change the locale for a part of the application.
 
-```jsx title="Default locale"
-import * as React from 'react';
-import { Calendar } from '@base-ui-components/react/calendar';
-import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui-components/react/temporal-locale-provider';
+This could be useful when you need some temporal components in your application to use a different locale than the rest of your app.
 
-function App() {
-  const [value, setValue] = (React.useState < Date) | (null > null);
-
-  return (
-    <TemporalLocaleProvider>
-      <Calendar.Root value={value} onChange={setValue} minDate={new Date('2025-01-01')}>
-        {/** Content of the calendar */}
-      </Calendar.Root>
-    </TemporalLocaleProvider>
-  );
-}
-```
+<Demo path="./demos/nesting" />
