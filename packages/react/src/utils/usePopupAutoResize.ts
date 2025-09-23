@@ -64,8 +64,8 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
 
     // Initial render (for each time the popup opens).
     if (isInitialRender.current || previousDimensionsRef.current === null) {
-      positionerElement.style.setProperty('--positioner-width', 'auto');
-      positionerElement.style.setProperty('--positioner-height', 'auto');
+      positionerElement.style.setProperty('--positioner-width', 'max-content');
+      positionerElement.style.setProperty('--positioner-height', 'max-content');
 
       const dimensions = getCssDimensions(popupElement);
 
@@ -85,10 +85,10 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     // Subsequent renders while open (when `content` changes).
     popupElement.style.setProperty('--popup-width', 'auto');
     popupElement.style.setProperty('--popup-height', 'auto');
-    positionerElement.style.removeProperty('--positioner-width');
-    positionerElement.style.removeProperty('--positioner-height');
+    positionerElement.style.setProperty('--positioner-width', 'max-content');
+    positionerElement.style.setProperty('--positioner-height', 'max-content');
 
-    const newDimensions = getCssDimensions(positionerElement);
+    const newDimensions = getCssDimensions(popupElement);
 
     popupElement.style.setProperty('--popup-width', `${previousDimensionsRef.current.width}px`);
     popupElement.style.setProperty('--popup-height', `${previousDimensionsRef.current.height}px`);
