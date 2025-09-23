@@ -21,7 +21,7 @@ import { Calendar } from '@base-ui-components/react/calendar';
   <Calendar.SetMonth />
   <Calendar.DayGrid>
     <Calendar.DayGridHeader>
-      <Calendar.DayGridHeaderRow className={styles.DayGridHeaderRow}>
+      <Calendar.DayGridHeaderRow>
         <Calendar.DayGridHeaderCell />
       </Calendar.DayGridHeaderRow>
     </Calendar.DayGridHeader>
@@ -42,3 +42,11 @@ import { Calendar } from '@base-ui-components/react/calendar';
   component="Calendar"
   parts="Root, DayGrid, DayGridHeader, DayGridHeaderCell, DayGridBody, DayGridRow, DayGridCell, DayButton, SetMonth, SetPreviousMonth, SetNextMonth"
 />
+
+## Examples
+
+### Validation
+
+You can use the `minDate` and `maxDate` props to limit the range of selectable dates.
+
+<Demo path="./demos/validation" />

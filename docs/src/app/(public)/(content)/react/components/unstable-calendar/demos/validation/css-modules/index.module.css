@@ -1,0 +1,9 @@
+@import '../../calendar.style.css';
+
+.Wrapper {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 24px;
+  justify-content: center;
+}
+

@@ -1,14 +1,22 @@
-'use client';
 import * as React from 'react';
 import { format } from 'date-fns/format';
 import { Calendar } from '@base-ui-components/react/calendar';
-import styles from './calendar.module.css';
+import styles from './index.module.css';
 
-export default function CalendarMinDate() {
-  const today = React.useMemo(() => new Date(), []);
+const today = new Date();
 
+export default function MinMaxDateCalendars() {
   return (
-    <Calendar.Root className={styles.Root} maxDate={today}>
+    <div className={styles.Wrapper}>
+      <ValidationCalendar minDate={today} />
+      <ValidationCalendar maxDate={today} />
+    </div>
+  );
+}
+
+function ValidationCalendar(props: Calendar.Root.Props) {
+  return (
+    <Calendar.Root className={styles.Root} {...props}>
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
