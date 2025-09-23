@@ -175,15 +175,18 @@ export function useCollapsiblePanel(
     }
 
     if (open) {
-      const originalStyles = {
+      const originalLayoutStyles = {
         'justify-content': panel.style.justifyContent,
         'align-items': panel.style.alignItems,
+        'align-content': panel.style.alignContent,
+        'justify-items': panel.style.justifyItems,
       };
 
       /* opening */
       panel.style.setProperty('display', getComputedStyle(panel).display || 'block', 'important');
-      panel.style.setProperty('justify-content', 'unset', 'important');
-      panel.style.setProperty('align-items', 'unset', 'important');
+      Object.keys(originalLayoutStyles).forEach((key) => {
+        panel.style.setProperty(key, 'initial', 'important');
+      });
 
       /**
        * When `keepMounted={false}` and the panel is initially closed, the very
@@ -200,7 +203,7 @@ export function useCollapsiblePanel(
 
       resizeFrame = AnimationFrame.request(() => {
         panel.style.removeProperty('display');
-        Object.entries(originalStyles).forEach(([key, value]) => {
+        Object.entries(originalLayoutStyles).forEach(([key, value]) => {
           if (value === '') {
             panel.style.removeProperty(key);
           } else {
