@@ -120,6 +120,10 @@
   justify-content: center;
 }
 
+.DayGridCell {
+  padding: 0;
+}
+
 .DayWeekNumber {
   height: 36px;
   width: 36px;
