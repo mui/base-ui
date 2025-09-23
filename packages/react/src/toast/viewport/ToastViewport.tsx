@@ -42,6 +42,12 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   const focusedRef = useLatestRef(focused);
   const numToasts = toasts.length;
   const frontmostHeight = toasts[0]?.height ?? 0;
+  const markedReadyForMouseLeave = React.useRef(false);
+
+  const hasTransitioningToasts = React.useMemo(
+    () => toasts.some((toast) => toast.transitionStatus === 'ending'),
+    [toasts],
+  );
 
   // Listen globally for F6 so we can force-focus the viewport.
   React.useEffect(() => {
@@ -154,13 +160,31 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
   }
 
+  React.useEffect(() => {
+    if (!windowFocusedRef.current || hasTransitioningToasts || !markedReadyForMouseLeave.current) {
+      return;
+    }
+
+    // Once transitions have finished, see if a mouseleave was already triggered
+    // but blocked from taking effect. If so, we can now safely resume timers and
+    // collapse the viewport.
+    resumeTimers();
+    setHovering(false);
+    markedReadyForMouseLeave.current = false;
+  }, [hasTransitioningToasts, resumeTimers, setHovering, windowFocusedRef]);
+
   function handleMouseEnter() {
     pauseTimers();
     setHovering(true);
+    markedReadyForMouseLeave.current = false;
   }
 
   function handleMouseLeave() {
-    if (!toasts.some((toast) => toast.transitionStatus === 'ending')) {
+    if (toasts.some((toast) => toast.transitionStatus === 'ending')) {
+      // When swiping to dismiss, wait until the transitions have settled
+      // to avoid the viewport collapsing while the user is interacting.
+      markedReadyForMouseLeave.current = true;
+    } else {
       resumeTimers();
       setHovering(false);
     }
