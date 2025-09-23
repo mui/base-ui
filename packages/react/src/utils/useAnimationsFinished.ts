@@ -80,7 +80,6 @@ export function useAnimationsFinished(
                   element
 
                     .getAnimations()
-
                     .some((anim) => anim.pending || anim.playState !== 'finished')
                 ) {
                   // Sometimes animations can be aborted because a property they depend on changes while the animation plays.
