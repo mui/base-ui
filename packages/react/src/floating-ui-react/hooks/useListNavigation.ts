@@ -383,7 +383,6 @@ export function useListNavigation(
       // we store and call the previous function.
       indexRef.current = -1;
       previousOnNavigateRef.current();
-      forceSyncFocusRef.current = false;
     }
   }, [enabled, open, elements.floating, selectedIndex, onNavigate]);
 
@@ -394,6 +393,7 @@ export function useListNavigation(
       return;
     }
     if (!open) {
+      forceSyncFocusRef.current = false;
       return;
     }
     if (!elements.floating) {
