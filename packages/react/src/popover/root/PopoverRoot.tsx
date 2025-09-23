@@ -36,6 +36,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     modal = false,
     handle,
     triggerId: triggerIdProp,
+    defaultTriggerId: defaultTriggerIdProp = null,
   } = props;
 
   const backdropRef = React.useRef<HTMLDivElement | null>(null);
@@ -54,7 +55,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const [triggerId, setTriggerId] = useControlled<string | null | undefined>({
     controlled: triggerIdProp,
-    default: undefined,
+    default: defaultTriggerIdProp,
     name: 'Popover',
     state: 'triggerId',
   });
@@ -155,11 +156,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       preventUnmountingRef.current = true;
     };
 
-    onOpenChange?.(
-      nextOpen,
-      eventDetails as PopoverRoot.ChangeEventDetails,
-      nextOpen ? (eventDetails.trigger?.id ?? null) : null,
-    );
+    onOpenChange?.(nextOpen, eventDetails as PopoverRoot.ChangeEventDetails);
 
     if (eventDetails.isCanceled) {
       return;
@@ -347,11 +344,7 @@ export namespace PopoverRoot {
     /**
      * Event handler called when the popover is opened or closed.
      */
-    onOpenChange?: (
-      open: boolean,
-      eventDetails: ChangeEventDetails,
-      activeTriggerId: string | null,
-    ) => void;
+    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.
      */
@@ -362,6 +355,11 @@ export namespace PopoverRoot {
      * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
      */
     triggerId?: string | null;
+    /**
+     * ID of the trigger that the popover is associated with.
+     * This is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.
+     */
+    defaultTriggerId?: string | null;
     /**
      * A ref to imperative actions.
      * - `unmount`: When specified, the popover will not be unmounted when closed.

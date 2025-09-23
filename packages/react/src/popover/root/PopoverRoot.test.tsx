@@ -1218,8 +1218,8 @@ describe('<Popover.Root />', () => {
             <Popover.Root
               open={open}
               triggerId={activeTrigger}
-              onOpenChange={(nextOpen, details, triggerId) => {
-                setActiveTrigger(triggerId);
+              onOpenChange={(nextOpen, details) => {
+                setActiveTrigger(details.trigger?.id ?? null);
                 setOpen(nextOpen);
               }}
             >
@@ -1270,6 +1270,33 @@ describe('<Popover.Root />', () => {
       expect(screen.getByTestId('content').textContent).to.equal('2');
       await user.click(screen.getByRole('button', { name: 'Close' }));
       expect(screen.queryByTestId('content')).to.equal(null);
+    });
+
+    it('allows setting an initially open popover', async () => {
+      const testPopover = Popover.createHandle<number>();
+      await render(
+        <Popover.Root handle={testPopover} defaultOpen defaultTriggerId="trigger-2">
+          {({ payload }: NumberPayload) => (
+            <React.Fragment>
+              <Popover.Trigger handle={testPopover} payload={1} id="trigger-1">
+                Trigger 1
+              </Popover.Trigger>
+              <Popover.Trigger handle={testPopover} payload={2} id="trigger-2">
+                Trigger 2
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">
+                    <span>{payload}</span>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </React.Fragment>
+          )}
+        </Popover.Root>,
+      );
+
+      expect(screen.getByTestId('popup').textContent).to.equal('2');
     });
   });
 
@@ -1408,8 +1435,8 @@ describe('<Popover.Root />', () => {
 
             <Popover.Root
               open={open}
-              onOpenChange={(nextOpen, details, trigger) => {
-                setActiveTrigger(trigger);
+              onOpenChange={(nextOpen, details) => {
+                setActiveTrigger(details.trigger?.id ?? null);
                 setOpen(nextOpen);
               }}
               triggerId={activeTrigger}
@@ -1471,6 +1498,34 @@ describe('<Popover.Root />', () => {
 
       await user.click(screen.getByRole('button', { name: 'Close' }));
       expect(screen.queryByTestId('content')).to.equal(null);
+    });
+
+    it('allows setting an initially open popover', async () => {
+      const testPopover = Popover.createHandle<number>();
+      await render(
+        <React.Fragment>
+          <Popover.Trigger handle={testPopover} payload={1} id="trigger-1">
+            Trigger 1
+          </Popover.Trigger>
+          <Popover.Trigger handle={testPopover} payload={2} id="trigger-2">
+            Trigger 2
+          </Popover.Trigger>
+
+          <Popover.Root handle={testPopover} defaultOpen defaultTriggerId="trigger-2">
+            {({ payload }: NumberPayload) => (
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">
+                    <span>{payload}</span>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            )}
+          </Popover.Root>
+        </React.Fragment>,
+      );
+
+      expect(screen.getByTestId('popup').textContent).to.equal('2');
     });
   });
 });
