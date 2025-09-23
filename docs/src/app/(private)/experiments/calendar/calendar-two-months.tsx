@@ -3,7 +3,6 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { format } from 'date-fns/format';
 import { addMonths } from 'date-fns/addMonths';
-import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui-components/react/temporal-locale-provider';
 import { Calendar } from '@base-ui-components/react/calendar';
 import { Separator } from '@base-ui-components/react/separator';
 import styles from './calendar.module.css';
@@ -62,15 +61,13 @@ function DayGrid(props: { offset: 0 | 1 }) {
 
 export default function CalendarTwoMonths() {
   return (
-    <TemporalLocaleProvider>
-      <Calendar.Root monthPageSize={2} className={clsx(styles.Root, styles.RootWithTwoPanels)}>
-        <Header />
-        <div className={styles.RootWithTwoPanelsContent}>
-          <DayGrid offset={0} />
-          <Separator className={styles.DayGridSeparator} />
-          <DayGrid offset={1} />
-        </div>
-      </Calendar.Root>
-    </TemporalLocaleProvider>
+    <Calendar.Root monthPageSize={2} className={clsx(styles.Root, styles.RootWithTwoPanels)}>
+      <Header />
+      <div className={styles.RootWithTwoPanelsContent}>
+        <DayGrid offset={0} />
+        <Separator className={styles.DayGridSeparator} />
+        <DayGrid offset={1} />
+      </div>
+    </Calendar.Root>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { TemporalAdapter } from '../types/temporal-adapter';
+import { TemporalAdapterDateFns } from '../temporal-adapter-date-fns/TemporalAdapterDateFns';
 
 export type TemporalAdapterContext = {
   adapter: TemporalAdapter;
@@ -9,9 +10,9 @@ export type TemporalAdapterContext = {
 /**
  * @internal
  */
-export const TemporalAdapterContext = React.createContext<TemporalAdapterContext | undefined>(
-  undefined,
-);
+export const TemporalAdapterContext = React.createContext<TemporalAdapterContext | undefined>({
+  adapter: new TemporalAdapterDateFns(),
+});
 
 export function useTemporalAdapter() {
   const context = React.useContext(TemporalAdapterContext);

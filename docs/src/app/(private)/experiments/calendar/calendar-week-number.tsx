@@ -5,7 +5,6 @@ import { format } from 'date-fns/format';
 import { startOfWeek } from 'date-fns/startOfWeek';
 import { startOfMonth } from 'date-fns/startOfMonth';
 import { getWeek } from 'date-fns/getWeek';
-import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui-components/react/temporal-locale-provider';
 import { Calendar } from '@base-ui-components/react/calendar';
 import { unstable_useDayList as useDayList } from '@base-ui-components/react/use-day-list';
 import { unstable_useWeekList as useWeekList } from '@base-ui-components/react/use-week-list';
@@ -82,9 +81,5 @@ function MyCalendar() {
 }
 
 export default function CalendarWeekNumber() {
-  return (
-    <TemporalLocaleProvider>
-      <MyCalendar />
-    </TemporalLocaleProvider>
-  );
+  return <MyCalendar />;
 }
