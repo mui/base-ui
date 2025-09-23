@@ -29,6 +29,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
     autoHighlight = false,
     itemToStringValue,
     items,
+    alwaysSubmitOnEnter = false,
     ...other
   } = props;
 
@@ -126,6 +127,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
       onInputValueChange={handleValueChange}
       onItemHighlighted={handleItemHighlighted}
       autoComplete={mode}
+      alwaysSubmitOnEnter={alwaysSubmitOnEnter}
     />
   );
 }
@@ -139,7 +141,6 @@ export namespace AutocompleteRoot {
       | 'defaultSelectedValue'
       | 'onSelectedValueChange'
       | 'fillInputOnItemPress'
-      | 'clearInputOnCloseComplete'
       | 'itemToStringValue'
       // Different names
       | 'inputValue' // value

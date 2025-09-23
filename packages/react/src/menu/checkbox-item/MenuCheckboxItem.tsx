@@ -189,8 +189,7 @@ export namespace MenuCheckboxItem {
     /**
      * Event handler called when the checkbox item is ticked or unticked.
      */
-    onCheckedChange?: (checked: boolean, eventDetails: MenuRoot.ChangeEventDetails) => void;
-    children?: React.ReactNode;
+    onCheckedChange?: (checked: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * The click handler for the menu item.
      */
@@ -214,4 +213,7 @@ export namespace MenuCheckboxItem {
      */
     closeOnClick?: boolean;
   }
+
+  export type ChangeEventReason = MenuRoot.ChangeEventReason;
+  export type ChangeEventDetails = MenuRoot.ChangeEventDetails;
 }

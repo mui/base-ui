@@ -1289,12 +1289,29 @@ describe('<Combobox.Root />', () => {
 
       expect(screen.getByRole('combobox')).to.have.value('');
     });
+
+    it('does not set input value for input-inside-popup pattern', async () => {
+      await render(
+        <Combobox.Root defaultOpen defaultValue="apple">
+          <Combobox.Trigger>Trigger</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).to.have.value('');
+    });
   });
 
-  describe('prop: cols', () => {
-    it('sets grid roles when cols > 1 and rows are used', async () => {
+  describe('prop: grid', () => {
+    it('sets grid roles when grid is enabled and rows are used', async () => {
       await render(
-        <Combobox.Root cols={3} defaultOpen>
+        <Combobox.Root grid defaultOpen>
           <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -1323,10 +1340,10 @@ describe('<Combobox.Root />', () => {
       expect(cells).to.have.length(6);
     });
 
-    it('Arrow keys navigate by columns across the grid', async () => {
+    it('arrow keys navigate across rows and columns in grid mode', async () => {
       const onItemHighlighted = spy();
       const { user } = await render(
-        <Combobox.Root cols={3} onItemHighlighted={onItemHighlighted} defaultOpen>
+        <Combobox.Root grid onItemHighlighted={onItemHighlighted} defaultOpen>
           <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -1370,6 +1387,138 @@ describe('<Combobox.Root />', () => {
 
       await user.keyboard('{ArrowUp}');
       await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('2'));
+    });
+
+    it('supports uneven rows navigation', async () => {
+      const onItemHighlighted = spy();
+      const { user } = await render(
+        <Combobox.Root grid onItemHighlighted={onItemHighlighted} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Row>
+                    <Combobox.Item value="1">1</Combobox.Item>
+                    <Combobox.Item value="2">2</Combobox.Item>
+                    <Combobox.Item value="3">3</Combobox.Item>
+                  </Combobox.Row>
+                  <Combobox.Row>
+                    <Combobox.Item value="4">4</Combobox.Item>
+                    <Combobox.Item value="5">5</Combobox.Item>
+                  </Combobox.Row>
+                  <Combobox.Row>
+                    <Combobox.Item value="6">6</Combobox.Item>
+                    <Combobox.Item value="7">7</Combobox.Item>
+                    <Combobox.Item value="8">8</Combobox.Item>
+                    <Combobox.Item value="9">9</Combobox.Item>
+                    <Combobox.Item value="10">10</Combobox.Item>
+                  </Combobox.Row>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('grid')).not.to.equal(null));
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('1'));
+
+      await user.keyboard('{ArrowRight}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('2'));
+
+      await user.keyboard('{ArrowRight}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('3'));
+
+      // Down from last col (3) to shorter row should clamp to last item (5)
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('5'));
+
+      // Up from clamped item (5) should return to same column in previous row (2)
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('2'));
+
+      // From 2, move down to 5 (same column), then down to 7 in the longer row
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('5'));
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('7'));
+
+      // Left within last row goes to 6, up to first col in previous row (4)
+      await user.keyboard('{ArrowLeft}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('6'));
+
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('4'));
+    });
+
+    it('supports uneven rows navigation within groups', async () => {
+      const onItemHighlighted = spy();
+      const { user } = await render(
+        <Combobox.Root grid onItemHighlighted={onItemHighlighted} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Group>
+                    <Combobox.Row>
+                      <Combobox.Item value="1">1</Combobox.Item>
+                      <Combobox.Item value="2">2</Combobox.Item>
+                      <Combobox.Item value="3">3</Combobox.Item>
+                    </Combobox.Row>
+                  </Combobox.Group>
+                  <Combobox.Group>
+                    <Combobox.Row>
+                      <Combobox.Item value="4">4</Combobox.Item>
+                      <Combobox.Item value="5">5</Combobox.Item>
+                    </Combobox.Row>
+                  </Combobox.Group>
+                  <Combobox.Group>
+                    <Combobox.Row>
+                      <Combobox.Item value="6">6</Combobox.Item>
+                      <Combobox.Item value="7">7</Combobox.Item>
+                      <Combobox.Item value="8">8</Combobox.Item>
+                      <Combobox.Item value="9">9</Combobox.Item>
+                      <Combobox.Item value="10">10</Combobox.Item>
+                    </Combobox.Row>
+                  </Combobox.Group>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('grid')).not.to.equal(null));
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('1'));
+
+      await user.keyboard('{ArrowRight}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('2'));
+
+      await user.keyboard('{ArrowRight}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('3'));
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('5'));
+
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('2'));
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('5'));
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('7'));
     });
   });
 
@@ -1426,6 +1575,43 @@ describe('<Combobox.Root />', () => {
       await flushMicrotasks();
 
       // After selecting while filtering, uncontrolled input clears
+      expect(input).to.have.value('');
+    });
+
+    it('does not close popup when filtering with input inside popup in multiple mode', async () => {
+      const items = ['apple', 'apricot', 'banana'];
+      const { user } = await render(
+        <Combobox.Root multiple items={items}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+
+      const input = await screen.findByTestId('input');
+      await user.type(input, 'app');
+      await user.click(screen.getByRole('option', { name: 'apple' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
       expect(input).to.have.value('');
     });
 
@@ -2511,6 +2697,86 @@ describe('<Combobox.Root />', () => {
 
       expect(screen.queryByTestId('error')).to.equal(null);
       expect(input).not.to.have.attribute('aria-invalid');
+    });
+
+    it('submits on Enter when no item is highlighted (does not prevent)', async () => {
+      let submittedCalls = 0;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        submittedCalls += 1;
+      };
+
+      const { user } = await render(
+        <Form onSubmit={handleSubmit}>
+          <Field.Root name="q">
+            <Combobox.Root items={['apple', 'banana']} openOnInputClick>
+              <Combobox.Input />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+      // No navigation, so nothing highlighted
+      await user.keyboard('{Enter}');
+
+      expect(submittedCalls).to.equal(1);
+    });
+
+    it('prevents submit on Enter when an item is highlighted', async () => {
+      let submittedCalls = 0;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        submittedCalls += 1;
+      };
+
+      const { user } = await render(
+        <Form onSubmit={handleSubmit}>
+          <Field.Root name="q">
+            <Combobox.Root items={['alpha', 'beta']} openOnInputClick>
+              <Combobox.Input />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      expect(submittedCalls).to.equal(0);
     });
   });
 

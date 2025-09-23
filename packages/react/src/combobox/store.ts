@@ -75,7 +75,7 @@ export type State = {
   readOnly: boolean;
   required: boolean;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
-  cols: number;
+  grid: boolean;
   isGrouped: boolean;
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
@@ -83,6 +83,8 @@ export type State = {
   itemToStringLabel?: (item: any) => string;
   modal: boolean;
   autoHighlight: boolean;
+  alwaysSubmitOnEnter: boolean;
+  hasInputValue: boolean;
 };
 
 export type ComboboxStore = Store<State>;
@@ -145,7 +147,7 @@ export const selectors = {
   readOnly: createSelector((state: State) => state.readOnly),
   required: createSelector((state: State) => state.required),
   fieldControlValidation: createSelector((state: State) => state.fieldControlValidation),
-  cols: createSelector((state: State) => state.cols),
+  grid: createSelector((state: State) => state.grid),
   isGrouped: createSelector((state: State) => state.isGrouped),
   virtualized: createSelector((state: State) => state.virtualized),
   onOpenChangeComplete: createSelector((state: State) => state.onOpenChangeComplete),
@@ -153,4 +155,5 @@ export const selectors = {
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
+  alwaysSubmitOnEnter: createSelector((state: State) => state.alwaysSubmitOnEnter),
 };
