@@ -158,6 +158,16 @@
   overflow-y: auto;
   scroll-padding-block: 0.5rem;
   overscroll-behavior: contain;
+  transition:
+    opacity 0.1s,
+    transform 0.1s;
+  transform-origin: var(--transform-origin);
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.95);
+  }
 
   @media (prefers-color-scheme: light) {
     outline: 1px solid var(--color-gray-200);

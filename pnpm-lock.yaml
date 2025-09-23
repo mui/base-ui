@@ -46,9 +46,6 @@ importers:
       '@tailwindcss/postcss':
         specifier: 4.1.13
         version: 4.1.13
-      '@types/lodash':
-        specifier: ^4.17.20
-        version: 4.17.20
       '@types/node':
         specifier: ^22.18.3
         version: 22.18.3
@@ -106,6 +103,9 @@ importers:
       docs:
         specifier: workspace:^
         version: link:docs
+      es-toolkit:
+        specifier: ^1.39.10
+        version: 1.39.10
       eslint:
         specifier: ^9.35.0
         version: 9.35.0(jiti@2.5.1)
@@ -116,11 +116,8 @@ importers:
         specifier: ^14.1.0
         version: 14.1.0
       lerna:
-        specifier: ^8.2.3
-        version: 8.2.3(@types/node@22.18.3)(babel-plugin-macros@3.1.0)(encoding@0.1.13)
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
+        specifier: ^8.2.4
+        version: 8.2.4(@types/node@22.18.3)(babel-plugin-macros@3.1.0)(encoding@0.1.13)
       markdownlint-cli2:
         specifier: ^0.18.1
         version: 0.18.1
@@ -238,6 +235,9 @@ importers:
       cross-env:
         specifier: ^10.0.0
         version: 10.0.0
+      es-toolkit:
+        specifier: ^1.39.10
+        version: 1.39.10
       estree-util-value-to-estree:
         specifier: ^3.4.0
         version: 3.4.0
@@ -253,9 +253,6 @@ importers:
       hast-util-to-string:
         specifier: ^3.0.1
         version: 3.0.1
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
       lz-string:
         specifier: ^1.5.0
         version: 1.5.0
@@ -598,15 +595,12 @@ importers:
 
   scripts/api-docs-builder:
     dependencies:
-      '@types/lodash':
-        specifier: ^4.17.20
-        version: 4.17.20
       '@types/yargs':
         specifier: ^17.0.33
         version: 17.0.33
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
+      es-toolkit:
+        specifier: ^1.39.10
+        version: 1.39.10
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -658,12 +652,12 @@ importers:
       docs:
         specifier: workspace:^
         version: link:../docs
+      es-toolkit:
+        specifier: ^1.39.10
+        version: 1.39.10
       is-wsl:
         specifier: ^3.1.0
         version: 3.1.0
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
       react:
         specifier: ^19.1.1
         version: 19.1.1
@@ -2113,8 +2107,8 @@ packages:
   '@keyv/serialize@1.1.0':
     resolution: {integrity: sha512-RlDgexML7Z63Q8BSaqhXdCYNBy/JQnqYIwxofUrNLGCblOMHp+xux2Q8nLMLlPpgHQPoU0Do8Z6btCpRBEqZ8g==}
 
-  '@lerna/create@8.2.3':
-    resolution: {integrity: sha512-f+68+iojcQ0tZRMfCgQyJdsdz+YPu3/d+0Zo1RJz92bgBxTCiEU+dHACVq1n3sEjm/YWPnFGdag8U5EYYmP3WA==}
+  '@lerna/create@8.2.4':
+    resolution: {integrity: sha512-A8AlzetnS2WIuhijdAzKUyFpR5YbLLfV3luQ4lzBgIBgRfuoBDZeF+RSZPhra+7A6/zTUlrbhKZIOi/MNhqgvQ==}
     engines: {node: '>=18.0.0'}
 
   '@loaderkit/resolve@1.0.4':
@@ -4106,9 +4100,6 @@ packages:
   '@types/katex@0.16.7':
     resolution: {integrity: sha512-HMwFiRujE5PjrgwHQ25+bsLJgowjGjm5Z8FVSf0N6PwgJrwxH0QxzHYDcKsTfV3wva0vzrpqMTJS2jXPr5BMEQ==}
 
-  '@types/lodash@4.17.20':
-    resolution: {integrity: sha512-H3MHACvFUEiujabxhaI/ImO6gUrd8oOurg7LQtS7mbwIXA/cUqWrvBsaeJ23aZEPk1TAYkurjfMbSELfoCXlGA==}
-
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
 
@@ -5805,6 +5796,9 @@ packages:
     resolution: {integrity: sha512-w+5mJ3GuFL+NjVtJlvydShqE1eN3h3PbI7/5LAsYJP/2qtuMXjfL2LpHSRqo4b4eSF5K/DH1JXKUAHSB2UW50g==}
     engines: {node: '>= 0.4'}
 
+  es-toolkit@1.39.10:
+    resolution: {integrity: sha512-E0iGnTtbDhkeczB0T+mxmoVlT4YNweEKBLq7oaU4p11mecdsZpNWOglI4895Vh4usbQ+LsJiuLuI2L0Vdmfm2w==}
+
   esast-util-from-estree@2.0.0:
     resolution: {integrity: sha512-4CyanoAudUSBAn5K13H4JhsMH6L9ZP7XbLVe/dKybkxMO7eDyLsT8UHl9TRNrU2Gr9nz+FovfSIjuXWJ81uVwQ==}
 
@@ -7228,8 +7222,8 @@ packages:
     resolution: {integrity: sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw==}
     engines: {node: '>= 0.6.3'}
 
-  lerna@8.2.3:
-    resolution: {integrity: sha512-rmuDU+92eWUnnyaPg3Ise339pTxF+r2hu8ky/soCfbGpUoW4kCwsDza3P/LtQJWrKwZWHcosEitfYvxGUWZ16A==}
+  lerna@8.2.4:
+    resolution: {integrity: sha512-0gaVWDIVT7fLfprfwpYcQajb7dBJv3EGavjG7zvJ+TmGx3/wovl5GklnSwM2/WeE0Z2wrIz7ndWhBcDUHVjOcQ==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -12328,7 +12322,7 @@ snapshots:
 
   '@keyv/serialize@1.1.0': {}
 
-  '@lerna/create@8.2.3(@types/node@22.18.3)(babel-plugin-macros@3.1.0)(encoding@0.1.13)(typescript@5.9.2)':
+  '@lerna/create@8.2.4(@types/node@22.18.3)(babel-plugin-macros@3.1.0)(encoding@0.1.13)(typescript@5.9.2)':
     dependencies:
       '@npmcli/arborist': 7.5.4
       '@npmcli/package-json': 5.2.0
@@ -12363,7 +12357,6 @@ snapshots:
       js-yaml: 4.1.0
       libnpmpublish: 9.0.9
       load-json-file: 6.2.0
-      lodash: 4.17.21
       make-dir: 4.0.0
       minimatch: 3.0.5
       multimatch: 5.0.0
@@ -14853,8 +14846,6 @@ snapshots:
 
   '@types/katex@0.16.7': {}
 
-  '@types/lodash@4.17.20': {}
-
   '@types/mdast@4.0.4':
     dependencies:
       '@types/unist': 3.0.3
@@ -16732,6 +16723,8 @@ snapshots:
       is-date-object: 1.1.0
       is-symbol: 1.1.1
 
+  es-toolkit@1.39.10: {}
+
   esast-util-from-estree@2.0.0:
     dependencies:
       '@types/estree-jsx': 1.0.5
@@ -18393,9 +18386,9 @@ snapshots:
     dependencies:
       readable-stream: 2.3.8
 
-  lerna@8.2.3(@types/node@22.18.3)(babel-plugin-macros@3.1.0)(encoding@0.1.13):
+  lerna@8.2.4(@types/node@22.18.3)(babel-plugin-macros@3.1.0)(encoding@0.1.13):
     dependencies:
-      '@lerna/create': 8.2.3(@types/node@22.18.3)(babel-plugin-macros@3.1.0)(encoding@0.1.13)(typescript@5.9.2)
+      '@lerna/create': 8.2.4(@types/node@22.18.3)(babel-plugin-macros@3.1.0)(encoding@0.1.13)(typescript@5.9.2)
       '@npmcli/arborist': 7.5.4
       '@npmcli/package-json': 5.2.0
       '@npmcli/run-script': 8.1.0
@@ -18435,7 +18428,6 @@ snapshots:
       libnpmaccess: 8.0.6
       libnpmpublish: 9.0.9
       load-json-file: 6.2.0
-      lodash: 4.17.21
       make-dir: 4.0.0
       minimatch: 3.0.5
       multimatch: 5.0.0
