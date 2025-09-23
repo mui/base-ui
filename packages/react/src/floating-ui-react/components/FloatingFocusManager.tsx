@@ -645,7 +645,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       if (resolvedInitialFocus === true || resolvedInitialFocus === null) {
         elToFocus = focusableElements[0] || floatingFocusElement;
       } else {
-        resolveRef(resolvedInitialFocus);
+        elToFocus = resolveRef(resolvedInitialFocus);
       }
       elToFocus = elToFocus || focusableElements[0] || floatingFocusElement;
 
