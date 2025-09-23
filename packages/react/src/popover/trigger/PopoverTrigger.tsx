@@ -235,8 +235,6 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     }
   });
 
-  // This special `key` handling and `createElement` below are required to
-  // avoid the "A props object containing a "key" prop is being spread into JSX" error.
   if (isTriggerActive) {
     return (
       <React.Fragment>
