@@ -83,7 +83,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     readOnly = false,
     required = false,
     inputRef: inputRefProp,
-    cols = 1,
+    grid = false,
     items,
     filter: filterProp,
     openOnInputClick = true,
@@ -312,7 +312,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         readOnly,
         required,
         fieldControlValidation,
-        cols,
+        grid,
         isGrouped,
         virtualized,
         openOnInputClick,
@@ -786,7 +786,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   let ariaHasPopup: 'grid' | 'listbox' | undefined;
   let ariaExpanded: 'true' | 'false' | undefined;
   if (!inline) {
-    ariaHasPopup = cols > 1 ? 'grid' : 'listbox';
+    ariaHasPopup = grid ? 'grid' : 'listbox';
     ariaExpanded = open ? 'true' : 'false';
   }
 
@@ -857,8 +857,12 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     loop: true,
     allowEscape: !autoHighlight,
     focusItemOnOpen: queryChangedAfterOpen || selectionMode === 'none' ? false : 'auto',
-    cols,
-    orientation: cols > 1 ? 'horizontal' : undefined,
+    // `cols` > 1 enables grid navigation.
+    // Since <Combobox.Row> infers column sizes (and is required when building a grid),
+    // it works correctly even with a value of `2`.
+    // Floating UI tests don't require `role="row"` wrappers, so retains the number API.
+    cols: grid ? 2 : 1,
+    orientation: grid ? 'horizontal' : undefined,
     disabledIndices: virtualized
       ? (index) => index < 0 || index >= flatFilteredItems.length
       : EMPTY_ARRAY,
@@ -939,7 +943,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       readOnly,
       required,
       fieldControlValidation,
-      cols,
+      grid,
       isGrouped,
       virtualized,
       onOpenChangeComplete,
@@ -971,7 +975,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     readOnly,
     required,
     fieldControlValidation,
-    cols,
+    grid,
     isGrouped,
     virtualized,
     onOpenChangeComplete,
@@ -1213,11 +1217,11 @@ interface ComboboxRootProps<ItemValue> {
    */
   inputRef?: React.RefObject<HTMLInputElement>;
   /**
-   * The maximum number of columns present when the items are rendered in grid layout.
-   * A value of more than `1` turns the listbox into a grid.
-   * @default 1
+   * Whether list items are presented in a grid layout.
+   * When enabled, arrow keys navigate across rows and columns inferred from DOM rows.
+   * @default false
    */
-  cols?: number;
+  grid?: boolean;
   /**
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
