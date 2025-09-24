@@ -28,6 +28,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     toasts,
     pauseTimers,
     resumeTimers,
+    hovering,
     setHovering,
     setFocused,
     viewportRef,
@@ -40,6 +41,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   const handlingFocusGuardRef = React.useRef(false);
   const focusedRef = useLatestRef(focused);
+  const hoveringRef = useLatestRef(hovering);
   const numToasts = toasts.length;
   const frontmostHeight = toasts[0]?.height ?? 0;
   const markedReadyForMouseLeave = React.useRef(false);
@@ -136,6 +138,36 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     // are added when toasts have been created, once the ref is available.
     numToasts,
   ]);
+
+  React.useEffect(() => {
+    const viewportNode = viewportRef.current;
+    if (!viewportNode || numToasts === 0) {
+      return undefined;
+    }
+
+    const doc = ownerDocument(viewportNode);
+
+    function handlePointerDown(event: PointerEvent) {
+      if (event.pointerType !== 'touch') {
+        return;
+      }
+
+      const target = getTarget(event) as Element | null;
+      if (contains(viewportNode, target)) {
+        return;
+      }
+
+      resumeTimers();
+      setHovering(false);
+      setFocused(false);
+    }
+
+    doc.addEventListener('pointerdown', handlePointerDown, true);
+
+    return () => {
+      doc.removeEventListener('pointerdown', handlePointerDown, true);
+    };
+  }, [focusedRef, hoveringRef, numToasts, resumeTimers, setFocused, setHovering, viewportRef]);
 
   function handleFocusGuard(event: React.FocusEvent) {
     if (!viewportRef.current) {
