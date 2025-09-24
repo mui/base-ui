@@ -19,6 +19,14 @@ export class ControllableStore<State> extends Store<State> {
     }, [key, value]);
   }
 
+  useProps(props: Partial<State>) {
+    // False positive - ESLint thinks we're calling a hook from a class component.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      this.apply(props);
+    }, [props]);
+  }
+
   useControlledProp<Key extends keyof State, Value extends State[Key]>(
     key: keyof State,
     controlled: Value | undefined,
