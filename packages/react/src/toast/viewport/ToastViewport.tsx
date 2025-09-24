@@ -28,6 +28,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     toasts,
     pauseTimers,
     resumeTimers,
+    hovering,
     setHovering,
     setFocused,
     viewportRef,
@@ -40,8 +41,15 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   const handlingFocusGuardRef = React.useRef(false);
   const focusedRef = useLatestRef(focused);
+  const hoveringRef = useLatestRef(hovering);
   const numToasts = toasts.length;
   const frontmostHeight = toasts[0]?.height ?? 0;
+  const markedReadyForMouseLeave = React.useRef(false);
+
+  const hasTransitioningToasts = React.useMemo(
+    () => toasts.some((toast) => toast.transitionStatus === 'ending'),
+    [toasts],
+  );
 
   // Listen globally for F6 so we can force-focus the viewport.
   React.useEffect(() => {
@@ -131,6 +139,36 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     numToasts,
   ]);
 
+  React.useEffect(() => {
+    const viewportNode = viewportRef.current;
+    if (!viewportNode || numToasts === 0) {
+      return undefined;
+    }
+
+    const doc = ownerDocument(viewportNode);
+
+    function handlePointerDown(event: PointerEvent) {
+      if (event.pointerType !== 'touch') {
+        return;
+      }
+
+      const target = getTarget(event) as Element | null;
+      if (contains(viewportNode, target)) {
+        return;
+      }
+
+      resumeTimers();
+      setHovering(false);
+      setFocused(false);
+    }
+
+    doc.addEventListener('pointerdown', handlePointerDown, true);
+
+    return () => {
+      doc.removeEventListener('pointerdown', handlePointerDown, true);
+    };
+  }, [focusedRef, hoveringRef, numToasts, resumeTimers, setFocused, setHovering, viewportRef]);
+
   function handleFocusGuard(event: React.FocusEvent) {
     if (!viewportRef.current) {
       return;
@@ -154,19 +192,34 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
   }
 
-  function handleMouseEnter() {
-    pauseTimers();
-    setHovering(true);
-  }
-
-  function handleMouseLeave() {
-    const activeEl = activeElement(ownerDocument(viewportRef.current));
-    if (contains(viewportRef.current, activeEl) && isFocusVisible(activeEl)) {
+  React.useEffect(() => {
+    if (!windowFocusedRef.current || hasTransitioningToasts || !markedReadyForMouseLeave.current) {
       return;
     }
 
+    // Once transitions have finished, see if a mouseleave was already triggered
+    // but blocked from taking effect. If so, we can now safely resume timers and
+    // collapse the viewport.
     resumeTimers();
     setHovering(false);
+    markedReadyForMouseLeave.current = false;
+  }, [hasTransitioningToasts, resumeTimers, setHovering, windowFocusedRef]);
+
+  function handleMouseEnter() {
+    pauseTimers();
+    setHovering(true);
+    markedReadyForMouseLeave.current = false;
+  }
+
+  function handleMouseLeave() {
+    if (toasts.some((toast) => toast.transitionStatus === 'ending')) {
+      // When swiping to dismiss, wait until the transitions have settled
+      // to avoid the viewport collapsing while the user is interacting.
+      markedReadyForMouseLeave.current = true;
+    } else {
+      resumeTimers();
+      setHovering(false);
+    }
   }
 
   function handleFocus() {
@@ -179,16 +232,13 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       return;
     }
 
-    // If the window was previously blurred, the focus must be visible to
-    // pause the timers, since for pointers it's unexpected that focus is
-    // considered inside the viewport at this point.
-    const activeEl = activeElement(ownerDocument(viewportRef.current));
-    if (!windowFocusedRef.current && !isFocusVisible(activeEl)) {
-      return;
+    // Only set focused when the active element is focus-visible.
+    // This prevents the viewport from staying expanded when clicking inside without
+    // keyboard navigation.
+    if (isFocusVisible(ownerDocument(viewportRef.current).activeElement)) {
+      setFocused(true);
+      pauseTimers();
     }
-
-    setFocused(true);
-    pauseTimers();
   }
 
   function handleBlur(event: React.FocusEvent) {

@@ -17,7 +17,7 @@ export const ToastContent = React.forwardRef(function ToastContent(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { index, expanded, recalculateHeight } = useToastRootContext();
+  const { visibleIndex, expanded, recalculateHeight } = useToastRootContext();
 
   const contentRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -40,7 +40,7 @@ export const ToastContent = React.forwardRef(function ToastContent(
     };
   }, [recalculateHeight]);
 
-  const behind = index > 0;
+  const behind = visibleIndex > 0;
 
   const state: ToastContent.State = React.useMemo(
     () => ({
