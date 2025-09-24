@@ -234,12 +234,19 @@ function getFormattedChangelogEntries(
   });
 }
 
+const LABEL_TO_SCOPE: Record<Exclude<ChangeScope, 'public-api'>, string> = {
+  docs: '^(docs|website)$',
+  infra: '^scope:\\s?[\\w]{1,}-infra$',
+  dependencies: '^dependencies$',
+  release: '^release$',
+  internal: '^(internal|test)$',
+};
+
 function getComponentsFromLabels(labels: string[]): string[] {
-  if (labels.includes('all components')) {
+  if (labels.some((label) => /^(scope:\s?)?all components$/.test(label))) {
+    // support both `all components` and `scope: all components`
     return [GENERAL_CHANGES_HEADER];
   }
-
-  const excludedScopeLabels = ['scope: support-infra', 'scope: code-infra', 'scope: docs-infra'];
 
   const components = labels
     .filter((label) => {
@@ -247,39 +254,27 @@ function getComponentsFromLabels(labels: string[]): string[] {
         (label.startsWith('component:') ||
           label.startsWith('hook:') ||
           label.startsWith('scope:')) &&
-        !excludedScopeLabels.includes(label)
+        !new RegExp(LABEL_TO_SCOPE.infra).test(label)
       );
     })
     .map((label) => {
-      return label.replace('component: ', '').replace('hook: ', '').replace('scope: ', '');
+      return label
+        .replace('component: ', '')
+        .replace('hook: ', '')
+        .replace('scope: ', '')
+        .toLocaleLowerCase();
     });
 
-  return components;
+  // deduplicate components such as `component: Autocomplete` and `scope: autocomplete`
+  return Array.from(new Set(components));
 }
 
 function getScopeFromLabels(labels: string[]): ChangeScope {
-  if (labels.includes('docs') || labels.includes('website')) {
-    return 'docs';
-  }
-
-  if (
-    labels.includes('scope: support-infra') ||
-    labels.includes('scope: code-infra') ||
-    labels.includes('scope: docs-infra')
-  ) {
-    return 'infra';
-  }
-
-  if (labels.includes('dependencies')) {
-    return 'dependencies';
-  }
-
-  if (labels.includes('release')) {
-    return 'release';
-  }
-
-  if (labels.includes('internal') || labels.includes('test')) {
-    return 'internal';
+  for (const [scope, regexString] of Object.entries(LABEL_TO_SCOPE)) {
+    const regex = new RegExp(regexString);
+    if (labels.some((label) => regex.test(label))) {
+      return scope as ChangeScope;
+    }
   }
 
   return 'public-api';
