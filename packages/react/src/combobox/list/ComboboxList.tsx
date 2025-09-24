@@ -81,13 +81,26 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
           }
 
           if (event.key === 'Enter') {
-            if (store.state.activeIndex == null) {
+            const activeIndex = store.state.activeIndex;
+
+            if (activeIndex == null) {
               // Allow form submission when no item is highlighted.
               return;
             }
 
             stopEvent(event);
-            store.state.handleSelection(event.nativeEvent);
+
+            const nativeEvent = event.nativeEvent;
+            const listItem = store.state.listRef.current[activeIndex];
+
+            if (listItem) {
+              store.state.selectionEventRef.current = nativeEvent;
+              listItem.click();
+              store.state.selectionEventRef.current = null;
+              return;
+            }
+
+            store.state.handleSelection(nativeEvent);
           }
         },
         onKeyDownCapture() {

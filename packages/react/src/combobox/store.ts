@@ -52,6 +52,7 @@ export type State = {
   clearRef: React.RefObject<HTMLButtonElement | null>;
   valuesRef: React.RefObject<Array<any>>;
   allValuesRef: React.RefObject<Array<any>>;
+  selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
 
   setOpen: (open: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
   setInputValue: (value: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;

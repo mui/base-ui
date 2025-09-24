@@ -354,22 +354,35 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           if (event.key === 'Enter' && open) {
-            const hasActive = store.state.activeIndex !== null;
-            if (!hasActive) {
-              store.state.setOpen(false, createChangeEventDetails('none', event.nativeEvent));
+            const activeIndex = store.state.activeIndex;
+            const nativeEvent = event.nativeEvent;
+
+            if (activeIndex === null) {
+              store.state.setOpen(false, createChangeEventDetails('none', nativeEvent));
               return;
             }
 
+            const selectActiveItem = () => {
+              const listItem = store.state.listRef.current[activeIndex];
+
+              if (listItem) {
+                store.state.selectionEventRef.current = nativeEvent;
+                listItem.click();
+                store.state.selectionEventRef.current = null;
+                return;
+              }
+
+              store.state.handleSelection(nativeEvent);
+            };
+
             if (store.state.alwaysSubmitOnEnter) {
               // Commit the input value update synchronously so the form reads the committed value.
-              ReactDOM.flushSync(() => {
-                store.state.handleSelection(event.nativeEvent);
-              });
+              ReactDOM.flushSync(selectActiveItem);
               return;
             }
 
             stopEvent(event);
-            store.state.handleSelection(event.nativeEvent);
+            selectActiveItem();
           }
         },
         onPointerMove() {

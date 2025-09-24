@@ -277,6 +277,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const hadInputClearRef = React.useRef(false);
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
+  const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -310,6 +311,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         clearRef,
         valuesRef,
         allValuesRef,
+        selectionEventRef,
         name,
         disabled,
         readOnly,
@@ -686,7 +688,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       }
 
       const targetEl = getTarget(event) as HTMLElement | null;
-      const eventDetails = createChangeEventDetails('item-press', event);
+      const overrideEvent = selectionEventRef.current ?? event;
+      selectionEventRef.current = null;
+      const eventDetails = createChangeEventDetails('item-press', overrideEvent);
 
       // Let the link handle the click.
       const href = targetEl?.closest('a')?.getAttribute('href');
