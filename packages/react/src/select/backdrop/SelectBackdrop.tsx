@@ -9,7 +9,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
-import { useBodyClientHeight } from '../../utils/useBodyClientHeight';
+import { useBodySize } from '../../utils/useBodySize';
 import { SelectBackdropCssVars } from './SelectBackdropCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<SelectBackdrop.State> = {
@@ -45,7 +45,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     [open, transitionStatus],
   );
 
-  const bodyClientHeight = useBodyClientHeight(backdropRef, open);
+  const bodySize = useBodySize(backdropRef, open);
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -57,7 +57,8 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
         style: {
           userSelect: 'none',
           WebkitUserSelect: 'none',
-          [SelectBackdropCssVars.bodyClientHeight as string]: `${bodyClientHeight}px`,
+          [SelectBackdropCssVars.bodyWidth as string]: `${bodySize.width}px`,
+          [SelectBackdropCssVars.bodyHeight as string]: `${bodySize.height}px`,
         },
       },
       elementProps,

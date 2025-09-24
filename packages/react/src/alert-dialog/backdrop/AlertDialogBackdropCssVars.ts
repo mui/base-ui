@@ -1,7 +1,12 @@
 export enum AlertDialogBackdropCssVars {
   /**
-   * Indicates the client height of the document body.
+   * Indicates the width of the body. Use with position: absolute.
    * @type {number}
    */
-  bodyClientHeight = '--body-client-height',
+  bodyWidth = '--body-width',
+  /**
+   * Indicates the height of the body. Use with position: absolute.
+   * @type {number}
+   */
+  bodyHeight = '--body-height',
 }

@@ -7,7 +7,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useBodyClientHeight } from '../../utils/useBodyClientHeight';
+import { useBodySize } from '../../utils/useBodySize';
 import { AlertDialogBackdropCssVars } from './AlertDialogBackdropCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<AlertDialogBackdrop.State> = {
@@ -28,7 +28,7 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
   const { render, className, forceRender = false, ...elementProps } = componentProps;
   const { open, nested, mounted, transitionStatus, backdropRef } = useAlertDialogRootContext();
 
-  const bodyClientHeight = useBodyClientHeight(backdropRef, open);
+  const bodySize = useBodySize(backdropRef, open);
 
   const state: AlertDialogBackdrop.State = React.useMemo(
     () => ({
@@ -48,7 +48,8 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
         style: {
           userSelect: 'none',
           WebkitUserSelect: 'none',
-          [AlertDialogBackdropCssVars.bodyClientHeight as string]: `${bodyClientHeight}px`,
+          [AlertDialogBackdropCssVars.bodyWidth as string]: `${bodySize.width}px`,
+          [AlertDialogBackdropCssVars.bodyHeight as string]: `${bodySize.height}px`,
         },
       },
       elementProps,

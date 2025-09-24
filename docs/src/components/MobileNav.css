@@ -2,7 +2,7 @@
   .MobileNavBackdrop {
     position: absolute;
     inset: 0;
-    height: var(--body-client-height);
+    height: var(--body-height);
 
     transition-duration: 600ms;
     transition-property: -webkit-backdrop-filter, backdrop-filter, opacity;

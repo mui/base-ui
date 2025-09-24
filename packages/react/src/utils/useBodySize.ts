@@ -4,16 +4,36 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { ownerWindow, ownerDocument } from '@base-ui-components/utils/owner';
 import { SCROLL_LOCK_ATTRIBUTE } from './useScrollLock';
 
-export function useBodyClientHeight(ref: React.RefObject<Element | null>, open: boolean) {
-  const [bodyClientHeight, setBodyClientHeight] = React.useState(0);
+export interface BodySize {
+  width: number;
+  height: number;
+}
+
+const INITIAL_BODY_SIZE = { width: 0, height: 0 } as const;
+
+export function useBodySize(ref: React.RefObject<Element | null>, open: boolean): BodySize {
+  const [bodySize, setBodySize] = React.useState<BodySize>(INITIAL_BODY_SIZE);
 
   const measure = useEventCallback(() => {
     const doc = ownerDocument(ref.current);
-    // This will be the viewport height, not the body height, if the scroll is locked.
+
+    // This will be the viewport dimensions, not the body size, if the scroll is locked.
     if (doc.documentElement.hasAttribute(SCROLL_LOCK_ATTRIBUTE)) {
       return;
     }
-    setBodyClientHeight(Math.max(doc.body.clientHeight, doc.documentElement.clientHeight));
+
+    const nextBodySize: BodySize = {
+      // Firefox can create a horizontal scrollbar even if the body does not overflow.
+      width: Math.max(doc.body.scrollWidth, doc.documentElement.scrollWidth) - 0.5,
+      height: Math.max(doc.body.clientHeight, doc.documentElement.clientHeight),
+    };
+
+    setBodySize((prevBodySize) => {
+      return prevBodySize.width === nextBodySize.width &&
+        prevBodySize.height === nextBodySize.height
+        ? prevBodySize
+        : nextBodySize;
+    });
   });
 
   useIsoLayoutEffect(measure, [measure, open]);
@@ -35,5 +55,5 @@ export function useBodyClientHeight(ref: React.RefObject<Element | null>, open: 
     };
   }, [open, ref, measure]);
 
-  return bodyClientHeight;
+  return bodySize;
 }

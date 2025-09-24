@@ -7,7 +7,7 @@ import { type BaseUIComponentProps } from '../../utils/types';
 import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useBodyClientHeight } from '../../utils/useBodyClientHeight';
+import { useBodySize } from '../../utils/useBodySize';
 import { DialogBackdropCssVars } from './DialogBackdropCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<DialogBackdrop.State> = {
@@ -28,7 +28,7 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   const { render, className, forceRender = false, ...elementProps } = componentProps;
   const { open, nested, mounted, transitionStatus, backdropRef } = useDialogRootContext();
 
-  const bodyClientHeight = useBodyClientHeight(backdropRef, open);
+  const bodySize = useBodySize(backdropRef, open);
 
   const state: DialogBackdrop.State = React.useMemo(
     () => ({
@@ -49,7 +49,8 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
         style: {
           userSelect: 'none',
           WebkitUserSelect: 'none',
-          [DialogBackdropCssVars.bodyClientHeight as string]: `${bodyClientHeight}px`,
+          [DialogBackdropCssVars.bodyWidth as string]: `${bodySize.width}px`,
+          [DialogBackdropCssVars.bodyHeight as string]: `${bodySize.height}px`,
         },
       },
       elementProps,

@@ -9,7 +9,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
-import { useBodyClientHeight } from '../../utils/useBodyClientHeight';
+import { useBodySize } from '../../utils/useBodySize';
 import { ComboboxBackdropCssVars } from './ComboboxBackdropCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxBackdrop.State> = {
@@ -43,7 +43,7 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
     [open, transitionStatus],
   );
 
-  const bodyClientHeight = useBodyClientHeight(backdropRef, open);
+  const bodySize = useBodySize(backdropRef, open);
 
   return useRenderElement('div', componentProps, {
     state,
@@ -56,7 +56,8 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
         style: {
           userSelect: 'none',
           WebkitUserSelect: 'none',
-          [ComboboxBackdropCssVars.bodyClientHeight as string]: `${bodyClientHeight}px`,
+          [ComboboxBackdropCssVars.bodyWidth as string]: `${bodySize.width}px`,
+          [ComboboxBackdropCssVars.bodyHeight as string]: `${bodySize.height}px`,
         },
       },
       elementProps,

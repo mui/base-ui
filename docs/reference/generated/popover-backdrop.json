@@ -28,8 +28,12 @@
     }
   },
   "cssVariables": {
-    "--body-client-height": {
-      "description": "Indicates the client height of the document body.",
+    "--body-height": {
+      "description": "Indicates the height of the body. Use with position: absolute.",
+      "type": "number"
+    },
+    "--body-width": {
+      "description": "Indicates the width of the body. Use with position: absolute.",
       "type": "number"
     }
   }

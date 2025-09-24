@@ -8,7 +8,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
-import { useBodyClientHeight } from '../../utils/useBodyClientHeight';
+import { useBodySize } from '../../utils/useBodySize';
 import { MenuBackdropCssVars } from './MenuBackdropCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<MenuBackdrop.State> = {
@@ -33,10 +33,7 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
 
   const backdropRef = React.useRef<HTMLDivElement | null>(null);
 
-  const bodyClientHeight = useBodyClientHeight(
-    contextMenuContext?.backdropRef || backdropRef,
-    open,
-  );
+  const bodySize = useBodySize(contextMenuContext?.backdropRef || backdropRef, open);
 
   const state: MenuBackdrop.State = React.useMemo(
     () => ({
@@ -60,7 +57,8 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
           pointerEvents: lastOpenChangeReason === 'trigger-hover' ? 'none' : undefined,
           userSelect: 'none',
           WebkitUserSelect: 'none',
-          [MenuBackdropCssVars.bodyClientHeight as string]: `${bodyClientHeight}px`,
+          [MenuBackdropCssVars.bodyWidth as string]: `${bodySize.width}px`,
+          [MenuBackdropCssVars.bodyHeight as string]: `${bodySize.height}px`,
         },
       },
       elementProps,
