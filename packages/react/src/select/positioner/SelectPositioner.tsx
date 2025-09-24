@@ -22,7 +22,7 @@ import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
 /**
- * Positions the select popup popup.
+ * Positions the select popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
