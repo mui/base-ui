@@ -415,7 +415,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   useIsoLayoutEffect(() => {
     if (items) {
       valuesRef.current = flatFilteredItems;
-      allValuesRef.current = flatItems as Value[];
       listRef.current.length = flatFilteredItems.length;
     }
   }, [items, flatFilteredItems, flatItems]);
