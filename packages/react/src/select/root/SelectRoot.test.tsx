@@ -2386,7 +2386,7 @@ describe('<Select.Root />', () => {
           value={{ id: 2, name: 'Bob' }}
           itemToStringLabel={(item) => item.name}
           itemToStringValue={(item) => String(item.id)}
-          isItemEqualToValue={(item, value) => value != null && item.id === value.id}
+          isItemEqualToValue={(item, value) => item.id === value.id}
         >
           <Select.Trigger data-testid="trigger">
             <Select.Value />
