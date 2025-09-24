@@ -57,12 +57,12 @@ import { defaultItemEquality, findItemIndex, itemIncludes } from '../../utils/it
  */
 export function ComboboxRootInternal<Value, Mode extends SelectionMode = 'none'>(
   props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
-    items: Group<Value>[];
+    items: readonly Group<Value>[];
   },
 ): React.JSX.Element;
 export function ComboboxRootInternal<Value, Mode extends SelectionMode = 'none'>(
   props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
-    items?: Value[];
+    items?: readonly Value[];
   },
 ): React.JSX.Element;
 export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = 'none'>(
@@ -191,9 +191,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
   const isGrouped = isGroupedItems(items);
 
-  const flatItems: Value[] = React.useMemo(() => {
+  const flatItems = React.useMemo(() => {
     if (!items) {
-      return [];
+      return [] as readonly any[];
     }
 
     if (isGrouped) {
@@ -203,13 +203,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     return items;
   }, [items, isGrouped]);
 
-  const filteredItems: Value[] | Group<Value>[] = React.useMemo(() => {
+  const filteredItems: ReadonlyArray<Value> | ReadonlyArray<Group<Value>> = React.useMemo(() => {
     if (!items) {
       return [];
     }
 
     if (isGrouped) {
-      const groupedItems = items as Group<Value>[];
+      const groupedItems = items as ReadonlyArray<Group<Value>>;
       const resultingGroups: Group<Value>[] = [];
       let currentCount = 0;
 
@@ -259,7 +259,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const flatFilteredItems: Value[] = React.useMemo(() => {
     if (isGrouped) {
-      const groups = filteredItems as Group<Value>[];
+      const groups = filteredItems as Array<Group<Value>>;
       return groups.flatMap((g) => g.items);
     }
     return filteredItems as Value[];
@@ -415,7 +415,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   useIsoLayoutEffect(() => {
     if (items) {
       valuesRef.current = flatFilteredItems;
-      allValuesRef.current = flatItems;
+      allValuesRef.current = flatItems as Value[];
       listRef.current.length = flatFilteredItems.length;
     }
   }, [items, flatFilteredItems, flatItems]);
@@ -1244,7 +1244,7 @@ interface ComboboxRootProps<ItemValue> {
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: ItemValue[] | Group<ItemValue>[];
+  items?: readonly ItemValue[] | readonly Group<ItemValue>[];
   /**
    * Filter function used to match items vs input query.
    * The `itemToStringLabel` function is provided to help convert items to strings for comparison.

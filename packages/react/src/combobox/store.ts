@@ -13,7 +13,7 @@ export type State = {
 
   filter: (item: any, query: string) => boolean;
 
-  items: any[] | undefined;
+  items: readonly any[] | undefined;
 
   selectedValue: any;
   inputValue: React.ComponentProps<'input'>['value'];
