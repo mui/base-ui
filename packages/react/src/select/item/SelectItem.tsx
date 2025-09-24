@@ -16,7 +16,7 @@ import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
-import { itemIncludes, removeItem } from '../../utils/itemEquality';
+import { compareItemEquality, itemIncludes, removeItem } from '../../utils/itemEquality';
 
 /**
  * An individual option in the select menu.
@@ -93,7 +93,7 @@ export const SelectItem = React.memo(
           if (isValueSelected) {
             registerItemIndex(listItem.index);
           }
-        } else if (isItemEqualToValue(rootValue, value)) {
+        } else if (compareItemEquality(rootValue, value, isItemEqualToValue)) {
           registerItemIndex(listItem.index);
         }
       }

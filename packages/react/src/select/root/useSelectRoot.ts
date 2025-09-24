@@ -183,8 +183,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         .filter(Boolean);
 
       const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex =
-        lastValue != null ? findItemIndex(valuesRef.current, lastValue, isItemEqualToValue) : -1;
+      const lastIndex = findItemIndex(valuesRef.current, lastValue, isItemEqualToValue);
 
       // Store the last selected index for later use when closing the popup.
       lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;

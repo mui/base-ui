@@ -1236,7 +1236,7 @@ interface ComboboxRootProps<ItemValue> {
   /**
    * A ref to the hidden input element.
    */
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement>;
   /**
    * The maximum number of columns present when the items are rendered in grid layout.
    * A value of more than `1` turns the listbox into a grid.

@@ -17,7 +17,7 @@ import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { findItemIndex } from '../../utils/itemEquality';
+import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
 
 /**
  * An individual item in the list.
@@ -122,7 +122,7 @@ export const ComboboxItem = React.memo(
         ? rootSelectedValue[rootSelectedValue.length - 1]
         : rootSelectedValue;
 
-      if (lastSelectedValue != null && isItemEqualToValue(lastSelectedValue, value)) {
+      if (compareItemEquality(lastSelectedValue, value, isItemEqualToValue)) {
         store.set('selectedIndex', index);
       }
     }, [hasRegistered, items, store, index, value, rootSelectedValue, isItemEqualToValue]);

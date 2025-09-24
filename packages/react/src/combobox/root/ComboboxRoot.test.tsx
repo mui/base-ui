@@ -3200,5 +3200,62 @@ describe('<Combobox.Root />', () => {
         'true',
       );
     });
+
+    it('does not call comparator with null when clearing the value', async () => {
+      const users = [
+        { id: 1, name: 'Alice' },
+        { id: 2, name: 'Bob' },
+      ];
+
+      const compare = spy((item: any, value: any) => {
+        if (value == null) {
+          throw new Error('Compared against null');
+        }
+        return item.id === value.id;
+      });
+
+      const hiddenInputRef = React.createRef<HTMLInputElement>();
+
+      const { user } = await render(
+        <Combobox.Root
+          items={users}
+          defaultValue={users[0]}
+          itemToStringLabel={(item) => item.name}
+          itemToStringValue={(item) => String(item.id)}
+          isItemEqualToValue={compare}
+          inputRef={hiddenInputRef}
+        >
+          <Combobox.Trigger>
+            <Combobox.Value data-testid="value" />
+          </Combobox.Trigger>
+          <Combobox.Clear data-testid="clear" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item.id} value={item}>
+                      {item.name}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const clear = await screen.findByTestId('clear');
+      await user.click(clear);
+
+      await waitFor(() => {
+        expect(hiddenInputRef.current?.value ?? '').to.equal('');
+      });
+
+      expect(compare.callCount).to.be.greaterThan(0);
+      compare.getCalls().forEach((call) => {
+        expect(call.args[1]).not.to.equal(null);
+      });
+    });
   });
 });

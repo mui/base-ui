@@ -1,6 +1,7 @@
 import { Store, createSelector } from '@base-ui-components/utils/store';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
+import { compareItemEquality } from '../utils/itemEquality';
 
 export type State = {
   id: string | undefined;
@@ -61,17 +62,24 @@ export const selectors = {
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
 
-  isSelected: createSelector((state: State, index: number, value: any) => {
+  isSelected: createSelector((state: State, index: number, candidate: any) => {
     const comparer = state.isItemEqualToValue;
+    const storeValue = state.value;
+
     if (state.multiple) {
-      return Array.isArray(state.value) && state.value.some((item) => comparer(item, value));
+      return (
+        Array.isArray(storeValue) &&
+        storeValue.some((item) => compareItemEquality(item, candidate, comparer))
+      );
     }
+
     // `selectedIndex` is only updated after the items mount for the first time,
     // the value check avoids a re-render for the initially selected item.
     if (state.selectedIndex === index && state.selectedIndex !== null) {
       return true;
     }
-    return comparer(state.value, value);
+
+    return compareItemEquality(storeValue, candidate, comparer);
   }),
   isSelectedByFocus: createSelector((state: State, index: number) => {
     return state.selectedIndex === index;
