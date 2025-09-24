@@ -1,5 +1,4 @@
 import * as React from 'react';
-import clsx from 'clsx';
 import { format } from 'date-fns/format';
 import { startOfWeek } from 'date-fns/startOfWeek';
 import { startOfMonth } from 'date-fns/startOfMonth';
@@ -14,7 +13,7 @@ export default function CalendarWithWeekNumbers() {
   const getDayList = useDayList();
 
   return (
-    <Calendar.Root className={clsx(styles.Root, styles.RootWithWeekNumber)}>
+    <Calendar.Root className={styles.Root}>
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>

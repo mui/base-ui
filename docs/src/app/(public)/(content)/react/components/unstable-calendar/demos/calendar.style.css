@@ -1,7 +1,6 @@
 .Root {
   border: 1px solid var(--calendar-root-border-color);
   border-radius: 8px;
-  width: 276px;
   height: 312px;
   display: flex;
   flex-direction: column;
@@ -23,10 +22,6 @@
     --calendar-button-hover-bg-color: #075985;
     --calendar-cell-selected-bg-color: #0369a1;
   }
-}
-
-.RootWithWeekNumber {
-  width: 312px;
 }
 
 .RootWithTwoPanels {
@@ -127,7 +122,7 @@
   color: var(--calendar-day-grid-header-color);
   /* Avoid the bold front weight from the th element */
   font-weight: 500;
-  padding: 0
+  padding: 0;
 }
 
 .DayButton {
@@ -210,5 +205,5 @@
   font-size: 0.75rem;
   color: var(--calendar-day-grid-header-color);
   font-weight: 500;
-  padding: 0
+  padding: 0;
 }
