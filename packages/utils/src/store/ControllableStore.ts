@@ -5,9 +5,9 @@ export class ControllableStore<State> extends Store<State> {
   /**
    * Keeps track of which properties are controlled.
    */
-  #controlledValues: Partial<Record<keyof State, boolean>> = {};
+  #controlledValues: Map<keyof State, boolean> = new Map();
 
-  #changeCallbacks: Partial<Record<keyof State, (value: any, ...rest: any) => void>> = {};
+  #changeCallbacks: Map<keyof State, (value: any, ...rest: any) => void> = new Map();
 
   useProp<Key extends keyof State, Value extends State[Key]>(key: keyof State, value: Value) {
     // False positive - ESLint thinks we're calling a hook from a class component.
@@ -27,13 +27,11 @@ export class ControllableStore<State> extends Store<State> {
   ): void {
     const isControlled = controlled !== undefined;
 
-    this.#changeCallbacks[key] = changeCallback;
+    this.#changeCallbacks.set(key, changeCallback as (value: any, ...rest: any) => void);
 
     if (process.env.NODE_ENV !== 'production') {
-      if (
-        this.#controlledValues[key] !== undefined &&
-        this.#controlledValues[key] !== isControlled
-      ) {
+      const previoslyControlled = this.#controlledValues.get(key);
+      if (previoslyControlled !== undefined && previoslyControlled !== isControlled) {
         console.error(
           `A component is changing the ${
             isControlled ? '' : 'un'
@@ -45,9 +43,9 @@ export class ControllableStore<State> extends Store<State> {
     // False positive - ESLint thinks we're calling a hook from a class component.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
-      if (this.#controlledValues[key] === undefined) {
+      if (!this.#controlledValues.has(key)) {
         // First time initialization
-        this.#controlledValues[key] = isControlled;
+        this.#controlledValues.set(key, isControlled);
 
         if (!isControlled && defaultValue !== undefined) {
           super.set(key, defaultValue as State[typeof key]);
@@ -62,8 +60,8 @@ export class ControllableStore<State> extends Store<State> {
   }
 
   public set<T>(key: keyof State, value: T, ...additionalArgs: any[]): void {
-    this.#changeCallbacks[key]?.(value, ...additionalArgs);
-    if (this.#controlledValues[key]) {
+    this.#changeCallbacks.get(key)?.(value, ...additionalArgs);
+    if (this.#controlledValues.get(key) === true) {
       // Ignore updates to controlled values
       return;
     }
