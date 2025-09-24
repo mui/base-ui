@@ -61,6 +61,8 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     height: number;
   } | null>(null);
 
+  const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
+
   // Capture a clone of the current content DOM subtree when not transitioning.
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
   useIsoLayoutEffect(() => {
@@ -135,6 +137,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       capturedNodeRef.current
     ) {
       setPreviousContentNode(capturedNodeRef.current);
+      setShowStartingStyleAttribute(true);
 
       // Calculate the relative position between the previous and new trigger,
       // so we can pass it to the style hook for animation purposes.
@@ -142,6 +145,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       setNewTriggerOffset(offset);
 
       cleanupTimeout.request(() => {
+        setShowStartingStyleAttribute(false);
         onAnimationsFinished(() => {
           setPreviousContentNode(null);
           setPreviousContentDimensions(null);
@@ -182,8 +186,14 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
             } as React.CSSProperties
           }
           key={'previous'}
+          data-ending-style={showStartingStyleAttribute ? undefined : ''}
         />
-        <div data-current ref={nextContainerRef} key={'current'}>
+        <div
+          data-current
+          ref={nextContainerRef}
+          key={'current'}
+          data-starting-style={showStartingStyleAttribute ? '' : undefined}
+        >
           {children}
         </div>
       </React.Fragment>

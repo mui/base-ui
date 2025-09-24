@@ -9,7 +9,16 @@ export default function PopoverDetachedTriggersFullDemo() {
   return (
     <div className="flex gap-2">
       <Popover.Trigger
-        className="box-border flex size-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none text-base font-bold hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-600 focus-visible:-outline-offset-1"
+        className={`
+          box-border size-10
+          flex items-center justify-center
+          rounded-md border border-gray-200
+          bg-gray-50
+          text-gray-900 text-base font-bold
+          select-none
+          hover:bg-gray-100 active:bg-gray-100
+          data-popup-open:bg-gray-100
+          focus-visible:outline-2 focus-visible:outline-blue-600 focus-visible:-outline-offset-1`}
         handle={demoPopover}
         payload={NotificationsPanel}
       >
@@ -17,7 +26,16 @@ export default function PopoverDetachedTriggersFullDemo() {
       </Popover.Trigger>
 
       <Popover.Trigger
-        className="box-border flex size-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none text-base font-bold hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-600 focus-visible:-outline-offset-1"
+        className={`
+          box-border size-10
+          flex items-center justify-center
+          rounded-md border border-gray-200
+          bg-gray-50
+          text-gray-900 text-base font-bold
+          select-none
+          hover:bg-gray-100 active:bg-gray-100
+          data-popup-open:bg-gray-100
+          focus-visible:outline-2 focus-visible:outline-blue-600 focus-visible:-outline-offset-1`}
         handle={demoPopover}
         payload={ActivityPanel}
       >
@@ -25,7 +43,16 @@ export default function PopoverDetachedTriggersFullDemo() {
       </Popover.Trigger>
 
       <Popover.Trigger
-        className="box-border flex size-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none text-base font-bold hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-600 focus-visible:-outline-offset-1"
+        className={`
+          box-border size-10
+          flex items-center justify-center
+          rounded-md border border-gray-200
+          bg-gray-50
+          text-gray-900 text-base font-bold
+          select-none
+          hover:bg-gray-100 active:bg-gray-100
+          data-popup-open:bg-gray-100
+          focus-visible:outline-2 focus-visible:outline-blue-600 focus-visible:-outline-offset-1`}
         handle={demoPopover}
         payload={ProfilePanel}
       >
@@ -37,14 +64,73 @@ export default function PopoverDetachedTriggersFullDemo() {
           <Popover.Portal>
             <Popover.Positioner
               sideOffset={8}
-              className="w-[var(--positioner-width)] h-[var(--positioner-height)] max-w-[var(--available-width)] transition-[top,left,right,bottom,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[instant]:transition-none"
+              className={`
+                w-(--positioner-width) h-(--positioner-height)
+                max-w-(--available-width)
+                transition-[top,left,right,bottom,transform]
+                duration-[0.35s]
+                ease-[cubic-bezier(0.22,1,0.36,1)]
+                data-instant:transition-none`}
             >
-              <Popover.Popup className="relative origin-[var(--transform-origin)] w-[var(--popup-width,auto)] h-[var(--popup-height,auto)] max-w-[500px] rounded-lg bg-[canvas] text-gray-900 transition-[width,height,opacity,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[starting-style]:opacity-0 data-[starting-style]:[transform:scale(0.9)] data-[ending-style]:opacity-0 data-[ending-style]:[transform:scale(0.9)] outline-1 outline-gray-200 shadow-[0_10px_15px_-3px_rgb(229_231_235),0_4px_6px_-4px_rgb(229_231_235)] dark:outline-gray-300 dark:-outline-offset-1 dark:shadow-none data-[instant]:transition-none">
-                <Popover.Arrow className="flex transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
+              <Popover.Popup
+                className={`
+                  relative bg-[canvas] text-gray-900
+                  rounded-lg origin-(--transform-origin)
+                  w-(--popup-width,auto) h-(--popup-height,auto) max-w-[500px]
+                  transition-[width,height,opacity,scale]
+                  ease-[cubic-bezier(0.22,1,0.36,1)]
+                  duration-[0.35s]
+                  data-starting-style:opacity-0
+                  data-starting-style:scale-90
+                  data-ending-style:opacity-0
+                  data-ending-style:scale-90
+                  data-instant:transition-none
+                  outline-1 outline-gray-200
+                  shadow-gray-200
+                  shadow-lg
+                  dark:outline-gray-300
+                  dark:-outline-offset-1
+                  dark:shadow-none`}
+              >
+                <Popover.Arrow
+                  className={`
+                    flex
+                    transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]
+                    data-[side=bottom]:top-[-8px]
+                    data-[side=left]:right-[-13px]
+                    data-[side=left]:rotate-90
+                    data-[side=right]:left-[-13px]
+                    data-[side=right]:-rotate-90
+                    data-[side=top]:bottom-[-8px]
+                    data-[side=top]:rotate-180`}
+                >
                   <ArrowSvg />
                 </Popover.Arrow>
 
-                <Popover.Viewport className="relative overflow-clip w-full h-full p-[1rem_1.5rem] [&_[data-previous]]:w-[calc(var(--popup-width)-3rem)] [&_[data-current]]:w-[calc(var(--popup-width)-3rem)] data-[transitioning]:data-[activation-direction~='right']:[&_[data-previous]]:animate-[slide-out-to-left_0.35s_cubic-bezier(0.22,1,0.36,1)] data-[transitioning]:data-[activation-direction~='right']:[&_[data-current]]:animate-[slide-in-from-right_0.35s_cubic-bezier(0.22,1,0.36,1)] data-[transitioning]:data-[activation-direction~='left']:[&_[data-previous]]:animate-[slide-out-to-right_0.35s_cubic-bezier(0.22,1,0.36,1)] data-[transitioning]:data-[activation-direction~='left']:[&_[data-current]]:animate-[slide-in-from-left_0.35s_cubic-bezier(0.22,1,0.36,1)]">
+                <Popover.Viewport
+                  className={`
+                    relative overflow-clip w-full h-full p-[1rem_1.5rem]
+                    [&_[data-previous]]:w-[calc(var(--popup-width)-3rem)]
+                    [&_[data-current]]:w-[calc(var(--popup-width)-3rem)]
+                    [&_[data-previous]]:translate-x-0
+                    [&_[data-current]]:translate-x-0
+                    [&_[data-previous]]:opacity-100
+                    [&_[data-current]]:opacity-100
+                    [&_[data-previous]]:transition-[translate,opacity]
+                    [&_[data-current]]:transition-[translate,opacity]
+                    [&_[data-previous]]:duration-[350ms,175ms]
+                    [&_[data-current]]:duration-[350ms,175ms]
+                    [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)]
+                    [&_[data-current]]:ease-[cubic-bezier(0.22,1,0.36,1)]
+                    data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-1/2
+                    data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0
+                    data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:translate-x-1/2
+                    data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:opacity-0
+                    data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:translate-x-1/2
+                    data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:opacity-0
+                    data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:-translate-x-1/2
+                    data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:opacity-0`}
+                >
                   {Payload !== undefined && <Payload />}
                 </Popover.Viewport>
               </Popover.Popup>
@@ -52,61 +138,6 @@ export default function PopoverDetachedTriggersFullDemo() {
           </Popover.Portal>
         )}
       </Popover.Root>
-
-      <style>{`
-        @keyframes slide-out-to-left {
-          0% {
-            transform: translateX(0);
-            opacity: 1;
-          }
-          50% {
-            opacity: 0;
-          }
-          100% {
-            transform: translateX(-50%);
-            opacity: 0;
-          }
-        }
-        @keyframes slide-in-from-right {
-          0% {
-            transform: translateX(50%);
-            opacity: 0;
-          }
-          50% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        @keyframes slide-out-to-right {
-          0% {
-            transform: translateX(0);
-            opacity: 1;
-          }
-          50% {
-            opacity: 0;
-          }
-          100% {
-            transform: translateX(50%);
-            opacity: 0;
-          }
-        }
-        @keyframes slide-in-from-left {
-          0% {
-            transform: translateX(-50%);
-            opacity: 0;
-          }
-          50% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-      `}</style>
     </div>
   );
 }

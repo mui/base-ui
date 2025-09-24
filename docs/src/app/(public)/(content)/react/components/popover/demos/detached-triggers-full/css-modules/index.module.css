@@ -61,9 +61,9 @@
 
 .Popup {
   position: relative;
-  border-radius: 0.5rem;
   background-color: canvas;
   color: var(--color-gray-900);
+  border-radius: 0.5rem;
   transform-origin: var(--transform-origin);
 
   /* These are required to make the size animations work */
@@ -117,92 +117,35 @@
         receives the width of the new content.
     */
     width: calc(var(--popup-width) - 2 * var(--viewport-inline-padding));
+    transform: translateX(0);
+    opacity: 1;
+    transition:
+      transform var(--animation-duration) var(--easing),
+      opacity calc(var(--animation-duration) / 2) var(--easing);
   }
 
-  &[data-transitioning] {
-    &[data-activation-direction~='right'] {
-      [data-previous] {
-        animation: slide-out-to-left var(--animation-duration) var(--easing);
-      }
-
-      [data-current] {
-        animation: slide-in-from-right var(--animation-duration) var(--easing);
-      }
+  &[data-activation-direction~='right'] {
+    [data-previous][data-ending-style] {
+      transform: translateX(-50%);
+      opacity: 0;
     }
 
-    &[data-activation-direction~='left'] {
-      [data-previous] {
-        animation: slide-out-to-right var(--animation-duration) var(--easing);
-      }
-
-      [data-current] {
-        animation: slide-in-from-left var(--animation-duration) var(--easing);
-      }
+    [data-current][data-starting-style] {
+      transform: translateX(50%);
+      opacity: 0;
     }
   }
-}
 
-@keyframes slide-out-to-left {
-  0% {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  &[data-activation-direction~='left'] {
+    [data-previous][data-ending-style] {
+      transform: translateX(50%);
+      opacity: 0;
+    }
 
-  50% {
-    opacity: 0;
-  }
-
-  100% {
-    transform: translateX(-50%);
-    opacity: 0;
-  }
-}
-
-@keyframes slide-in-from-right {
-  0% {
-    transform: translateX(50%);
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slide-out-to-right {
-  0% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0;
-  }
-
-  100% {
-    transform: translateX(50%);
-    opacity: 0;
-  }
-}
-
-@keyframes slide-in-from-left {
-  0% {
-    transform: translateX(-50%);
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  100% {
-    transform: translateX(0);
-    opacity: 1;
+    [data-current][data-starting-style] {
+      transform: translateX(-50%);
+      opacity: 0;
+    }
   }
 }
 
