@@ -159,9 +159,9 @@
       "detailedType": "boolean | undefined"
     },
     "inputRef": {
-      "type": "RefObject<HTMLInputElement>",
+      "type": "Ref<HTMLInputElement>",
       "description": "A ref to the hidden input element.",
-      "detailedType": "React.RefObject<HTMLInputElement> | undefined"
+      "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "id": {
       "type": "string",
