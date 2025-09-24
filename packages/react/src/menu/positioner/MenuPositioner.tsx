@@ -172,7 +172,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
 
       const reason: MenuRoot.ChangeEventReason = details.reason ?? 'sibling-open';
-      setOpen(false, createBaseUIEventDetails(reason));
+      setOpen(false, createChangeEventDetails(reason));
     }
 
     menuEvents.on('menuopenchange', onParentClose);

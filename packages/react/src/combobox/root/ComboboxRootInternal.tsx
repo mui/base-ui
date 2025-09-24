@@ -599,7 +599,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
           // Freeze the current query so filtering remains stable while exiting.
           // For multiple selection, clear the input immediately on close while retaining filtering via closeQuery.
           setCloseQuery(query);
-          setInputValue('', createBaseUIEventDetails('input-clear', eventDetails.event));
+          setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
         }
       }
 
@@ -702,7 +702,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         }
 
         if (store.state.inputInsidePopup) {
-          setInputValue('', createBaseUIEventDetails('input-clear', eventDetails.event));
+          setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
         } else {
           setOpen(false, eventDetails);
         }
