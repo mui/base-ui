@@ -6,6 +6,7 @@ import { ControllableStore } from '@base-ui-components/utils/store';
 
 export default function Playground() {
   const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState(0);
 
   return (
     <div className="w-lg mx-auto">
@@ -24,6 +25,7 @@ export default function Playground() {
             setOpen(nextOpen);
             console.log('reason', reason);
           }}
+          value={value}
         />
       </div>
 
@@ -34,6 +36,7 @@ export default function Playground() {
           onOpenChange={(_, reason) => {
             console.log('reason', reason);
           }}
+          value={value}
         />
       </div>
 
@@ -44,6 +47,16 @@ export default function Playground() {
           onOpenChange={(_, reason) => {
             console.log('reason', reason);
           }}
+          value={value}
+        />
+      </div>
+
+      <h2>Value updater</h2>
+      <div className="flex gap-2 mb-16 items-baseline">
+        <input
+          type="number"
+          value={value}
+          onChange={(event) => setValue(event.target.valueAsNumber)}
         />
       </div>
     </div>
@@ -54,16 +67,19 @@ interface Props {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean, reason: string) => void;
+  value?: number;
 }
 
 function ControllableComponent(props: Props) {
   const store = useRefWithInit(
-    () => new ControllableStore({ open: props.defaultOpen ?? false }),
+    () => new ControllableStore<State>({ open: props.defaultOpen ?? false, value: 0 }),
   ).current;
 
   store.useControlledProp('open', props.open, props.defaultOpen ?? false, props.onOpenChange);
+  store.useProp('value', props.value ?? 0);
 
   const open = useStore(store, (state) => state.open);
+  const value = useStore(store, (state) => state.value);
 
   return (
     <React.Fragment>
@@ -76,6 +92,7 @@ function ControllableComponent(props: Props) {
       >
         Toggle internally
       </button>
+      <span>value: {value}</span>
     </React.Fragment>
   );
 }
@@ -91,4 +108,5 @@ function ChildComponent(props: ChildProps) {
 
 interface State {
   open: boolean;
+  value: number;
 }

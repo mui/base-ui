@@ -16,7 +16,7 @@ export class ControllableStore<State> extends Store<State> {
       if (this.state[key] !== value) {
         this.set(key, value);
       }
-    });
+    }, [key, value]);
   }
 
   useControlledProp<Key extends keyof State, Value extends State[Key]>(
