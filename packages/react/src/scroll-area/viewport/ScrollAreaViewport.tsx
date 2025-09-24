@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
@@ -54,7 +55,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   const programmaticScrollRef = React.useRef(true);
   const scrollEndTimeout = useTimeout();
 
-  const computeThumbPosition = useEventCallback(() => {
+  function computeThumbPositionHandler() {
     const viewportEl = viewportRef.current;
     const scrollbarYEl = scrollbarYRef.current;
     const scrollbarXEl = scrollbarXRef.current;
@@ -225,6 +226,10 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       }
       return nextOverflowEdges;
     });
+  }
+
+  const computeThumbPosition = useEventCallback(() => {
+    ReactDOM.flushSync(computeThumbPositionHandler);
   });
 
   useIsoLayoutEffect(() => {

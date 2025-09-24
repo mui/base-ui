@@ -16,6 +16,7 @@ import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { compareItemEquality, itemIncludes, removeItem } from '../../utils/itemEquality';
 
 /**
  * An individual option in the select popup.
@@ -64,6 +65,7 @@ export const SelectItem = React.memo(
     const selected = useStore(store, selectors.isSelected, listItem.index, value);
     const rootValue = useStore(store, selectors.value);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
+    const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(listItem.index);
@@ -86,15 +88,24 @@ export const SelectItem = React.memo(
     useIsoLayoutEffect(() => {
       if (hasRegistered) {
         if (multiple) {
-          const isValueSelected = Array.isArray(rootValue) && rootValue.includes(value);
+          const isValueSelected =
+            Array.isArray(rootValue) && itemIncludes(rootValue, value, isItemEqualToValue);
           if (isValueSelected) {
             registerItemIndex(listItem.index);
           }
-        } else if (value === rootValue) {
+        } else if (compareItemEquality(rootValue, value, isItemEqualToValue)) {
           registerItemIndex(listItem.index);
         }
       }
-    }, [hasRegistered, listItem.index, registerItemIndex, value, rootValue, multiple]);
+    }, [
+      hasRegistered,
+      listItem.index,
+      registerItemIndex,
+      value,
+      rootValue,
+      multiple,
+      isItemEqualToValue,
+    ]);
 
     const state: SelectItem.State = React.useMemo(
       () => ({
@@ -125,7 +136,7 @@ export const SelectItem = React.memo(
       if (multiple) {
         const currentValue = Array.isArray(rootValue) ? rootValue : [];
         const nextValue = selected
-          ? currentValue.filter((v) => v !== value)
+          ? removeItem(currentValue, value, isItemEqualToValue)
           : [...currentValue, value];
         setValue(nextValue, createBaseUIEventDetails('item-press', event));
       } else {

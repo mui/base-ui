@@ -4,6 +4,7 @@ import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import type { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import type { ComboboxRootInternal } from './root/ComboboxRootInternal';
+import { compareItemEquality } from '../utils/itemEquality';
 
 export type State = {
   id: string | undefined;
@@ -75,12 +76,13 @@ export type State = {
   readOnly: boolean;
   required: boolean;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
-  cols: number;
+  grid: boolean;
   isGrouped: boolean;
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToStringLabel?: (item: any) => string;
+  isItemEqualToValue: (item: any, value: any) => boolean;
   modal: boolean;
   autoHighlight: boolean;
   alwaysSubmitOnEnter: boolean;
@@ -108,11 +110,13 @@ export const selectors = {
   activeIndex: createSelector((state: State) => state.activeIndex),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
-  isSelected: createSelector((state: State, selectedValue: any) => {
-    if (Array.isArray(state.selectedValue)) {
-      return state.selectedValue.includes(selectedValue);
+  isSelected: createSelector((state: State, candidate: any) => {
+    const comparer = state.isItemEqualToValue;
+    const selectedValue = state.selectedValue;
+    if (Array.isArray(selectedValue)) {
+      return selectedValue.some((value) => compareItemEquality(value, candidate, comparer));
     }
-    return state.selectedValue === selectedValue;
+    return compareItemEquality(selectedValue, candidate, comparer);
   }),
 
   transitionStatus: createSelector((state: State) => state.transitionStatus),
@@ -147,12 +151,13 @@ export const selectors = {
   readOnly: createSelector((state: State) => state.readOnly),
   required: createSelector((state: State) => state.required),
   fieldControlValidation: createSelector((state: State) => state.fieldControlValidation),
-  cols: createSelector((state: State) => state.cols),
+  grid: createSelector((state: State) => state.grid),
   isGrouped: createSelector((state: State) => state.isGrouped),
   virtualized: createSelector((state: State) => state.virtualized),
   onOpenChangeComplete: createSelector((state: State) => state.onOpenChangeComplete),
   openOnInputClick: createSelector((state: State) => state.openOnInputClick),
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
+  isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
   alwaysSubmitOnEnter: createSelector((state: State) => state.alwaysSubmitOnEnter),
