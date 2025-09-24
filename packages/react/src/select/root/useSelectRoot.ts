@@ -29,6 +29,7 @@ import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
 import type { SelectRootConditionalProps, SelectRoot } from './SelectRoot';
 import { EMPTY_ARRAY } from '../../utils/constants';
+import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 
 export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   params: useSelectRoot.Parameters<Value, Multiple>,
@@ -43,6 +44,9 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     onOpenChangeComplete,
     items,
     multiple = false,
+    itemToStringLabel,
+    itemToStringValue,
+    isItemEqualToValue = defaultItemEquality,
   } = params;
 
   const { clearErrors } = useFormContext();
@@ -107,6 +111,9 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         id,
         modal,
         multiple,
+        itemToStringLabel,
+        itemToStringValue,
+        isItemEqualToValue,
         value,
         label: '',
         open,
@@ -170,13 +177,13 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
       const labels = currentValue
         .map((v) => {
-          const index = valuesRef.current.indexOf(v);
+          const index = findItemIndex(valuesRef.current, v, isItemEqualToValue);
           return index !== -1 ? (labelsRef.current[index] ?? '') : '';
         })
         .filter(Boolean);
 
       const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = lastValue != null ? valuesRef.current.indexOf(lastValue) : -1;
+      const lastIndex = findItemIndex(valuesRef.current, lastValue, isItemEqualToValue);
 
       // Store the last selected index for later use when closing the popup.
       lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;
@@ -185,7 +192,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         label: labels.join(', '),
       });
     } else {
-      const index = valuesRef.current.indexOf(value);
+      const index = findItemIndex(valuesRef.current, value as Value, isItemEqualToValue);
 
       store.apply({
         selectedIndex: index === -1 ? null : index,
@@ -211,6 +218,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     validityData.initialValue,
     setFilled,
     multiple,
+    isItemEqualToValue,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -293,13 +301,16 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
       const labels = currentValue
         .map((v) => {
-          const index = valuesRef.current.indexOf(v);
+          const index = findItemIndex(valuesRef.current, v, isItemEqualToValue);
           return index !== -1 ? (labelsRef.current[index] ?? '') : '';
         })
         .filter(Boolean);
 
       const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = lastValue !== undefined ? valuesRef.current.indexOf(lastValue) : -1;
+      const lastIndex =
+        lastValue !== undefined
+          ? findItemIndex(valuesRef.current, lastValue, isItemEqualToValue)
+          : -1;
 
       // Store the last selected index for later use when closing the popup.
       lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;
@@ -314,7 +325,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         label: labels.join(', '),
       });
     } else {
-      const index = valuesRef.current.indexOf(value);
+      const index = findItemIndex(valuesRef.current, value as Value, isItemEqualToValue);
       const hasIndex = index !== -1;
 
       if (hasIndex || value === null) {
@@ -450,8 +461,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     });
   });
 
-  // Store values that depend on other hooks
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     store.apply({
       id,
       modal,
@@ -463,6 +473,9 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
       items,
+      itemToStringLabel,
+      itemToStringValue,
+      isItemEqualToValue,
     });
   }, [
     store,
@@ -476,6 +489,9 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     getFloatingProps,
     getReferenceProps,
     items,
+    itemToStringLabel,
+    itemToStringValue,
+    isItemEqualToValue,
   ]);
 
   const rootContext: SelectRootContext = React.useMemo(
@@ -486,6 +502,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       disabled,
       readOnly,
       multiple,
+      itemToStringLabel,
+      itemToStringValue,
       setValue,
       setOpen,
       listRef,
@@ -513,6 +531,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       disabled,
       readOnly,
       multiple,
+      itemToStringLabel,
+      itemToStringValue,
       setValue,
       setOpen,
       listRef,

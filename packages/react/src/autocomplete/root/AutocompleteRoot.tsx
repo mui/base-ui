@@ -2,8 +2,9 @@
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { ComboboxRootInternal } from '../../combobox/root/ComboboxRootInternal';
-import { stringifyItem, type Group } from '../../combobox/root/utils';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
+import { stringifyAsLabel } from '../../utils/resolveValueLabel';
+import type { Group } from '../../utils/resolveValueLabel';
 
 const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
 
@@ -77,7 +78,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
     }
 
     return (item: any, query: string, toString?: (item: any) => string) => {
-      return collator.contains(stringifyItem(item, toString), query);
+      return collator.contains(stringifyAsLabel(item, toString), query);
     };
   }, [other, collator]);
 
@@ -105,7 +106,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
         if (highlightedValue == null) {
           setInlineOverlay('');
         } else {
-          setInlineOverlay(stringifyItem(highlightedValue, itemToStringValue));
+          setInlineOverlay(stringifyAsLabel(highlightedValue, itemToStringValue));
         }
       } else {
         setInlineOverlay('');
@@ -142,6 +143,7 @@ export namespace AutocompleteRoot {
       | 'onSelectedValueChange'
       | 'fillInputOnItemPress'
       | 'itemToStringValue'
+      | 'isItemEqualToValue'
       // Different names
       | 'inputValue' // value
       | 'defaultInputValue' // defaultValue
@@ -181,7 +183,8 @@ export namespace AutocompleteRoot {
      */
     onValueChange?: (value: string, eventDetails: ChangeEventDetails) => void;
     /**
-     * When items' values are objects, converts its value to a string representation for display in the input.
+     * When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.
+     * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
      */
     itemToStringValue?: (itemValue: ItemValue) => string;
     /**

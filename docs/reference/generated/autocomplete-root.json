@@ -68,7 +68,7 @@
     },
     "itemToStringValue": {
       "type": "((itemValue: Value) => string)",
-      "description": "When items' values are objects, converts its value to a string representation for display in the input.",
+      "description": "When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.\nIf the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.",
       "detailedType": "((itemValue: Value) => string) | undefined"
     },
     "items": {
@@ -139,9 +139,9 @@
       "detailedType": "boolean | undefined"
     },
     "inputRef": {
-      "type": "RefObject<HTMLInputElement>",
+      "type": "Ref<HTMLInputElement>",
       "description": "A ref to the hidden input element.",
-      "detailedType": "React.RefObject<HTMLInputElement> | undefined"
+      "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "id": {
       "type": "string",

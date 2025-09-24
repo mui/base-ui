@@ -8,19 +8,19 @@
       "detailedType": "string | undefined"
     },
     "defaultValue": {
-      "type": "SelectedValue[] | SelectedValue | null",
+      "type": "ItemValue[] | ItemValue | SelectedValue[] | SelectedValue | null",
       "description": "The uncontrolled selected value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `value` prop instead.",
-      "detailedType": "SelectedValue[] | SelectedValue | null | undefined"
+      "detailedType": "| ItemValue[]\n| ItemValue\n| SelectedValue[]\n| SelectedValue\n| null\n| undefined"
     },
     "value": {
-      "type": "SelectedValue[] | SelectedValue",
+      "type": "ItemValue[] | ItemValue | SelectedValue[] | SelectedValue",
       "description": "The selected value of the combobox. Use when controlled.",
-      "detailedType": "SelectedValue[] | SelectedValue | undefined"
+      "detailedType": "| ItemValue[]\n| ItemValue\n| SelectedValue[]\n| SelectedValue\n| undefined"
     },
     "onValueChange": {
-      "type": "((value: SelectedValue[] | SelectedValue, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
+      "type": "((value: ItemValue[] | ItemValue, eventDetails: Combobox.Root.ChangeEventDetails) => void) | ((value: SelectedValue[] | SelectedValue, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
       "description": "Callback fired when the selected value of the combobox changes.",
-      "detailedType": "| ((\n    value: SelectedValue[] | SelectedValue,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: ItemValue[] | ItemValue,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| ((\n    value: SelectedValue[] | SelectedValue,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {
       "type": "boolean",
@@ -39,9 +39,9 @@
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Combobox.Root.Actions>",
+      "type": "RefObject<Combobox.Root.Actions> | RefObject<Combobox.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
-      "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
+      "detailedType": "| React.RefObject<Combobox.Root.Actions>\n| React.RefObject<Combobox.Root.Actions>\n| undefined"
     },
     "autoHighlight": {
       "type": "boolean",
@@ -70,19 +70,24 @@
       "description": "The input value of the combobox.",
       "detailedType": "string | number | string[] | undefined"
     },
+    "isItemEqualToValue": {
+      "type": "((itemValue: ItemValue, selectedValue: ItemValue) => boolean)",
+      "description": "Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.\nDefaults to `Object.is` comparison.",
+      "detailedType": "| ((\n    itemValue: ItemValue,\n    selectedValue: ItemValue,\n  ) => boolean)\n| undefined"
+    },
     "itemToStringLabel": {
       "type": "((itemValue: ItemValue) => string)",
-      "description": "When items' values are objects, converts its value to a string label for input display.",
+      "description": "When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.\nIf the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.",
       "detailedType": "((itemValue: ItemValue) => string) | undefined"
     },
     "itemToStringValue": {
       "type": "((itemValue: ItemValue) => string)",
-      "description": "When items' values are objects, converts its value to a string value for form submission.",
+      "description": "When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.\nIf the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.",
       "detailedType": "((itemValue: ItemValue) => string) | undefined"
     },
     "items": {
       "type": "ItemValue[] | Group<ItemValue>[]",
-      "description": "The items to be displayed in the list.",
+      "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
       "detailedType": "ItemValue[] | Group<ItemValue>[] | undefined"
     },
     "limit": {
@@ -154,9 +159,9 @@
       "detailedType": "boolean | undefined"
     },
     "inputRef": {
-      "type": "RefObject<HTMLInputElement>",
+      "type": "Ref<HTMLInputElement>",
       "description": "A ref to the hidden input element.",
-      "detailedType": "React.RefObject<HTMLInputElement> | undefined"
+      "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "id": {
       "type": "string",

@@ -17,6 +17,7 @@ import { clearPositionerStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -67,6 +68,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const touchModality = useStore(store, selectors.touchModality);
   const positionerElement = useStore(store, selectors.positionerElement);
   const triggerElement = useStore(store, selectors.triggerElement);
+  const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
   const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
   const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
@@ -179,18 +181,22 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     const eventDetails = createChangeEventDetails('none');
 
     if (prevSize !== 0 && !store.state.multiple && value !== null) {
-      const valueIndex = valuesRef.current.indexOf(value);
+      const valueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
       if (valueIndex === -1) {
         const initial = initialValueRef.current;
-        const hasInitial = initial != null && valuesRef.current.includes(initial);
+        const hasInitial =
+          initial != null && itemIncludes(valuesRef.current, initial, isItemEqualToValue);
         const nextValue = hasInitial ? initial : null;
         setValue(nextValue, eventDetails);
       }
     }
 
     if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
-      const nextValue = value.filter((v) => valuesRef.current.includes(v));
-      if (nextValue.length !== value.length || nextValue.some((v) => !value.includes(v))) {
+      const nextValue = value.filter((v) => itemIncludes(valuesRef.current, v, isItemEqualToValue));
+      if (
+        nextValue.length !== value.length ||
+        nextValue.some((v) => !itemIncludes(value, v, isItemEqualToValue))
+      ) {
         setValue(nextValue, eventDetails);
       }
     }
