@@ -13,14 +13,19 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, eventDetails: Popover.Root.ChangeEventDetails, activeTriggerId: string | null) => void)",
+      "type": "((open: boolean, eventDetails: Popover.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the popover is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Popover.Root.ChangeEventDetails,\n    activeTriggerId: string | null,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Popover.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Popover.Root.Actions | null>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library.",
       "detailedType": "| React.RefObject<Popover.Root.Actions | null>\n| undefined"
+    },
+    "defaultTriggerId": {
+      "type": "string | null",
+      "description": "ID of the trigger that the popover is associated with.\nThis is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.",
+      "detailedType": "string | null | undefined"
     },
     "handle": {
       "type": "PopoverStore<Payload>",
