@@ -59,26 +59,13 @@ By default, the `Select.Value` component renders the raw `value`.
 
 Passing the `items` prop to `Select.Root` instead renders the matching label for the rendered value:
 
-```jsx title="items prop (Array)" "items"1,3
+```jsx title="items prop" "items"1,3
 const items = [
   { value: null, label: 'Select theme' },
   { value: 'system', label: 'System default' },
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
 ];
-
-<Select.Root items={items}>
-  <Select.Value />
-</Select.Root>;
-```
-
-```jsx title="items prop (Record)" "items"1,3
-const items = {
-  null: 'Select theme',
-  system: 'System default',
-  light: 'Light',
-  dark: 'Dark',
-};
 
 <Select.Root items={items}>
   <Select.Value />
@@ -103,13 +90,17 @@ const items = {
 </Select.Value>;
 ```
 
-## Multiple selection
+To avoid lookup, [object values](#object-values) for each item can also be used.
+
+## Examples
+
+### Multiple selection
 
 Add the `multiple` prop to the `Select.Root` component to allow multiple selections.
 
 <Demo path="./demos/multiple" compact />
 
-## Object values
+### Object values
 
 Select items can use objects as values instead of primitives. This lets you access the full object in custom render functions, and can avoid needing to specify `items` for lookup.
 
