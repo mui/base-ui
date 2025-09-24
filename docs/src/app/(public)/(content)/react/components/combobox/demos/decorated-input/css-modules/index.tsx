@@ -7,6 +7,8 @@ export default function ExampleDecoratedInput() {
   const [inputValue, setInputValue] = React.useState('');
   const isTyping = inputValue.trim() !== '';
 
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+
   return (
     <Combobox.Root
       items={people}
@@ -16,6 +18,7 @@ export default function ExampleDecoratedInput() {
         if (eventDetails.reason === 'item-press') {
           // Keep the input blank to display the custom selected value text.
           setInputValue('');
+          containerRef.current?.focus();
           return;
         }
 
@@ -27,7 +30,7 @@ export default function ExampleDecoratedInput() {
         <div className={styles.Control}>
           <Combobox.Value>
             {(person: Person | null) => (
-              <div className={styles.InputContainer}>
+              <div className={styles.InputContainer} tabIndex={-1} ref={containerRef}>
                 <Combobox.Input
                   id={id}
                   placeholder={person ? '' : 'Select person'}

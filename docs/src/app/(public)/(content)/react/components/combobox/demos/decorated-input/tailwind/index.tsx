@@ -4,6 +4,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
 export default function ExampleDecoratedInput() {
   const id = React.useId();
   const [inputValue, setInputValue] = React.useState('');
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
   const isTyping = inputValue.trim() !== '';
 
   return (
@@ -15,6 +16,7 @@ export default function ExampleDecoratedInput() {
         if (eventDetails.reason === 'item-press') {
           // Keep the input blank to display the custom selected value text.
           setInputValue('');
+          containerRef.current?.focus();
           return;
         }
 
@@ -25,12 +27,16 @@ export default function ExampleDecoratedInput() {
         <label htmlFor={id}>Assignee</label>
         <Combobox.Value>
           {(person: Person | null) => (
-            <div className="relative group flex w-[16rem] min-[500px]:w-[20rem]">
+            <div
+              className="relative group flex w-[16rem] min-[500px]:w-[20rem] rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+              tabIndex={-1}
+              ref={containerRef}
+            >
               <Combobox.Input
                 id={id}
                 placeholder={person ? '' : 'Select person'}
                 aria-label={person && !isTyping ? person.name : undefined}
-                className="h-10 w-full rounded-md font-normal border border-gray-200 pl-9 pr-16 text-base text-gray-900 bg-[canvas] group-hover:bg-gray-100 group-focus-within:group-hover:bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 cursor-default focus:cursor-text"
+                className="h-10 w-full rounded-md font-normal border border-gray-200 pl-9 pr-16 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 cursor-default focus:cursor-text group-[&:hover:not(:focus-within)]:bg-gray-100 group-[&:focus:hover]:bg-gray-100"
                 onBlur={() => {
                   setInputValue('');
                 }}
@@ -43,7 +49,11 @@ export default function ExampleDecoratedInput() {
                 >
                   {person ? initials(person.name) : <PersonIcon className="size-[0.9rem]" />}
                 </span>
-                {person && !isTyping && <span className="truncate">{person.name}</span>}
+                {person && !isTyping && (
+                  <span className="truncate font-medium text-gray-900 group-[&:not(:focus):focus-within]:font-normal group-[&:not(:focus):focus-within]:text-gray-500">
+                    {person.name}
+                  </span>
+                )}
               </div>
 
               <div className="box-border absolute right-2 bottom-0 flex h-10 items-center justify-center gap-1 rounded border-none p-0 text-gray-600">
