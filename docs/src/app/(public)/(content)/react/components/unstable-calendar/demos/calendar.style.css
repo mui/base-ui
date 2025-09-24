@@ -125,6 +125,9 @@
   justify-content: center;
   font-size: 0.75rem;
   color: var(--calendar-day-grid-header-color);
+  /* Avoid the bold front weight from the th element */
+  font-weight: 500;
+  padding: 0
 }
 
 .DayButton {
@@ -206,4 +209,6 @@
   text-align: center;
   font-size: 0.75rem;
   color: var(--calendar-day-grid-header-color);
+  font-weight: 500;
+  padding: 0
 }

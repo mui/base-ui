@@ -113,6 +113,10 @@
   justify-content: center;
 }
 
+.DayGridCell {
+  padding: 0;
+}
+
 .DayWeekNumber {
   height: 36px;
   width: 36px;
@@ -123,6 +127,7 @@
   color: var(--calendar-day-grid-header-color);
   /* Avoid the bold front weight from the th element */
   font-weight: 500;
+  padding: 0;
 }
 
 .DayButton {
@@ -205,4 +210,5 @@
   font-size: 0.75rem;
   color: var(--calendar-day-grid-header-color);
   font-weight: 500;
+  padding: 0
 }

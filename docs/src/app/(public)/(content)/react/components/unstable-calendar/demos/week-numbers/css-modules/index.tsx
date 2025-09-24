@@ -1,4 +1,3 @@
-'use client';
 import * as React from 'react';
 import clsx from 'clsx';
 import { format } from 'date-fns/format';
@@ -8,9 +7,9 @@ import { getWeek } from 'date-fns/getWeek';
 import { Calendar } from '@base-ui-components/react/calendar';
 import { unstable_useDayList as useDayList } from '@base-ui-components/react/use-day-list';
 import { unstable_useWeekList as useWeekList } from '@base-ui-components/react/use-week-list';
-import styles from './calendar.module.css';
+import styles from './index.module.css';
 
-function MyCalendar() {
+export default function CalendarWithWeekNumbers() {
   const getWeekList = useWeekList();
   const getDayList = useDayList();
 
@@ -78,8 +77,4 @@ function MyCalendar() {
       )}
     </Calendar.Root>
   );
-}
-
-export default function CalendarWeekNumber() {
-  return <MyCalendar />;
 }
