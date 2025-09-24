@@ -54,13 +54,13 @@ function MyCalendar() {
                   key={week.toString()}
                   className={styles.DayGridRow}
                 >
-                  <td
+                  <th
                     className={styles.DayWeekNumber}
-                    role="rowheader"
+                    scope="row"
                     aria-label={`Week ${getWeek(week)}`}
                   >
                     {getWeek(week)}
-                  </td>
+                  </th>
                   {getDayList({ date: week, amount: 7 }).map((day) => (
                     <Calendar.DayGridCell
                       value={day}
