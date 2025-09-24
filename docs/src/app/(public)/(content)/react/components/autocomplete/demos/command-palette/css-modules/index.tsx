@@ -6,15 +6,6 @@ import styles from './index.module.css';
 export default function ExampleCommandPalette() {
   const [open, setOpen] = React.useState(false);
 
-  const { contains } = Autocomplete.useFilter();
-
-  const customFilter = React.useCallback(
-    (item: Item, query: string) => {
-      return contains(item.label, query);
-    },
-    [contains],
-  );
-
   function handleItemClick(item: Item) {
     // eslint-disable-next-line no-console
     console.log('Command executed:', item);
@@ -27,7 +18,7 @@ export default function ExampleCommandPalette() {
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Popup className={styles.Popup} aria-label="Command Palette">
-          <Autocomplete.Root items={groupedItems} filter={customFilter} autoHighlight>
+          <Autocomplete.Root items={groupedItems} autoHighlight>
             <Autocomplete.Input
               className={styles.Input}
               placeholder="Search for apps and commands..."
