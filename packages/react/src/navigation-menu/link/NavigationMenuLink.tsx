@@ -20,7 +20,13 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   componentProps: NavigationMenuLink.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { className, render, active = false, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    active = false,
+    closeOnClick = false,
+    ...elementProps
+  } = componentProps;
 
   const { setValue, popupElement, positionerElement, rootRef } = useNavigationMenuRootContext();
   const nodeId = useNavigationMenuTreeContext();
@@ -37,7 +43,9 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
     'aria-current': active ? 'page' : undefined,
     tabIndex: undefined,
     onClick(event) {
-      setValue(null, createChangeEventDetails('link-press', event.nativeEvent));
+      if (closeOnClick) {
+        setValue(null, createChangeEventDetails('link-press', event.nativeEvent));
+      }
     },
     onBlur(event) {
       if (
@@ -82,5 +90,10 @@ export namespace NavigationMenuLink {
      * @default false
      */
     active?: boolean;
+    /**
+     * Whether to close the navigation menu when the link is clicked.
+     * @default false
+     */
+    closeOnClick?: boolean;
   }
 }
