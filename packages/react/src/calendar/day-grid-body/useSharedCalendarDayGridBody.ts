@@ -187,12 +187,16 @@ export function useSharedCalendarDayGridBody(
         if (event.shiftKey) {
           amount = 12;
         }
-        const gridDays = Object.values(currentMonthDayGridRef.current).flat();
+        const gridDays = Object.values(currentMonthDayGridRef.current)
+          .flat() // Sort the days to ensure they are in the chronological order
+          .sort((a, b) => a.getTime() - b.getTime());
         const currentDay = gridDays[highlightedIndex];
         if (!currentDay) {
           return;
         }
         const dayOfMonth = adapter.getDate(currentDay);
+        const currentMonth = adapter.getMonth(currentDay);
+        const currentYear = adapter.getYear(currentDay);
         setVisibleDate(adapter.addMonths(visibleMonth, decrement ? -amount : amount), false);
         executeAfterItemMapUpdate.current = (newMap: typeof itemMap) => {
           // Short-circuit if the day grid has not been remounted
@@ -201,10 +205,15 @@ export function useSharedCalendarDayGridBody(
           }
           const newGridDays: TemporalSupportedObject[] = Object.values(
             currentMonthDayGridRef.current,
-          ).flat();
+          )
+            .flat()
+            // Sort the days to ensure they are in the chronological order
+            .sort((a, b) => a.getTime() - b.getTime());
           // Try to find the same day in the new month
           const sameDayInNewMonthIndex = newGridDays.findIndex(
-            (day) => adapter.getDate(day) === dayOfMonth,
+            (day) =>
+              adapter.getDate(day) === dayOfMonth &&
+              (adapter.getMonth(day) !== currentMonth || adapter.getYear(day) !== currentYear),
           );
           const newItems = Array.from(newMap.keys()) as HTMLElement[];
           focusNextNonDisabledElement({
