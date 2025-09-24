@@ -32,9 +32,12 @@ export type State = {
   triggerProps: HTMLProps;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
+  listElement: HTMLDivElement | null;
 
   scrollUpArrowVisible: boolean;
   scrollDownArrowVisible: boolean;
+
+  hasScrollArrows: boolean;
 };
 
 export type SelectStore = Store<State>;
@@ -89,7 +92,10 @@ export const selectors = {
   triggerProps: createSelector((state: State) => state.triggerProps),
   triggerElement: createSelector((state: State) => state.triggerElement),
   positionerElement: createSelector((state: State) => state.positionerElement),
+  listElement: createSelector((state: State) => state.listElement),
 
   scrollUpArrowVisible: createSelector((state: State) => state.scrollUpArrowVisible),
   scrollDownArrowVisible: createSelector((state: State) => state.scrollDownArrowVisible),
+
+  hasScrollArrows: createSelector((state: State) => state.hasScrollArrows),
 };
