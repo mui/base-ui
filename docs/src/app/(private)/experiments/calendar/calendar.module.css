@@ -24,10 +24,6 @@
   }
 }
 
-.RootWithTwoPanels {
-  width: 564px;
-}
-
 .RootWithTwoPanelsContent {
   display: flex;
   flex-direction: row;
