@@ -232,11 +232,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       return;
     }
 
-    // Only set focused when the active element inside is focus-visible.
-    // This prevents the viewport from staying expanded when clicking
-    // inside without keyboard navigation.
-    const activeEl = activeElement(ownerDocument(viewportRef.current));
-    if (contains(viewportRef.current, activeEl) && isFocusVisible(activeEl)) {
+    // Only set focused when the active element is focus-visible.
+    // This prevents the viewport from staying expanded when clicking inside without
+    // keyboard navigation.
+    if (isFocusVisible(ownerDocument(viewportRef.current).activeElement)) {
       setFocused(true);
       pauseTimers();
     }
