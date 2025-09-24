@@ -68,7 +68,6 @@
     "@octokit/rest": "^22.0.0",
     "@playwright/test": "1.55.0",
     "@tailwindcss/postcss": "4.1.13",
-    "@types/lodash": "^4.17.20",
     "@types/node": "^22.18.3",
     "@types/react": "^19.1.12",
     "@types/yargs": "^17.0.33",
@@ -88,11 +87,11 @@
     "cross-env": "^10.0.0",
     "css-loader": "^7.1.2",
     "docs": "workspace:^",
+    "es-toolkit": "^1.39.10",
     "eslint": "^9.35.0",
     "execa": "^9.6.0",
     "globby": "^14.1.0",
-    "lerna": "^8.2.3",
-    "lodash": "^4.17.21",
+    "lerna": "^8.2.4",
     "markdownlint-cli2": "^0.18.1",
     "nx": "^21.5.2",
     "postcss": "^8.5.6",
@@ -117,9 +116,9 @@
     "vitest": "^3.2.4",
     "yargs": "^18.0.0"
   },
-  "packageManager": "pnpm@10.15.1",
+  "packageManager": "pnpm@10.17.0",
   "engines": {
-    "pnpm": "10.15.1",
+    "pnpm": "10.17.0",
     "node": ">=22.11"
   },
   "resolutions": {
