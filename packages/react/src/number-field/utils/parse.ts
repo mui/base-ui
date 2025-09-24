@@ -42,6 +42,18 @@ export const PERSIAN_DETECT_RE = /[۰۱۲۳۴۵۶۷۸۹]/;
 export const HAN_DETECT_RE = /[零〇一二三四五六七八九]/;
 export const FULLWIDTH_DETECT_RE = new RegExp(`[${FULLWIDTH_NUMERALS.join('')}]`);
 
+export const BASE_NON_NUMERIC_SYMBOLS = [
+  '.',
+  ',',
+  FULLWIDTH_DECIMAL,
+  FULLWIDTH_GROUP,
+  '٫',
+  '٬',
+] as const;
+export const SPACE_SEPARATOR_RE = /\p{Zs}/u;
+export const PLUS_SIGNS_WITH_ASCII = ['+', ...UNICODE_PLUS_SIGNS];
+export const MINUS_SIGNS_WITH_ASCII = ['-', ...UNICODE_MINUS_SIGNS];
+
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const escapeClassChar = (s: string) => s.replace(/[-\\\]^]/g, (m) => `\\${m}`); // escape for use inside [...]
 
@@ -92,17 +104,10 @@ export function parseNumber(
     .replace(/\p{Cf}/gu, '')
     .trim();
 
-  // "(...)" is negative
-  let isParenthesizedNegative = false;
-  if (/^(?:\(|（)\s*.+\s*(?:\)|）)$/.test(input)) {
-    isParenthesizedNegative = true;
-    input = input.slice(1, -1);
-  }
-
   // Normalize unicode minus/plus to ASCII, handle leading/trailing signs
   input = input.replace(ANY_MINUS_RE, '-').replace(ANY_PLUS_RE, '+');
 
-  let isNegative = isParenthesizedNegative;
+  let isNegative = false;
 
   // Trailing sign, e.g. "1234-" / "1234+"
   const trailing = input.match(/([+-])\s*$/);
@@ -193,10 +198,10 @@ export function parseNumber(
   const hasPercentSymbol = PERCENT_RE.test(formattedNumber) || style === 'percent';
   const hasPermilleSymbol = PERMILLE_RE.test(formattedNumber);
 
-  if (!isUnitPercent && hasPercentSymbol) {
-    num /= 100;
-  } else if (hasPermilleSymbol) {
+  if (hasPermilleSymbol) {
     num /= 1000;
+  } else if (!isUnitPercent && hasPercentSymbol) {
+    num /= 100;
   }
 
   if (Number.isNaN(num)) {

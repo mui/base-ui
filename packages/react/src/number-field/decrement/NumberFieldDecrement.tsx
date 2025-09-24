@@ -48,6 +48,8 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     value,
     valueRef,
     locale,
+    lastChangedValueRef,
+    onValueCommitted,
   } = useNumberFieldRootContext();
 
   const disabled = disabledProp || contextDisabled;
@@ -74,6 +76,8 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     intentionalTouchCheckTimeout,
     movesAfterTouchRef,
     locale,
+    lastChangedValueRef,
+    onValueCommitted,
   });
 
   const { getButtonProps, buttonRef } = useButton({
