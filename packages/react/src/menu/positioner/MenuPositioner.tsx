@@ -9,6 +9,7 @@ import {
 } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import type { MenuRoot } from '../root/MenuRoot';
 import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -159,6 +160,27 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       menuEvents.off('menuopenchange', onMenuOpenChange);
     };
   }, [menuEvents, nodeId, parentNodeId, setOpen, setHoverEnabled]);
+
+  React.useEffect(() => {
+    if (parentNodeId == null) {
+      return undefined;
+    }
+
+    function onParentClose(details: MenuOpenEventDetails) {
+      if (details.open || details.nodeId !== parentNodeId) {
+        return;
+      }
+
+      const reason: MenuRoot.ChangeEventReason = details.reason ?? 'sibling-open';
+      setOpen(false, createBaseUIEventDetails(reason));
+    }
+
+    menuEvents.on('menuopenchange', onParentClose);
+
+    return () => {
+      menuEvents.off('menuopenchange', onParentClose);
+    };
+  }, [menuEvents, parentNodeId, setOpen]);
 
   // Close unrelated child submenus when hovering a different item in the parent menu.
   React.useEffect(() => {

@@ -18,5 +18,10 @@
       "type": "boolean"
     }
   },
-  "cssVariables": {}
+  "cssVariables": {
+    "--toast-frontmost-height": {
+      "description": "Indicates the height of the frontmost toast.",
+      "type": "number"
+    }
+  }
 }

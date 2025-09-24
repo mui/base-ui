@@ -55,6 +55,19 @@
   }
 }
 
+.content {
+  overflow: hidden;
+  transition: opacity 0.25s;
+
+  &[data-behind] {
+    opacity: 0;
+  }
+
+  &[data-expanded] {
+    opacity: 1;
+  }
+}
+
 .title {
   font-weight: 600;
   margin-bottom: 4px;

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import camelCase from 'lodash/camelCase';
+import camelCase from 'es-toolkit/compat/camelCase';
 import { DemoContext } from './DemoContext';
 
 export const DemoSourceBrowser = React.forwardRef<HTMLPreElement, React.ComponentProps<'pre'>>(
