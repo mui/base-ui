@@ -193,7 +193,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const flatItems = React.useMemo(() => {
     if (!items) {
-      return [] as readonly any[];
+      return EMPTY_ARRAY as readonly any[];
     }
 
     if (isGrouped) {
@@ -203,13 +203,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     return items;
   }, [items, isGrouped]);
 
-  const filteredItems: ReadonlyArray<Value> | ReadonlyArray<Group<Value>> = React.useMemo(() => {
+  const filteredItems: readonly Value[] | readonly Group<Value>[] = React.useMemo(() => {
     if (!items) {
-      return [];
+      return EMPTY_ARRAY;
     }
 
     if (isGrouped) {
-      const groupedItems = items as ReadonlyArray<Group<Value>>;
+      const groupedItems = items as readonly Group<Value>[];
       const resultingGroups: Group<Value>[] = [];
       let currentCount = 0;
 
