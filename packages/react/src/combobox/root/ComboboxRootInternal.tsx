@@ -83,7 +83,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     readOnly = false,
     required = false,
     inputRef: inputRefProp,
-    cols = 1,
+    grid = false,
     items,
     filter: filterProp,
     openOnInputClick = true,
@@ -313,7 +313,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         readOnly,
         required,
         fieldControlValidation,
-        cols,
+        grid,
         isGrouped,
         virtualized,
         openOnInputClick,
@@ -550,11 +550,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const setInputValue = useEventCallback(
     (next: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
-      if (eventDetails.reason === 'input-clear' && open) {
-        hadInputClearRef.current = true;
-        // Defer clearing until close transition completes to avoid flicker
-        return;
-      }
+      hadInputClearRef.current = eventDetails.reason === 'input-clear';
 
       props.onInputValueChange?.(next, eventDetails);
 
@@ -598,11 +594,18 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         return;
       }
 
-      if (selectionMode === 'single' && !nextOpen && queryChangedAfterOpen) {
-        setCloseQuery(query);
-        // Avoid a flicker when closing the popup with an empty query.
-        if (query === '') {
-          setQueryChangedAfterOpen(false);
+      if (!nextOpen && queryChangedAfterOpen) {
+        if (selectionMode === 'single') {
+          setCloseQuery(query);
+          // Avoid a flicker when closing the popup with an empty query.
+          if (query === '') {
+            setQueryChangedAfterOpen(false);
+          }
+        } else if (selectionMode === 'multiple') {
+          // Freeze the current query so filtering remains stable while exiting.
+          // For multiple selection, clear the input immediately on close while retaining filtering via closeQuery.
+          setCloseQuery(query);
+          setInputValue('', createBaseUIEventDetails('input-clear', eventDetails.event));
         }
       }
 
@@ -631,13 +634,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
           stringifyAsLabel(nextValue, itemToStringLabel),
           createBaseUIEventDetails(eventDetails.reason, eventDetails.event),
         );
-      }
-
-      const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-      if (multiple && hadInputValue) {
-        setInputValue('', createBaseUIEventDetails(eventDetails.reason, eventDetails.event));
-        // Reset active index and clear any highlighted item since the list will re-filter.
-        setIndices({ activeIndex: null });
       }
 
       if (
@@ -707,7 +703,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         setSelectedValue(nextValue, eventDetails);
 
         const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-        if (wasFiltering && !store.state.inputInsidePopup) {
+        if (!wasFiltering) {
+          return;
+        }
+
+        if (store.state.inputInsidePopup) {
+          setInputValue('', createBaseUIEventDetails('input-clear', eventDetails.event));
+        } else {
           setOpen(false, eventDetails);
         }
       } else {
@@ -730,24 +732,15 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       setIndices({ activeIndex: null });
     }
 
-    // If an input-clear was requested while open, perform it here after close completes
-    // to avoid mid-exit flicker.
-    if (hadInputClearRef.current && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', createBaseUIEventDetails('input-clear'));
-      hadInputClearRef.current = false;
-    }
-
-    // If explicitly requested by a wrapper (e.g., FilterableMenu), clear the input
-    // after close completes regardless of selection mode. This ensures the next open
-    // starts from a blank query without requiring external state resets.
-    if (props.clearInputOnCloseComplete && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', createBaseUIEventDetails('input-clear'));
-    }
-
     // Multiple selection mode:
     // If the user typed a filter and didn't select in multiple mode, clear the input
     // after close completes to avoid mid-exit flicker and start fresh on next open.
-    if (selectionMode === 'multiple' && inputRef.current && inputRef.current.value !== '') {
+    if (
+      selectionMode === 'multiple' &&
+      inputRef.current &&
+      inputRef.current.value !== '' &&
+      !hadInputClearRef.current
+    ) {
       setInputValue('', createBaseUIEventDetails('input-clear'));
     }
 
@@ -803,7 +796,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   let ariaHasPopup: 'grid' | 'listbox' | undefined;
   let ariaExpanded: 'true' | 'false' | undefined;
   if (!inline) {
-    ariaHasPopup = cols > 1 ? 'grid' : 'listbox';
+    ariaHasPopup = grid ? 'grid' : 'listbox';
     ariaExpanded = open ? 'true' : 'false';
   }
 
@@ -874,8 +867,12 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     loop: true,
     allowEscape: !autoHighlight,
     focusItemOnOpen: queryChangedAfterOpen || selectionMode === 'none' ? false : 'auto',
-    cols,
-    orientation: cols > 1 ? 'horizontal' : undefined,
+    // `cols` > 1 enables grid navigation.
+    // Since <Combobox.Row> infers column sizes (and is required when building a grid),
+    // it works correctly even with a value of `2`.
+    // Floating UI tests don't require `role="row"` wrappers, so retains the number API.
+    cols: grid ? 2 : 1,
+    orientation: grid ? 'horizontal' : undefined,
     disabledIndices: virtualized
       ? (index) => index < 0 || index >= flatFilteredItems.length
       : EMPTY_ARRAY,
@@ -956,7 +953,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       readOnly,
       required,
       fieldControlValidation,
-      cols,
+      grid,
       isGrouped,
       virtualized,
       onOpenChangeComplete,
@@ -989,7 +986,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     readOnly,
     required,
     fieldControlValidation,
-    cols,
+    grid,
     isGrouped,
     virtualized,
     onOpenChangeComplete,
@@ -1238,11 +1235,11 @@ interface ComboboxRootProps<ItemValue> {
    */
   inputRef?: React.Ref<HTMLInputElement>;
   /**
-   * The maximum number of columns present when the items are rendered in grid layout.
-   * A value of more than `1` turns the listbox into a grid.
-   * @default 1
+   * Whether list items are presented in a grid layout.
+   * When enabled, arrow keys navigate across rows and columns inferred from DOM rows.
+   * @default false
    */
-  cols?: number;
+  grid?: boolean;
   /**
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
@@ -1311,12 +1308,6 @@ interface ComboboxRootProps<ItemValue> {
    * @default false
    */
   alwaysSubmitOnEnter?: boolean;
-  /**
-   * INTERNAL: Clears the input value after close animation completes.
-   * Useful for wrappers like FilterableMenu so they don't need to reset externally.
-   * @default false
-   */
-  clearInputOnCloseComplete?: boolean;
   /**
    * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
    */

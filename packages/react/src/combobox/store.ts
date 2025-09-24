@@ -76,7 +76,7 @@ export type State = {
   readOnly: boolean;
   required: boolean;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
-  cols: number;
+  grid: boolean;
   isGrouped: boolean;
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
@@ -151,7 +151,7 @@ export const selectors = {
   readOnly: createSelector((state: State) => state.readOnly),
   required: createSelector((state: State) => state.required),
   fieldControlValidation: createSelector((state: State) => state.fieldControlValidation),
-  cols: createSelector((state: State) => state.cols),
+  grid: createSelector((state: State) => state.grid),
   isGrouped: createSelector((state: State) => state.isGrouped),
   virtualized: createSelector((state: State) => state.virtualized),
   onOpenChangeComplete: createSelector((state: State) => state.onOpenChangeComplete),
