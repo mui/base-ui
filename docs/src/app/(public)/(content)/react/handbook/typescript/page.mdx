@@ -5,14 +5,14 @@
 
 ## Namespaces
 
-Base UI uses namespaces to organize types. Every component has two core interfaces:
+Base UI uses namespaces to organize types. Every component has two core interfaces:
 
 - `Props` (such as `Tooltip.Root.Props`)
 - `State` (such as `Tooltip.Root.State`)
 
 ### Props
 
-When creating wrapping components, you can use the `Props` type to accept all of the underlying Base UI props for the component.
+When creating wrapping components, you can use the `Props` type to accept all of the underlying Base UI props for the component.
 
 ```tsx title="Prop types"
 import { Tooltip } from '@base-ui-components/react/tooltip';
@@ -47,7 +47,7 @@ function renderPositioner(props: Popover.Positioner.Props, state: Popover.Positi
 
 ### Events
 
-Types relating to custom Base UI events are also exported on component parts' namespaces.
+Types relating to custom Base UI events are also exported on component parts' namespaces.
 
 - `ChangeEventDetails` (such as `Combobox.Root.ChangeEventDetails`) is the object passed to change handlers like `onValueChange` and `onOpenChange`.
 - `ChangeEventReason` (such as `Combobox.Root.ChangeEventReason`) is the union of possible reason strings for a change event.

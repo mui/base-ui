@@ -79,7 +79,7 @@ The `mergeProps` function merges two or more sets of React props together. It sa
 2. `className` strings
 3. `style` properties
 
-`mergeProps` merges objects from left to right, so that subsequent objects' properties in the arguments overwrite previous ones. Merging props is useful when creating custom components, as well as inside the callback version of the `render` prop for any Base UI component.
+`mergeProps` merges objects from left to right, so that subsequent objects' properties in the arguments overwrite previous ones. Merging props is useful when creating custom components, as well as inside the callback version of the `render` prop for any Base UI component.
 
 ```tsx title="Using mergeProps in the render callback"
 import { mergeProps } from '@base-ui-components/react/merge-props';
@@ -172,7 +172,7 @@ function Button({ render, ...props }: ButtonProps) {
 
 ## Migrating from Radix UI
 
-Radix UI uses an `asChild` prop, while Base UI uses a `render` prop. Learn more about how composition works in Base UI in the [composition guide](/react/handbook/composition).
+Radix UI uses an `asChild` prop, while Base UI uses a `render` prop. Learn more about how composition works in Base UI in the [composition guide](/react/handbook/composition).
 
 In Radix UI, the `Slot` component lets you implement an `asChild` prop.
 
@@ -190,7 +190,7 @@ function Button({ asChild, ...props }) {
 </Button>;
 ```
 
-In Base UI, `useRender` lets you implement a `render` prop. The example below is the equivalent implementation to the Radix example above.
+In Base UI, `useRender` lets you implement a `render` prop. The example below is the equivalent implementation to the Radix example above.
 
 ```jsx title="Base UI render prop"
 import { useRender } from '@base-ui-components/react/use-render';
