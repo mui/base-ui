@@ -393,6 +393,7 @@ export function useListNavigation(
       return;
     }
     if (!open) {
+      forceSyncFocusRef.current = false;
       return;
     }
     if (!elements.floating) {
