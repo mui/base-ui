@@ -109,6 +109,7 @@ export class DialogStore extends ControllableStore<State> {
   };
 
   public useState<K extends keyof Selectors>(key: K): ReturnType<Selectors[K]> {
+    // False positive
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useStore<State, ReturnType<Selectors[K]>>(
       this,
