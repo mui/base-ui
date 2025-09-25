@@ -8,7 +8,7 @@ import { Store } from './Store';
  *   value is provided. Controlled keys mirror the incoming value and ignore local writes
  *   (via {@link set}, {@link apply}, or {@link update}).
  * - When a key is uncontrolled, an optional default value is written once on first render.
- * - Use {@link useProp} and {@link useProps} to synchronize external values/props into the
+ * - Use {@link useSyncedValue} and {@link useSyncedValues} to synchronize external values/props into the
  *   store during a layout phase using {@link useIsoLayoutEffect}. This ensures DOM reads in
  *   React components observe the latest store state within the same commit.
  */
@@ -21,7 +21,7 @@ export class ControllableStore<State> extends Store<State> {
   /**
    * Synchronizes a single external value into the store during layout phase.
    */
-  public useProp<Key extends keyof State, Value extends State[Key]>(
+  public useSyncedValue<Key extends keyof State, Value extends State[Key]>(
     key: keyof State,
     value: Value,
   ) {
@@ -35,9 +35,9 @@ export class ControllableStore<State> extends Store<State> {
   }
 
   /**
-   * Merges multiple external props into the store during layout phase.
+   * Synchronizes multiple external values into the store during layout phase.
    */
-  public useProps(props: Partial<State>) {
+  public useSyncedValues(props: Partial<State>) {
     // False positive - ESLint thinks we're calling a hook from a class component.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {

@@ -133,7 +133,7 @@ describe('ControllableStore', () => {
 
     function Test({ value }: { value: number }) {
       store = useStableStore({ value: 0, label: '' });
-      store.useProp('value', value);
+      store.useSyncedValue('value', value);
       return null;
     }
 
@@ -149,7 +149,7 @@ describe('ControllableStore', () => {
 
     function Test({ props }: { props: Partial<TestState> }) {
       store = useStableStore({ value: 0, label: '' });
-      store.useProps(props);
+      store.useSyncedValues(props);
       return null;
     }
 
