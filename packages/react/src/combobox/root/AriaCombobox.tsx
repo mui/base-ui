@@ -108,6 +108,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const { clearErrors } = useFormContext();
   const {
+    controlId,
     setDirty,
     validityData,
     validationMode,
@@ -118,7 +119,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = controlId ?? defaultId;
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -127,11 +129,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const commitValidation = fieldControlValidation.commitValidation;
 
   useIsoLayoutEffect(() => {
-    setControlId(id);
+    if (idProp) {
+      setControlId(idProp);
+    }
+
     return () => {
-      setControlId(undefined);
+      if (idProp) {
+        setControlId(undefined);
+      }
     };
-  }, [id, setControlId]);
+  }, [idProp, setControlId]);
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
     controlled: selectedValueProp,

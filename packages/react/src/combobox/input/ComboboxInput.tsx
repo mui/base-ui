@@ -5,6 +5,7 @@ import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { isAndroid, isFirefox } from '@base-ui-components/utils/detectBrowser';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
@@ -32,7 +33,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   componentProps: ComboboxInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    id: idProp,
+    ...elementProps
+  } = componentProps;
 
   const {
     state: fieldState,
@@ -59,6 +66,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const triggerProps = useStore(store, selectors.triggerProps);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
+
+  const id = useBaseUiId(idProp);
 
   // `inputValue` can't be placed in the store.
   // https://github.com/mui/base-ui/issues/2703
@@ -164,6 +173,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         disabled,
         readOnly,
         ...(selectionMode === 'none' && name && { name }),
+        id,
         onFocus() {
           setFocused(true);
         },
