@@ -189,7 +189,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     [getReferenceProps, triggerProps],
   );
 
-  store.useProps({
+  store.useSyncedValues({
     openMethod,
     mounted,
     transitionStatus,

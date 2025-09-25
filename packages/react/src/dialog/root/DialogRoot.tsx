@@ -48,7 +48,7 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
   }).current;
 
   store.useControlledProp('open', openProp, defaultOpenProp);
-  store.useProps({ dismissible, nested, modal });
+  store.useSyncedValues({ dismissible, nested, modal });
 
   const dialogRoot = useDialogRoot({
     store,

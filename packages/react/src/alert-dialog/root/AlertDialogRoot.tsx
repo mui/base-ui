@@ -47,7 +47,7 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
   }).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
-  store.useProp('nested', nested);
+  store.useSyncedValue('nested', nested);
 
   const dialogRoot = useDialogRoot({
     store,
