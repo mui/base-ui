@@ -18,7 +18,6 @@ import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-// selectors are internal to the store; use store.useState
 
 const stateAttributesMapping: StateAttributesMapping<DialogPopup.State> = {
   ...baseMapping,
