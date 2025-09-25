@@ -4,6 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { getTarget } from '../../floating-ui-react/utils';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useLabelableContext } from '../root/LabelableContext';
 import { fieldValidityMapping } from '../utils/constants';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -21,10 +22,17 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 ) {
   const { render, className, id: idProp, ...elementProps } = componentProps;
 
-  const { labelId, setLabelId, state, controlId } = useFieldRootContext(false);
+  const fieldRootContext = useFieldRootContext();
+  const labelableContext = useLabelableContext();
+
+  const controlId =
+    labelableContext?.controlId !== undefined
+      ? labelableContext.controlId
+      : fieldRootContext.controlId;
+  const setLabelId = labelableContext?.setLabelId ?? fieldRootContext.setLabelId;
+  const labelId = labelableContext?.labelId ?? fieldRootContext.labelId;
 
   const id = useBaseUiId(idProp);
-  const htmlFor = controlId ?? undefined;
 
   useIsoLayoutEffect(() => {
     if (controlId != null || idProp) {
@@ -33,15 +41,15 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
     return () => {
       setLabelId(undefined);
     };
-  }, [controlId, id, idProp, setLabelId]);
+  }, [controlId, labelableContext, id, idProp, setLabelId]);
 
   const element = useRenderElement('label', componentProps, {
     ref: forwardedRef,
-    state,
+    state: fieldRootContext.state,
     props: [
       {
         id: labelId,
-        htmlFor,
+        htmlFor: controlId ?? undefined,
         onMouseDown(event) {
           const target = getTarget(event.nativeEvent) as HTMLElement | null;
           if (target?.closest('button,input,select,textarea')) {

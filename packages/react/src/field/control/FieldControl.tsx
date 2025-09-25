@@ -64,8 +64,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
     validationMode,
   } = useFieldRootContext();
 
-  const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
-    useFieldControlValidation();
+  const { getInputValidationProps, commitValidation, inputRef } = useFieldControlValidation();
 
   const defaultId = useBaseUiId(idProp);
   const id = controlId ?? defaultId;
@@ -156,7 +155,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
           }
         },
       },
-      getValidationProps(),
       getInputValidationProps(),
       elementProps,
     ],
