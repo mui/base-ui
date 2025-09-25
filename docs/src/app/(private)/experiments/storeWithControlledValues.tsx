@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useStore } from '@base-ui-components/utils/store/useStore';
 import { ControllableStore } from '@base-ui-components/utils/store';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 
 export default function Playground() {
   const [open, setOpen] = React.useState(false);
@@ -75,11 +76,16 @@ function ControllableComponent(props: Props) {
     () => new ControllableStore<State>({ open: props.defaultOpen ?? false, value: 0 }),
   ).current;
 
-  store.useControlledProp('open', props.open, props.defaultOpen ?? false, props.onOpenChange);
+  store.useControlledProp('open', props.open, props.defaultOpen ?? false);
   store.useProp('value', props.value ?? 0);
 
   const open = useStore(store, (state) => state.open);
   const value = useStore(store, (state) => state.value);
+
+  const handleClick = useEventCallback(() => {
+    store.set('open', !open);
+    props.onOpenChange?.(!open, 'toggle-button');
+  });
 
   return (
     <React.Fragment>
@@ -88,7 +94,7 @@ function ControllableComponent(props: Props) {
       <button
         type="button"
         className="border-1 border-gray-300 px-4 py-1 rounded-sm"
-        onClick={() => store.set('open', !open, 'toggle-button')}
+        onClick={handleClick}
       >
         Toggle internally
       </button>

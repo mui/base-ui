@@ -7,8 +7,6 @@ export class ControllableStore<State> extends Store<State> {
    */
   #controlledValues: Map<keyof State, boolean> = new Map();
 
-  #changeCallbacks: Map<keyof State, (value: any, ...rest: any) => void> = new Map();
-
   useProp<Key extends keyof State, Value extends State[Key]>(key: keyof State, value: Value) {
     // False positive - ESLint thinks we're calling a hook from a class component.
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -31,11 +29,8 @@ export class ControllableStore<State> extends Store<State> {
     key: keyof State,
     controlled: Value | undefined,
     defaultValue: Value,
-    changeCallback?: (newValue: Value, ...rest: any) => void,
   ): void {
     const isControlled = controlled !== undefined;
-
-    this.#changeCallbacks.set(key, changeCallback as (value: any, ...rest: any) => void);
 
     if (process.env.NODE_ENV !== 'production') {
       const previoslyControlled = this.#controlledValues.get(key);
@@ -67,8 +62,7 @@ export class ControllableStore<State> extends Store<State> {
     }, [key, controlled, defaultValue, isControlled]);
   }
 
-  public set<T>(key: keyof State, value: T, ...additionalArgs: any[]): void {
-    this.#changeCallbacks.get(key)?.(value, ...additionalArgs);
+  public set<T>(key: keyof State, value: T): void {
     if (this.#controlledValues.get(key) === true) {
       // Ignore updates to controlled values
       return;
@@ -76,7 +70,4 @@ export class ControllableStore<State> extends Store<State> {
 
     super.set(key, value);
   }
-
-  // Component-specific stores can add strongly type convenience methods
-  // such as `setOpen(open: boolean, reason: string)`.
 }
