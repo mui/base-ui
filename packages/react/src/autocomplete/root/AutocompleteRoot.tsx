@@ -6,8 +6,6 @@ import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
 import type { Group } from '../../utils/resolveValueLabel';
 
-const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
-
 /**
  * Groups all parts of the autocomplete.
  * Doesn't render its own HTML element.
@@ -15,10 +13,10 @@ const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
  * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
  */
 export function AutocompleteRoot<Value>(
-  props: Omit<AutocompleteRoot.Props<Value>, 'items'> & { items: Group<Value>[] },
+  props: Omit<AutocompleteRoot.Props<Value>, 'items'> & { items: readonly Group<Value>[] },
 ): React.JSX.Element;
 export function AutocompleteRoot<Value>(
-  props: Omit<AutocompleteRoot.Props<Value>, 'items'> & { items?: Value[] },
+  props: Omit<AutocompleteRoot.Props<Value>, 'items'> & { items?: readonly Value[] },
 ): React.JSX.Element;
 export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): React.JSX.Element {
   const {
@@ -70,7 +68,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
     },
   );
 
-  const collator = useCoreFilter(DEFAULT_FILTER_OPTIONS);
+  const collator = useCoreFilter();
 
   const baseFilter = React.useMemo(() => {
     if (other.filter) {

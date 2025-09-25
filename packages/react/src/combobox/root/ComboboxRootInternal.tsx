@@ -57,12 +57,12 @@ import { defaultItemEquality, findItemIndex, itemIncludes } from '../../utils/it
  */
 export function ComboboxRootInternal<Value, Mode extends SelectionMode = 'none'>(
   props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
-    items: Group<Value>[];
+    items: readonly Group<Value>[];
   },
 ): React.JSX.Element;
 export function ComboboxRootInternal<Value, Mode extends SelectionMode = 'none'>(
   props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
-    items?: Value[];
+    items?: readonly Value[];
   },
 ): React.JSX.Element;
 export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = 'none'>(
@@ -191,9 +191,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
   const isGrouped = isGroupedItems(items);
 
-  const flatItems: Value[] = React.useMemo(() => {
+  const flatItems: readonly any[] = React.useMemo(() => {
     if (!items) {
-      return [];
+      return EMPTY_ARRAY;
     }
 
     if (isGrouped) {
@@ -209,7 +209,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
 
     if (isGrouped) {
-      const groupedItems = items as Group<Value>[];
+      const groupedItems = items;
       const resultingGroups: Group<Value>[] = [];
       let currentCount = 0;
 
@@ -241,7 +241,15 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
 
     if (query === '') {
-      return limit > -1 ? flatItems.slice(0, limit) : flatItems;
+      return limit > -1
+        ? flatItems.slice(0, limit)
+        : // The cast here is done as `flatItems` is readonly.
+          // valuesRef.current, a mutable ref, can be set to `flatFilteredItems`, which may
+          // reference this exact readonly value, creating a mutation risk.
+          // However, <Combobox.Item> can never mutate this value as the mutating effect
+          // bails early when `items` is provided, and this is only ever returned
+          // when `items` is provided due to the early return at the top of this hook.
+          (flatItems as Value[]);
     }
 
     const limitedItems: Value[] = [];
@@ -280,15 +288,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   /**
    * Contains the currently visible list of item values post-filtering.
    */
-  const valuesRef = React.useRef<Array<any>>([]);
+  const valuesRef = React.useRef<any[]>([]);
   /**
    * Contains all item values in a stable, unfiltered order.
-   * - When `items` prop is provided, this mirrors the flat items.
-   * - When `items` is not provided, this accumulates values on first mount and
-   *   does not remove them on unmount (due to filtering), providing a stable
-   *   index for selected value tracking.
+   * This is only used when `items` prop is not provided.
+   * It accumulates values on first mount and does not remove them on unmount due to
+   * filtering, providing a stable index for selected value tracking.
    */
-  const allValuesRef = React.useRef<Array<any>>([]);
+  const allValuesRef = React.useRef<any[]>([]);
 
   const store = useRefWithInit(
     () =>
@@ -417,10 +424,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   useIsoLayoutEffect(() => {
     if (items) {
       valuesRef.current = flatFilteredItems;
-      allValuesRef.current = flatItems;
       listRef.current.length = flatFilteredItems.length;
     }
-  }, [items, flatFilteredItems, flatItems]);
+  }, [items, flatFilteredItems]);
 
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
@@ -1248,7 +1254,7 @@ interface ComboboxRootProps<ItemValue> {
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: ItemValue[] | Group<ItemValue>[];
+  items?: readonly ItemValue[] | readonly Group<ItemValue>[];
   /**
    * Filter function used to match items vs input query.
    * The `itemToStringLabel` function is provided to help convert items to strings for comparison.

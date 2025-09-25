@@ -8,6 +8,28 @@ const objectItems = [
   { value: 'c', label: 'cherry' },
 ];
 
+const objectItemsReadonly = [
+  { value: 'a', label: 'apple' },
+  { value: 'b', label: 'banana' },
+  { value: 'c', label: 'cherry' },
+] as const;
+
+<Select.Root
+  items={objectItemsReadonly}
+  defaultValue="a"
+  itemToStringLabel={(item) => {
+    item.startsWith('a');
+    return item;
+  }}
+  itemToStringValue={(item) => {
+    item.startsWith('a');
+    return item;
+  }}
+  onValueChange={(value) => {
+    value.startsWith('a');
+  }}
+/>;
+
 <Select.Root
   items={objectItems}
   defaultValue="a"
