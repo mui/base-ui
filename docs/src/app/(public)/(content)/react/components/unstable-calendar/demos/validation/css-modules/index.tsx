@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { format } from 'date-fns/format';
 import { Calendar } from '@base-ui-components/react/calendar';
-import styles from './index.module.css';
+import indexStyles from './index.module.css';
+import styles from '../../calendar.module.css';
 
 const today = new Date();
 
 export default function MinMaxDateCalendars() {
   return (
-    <div className={styles.Wrapper}>
+    <div className={indexStyles.Wrapper}>
       <ValidationCalendar minDate={today} />
       <ValidationCalendar maxDate={today} />
     </div>

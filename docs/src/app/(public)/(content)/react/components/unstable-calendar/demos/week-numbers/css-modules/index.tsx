@@ -6,7 +6,7 @@ import { getWeek } from 'date-fns/getWeek';
 import { Calendar } from '@base-ui-components/react/calendar';
 import { unstable_useDayList as useDayList } from '@base-ui-components/react/use-day-list';
 import { unstable_useWeekList as useWeekList } from '@base-ui-components/react/use-week-list';
-import styles from './index.module.css';
+import styles from '../../calendar.module.css';
 
 export default function CalendarWithWeekNumbers() {
   const getWeekList = useWeekList();

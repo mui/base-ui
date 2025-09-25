@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { format } from 'date-fns/format';
 import { Calendar } from '@base-ui-components/react/calendar';
-import styles from './index.module.css';
+import styles from '../../calendar.module.css';
 
 function isDateUnavailable(date: Date) {
   return date.getDay() === 6 || date.getDay() === 0; // Unavailable on weekends
