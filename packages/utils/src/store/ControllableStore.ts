@@ -62,6 +62,12 @@ export class ControllableStore<State> extends Store<State> {
     }, [key, controlled, defaultValue, isControlled]);
   }
 
+  /**
+   * Sets a specific key in the store's state to a new value and notifies listeners if the value has changed.
+   *
+   * @param key The key in the store's state to update.
+   * @param value The new value to set for the specified key.
+   */
   public set<T>(key: keyof State, value: T): void {
     if (this.#controlledValues.get(key) === true) {
       // Ignore updates to controlled values
@@ -69,5 +75,39 @@ export class ControllableStore<State> extends Store<State> {
     }
 
     super.set(key, value);
+  }
+
+  /**
+   * Merges the provided changes into the current state and notifies listeners if there are changes.
+   *
+   * @param changes An object containing the changes to apply to the current state.
+   */
+  public apply(values: Partial<State>): void {
+    const newValues = { ...values };
+    for (const key in newValues) {
+      if (this.#controlledValues.get(key) === true) {
+        // Ignore updates to controlled values
+        delete newValues[key];
+      }
+    }
+
+    super.apply(newValues);
+  }
+
+  /**
+   * Updates the entire store's state and notifies all registered listeners.
+   *
+   * @param newState The new state to set for the store.
+   */
+  public update(newState: State) {
+    const newValues = { ...newState };
+    for (const key in newValues) {
+      if (this.#controlledValues.get(key) === true) {
+        // Ignore updates to controlled values
+        delete newValues[key];
+      }
+    }
+
+    super.update({ ...this.state, ...newValues });
   }
 }
