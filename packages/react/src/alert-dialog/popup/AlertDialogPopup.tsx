@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogPopup } from '../../dialog/popup/useDialogPopup';
@@ -19,7 +18,7 @@ import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { selectors } from '../../dialog/store';
+// selectors are internal to the dialog store; use store.useState
 
 const stateAttributesMapping: StateAttributesMapping<AlertDialogPopup.State> = {
   ...baseMapping,
@@ -43,16 +42,16 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 
   const { store, onOpenChangeComplete } = useDialogRootContext();
 
-  const descriptionElementId = useStore(store, selectors.descriptionElementId);
-  const floatingRootContext = useStore(store, selectors.floatingRootContext);
-  const rootPopupProps = useStore(store, selectors.popupProps);
-  const mounted = useStore(store, selectors.mounted);
-  const nested = useStore(store, selectors.nested);
-  const nestedOpenDialogCount = useStore(store, selectors.nestedOpenDialogCount);
-  const open = useStore(store, selectors.open);
-  const openMethod = useStore(store, selectors.openMethod);
-  const titleElementId = useStore(store, selectors.titleElementId);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const descriptionElementId = store.useState('descriptionElementId');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const rootPopupProps = store.useState('popupProps');
+  const mounted = store.useState('mounted');
+  const nested = store.useState('nested');
+  const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
+  const open = store.useState('open');
+  const openMethod = store.useState('openMethod');
+  const titleElementId = store.useState('titleElementId');
+  const transitionStatus = store.useState('transitionStatus');
 
   useAlertDialogPortalContext();
 
