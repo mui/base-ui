@@ -337,7 +337,7 @@ export namespace useSharedCalendarRoot {
     onVisibleDateChange?: (visibleDate: TemporalSupportedObject) => void;
     /**
      * The date used to generate the new value when both `value` and `defaultValue` are empty.
-     * @default The closest valid date using the validation props.
+     * @default 'The closest valid date using the validation props.'
      */
     referenceDate?: TemporalSupportedObject;
     /**

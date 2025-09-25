@@ -50,13 +50,13 @@
     },
     "referenceDate": {
       "type": "Date",
-      "default": "The closest valid date using the validation props.",
+      "default": "'The closest valid date using the validation props.'",
       "description": "The date used to generate the new value when both `value` and `defaultValue` are empty.",
       "detailedType": "Date | undefined"
     },
     "timezone": {
       "type": "string",
-      "default": "The timezone of the `value` or `defaultValue` prop is defined, 'default' otherwise.",
+      "default": "\"The timezone of the `value` or `defaultValue` prop if defined, 'default' otherwise.\"",
       "description": "Choose which timezone to use for the value.\nExample: \"default\", \"system\", \"UTC\", \"America/New_York\".\nIf you pass values from other timezones to some props, they will be converted to this timezone before being used.",
       "detailedType": "string | undefined"
     },
