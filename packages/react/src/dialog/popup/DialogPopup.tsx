@@ -41,14 +41,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 ) {
   const { className, finalFocus, initialFocus, render, ...elementProps } = componentProps;
 
-  const {
-    store,
-
-    setOpen,
-    popupRef,
-    onOpenChangeComplete,
-    internalBackdropRef,
-  } = useDialogRootContext();
+  const { store, onOpenChangeComplete } = useDialogRootContext();
 
   const descriptionElementId = useStore(store, selectors.descriptionElementId);
   const dismissible = useStore(store, selectors.dismissible);
@@ -67,7 +60,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.elements.popupRef,
     onComplete() {
       if (open) {
         onOpenChangeComplete?.(true);
@@ -75,7 +68,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     },
   });
 
-  const mergedRef = useMergedRefs(forwardedRef, popupRef);
+  const mergedRef = useMergedRefs(forwardedRef, store.elements.popupRef);
 
   const setPopupElement = React.useCallback(
     (node: HTMLElement | null) => {
@@ -87,7 +80,6 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const { popupProps } = useDialogPopup({
     descriptionElementId,
     mounted,
-    setOpen,
     openMethod,
     ref: mergedRef,
     setPopupElement,
@@ -99,7 +91,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   // (this is required for Android specifically as iOS handles this automatically).
   const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
     if (interactionType === 'touch') {
-      return popupRef.current;
+      return store.elements.popupRef.current;
     }
     return true;
   });
@@ -136,7 +128,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   return (
     <React.Fragment>
       {mounted && modal === true && (
-        <InternalBackdrop ref={internalBackdropRef} inert={inertValue(!open)} />
+        <InternalBackdrop ref={store.elements.internalBackdropRef} inert={inertValue(!open)} />
       )}
       <FloatingFocusManager
         context={floatingRootContext}

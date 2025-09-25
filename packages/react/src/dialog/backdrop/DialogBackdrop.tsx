@@ -26,7 +26,7 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, forceRender = false, ...elementProps } = componentProps;
-  const { store, backdropRef } = useDialogRootContext();
+  const { store } = useDialogRootContext();
 
   const open = useStore(store, selectors.open);
   const nested = useStore(store, (state) => state.nested);
@@ -43,7 +43,7 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: [backdropRef, forwardedRef],
+    ref: [store.elements.backdropRef, forwardedRef],
     stateAttributesMapping,
     props: [
       {

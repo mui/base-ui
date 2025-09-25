@@ -1,4 +1,5 @@
-import { Store, createSelector } from '@base-ui-components/utils/store';
+import * as React from 'react';
+import { ControllableStore, createSelector } from '@base-ui-components/utils/store';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
@@ -61,10 +62,31 @@ export type State = {
   triggerElement: HTMLElement | null;
 };
 
-export class DialogStore extends Store<State> {
+type ElementRefs = {
+  /**
+   * The ref to the Popup element.
+   */
+  popupRef: React.RefObject<HTMLElement | null>;
+  /**
+   * A ref to the backdrop element.
+   */
+  backdropRef: React.RefObject<HTMLDivElement | null>;
+  /**
+   * A ref to the internal backdrop element.
+   */
+  internalBackdropRef: React.RefObject<HTMLDivElement | null>;
+};
+
+export class DialogStore extends ControllableStore<State> {
   static create(initialState: State) {
     return new DialogStore(initialState);
   }
+
+  public elements: ElementRefs = {
+    popupRef: { current: null },
+    backdropRef: { current: null },
+    internalBackdropRef: { current: null },
+  };
 }
 
 export const selectors = {
