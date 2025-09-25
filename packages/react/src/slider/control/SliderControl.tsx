@@ -229,34 +229,25 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const startPressing = useEventCallback((fingerCoords: Coords) => {
-    let closestThumbIndex = -1;
     const pressedThumbIndex = pressedThumbIndexRef.current;
+    let closestThumbIndex = pressedThumbIndex;
 
-    if (values.length === 1 || pressedThumbIndex === 0) {
-      closestThumbIndex = 0;
-    }
+    if (pressedThumbIndex > -1 && pressedThumbIndex < values.length) {
+      if (values[pressedThumbIndex] === max) {
+        let candidateIndex = pressedThumbIndex;
 
-    // pressed on a thumb
-    if (pressedThumbIndex > -1) {
-      // handle thumbs that overlap at max, the lowest index thumb has to be
-      // dragged first or it will block higher index thumbs from moving
-      // otherwise higher index thumbs will be closest by default when their
-      // values are identical
-      if (pressedThumbIndex === 1) {
-        closestThumbIndex = values[0] === max ? 0 : 1;
-      } else {
-        // avoid this loop unless there are 2+ lower index thumbs
-        for (let i = pressedThumbIndex; i >= 0; i -= 1) {
-          const prevIndex = i - 1;
-          if (values[prevIndex] !== max) {
-            closestThumbIndex = i;
-          }
+        while (candidateIndex > 0 && values[candidateIndex - 1] === max) {
+          candidateIndex -= 1;
         }
+
+        closestThumbIndex = candidateIndex;
       }
     } else {
       // pressed on control
       const axis = !vertical ? 'x' : 'y';
-      let minDistance;
+      let minDistance: number | undefined;
+
+      closestThumbIndex = -1;
 
       for (let i = 0; i < thumbRefs.current.length; i += 1) {
         const thumbEl = thumbRefs.current[i];
@@ -272,7 +263,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       }
     }
 
-    if (closestThumbIndex > -1 && closestThumbIndex !== pressedThumbIndexRef.current) {
+    if (closestThumbIndex > -1 && closestThumbIndex !== pressedThumbIndex) {
       pressedThumbIndexRef.current = closestThumbIndex;
     }
 
