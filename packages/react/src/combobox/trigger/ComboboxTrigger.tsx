@@ -9,6 +9,7 @@ import { useButton } from '../../use-button';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../field/root/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { stopEvent } from '../../floating-ui-react/utils';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -40,11 +41,11 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const {
     state: fieldState,
     disabled: fieldDisabled,
-    labelId,
     setTouched,
     setFocused,
     validationMode,
   } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
   const store = useComboboxRootContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);

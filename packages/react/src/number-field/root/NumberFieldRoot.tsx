@@ -11,6 +11,7 @@ import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isIOS } from '@base-ui-components/utils/detectBrowser';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../field/root/LabelableContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
@@ -68,8 +69,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   } = componentProps;
 
   const {
-    controlId,
-    setControlId,
     setDirty,
     validityData,
     setValidityData,
@@ -79,6 +78,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     name: fieldName,
     state: fieldState,
   } = useFieldRootContext();
+  const { controlId, setControlId } = useLabelableContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;

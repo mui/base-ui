@@ -23,25 +23,24 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
 
   const id = useBaseUiId(idProp);
 
-  const { setMessageIds, state } = useFieldRootContext();
-  const labelableContext = useLabelableContext();
-  const setIds = labelableContext?.setMessageIds ?? setMessageIds;
+  const fieldRootContext = useFieldRootContext();
+  const { setMessageIds } = useLabelableContext();
 
   useIsoLayoutEffect(() => {
     if (!id) {
       return undefined;
     }
 
-    setIds((v) => v.concat(id));
+    setMessageIds((v) => v.concat(id));
 
     return () => {
-      setIds((v) => v.filter((item) => item !== id));
+      setMessageIds((v) => v.filter((item) => item !== id));
     };
-  }, [id, setIds]);
+  }, [id, setMessageIds]);
 
   const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
-    state,
+    state: fieldRootContext.state,
     props: [{ id }, elementProps],
     stateAttributesMapping: fieldValidityMapping,
   });
