@@ -11,6 +11,7 @@
 ## Usage guidelines
 
 - **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
+- **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
 
 ## Anatomy
 
@@ -54,6 +55,19 @@ import { Select } from '@base-ui-components/react/select';
   component="Select"
   parts="Root, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, List, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
 />
+
+## Positioning
+
+`Select.Positioner` has a special prop called `alignItemWithTrigger` which causes the positioning to act differently by default from other `Positioner` components.
+The prop makes the select popup overlap the trigger so the selected item's text is aligned with the trigger's value text.
+
+For styling, `data-side` is `"none"` on the `Popup` and `Positioner` parts when the mode is active.
+
+To prevent the select popup from overlapping its trigger, set the `alignItemWithTrigger` prop to `false`. When set to `true` (its default) there are a few important points to note about its behavior:
+
+- **Interaction type dependent**: For UX reasons, the `alignItemWithTrigger` positioning mode is disabled if touch was the pointer type used to open the popup.
+- **Viewport space dependent**: There must be enough space in the viewport to align the selected item's text with the trigger's value text without causing the popup to be too vertically small - otherwise, it falls back to the default positioning mode. This can be customized by setting `min-height` on the `Select.Positioner` element; a smaller value will fallback less often. Additionally, the trigger must be at least 20px from the edges of the top and bottom of the viewport, or it will also fall back.
+- **Other positioning props are ignored**: Props like `side` or `align` have no effect unless the prop is set to `false` or when in fallback mode.
 
 ## Formatting the value
 
