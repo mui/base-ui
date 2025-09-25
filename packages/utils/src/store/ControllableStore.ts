@@ -16,12 +16,15 @@ export class ControllableStore<State> extends Store<State> {
   /**
    * Keeps track of which properties are controlled.
    */
-  #controlledValues: Map<keyof State, boolean> = new Map();
+  private controlledValues: Map<keyof State, boolean> = new Map();
 
   /**
    * Synchronizes a single external value into the store during layout phase.
    */
-  useProp<Key extends keyof State, Value extends State[Key]>(key: keyof State, value: Value) {
+  public useProp<Key extends keyof State, Value extends State[Key]>(
+    key: keyof State,
+    value: Value,
+  ) {
     // False positive - ESLint thinks we're calling a hook from a class component.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
@@ -34,7 +37,7 @@ export class ControllableStore<State> extends Store<State> {
   /**
    * Merges multiple external props into the store during layout phase.
    */
-  useProps(props: Partial<State>) {
+  public useProps(props: Partial<State>) {
     // False positive - ESLint thinks we're calling a hook from a class component.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
@@ -49,7 +52,7 @@ export class ControllableStore<State> extends Store<State> {
    * - If `controlled` is undefined, the key is marked as uncontrolled. The store's state
    *   is initialized to `defaultValue` on first render and can be updated with local writes.
    */
-  useControlledProp<Key extends keyof State, Value extends State[Key]>(
+  public useControlledProp<Key extends keyof State, Value extends State[Key]>(
     key: keyof State,
     controlled: Value | undefined,
     defaultValue: Value,
@@ -57,7 +60,7 @@ export class ControllableStore<State> extends Store<State> {
     const isControlled = controlled !== undefined;
 
     if (process.env.NODE_ENV !== 'production') {
-      const previoslyControlled = this.#controlledValues.get(key);
+      const previoslyControlled = this.controlledValues.get(key);
       if (previoslyControlled !== undefined && previoslyControlled !== isControlled) {
         console.error(
           `A component is changing the ${
@@ -70,9 +73,9 @@ export class ControllableStore<State> extends Store<State> {
     // False positive - ESLint thinks we're calling a hook from a class component.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
-      if (!this.#controlledValues.has(key)) {
+      if (!this.controlledValues.has(key)) {
         // First time initialization
-        this.#controlledValues.set(key, isControlled);
+        this.controlledValues.set(key, isControlled);
 
         if (!isControlled && defaultValue !== undefined) {
           super.set(key, defaultValue as State[typeof key]);
@@ -95,7 +98,7 @@ export class ControllableStore<State> extends Store<State> {
    * @param value The new value to set for the specified key.
    */
   public set<T>(key: keyof State, value: T): void {
-    if (this.#controlledValues.get(key) === true) {
+    if (this.controlledValues.get(key) === true) {
       // Ignore updates to controlled values
       return;
     }
@@ -112,7 +115,7 @@ export class ControllableStore<State> extends Store<State> {
   public apply(values: Partial<State>): void {
     const newValues = { ...values };
     for (const key in newValues) {
-      if (this.#controlledValues.get(key) === true) {
+      if (this.controlledValues.get(key) === true) {
         // Ignore updates to controlled values
         delete newValues[key];
       }
@@ -130,7 +133,7 @@ export class ControllableStore<State> extends Store<State> {
   public update(newState: State) {
     const newValues = { ...newState };
     for (const key in newValues) {
-      if (this.#controlledValues.get(key) === true) {
+      if (this.controlledValues.get(key) === true) {
         // Ignore updates to controlled values
         delete newValues[key];
       }
