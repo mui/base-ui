@@ -13,6 +13,7 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useFormContext } from '../form/FormContext';
 import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
+import { useLabelableContext } from '../field/root/LabelableContext';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRoot } from '../field/root/FieldRoot';
@@ -49,7 +50,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   } = componentProps;
 
   const {
-    labelId,
     setTouched: setFieldTouched,
     setFocused,
     validationMode,
@@ -57,6 +57,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     disabled: fieldDisabled,
     state: fieldState,
   } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
   const fieldControlValidation = useFieldControlValidation();
   const { clearErrors } = useFormContext();
 

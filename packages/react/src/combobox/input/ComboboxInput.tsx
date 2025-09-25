@@ -11,6 +11,7 @@ import { useComboboxInputValueContext, useComboboxRootContext } from '../root/Co
 import { selectors } from '../store';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../field/root/LabelableContext';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
@@ -44,11 +45,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const {
     state: fieldState,
     disabled: fieldDisabled,
-    labelId,
     setTouched,
     setFocused,
     validationMode,
   } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
   const comboboxChipsContext = useComboboxChipsContext();
   const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
   const store = useComboboxRootContext();

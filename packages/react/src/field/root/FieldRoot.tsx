@@ -10,6 +10,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 import { useLabelable } from '../root/useLabelable';
+import { LabelableContext } from './LabelableContext';
 
 /**
  * Groups all parts of the field.
@@ -43,7 +44,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const defaultControlId = useBaseUiId();
 
-  const { controlId, setControlId, labelId, setLabelId, messageIds, setMessageIds } = useLabelable({
+  const labelable = useLabelable({
     initialControlId: defaultControlId,
   });
 
@@ -90,12 +91,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
       invalid,
-      controlId,
-      setControlId,
-      labelId,
-      setLabelId,
-      messageIds,
-      setMessageIds,
       name,
       validityData,
       setValidityData,
@@ -116,12 +111,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     }),
     [
       invalid,
-      controlId,
-      setControlId,
-      labelId,
-      setLabelId,
-      messageIds,
-      setMessageIds,
       name,
       validityData,
       disabled,
@@ -139,6 +128,8 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     ],
   );
 
+  const labelableContextValue: LabelableContext = React.useMemo(() => labelable, [labelable]);
+
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     state,
@@ -146,7 +137,11 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     stateAttributesMapping: fieldValidityMapping,
   });
 
-  return <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>;
+  return (
+    <LabelableContext.Provider value={labelableContextValue}>
+      <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>
+    </LabelableContext.Provider>
+  );
 });
 
 export interface FieldValidityData {

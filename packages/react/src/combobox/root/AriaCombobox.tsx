@@ -33,6 +33,7 @@ import {
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../field/root/LabelableContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
@@ -108,15 +109,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const { clearErrors } = useFormContext();
   const {
-    controlId,
     setDirty,
     validityData,
     validationMode,
-    setControlId,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
   } = useFieldRootContext();
+  const { controlId, setControlId } = useLabelableContext();
   const fieldControlValidation = useFieldControlValidation();
 
   const defaultId = useBaseUiId(idProp);

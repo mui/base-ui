@@ -57,8 +57,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   } = useRadioGroupContext();
 
   const {
-    controlId: fieldRootControlId,
-    setControlId,
     setDirty,
     validityData,
     setTouched: setFieldTouched,
@@ -85,7 +83,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     }
   }, [setFilled]);
 
-  const radioId = idProp ?? labelableContext?.controlId ?? fieldRootControlId;
+  const radioId = idProp ?? labelableContext.controlId;
 
   const fieldItemMessageIds = labelableContext?.messageIds.length
     ? { 'aria-describedby': labelableContext.messageIds.join(' ') }
@@ -145,9 +143,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     }
 
     return () => {
-      setControlId(undefined);
+      labelableContext.setControlId(undefined);
     };
-  }, [labelableContext, idProp, radioId, setControlId]);
+  }, [labelableContext, idProp, radioId]);
 
   const inputId = useBaseUiId();
 
