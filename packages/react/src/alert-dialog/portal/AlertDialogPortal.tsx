@@ -3,7 +3,6 @@ import * as React from 'react';
 import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { AlertDialogPortalContext } from './AlertDialogPortalContext';
-// selectors are internal to the dialog store; use store.useState
 
 /**
  * A portal element that moves the popup to a different part of the DOM.

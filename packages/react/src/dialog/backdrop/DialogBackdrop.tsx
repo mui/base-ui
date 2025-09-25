@@ -7,7 +7,6 @@ import { type BaseUIComponentProps } from '../../utils/types';
 import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-// selectors are internal to the store; use store.useState
 
 const stateAttributesMapping: StateAttributesMapping<DialogBackdrop.State> = {
   ...baseMapping,

@@ -5,7 +5,6 @@ import { useDialogClose } from './useDialogClose';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-// selectors are internal to the store; use store.useState
 
 /**
  * A button that closes the dialog.

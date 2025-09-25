@@ -18,7 +18,6 @@ import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-// selectors are internal to the dialog store; use store.useState
 
 const stateAttributesMapping: StateAttributesMapping<AlertDialogPopup.State> = {
   ...baseMapping,

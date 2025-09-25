@@ -7,7 +7,6 @@ import type { StateAttributesMapping } from '../../utils/getStateAttributesProps
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-// selectors are internal to the dialog store; use store.useState
 
 const stateAttributesMapping: StateAttributesMapping<AlertDialogBackdrop.State> = {
   ...baseMapping,

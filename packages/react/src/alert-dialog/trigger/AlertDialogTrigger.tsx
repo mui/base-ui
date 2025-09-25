@@ -5,7 +5,6 @@ import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
-// selectors are internal to the dialog store; use store.useState
 
 /**
  * A button that opens the alert dialog.
