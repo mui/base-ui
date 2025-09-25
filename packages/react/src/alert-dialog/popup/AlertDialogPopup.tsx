@@ -46,7 +46,6 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     mounted,
     nested,
     nestedOpenDialogCount,
-    setOpen,
     open,
     openMethod,
     popupRef,
@@ -75,7 +74,6 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const { popupProps } = useDialogPopup({
     descriptionElementId,
     mounted,
-    setOpen,
     openMethod,
     ref: mergedRef,
     setPopupElement,
