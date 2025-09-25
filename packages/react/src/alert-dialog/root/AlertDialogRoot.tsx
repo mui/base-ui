@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
 import { DialogStore } from '../../dialog/store';
-import { DialogContext } from '../../dialog/utils/DialogContext';
-import { useOptionalDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
 import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { EMPTY_OBJECT } from '../../utils/constants';
@@ -26,7 +25,7 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
     actionsRef,
   } = props;
 
-  const parentDialogRootContext = useOptionalDialogRootContext();
+  const parentDialogRootContext = useDialogRootContext();
   const nested = Boolean(parentDialogRootContext);
 
   const store = useRefWithInit(DialogStore.create, {
@@ -59,7 +58,7 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
     onOpenChangeComplete,
   });
 
-  const contextValue: DialogContext = React.useMemo(
+  const contextValue: DialogRootContext = React.useMemo(
     () => ({
       store,
       onOpenChangeComplete,
@@ -69,7 +68,7 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
     [store, onOpenChangeComplete, dialogRoot.onNestedDialogClose, dialogRoot.onNestedDialogOpen],
   );
 
-  return <DialogContext.Provider value={contextValue}>{children}</DialogContext.Provider>;
+  return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
 };
 
 export namespace AlertDialogRoot {
