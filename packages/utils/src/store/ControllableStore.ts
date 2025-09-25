@@ -55,9 +55,9 @@ export class ControllableStore<State> extends Store<State> {
         }
       }
 
-      if (isControlled && this.state[key] !== controlled) {
-        // Set the internal state to match the controlled value
-        super.set(key, controlled as State[typeof key]);
+      if (isControlled && !Object.is(this.state[key], controlled)) {
+        // Set the internal state to match the controlled value.
+        super.update({ ...(this.state as State), [key]: controlled } as State);
       }
     }, [key, controlled, defaultValue, isControlled]);
   }
