@@ -15,9 +15,9 @@ import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRoot } from '../root/SliderRoot';
 import { getMidpoint } from '../utils/getMidpoint';
-import { replaceArrayItemAtIndex } from '../utils/replaceArrayItemAtIndex';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
+import { getPushedThumbValues } from '../utils/getPushedThumbValues';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 
@@ -151,18 +151,23 @@ export const SliderControl = React.forwardRef(function SliderControl(
       };
     }
 
-    const minValueDifference = minStepsBetweenValues * step;
+    const thumbIndex = pressedThumbIndexRef.current;
 
-    // Bound the new value to the thumb's neighbours.
-    newValue = clamp(
-      newValue,
-      values[pressedThumbIndexRef.current - 1] + minValueDifference || -Infinity,
-      values[pressedThumbIndexRef.current + 1] - minValueDifference || Infinity,
-    );
+    if (thumbIndex < 0) {
+      return null;
+    }
 
     return {
-      value: replaceArrayItemAtIndex(values, pressedThumbIndexRef.current, newValue),
-      thumbIndex: pressedThumbIndexRef.current,
+      value: getPushedThumbValues({
+        values,
+        index: thumbIndex,
+        nextValue: newValue,
+        min,
+        max,
+        step,
+        minStepsBetweenValues,
+      }),
+      thumbIndex,
     };
   });
 
