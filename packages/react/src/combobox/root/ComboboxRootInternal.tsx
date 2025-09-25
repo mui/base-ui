@@ -51,6 +51,11 @@ import {
   isGroupedItems,
 } from '../../utils/resolveValueLabel';
 import { defaultItemEquality, findItemIndex, itemIncludes } from '../../utils/itemEquality';
+import {
+  INITIAL_LAST_HIGHLIGHT,
+  NO_ACTIVE_VALUE,
+  PROGRAMMATIC_NO_HIGHLIGHT,
+} from './utils/constants';
 
 /**
  * @internal
@@ -284,6 +289,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
+  const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -422,11 +428,37 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   });
 
   useIsoLayoutEffect(() => {
-    if (items) {
-      valuesRef.current = flatFilteredItems;
-      listRef.current.length = flatFilteredItems.length;
+    if (!items) {
+      return;
     }
-  }, [items, flatFilteredItems]);
+
+    valuesRef.current = flatFilteredItems;
+    listRef.current.length = flatFilteredItems.length;
+
+    const storeActiveIndex = store.state.activeIndex;
+
+    if (storeActiveIndex == null) {
+      return;
+    }
+
+    if (storeActiveIndex >= flatFilteredItems.length) {
+      lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+      store.state.onItemHighlighted(undefined, PROGRAMMATIC_NO_HIGHLIGHT);
+      store.set('activeIndex', null);
+      return;
+    }
+
+    const nextActiveValue = flatFilteredItems[storeActiveIndex];
+    const lastHighlightedValue = lastHighlightRef.current.value;
+    const isSameItem =
+      lastHighlightedValue !== NO_ACTIVE_VALUE &&
+      store.state.isItemEqualToValue(nextActiveValue, lastHighlightedValue);
+
+    if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
+      lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
+      store.state.onItemHighlighted(nextActiveValue, { type: 'none', index: storeActiveIndex });
+    }
+  }, [items, flatFilteredItems, store]);
 
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
@@ -545,9 +577,11 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       }
 
       if (options.activeIndex === null) {
+        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
         onItemHighlighted(undefined, { type, index: -1 });
       } else {
         const activeValue = valuesRef.current[options.activeIndex];
+        lastHighlightRef.current = { value: activeValue, index: options.activeIndex };
         onItemHighlighted(activeValue, {
           type,
           index: options.activeIndex,

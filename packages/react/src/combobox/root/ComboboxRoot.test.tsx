@@ -2044,6 +2044,58 @@ describe('<Combobox.Root />', () => {
       await user.keyboard('{ArrowDown}');
       await waitFor(() => expect(input).to.have.attribute('aria-activedescendant', grapefruit.id));
     });
+
+    it('updates highlighted callback with newly filtered first item', async () => {
+      const onItemHighlighted = spy();
+      const items = ['banana', 'apple', 'apricot'];
+
+      const { user } = await render(
+        <Combobox.Root
+          items={items}
+          autoHighlight
+          defaultOpen
+          onItemHighlighted={onItemHighlighted}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+      const [initialValue] = onItemHighlighted.lastCall.args;
+      expect(initialValue).to.equal('banana');
+
+      onItemHighlighted.resetHistory();
+
+      await user.type(input, 'ap');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+      const [nextValue, data] = onItemHighlighted.lastCall.args;
+      expect(nextValue).to.equal('apple');
+      expect(data).to.deep.equal({ type: 'none', index: 0 });
+    });
   });
 
   describe('prop: onItemHighlighted', () => {
