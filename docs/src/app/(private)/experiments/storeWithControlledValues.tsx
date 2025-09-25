@@ -77,7 +77,7 @@ function ControllableComponent(props: Props) {
   ).current;
 
   store.useControlledProp('open', props.open, props.defaultOpen ?? false);
-  store.useProp('value', props.value ?? 0);
+  store.useSyncedValue('value', props.value ?? 0);
 
   const open = useStore(store, (state) => state.open);
   const value = useStore(store, (state) => state.value);
