@@ -10,6 +10,12 @@ This repository contains the source code and documentation for Base UI: a headl
 - Public documentation is located at `docs/src/app/(public)/(content)/react/`. Alter the docs where necessary when changes must be visible to library users.
 - When creating public demos on the docs, refer to the `hero` demo for the given component and largely follow its styles (both CSS Modules and Tailwind CSS versions). Other demos may also contain relevant styling. Do not add custom styling beyond the critical layout styles necessary for new demos.
 
+## Code guidelines
+
+- Use the `useTimeout` utility from `@base-ui-components/utils/useTimeout` instead of `window.setTimeout`, and `useAnimationFrame` from `@base-ui-components/utils/useAnimationFrame` instead of `requestAnimationFrame`. Search for other example usage in the codebase if unsure how to use them.
+- Use the `useEventCallback` utility from `@base-ui-components/utils/useEventCallback` instead of `React.useCallback` if the function is called within an effect or event handler. The utility cannot be used to memoize functions that are called directly in the body of a component (during render), so continue with `React.useCallback` in those scenarios.
+- Avoid duplicating logic where necessary. If two components can share logic (such as event handlers), define the logic/handlers in the parent and share it through a context to the child; use the existing context if it exists.
+
 ## Linting, typechecking, and formatting
 
 - Do not randomly cast (for example `as any`) if there are no type errors without doing so. Run `pnpm typescript` to verify types.
