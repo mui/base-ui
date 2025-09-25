@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useLabelableContext } from '../root/LabelableContext';
 import { fieldValidityMapping } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -20,23 +21,23 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
 ) {
   const { render, id: idProp, className, ...elementProps } = componentProps;
 
-  const { state } = useFieldRootContext(false);
-
   const id = useBaseUiId(idProp);
 
-  const { setMessageIds } = useFieldRootContext();
+  const { setMessageIds, state } = useFieldRootContext();
+  const labelableContext = useLabelableContext();
+  const setIds = labelableContext?.setMessageIds ?? setMessageIds;
 
   useIsoLayoutEffect(() => {
     if (!id) {
       return undefined;
     }
 
-    setMessageIds((v) => v.concat(id));
+    setIds((v) => v.concat(id));
 
     return () => {
-      setMessageIds((v) => v.filter((item) => item !== id));
+      setIds((v) => v.filter((item) => item !== id));
     };
-  }, [id, setMessageIds]);
+  }, [id, setIds]);
 
   const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,

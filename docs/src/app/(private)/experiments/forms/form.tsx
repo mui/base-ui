@@ -30,7 +30,7 @@ const fonts = [
 
 const schema = z.object({
   input: z.string().min(1, 'This field is required'),
-  checkbox: z.enum(['on']),
+  'required-checkbox': z.enum(['on']),
   switch: z.enum(['on']),
   slider: z.number().max(90, 'Too loud'),
   'range-slider': z.array(z.number()),
@@ -137,12 +137,23 @@ export default function Page() {
 
         <Field.Root name="checkbox" className={styles.Field}>
           <Field.Label className={styles.Label}>
-            <Checkbox.Root required={native} className={styles.Checkbox}>
+            <Checkbox.Root className={styles.Checkbox}>
               <Checkbox.Indicator className={styles.CheckboxIndicator}>
                 <CheckIcon />
               </Checkbox.Indicator>
             </Checkbox.Root>
             Reduce motion
+          </Field.Label>
+        </Field.Root>
+
+        <Field.Root name="required-checkbox" validationMode="onChange" className={styles.Field}>
+          <Field.Label className={styles.Label}>
+            <Checkbox.Root required={native} className={styles.Checkbox}>
+              <Checkbox.Indicator className={styles.CheckboxIndicator}>
+                <CheckIcon />
+              </Checkbox.Indicator>
+            </Checkbox.Root>
+            I have downloaded or saved these backup codes
           </Field.Label>
           <Field.Error className={styles.Error} />
         </Field.Root>
@@ -230,28 +241,32 @@ export default function Page() {
               <Select.Positioner className={styles.Positioner} sideOffset={8}>
                 <Select.ScrollUpArrow className={styles.ScrollArrow} />
                 <Select.Popup className={styles.Popup}>
-                  <Select.Item className={styles.Item} value="sans">
-                    <Select.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                  <Select.Item className={styles.SelectItem} value="sans">
+                    <Select.ItemIndicator className={styles.SelectItemIndicator}>
+                      <CheckIcon className={styles.SelectItemIndicatorIcon} />
                     </Select.ItemIndicator>
+
                     <Select.ItemText className={styles.ItemText}>Sans-serif</Select.ItemText>
                   </Select.Item>
-                  <Select.Item className={styles.Item} value="serif">
-                    <Select.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                  <Select.Item className={styles.SelectItem} value="serif">
+                    <Select.ItemIndicator className={styles.SelectItemIndicator}>
+                      <CheckIcon className={styles.SelectItemIndicatorIcon} />
                     </Select.ItemIndicator>
+
                     <Select.ItemText className={styles.ItemText}>Serif</Select.ItemText>
                   </Select.Item>
-                  <Select.Item className={styles.Item} value="mono">
-                    <Select.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                  <Select.Item className={styles.SelectItem} value="mono">
+                    <Select.ItemIndicator className={styles.SelectItemIndicator}>
+                      <CheckIcon className={styles.SelectItemIndicatorIcon} />
                     </Select.ItemIndicator>
+
                     <Select.ItemText className={styles.ItemText}>Monospace</Select.ItemText>
                   </Select.Item>
-                  <Select.Item className={styles.Item} value="cursive">
-                    <Select.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                  <Select.Item className={styles.SelectItem} value="cursive">
+                    <Select.ItemIndicator className={styles.SelectItemIndicator}>
+                      <CheckIcon className={styles.SelectItemIndicatorIcon} />
                     </Select.ItemIndicator>
+
                     <Select.ItemText className={styles.ItemText}>Cursive</Select.ItemText>
                   </Select.Item>
                 </Select.Popup>
@@ -265,26 +280,35 @@ export default function Page() {
         <Field.Root name="radio-group" render={<Fieldset.Root />} className={styles.Field}>
           <Fieldset.Legend className={styles.Legend}>Show scroll bars</Fieldset.Legend>
           <RadioGroup required={native} className={styles.RadioGroup}>
-            <Field.Label className={styles.Label}>
+            <Field.Item className={styles.FieldItem}>
               <Radio.Root value="auto" className={styles.Radio}>
                 <Radio.Indicator className={styles.Indicator} />
               </Radio.Root>
-              Automatically based on mouse or trackpad
-            </Field.Label>
+              <div className={styles.FieldItemName}>
+                <Field.Label className={styles.Label}>Automatically</Field.Label>
+                <Field.Description className={styles.Description}>
+                  Based on mouse or trackpad
+                </Field.Description>
+              </div>
+            </Field.Item>
 
-            <Field.Label className={styles.Label}>
-              <Radio.Root value="scrolling" className={styles.Radio}>
-                <Radio.Indicator className={styles.Indicator} />
-              </Radio.Root>
-              When scrolling
-            </Field.Label>
+            <Field.Item className={styles.FieldItem}>
+              <Field.Label className={styles.Label}>
+                <Radio.Root value="scrolling" className={styles.Radio}>
+                  <Radio.Indicator className={styles.Indicator} />
+                </Radio.Root>
+                When scrolling
+              </Field.Label>
+            </Field.Item>
 
-            <Field.Label className={styles.Label}>
-              <Radio.Root value="always" className={styles.Radio}>
-                <Radio.Indicator className={styles.Indicator} />
-              </Radio.Root>
-              Always
-            </Field.Label>
+            <Field.Item className={styles.FieldItem}>
+              <Field.Label className={styles.Label}>
+                <Radio.Root value="always" className={styles.Radio}>
+                  <Radio.Indicator className={styles.Indicator} />
+                </Radio.Root>
+                Always
+              </Field.Label>
+            </Field.Item>
           </RadioGroup>
           <Field.Error className={styles.Error} />
         </Field.Root>
@@ -338,66 +362,78 @@ export default function Page() {
         <Field.Root name="checkbox-group" render={<Fieldset.Root />} className={styles.Field}>
           <Fieldset.Legend className={styles.Legend}>Content blocking</Fieldset.Legend>
           <CheckboxGroup
-            aria-labelledby="parent-label"
             value={checkboxGroupValue}
             onValueChange={setCheckboxGroupValue}
             allValues={ALL_CHECKBOX_GROUP_VALUES}
             className={styles.CheckboxGroup}
-            style={{ marginLeft: '1rem' }}
+            role={undefined}
           >
-            <Field.Label className={styles.Label} style={{ marginLeft: '-1rem' }} id="parent-label">
-              <Checkbox.Root parent className={styles.Checkbox}>
-                <Checkbox.Indicator
-                  className={styles.CheckboxIndicator}
-                  render={(props, state) => (
-                    <span {...props}>
-                      {state.indeterminate ? (
-                        <HorizontalRuleIcon className={styles.Icon} />
-                      ) : (
-                        <CheckIcon className={styles.Icon} />
-                      )}
-                    </span>
-                  )}
-                />
-              </Checkbox.Root>
-              Block everything
-            </Field.Label>
+            <Field.Item className={styles.FieldItem}>
+              <Field.Label className={styles.Label}>
+                <Checkbox.Root parent className={styles.Checkbox}>
+                  <Checkbox.Indicator
+                    className={styles.CheckboxIndicator}
+                    render={(props, state) => (
+                      <span {...props}>
+                        {state.indeterminate ? (
+                          <HorizontalRuleIcon className={styles.Icon} />
+                        ) : (
+                          <CheckIcon className={styles.Icon} />
+                        )}
+                      </span>
+                    )}
+                  />
+                </Checkbox.Root>
+                Block everything
+              </Field.Label>
+            </Field.Item>
 
-            <Field.Label className={styles.Label}>
-              <Checkbox.Root value="ads" className={styles.Checkbox}>
-                <Checkbox.Indicator className={styles.CheckboxIndicator}>
-                  <CheckIcon className={styles.Icon} />
-                </Checkbox.Indicator>
-              </Checkbox.Root>
-              Block ads
-            </Field.Label>
+            <Field.Item className={styles.FieldItem}>
+              <Field.Label className={styles.Label}>
+                <Checkbox.Root value="ads" className={styles.Checkbox}>
+                  <Checkbox.Indicator className={styles.CheckboxIndicator}>
+                    <CheckIcon className={styles.Icon} />
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                Block ads
+              </Field.Label>
+            </Field.Item>
 
-            <Field.Label className={styles.Label}>
+            <Field.Item className={styles.FieldItem}>
               <Checkbox.Root value="annoyances" className={styles.Checkbox}>
                 <Checkbox.Indicator className={styles.CheckboxIndicator}>
                   <CheckIcon className={styles.Icon} />
                 </Checkbox.Indicator>
               </Checkbox.Root>
-              Block annoyances
-            </Field.Label>
+              <div className={styles.FieldItemName}>
+                <Field.Label className={styles.Label}>Block annoyances</Field.Label>
+                <Field.Description className={styles.Description}>
+                  Blocks social media content and in-page pop-ups
+                </Field.Description>
+              </div>
+            </Field.Item>
 
-            <Field.Label className={styles.Label}>
-              <Checkbox.Root value="comments" className={styles.Checkbox}>
-                <Checkbox.Indicator className={styles.CheckboxIndicator}>
-                  <CheckIcon className={styles.Icon} />
-                </Checkbox.Indicator>
-              </Checkbox.Root>
-              Block comments
-            </Field.Label>
+            <Field.Item className={styles.FieldItem}>
+              <Field.Label className={styles.Label}>
+                <Checkbox.Root value="comments" className={styles.Checkbox}>
+                  <Checkbox.Indicator className={styles.CheckboxIndicator}>
+                    <CheckIcon className={styles.Icon} />
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                Block comments
+              </Field.Label>
+            </Field.Item>
 
-            <Field.Label className={styles.Label}>
-              <Checkbox.Root value="trackers" className={styles.Checkbox}>
-                <Checkbox.Indicator className={styles.CheckboxIndicator}>
-                  <CheckIcon className={styles.Icon} />
-                </Checkbox.Indicator>
-              </Checkbox.Root>
-              Block trackers
-            </Field.Label>
+            <Field.Item className={styles.FieldItem}>
+              <Field.Label className={styles.Label}>
+                <Checkbox.Root value="trackers" className={styles.Checkbox}>
+                  <Checkbox.Indicator className={styles.CheckboxIndicator}>
+                    <CheckIcon className={styles.Icon} />
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                Block trackers
+              </Field.Label>
+            </Field.Item>
           </CheckboxGroup>
         </Field.Root>
 
