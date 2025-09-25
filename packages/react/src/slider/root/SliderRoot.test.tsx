@@ -57,6 +57,22 @@ function TestRangeSlider(props: SliderRoot.Props) {
   );
 }
 
+function TestMultiThumbSlider(props: SliderRoot.Props) {
+  return (
+    <Slider.Root data-testid="root" {...props}>
+      <Slider.Value data-testid="value" />
+      <Slider.Control data-testid="control">
+        <Slider.Track>
+          <Slider.Indicator />
+          <Slider.Thumb index={0} data-testid="thumb" />
+          <Slider.Thumb index={1} data-testid="thumb" />
+          <Slider.Thumb index={2} data-testid="thumb" />
+        </Slider.Track>
+      </Slider.Control>
+    </Slider.Root>
+  );
+}
+
 describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   beforeAll(function beforeHook() {
     // PointerEvent not fully implemented in jsdom, causing
@@ -979,6 +995,55 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       });
 
       expect(handleValueChange.callCount).to.equal(0);
+    });
+
+    it.skipIf(isJSDOM)('drags the intended thumb when 3 thumbs are present', async () => {
+      const handleValueChange = spy();
+
+      await render(
+        <TestMultiThumbSlider
+          defaultValue={[10, 40, 60]}
+          min={0}
+          max={100}
+          onValueChange={handleValueChange}
+        />,
+      );
+
+      const sliderControl = screen.getByTestId('control');
+      const thirdThumb = screen.getAllByTestId('thumb')[2];
+
+      stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
+      stub(thirdThumb, 'getBoundingClientRect').callsFake(() => ({
+        width: 0,
+        height: 0,
+        bottom: 0,
+        left: 60,
+        right: 60,
+        top: 0,
+        x: 60,
+        y: 0,
+        toJSON() {},
+      }));
+
+      fireEvent.pointerDown(thirdThumb, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 60,
+      });
+
+      fireEvent.pointerMove(document, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 80,
+      });
+
+      expect(handleValueChange.callCount).to.be.greaterThan(0);
+
+      const [newValue] = handleValueChange.lastCall.args;
+      expect(handleValueChange.lastCall.args[2]).to.equal(2);
+      expect(newValue[0]).to.equal(10);
+      expect(newValue[1]).to.equal(40);
+      expect(newValue[2]).to.not.equal(60);
     });
 
     it.skipIf(isJSDOM)('should fire only when the value changes', async () => {
