@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useDialogClose } from './useDialogClose';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { selectors } from '../store';
+// selectors are internal to the store; use store.useState
 
 /**
  * A button that closes the dialog.
@@ -27,8 +26,8 @@ export const DialogClose = React.forwardRef(function DialogClose(
   } = componentProps;
 
   const { store } = useDialogRootContext();
-  const open = useStore(store, selectors.open);
-  const floatingRootContext = useStore(store, selectors.floatingRootContext);
+  const open = store.useState('open');
+  const floatingRootContext = store.useState('floatingRootContext');
 
   const setOpen = useEventCallback(
     (

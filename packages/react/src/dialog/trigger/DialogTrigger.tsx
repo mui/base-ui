@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
-import { selectors } from '../store';
 
 /**
  * A button that opens the dialog.
@@ -28,8 +26,8 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   } = componentProps;
 
   const { store } = useDialogRootContext();
-  const open = useStore(store, selectors.open);
-  const triggerProps = useStore(store, selectors.triggerProps);
+  const open = store.useState('open');
+  const triggerProps = store.useState('triggerProps');
 
   const state: DialogTrigger.State = React.useMemo(
     () => ({

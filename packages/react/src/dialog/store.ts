@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ControllableStore, createSelector } from '@base-ui-components/utils/store';
+import { ControllableStore, createSelector, useStore } from '@base-ui-components/utils/store';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
@@ -62,34 +62,7 @@ export type State = {
   triggerElement: HTMLElement | null;
 };
 
-type ElementRefs = {
-  /**
-   * The ref to the Popup element.
-   */
-  popupRef: React.RefObject<HTMLElement | null>;
-  /**
-   * A ref to the backdrop element.
-   */
-  backdropRef: React.RefObject<HTMLDivElement | null>;
-  /**
-   * A ref to the internal backdrop element.
-   */
-  internalBackdropRef: React.RefObject<HTMLDivElement | null>;
-};
-
-export class DialogStore extends ControllableStore<State> {
-  static create(initialState: State) {
-    return new DialogStore(initialState);
-  }
-
-  public elements: ElementRefs = {
-    popupRef: { current: null },
-    backdropRef: { current: null },
-    internalBackdropRef: { current: null },
-  };
-}
-
-export const selectors = {
+const selectors = {
   open: createSelector((state: State) => state.open),
   descriptionElementId: createSelector((state: State) => state.descriptionElementId),
   modal: createSelector((state: State) => state.modal),
@@ -105,4 +78,41 @@ export const selectors = {
   floatingRootContext: createSelector((state: State) => state.floatingRootContext),
   popupElement: createSelector((state: State) => state.popupElement),
   triggerElement: createSelector((state: State) => state.triggerElement),
+} as const;
+
+type Selectors = typeof selectors;
+
+type ElementRefs = {
+  /**
+   * The ref to the Popup element.
+   */
+  readonly popupRef: React.RefObject<HTMLElement | null>;
+  /**
+   * A ref to the backdrop element.
+   */
+  readonly backdropRef: React.RefObject<HTMLDivElement | null>;
+  /**
+   * A ref to the internal backdrop element.
+   */
+  readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
 };
+
+export class DialogStore extends ControllableStore<State> {
+  static create(initialState: State) {
+    return new DialogStore(initialState);
+  }
+
+  public elements: ElementRefs = {
+    popupRef: { current: null },
+    backdropRef: { current: null },
+    internalBackdropRef: { current: null },
+  };
+
+  public useState<K extends keyof Selectors>(key: K): ReturnType<Selectors[K]> {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useStore<State, ReturnType<Selectors[K]>>(
+      this,
+      selectors[key] as (state: State) => ReturnType<Selectors[K]>,
+    );
+  }
+}

@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -8,7 +7,7 @@ import type { StateAttributesMapping } from '../../utils/getStateAttributesProps
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { selectors } from '../../dialog/store';
+// selectors are internal to the dialog store; use store.useState
 
 const stateAttributesMapping: StateAttributesMapping<AlertDialogBackdrop.State> = {
   ...baseMapping,
@@ -28,10 +27,10 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
   const { render, className, forceRender = false, ...elementProps } = componentProps;
   const { store } = useDialogRootContext();
 
-  const open = useStore(store, selectors.open);
-  const nested = useStore(store, (state) => state.nested);
-  const mounted = useStore(store, (state) => state.mounted);
-  const transitionStatus = useStore(store, (state) => state.transitionStatus);
+  const open = store.useState('open');
+  const nested = store.useState('nested');
+  const mounted = store.useState('mounted');
+  const transitionStatus = store.useState('transitionStatus');
 
   const state: AlertDialogBackdrop.State = React.useMemo(
     () => ({

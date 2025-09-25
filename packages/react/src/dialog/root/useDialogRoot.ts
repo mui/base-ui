@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+// store.useState provides typed slices; no direct useStore here
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import {
   useClick,
@@ -17,7 +17,7 @@ import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { type DialogRoot } from './DialogRoot';
-import { DialogStore, selectors } from '../store';
+import { DialogStore } from '../store';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -28,11 +28,11 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     onOpenChangeComplete,
   } = params;
 
-  const open = useStore(store, selectors.open);
-  const dismissible = useStore(store, selectors.dismissible);
-  const modal = useStore(store, selectors.modal);
-  const triggerElement = useStore(store, selectors.triggerElement);
-  const popupElement = useStore(store, selectors.popupElement);
+  const open = store.useState('open');
+  const dismissible = store.useState('dismissible');
+  const modal = store.useState('modal');
+  const triggerElement = store.useState('triggerElement');
+  const popupElement = store.useState('popupElement');
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
