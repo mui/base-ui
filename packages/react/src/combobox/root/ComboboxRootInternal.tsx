@@ -104,6 +104,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const { clearErrors } = useFormContext();
   const {
+    controlId,
     setDirty,
     validityData,
     validationMode,
@@ -114,7 +115,8 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = controlId ?? defaultId;
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -123,11 +125,16 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const commitValidation = fieldControlValidation.commitValidation;
 
   useIsoLayoutEffect(() => {
-    setControlId(id);
+    if (idProp) {
+      setControlId(idProp);
+    }
+
     return () => {
-      setControlId(undefined);
+      if (idProp) {
+        setControlId(undefined);
+      }
     };
-  }, [id, setControlId]);
+  }, [idProp, setControlId]);
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
     controlled: selectedValueProp,
