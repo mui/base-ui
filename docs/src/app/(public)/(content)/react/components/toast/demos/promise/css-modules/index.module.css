@@ -52,6 +52,10 @@
 
 .Toast {
   --gap: 0.75rem;
+  --peek: 0.75rem;
+  --scale: calc(max(0, 1 - (var(--toast-index) * 0.1)));
+  --shrink: calc(1 - var(--scale));
+  --height: var(--toast-frontmost-height, var(--toast-height));
   --offset-y: calc(
     var(--toast-offset-y) * -1 + (var(--toast-index) * var(--gap) * -1) +
       var(--toast-swipe-movement-y)
@@ -68,6 +72,7 @@
   box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
   background-clip: padding-box;
   border-radius: 0.5rem;
+  transform-origin: bottom center;
   bottom: 0;
   left: auto;
   margin-right: 0;
@@ -75,15 +80,23 @@
   user-select: none;
   transition:
     transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.5s;
+    opacity 0.5s,
+    height 0.15s;
   cursor: default;
   z-index: calc(1000 - var(--toast-index));
+  height: var(--height);
   transform: translateX(var(--toast-swipe-movement-x))
-    translateY(calc(var(--toast-swipe-movement-y) + (min(var(--toast-index), 10) * -20%)))
-    scale(calc(max(0, 1 - (var(--toast-index) * 0.1))));
+    translateY(
+      calc(
+        var(--toast-swipe-movement-y) - (var(--toast-index) * var(--peek)) -
+          (var(--shrink) * var(--height))
+      )
+    )
+    scale(var(--scale));
 
   &[data-expanded] {
     transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
+    height: var(--toast-height);
   }
 
   &[data-starting-style],
@@ -132,6 +145,19 @@
   }
 }
 
+.Content {
+  overflow: hidden;
+  transition: opacity 0.25s;
+
+  &[data-behind] {
+    opacity: 0;
+  }
+
+  &[data-expanded] {
+    opacity: 1;
+  }
+}
+
 .Title {
   font-weight: 500;
   font-size: 0.975rem;
@@ -149,6 +175,7 @@
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
+  padding: 0;
   border: none;
   background: transparent;
   width: 1.25rem;

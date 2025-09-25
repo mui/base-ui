@@ -30,7 +30,7 @@ const stateAttributesMapping: StateAttributesMapping<SelectTrigger.State> = {
 };
 
 /**
- * A button that opens the select menu.
+ * A button that opens the select popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -245,11 +245,11 @@ export namespace SelectTrigger {
 
   export interface State extends FieldRoot.State {
     /**
-     * Whether the select menu is currently open.
+     * Whether the select popup is currently open.
      */
     open: boolean;
     /**
-     * Whether the select menu is readonly.
+     * Whether the select popup is readonly.
      */
     readOnly: boolean;
     /**

@@ -4,6 +4,7 @@ import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import type { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import type { ComboboxRootInternal } from './root/ComboboxRootInternal';
+import { compareItemEquality } from '../utils/itemEquality';
 
 export type State = {
   id: string | undefined;
@@ -12,7 +13,7 @@ export type State = {
 
   filter: (item: any, query: string) => boolean;
 
-  items: any[] | undefined;
+  items: readonly any[] | undefined;
 
   selectedValue: any;
   inputValue: React.ComponentProps<'input'>['value'];
@@ -51,6 +52,7 @@ export type State = {
   clearRef: React.RefObject<HTMLButtonElement | null>;
   valuesRef: React.RefObject<Array<any>>;
   allValuesRef: React.RefObject<Array<any>>;
+  selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
 
   setOpen: (open: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
   setInputValue: (value: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
@@ -81,6 +83,7 @@ export type State = {
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToStringLabel?: (item: any) => string;
+  isItemEqualToValue: (item: any, value: any) => boolean;
   modal: boolean;
   autoHighlight: boolean;
   alwaysSubmitOnEnter: boolean;
@@ -108,11 +111,13 @@ export const selectors = {
   activeIndex: createSelector((state: State) => state.activeIndex),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
-  isSelected: createSelector((state: State, selectedValue: any) => {
-    if (Array.isArray(state.selectedValue)) {
-      return state.selectedValue.includes(selectedValue);
+  isSelected: createSelector((state: State, candidate: any) => {
+    const comparer = state.isItemEqualToValue;
+    const selectedValue = state.selectedValue;
+    if (Array.isArray(selectedValue)) {
+      return selectedValue.some((value) => compareItemEquality(value, candidate, comparer));
     }
-    return state.selectedValue === selectedValue;
+    return compareItemEquality(selectedValue, candidate, comparer);
   }),
 
   transitionStatus: createSelector((state: State) => state.transitionStatus),
@@ -153,6 +158,7 @@ export const selectors = {
   onOpenChangeComplete: createSelector((state: State) => state.onOpenChangeComplete),
   openOnInputClick: createSelector((state: State) => state.openOnInputClick),
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
+  isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
   alwaysSubmitOnEnter: createSelector((state: State) => state.alwaysSubmitOnEnter),

@@ -1,6 +1,6 @@
 {
   "name": "SelectTrigger",
-  "description": "A button that opens the select menu.\nRenders a `<div>` element.",
+  "description": "A button that opens the select popup.\nRenders a `<div>` element.",
   "props": {
     "nativeButton": {
       "type": "boolean",
