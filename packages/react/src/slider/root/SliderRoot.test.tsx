@@ -1009,6 +1009,41 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal(22);
     });
 
+    it.skipIf(isJSDOM)('allows thumbs to swap when dragging past each other', async () => {
+      const handleValueChange = spy();
+      const { getByTestId } = await render(
+        <TestRangeSlider
+          defaultValue={[30, 70]}
+          style={{ width: '100px' }}
+          onValueChange={handleValueChange}
+        />,
+      );
+
+      const sliderControl = getByTestId('control');
+
+      stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
+
+      fireEvent.pointerDown(sliderControl, {
+        buttons: 1,
+        clientX: 30,
+      });
+
+      fireEvent.pointerMove(document.body, {
+        buttons: 1,
+        clientX: 85,
+      });
+
+      fireEvent.pointerUp(document.body, {
+        buttons: 1,
+        clientX: 85,
+      });
+
+      expect(handleValueChange.callCount).to.be.greaterThan(0);
+      const lastCall = handleValueChange.getCall(handleValueChange.callCount - 1);
+      expect(lastCall.args[0]).to.deep.equal([70, 85]);
+      expect(lastCall.args[2]).to.equal(1);
+    });
+
     type Values = Array<[string, number[]]>;
 
     const values = [
@@ -1642,6 +1677,32 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         await user.keyboard(`[${ARROW_RIGHT}]`);
         expect(input).to.have.attribute('aria-valuenow', '6');
       });
+    });
+
+    it('does not allow thumbs to swap when using the keyboard', async () => {
+      const handleValueChange = spy();
+      const { getAllByTestId } = await render(
+        <TestRangeSlider defaultValue={[40, 60]} step={10} onValueChange={handleValueChange} />,
+      );
+
+      const [startThumb] = getAllByTestId('thumb');
+      const startInput = startThumb.querySelector<HTMLInputElement>('input[type="range"]')!;
+
+      expect(startInput).not.to.equal(null);
+
+      await act(async () => {
+        startInput.focus();
+      });
+
+      fireEvent.keyDown(startInput, { key: ARROW_RIGHT });
+      fireEvent.keyDown(startInput, { key: ARROW_RIGHT });
+      fireEvent.keyDown(startInput, { key: ARROW_RIGHT });
+
+      expect(handleValueChange.callCount).to.equal(2);
+      const lastCall = handleValueChange.getCall(handleValueChange.callCount - 1);
+      expect(lastCall.args[0]).to.deep.equal([60, 60]);
+      expect(lastCall.args[2]).to.equal(0);
+      expect((startInput as HTMLInputElement).value).to.equal('60');
     });
   });
 
