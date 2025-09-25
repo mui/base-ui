@@ -208,6 +208,11 @@ export namespace ComboboxItem {
       Omit<BaseUIComponentProps<'div', State>, 'id'> {
     children?: React.ReactNode;
     /**
+     * An optional click handler for the item when selected.
+     * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the `Input` or `List` element has focus.
+     */
+    onClick?: React.MouseEventHandler<HTMLElement>;
+    /**
      * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
      */
     index?: number;

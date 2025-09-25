@@ -6,6 +6,11 @@
       "type": "any",
       "description": "A unique value that identifies this item."
     },
+    "onClick": {
+      "type": "MouseEventHandler<HTMLElement>",
+      "description": "An optional click handler for the item when selected.\nIt fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the `Input` or `List` element has focus.",
+      "detailedType": "React.MouseEventHandler<HTMLElement> | undefined"
+    },
     "index": {
       "type": "number",
       "description": "The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.",

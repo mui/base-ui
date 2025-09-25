@@ -30,7 +30,7 @@
     },
     "open": {
       "type": "boolean",
-      "description": "Whether the popup is currently open.",
+      "description": "Whether the popup is currently open. Use when controlled.",
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
@@ -51,7 +51,7 @@
     },
     "defaultInputValue": {
       "type": "string | number | string[]",
-      "description": "The uncontrolled input value when initially rendered.",
+      "description": "The uncontrolled input value when initially rendered.\n\nTo render a controlled input, use the `inputValue` prop instead.",
       "detailedType": "string | number | string[] | undefined"
     },
     "filter": {
@@ -67,7 +67,7 @@
     },
     "inputValue": {
       "type": "string | number | string[]",
-      "description": "The input value of the combobox.",
+      "description": "The input value of the combobox. Use when controlled.",
       "detailedType": "string | number | string[] | undefined"
     },
     "isItemEqualToValue": {
