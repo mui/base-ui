@@ -191,9 +191,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
   const isGrouped = isGroupedItems(items);
 
-  const flatItems = React.useMemo(() => {
+  const flatItems: readonly any[] = React.useMemo(() => {
     if (!items) {
-      return EMPTY_ARRAY as readonly any[];
+      return EMPTY_ARRAY;
     }
 
     if (isGrouped) {
@@ -203,13 +203,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     return items;
   }, [items, isGrouped]);
 
-  const filteredItems: readonly Value[] | readonly Group<Value>[] = React.useMemo(() => {
+  const filteredItems: Value[] | Group<Value>[] = React.useMemo(() => {
     if (!items) {
-      return EMPTY_ARRAY;
+      return [];
     }
 
     if (isGrouped) {
-      const groupedItems = items as readonly Group<Value>[];
+      const groupedItems = items;
       const resultingGroups: Group<Value>[] = [];
       let currentCount = 0;
 
@@ -241,7 +241,15 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
 
     if (query === '') {
-      return limit > -1 ? flatItems.slice(0, limit) : flatItems;
+      return limit > -1
+        ? flatItems.slice(0, limit)
+        : // The cast here is done as `flatItems` is readonly.
+          // valuesRef.current, a mutable ref, can be set to `flatFilteredItems`, which may
+          // reference this exact readonly value, creating a mutation risk.
+          // However, <Combobox.Item> can never mutate this value as the mutating effect
+          // bails early when `items` is provided, and this is only ever returned
+          // when `items` is provided due to the early return at the top of this hook.
+          (flatItems as Value[]);
     }
 
     const limitedItems: Value[] = [];
@@ -259,7 +267,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const flatFilteredItems: Value[] = React.useMemo(() => {
     if (isGrouped) {
-      const groups = filteredItems as Array<Group<Value>>;
+      const groups = filteredItems as Group<Value>[];
       return groups.flatMap((g) => g.items);
     }
     return filteredItems as Value[];
@@ -279,15 +287,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   /**
    * Contains the currently visible list of item values post-filtering.
    */
-  const valuesRef = React.useRef<Array<any>>([]);
+  const valuesRef = React.useRef<any[]>([]);
   /**
    * Contains all item values in a stable, unfiltered order.
-   * - When `items` prop is provided, this mirrors the flat items.
-   * - When `items` is not provided, this accumulates values on first mount and
-   *   does not remove them on unmount (due to filtering), providing a stable
-   *   index for selected value tracking.
+   * This is only used when `items` prop is not provided.
+   * It accumulates values on first mount and does not remove them on unmount due to
+   * filtering, providing a stable index for selected value tracking.
    */
-  const allValuesRef = React.useRef<Array<any>>([]);
+  const allValuesRef = React.useRef<any[]>([]);
 
   const store = useRefWithInit(
     () =>
@@ -417,7 +424,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       valuesRef.current = flatFilteredItems;
       listRef.current.length = flatFilteredItems.length;
     }
-  }, [items, flatFilteredItems, flatItems]);
+  }, [items, flatFilteredItems]);
 
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.

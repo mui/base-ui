@@ -4,8 +4,8 @@ import type { FloatingRootContext } from '../../floating-ui-react';
 
 export interface ComboboxDerivedItemsContext {
   query: string;
-  filteredItems: readonly any[];
-  flatFilteredItems: readonly any[];
+  filteredItems: any[];
+  flatFilteredItems: any[];
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxStore | undefined>(undefined);
