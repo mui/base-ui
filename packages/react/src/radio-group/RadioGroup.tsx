@@ -188,6 +188,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       ...fieldState,
       checkedValue,
       disabled,
+      fieldControlValidation,
       name,
       onValueChange,
       readOnly,
@@ -200,6 +201,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     [
       checkedValue,
       disabled,
+      fieldControlValidation,
       fieldState,
       name,
       onValueChange,

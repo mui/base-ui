@@ -12,7 +12,10 @@ import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
+
+import { useLabelableContext } from '../../field/root/LabelableContext';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
@@ -54,6 +57,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   } = useRadioGroupContext();
 
   const {
+    controlId: fieldRootControlId,
     setControlId,
     setDirty,
     validityData,
@@ -63,20 +67,29 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     disabled: fieldDisabled,
   } = useFieldRootContext();
 
+  const labelableContext = useLabelableContext();
+
   const disabled = fieldDisabled || disabledRoot || disabledProp;
   const readOnly = readOnlyRoot || readOnlyProp;
   const required = requiredRoot || requiredProp;
 
   const checked = checkedValue === value;
 
+  const radioRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const ref = useMergedRefs(inputRefProp, inputRef);
+  const mergedInputRef = useMergedRefs(inputRefProp, inputRef);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current?.checked) {
       setFilled(true);
     }
   }, [setFilled]);
+
+  const radioId = idProp ?? labelableContext?.controlId ?? fieldRootControlId;
+
+  const fieldItemMessageIds = labelableContext?.messageIds.length
+    ? { 'aria-describedby': labelableContext.messageIds.join(' ') }
+    : undefined;
 
   const rootProps: React.ComponentProps<'button'> = {
     role: 'radio',
@@ -116,31 +129,34 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     native: nativeButton,
   });
 
-  const id = useBaseUiId(idProp);
+  useIsoLayoutEffect(() => {
+    const element = radioRef?.current;
 
-  useModernLayoutEffect(() => {
-    const element = buttonRef.current;
-    if (!element) {
+    if (!element || !labelableContext) {
       return undefined;
     }
 
-    if (element.closest('label') != null) {
-      setControlId(idProp ?? null);
+    const implicit = element.closest('label') != null;
+
+    if (implicit) {
+      labelableContext.setControlId(idProp ?? null);
     } else {
-      setControlId(id);
+      labelableContext.setControlId(radioId);
     }
 
     return () => {
       setControlId(undefined);
     };
-  }, [buttonRef, id, idProp, setControlId]);
+  }, [labelableContext, idProp, radioId, setControlId]);
+
+  const inputId = useBaseUiId();
 
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
     () => ({
       type: 'radio',
-      ref,
+      ref: mergedInputRef,
       // Set `id` to stop Chrome warning about an unassociated input
-      id,
+      id: inputId,
       tabIndex: -1,
       style: visuallyHidden,
       'aria-hidden': true,
@@ -173,9 +189,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     [
       checked,
       disabled,
-      id,
+      inputId,
+      mergedInputRef,
       readOnly,
-      ref,
       required,
       setCheckedValue,
       setDirty,
@@ -201,10 +217,11 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const isRadioGroup = setCheckedValue !== NOOP;
 
-  const refs = [forwardedRef, registerControlRef, buttonRef];
+  const refs = [forwardedRef, registerControlRef, radioRef, buttonRef];
   const props = [
     rootProps,
     fieldControlValidation?.getValidationProps ?? EMPTY_OBJECT,
+    fieldItemMessageIds ?? EMPTY_OBJECT,
     elementProps,
     getButtonProps,
   ];

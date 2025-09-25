@@ -9,6 +9,8 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 
+import { useLabelable } from '../root/useLabelable';
+
 /**
  * Groups all parts of the field.
  * Renders a `<div>` element.
@@ -41,9 +43,9 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const defaultControlId = useBaseUiId();
 
-  const [controlId, setControlId] = React.useState<string | null | undefined>(defaultControlId);
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
-  const [messageIds, setMessageIds] = React.useState<string[]>([]);
+  const { controlId, setControlId, labelId, setLabelId, messageIds, setMessageIds } = useLabelable({
+    initialControlId: defaultControlId,
+  });
 
   const [touched, setTouched] = React.useState(false);
   const [dirty, setDirtyUnwrapped] = React.useState(false);
@@ -115,8 +117,11 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     [
       invalid,
       controlId,
+      setControlId,
       labelId,
+      setLabelId,
       messageIds,
+      setMessageIds,
       name,
       validityData,
       disabled,
