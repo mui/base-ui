@@ -5,6 +5,7 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../field/root/LabelableContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { DEFAULT_STEP } from '../utils/constants';
@@ -86,7 +87,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
-  const { labelId, validationMode, setTouched, setFocused, invalid } = useFieldRootContext();
+  const { validationMode, setTouched, setFocused, invalid } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
 
   const {
     getInputValidationProps,

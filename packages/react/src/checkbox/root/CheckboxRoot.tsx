@@ -58,11 +58,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const { clearErrors } = useFormContext();
   const {
-    controlId: fieldRootControlId,
     disabled: fieldDisabled,
-    labelId,
     name: fieldName,
-    setControlId,
     setDirty,
     setFilled,
     setFocused,
@@ -72,7 +69,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     validityData,
   } = useFieldRootContext();
 
-  const labelableContext = useLabelableContext();
+  const { labelId, setControlId, ...labelableContext } = useLabelableContext();
 
   const groupContext = useCheckboxGroupContext();
   const parentContext = groupContext?.parent;
@@ -84,12 +81,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const id = useBaseUiId(idProp);
 
-  let checkboxId = fieldRootControlId;
-  if (labelableContext) {
-    checkboxId =
-      isGroupedWithParent && !parent ? `${parentContext.id}-${value}` : labelableContext.controlId;
-  }
-  checkboxId = idProp ?? checkboxId;
+  const checkboxId =
+    idProp ??
+    (isGroupedWithParent && !parent ? `${parentContext.id}-${value}` : labelableContext.controlId);
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGroupedWithParent) {
@@ -140,14 +134,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
     const implicit = element.closest('label') != null;
 
-    if (groupContext && labelableContext) {
-      if (implicit) {
-        labelableContext.setControlId(idProp ?? null);
-      } else if (!parent) {
-        labelableContext.setControlId(checkboxId);
-      }
-    } else if (implicit) {
+    if (implicit) {
       setControlId(idProp ?? null);
+    } else if (groupContext && !parent) {
+      setControlId(checkboxId);
     } else {
       setControlId(id);
     }
@@ -155,16 +145,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     return () => {
       setControlId(undefined);
     };
-  }, [
-    checkboxId,
-    labelableContext,
-    groupContext,
-    id,
-    idProp,
-    isGroupedWithParent,
-    setControlId,
-    parent,
-  ]);
+  }, [checkboxId, groupContext, id, idProp, isGroupedWithParent, setControlId, parent]);
 
   useField({
     enabled: !groupContext,

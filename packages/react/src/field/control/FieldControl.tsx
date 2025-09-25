@@ -5,6 +5,7 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useLabelableContext } from '../../field/root/LabelableContext';
 import { fieldValidityMapping } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -55,17 +56,9 @@ export const FieldControl = React.forwardRef(function FieldControl(
     [fieldState, disabled],
   );
 
-  const {
-    controlId,
-    setControlId,
-    labelId,
-    setTouched,
-    setDirty,
-    validityData,
-    setFocused,
-    setFilled,
-    validationMode,
-  } = useFieldRootContext();
+  const { setTouched, setDirty, validityData, setFocused, setFilled, validationMode } =
+    useFieldRootContext();
+  const { controlId, setControlId, labelId } = useLabelableContext();
 
   const { getInputValidationProps, commitValidation, inputRef } = useFieldControlValidation();
 

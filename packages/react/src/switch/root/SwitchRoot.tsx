@@ -15,6 +15,7 @@ import { stateAttributesMapping } from '../stateAttributesMapping';
 import { useField } from '../../field/useField';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../field/root/LabelableContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -48,10 +49,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const { clearErrors } = useFormContext();
   const {
-    controlId,
     state: fieldState,
-    labelId,
-    setControlId,
     setTouched,
     setDirty,
     validityData,
@@ -61,6 +59,8 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     disabled: fieldDisabled,
     name: fieldName,
   } = useFieldRootContext();
+
+  const { controlId, labelId, setControlId } = useLabelableContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;

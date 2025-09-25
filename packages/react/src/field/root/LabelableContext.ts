@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { NOOP } from '../../utils/noop';
 
 export interface LabelableContext {
   /**
@@ -24,7 +25,14 @@ export interface LabelableContext {
  * A context for providing [labelable elements](https://html.spec.whatwg.org/multipage/forms.html#category-label)\
  * with an accessible name (label) and description.
  */
-export const LabelableContext = React.createContext<LabelableContext | undefined>(undefined);
+export const LabelableContext = React.createContext<LabelableContext>({
+  controlId: undefined,
+  setControlId: NOOP,
+  labelId: undefined,
+  setLabelId: NOOP,
+  messageIds: [],
+  setMessageIds: NOOP,
+});
 
 export function useLabelableContext() {
   return React.useContext(LabelableContext);

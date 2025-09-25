@@ -18,6 +18,7 @@ import {
 } from '../../floating-ui-react';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../field/root/LabelableContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
@@ -53,11 +54,11 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     setDirty,
     validityData,
     validationMode,
-    setControlId,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
   } = useFieldRootContext();
+  const { setControlId } = useLabelableContext();
   const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
@@ -66,11 +67,16 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const name = fieldName ?? nameProp;
 
   useIsoLayoutEffect(() => {
-    setControlId(id);
+    if (idProp) {
+      setControlId(idProp);
+    }
+
     return () => {
-      setControlId(undefined);
+      if (idProp) {
+        setControlId(undefined);
+      }
     };
-  }, [id, setControlId]);
+  }, [idProp, setControlId]);
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: params.value,
