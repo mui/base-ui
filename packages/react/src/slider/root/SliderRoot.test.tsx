@@ -1767,7 +1767,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       const lastCall = handleValueChange.getCall(handleValueChange.callCount - 1);
       expect(lastCall.args[0]).to.deep.equal([60, 60]);
       expect(lastCall.args[2]).to.equal(0);
-      expect((startInput as HTMLInputElement).value).to.equal('60');
+      expect(startInput.value).to.equal('60');
     });
   });
 

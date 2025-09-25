@@ -18,7 +18,6 @@ import { getMidpoint } from '../utils/getMidpoint';
 import { replaceArrayItemAtIndex } from '../utils/replaceArrayItemAtIndex';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
-import { SliderThumbDataAttributes } from '../thumb/SliderThumbDataAttributes';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 
@@ -120,21 +119,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
   // The number of touch/pointermove events that have fired.
   const moveCountRef = React.useRef(0);
 
-  const getThumbElement = useEventCallback((thumbIndex: number) => {
-    for (const thumb of thumbRefs.current) {
-      if (thumb?.getAttribute(SliderThumbDataAttributes.index) === String(thumbIndex)) {
-        return thumb;
-      }
-    }
-    return null;
-  });
-
   const updatePressedThumb = useEventCallback((nextIndex: number) => {
     if (pressedThumbIndexRef.current !== nextIndex) {
       pressedThumbIndexRef.current = nextIndex;
     }
 
-    const thumbElement = getThumbElement(nextIndex);
+    const thumbElement = thumbRefs.current[nextIndex];
 
     if (!thumbElement) {
       pressedThumbCenterOffsetRef.current = null;
@@ -271,8 +261,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const focusThumb = useEventCallback((thumbIndex: number) => {
-    const thumb = getThumbElement(thumbIndex);
-    thumb?.querySelector<HTMLInputElement>('input[type="range"]')?.focus({ preventScroll: true });
+    thumbRefs.current[thumbIndex]
+      ?.querySelector<HTMLInputElement>('input[type="range"]')
+      ?.focus({ preventScroll: true });
   });
 
   const handleTouchMove = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
