@@ -140,7 +140,7 @@ export interface UseListNavigationProps {
    * be rendered.
    * This prop allows you to manually specify indices which should be disabled,
    * overriding the default logic.
-   * For Windows-style select menus, where the menu does not open when
+   * For Windows-style select popups, where the menu does not open when
    * navigating via arrow keys, specify an empty array.
    * @default undefined
    */
@@ -393,6 +393,7 @@ export function useListNavigation(
       return;
     }
     if (!open) {
+      forceSyncFocusRef.current = false;
       return;
     }
     if (!elements.floating) {

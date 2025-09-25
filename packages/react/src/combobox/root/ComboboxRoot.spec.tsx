@@ -7,8 +7,22 @@ const objectItems = [
   { value: 'c', label: 'cherry' },
 ];
 
+const objectItemsReadonly = [
+  { value: 'a', label: 'apple' },
+  { value: 'b', label: 'banana' },
+  { value: 'c', label: 'cherry' },
+] as const;
+
 <Combobox.Root
   items={objectItems}
+  defaultValue="a"
+  onValueChange={(value) => {
+    value.startsWith('a');
+  }}
+/>;
+
+<Combobox.Root
+  items={objectItemsReadonly}
   defaultValue="a"
   onValueChange={(value) => {
     value.startsWith('a');
@@ -39,6 +53,41 @@ const objectItems = [
   }}
   itemToStringValue={(item) => {
     return item.value;
+  }}
+/>;
+
+<Combobox.Root
+  items={objectItems}
+  defaultValue={objectItems[0]}
+  itemToStringLabel={(item) => {
+    // @ts-expect-error
+    item.x;
+    return item.label;
+  }}
+  itemToStringValue={(item) => {
+    // @ts-expect-error
+    item.x;
+    return item.value;
+  }}
+  isItemEqualToValue={(a, b) => {
+    // @ts-expect-error
+    a.x === b.x;
+    return a.value === b.value;
+  }}
+/>;
+
+<Combobox.Root
+  defaultValue="a"
+  itemToStringLabel={(item) => {
+    return item;
+  }}
+  itemToStringValue={(item) => {
+    return item;
+  }}
+  isItemEqualToValue={(a, b) => {
+    // @ts-expect-error
+    a.x === b.x;
+    return a === b;
   }}
 />;
 
