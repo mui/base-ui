@@ -53,6 +53,10 @@
     }
   },
   "cssVariables": {
+    "--toast-height": {
+      "description": "Indicates the measured natural height of the toast in pixels.",
+      "type": "number"
+    },
     "--toast-index": {
       "description": "Indicates the index of the toast in the list.",
       "type": "number"

@@ -13,27 +13,6 @@ export default function Layout({ children }: React.PropsWithChildren) {
 export const viewport: Viewport = {
   initialScale: 1,
   width: 'device-width',
-  themeColor: [
-    // Desktop Safari page background
-    {
-      media: '(prefers-color-scheme: light) and (min-width: 1024px)',
-      color: 'oklch(95% 0.25% 264)',
-    },
-    {
-      media: '(prefers-color-scheme: dark) and (min-width: 1024px)',
-      color: 'oklch(25% 1% 264)',
-    },
-
-    // Mobile Safari header background (match the page)
-    {
-      media: '(prefers-color-scheme: light)',
-      color: '#FFF',
-    },
-    {
-      media: '(prefers-color-scheme: dark)',
-      color: '#000',
-    },
-  ],
 };
 
 export const metadata: Metadata = {

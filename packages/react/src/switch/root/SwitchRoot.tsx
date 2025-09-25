@@ -36,6 +36,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     defaultChecked,
     id: idProp,
     inputRef: externalInputRef,
+    name: nameProp,
     nativeButton = true,
     onCheckedChange: onCheckedChangeProp,
     readOnly = false,
@@ -61,7 +62,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
-  const name = fieldName ?? elementProps.name;
+  const name = fieldName ?? nameProp;
 
   const {
     getValidationProps,
@@ -252,9 +253,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   return (
     <SwitchRootContext.Provider value={state}>
       {element}
-      {!checked && elementProps.name && (
-        <input type="hidden" name={elementProps.name} value="off" />
-      )}
+      {!checked && nameProp && <input type="hidden" name={nameProp} value="off" />}
       <input {...inputProps} />
     </SwitchRootContext.Provider>
   );

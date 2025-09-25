@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
@@ -89,17 +91,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   const swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
 
-  const {
-    toasts,
-    hovering,
-    focused,
-    close,
-    remove,
-    setToasts,
-    pauseTimers,
-    resumeTimers,
-    hasDifferingHeights,
-  } = useToastContext();
+  const { toasts, focused, close, remove, setToasts, pauseTimers, expanded, setHovering } =
+    useToastContext();
 
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     'up' | 'down' | 'left' | 'right' | undefined
@@ -145,39 +138,32 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     },
   });
 
-  React.useEffect(() => {
-    if (!rootRef.current) {
-      return undefined;
+  const recalculateHeight = useEventCallback(() => {
+    const element = rootRef.current;
+    if (!element) {
+      return;
     }
 
-    function setHeights() {
-      const height = rootRef.current?.offsetHeight;
-      setToasts((prev) =>
-        prev.map((t) =>
-          t.id === toast.id
-            ? {
-                ...t,
-                ref: rootRef,
-                height,
-                transitionStatus: undefined,
-              }
-            : t,
-        ),
-      );
-    }
+    const previousHeight = element.style.height;
+    element.style.height = 'auto';
+    const height = element.offsetHeight;
+    element.style.height = previousHeight;
 
-    setHeights();
+    setToasts((prev) =>
+      prev.map((t) =>
+        t.id === toast.id
+          ? {
+              ...t,
+              ref: rootRef,
+              height,
+              transitionStatus: undefined,
+            }
+          : t,
+      ),
+    );
+  });
 
-    if (typeof ResizeObserver === 'function') {
-      const resizeObserver = new ResizeObserver(setHeights);
-      resizeObserver.observe(rootRef.current);
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }
-
-    return undefined;
-  }, [toast.id, setToasts]);
+  useIsoLayoutEffect(recalculateHeight, [recalculateHeight]);
 
   function applyDirectionalDamping(deltaX: number, deltaY: number) {
     let newDeltaX = deltaX;
@@ -249,6 +235,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       });
     }
 
+    setHovering(true);
     setIsSwiping(true);
     setIsRealSwipe(false);
     setLockedDirection(null);
@@ -377,10 +364,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   function handlePointerUp(event: React.PointerEvent) {
     if (!isSwiping) {
       return;
-    }
-
-    if (event.pointerType === 'touch' && !focused) {
-      resumeTimers();
     }
 
     setIsSwiping(false);
@@ -522,10 +505,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       [ToastRootCssVars.index as string]:
         toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
       [ToastRootCssVars.offsetY as string]: `${offsetY}px`,
+      [ToastRootCssVars.height as string]: toast.height ? `${toast.height}px` : undefined,
     },
   };
 
-  const toastRoot = React.useMemo(
+  const toastRoot: ToastRootContext = React.useMemo(
     () => ({
       rootRef,
       toast,
@@ -535,23 +519,35 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       setDescriptionId,
       swiping: isSwiping,
       swipeDirection: currentSwipeDirection,
+      recalculateHeight,
+      index: domIndex,
+      visibleIndex,
+      expanded,
     }),
-    [toast, titleId, descriptionId, isSwiping, currentSwipeDirection],
+    [
+      toast,
+      titleId,
+      descriptionId,
+      isSwiping,
+      currentSwipeDirection,
+      recalculateHeight,
+      domIndex,
+      visibleIndex,
+      expanded,
+    ],
   );
 
   const state: ToastRoot.State = React.useMemo(
     () => ({
       transitionStatus: toast.transitionStatus,
-      expanded: hovering || focused || hasDifferingHeights,
+      expanded,
       limited: toast.limited || false,
       type: toast.type,
       swiping: toastRoot.swiping,
       swipeDirection: toastRoot.swipeDirection,
     }),
     [
-      hovering,
-      focused,
-      hasDifferingHeights,
+      expanded,
       toast.transitionStatus,
       toast.limited,
       toast.type,
