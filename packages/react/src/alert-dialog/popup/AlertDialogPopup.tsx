@@ -3,10 +3,11 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogPopup } from '../../dialog/popup/useDialogPopup';
-import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
@@ -18,6 +19,7 @@ import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { selectors } from '../../dialog/store';
 
 const stateAttributesMapping: StateAttributesMapping<AlertDialogPopup.State> = {
   ...baseMapping,
@@ -39,29 +41,24 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 ) {
   const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const {
-    descriptionElementId,
-    floatingRootContext,
-    getPopupProps,
-    mounted,
-    nested,
-    nestedOpenDialogCount,
-    open,
-    openMethod,
-    popupRef,
-    setPopupElement,
-    titleElementId,
-    transitionStatus,
-    modal,
-    onOpenChangeComplete,
-    internalBackdropRef,
-  } = useAlertDialogRootContext();
+  const { store, onOpenChangeComplete } = useDialogRootContext();
+
+  const descriptionElementId = useStore(store, selectors.descriptionElementId);
+  const floatingRootContext = useStore(store, selectors.floatingRootContext);
+  const rootPopupProps = useStore(store, selectors.popupProps);
+  const mounted = useStore(store, selectors.mounted);
+  const nested = useStore(store, selectors.nested);
+  const nestedOpenDialogCount = useStore(store, selectors.nestedOpenDialogCount);
+  const open = useStore(store, selectors.open);
+  const openMethod = useStore(store, selectors.openMethod);
+  const titleElementId = useStore(store, selectors.titleElementId);
+  const transitionStatus = useStore(store, selectors.transitionStatus);
 
   useAlertDialogPortalContext();
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.elements.popupRef,
     onComplete() {
       if (open) {
         onOpenChangeComplete?.(true);
@@ -69,7 +66,14 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     },
   });
 
-  const mergedRef = useMergedRefs(forwardedRef, popupRef);
+  const mergedRef = useMergedRefs(forwardedRef, store.elements.popupRef);
+
+  const setPopupElement = React.useCallback(
+    (node: HTMLElement | null) => {
+      store.set('popupElement', node);
+    },
+    [store],
+  );
 
   const { popupProps } = useDialogPopup({
     descriptionElementId,
@@ -79,6 +83,18 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     setPopupElement,
     titleElementId,
   });
+
+  // Default initial focus logic:
+  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
+  // (this is required for Android specifically as iOS handles this automatically).
+  const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
+    if (interactionType === 'touch') {
+      return store.elements.popupRef.current;
+    }
+    return true;
+  });
+
+  const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
@@ -95,7 +111,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [
-      getPopupProps(),
+      rootPopupProps,
       popupProps,
       {
         style: {
@@ -108,21 +124,11 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     stateAttributesMapping,
   });
 
-  // Default initial focus logic:
-  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
-  // (this is required for Android specifically as iOS handles this automatically).
-  const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
-    if (interactionType === 'touch') {
-      return popupRef.current;
-    }
-    return true;
-  });
-
-  const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
-
   return (
     <React.Fragment>
-      {mounted && modal && <InternalBackdrop ref={internalBackdropRef} inert={inertValue(!open)} />}
+      {mounted && (
+        <InternalBackdrop ref={store.elements.internalBackdropRef} inert={inertValue(!open)} />
+      )}
       <FloatingFocusManager
         context={floatingRootContext}
         disabled={!mounted}

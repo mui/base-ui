@@ -60,7 +60,7 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
     onOpenChangeComplete,
   });
 
-  const dialogContextValue: DialogContext = React.useMemo(
+  const contextValue: DialogContext = React.useMemo(
     () => ({
       store,
       onOpenChangeComplete,
@@ -70,7 +70,7 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
     [store, onOpenChangeComplete, dialogRoot.onNestedDialogClose, dialogRoot.onNestedDialogOpen],
   );
 
-  return <DialogContext.Provider value={dialogContextValue}>{children}</DialogContext.Provider>;
+  return <DialogContext.Provider value={contextValue}>{children}</DialogContext.Provider>;
 };
 
 export namespace DialogRoot {

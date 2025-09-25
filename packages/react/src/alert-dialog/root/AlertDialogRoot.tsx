@@ -1,9 +1,14 @@
 'use client';
 import * as React from 'react';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
-import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
+import { DialogStore } from '../../dialog/store';
+import { DialogContext } from '../../dialog/utils/DialogContext';
+import { useOptionalDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
 import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
 /**
  * Groups all parts of the alert dialog.
@@ -17,40 +22,54 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
     defaultOpen = false,
     onOpenChange,
     onOpenChangeComplete,
-    open,
+    open: openProp,
     actionsRef,
   } = props;
 
-  const parentDialogRootContext = React.useContext(AlertDialogRootContext);
-
-  const dialogRoot = useDialogRoot({
-    open,
-    defaultOpen,
-    onOpenChange,
-    actionsRef,
-    onOpenChangeComplete,
-    modal: true,
-    dismissible: false,
-    onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
-    onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,
-  });
-
+  const parentDialogRootContext = useOptionalDialogRootContext();
   const nested = Boolean(parentDialogRootContext);
 
-  const contextValue: AlertDialogRootContext = React.useMemo(
+  const store = useRefWithInit(DialogStore.create, {
+    open: defaultOpen,
+    dismissible: false,
+    nested,
+    popupElement: null,
+    triggerElement: null,
+    modal: true,
+    descriptionElementId: undefined,
+    titleElementId: undefined,
+    openMethod: null,
+    mounted: false,
+    transitionStatus: 'idle',
+    nestedOpenDialogCount: 0,
+    triggerProps: EMPTY_OBJECT,
+    popupProps: EMPTY_OBJECT,
+    floatingRootContext: getEmptyContext(),
+  }).current;
+
+  store.useControlledProp('open', openProp, defaultOpen);
+  store.useProp('nested', nested);
+
+  const dialogRoot = useDialogRoot({
+    store,
+    actionsRef,
+    onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
+    onNestedDialogOpen: parentDialogRootContext?.onNestedDialogOpen,
+    onOpenChange,
+    onOpenChangeComplete,
+  });
+
+  const contextValue: DialogContext = React.useMemo(
     () => ({
-      ...dialogRoot,
-      nested,
+      store,
       onOpenChangeComplete,
+      onNestedDialogClose: dialogRoot.onNestedDialogClose,
+      onNestedDialogOpen: dialogRoot.onNestedDialogOpen,
     }),
-    [dialogRoot, nested, onOpenChangeComplete],
+    [store, onOpenChangeComplete, dialogRoot.onNestedDialogClose, dialogRoot.onNestedDialogOpen],
   );
 
-  return (
-    <AlertDialogRootContext.Provider value={contextValue}>
-      {children}
-    </AlertDialogRootContext.Provider>
-  );
+  return <DialogContext.Provider value={contextValue}>{children}</DialogContext.Provider>;
 };
 
 export namespace AlertDialogRoot {
