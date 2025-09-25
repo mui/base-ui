@@ -25,7 +25,7 @@ export function useDialogRootContext(optional: true): DialogRootContext | undefi
 export function useDialogRootContext(optional?: boolean) {
   const dialogRootContext = React.useContext(DialogRootContext);
 
-  if (!optional && dialogRootContext === undefined) {
+  if (optional === false && dialogRootContext === undefined) {
     throw new Error(
       'Base UI: DialogRootContext is missing. Dialog parts must be placed within <Dialog.Root>.',
     );
