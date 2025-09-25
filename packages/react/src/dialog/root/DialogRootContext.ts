@@ -1,42 +1,35 @@
 'use client';
 import * as React from 'react';
-import { DialogContext } from '../utils/DialogContext';
+import { DialogStore } from '../store';
 
 export interface DialogRootContext {
+  store: DialogStore;
   /**
-   * Determines whether the dialog should close on outside clicks.
+   * Callback to invoke after any animations complete when the dialog is opened or closed.
    */
-  dismissible: boolean;
+  onOpenChangeComplete?: (open: boolean) => void;
+  /**
+   * Callback to invoke when a nested dialog is closed.
+   */
+  onNestedDialogClose?: () => void;
+  /**
+   * Callback to invoke when a nested dialog is opened.
+   */
+  onNestedDialogOpen?: (ownChildrenCount: number) => void;
 }
 
 export const DialogRootContext = React.createContext<DialogRootContext | undefined>(undefined);
 
-export function useOptionalDialogRootContext() {
+export function useDialogRootContext(optional?: false): DialogRootContext;
+export function useDialogRootContext(optional: true): DialogRootContext | undefined;
+export function useDialogRootContext(optional?: boolean) {
   const dialogRootContext = React.useContext(DialogRootContext);
-  const dialogContext = React.useContext(DialogContext);
 
-  if (dialogContext === undefined && dialogRootContext === undefined) {
-    return undefined;
-  }
-
-  return {
-    ...dialogRootContext,
-    ...dialogContext,
-  };
-}
-
-export function useDialogRootContext() {
-  const dialogRootContext = React.useContext(DialogRootContext);
-  const dialogContext = React.useContext(DialogContext);
-
-  if (dialogContext === undefined) {
+  if (!optional && dialogRootContext === undefined) {
     throw new Error(
       'Base UI: DialogRootContext is missing. Dialog parts must be placed within <Dialog.Root>.',
     );
   }
 
-  return {
-    ...dialogRootContext,
-    ...dialogContext,
-  };
+  return dialogRootContext;
 }
