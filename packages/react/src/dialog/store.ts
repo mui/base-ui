@@ -1,19 +1,18 @@
 import * as React from 'react';
 import { ControllableStore, createSelector, useStore } from '@base-ui-components/utils/store';
+import { EventEmitter } from '@base-ui-components/utils/EventEmitter';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import { type DialogRoot } from './root/DialogRoot';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
-import type { HTMLProps } from '../utils/types';
-import { FloatingRootContext } from '../floating-ui-react/types';
+import { type HTMLProps } from '../utils/types';
+import { type FloatingRootContext } from '../floating-ui-react/types';
 
 export type State = {
   /**
    * Whether the dialog is currently open.
    */
   open: boolean;
-  /**
-   * The id of the description element associated with the dialog.
-   */
-  descriptionElementId: string | undefined;
+
   /**
    * Whether the dialog enters a modal state when open.
    */
@@ -34,6 +33,10 @@ export type State = {
    * Determines what triggered the dialog to open.
    */
   openMethod: InteractionType | null;
+  /**
+   * The id of the description element associated with the dialog.
+   */
+  descriptionElementId: string | undefined;
   /**
    * The id of the title element associated with the dialog.
    */
@@ -58,8 +61,23 @@ export type State = {
    * The Floating UI root context.
    */
   floatingRootContext: FloatingRootContext;
+  /**
+   * The Popup DOM element.
+   */
   popupElement: HTMLElement | null;
+  /**
+   * The Trigger DOM element.
+   */
   triggerElement: HTMLElement | null;
+};
+
+export type DialogEventMap = {
+  setOpen: [open: boolean, eventDetails: DialogRoot.ChangeEventDetails];
+  openChange: [open: boolean, method: InteractionType | null];
+  transitionStatusChange: [status: TransitionStatus];
+  mountChange: [mounted: boolean];
+  popupElementChange: [popupElement: HTMLElement | null];
+  triggerElementChange: [triggerElement: HTMLElement | null];
 };
 
 const selectors = {
@@ -107,6 +125,8 @@ export class DialogStore extends ControllableStore<State> {
     backdropRef: { current: null },
     internalBackdropRef: { current: null },
   };
+
+  public readonly events = new EventEmitter<DialogEventMap>();
 
   public useState<K extends keyof Selectors>(key: K): ReturnType<Selectors[K]> {
     // False positive

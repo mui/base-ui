@@ -5,6 +5,7 @@ import { useDialogClose } from '../../dialog/close/useDialogClose';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { DialogRoot } from '../../dialog/root/DialogRoot';
 
 /**
  * A button that closes the alert dialog.
@@ -26,16 +27,10 @@ export const AlertDialogClose = React.forwardRef(function AlertDialogClose(
 
   const { store } = useDialogRootContext();
   const open = store.useState('open');
-  const floatingRootContext = store.useState('floatingRootContext');
 
-  const setOpen = useEventCallback(
-    (
-      nextOpen: boolean,
-      eventDetails: { event?: Event | undefined; reason?: string | undefined },
-    ) => {
-      floatingRootContext.events?.emit('setOpen', { open: nextOpen, eventDetails });
-    },
-  );
+  const setOpen = useEventCallback((nextOpen: boolean, eventDetails: DialogRoot.ChangeEventDetails) => {
+    store.events.emit('setOpen', nextOpen, eventDetails);
+  });
 
   const { getRootProps, ref } = useDialogClose({ disabled, open, setOpen, nativeButton });
 

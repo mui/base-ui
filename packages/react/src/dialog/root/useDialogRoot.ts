@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-// store.useState provides typed slices; no direct useStore here
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import {
   useClick,
@@ -95,21 +94,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   floatingEvents = context.events;
 
-  React.useLayoutEffect(() => {
-    interface SetOpenParameters {
-      open: boolean;
-      eventDetails: DialogRoot.ChangeEventDetails;
-    }
-
-    function handleSetOpen(parameters: SetOpenParameters) {
-      setOpen(parameters.open, parameters.eventDetails);
-    }
-
-    floatingEvents.on('setOpen', handleSetOpen);
-    return () => {
-      floatingEvents.off('setOpen', handleSetOpen);
-    };
-  }, [floatingEvents, setOpen]);
+  store.events.useEvent('setOpen', setOpen);
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
