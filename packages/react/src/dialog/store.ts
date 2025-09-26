@@ -78,6 +78,9 @@ export type DialogEventMap = {
   mountChange: [mounted: boolean];
   popupElementChange: [popupElement: HTMLElement | null];
   triggerElementChange: [triggerElement: HTMLElement | null];
+  openChangeComplete: [open: boolean];
+  nestedDialogOpen: [ownChildrenCount: number];
+  nestedDialogClose: [];
 };
 
 const selectors = {

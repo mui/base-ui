@@ -449,4 +449,143 @@ describe('<AlertDialog.Popup />', () => {
       expect(nestedDialog).not.to.have.attribute('data-nested-dialog-open');
     });
   });
+
+  describe('--nested-dialogs variable', () => {
+    it('increments/decrements for nested alert dialogs', async () => {
+      const { user } = await render(
+        <AlertDialog.Root>
+          <AlertDialog.Trigger>Trigger 0</AlertDialog.Trigger>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup data-testid="popup0">
+              <AlertDialog.Root>
+                <AlertDialog.Trigger>Trigger 1</AlertDialog.Trigger>
+                <AlertDialog.Portal>
+                  <AlertDialog.Popup data-testid="popup1">
+                    <AlertDialog.Root>
+                      <AlertDialog.Trigger>Trigger 2</AlertDialog.Trigger>
+                      <AlertDialog.Portal>
+                        <AlertDialog.Popup data-testid="popup2">
+                          <AlertDialog.Close>Close 2</AlertDialog.Close>
+                        </AlertDialog.Popup>
+                      </AlertDialog.Portal>
+                    </AlertDialog.Root>
+                    <AlertDialog.Close>Close 1</AlertDialog.Close>
+                  </AlertDialog.Popup>
+                </AlertDialog.Portal>
+              </AlertDialog.Root>
+              <AlertDialog.Close>Close 0</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
+      await waitFor(() => expect(screen.getByTestId('popup0')).not.to.equal(null));
+
+      const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await waitFor(() => expect(screen.getByTestId('popup1')).not.to.equal(null));
+      await waitFor(() => {
+        expect(getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs')).to.equal('1');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
+      await waitFor(() => expect(screen.getByTestId('popup2')).not.to.equal(null));
+      await waitFor(() => {
+        expect(getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs')).to.equal('2');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close 2' }));
+      await waitFor(() => {
+        expect(getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs')).to.equal('1');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close 1' }));
+      await waitFor(() => {
+        expect(getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs')).to.equal('0');
+      });
+    });
+
+    it('decrements when an open nested alert dialog is unmounted', async () => {
+      function App() {
+        const [showNested, setShowNested] = React.useState(true);
+        return (
+          <React.Fragment>
+            <button onClick={() => setShowNested(!showNested)}>toggle</button>
+            <AlertDialog.Root>
+              <AlertDialog.Trigger>Trigger 0</AlertDialog.Trigger>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="popup0">
+                  {showNested && (
+                    <AlertDialog.Root>
+                      <AlertDialog.Trigger>Trigger 1</AlertDialog.Trigger>
+                      <AlertDialog.Portal>
+                        <AlertDialog.Popup data-testid="popup1">
+                          <AlertDialog.Close>Close 1</AlertDialog.Close>
+                        </AlertDialog.Popup>
+                      </AlertDialog.Portal>
+                    </AlertDialog.Root>
+                  )}
+                  <AlertDialog.Close>Close 0</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
+      await waitFor(() => expect(screen.getByTestId('popup0')).not.to.equal(null));
+
+      const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await waitFor(() => expect(screen.getByTestId('popup1')).not.to.equal(null));
+      await waitFor(() => {
+        expect(getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs')).to.equal('1');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'toggle', hidden: true }));
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+    });
+
+    it('does not change when a closed nested alert dialog is unmounted', async () => {
+      function App() {
+        const [showNested, setShowNested] = React.useState(true);
+        return (
+          <AlertDialog.Root>
+            <AlertDialog.Trigger>Trigger 0</AlertDialog.Trigger>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup data-testid="popup0">
+                {showNested && (
+                  <AlertDialog.Root>
+                    <AlertDialog.Trigger />
+                    <AlertDialog.Portal>
+                      <AlertDialog.Popup />
+                    </AlertDialog.Portal>
+                  </AlertDialog.Root>
+                )}
+                <button onClick={() => setShowNested(!showNested)}>toggle</button>
+                <AlertDialog.Close>Close 0</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
+      await waitFor(() => expect(screen.getByTestId('popup0')).not.to.equal(null));
+
+      const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+
+      await user.click(screen.getByRole('button', { name: 'toggle' }));
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+    });
+  });
 });

@@ -4,18 +4,6 @@ import { DialogStore } from '../store';
 
 export interface DialogRootContext {
   store: DialogStore;
-  /**
-   * Callback to invoke after any animations complete when the dialog is opened or closed.
-   */
-  onOpenChangeComplete?: (open: boolean) => void;
-  /**
-   * Callback to invoke when a nested dialog is closed.
-   */
-  onNestedDialogClose?: () => void;
-  /**
-   * Callback to invoke when a nested dialog is opened.
-   */
-  onNestedDialogOpen?: (ownChildrenCount: number) => void;
 }
 
 export const DialogRootContext = React.createContext<DialogRootContext | undefined>(undefined);

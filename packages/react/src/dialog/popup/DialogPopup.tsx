@@ -39,7 +39,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 ) {
   const { className, finalFocus, initialFocus, render, ...elementProps } = componentProps;
 
-  const { store, onOpenChangeComplete } = useDialogRootContext();
+  const { store } = useDialogRootContext();
 
   const descriptionElementId = store.useState('descriptionElementId');
   const dismissible = store.useState('dismissible');
@@ -61,7 +61,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     ref: store.elements.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.events.emit('openChangeComplete', true);
       }
     },
   });

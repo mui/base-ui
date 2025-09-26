@@ -39,7 +39,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 ) {
   const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const { store, onOpenChangeComplete } = useDialogRootContext();
+  const { store } = useDialogRootContext();
 
   const descriptionElementId = store.useState('descriptionElementId');
   const floatingRootContext = store.useState('floatingRootContext');
@@ -59,7 +59,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     ref: store.elements.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.events.emit('openChangeComplete', true);
       }
     },
   });
