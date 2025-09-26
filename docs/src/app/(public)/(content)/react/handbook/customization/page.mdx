@@ -3,9 +3,9 @@
 <Subtitle>A guide to customizing the behavior of Base UI components.</Subtitle>
 <Meta name="description" content="A guide to customizing the behavior of Base UI components." />
 
-## Base UI events
+## Base UI events
 
-Change events such as `onOpenChange`, `onValueChange`, and `onPressedChange` are custom to Base UI.
+Change events such as `onOpenChange`, `onValueChange`, and `onPressedChange` are custom to Base UI.
 They can be emitted by various different DOM events, effects, or even during rendering.
 
 ```js title="Base UI event signatures"
@@ -29,14 +29,14 @@ interface BaseUIEventDetails {
 ```
 
 - `reason` is used to determine why the change event occurred, which can be useful to conditionally run certain side effects.
-  Most IDEs will show the possible string values after typing `reason === '`.
+  Most IDEs show the possible string values after typing `reason === '`.
 - `event` is the native DOM event that caused the change.
 - `cancel` stops the component from changing its internal state.
-- `allowPropagation` allows the DOM event to propagate in cases where Base UI will stop the propagation.
+- `allowPropagation` allows the DOM event to propagate in cases where Base UI stops the propagation.
 - `isCanceled` indicates whether the change event has been canceled.
 - `isPropagationAllowed` indicates whether the DOM event is allowed to propagate.
 
-### Canceling a Base UI event
+### Canceling a Base UI event
 
 An event can be canceled with the `cancel()` method on `eventDetails`:
 
@@ -53,7 +53,8 @@ An event can be canceled with the `cancel()` method on `eventDetails`:
 </Tooltip.Root>
 ```
 
-This lets you leave the component uncontrolled as its internal state will be prevented from updating. This is an alternative to controlling the component with external state and guarding the state updates conditionally.
+This lets you leave the component uncontrolled as its internal state is prevented from updating.
+This is an alternative to controlling the component with external state and guarding the state updates conditionally.
 
 ### Allowing propagation of the DOM event
 
@@ -73,9 +74,9 @@ This can also be customized with the `allowPropagation()` method:
 </Tooltip.Root>
 ```
 
-## Preventing Base UI from handling a React event
+## Preventing Base UI from handling a React event
 
-To prevent Base UI from handling a React event like `onClick`, you can use the `preventBaseUIHandler()` method on the event object:
+To prevent Base UI from handling a React event like `onClick`, you can use the `preventBaseUIHandler()` method on the event object:
 
 ```tsx title="Prevent Base UI's default behavior"
 <NumberField.Input
@@ -86,13 +87,13 @@ To prevent Base UI from handling a React event like `onClick`, you can use the `
 ```
 
 This should be used as an escape hatch in cases where there isn't a prop yet to customize the behavior.
-In various cases, native events are used instead of React events, so this method will not have an effect.
+In various cases, native events are used instead of React events, so this method has not effect.
 
 ## Controlling components with state
 
 Change event handlers enable a component to be controlled with your own external state.
 
-Components are uncontrolled by default, meaning that they will manage their own state internally.
+Components are uncontrolled by default, meaning that they manage their own state internally.
 
 ```tsx title="Uncontrolled dialog"
 <Dialog.Root>
