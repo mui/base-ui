@@ -187,7 +187,7 @@ describe('<Tabs.Root />', () => {
       expect(handlePointerDown.callCount).to.equal(1);
     });
 
-    it('should call onValueChange when clicking', async () => {
+    it.skipIf(isJSDOM)('should call onValueChange when clicking', async () => {
       const handleChange = spy();
       const { getAllByRole } = await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
@@ -201,6 +201,7 @@ describe('<Tabs.Root />', () => {
       fireEvent.click(getAllByRole('tab')[1]);
       expect(handleChange.callCount).to.equal(1);
       expect(handleChange.firstCall.args[0]).to.equal(1);
+      expect(handleChange.firstCall.args[1].activationDirection).to.equal('right');
     });
 
     it('should not call onValueChange on non-main button clicks', async () => {

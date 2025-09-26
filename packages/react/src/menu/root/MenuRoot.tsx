@@ -27,7 +27,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
-import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import {
   ContextMenuRootContext,
   useContextMenuRootContext,
@@ -669,7 +669,7 @@ export namespace MenuRoot {
     | 'sibling-open'
     | 'cancel-open'
     | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 
   export type Orientation = 'horizontal' | 'vertical';
 

@@ -1,1 +1,4 @@
-export type { BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
+export type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
+} from '../utils/createBaseUIEventDetails';

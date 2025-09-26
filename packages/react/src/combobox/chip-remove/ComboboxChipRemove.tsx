@@ -8,7 +8,7 @@ import { useComboboxChipContext } from '../chip/ComboboxChipContext';
 import { useButton } from '../../use-button';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { findItemIndex } from '../../utils/itemEquality';
 
 /**
@@ -56,7 +56,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
             return;
           }
 
-          const eventDetails = createBaseUIEventDetails('chip-remove-press', event.nativeEvent);
+          const eventDetails = createChangeEventDetails('chip-remove-press', event.nativeEvent);
 
           // If the removed chip was the active item, clear highlight
           const activeIndex = store.state.activeIndex;
@@ -88,7 +88,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
             return;
           }
 
-          const eventDetails = createBaseUIEventDetails('chip-remove-press', event.nativeEvent);
+          const eventDetails = createChangeEventDetails('chip-remove-press', event.nativeEvent);
 
           if (event.key === 'Enter' || event.key === ' ') {
             // If the removed chip was the active item, clear highlight

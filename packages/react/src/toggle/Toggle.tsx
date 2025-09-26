@@ -7,7 +7,10 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import { useButton } from '../use-button/useButton';
 import { CompositeItem } from '../composite/item/CompositeItem';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../utils/createBaseUIEventDetails';
+import {
+  type BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../utils/createBaseUIEventDetails';
 
 /**
  * A two-state button that can be on or off.
@@ -52,7 +55,7 @@ export const Toggle = React.forwardRef(function Toggle(
 
   const onPressedChange = useEventCallback(
     (nextPressed: boolean, eventDetails: Toggle.ChangeEventDetails) => {
-      groupContext?.setGroupValue?.(value, nextPressed, eventDetails.event);
+      groupContext?.setGroupValue?.(value, nextPressed, eventDetails);
       onPressedChangeProp?.(nextPressed, eventDetails);
     },
   );
@@ -76,7 +79,7 @@ export const Toggle = React.forwardRef(function Toggle(
       'aria-pressed': pressed,
       onClick(event: React.MouseEvent) {
         const nextPressed = !pressed;
-        const details = createBaseUIEventDetails('none', event.nativeEvent);
+        const details = createChangeEventDetails('none', event.nativeEvent);
 
         onPressedChange(nextPressed, details);
 
@@ -145,9 +148,6 @@ export namespace Toggle {
     disabled?: boolean;
     /**
      * Callback fired when the pressed state is changed.
-     *
-     * @param {boolean} pressed The new pressed state.
-     * @param {Event} event The corresponding event that initiated the change.
      */
     onPressedChange?: (pressed: boolean, eventDetails: ChangeEventDetails) => void;
     /**
@@ -158,5 +158,5 @@ export namespace Toggle {
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

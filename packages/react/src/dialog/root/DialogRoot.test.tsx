@@ -437,7 +437,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('BaseUIEventDetails', () => {
+  describe('BaseUIChangeEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       const { user } = await render(
         <Dialog.Root
