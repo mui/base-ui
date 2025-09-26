@@ -12,7 +12,11 @@ import { Store } from './Store';
  *   store during a layout phase using {@link useIsoLayoutEffect}. This ensures DOM reads in
  *   React components observe the latest store state within the same commit.
  */
-export class ControllableStore<State> extends Store<State> {
+export class ControllableStore<
+  State,
+  Context = Record<string, never>,
+  Selectors extends Record<string, (state: State) => any> = Record<string, never>,
+> extends Store<State, Context, Selectors> {
   /**
    * Keeps track of which properties are controlled.
    */

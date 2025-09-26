@@ -1,8 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import type { EventEmitter } from '@base-ui-components/utils/EventEmitter';
-import type { DialogEventMap } from '../store';
 import {
   useClick,
   useDismiss,
@@ -21,7 +19,7 @@ import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
-  const { store, parentEvents, onOpenChange: onOpenChangeParameter } = params;
+  const { store, parentContext, onOpenChange: onOpenChangeParameter } = params;
 
   const open = store.useState('open');
   const dismissible = store.useState('dismissible');
@@ -64,14 +62,14 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
-    store.events.emit('openChangeComplete', false);
+    store.context.openChangeComplete?.(false);
     resetOpenInteractionType();
   });
 
   useOpenChangeComplete({
     enabled: !params.actionsRef,
     open,
-    ref: store.elements.popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (!open) {
         handleUnmount();
@@ -90,7 +88,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   floatingEvents = context.events;
 
-  store.events.useHandler('setOpen', setOpen);
+  store.useEventCallback('setOpen', setOpen);
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
@@ -99,7 +97,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const click = useClick(context);
   const dismiss = useDismiss(context, {
     outsidePressEvent() {
-      if (store.elements.internalBackdropRef.current || store.elements.backdropRef.current) {
+      if (store.context.internalBackdropRef.current || store.context.backdropRef.current) {
         return 'intentional';
       }
       // Ensure `aria-hidden` on outside elements is removed immediately
@@ -120,9 +118,9 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
         // This supports multiple modal dialogs that aren't nested in the React tree:
         // https://github.com/mui/base-ui/issues/1320
         if (modal) {
-          return store.elements.internalBackdropRef.current || store.elements.backdropRef.current
-            ? store.elements.internalBackdropRef.current === eventTarget ||
-                store.elements.backdropRef.current === eventTarget
+          return store.context.internalBackdropRef.current || store.context.backdropRef.current
+            ? store.context.internalBackdropRef.current === eventTarget ||
+                store.context.backdropRef.current === eventTarget
             : true;
         }
         return true;
@@ -142,30 +140,28 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const { getReferenceProps, getFloatingProps } = useInteractions([role, click, dismiss]);
 
   // Listen for nested open/close events on this store to maintain the count
-  store.events.useHandler('nestedDialogOpen', (ownChildrenCount) => {
+  store.useEventCallback('nestedDialogOpen', (ownChildrenCount) => {
     setOwnNestedOpenDialogs(ownChildrenCount + 1);
   });
 
-  store.events.useHandler('nestedDialogClose', () => {
+  store.useEventCallback('nestedDialogClose', () => {
     setOwnNestedOpenDialogs(0);
   });
 
-  // Notify parent of our open/close state using its event emitter, if any
+  // Notify parent of our open/close state using parent callbacks, if any
   React.useEffect(() => {
-    if (parentEvents && open) {
-      parentEvents.emit('nestedDialogOpen', ownNestedOpenDialogs);
+    if (parentContext?.nestedDialogOpen && open) {
+      parentContext.nestedDialogOpen(ownNestedOpenDialogs);
     }
-    if (parentEvents && !open) {
-      parentEvents.emit('nestedDialogClose');
+    if (parentContext?.nestedDialogClose && !open) {
+      parentContext.nestedDialogClose();
     }
     return () => {
-      if (parentEvents && open) {
-        parentEvents.emit('nestedDialogClose');
+      if (parentContext?.nestedDialogClose && open) {
+        parentContext.nestedDialogClose();
       }
     };
-  }, [open, parentEvents, ownNestedOpenDialogs]);
-
-  // Handlers now wired via events; explicit callbacks removed
+  }, [open, parentContext, ownNestedOpenDialogs]);
 
   const dialogTriggerProps = React.useMemo(
     () => getReferenceProps(triggerProps),
@@ -189,7 +185,7 @@ export namespace useDialogRoot {
   export interface Parameters {
     store: DialogStore;
     actionsRef?: DialogRoot.Props['actionsRef'];
-    parentEvents?: EventEmitter<DialogEventMap>;
+    parentContext?: DialogStore['context'];
     onOpenChange: DialogRoot.Props['onOpenChange'];
   }
 

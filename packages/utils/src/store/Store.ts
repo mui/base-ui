@@ -36,7 +36,7 @@ export class Store<
 
   private selectors?: Selectors;
 
-  constructor(state: State, context: Context, selectors?: Selectors) {
+  constructor(state: State, context: Context = {} as Context, selectors?: Selectors) {
     this.state = state;
     this.listeners = new Set();
     this.context = context;
@@ -129,10 +129,12 @@ export class Store<
    */
   public useEventCallback<Key extends ContextFunctionKeys<Context>>(
     key: Key,
-    fn: ContextFunction<Context, Key>,
+    fn: ContextFunction<Context, Key> | undefined,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const stableFunction = useEventCallback(fn);
+    const stableFunction = useEventCallback(fn ?? (NOOP as ContextFunction<Context, Key>));
     (this.context as Record<Key, ContextFunction<Context, Key>>)[key] = stableFunction;
   }
 }
+
+function NOOP() {}

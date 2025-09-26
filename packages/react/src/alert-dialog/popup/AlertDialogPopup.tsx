@@ -56,15 +56,15 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 
   useOpenChangeComplete({
     open,
-    ref: store.elements.popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        store.events.emit('openChangeComplete', true);
+        store.context.openChangeComplete?.(true);
       }
     },
   });
 
-  const mergedRef = useMergedRefs(forwardedRef, store.elements.popupRef);
+  const mergedRef = useMergedRefs(forwardedRef, store.context.popupRef);
 
   const setPopupElement = React.useCallback(
     (node: HTMLElement | null) => {
@@ -87,7 +87,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   // (this is required for Android specifically as iOS handles this automatically).
   const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
     if (interactionType === 'touch') {
-      return store.elements.popupRef.current;
+      return store.context.popupRef.current;
     }
     return true;
   });
@@ -125,7 +125,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   return (
     <React.Fragment>
       {mounted && (
-        <InternalBackdrop ref={store.elements.internalBackdropRef} inert={inertValue(!open)} />
+        <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
       )}
       <FloatingFocusManager
         context={floatingRootContext}

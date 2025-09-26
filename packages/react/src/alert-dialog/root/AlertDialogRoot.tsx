@@ -48,23 +48,14 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useSyncedValue('nested', nested);
+  store.useEventCallback('openChangeComplete', onOpenChangeComplete);
 
   useDialogRoot({
     store,
     actionsRef,
-    parentEvents: parentDialogRootContext?.store.events,
+    parentContext: parentDialogRootContext?.store.context,
     onOpenChange,
   });
-
-  React.useEffect(() => {
-    let off: (() => void) | undefined;
-    if (onOpenChangeComplete) {
-      off = store.events.on('openChangeComplete', onOpenChangeComplete);
-    }
-    return () => {
-      off?.();
-    };
-  }, [store.events, onOpenChangeComplete]);
 
   const contextValue: DialogRootContext = React.useMemo(() => ({ store }), [store]);
 

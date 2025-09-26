@@ -49,15 +49,14 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
 
   store.useControlledProp('open', openProp, defaultOpenProp);
   store.useSyncedValues({ dismissible, nested, modal });
+  store.useEventCallback('openChangeComplete', onOpenChangeComplete);
 
   useDialogRoot({
     store,
     actionsRef,
-    parentEvents: parentDialogRootContext?.store.events,
+    parentContext: parentDialogRootContext?.store.context,
     onOpenChange,
   });
-
-  store.events.useHandler('openChangeComplete', onOpenChangeComplete);
 
   const contextValue: DialogRootContext = React.useMemo(() => ({ store }), [store]);
 
@@ -120,20 +119,4 @@ export namespace DialogRoot {
     | 'focus-out'
     | 'none';
   export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
-}
-
-export interface UseControlledWithStoreParameters<Value, Store> {
-  /**
-   * Holds the component value when it's controlled.
-   */
-  controlled: Value | undefined;
-  /**
-   * The default value when uncontrolled.
-   */
-  default: Value | undefined;
-  /**
-   * The component name displayed in warnings.
-   */
-  key: keyof Store;
-  store: Store;
 }
