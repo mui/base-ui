@@ -37,7 +37,7 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
               <Accordion.Trigger index={index}>
                 <TableCode className="text-navy">{name}</TableCode>
                 <svg
-                  className="AccordionIcon"
+                  className="AccordionIcon ml-auto mr-1"
                   width="10"
                   height="10"
                   viewBox="0 0 10 10"

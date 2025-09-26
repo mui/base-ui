@@ -46,6 +46,7 @@
     align-items: center;
     /* use padding to match TableCell height in CSS vars or data attributes table */
     padding-block: 0.5rem;
+    padding-inline: 0.75rem 0.5rem;
     border: none;
     outline: none;
     text-align: left;

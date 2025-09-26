@@ -172,7 +172,7 @@ export async function PropsReferenceAccordion({
               id={id}
               index={index}
               aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
-              className={clsx('min-h-min scroll-mt-12 py-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
+              className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
             >
               <Accordion.Scrollable className="px-3">
                 <TableCode className="text-navy whitespace-nowrap">
