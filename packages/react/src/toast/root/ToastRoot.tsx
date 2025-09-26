@@ -474,10 +474,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     const deltaY = dragOffset.y - initialTransform.y;
 
     return {
-      // While swiping, freeze the element at its current visual transform
-      // so it doesn't snap to the end position.
-      // The computed transform is applied inline during the swipe.
       transition: isSwiping ? 'none' : undefined,
+      // While swiping, freeze the element at its current visual transform so it doesn't snap to the
+      // end position.
       transform: isSwiping
         ? `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`
         : undefined,
