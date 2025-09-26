@@ -3,6 +3,7 @@ import * as React from 'react';
 import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import {
   ALL_KEYS,
@@ -98,6 +99,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const mergedRef = useMergedRefs(rootRef, externalRef);
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
+  const mapRef = useRefWithInit(createMap);
   const hasSetDefaultIndexRef = React.useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
@@ -110,6 +112,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   });
 
   const onMapChange = useEventCallback((map: Map<Element, CompositeMetadata<any>>) => {
+    mapRef.current = map;
     if (map.size === 0 || hasSetDefaultIndexRef.current) {
       return;
     }
@@ -134,12 +137,20 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       ref: mergedRef,
       onFocus(event) {
         const element = rootRef.current;
-        if (!element || !isNativeInput(event.target)) {
+        if (
+          !element ||
+          !isNativeInput(event.target) ||
+          !mapRef.current.has(event.target as Element)
+        ) {
           return;
         }
         event.target.setSelectionRange(0, event.target.value.length ?? 0);
       },
       onKeyDown(event) {
+        if (!mapRef.current.has(event.target as Element)) {
+          return;
+        }
+
         const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
         if (!RELEVANT_KEYS.has(event.key)) {
           return;
@@ -334,6 +345,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       onHighlightedIndexChange,
       orientation,
       stopEventPropagation,
+      mapRef,
     ],
   );
 
@@ -348,6 +360,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }),
     [props, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices, onMapChange],
   );
+}
+
+function createMap() {
+  return new Map<Element, CompositeMetadata<any>>();
 }
 
 function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {
