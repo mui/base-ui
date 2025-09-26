@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { ControllableStore, createSelector, useStore } from '@base-ui-components/utils/store';
-import { EventEmitter } from '@base-ui-components/utils/EventEmitter';
+import { ControllableStore, createSelector } from '@base-ui-components/utils/store';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { type DialogRoot } from './root/DialogRoot';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
@@ -71,16 +70,14 @@ export type State = {
   triggerElement: HTMLElement | null;
 };
 
-export type DialogEventMap = {
-  setOpen: [open: boolean, eventDetails: DialogRoot.ChangeEventDetails];
-  openChange: [open: boolean, method: InteractionType | null];
-  transitionStatusChange: [status: TransitionStatus];
-  mountChange: [mounted: boolean];
-  popupElementChange: [popupElement: HTMLElement | null];
-  triggerElementChange: [triggerElement: HTMLElement | null];
-  openChangeComplete: [open: boolean];
-  nestedDialogOpen: [ownChildrenCount: number];
-  nestedDialogClose: [];
+type Context = {
+  popupRef: React.RefObject<HTMLElement | null>;
+  backdropRef: React.RefObject<HTMLDivElement | null>;
+  internalBackdropRef: React.RefObject<HTMLDivElement | null>;
+  setOpen?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
+  openChangeComplete?: (open: boolean) => void;
+  nestedDialogOpen?: (ownChildrenCount: number) => void;
+  nestedDialogClose?: () => void;
 };
 
 const selectors = {
@@ -99,29 +96,16 @@ const selectors = {
   floatingRootContext: createSelector((state: State) => state.floatingRootContext),
   popupElement: createSelector((state: State) => state.popupElement),
   triggerElement: createSelector((state: State) => state.triggerElement),
-} as const;
+};
 
-type Selectors = typeof selectors;
-
-export class DialogStore extends ControllableStore<State> {
+export class DialogStore extends ControllableStore<State, Context, typeof selectors> {
   static create(initialState: State) {
-    return new DialogStore(initialState);
-  }
+    const context: Context = {
+      popupRef: React.createRef<HTMLElement>(),
+      backdropRef: React.createRef<HTMLDivElement>(),
+      internalBackdropRef: React.createRef<HTMLDivElement>(),
+    };
 
-  public elements = {
-    popupRef: React.createRef<HTMLElement>(),
-    backdropRef: React.createRef<HTMLDivElement>(),
-    internalBackdropRef: React.createRef<HTMLDivElement>(),
-  };
-
-  public readonly events = new EventEmitter<DialogEventMap>();
-
-  public useState<K extends keyof Selectors>(key: K): ReturnType<Selectors[K]> {
-    // False positive
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useStore<State, ReturnType<Selectors[K]>>(
-      this,
-      selectors[key] as (state: State) => ReturnType<Selectors[K]>,
-    );
+    return new DialogStore(initialState, context, selectors);
   }
 }

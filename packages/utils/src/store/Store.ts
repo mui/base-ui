@@ -80,3 +80,5 @@ export class Store<State> {
     }
   }
 }
+
+function NOOP() {}

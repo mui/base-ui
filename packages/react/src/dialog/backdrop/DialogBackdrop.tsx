@@ -41,7 +41,7 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: [store.elements.backdropRef, forwardedRef],
+    ref: [store.context.backdropRef, forwardedRef],
     stateAttributesMapping,
     props: [
       {

@@ -30,7 +30,7 @@ export const AlertDialogClose = React.forwardRef(function AlertDialogClose(
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, eventDetails: DialogRoot.ChangeEventDetails) => {
-      store.events.emit('setOpen', nextOpen, eventDetails);
+      store.context.setOpen?.(nextOpen, eventDetails);
     },
   );
 

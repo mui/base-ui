@@ -41,7 +41,7 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: [store.elements.backdropRef, forwardedRef],
+    ref: [store.context.backdropRef, forwardedRef],
     props: [
       {
         role: 'presentation',
