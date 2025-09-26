@@ -1,6 +1,6 @@
 @layer components {
   .MobileNavBackdrop {
-    position: fixed;
+    position: absolute;
     inset: 0;
     height: 100dvh;
 

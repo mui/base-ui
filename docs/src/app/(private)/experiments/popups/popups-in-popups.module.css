@@ -324,4 +324,5 @@
   position: absolute;
   inset: 0;
   backdrop-filter: blur(4px);
+  height: 100dvh;
 }
