@@ -38,7 +38,6 @@ export const usePortalContext = () => React.useContext(PortalContext);
 const attr = createAttribute('portal');
 
 export interface UseFloatingPortalNodeProps {
-  id?: string;
   root?: HTMLElement | ShadowRoot | null | React.RefObject<HTMLElement | ShadowRoot | null>;
 }
 
@@ -46,7 +45,7 @@ export interface UseFloatingPortalNodeProps {
  * @see https://floating-ui.com/docs/FloatingPortal#usefloatingportalnode
  */
 export function useFloatingPortalNode(props: UseFloatingPortalNodeProps = {}) {
-  const { id, root } = props;
+  const { root } = props;
 
   const uniqueId = useId();
   const portalContext = usePortalContext();
@@ -54,7 +53,9 @@ export function useFloatingPortalNode(props: UseFloatingPortalNodeProps = {}) {
   const [portalNode, setPortalNode] = React.useState<HTMLElement | null>(null);
 
   const portalNodeRef = React.useRef<HTMLDivElement | null>(null);
+  const prevContainerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
 
+  // Cleanup when the portal node instance changes or unmounts.
   useIsoLayoutEffect(() => {
     return () => {
       portalNode?.remove();
@@ -63,81 +64,60 @@ export function useFloatingPortalNode(props: UseFloatingPortalNodeProps = {}) {
       // https://github.com/floating-ui/floating-ui/issues/2454
       queueMicrotask(() => {
         portalNodeRef.current = null;
+        prevContainerRef.current = null;
       });
     };
   }, [portalNode]);
 
+  // Handle reactive `root` changes (including undefined <-> container changes)
   useIsoLayoutEffect(() => {
-    // Wait for the uniqueId to be generated before creating the portal node in
-    // React <18 (using `useFloatingId` instead of the native `useId`).
-    // https://github.com/floating-ui/floating-ui/issues/2778
-    if (!uniqueId) {
-      return;
-    }
-    if (portalNodeRef.current) {
-      return;
-    }
-    const existingIdRoot = id ? document.getElementById(id) : null;
-    if (!existingIdRoot) {
-      return;
-    }
-
-    const subRoot = document.createElement('div');
-    subRoot.id = uniqueId;
-    subRoot.setAttribute(attr, '');
-    existingIdRoot.appendChild(subRoot);
-    portalNodeRef.current = subRoot;
-    setPortalNode(subRoot);
-  }, [id, uniqueId]);
-
-  useIsoLayoutEffect(() => {
-    // Wait for the root to exist before creating the portal node. The root must
-    // be stored in state, not a ref, for this to work reactively.
+    // "Wait" mode: remove any existing node and pause until root changes.
     if (root === null) {
+      if (portalNodeRef.current) {
+        portalNodeRef.current.remove();
+        portalNodeRef.current = null;
+        setPortalNode(null);
+      }
+      prevContainerRef.current = null;
       return;
     }
+
+    // For React 17, as the id is generated in an effect instead of React.useId().
     if (!uniqueId) {
       return;
     }
+
+    const resolvedContainer =
+      (root && (isNode(root) ? root : root.current)) || portalContext?.portalNode || document.body;
+
+    const containerChanged = resolvedContainer !== prevContainerRef.current;
+
+    if (portalNodeRef.current && containerChanged) {
+      portalNodeRef.current.remove();
+      portalNodeRef.current = null;
+      setPortalNode(null);
+    }
+
     if (portalNodeRef.current) {
       return;
     }
 
-    let container = root || portalContext?.portalNode;
-    if (container && !isNode(container)) {
-      container = container.current;
-    }
-    container = container || document.body;
+    const portalElement = document.createElement('div');
+    portalElement.id = uniqueId;
+    portalElement.setAttribute(attr, '');
+    resolvedContainer.appendChild(portalElement);
 
-    let idWrapper: HTMLDivElement | null = null;
-    if (id) {
-      idWrapper = document.createElement('div');
-      idWrapper.id = id;
-      container.appendChild(idWrapper);
-    }
+    portalNodeRef.current = portalElement;
+    prevContainerRef.current = resolvedContainer;
 
-    const subRoot = document.createElement('div');
-
-    subRoot.id = uniqueId;
-    subRoot.setAttribute(attr, '');
-
-    container = idWrapper || container;
-    container.appendChild(subRoot);
-
-    portalNodeRef.current = subRoot;
-    setPortalNode(subRoot);
-  }, [id, root, uniqueId, portalContext]);
+    setPortalNode(portalElement);
+  }, [root, uniqueId, portalContext]);
 
   return portalNode;
 }
 
 export interface FloatingPortalProps {
   children?: React.ReactNode;
-  /**
-   * Optionally selects the node with the id if it exists, or create it and
-   * append it to the specified `root` (by default `document.body`).
-   */
-  id?: string;
   /**
    * Specifies the root node the portal container will be appended to.
    */
@@ -160,9 +140,9 @@ export interface FloatingPortalProps {
  * @internal
  */
 export function FloatingPortal(props: FloatingPortalProps): React.JSX.Element {
-  const { children, id, root, preserveTabOrder = true } = props;
+  const { children, root, preserveTabOrder = true } = props;
 
-  const portalNode = useFloatingPortalNode({ id, root });
+  const portalNode = useFloatingPortalNode({ root });
   const [focusManagerState, setFocusManagerState] = React.useState<FocusManagerState>(null);
 
   const beforeOutsideRef = React.useRef<HTMLSpanElement>(null);
@@ -211,10 +191,7 @@ export function FloatingPortal(props: FloatingPortalProps): React.JSX.Element {
   }, [portalNode, preserveTabOrder, modal]);
 
   React.useEffect(() => {
-    if (!portalNode) {
-      return;
-    }
-    if (open) {
+    if (!portalNode || open) {
       return;
     }
     enableFocusInside(portalNode);
