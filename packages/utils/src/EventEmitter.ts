@@ -72,12 +72,14 @@ export class EventEmitter<EventMap extends Record<string, any[]>> {
    */
   public useHandler<E extends keyof EventMap>(
     event: E,
-    handler: (...args: EventMap[E]) => void,
+    handler: ((...args: EventMap[E]) => void) | undefined,
   ): void {
     const stableHandler = useEventCallback(handler);
-    React.useEffect(
-      () => this.on(event, stableHandler as (...args: any[]) => void),
-      [event, stableHandler],
-    );
+    React.useEffect(() => {
+      if (!stableHandler) {
+        return undefined;
+      }
+      return this.on(event, stableHandler as (...args: any[]) => void);
+    }, [event, stableHandler]);
   }
 }

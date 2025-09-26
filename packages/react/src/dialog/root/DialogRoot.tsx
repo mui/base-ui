@@ -57,16 +57,7 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
     onOpenChange,
   });
 
-  // Bridge prop to event for consumers listening via context events
-  React.useEffect(() => {
-    let off: (() => void) | undefined;
-    if (onOpenChangeComplete) {
-      off = store.events.on('openChangeComplete', onOpenChangeComplete);
-    }
-    return () => {
-      off?.();
-    };
-  }, [store.events, onOpenChangeComplete]);
+  store.events.useHandler('openChangeComplete', onOpenChangeComplete);
 
   const contextValue: DialogRootContext = React.useMemo(() => ({ store }), [store]);
 
