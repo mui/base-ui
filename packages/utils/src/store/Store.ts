@@ -39,12 +39,12 @@ export class Store<State> {
    *
    * @param newState The new state to set for the store.
    */
-  public update = (newState: State) => {
+  public update(newState: State) {
     if (this.state !== newState) {
       this.state = newState;
       this.listeners.forEach((l) => l(newState));
     }
-  };
+  }
 
   /**
    * Merges the provided changes into the current state and notifies listeners if there are changes.
