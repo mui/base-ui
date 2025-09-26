@@ -135,7 +135,7 @@
   background: radial-gradient(#cecdcf36, #8b94ab47);
   z-index: 0;
   inset: 0;
-  height: 100dvh;
+  min-height: 100dvh;
 
   &.withTransitions {
     transition:

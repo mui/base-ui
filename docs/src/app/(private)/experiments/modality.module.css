@@ -235,5 +235,5 @@
   inset: 0;
   backdrop-filter: blur(4px);
   z-index: 2000;
-  height: 100dvh;
+  min-height: 100dvh;
 }
