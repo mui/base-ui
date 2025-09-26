@@ -34,11 +34,12 @@
 }
 
 .Backdrop {
-  position: fixed;
+  position: absolute;
   inset: 0;
   background-color: black;
   opacity: 0.2;
   transition: opacity 150ms cubic-bezier(0.45, 1.005, 0, 1.005);
+  min-height: 100dvh;
 
   @media (prefers-color-scheme: dark) {
     opacity: 0.7;
