@@ -624,10 +624,10 @@ importers:
         version: link:../packages/react/build
       '@mui/internal-test-utils':
         specifier: ^2.0.10
-        version: 2.0.13(@babel/core@7.28.4)(@playwright/test@1.55.0)(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(chai@4.5.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        version: 2.0.13(@babel/core@7.28.4)(@playwright/test@1.55.1)(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(chai@4.5.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@playwright/test':
-        specifier: 1.55.0
-        version: 1.55.0
+        specifier: 1.55.1
+        version: 1.55.1
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
@@ -2702,11 +2702,6 @@ packages:
   '@pkgr/core@0.2.9':
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
-
-  '@playwright/test@1.55.0':
-    resolution: {integrity: sha512-04IXzPwHrW69XusN/SIdDdKZBzMfOT9UNT/YiJit/xpy2VuAoB8NHc8Aplb96zsWDddLnbkPL3TsmrS04ZU2xQ==}
-    engines: {node: '>=18'}
-    hasBin: true
 
   '@playwright/test@1.55.1':
     resolution: {integrity: sha512-IVAh/nOJaw6W9g+RJVlIQJ6gSiER+ae6mKQ5CX1bERzQgbC1VSeBlwdvczT7pxb0GWiyrxH4TGKbMfDb4Sq/ig==}
@@ -8465,18 +8460,8 @@ packages:
     resolution: {integrity: sha512-nDywThFk1i4BQK4twPQ6TA4RT8bDY96yeuCVBWL3ePARCiEKDRSrNGbFIgUJpLp+XeIR65v8ra7WuJOFUBtkMA==}
     engines: {node: '>=8'}
 
-  playwright-core@1.55.0:
-    resolution: {integrity: sha512-GvZs4vU3U5ro2nZpeiwyb0zuFaqb9sUiAJuyrWpcGouD8y9/HLgGbNRjIph7zU9D3hnPaisMl9zG9CgFi/biIg==}
-    engines: {node: '>=18'}
-    hasBin: true
-
   playwright-core@1.55.1:
     resolution: {integrity: sha512-Z6Mh9mkwX+zxSlHqdr5AOcJnfp+xUWLCt9uKV18fhzA8eyxUd8NUWzAjxUh55RZKSYwDGX0cfaySdhZJGMoJ+w==}
-    engines: {node: '>=18'}
-    hasBin: true
-
-  playwright@1.55.0:
-    resolution: {integrity: sha512-sdCWStblvV1YU909Xqx0DhOjPZE4/5lJsIS84IfN9dAZfcl/CIZ5O8l3o0j7hPMjDvqoTF8ZUcc+i/GL5erstA==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -12599,39 +12584,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mui/internal-test-utils@2.0.13(@babel/core@7.28.4)(@playwright/test@1.55.0)(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(chai@4.5.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
-    dependencies:
-      '@babel/plugin-transform-modules-commonjs': 7.27.1(@babel/core@7.28.4)
-      '@babel/preset-typescript': 7.27.1(@babel/core@7.28.4)
-      '@babel/register': 7.28.3(@babel/core@7.28.4)
-      '@babel/runtime': 7.28.4
-      '@emotion/cache': 11.14.0
-      '@emotion/react': 11.14.0(@types/react@19.1.13)(react@19.1.1)
-      '@playwright/test': 1.55.0
-      '@testing-library/dom': 10.4.1
-      '@testing-library/react': 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.1)
-      chai: 4.5.0
-      chai-dom: 1.12.1(chai@4.5.0)
-      dom-accessibility-api: 0.7.0
-      format-util: 1.0.5
-      fs-extra: 11.3.1
-      jsdom: 26.1.0
-      lodash: 4.17.21
-      mocha: 11.7.2
-      prop-types: 15.8.1
-      react: 19.1.1
-      react-dom: 19.1.1(react@19.1.1)
-      sinon: 21.0.0
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@types/react'
-      - '@types/react-dom'
-      - bufferutil
-      - canvas
-      - supports-color
-      - utf-8-validate
-
   '@mui/internal-test-utils@2.0.13(@babel/core@7.28.4)(@playwright/test@1.55.1)(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(chai@4.5.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
       '@babel/plugin-transform-modules-commonjs': 7.27.1(@babel/core@7.28.4)
@@ -13278,10 +13230,6 @@ snapshots:
     optional: true
 
   '@pkgr/core@0.2.9': {}
-
-  '@playwright/test@1.55.0':
-    dependencies:
-      playwright: 1.55.0
 
   '@playwright/test@1.55.1':
     dependencies:
@@ -20154,15 +20102,7 @@ snapshots:
     dependencies:
       find-up: 3.0.0
 
-  playwright-core@1.55.0: {}
-
   playwright-core@1.55.1: {}
-
-  playwright@1.55.0:
-    dependencies:
-      playwright-core: 1.55.0
-    optionalDependencies:
-      fsevents: 2.3.2
 
   playwright@1.55.1:
     dependencies:
