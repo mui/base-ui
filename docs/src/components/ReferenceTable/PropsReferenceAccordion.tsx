@@ -141,10 +141,13 @@ export async function PropsReferenceAccordion({
           useMDXComponents: () => ({ code: TableCode }),
         });
 
-        const PropDefault = await createMdxComponent(`\`${prop.required ? '—' : prop.default}\``, {
-          rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ code: TableCode }),
-        });
+        const PropDefault = await createMdxComponent(
+          `\`${prop.required || prop.default === undefined ? '—' : prop.default}\``,
+          {
+            rehypePlugins: rehypeSyntaxHighlighting,
+            useMDXComponents: () => ({ code: TableCode }),
+          },
+        );
 
         const PropDescription = prop.description
           ? await createMdxComponent(prop.description, {
