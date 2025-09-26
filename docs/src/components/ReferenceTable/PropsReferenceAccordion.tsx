@@ -104,6 +104,8 @@ export async function PropsReferenceAccordion({
       <Accordion.HeaderRow className={clsx('grid', TRIGGER_GRID_LAYOUT)}>
         <Accordion.HeaderCell>Prop</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-xs:hidden">Type</Accordion.HeaderCell>
+        <Accordion.HeaderCell className="max-md:hidden">Default</Accordion.HeaderCell>
+        <Accordion.HeaderCell className="max-md:hidden w-10" />
       </Accordion.HeaderRow>
       {Object.keys(data).map(async (name, index) => {
         const prop = data[name];
@@ -167,19 +169,16 @@ export async function PropsReferenceAccordion({
               id={id}
               index={index}
               aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
-              className={clsx(
-                'min-h-min scroll-mt-12 py-0 max-xs:gap-4 md:scroll-mt-0 md:gap-5',
-                TRIGGER_GRID_LAYOUT,
-              )}
+              className={clsx('min-h-min scroll-mt-12 py-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
             >
-              <Accordion.Scrollable>
+              <Accordion.Scrollable className="px-3">
                 <TableCode className="text-navy whitespace-nowrap">
                   {name}
                   {prop.required ? <sup className="top-[-0.3em] text-xs text-red-800">*</sup> : ''}
                 </TableCode>
               </Accordion.Scrollable>
               {prop.type && (
-                <Accordion.Scrollable className="flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
+                <Accordion.Scrollable className="px-3 flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
                   {hasExpandedType || detailedType ? (
                     <ReferenceTableTooltip.Root delay={300} hoverable={false}>
                       <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
@@ -190,23 +189,23 @@ export async function PropsReferenceAccordion({
                   ) : (
                     <ShortPropType />
                   )}
-                  {prop.default !== undefined && (
-                    <span className="inline-flex items-baseline gap-1 break-keep whitespace-nowrap">
-                      <span>(</span>default: <PropDefault />)
-                    </span>
-                  )}
                 </Accordion.Scrollable>
               )}
-              <svg
-                className="AccordionIcon translate-y-px"
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
-              </svg>
+              <Accordion.Scrollable className="max-md:hidden break-keep whitespace-nowrap px-3">
+                <PropDefault />
+              </Accordion.Scrollable>
+              <div className="flex justify-center max-xs:ml-auto max-xs:mr-3">
+                <svg
+                  className="AccordionIcon translate-y-px"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 10 10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                </svg>
+              </div>
             </Accordion.Trigger>
             <Accordion.Panel>
               <Accordion.Content>
@@ -279,12 +278,11 @@ const TRIGGER_GRID_LAYOUT =
   'xs:grid ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
-  'md:grid-cols-[1fr_2fr_theme(spacing.10)] ';
+  'md:grid-cols-[5fr_7fr_3fr_theme(spacing.10)] ';
 
 const PANEL_GRID_LAYOUT =
-  'gap-3 ' +
   'max-xs:flex max-xs:flex-col ' +
+  'max-xs:gap-3 ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
-  'xs:gap-0 ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
   'md:grid-cols-[1fr_2fr_theme(spacing.10)] ';
