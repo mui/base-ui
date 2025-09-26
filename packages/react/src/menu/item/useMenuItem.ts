@@ -5,6 +5,7 @@ import { FloatingEvents } from '../../floating-ui-react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 export const REGULAR_ITEM = {
   type: 'regular-item' as const,
@@ -25,6 +26,8 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
   } = params;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
+  const contextMenuContext = useContextMenuRootContext(true);
+  const isContextMenu = contextMenuContext !== undefined;
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -68,8 +71,12 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
               menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
             }
           },
-          onMouseUp() {
-            if (itemRef.current && allowMouseUpTriggerRef.current) {
+          onMouseUp(event) {
+            if (
+              itemRef.current &&
+              allowMouseUpTriggerRef.current &&
+              (!isContextMenu || event.button === 2)
+            ) {
               // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
               // We trigger the click and override the `closeOnClick` preference to always close the menu.
               if (itemMetadata.type === 'regular-item') {
@@ -90,6 +97,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
       closeOnClick,
       menuEvents,
       allowMouseUpTriggerRef,
+      isContextMenu,
       itemMetadata,
       nodeId,
     ],
