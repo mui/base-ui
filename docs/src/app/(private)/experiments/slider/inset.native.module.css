@@ -8,7 +8,7 @@
   --track-outer-border-color: var(--color-gray-400);
 
   --track-bg: var(--color-gray-200);
-  --dragging-color: oklch(69% 50% 264);
+  --dragging-color: oklch(69% 50% 264deg);
 
   border: 1px solid var(--track-outer-border-color);
   border-radius: 9999px;
@@ -41,7 +41,7 @@
   background-color: var(--indicator-bg);
   user-select: none;
 
-  &:before {
+  &::before {
     position: absolute;
     content: '';
     border-radius: 9999px 0 0 9999px;
@@ -56,7 +56,7 @@
   &[data-dragging] {
     background-color: var(--dragging-color);
 
-    &:before {
+    &::before {
       background-color: var(--dragging-color);
     }
   }
