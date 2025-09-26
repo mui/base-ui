@@ -37,10 +37,10 @@
       "detailedType": "React.RefObject<HTMLDivElement> | undefined"
     },
     "thumbAlignment": {
-      "type": "'inset' | 'centered' | 'inset-client-only'",
-      "default": "'centered'",
-      "description": "How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`\n- `centered`: The center of the thumb is aligned to the edges of the control\n- `inset`: The thumb(s) are inset within the control so that the thumb edges are aligned to the edges of the control\n- `inset-client-only`: Same as `inset` but renders after React hydration on the client, gaining a smaller bundle size in return",
-      "detailedType": "| 'inset'\n| 'centered'\n| 'inset-client-only'\n| undefined"
+      "type": "'center' | 'edge' | 'edge-client-only'",
+      "default": "'center'",
+      "description": "How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`\n- `center`: The center of the thumb is aligned to the edges of the control\n- `edge`: The thumb(s) are inset within the control such that thumb edges are aligned to the edges of the control\n- `edge-client-only`: Same as `edge` but renders after React hydration on the client, gaining a smaller bundle size in return",
+      "detailedType": "'center' | 'edge' | 'edge-client-only' | undefined"
     },
     "step": {
       "type": "number",

@@ -69,7 +69,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
     step = 1,
-    thumbAlignment = 'centered',
+    thumbAlignment = 'center',
     value: valueProp,
     ...elementProps
   } = componentProps;
@@ -282,7 +282,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       formatOptionsRef,
       handleInputChange,
       indicatorPosition,
-      inset: thumbAlignment !== 'centered',
+      inset: thumbAlignment !== 'center',
       labelId: ariaLabelledby,
       largeStep,
       lastChangedValueRef,
@@ -297,7 +297,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
       registerFieldControlRef,
-      renderBeforeHydration: thumbAlignment === 'inset',
+      renderBeforeHydration: thumbAlignment === 'edge',
       setActive,
       setDragging,
       setIndicatorPosition,
@@ -473,12 +473,12 @@ export namespace SliderRoot {
     largeStep?: number;
     /**
      * How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`
-     * - `centered`: The center of the thumb is aligned to the edges of the control
-     * - `inset`: The thumb(s) are inset within the control so that the thumb edges are aligned to the edges of the control
-     * - `inset-client-only`: Same as `inset` but renders after React hydration on the client, gaining a smaller bundle size in return
-     * @default 'centered'
+     * - `center`: The center of the thumb is aligned to the edges of the control
+     * - `edge`: The thumb(s) are inset within the control such that thumb edges are aligned to the edges of the control
+     * - `edge-client-only`: Same as `edge` but renders after React hydration on the client, gaining a smaller bundle size in return
+     * @default 'center'
      */
-    thumbAlignment?: 'centered' | 'inset' | 'inset-client-only';
+    thumbAlignment?: 'center' | 'edge' | 'edge-client-only';
     /**
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
