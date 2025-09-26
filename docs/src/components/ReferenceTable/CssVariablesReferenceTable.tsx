@@ -63,10 +63,11 @@ export async function CssVariablesReferenceTable({
       <Table.Root {...props} className={clsx('hidden xs:block', props.className)}>
         <Table.Head>
           <Table.Row>
-            <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-1/3">
+            {/* widths must match the props table grid layout */}
+            <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-[calc(5/16.5*100%)]">
               CSS Variable
             </Table.ColumnHeader>
-            <Table.ColumnHeader className="w-10 xs:w-2/3">
+            <Table.ColumnHeader className="xs:w-2/3 md:w-[calc(11.5/16.5*100%)]">
               <div className="sr-only xs:not-sr-only xs:contents">Description</div>
             </Table.ColumnHeader>
             {/* A cell to maintain a layout consistent with the props table */}

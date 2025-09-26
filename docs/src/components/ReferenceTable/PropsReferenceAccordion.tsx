@@ -281,11 +281,12 @@ const TRIGGER_GRID_LAYOUT =
   'xs:grid ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
-  'md:grid-cols-[5fr_7fr_3fr_theme(spacing.10)] ';
+  'md:grid-cols-[5fr_7fr_4.5fr_theme(spacing.10)] ';
 
 const PANEL_GRID_LAYOUT =
   'max-xs:flex max-xs:flex-col ' +
   'max-xs:gap-3 ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
-  'md:grid-cols-[1fr_2fr_theme(spacing.10)] ';
+  // 5fr+11.5fr aligns with 5fr+7fr+4.5fr above
+  'md:grid-cols-[5fr_11.5fr_theme(spacing.10)] ';
