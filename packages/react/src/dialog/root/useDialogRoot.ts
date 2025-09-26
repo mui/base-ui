@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import type { EventEmitter } from '@base-ui-components/utils/EventEmitter';
+import type { DialogEventMap } from '../store';
 import {
   useClick,
   useDismiss,
@@ -19,13 +21,7 @@ import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
-  const {
-    store,
-    onNestedDialogClose,
-    onNestedDialogOpen,
-    onOpenChange: onOpenChangeParameter,
-    onOpenChangeComplete,
-  } = params;
+  const { store, parentEvents, onOpenChange: onOpenChangeParameter } = params;
 
   const open = store.useState('open');
   const dismissible = store.useState('dismissible');
@@ -68,7 +64,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
-    onOpenChangeComplete?.(false);
+    store.events.emit('openChangeComplete', false);
     resetOpenInteractionType();
   });
 
@@ -145,29 +141,31 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const { getReferenceProps, getFloatingProps } = useInteractions([role, click, dismiss]);
 
+  // Listen for nested open/close events on this store to maintain the count
+  store.events.useEvent('nestedDialogOpen', (ownChildrenCount) => {
+    setOwnNestedOpenDialogs(ownChildrenCount + 1);
+  });
+
+  store.events.useEvent('nestedDialogClose', () => {
+    setOwnNestedOpenDialogs(0);
+  });
+
+  // Notify parent of our open/close state using its event emitter, if any
   React.useEffect(() => {
-    if (onNestedDialogOpen && open) {
-      onNestedDialogOpen(ownNestedOpenDialogs);
+    if (parentEvents && open) {
+      parentEvents.emit('nestedDialogOpen', ownNestedOpenDialogs);
     }
-
-    if (onNestedDialogClose && !open) {
-      onNestedDialogClose();
+    if (parentEvents && !open) {
+      parentEvents.emit('nestedDialogClose');
     }
-
     return () => {
-      if (onNestedDialogClose && open) {
-        onNestedDialogClose();
+      if (parentEvents && open) {
+        parentEvents.emit('nestedDialogClose');
       }
     };
-  }, [open, onNestedDialogClose, onNestedDialogOpen, ownNestedOpenDialogs]);
+  }, [open, parentEvents, ownNestedOpenDialogs]);
 
-  const handleNestedDialogOpen = React.useCallback((ownChildrenCount: number) => {
-    setOwnNestedOpenDialogs(ownChildrenCount + 1);
-  }, []);
-
-  const handleNestedDialogClose = React.useCallback(() => {
-    setOwnNestedOpenDialogs(0);
-  }, []);
+  // Handlers now wired via events; explicit callbacks removed
 
   const dialogTriggerProps = React.useMemo(
     () => getReferenceProps(triggerProps),
@@ -183,13 +181,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     floatingRootContext: context,
     nestedOpenDialogCount: ownNestedOpenDialogs,
   });
-
-  return React.useMemo(() => {
-    return {
-      onNestedDialogOpen: handleNestedDialogOpen,
-      onNestedDialogClose: handleNestedDialogClose,
-    } satisfies useDialogRoot.ReturnValue;
-  }, [handleNestedDialogOpen, handleNestedDialogClose]);
 }
 
 export namespace useDialogRoot {
@@ -198,20 +189,9 @@ export namespace useDialogRoot {
   export interface Parameters {
     store: DialogStore;
     actionsRef?: DialogRoot.Props['actionsRef'];
-    onNestedDialogOpen?: (ownChildrenCount: number) => void;
-    onNestedDialogClose?: () => void;
+    parentEvents?: EventEmitter<DialogEventMap>;
     onOpenChange: DialogRoot.Props['onOpenChange'];
-    onOpenChangeComplete: DialogRoot.Props['onOpenChangeComplete'];
   }
 
-  export interface ReturnValue {
-    /**
-     * Callback to invoke when a nested dialog is closed.
-     */
-    onNestedDialogClose?: () => void;
-    /**
-     * Callback to invoke when a nested dialog is opened.
-     */
-    onNestedDialogOpen?: (ownChildrenCount: number) => void;
-  }
+  export type ReturnValue = void;
 }
