@@ -93,7 +93,7 @@
     "globby": "^14.1.0",
     "lerna": "^8.2.4",
     "markdownlint-cli2": "^0.18.1",
-    "nx": "^21.5.2",
+    "nx": "^21.5.3",
     "postcss": "^8.5.6",
     "postcss-loader": "^8.2.0",
     "postcss-styled-syntax": "^0.7.1",
