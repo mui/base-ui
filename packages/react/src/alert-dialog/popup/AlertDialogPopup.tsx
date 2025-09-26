@@ -6,7 +6,7 @@ import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogPopup } from '../../dialog/popup/useDialogPopup';
-import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
@@ -39,48 +39,60 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 ) {
   const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const {
-    descriptionElementId,
-    floatingRootContext,
-    getPopupProps,
-    mounted,
-    nested,
-    nestedOpenDialogCount,
-    setOpen,
-    open,
-    openMethod,
-    popupRef,
-    setPopupElement,
-    titleElementId,
-    transitionStatus,
-    modal,
-    onOpenChangeComplete,
-    internalBackdropRef,
-  } = useAlertDialogRootContext();
+  const { store } = useDialogRootContext();
+
+  const descriptionElementId = store.useState('descriptionElementId');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const rootPopupProps = store.useState('popupProps');
+  const mounted = store.useState('mounted');
+  const nested = store.useState('nested');
+  const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
+  const open = store.useState('open');
+  const openMethod = store.useState('openMethod');
+  const titleElementId = store.useState('titleElementId');
+  const transitionStatus = store.useState('transitionStatus');
 
   useAlertDialogPortalContext();
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.context.openChangeComplete?.(true);
       }
     },
   });
 
-  const mergedRef = useMergedRefs(forwardedRef, popupRef);
+  const mergedRef = useMergedRefs(forwardedRef, store.context.popupRef);
+
+  const setPopupElement = React.useCallback(
+    (node: HTMLElement | null) => {
+      store.set('popupElement', node);
+    },
+    [store],
+  );
 
   const { popupProps } = useDialogPopup({
     descriptionElementId,
     mounted,
-    setOpen,
     openMethod,
     ref: mergedRef,
     setPopupElement,
     titleElementId,
   });
+
+  // Default initial focus logic:
+  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
+  // (this is required for Android specifically as iOS handles this automatically).
+  const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
+    if (interactionType === 'touch') {
+      return store.context.popupRef.current;
+    }
+    return true;
+  });
+
+  const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
@@ -97,7 +109,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [
-      getPopupProps(),
+      rootPopupProps,
       popupProps,
       {
         style: {
@@ -110,21 +122,11 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     stateAttributesMapping,
   });
 
-  // Default initial focus logic:
-  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
-  // (this is required for Android specifically as iOS handles this automatically).
-  const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
-    if (interactionType === 'touch') {
-      return popupRef.current;
-    }
-    return true;
-  });
-
-  const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
-
   return (
     <React.Fragment>
-      {mounted && modal && <InternalBackdrop ref={internalBackdropRef} inert={inertValue(!open)} />}
+      {mounted && (
+        <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
+      )}
       <FloatingFocusManager
         context={floatingRootContext}
         disabled={!mounted}

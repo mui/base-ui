@@ -39,44 +39,45 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 ) {
   const { className, finalFocus, initialFocus, render, ...elementProps } = componentProps;
 
-  const {
-    descriptionElementId,
-    dismissible,
-    floatingRootContext,
-    getPopupProps,
-    modal,
-    mounted,
-    nested,
-    nestedOpenDialogCount,
-    setOpen,
-    open,
-    openMethod,
-    popupRef,
-    setPopupElement,
-    titleElementId,
-    transitionStatus,
-    onOpenChangeComplete,
-    internalBackdropRef,
-  } = useDialogRootContext();
+  const { store } = useDialogRootContext();
+
+  const descriptionElementId = store.useState('descriptionElementId');
+  const dismissible = store.useState('dismissible');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const rootPopupProps = store.useState('popupProps');
+  const modal = store.useState('modal');
+  const mounted = store.useState('mounted');
+  const nested = store.useState('nested');
+  const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
+  const open = store.useState('open');
+  const openMethod = store.useState('openMethod');
+  const titleElementId = store.useState('titleElementId');
+  const transitionStatus = store.useState('transitionStatus');
 
   useDialogPortalContext();
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.context.openChangeComplete?.(true);
       }
     },
   });
 
-  const mergedRef = useMergedRefs(forwardedRef, popupRef);
+  const mergedRef = useMergedRefs(forwardedRef, store.context.popupRef);
+
+  const setPopupElement = React.useCallback(
+    (node: HTMLElement | null) => {
+      store.set('popupElement', node);
+    },
+    [store],
+  );
 
   const { popupProps } = useDialogPopup({
     descriptionElementId,
     mounted,
-    setOpen,
     openMethod,
     ref: mergedRef,
     setPopupElement,
@@ -88,7 +89,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   // (this is required for Android specifically as iOS handles this automatically).
   const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
     if (interactionType === 'touch') {
-      return popupRef.current;
+      return store.context.popupRef.current;
     }
     return true;
   });
@@ -110,7 +111,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [
-      getPopupProps(),
+      rootPopupProps,
       popupProps,
       {
         style: {
@@ -125,7 +126,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   return (
     <React.Fragment>
       {mounted && modal === true && (
-        <InternalBackdrop ref={internalBackdropRef} inert={inertValue(!open)} />
+        <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
       )}
       <FloatingFocusManager
         context={floatingRootContext}

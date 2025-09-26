@@ -25,7 +25,9 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     ...elementProps
   } = componentProps;
 
-  const { open, setTriggerElement, triggerProps } = useDialogRootContext();
+  const { store } = useDialogRootContext();
+  const open = store.useState('open');
+  const triggerProps = store.useState('triggerProps');
 
   const state: DialogTrigger.State = React.useMemo(
     () => ({
@@ -39,6 +41,13 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     disabled,
     native: nativeButton,
   });
+
+  const setTriggerElement = React.useCallback(
+    (node: HTMLButtonElement | null) => {
+      store.set('triggerElement', node);
+    },
+    [store],
+  );
 
   return useRenderElement('button', componentProps, {
     state,

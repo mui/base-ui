@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -24,7 +24,9 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     ...elementProps
   } = componentProps;
 
-  const { open, setTriggerElement, triggerProps } = useAlertDialogRootContext();
+  const { store } = useDialogRootContext();
+  const open = store.useState('open');
+  const triggerProps = store.useState('triggerProps');
 
   const state: AlertDialogTrigger.State = React.useMemo(
     () => ({
@@ -38,6 +40,13 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     disabled,
     native: nativeButton,
   });
+
+  const setTriggerElement = React.useCallback(
+    (node: HTMLButtonElement | null) => {
+      store.set('triggerElement', node);
+    },
+    [store],
+  );
 
   return useRenderElement('button', componentProps, {
     state,

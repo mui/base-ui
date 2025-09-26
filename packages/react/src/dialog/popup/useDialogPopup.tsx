@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import type { DialogRoot } from '../root/DialogRoot';
 import { HTMLProps } from '../../utils/types';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 
@@ -40,10 +39,6 @@ export namespace useDialogPopup {
     ref: React.Ref<HTMLElement>;
     openMethod: InteractionType | null;
     /**
-     * Event handler called when the dialog is opened or closed.
-     */
-    setOpen: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
-    /**
      * The id of the title element associated with the dialog.
      */
     titleElementId: string | undefined;
@@ -65,7 +60,7 @@ export namespace useDialogPopup {
     /**
      * Callback to register the popup element.
      */
-    setPopupElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+    setPopupElement: (node: HTMLElement | null) => void;
   }
 
   export interface ReturnValue {
