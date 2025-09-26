@@ -31,7 +31,7 @@ export const ComboboxItem = React.memo(
     const {
       render,
       className,
-      value,
+      value = null,
       index: indexProp,
       disabled = false,
       nativeButton = false,
@@ -209,7 +209,7 @@ export namespace ComboboxItem {
     children?: React.ReactNode;
     /**
      * An optional click handler for the item when selected.
-     * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the `Input` or `List` element has focus.
+     * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.
      */
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
@@ -218,6 +218,7 @@ export namespace ComboboxItem {
     index?: number;
     /**
      * A unique value that identifies this item.
+     * @default null
      */
     value?: any;
     /**

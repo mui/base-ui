@@ -7,10 +7,10 @@ import type { Group } from '../../utils/resolveValueLabel';
  * Groups all parts of the combobox.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/autocomplete)
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot<ItemValue, Multiple extends boolean | undefined = false>(
-  props: Omit<ComboboxRoot.Props<ItemValue, ItemValue, Multiple>, 'items'> & {
+export function ComboboxRoot<SelectedValue, Multiple extends boolean | undefined = false>(
+  props: Omit<ComboboxRoot.Props<SelectedValue, SelectedValue, Multiple>, 'items'> & {
     /**
      * The items to be displayed in the list.
      * Can be either a flat array of items or an array of groups with items.
