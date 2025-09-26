@@ -268,6 +268,11 @@ export function useDismiss(
       const inertSelector = `[${createAttribute('inert')}]`;
       const markers = getDocument(elements.floating).querySelectorAll(inertSelector);
 
+      // If another trigger is clicked, don't close the floating element.
+      if (target && elements.triggers?.some((trigger) => contains(trigger, target as Element))) {
+        return;
+      }
+
       let targetRootAncestor = isElement(target) ? target : null;
       while (targetRootAncestor && !isLastTraversableNode(targetRootAncestor)) {
         const nextParent = getParentNode(targetRootAncestor);
@@ -669,7 +674,7 @@ export function useDismiss(
   );
 
   return React.useMemo(
-    () => (enabled ? { reference, floating } : {}),
+    () => (enabled ? { reference, floating, trigger: reference } : {}),
     [enabled, reference, floating],
   );
 }
