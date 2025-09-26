@@ -19,8 +19,8 @@ function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
       tabIndex={-1}
       onKeyDown={(event: React.KeyboardEvent) => {
         if (
-          event.key === 'a' &&
-          (event.metaKey || event.ctrlKey) &&
+          (event.ctrlKey || event.metaKey) &&
+          String.fromCharCode(event.keyCode) === 'A' &&
           !event.shiftKey &&
           !event.altKey
         ) {
