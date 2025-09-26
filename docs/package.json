@@ -15,6 +15,7 @@
   "dependencies": {
     "@base-ui-components/react": "workspace:*",
     "@base-ui-components/utils": "workspace:*",
+    "@date-fns/tz": "^1.4.1",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/server": "^11.11.0",
