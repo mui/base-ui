@@ -321,7 +321,7 @@
 
 .Backdrop {
   background: rgb(0 0 0 / 0.35);
-  position: fixed;
+  position: absolute;
   inset: 0;
   backdrop-filter: blur(4px);
 }
