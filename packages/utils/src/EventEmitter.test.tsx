@@ -51,7 +51,7 @@ describe('EventEmitter', () => {
     const handler = spy();
 
     function Test() {
-      emitter.useEvent('foo', (n, s) => handler(n, s));
+      emitter.useHandler('foo', (n, s) => handler(n, s));
       return null;
     }
 
