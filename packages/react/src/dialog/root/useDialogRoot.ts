@@ -90,7 +90,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   floatingEvents = context.events;
 
-  store.events.useEvent('setOpen', setOpen);
+  store.events.useHandler('setOpen', setOpen);
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
@@ -142,11 +142,11 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const { getReferenceProps, getFloatingProps } = useInteractions([role, click, dismiss]);
 
   // Listen for nested open/close events on this store to maintain the count
-  store.events.useEvent('nestedDialogOpen', (ownChildrenCount) => {
+  store.events.useHandler('nestedDialogOpen', (ownChildrenCount) => {
     setOwnNestedOpenDialogs(ownChildrenCount + 1);
   });
 
-  store.events.useEvent('nestedDialogClose', () => {
+  store.events.useHandler('nestedDialogClose', () => {
     setOwnNestedOpenDialogs(0);
   });
 

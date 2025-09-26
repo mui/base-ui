@@ -70,7 +70,7 @@ export class EventEmitter<EventMap extends Record<string, any[]>> {
    * @param event The event name to subscribe to.
    * @param handler The handler invoked when the event is emitted.
    */
-  public useEvent<E extends keyof EventMap>(
+  public useHandler<E extends keyof EventMap>(
     event: E,
     handler: (...args: EventMap[E]) => void,
   ): void {
