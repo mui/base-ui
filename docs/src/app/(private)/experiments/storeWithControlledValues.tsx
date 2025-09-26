@@ -73,14 +73,14 @@ interface Props {
 
 function ControllableComponent(props: Props) {
   const store = useRefWithInit(
-    () => new ControllableStore<State>({ open: props.defaultOpen ?? false, value: 0 }),
+    () => new ControllableStore({ open: props.defaultOpen ?? false, value: 0 }, {}, selectors),
   ).current;
 
   store.useControlledProp('open', props.open, props.defaultOpen ?? false);
   store.useSyncedValue('value', props.value ?? 0);
 
-  const open = useStore(store, (state) => state.open);
-  const value = useStore(store, (state) => state.value);
+  const open = store.useState('open');
+  const value = store.useState('value');
 
   const handleClick = useEventCallback(() => {
     store.set('open', !open);
@@ -104,7 +104,7 @@ function ControllableComponent(props: Props) {
 }
 
 interface ChildProps {
-  store: ControllableStore<State>;
+  store: ControllableStore<State, {}, typeof selectors>;
 }
 
 function ChildComponent(props: ChildProps) {
@@ -116,3 +116,8 @@ interface State {
   open: boolean;
   value: number;
 }
+
+const selectors = {
+  open: (state: State) => state.open,
+  value: (state: State) => state.value,
+};
