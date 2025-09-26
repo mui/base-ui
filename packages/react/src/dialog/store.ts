@@ -85,12 +85,12 @@ export type DialogEventMap = {
 
 const selectors = {
   open: createSelector((state: State) => state.open),
-  descriptionElementId: createSelector((state: State) => state.descriptionElementId),
   modal: createSelector((state: State) => state.modal),
   nested: createSelector((state: State) => state.nested),
   nestedOpenDialogCount: createSelector((state: State) => state.nestedOpenDialogCount),
   dismissible: createSelector((state: State) => state.dismissible),
   openMethod: createSelector((state: State) => state.openMethod),
+  descriptionElementId: createSelector((state: State) => state.descriptionElementId),
   titleElementId: createSelector((state: State) => state.titleElementId),
   mounted: createSelector((state: State) => state.mounted),
   transitionStatus: createSelector((state: State) => state.transitionStatus),
@@ -103,30 +103,15 @@ const selectors = {
 
 type Selectors = typeof selectors;
 
-type ElementRefs = {
-  /**
-   * The ref to the Popup element.
-   */
-  readonly popupRef: React.RefObject<HTMLElement | null>;
-  /**
-   * A ref to the backdrop element.
-   */
-  readonly backdropRef: React.RefObject<HTMLDivElement | null>;
-  /**
-   * A ref to the internal backdrop element.
-   */
-  readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
-};
-
 export class DialogStore extends ControllableStore<State> {
   static create(initialState: State) {
     return new DialogStore(initialState);
   }
 
-  public elements: ElementRefs = {
-    popupRef: { current: null },
-    backdropRef: { current: null },
-    internalBackdropRef: { current: null },
+  public elements = {
+    popupRef: React.createRef<HTMLElement>(),
+    backdropRef: React.createRef<HTMLDivElement>(),
+    internalBackdropRef: React.createRef<HTMLDivElement>(),
   };
 
   public readonly events = new EventEmitter<DialogEventMap>();
