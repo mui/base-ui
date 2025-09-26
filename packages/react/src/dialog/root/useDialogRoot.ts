@@ -4,7 +4,6 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import {
   useClick,
   useDismiss,
-  useFloatingParentNodeId,
   useFloatingRootContext,
   useInteractions,
   useRole,
@@ -12,14 +11,13 @@ import {
 import { getTarget } from '../../floating-ui-react/utils';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
-  const { store, parentContext, onOpenChange: onOpenChangeParameter } = params;
+  const { store, parentContext } = params;
 
   const open = store.useState('open');
   const dismissible = store.useState('dismissible');
@@ -34,31 +32,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     triggerProps,
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
-
-  const nested = useFloatingParentNodeId() != null;
-
-  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
-
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, eventDetails: DialogRoot.ChangeEventDetails) => {
-      onOpenChangeParameter?.(nextOpen, eventDetails);
-
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      const details: FloatingUIOpenChangeDetails = {
-        open: nextOpen,
-        nativeEvent: eventDetails.event,
-        reason: eventDetails.reason,
-        nested,
-      };
-
-      floatingEvents.emit('openchange', details);
-
-      store.set('open', nextOpen);
-    },
-  );
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -82,13 +55,9 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },
     open,
-    onOpenChange: setOpen,
+    onOpenChange: store.setOpen.bind(store),
     noEmit: true,
   });
-
-  floatingEvents = context.events;
-
-  store.useEventCallback('setOpen', setOpen);
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;

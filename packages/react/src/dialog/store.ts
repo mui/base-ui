@@ -3,7 +3,7 @@ import { ControllableStore, createSelector } from '@base-ui-components/utils/sto
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { type DialogRoot } from './root/DialogRoot';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
-import { type HTMLProps } from '../utils/types';
+import { FloatingUIOpenChangeDetails, type HTMLProps } from '../utils/types';
 import { type FloatingRootContext } from '../floating-ui-react/types';
 
 export type State = {
@@ -74,7 +74,8 @@ type Context = {
   popupRef: React.RefObject<HTMLElement | null>;
   backdropRef: React.RefObject<HTMLDivElement | null>;
   internalBackdropRef: React.RefObject<HTMLDivElement | null>;
-  setOpen?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
+
+  openChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
   openChangeComplete?: (open: boolean) => void;
   nestedDialogOpen?: (ownChildrenCount: number) => void;
   nestedDialogClose?: () => void;
@@ -107,5 +108,24 @@ export class DialogStore extends ControllableStore<State, Context, typeof select
     };
 
     return new DialogStore(initialState, context, selectors);
+  }
+
+  public setOpen(nextOpen: boolean, eventDetails: DialogRoot.ChangeEventDetails) {
+    this.context.openChange?.(nextOpen, eventDetails);
+
+    if (eventDetails.isCanceled) {
+      return;
+    }
+
+    const details: FloatingUIOpenChangeDetails = {
+      open: nextOpen,
+      nativeEvent: eventDetails.event,
+      reason: eventDetails.reason,
+      nested: this.state.nested,
+    };
+
+    this.state.floatingRootContext.events?.emit('openchange', details);
+
+    this.set('open', nextOpen);
   }
 }
