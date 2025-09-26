@@ -488,23 +488,31 @@ describe('<AlertDialog.Popup />', () => {
       await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
       await waitFor(() => expect(screen.getByTestId('popup1')).not.to.equal(null));
       await waitFor(() => {
-        expect(getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs')).to.equal('1');
+        expect(
+          getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs'),
+        ).to.equal('1');
       });
 
       await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
       await waitFor(() => expect(screen.getByTestId('popup2')).not.to.equal(null));
       await waitFor(() => {
-        expect(getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs')).to.equal('2');
+        expect(
+          getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs'),
+        ).to.equal('2');
       });
 
       await user.click(screen.getByRole('button', { name: 'Close 2' }));
       await waitFor(() => {
-        expect(getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs')).to.equal('1');
+        expect(
+          getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs'),
+        ).to.equal('1');
       });
 
       await user.click(screen.getByRole('button', { name: 'Close 1' }));
       await waitFor(() => {
-        expect(getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs')).to.equal('0');
+        expect(
+          getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs'),
+        ).to.equal('0');
       });
     });
 
@@ -546,7 +554,9 @@ describe('<AlertDialog.Popup />', () => {
       await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
       await waitFor(() => expect(screen.getByTestId('popup1')).not.to.equal(null));
       await waitFor(() => {
-        expect(getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs')).to.equal('1');
+        expect(
+          getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs'),
+        ).to.equal('1');
       });
 
       await user.click(screen.getByRole('button', { name: 'toggle', hidden: true }));

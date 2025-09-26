@@ -28,9 +28,11 @@ export const DialogClose = React.forwardRef(function DialogClose(
   const { store } = useDialogRootContext();
   const open = store.useState('open');
 
-  const setOpen = useEventCallback((nextOpen: boolean, eventDetails: DialogRoot.ChangeEventDetails) => {
-    store.events.emit('setOpen', nextOpen, eventDetails);
-  });
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, eventDetails: DialogRoot.ChangeEventDetails) => {
+      store.events.emit('setOpen', nextOpen, eventDetails);
+    },
+  );
 
   const { getRootProps, ref } = useDialogClose({ disabled, open, setOpen, nativeButton });
 
