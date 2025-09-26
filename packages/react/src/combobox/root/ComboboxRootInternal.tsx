@@ -766,7 +766,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         const stringVal = stringifyAsLabel(selectedValue, itemToStringLabel);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
-          const reason = stringVal === '' ? 'input-clear' : 'item-press';
+          const reason = stringVal === '' ? 'input-clear' : 'none';
           setInputValue(stringVal, createBaseUIEventDetails(reason));
         }
       }
