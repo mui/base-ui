@@ -9,6 +9,8 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
+import { useBodySize } from '../../utils/useBodySize';
+import { SelectBackdropCssVars } from './SelectBackdropCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<SelectBackdrop.State> = {
   ...popupStateMapping,
@@ -29,6 +31,8 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 
   const { store } = useSelectRootContext();
 
+  const backdropRef = React.useRef<HTMLDivElement | null>(null);
+
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
   const transitionStatus = useStore(store, selectors.transitionStatus);
@@ -41,9 +45,11 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     [open, transitionStatus],
   );
 
+  const bodySize = useBodySize(backdropRef, open);
+
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: forwardedRef,
+    ref: [backdropRef, forwardedRef],
     props: [
       {
         role: 'presentation',
@@ -51,6 +57,8 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
         style: {
           userSelect: 'none',
           WebkitUserSelect: 'none',
+          [SelectBackdropCssVars.bodyWidth as string]: `${bodySize.width}px`,
+          [SelectBackdropCssVars.bodyHeight as string]: `${bodySize.height}px`,
         },
       },
       elementProps,

@@ -9,6 +9,8 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
+import { useBodySize } from '../../utils/useBodySize';
+import { ComboboxBackdropCssVars } from './ComboboxBackdropCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxBackdrop.State> = {
   ...popupStateMapping,
@@ -27,6 +29,8 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
 
   const store = useComboboxRootContext();
 
+  const backdropRef = React.useRef<HTMLDivElement | null>(null);
+
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
   const transitionStatus = useStore(store, selectors.transitionStatus);
@@ -39,9 +43,11 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
     [open, transitionStatus],
   );
 
+  const bodySize = useBodySize(backdropRef, open);
+
   return useRenderElement('div', componentProps, {
     state,
-    ref: forwardedRef,
+    ref: [backdropRef, forwardedRef],
     stateAttributesMapping,
     props: [
       {
@@ -50,6 +56,8 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
         style: {
           userSelect: 'none',
           WebkitUserSelect: 'none',
+          [ComboboxBackdropCssVars.bodyWidth as string]: `${bodySize.width}px`,
+          [ComboboxBackdropCssVars.bodyHeight as string]: `${bodySize.height}px`,
         },
       },
       elementProps,
