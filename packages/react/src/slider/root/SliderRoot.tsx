@@ -21,6 +21,7 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../field/root/LabelableContext';
 import { useFormContext } from '../../form/FormContext';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
@@ -90,7 +91,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const { clearErrors } = useFormContext();
   const {
-    labelId,
     state: fieldState,
     disabled: fieldDisabled,
     name: fieldName,
@@ -99,6 +99,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     validityData,
     validationMode,
   } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
 
   const fieldControlValidation = useFieldControlValidation();
 

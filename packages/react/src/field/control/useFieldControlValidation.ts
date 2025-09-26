@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useLabelableContext } from '../root/LabelableContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
@@ -37,16 +38,16 @@ export function useFieldControlValidation() {
   const {
     setValidityData,
     validate,
-    messageIds,
     validityData,
     validationMode,
     validationDebounceTime,
     invalid,
     markedDirtyRef,
-    controlId,
     state,
     name,
   } = useFieldRootContext();
+
+  const { messageIds, controlId } = useLabelableContext();
 
   const { formRef, clearErrors } = useFormContext();
 
