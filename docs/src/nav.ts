@@ -83,6 +83,11 @@ export const nav: NavGroup[] = [
         href: '/react/components/avatar',
       },
       {
+        label: 'Button',
+        href: '/react/components/button',
+        isNew: true,
+      },
+      {
         label: 'Checkbox',
         href: '/react/components/checkbox',
       },
