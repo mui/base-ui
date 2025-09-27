@@ -146,6 +146,8 @@ export const SelectItem = React.memo(
     }
 
     const defaultProps: HTMLProps = {
+      role: 'option',
+      'aria-selected': selected,
       'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {
