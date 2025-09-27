@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Slider } from '@base-ui-components/react/slider';
 
-export default function ExampleSlider() {
+export default function RangeSlider() {
   return (
     <Slider.Root defaultValue={[25, 45]}>
       <Slider.Control className="flex w-56 touch-none items-center py-3 select-none">

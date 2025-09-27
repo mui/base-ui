@@ -2,14 +2,13 @@ import * as React from 'react';
 import { Slider } from '@base-ui-components/react/slider';
 import styles from './index.module.css';
 
-export default function RangeSlider() {
+export default function EdgeAlignedThumb() {
   return (
-    <Slider.Root defaultValue={[25, 45]}>
+    <Slider.Root thumbAlignment="edge" defaultValue={25}>
       <Slider.Control className={styles.Control}>
         <Slider.Track className={styles.Track}>
           <Slider.Indicator className={styles.Indicator} />
-          <Slider.Thumb index={0} className={styles.Thumb} />
-          <Slider.Thumb index={1} className={styles.Thumb} />
+          <Slider.Thumb className={styles.Thumb} />
         </Slider.Track>
       </Slider.Control>
     </Slider.Root>
