@@ -41,10 +41,10 @@ To create a range slider:
 
 <Demo compact path="./demos/range-slider" />
 
-### Inset slider
+### Thumb alignment
 
-Set `thumbAlignment="edge"` to inset the thumbs within the control such that the edges of the thumb align with the edges of the control when the value is at `min` or `max`, and do not overflow the bounds of the control like the default `"center"` alignment.
+Set `thumbAlignment="edge"` to inset the thumb(s) such that their edges align with the edges of the control when the value is at `min` or `max`, without overflowing the control like the default `"center"` alignment.
 
 A client-only alternative `thumbAlignment="edge-client-only"` can be used to gain a smaller bundle size but only renders after React hydration.
 
-<Demo compact path="./demos/inset" />
+<Demo compact path="./demos/edge-alignment" />

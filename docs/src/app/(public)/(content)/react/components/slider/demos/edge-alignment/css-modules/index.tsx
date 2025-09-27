@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Slider } from '@base-ui-components/react/slider';
 import styles from './index.module.css';
 
-export default function ExampleInsetSlider() {
+export default function EdgeAlignedThumb() {
   return (
     <Slider.Root thumbAlignment="edge" defaultValue={25}>
       <Slider.Control className={styles.Control}>

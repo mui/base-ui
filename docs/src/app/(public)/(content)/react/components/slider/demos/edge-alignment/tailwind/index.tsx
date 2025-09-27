@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Slider } from '@base-ui-components/react/slider';
 
-export default function ExampleInsetSlider() {
+export default function EdgeAlignedThumb() {
   return (
     <Slider.Root thumbAlignment="edge" defaultValue={25}>
       <Slider.Control className="flex w-56 touch-none items-center select-none">
