@@ -141,13 +141,10 @@ export async function PropsReferenceAccordion({
           useMDXComponents: () => ({ code: TableCode }),
         });
 
-        const PropDefault = await createMdxComponent(
-          `\`${prop.required || prop.default === undefined ? '—' : prop.default}\``,
-          {
-            rehypePlugins: rehypeSyntaxHighlighting,
-            useMDXComponents: () => ({ code: TableCode }),
-          },
-        );
+        const PropDefault = await createMdxComponent(`\`${prop.default}\``, {
+          rehypePlugins: rehypeSyntaxHighlighting,
+          useMDXComponents: () => ({ code: TableCode }),
+        });
 
         const PropDescription = prop.description
           ? await createMdxComponent(prop.description, {
@@ -195,7 +192,11 @@ export async function PropsReferenceAccordion({
                 </Accordion.Scrollable>
               )}
               <Accordion.Scrollable className="max-md:hidden break-keep whitespace-nowrap px-3">
-                <PropDefault />
+                {prop.required || prop.default === undefined ? (
+                  <TableCode className="text-(--syntax-nullish)">—</TableCode>
+                ) : (
+                  <PropDefault />
+                )}
               </Accordion.Scrollable>
               <div className="flex justify-center max-xs:ml-auto max-xs:mr-3">
                 <svg
