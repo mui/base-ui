@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { type FocusableElement } from 'tabbable';
-import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
@@ -18,7 +17,7 @@ import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { PopoverStore, selectors } from '../store';
+import { PopoverStore } from '../store';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
@@ -70,15 +69,15 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const id = useBaseUiId(idProp);
 
-  const floatingContext = useStore(store, selectors.floatingRootContext);
-  const open = useStore(store, selectors.open);
-  const openReason = useStore(store, selectors.openReason);
-  const rootActiveTriggerProps = useStore(store, selectors.activeTriggerProps);
-  const rootInactiveTriggerProps = useStore(store, selectors.inactiveTriggerProps);
-  const stickIfOpen = useStore(store, selectors.stickIfOpen);
-  const mounted = useStore(store, selectors.mounted);
-  const activeTrigger = useStore(store, selectors.activeTriggerElement);
-  const positionerElement = useStore(store, selectors.positionerElement);
+  const floatingContext = store.useState('floatingRootContext');
+  const open = store.useState('open');
+  const openReason = store.useState('openReason');
+  const rootActiveTriggerProps = store.useState('activeTriggerProps');
+  const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
+  const stickIfOpen = store.useState('stickIfOpen');
+  const mounted = store.useState('mounted');
+  const activeTrigger = store.useState('activeTriggerElement');
+  const positionerElement = store.useState('positionerElement');
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 

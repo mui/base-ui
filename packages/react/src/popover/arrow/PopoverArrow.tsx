@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { selectors } from '../store';
 
 /**
  * Displays an element positioned against the popover anchor.
@@ -22,7 +20,7 @@ export const PopoverArrow = React.forwardRef(function PopoverArrow(
   const { className, render, ...elementProps } = componentProps;
 
   const { store } = usePopoverRootContext();
-  const open = useStore(store, selectors.open);
+  const open = store.useState('open');
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
 
   const state: PopoverArrow.State = React.useMemo(

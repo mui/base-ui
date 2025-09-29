@@ -4,7 +4,6 @@ import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useStore } from '@base-ui-components/utils/store';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
@@ -24,7 +23,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
-import { PopoverStore, selectors } from '../store';
+import { PopoverStore } from '../store';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
@@ -38,9 +37,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     triggerId: triggerIdProp,
     defaultTriggerId: defaultTriggerIdProp = null,
   } = props;
-
-  const backdropRef = React.useRef<HTMLDivElement | null>(null);
-  const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
 
   const nested = useFloatingParentNodeId() != null;
 
@@ -71,17 +67,16 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     );
   }).current;
 
-  const triggerElements = useStore(store, selectors.triggers);
+  const triggerElements = store.useState('triggers');
 
-  const open = useStore(store, selectors.open);
-  const positionerElement = useStore(store, selectors.positionerElement);
-  const activeTriggerElement = useStore(store, selectors.activeTriggerElement);
-  const payload = useStore(store, selectors.payload) as Payload | undefined;
-  const openReason = useStore(store, selectors.openReason);
-  const openMethod = useStore(store, selectors.openMethod);
+  const open = store.useState('open');
+  const positionerElement = store.useState('positionerElement');
+  const activeTriggerElement = store.useState('activeTriggerElement');
+  const payload = store.useState('payload') as Payload | undefined;
+  const openReason = store.useState('openReason');
+  const openMethod = store.useState('openMethod');
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
 
   let resolvedTriggerId: string | null = null;
@@ -90,6 +85,8 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   } else {
     resolvedTriggerId = triggerId ?? null;
   }
+
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   useIsoLayoutEffect(() => {
     store.set('open', openState);
@@ -225,7 +222,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   useOpenChangeComplete({
     enabled: !preventUnmountingRef.current,
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (!open) {
         handleUnmount();
@@ -293,14 +290,9 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const popoverContext: PopoverRootContext = React.useMemo(
     () => ({
-      setOpen,
-      popupRef,
-      backdropRef,
-      internalBackdropRef,
-      onOpenChangeComplete,
       store,
     }),
-    [setOpen, popupRef, onOpenChangeComplete, store],
+    [store],
   );
 
   return (

@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { Dimensions, FloatingFocusManager } from '../../floating-ui-react';
@@ -15,9 +14,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
-
 import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
-import { selectors } from '../store';
 import { useDirection } from '../../direction-provider/DirectionContext';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverPopup.State> = {
@@ -37,34 +34,34 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 ) {
   const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const { popupRef, onOpenChangeComplete, store } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
 
   const positioner = usePopoverPositionerContext();
   const direction = useDirection();
 
-  const open = useStore(store, selectors.open);
-  const openMethod = useStore(store, selectors.openMethod);
-  const instantType = useStore(store, selectors.instantType);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
-  const popupProps = useStore(store, selectors.popupProps);
-  const titleId = useStore(store, selectors.titleId);
-  const descriptionId = useStore(store, selectors.descriptionId);
-  const modal = useStore(store, selectors.modal);
-  const mounted = useStore(store, selectors.mounted);
-  const openReason = useStore(store, selectors.openReason);
-  const popupElement = useStore(store, selectors.popupElement);
-  const triggers = useStore(store, selectors.triggers);
-  const payload = useStore(store, selectors.payload);
-  const positionerElement = useStore(store, selectors.positionerElement);
-  const activeTriggerElement = useStore(store, selectors.activeTriggerElement);
-  const floatingContext = useStore(store, selectors.floatingRootContext);
+  const open = store.useState('open');
+  const openMethod = store.useState('openMethod');
+  const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
+  const popupProps = store.useState('popupProps');
+  const titleId = store.useState('titleId');
+  const descriptionId = store.useState('descriptionId');
+  const modal = store.useState('modal');
+  const mounted = store.useState('mounted');
+  const openReason = store.useState('openReason');
+  const popupElement = store.useState('popupElement');
+  const triggers = store.useState('triggers');
+  const payload = store.useState('payload');
+  const positionerElement = store.useState('positionerElement');
+  const activeTriggerElement = store.useState('activeTriggerElement');
+  const floatingContext = store.useState('floatingRootContext');
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
@@ -74,7 +71,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   // (this is required for Android specifically as iOS handles this automatically).
   const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
     if (interactionType === 'touch') {
-      return popupRef.current;
+      return store.context.popupRef.current;
     }
     return true;
   });
@@ -153,7 +150,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, popupRef, setPopupElement],
+    ref: [forwardedRef, store.context.popupRef, setPopupElement],
     props: [
       popupProps,
       {

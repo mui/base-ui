@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useStore } from '@base-ui-components/utils/store';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
@@ -14,7 +13,6 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { selectors } from '../store';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 
 /**
@@ -45,19 +43,19 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     ...elementProps
   } = componentProps;
 
-  const { store, internalBackdropRef } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const floatingRootContext = useStore(store, selectors.floatingRootContext);
-  const mounted = useStore(store, selectors.mounted);
-  const open = useStore(store, selectors.open);
-  const openMethod = useStore(store, selectors.openMethod);
-  const openReason = useStore(store, selectors.openReason);
-  const triggerElement = useStore(store, selectors.activeTriggerElement);
-  const modal = useStore(store, selectors.modal);
-  const positionerElement = useStore(store, selectors.positionerElement);
-  const instantType = useStore(store, selectors.instantType);
+  const floatingRootContext = store.useState('floatingRootContext');
+  const mounted = store.useState('mounted');
+  const open = store.useState('open');
+  const openMethod = store.useState('openMethod');
+  const openReason = store.useState('openReason');
+  const triggerElement = store.useState('activeTriggerElement');
+  const modal = store.useState('modal');
+  const positionerElement = store.useState('positionerElement');
+  const instantType = store.useState('instantType');
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
@@ -166,7 +164,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     <PopoverPositionerContext.Provider value={positioner}>
       {mounted && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch' && (
         <InternalBackdrop
-          ref={internalBackdropRef}
+          ref={store.context.internalBackdropRef}
           inert={inertValue(!open)}
           cutout={triggerElement}
         />

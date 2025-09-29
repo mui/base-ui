@@ -3,10 +3,6 @@ import * as React from 'react';
 import type { PopoverStore } from '../store';
 
 export interface PopoverRootContext {
-  popupRef: React.RefObject<HTMLElement | null>;
-  backdropRef: React.RefObject<HTMLDivElement | null>;
-  internalBackdropRef: React.RefObject<HTMLDivElement | null>;
-  onOpenChangeComplete: ((open: boolean) => void) | undefined;
   store: PopoverStore<unknown>;
 }
 

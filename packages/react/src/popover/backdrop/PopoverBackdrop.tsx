@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
@@ -8,7 +7,6 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { selectors } from '../store';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverBackdrop.State> = {
   ...baseMapping,
@@ -27,12 +25,12 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 ) {
   const { className, render, ...elementProps } = props;
 
-  const { store, backdropRef } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
 
-  const open = useStore(store, selectors.open);
-  const mounted = useStore(store, selectors.mounted);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
-  const openReason = useStore(store, selectors.openReason);
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const transitionStatus = store.useState('transitionStatus');
+  const openReason = store.useState('openReason');
 
   const state: PopoverBackdrop.State = React.useMemo(
     () => ({
@@ -44,7 +42,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 
   const element = useRenderElement('div', props, {
     state,
-    ref: [backdropRef, forwardedRef],
+    ref: [store.context.backdropRef, forwardedRef],
     props: [
       {
         role: 'presentation',

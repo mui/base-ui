@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { usePreviousValue } from '@base-ui-components/utils/usePreviousValue';
@@ -10,7 +9,6 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { selectors } from '../store';
 import { Dimensions } from '../../floating-ui-react/types';
 import { PopoverViewportCssVars } from './PopoverViewportCssVars';
 
@@ -38,11 +36,11 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const { render, className, children, ...elementProps } = componentProps;
   const { store } = usePopoverRootContext();
 
-  const activeTrigger = useStore(store, selectors.activeTriggerElement);
-  const open = useStore(store, selectors.open);
-  const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
+  const activeTrigger = store.useState('activeTriggerElement');
+  const open = store.useState('open');
+  const floatingContext = store.useState('floatingRootContext');
 
-  const floatingContext = useStore(store, selectors.floatingRootContext);
+  const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
 
   const capturedNodeRef = React.useRef<HTMLElement | null>(null);
   const [previousContentNode, setPreviousContentNode] = React.useState<HTMLElement | null>(null);
