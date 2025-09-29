@@ -885,7 +885,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     orientation: grid ? 'horizontal' : undefined,
     disabledIndices: virtualized
       ? (index) => index < 0 || index >= flatFilteredItems.length
-      : EMPTY_ARRAY,
+      : (EMPTY_ARRAY as number[]),
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if (nextActiveIndex === null && (!open || transitionStatus === 'ending')) {
