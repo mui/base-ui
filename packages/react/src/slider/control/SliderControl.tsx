@@ -78,6 +78,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const { render: renderProp, className, ...elementProps } = componentProps;
 
   const {
+    allowThumbSwap,
     disabled,
     dragging,
     fieldControlValidation,
@@ -181,17 +182,25 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     let targetIndex = previousIndex;
 
-    if (previousIndex > 0 && newValue <= values[previousIndex - 1]) {
-      while (targetIndex > 0 && newValue <= values[targetIndex - 1]) {
-        targetIndex -= 1;
-      }
-    } else if (previousIndex < values.length - 1 && newValue >= values[previousIndex + 1]) {
-      while (targetIndex < values.length - 1 && newValue >= values[targetIndex + 1]) {
-        targetIndex += 1;
+    if (allowThumbSwap) {
+      if (previousIndex > 0 && newValue <= values[previousIndex - 1]) {
+        while (targetIndex > 0 && newValue <= values[targetIndex - 1]) {
+          targetIndex -= 1;
+        }
+      } else if (previousIndex < values.length - 1 && newValue >= values[previousIndex + 1]) {
+        while (targetIndex < values.length - 1 && newValue >= values[targetIndex + 1]) {
+          targetIndex += 1;
+        }
       }
     }
 
-    const candidateValues = replaceArrayItemAtIndex(values, previousIndex, newValue);
+    const candidateValues = allowThumbSwap
+      ? replaceArrayItemAtIndex(values, previousIndex, newValue)
+      : (() => {
+          const copiedValues = values.slice();
+          copiedValues[previousIndex] = newValue;
+          return copiedValues;
+        })();
 
     const previousNeighbor = candidateValues[targetIndex - 1];
     const nextNeighbor = candidateValues[targetIndex + 1];
@@ -202,7 +211,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     const constrainedValue = clamp(newValue, lowerBound, upperBound);
     candidateValues[targetIndex] = constrainedValue;
 
-    const didSwap = targetIndex !== previousIndex;
+    const didSwap = allowThumbSwap && targetIndex !== previousIndex;
 
     if (didSwap) {
       updatePressedThumb(targetIndex);

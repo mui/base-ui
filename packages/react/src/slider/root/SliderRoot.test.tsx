@@ -1109,6 +1109,42 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(lastCall.args[2]).to.equal(1);
     });
 
+    it.skipIf(isJSDOM)('prevents thumbs from swapping when allowThumbSwap is false', async () => {
+      const handleValueChange = spy();
+      const { getByTestId } = await render(
+        <TestRangeSlider
+          allowThumbSwap={false}
+          defaultValue={[30, 70]}
+          style={{ width: '100px' }}
+          onValueChange={handleValueChange}
+        />,
+      );
+
+      const sliderControl = getByTestId('control');
+
+      stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
+
+      fireEvent.pointerDown(sliderControl, {
+        buttons: 1,
+        clientX: 30,
+      });
+
+      fireEvent.pointerMove(document.body, {
+        buttons: 1,
+        clientX: 85,
+      });
+
+      fireEvent.pointerUp(document.body, {
+        buttons: 1,
+        clientX: 85,
+      });
+
+      expect(handleValueChange.callCount).to.be.greaterThan(0);
+      const lastCall = handleValueChange.getCall(handleValueChange.callCount - 1);
+      expect(lastCall.args[0][1]).to.equal(70);
+      expect(lastCall.args[2]).to.equal(0);
+    });
+
     type Values = Array<[string, number[]]>;
 
     const values = [

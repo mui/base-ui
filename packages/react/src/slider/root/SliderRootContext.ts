@@ -9,6 +9,10 @@ import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface SliderRootContext {
   /**
+   * Whether thumbs may swap positions when dragged past each other with a pointer.
+   */
+  allowThumbSwap: boolean;
+  /**
    * The index of the active thumb.
    */
   active: number;

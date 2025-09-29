@@ -39,6 +39,6 @@ To create a range slider:
 1. Pass an array of values and place `Slider.Thumb`s for each value in the array
 2. Additionally for server-side rendering, specify a numeric `index` for each thumb that corresponds to the index of its value in the value array
 
-Pointer interactions allow thumbs to pass each other, whereas keyboard interactions keep them from crossing to avoid disorientation when changing focus between thumbs.
+Pointer interactions allow thumbs to pass each other, whereas keyboard interactions keep them from crossing to avoid disorientation when changing focus between thumbs. Set `allowThumbSwap={false}` on `Slider.Root` to keep pointer interactions from swapping thumb positions.
 
 <Demo compact path="./demos/range-slider" />

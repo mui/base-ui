@@ -52,6 +52,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   Value extends number | readonly number[],
 >(componentProps: SliderRoot.Props<Value>, forwardedRef: React.ForwardedRef<HTMLDivElement>) {
   const {
+    allowThumbSwap = true,
     'aria-labelledby': ariaLabelledByProp,
     className,
     defaultValue,
@@ -242,6 +243,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const state: SliderRoot.State = React.useMemo(
     () => ({
       ...fieldState,
+      allowThumbSwap,
       activeThumbIndex: active,
       disabled,
       dragging,
@@ -254,6 +256,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }),
     [
       fieldState,
+      allowThumbSwap,
       active,
       disabled,
       dragging,
@@ -268,6 +271,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const contextValue: SliderRootContext = React.useMemo(
     () => ({
+      allowThumbSwap,
       active,
       controlRef,
       disabled,
@@ -299,6 +303,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       values,
     }),
     [
+      allowThumbSwap,
       active,
       controlRef,
       ariaLabelledby,
@@ -363,6 +368,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
 export namespace SliderRoot {
   export interface State extends FieldRoot.State {
+    /**
+     * Whether thumbs may swap positions when dragged past each other with a pointer.
+     */
+    allowThumbSwap: boolean;
     /**
      * The index of the active thumb.
      */
@@ -437,6 +446,11 @@ export namespace SliderRoot {
      * @default 0
      */
     minStepsBetweenValues?: number;
+    /**
+     * If `false`, thumbs keep their relative order when dragged past each other with a pointer.
+     * @default true
+     */
+    allowThumbSwap?: boolean;
     /**
      * Identifies the field when a form is submitted.
      */
