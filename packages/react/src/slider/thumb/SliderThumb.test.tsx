@@ -309,10 +309,7 @@ describe('<Slider.Thumb />', () => {
         </Slider.Root>,
       );
 
-      const [thumb0, thumb1] = [
-        screen.getByTestId('thumb-0'),
-        screen.getByTestId('thumb-1'),
-      ];
+      const [thumb0, thumb1] = [screen.getByTestId('thumb-0'), screen.getByTestId('thumb-1')];
 
       await user.keyboard('[Tab]');
       expect(screen.getAllByRole('slider')[0]).toHaveFocus();

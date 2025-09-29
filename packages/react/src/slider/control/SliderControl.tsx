@@ -468,6 +468,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 interface FingerState {
   value: number | number[];
   thumbIndex: number;
+  didSwap: boolean;
 }
 
 export namespace SliderControl {

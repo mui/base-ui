@@ -201,15 +201,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       transform: `translate(${(isVertical || !isRtl ? -1 : 1) * 50}%, ${(isVertical ? 1 : -1) * 50}%)`,
       zIndex,
     } satisfies React.CSSProperties;
-  }, [
-    activeIndex,
-    index,
-    isRtl,
-    orientation,
-    percent,
-    range,
-    safeLastUsedThumbIndex,
-  ]);
+  }, [activeIndex, index, isRtl, orientation, percent, range, safeLastUsedThumbIndex]);
 
   let cssWritingMode: React.CSSProperties['writingMode'];
   if (orientation === 'vertical') {

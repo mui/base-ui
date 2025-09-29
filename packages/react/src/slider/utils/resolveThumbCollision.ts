@@ -63,8 +63,7 @@ export function resolveThumbCollision({
       const previousNeighbor = candidateValues[targetIndex - 1];
       const nextNeighbor = candidateValues[targetIndex + 1];
 
-      const lowerBound =
-        previousNeighbor != null ? previousNeighbor + minValueDifference : min;
+      const lowerBound = previousNeighbor != null ? previousNeighbor + minValueDifference : min;
       const upperBound = nextNeighbor != null ? nextNeighbor - minValueDifference : max;
 
       const constrainedValue = clamp(nextValue, lowerBound, upperBound);
@@ -78,7 +77,8 @@ export function resolveThumbCollision({
     }
     case 'push-sticky':
     case 'push': {
-      const stickyInitialValues = behavior === 'push-sticky' ? initialValues ?? values : undefined;
+      const stickyInitialValues =
+        behavior === 'push-sticky' ? (initialValues ?? values) : undefined;
       const nextValues = getPushedThumbValues({
         values,
         index: pressedIndex,
@@ -102,8 +102,7 @@ export function resolveThumbCollision({
       const previousNeighbor = candidateValues[pressedIndex - 1];
       const nextNeighbor = candidateValues[pressedIndex + 1];
 
-      const lowerBound =
-        previousNeighbor != null ? previousNeighbor + minValueDifference : min;
+      const lowerBound = previousNeighbor != null ? previousNeighbor + minValueDifference : min;
       const upperBound = nextNeighbor != null ? nextNeighbor - minValueDifference : max;
 
       const constrainedValue = clamp(nextValue, lowerBound, upperBound);
