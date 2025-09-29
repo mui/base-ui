@@ -481,7 +481,7 @@ export namespace SliderRoot {
      * - `'swap'`: Thumbs swap places when dragged past each other.
      * - `'none'`: Thumbs cannot move past each other; excess movement is ignored.
      *
-     * @default 'push'
+     * @default 'push-sticky'
      */
     thumbCollisionBehavior?: ThumbCollisionBehavior;
     /**
