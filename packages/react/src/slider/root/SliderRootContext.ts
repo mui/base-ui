@@ -67,6 +67,7 @@ export interface SliderRootContext {
   pressedInputRef: React.RefObject<HTMLInputElement | null>;
   pressedThumbCenterOffsetRef: React.RefObject<number | null>;
   pressedThumbIndexRef: React.RefObject<number>;
+  pressedValuesRef: React.RefObject<readonly number[] | null>;
   registerFieldControlRef: React.RefCallback<Element> | null;
   setActive: (index: number) => void;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;

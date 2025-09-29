@@ -90,6 +90,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     pressedInputRef,
     pressedThumbCenterOffsetRef,
     pressedThumbIndexRef,
+    pressedValuesRef,
     registerFieldControlRef,
     setActive,
     setDragging,
@@ -166,12 +167,17 @@ export const SliderControl = React.forwardRef(function SliderControl(
         max,
         step,
         minStepsBetweenValues,
+        initialValues: pressedValuesRef.current ?? values,
       }),
       thumbIndex,
     };
   });
 
   const startPressing = useEventCallback((fingerCoords: Coords) => {
+    if (pressedValuesRef.current == null) {
+      pressedValuesRef.current = values.slice();
+    }
+
     let closestThumbIndex = -1;
     const pressedThumbIndex = pressedThumbIndexRef.current;
 
@@ -268,22 +274,15 @@ export const SliderControl = React.forwardRef(function SliderControl(
     pressedThumbIndexRef.current = -1;
 
     const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
+    const finger = fingerCoords != null ? getFingerState(fingerCoords) : null;
 
-    if (fingerCoords == null) {
-      return;
+    if (finger != null) {
+      fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
+      onValueCommitted(
+        lastChangedValueRef.current ?? finger.value,
+        createBaseUIEventDetails('none', nativeEvent),
+      );
     }
-
-    const finger = getFingerState(fingerCoords);
-
-    if (finger == null) {
-      return;
-    }
-
-    fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
-    onValueCommitted(
-      lastChangedValueRef.current ?? finger.value,
-      createBaseUIEventDetails('none', nativeEvent),
-    );
 
     if (
       'pointerType' in nativeEvent &&
@@ -293,6 +292,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
 
     touchIdRef.current = null;
+    pressedValuesRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
   });
@@ -335,6 +335,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     doc.removeEventListener('pointerup', handleTouchEnd);
     doc.removeEventListener('touchmove', handleTouchMove);
     doc.removeEventListener('touchend', handleTouchEnd);
+    pressedValuesRef.current = null;
   });
 
   const focusFrame = useAnimationFrame();

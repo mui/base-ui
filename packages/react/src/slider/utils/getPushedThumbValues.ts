@@ -8,6 +8,7 @@ interface GetPushedThumbValuesParams {
   max: number;
   step: number;
   minStepsBetweenValues: number;
+  initialValues?: readonly number[];
 }
 
 /**
@@ -22,6 +23,7 @@ export function getPushedThumbValues({
   max,
   step,
   minStepsBetweenValues,
+  initialValues,
 }: GetPushedThumbValuesParams): number[] {
   if (values.length === 0) {
     return [];
@@ -30,6 +32,7 @@ export function getPushedThumbValues({
   const nextValues = values.slice();
   const minValueDifference = step * minStepsBetweenValues;
   const lastIndex = nextValues.length - 1;
+  const baseInitialValues = initialValues ?? values;
 
   const indexMin = min + index * minValueDifference;
   const indexMax = max - (lastIndex - index) * minValueDifference;
@@ -38,14 +41,26 @@ export function getPushedThumbValues({
   for (let i = index + 1; i <= lastIndex; i += 1) {
     const minAllowed = nextValues[i - 1] + minValueDifference;
     const maxAllowed = max - (lastIndex - i) * minValueDifference;
-    const candidate = Math.max(nextValues[i], minAllowed);
+    const initialValue = baseInitialValues[i] ?? nextValues[i];
+    let candidate = Math.max(nextValues[i], minAllowed);
+
+    if (initialValue < candidate) {
+      candidate = Math.max(initialValue, minAllowed);
+    }
+
     nextValues[i] = clamp(candidate, minAllowed, maxAllowed);
   }
 
   for (let i = index - 1; i >= 0; i -= 1) {
     const maxAllowed = nextValues[i + 1] - minValueDifference;
     const minAllowed = min + i * minValueDifference;
-    const candidate = Math.min(nextValues[i], maxAllowed);
+    const initialValue = baseInitialValues[i] ?? nextValues[i];
+    let candidate = Math.min(nextValues[i], maxAllowed);
+
+    if (initialValue > candidate) {
+      candidate = Math.min(initialValue, maxAllowed);
+    }
+
     nextValues[i] = clamp(candidate, minAllowed, maxAllowed);
   }
 

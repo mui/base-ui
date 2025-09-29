@@ -72,4 +72,34 @@ describe('getPushedThumbValues', () => {
     expect(result[0]).to.equal(1.4);
     expect(result[1]).to.equal(1.8);
   });
+
+  it('restores pushed thumbs towards their initial value when space allows', () => {
+    const initialValues = [30, 50];
+
+    const pushed = getPushedThumbValues({
+      values: initialValues,
+      initialValues,
+      index: 1,
+      nextValue: 20,
+      min: 0,
+      max: 100,
+      step: 1,
+      minStepsBetweenValues: 0,
+    });
+
+    expect(pushed).to.deep.equal([20, 20]);
+
+    const restored = getPushedThumbValues({
+      values: pushed,
+      initialValues,
+      index: 1,
+      nextValue: 35,
+      min: 0,
+      max: 100,
+      step: 1,
+      minStepsBetweenValues: 0,
+    });
+
+    expect(restored).to.deep.equal([30, 35]);
+  });
 });

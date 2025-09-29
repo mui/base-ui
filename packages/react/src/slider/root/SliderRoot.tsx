@@ -125,6 +125,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   // This is updated on pointerdown, which is sooner than the `active/activeIndex`
   // state which is updated later when the nested `input` receives focus.
   const pressedThumbIndexRef = React.useRef(-1);
+  // The values when the current drag interaction started.
+  const pressedValuesRef = React.useRef<readonly number[] | null>(null);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
 
   const formatOptionsRef = useLatestRef(format);
@@ -298,6 +300,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedInputRef,
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
+      pressedValuesRef,
       registerFieldControlRef,
       setActive,
       setDragging,
@@ -330,6 +333,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedInputRef,
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
+      pressedValuesRef,
       registerFieldControlRef,
       setActive,
       setDragging,
