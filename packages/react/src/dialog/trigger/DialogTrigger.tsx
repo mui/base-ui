@@ -42,16 +42,9 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     native: nativeButton,
   });
 
-  const setTriggerElement = React.useCallback(
-    (node: HTMLButtonElement | null) => {
-      store.set('triggerElement', node);
-    },
-    [store],
-  );
-
   return useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, setTriggerElement],
+    ref: [buttonRef, forwardedRef, store.getElementSetter('triggerElement')],
     props: [
       triggerProps,
       { [CLICK_TRIGGER_IDENTIFIER as string]: '' },

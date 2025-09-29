@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
-import { useDialogPopup } from '../../dialog/popup/useDialogPopup';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -18,6 +16,7 @@ import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { COMPOSITE_KEYS } from '../../composite/composite';
 
 const stateAttributesMapping: StateAttributesMapping<AlertDialogPopup.State> = {
   ...baseMapping,
@@ -48,7 +47,6 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const nested = store.useState('nested');
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
   const open = store.useState('open');
-  const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
 
@@ -62,24 +60,6 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
         store.context.openChangeComplete?.(true);
       }
     },
-  });
-
-  const mergedRef = useMergedRefs(forwardedRef, store.context.popupRef);
-
-  const setPopupElement = React.useCallback(
-    (node: HTMLElement | null) => {
-      store.set('popupElement', node);
-    },
-    [store],
-  );
-
-  const { popupProps } = useDialogPopup({
-    descriptionElementId,
-    mounted,
-    openMethod,
-    ref: mergedRef,
-    setPopupElement,
-    titleElementId,
   });
 
   // Default initial focus logic:
@@ -110,15 +90,24 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     state,
     props: [
       rootPopupProps,
-      popupProps,
       {
+        'aria-labelledby': titleElementId ?? undefined,
+        'aria-describedby': descriptionElementId ?? undefined,
+        role: 'alertdialog',
+        tabIndex: -1,
+        hidden: !mounted,
+        onKeyDown(event: React.KeyboardEvent) {
+          if (COMPOSITE_KEYS.has(event.key)) {
+            event.stopPropagation();
+          }
+        },
         style: {
           [AlertDialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
         } as React.CSSProperties,
-        role: 'alertdialog',
       },
       elementProps,
     ],
+    ref: [forwardedRef, store.context.popupRef, store.getElementSetter('popupElement')],
     stateAttributesMapping,
   });
 

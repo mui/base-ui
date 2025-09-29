@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -21,12 +20,7 @@ export const AlertDialogDescription = React.forwardRef(function AlertDialogDescr
 
   const id = useBaseUiId(idProp);
 
-  useIsoLayoutEffect(() => {
-    store.set('descriptionElementId', id);
-    return () => {
-      store.set('descriptionElementId', undefined);
-    };
-  }, [id, store]);
+  store.useSyncedValueWithCleanup('descriptionElementId', id);
 
   return useRenderElement('p', componentProps, {
     ref: forwardedRef,

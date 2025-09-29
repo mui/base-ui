@@ -41,16 +41,9 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     native: nativeButton,
   });
 
-  const setTriggerElement = React.useCallback(
-    (node: HTMLButtonElement | null) => {
-      store.set('triggerElement', node);
-    },
-    [store],
-  );
-
   return useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, setTriggerElement],
+    ref: [forwardedRef, buttonRef, store.getElementSetter('triggerElement')],
     stateAttributesMapping: triggerOpenStateMapping,
     props: [triggerProps, elementProps, getButtonProps],
   });

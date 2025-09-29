@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
-import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { type BaseUIComponentProps } from '../../utils/types';
@@ -18,6 +16,7 @@ import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { COMPOSITE_KEYS } from '../../composite/composite';
 
 const stateAttributesMapping: StateAttributesMapping<DialogPopup.State> = {
   ...baseMapping,
@@ -66,24 +65,6 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     },
   });
 
-  const mergedRef = useMergedRefs(forwardedRef, store.context.popupRef);
-
-  const setPopupElement = React.useCallback(
-    (node: HTMLElement | null) => {
-      store.set('popupElement', node);
-    },
-    [store],
-  );
-
-  const { popupProps } = useDialogPopup({
-    descriptionElementId,
-    mounted,
-    openMethod,
-    ref: mergedRef,
-    setPopupElement,
-    titleElementId,
-  });
-
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
   // (this is required for Android specifically as iOS handles this automatically).
@@ -112,14 +93,24 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     state,
     props: [
       rootPopupProps,
-      popupProps,
       {
+        'aria-labelledby': titleElementId ?? undefined,
+        'aria-describedby': descriptionElementId ?? undefined,
+        role: 'dialog',
+        tabIndex: -1,
+        hidden: !mounted,
+        onKeyDown(event: React.KeyboardEvent) {
+          if (COMPOSITE_KEYS.has(event.key)) {
+            event.stopPropagation();
+          }
+        },
         style: {
           [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
         } as React.CSSProperties,
       },
       elementProps,
     ],
+    ref: [forwardedRef, store.context.popupRef, store.getElementSetter('popupElement')],
     stateAttributesMapping,
   });
 
