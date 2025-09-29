@@ -9,6 +9,24 @@ import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootCo
 import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { EMPTY_OBJECT } from '../../utils/constants';
 
+const INITIAL_STATE = {
+  open: false,
+  dismissible: false,
+  nested: false,
+  popupElement: null,
+  triggerElement: null,
+  modal: true,
+  descriptionElementId: undefined,
+  titleElementId: undefined,
+  openMethod: null,
+  mounted: false,
+  transitionStatus: 'idle',
+  nestedOpenDialogCount: 0,
+  triggerProps: EMPTY_OBJECT,
+  popupProps: EMPTY_OBJECT,
+  floatingRootContext: getEmptyContext(),
+} as const;
+
 /**
  * Groups all parts of the alert dialog.
  * Doesn’t render its own HTML element.
@@ -28,23 +46,7 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
   const parentDialogRootContext = useDialogRootContext();
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(DialogStore.create, {
-    open: defaultOpen,
-    dismissible: false,
-    nested,
-    popupElement: null,
-    triggerElement: null,
-    modal: true,
-    descriptionElementId: undefined,
-    titleElementId: undefined,
-    openMethod: null,
-    mounted: false,
-    transitionStatus: 'idle',
-    nestedOpenDialogCount: 0,
-    triggerProps: EMPTY_OBJECT,
-    popupProps: EMPTY_OBJECT,
-    floatingRootContext: getEmptyContext(),
-  }).current;
+  const store = useRefWithInit(DialogStore.create, INITIAL_STATE).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useSyncedValue('nested', nested);

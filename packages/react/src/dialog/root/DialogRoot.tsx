@@ -8,6 +8,24 @@ import { DialogStore } from '../store';
 import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
 
+const INITIAL_STATE = {
+  open: false,
+  dismissible: true,
+  nested: false,
+  popupElement: null,
+  triggerElement: null,
+  modal: true,
+  descriptionElementId: undefined,
+  titleElementId: undefined,
+  openMethod: null,
+  mounted: false,
+  transitionStatus: 'idle',
+  nestedOpenDialogCount: 0,
+  triggerProps: EMPTY_OBJECT,
+  popupProps: EMPTY_OBJECT,
+  floatingRootContext: getEmptyContext(),
+} as const;
+
 /**
  * Groups all parts of the dialog.
  * Doesn’t render its own HTML element.
@@ -29,23 +47,7 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
   const parentDialogRootContext = useDialogRootContext(true);
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(DialogStore.create, {
-    open: defaultOpenProp,
-    dismissible,
-    nested,
-    popupElement: null,
-    triggerElement: null,
-    modal,
-    descriptionElementId: undefined,
-    titleElementId: undefined,
-    openMethod: null,
-    mounted: false,
-    transitionStatus: 'idle',
-    nestedOpenDialogCount: 0,
-    triggerProps: EMPTY_OBJECT,
-    popupProps: EMPTY_OBJECT,
-    floatingRootContext: getEmptyContext(),
-  }).current;
+  const store = useRefWithInit(DialogStore.create, INITIAL_STATE).current;
 
   store.useControlledProp('open', openProp, defaultOpenProp);
   store.useSyncedValues({ dismissible, nested, modal });
