@@ -69,6 +69,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
     step = 1,
+    thumbCollisionBehavior = 'push',
     value: valueProp,
     ...elementProps
   } = componentProps;
@@ -307,6 +308,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       setValue,
       state,
       step,
+      thumbCollisionBehavior,
       thumbMap,
       thumbRefs,
       values,
@@ -340,6 +342,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       setValue,
       state,
       step,
+      thumbCollisionBehavior,
       thumbMap,
       thumbRefs,
       values,
@@ -377,6 +380,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 };
 
 export namespace SliderRoot {
+  export type ThumbCollisionBehavior = 'push' | 'push-sticky' | 'swap' | 'none';
+
   export interface State extends FieldRoot.State {
     /**
      * The index of the active thumb.
@@ -468,6 +473,17 @@ export namespace SliderRoot {
      * @default 1
      */
     step?: number;
+    /**
+     * Controls how thumbs behave when they collide during pointer interactions.
+     *
+     * - `'push'` (default): Thumbs push each other without restoring their previous positions when dragged back.
+     * - `'push-sticky'`: Thumbs push each other and cling when dragged back to their previous positions.
+     * - `'swap'`: Thumbs swap places when dragged past each other.
+     * - `'none'`: Thumbs cannot move past each other; excess movement is ignored.
+     *
+     * @default 'push'
+     */
+    thumbCollisionBehavior?: ThumbCollisionBehavior;
     /**
      * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
      * @default 10
