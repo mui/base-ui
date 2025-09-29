@@ -132,11 +132,20 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
   // - The active state isn't transferred when inversing a range slider.
-  const [active, setActive] = React.useState(-1);
+  const [active, setActiveState] = React.useState(-1);
+  const [lastUsedThumbIndex, setLastUsedThumbIndex] = React.useState(-1);
   const [dragging, setDragging] = React.useState(false);
   const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
+
+  const setActive = useEventCallback((value: number) => {
+    setActiveState(value);
+
+    if (value !== -1) {
+      setLastUsedThumbIndex(value);
+    }
+  });
 
   useField({
     id,
@@ -277,6 +286,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       handleInputChange,
       labelId: ariaLabelledby,
       largeStep,
+      lastUsedThumbIndex,
       lastChangedValueRef,
       locale,
       max,
@@ -308,6 +318,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       formatOptionsRef,
       handleInputChange,
       largeStep,
+      lastUsedThumbIndex,
       lastChangedValueRef,
       locale,
       max,

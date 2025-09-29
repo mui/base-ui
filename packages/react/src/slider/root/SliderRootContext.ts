@@ -12,6 +12,10 @@ export interface SliderRootContext {
    * The index of the active thumb.
    */
   active: number;
+  /**
+   * The index of the most recently interacted thumb.
+   */
+  lastUsedThumbIndex: number;
   controlRef: React.RefObject<HTMLElement | null>;
   dragging: boolean;
   disabled: boolean;
@@ -64,7 +68,7 @@ export interface SliderRootContext {
   pressedThumbCenterOffsetRef: React.RefObject<number | null>;
   pressedThumbIndexRef: React.RefObject<number>;
   registerFieldControlRef: React.RefCallback<Element> | null;
-  setActive: React.Dispatch<React.SetStateAction<number>>;
+  setActive: (index: number) => void;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
   /**
    * Callback fired when dragging and invokes onValueChange.

@@ -109,6 +109,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const {
     active: activeIndex,
+    lastUsedThumbIndex,
     disabled: contextDisabled,
     fieldControlValidation,
     formatOptionsRef,
@@ -168,11 +169,26 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const isRtl = direction === 'rtl';
 
+  const safeLastUsedThumbIndex =
+    lastUsedThumbIndex >= 0 && lastUsedThumbIndex < sliderValues.length ? lastUsedThumbIndex : -1;
+
   const getThumbStyle = React.useCallback(() => {
     const isVertical = orientation === 'vertical';
 
     if (!Number.isFinite(percent)) {
       return visuallyHidden;
+    }
+
+    let zIndex: number | undefined;
+
+    if (range) {
+      if (activeIndex === index) {
+        zIndex = 2;
+      } else if (safeLastUsedThumbIndex === index) {
+        zIndex = 1;
+      }
+    } else if (activeIndex === index) {
+      zIndex = 1;
     }
 
     return {
@@ -183,9 +199,17 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       }[orientation]]: `${percent}%`,
       [isVertical ? 'left' : 'top']: '50%',
       transform: `translate(${(isVertical || !isRtl ? -1 : 1) * 50}%, ${(isVertical ? 1 : -1) * 50}%)`,
-      zIndex: activeIndex === index ? 1 : undefined,
+      zIndex,
     } satisfies React.CSSProperties;
-  }, [activeIndex, isRtl, orientation, percent, index]);
+  }, [
+    activeIndex,
+    index,
+    isRtl,
+    orientation,
+    percent,
+    range,
+    safeLastUsedThumbIndex,
+  ]);
 
   let cssWritingMode: React.CSSProperties['writingMode'];
   if (orientation === 'vertical') {
