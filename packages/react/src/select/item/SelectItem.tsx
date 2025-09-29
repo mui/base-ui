@@ -19,7 +19,7 @@ import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { compareItemEquality, itemIncludes, removeItem } from '../../utils/itemEquality';
 
 /**
- * An individual option in the select menu.
+ * An individual option in the select popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -146,6 +146,8 @@ export const SelectItem = React.memo(
     }
 
     const defaultProps: HTMLProps = {
+      role: 'option',
+      'aria-selected': selected,
       'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {

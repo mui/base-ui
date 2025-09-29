@@ -13,7 +13,6 @@ import {
   useFloatingRootContext,
   useInteractions,
   useListNavigation,
-  useRole,
   useTypeahead,
   FloatingRootContext,
 } from '../../floating-ui-react';
@@ -406,16 +405,12 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     bubbles: false,
   });
 
-  const role = useRole(floatingContext, {
-    role: 'select',
-  });
-
   const listNavigation = useListNavigation(floatingContext, {
     enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
     selectedIndex,
-    disabledIndices: EMPTY_ARRAY,
+    disabledIndices: EMPTY_ARRAY as number[],
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
@@ -451,7 +446,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
     click,
     dismiss,
-    role,
     listNavigation,
     typeahead,
   ]);
