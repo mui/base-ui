@@ -132,7 +132,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
       return;
     }
 
-    pressedThumbCenterOffsetRef.current = 0;
     pressedInputRef.current = thumbElement.querySelector<HTMLInputElement>('input[type="range"]');
   });
 
