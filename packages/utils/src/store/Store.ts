@@ -7,7 +7,10 @@ type Listener<T> = (state: T) => void;
 export class Store<State> {
   /**
    * The current state of the store.
-   * This proprerty shouldn't be used directly. Use `useState` to subscribe to state changes.
+   * This property is updated immediately when the state changes as a result of calling {@link update}, {@link apply}, or {@link set}.
+   * To subscribe to state changes, use the {@link useState} method. The value returned by {@link useState} is updated after the component renders (similarly to React's useState).
+   *
+   * Do not modify properties in state directly. Instead, use the provided methods to ensure proper state management and listener notification.
    */
   public state: State;
 
