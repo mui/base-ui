@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useStore } from '@base-ui-components/utils/store/useStore';
-import { ControllableStore } from '@base-ui-components/utils/store';
+import { ReactStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 
 export default function Playground() {
@@ -73,14 +72,14 @@ interface Props {
 
 function ControllableComponent(props: Props) {
   const store = useRefWithInit(
-    () => new ControllableStore<State>({ open: props.defaultOpen ?? false, value: 0 }),
+    () => new ReactStore({ open: props.defaultOpen ?? false, value: 0 }, {}, selectors),
   ).current;
 
   store.useControlledProp('open', props.open, props.defaultOpen ?? false);
   store.useSyncedValue('value', props.value ?? 0);
 
-  const open = useStore(store, (state) => state.open);
-  const value = useStore(store, (state) => state.value);
+  const open = store.useState('open');
+  const value = store.useState('value');
 
   const handleClick = useEventCallback(() => {
     store.set('open', !open);
@@ -104,11 +103,11 @@ function ControllableComponent(props: Props) {
 }
 
 interface ChildProps {
-  store: ControllableStore<State>;
+  store: ReactStore<State, {}, typeof selectors>;
 }
 
 function ChildComponent(props: ChildProps) {
-  const open = useStore(props.store, (state) => state.open);
+  const open = props.store.useState('open');
   return <span>child sees open: {open.toString()}</span>;
 }
 
@@ -116,3 +115,8 @@ interface State {
   open: boolean;
   value: number;
 }
+
+const selectors = {
+  open: (state: State) => state.open,
+  value: (state: State) => state.value,
+};

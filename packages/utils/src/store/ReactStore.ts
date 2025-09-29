@@ -1,5 +1,10 @@
-import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
+/* False positives - ESLint thinks we're calling a hook from a class component. */
+/* eslint-disable react-hooks/rules-of-hooks */
+import * as React from 'react';
 import { Store } from './Store';
+import { useStore } from './useStore';
+import { useEventCallback } from '../useEventCallback';
+import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 
 /**
  * A Store that supports controlled state keys.
@@ -9,14 +14,31 @@ import { Store } from './Store';
  *   (via {@link set}, {@link apply}, or {@link update}).
  * - When a key is uncontrolled, an optional default value is written once on first render.
  * - Use {@link useSyncedValue} and {@link useSyncedValues} to synchronize external values/props into the
- *   store during a layout phase using {@link useIsoLayoutEffect}. This ensures DOM reads in
- *   React components observe the latest store state within the same commit.
+ *   store during a layout phase using {@link useIsoLayoutEffect}.
  */
-export class ControllableStore<State> extends Store<State> {
+export class ReactStore<
+  State,
+  Context = Record<string, never>,
+  Selectors extends Record<string, (state: State) => any> = Record<string, never>,
+> extends Store<State> {
+  constructor(state: State, context: Context = {} as Context, selectors?: Selectors) {
+    super(state);
+    this.context = context;
+    this.selectors = selectors;
+  }
+
+  /**
+   * Non-reactive values such as refs, callbacks, etc.
+   * Unlike `state`, this property can be accessed directly.
+   */
+  public readonly context: Context;
+
   /**
    * Keeps track of which properties are controlled.
    */
   private controlledValues: Map<keyof State, boolean> = new Map();
+
+  private selectors: Selectors | undefined;
 
   /**
    * Synchronizes a single external value into the store during layout phase.
@@ -25,8 +47,6 @@ export class ControllableStore<State> extends Store<State> {
     key: keyof State,
     value: Value,
   ) {
-    // False positive - ESLint thinks we're calling a hook from a class component.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
       if (this.state[key] !== value) {
         this.set(key, value);
@@ -35,11 +55,28 @@ export class ControllableStore<State> extends Store<State> {
   }
 
   /**
+   * Synchronizes a single external value into the store during layout phase and
+   * cleans it up (sets to `undefined`) on unmount.
+   */
+  public useSyncedValueWithCleanup<Key extends KeysAllowingUndefined<State>>(
+    key: Key,
+    value: State[Key],
+  ) {
+    useIsoLayoutEffect(() => {
+      if (this.state[key] !== value) {
+        this.set(key, value);
+      }
+
+      return () => {
+        this.set(key, undefined as State[Key]);
+      };
+    }, [key, value]);
+  }
+
+  /**
    * Synchronizes multiple external values into the store during layout phase.
    */
   public useSyncedValues(props: Partial<State>) {
-    // False positive - ESLint thinks we're calling a hook from a class component.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
       this.apply(props);
     }, [props]);
@@ -70,8 +107,6 @@ export class ControllableStore<State> extends Store<State> {
       }
     }
 
-    // False positive - ESLint thinks we're calling a hook from a class component.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
       if (!this.controlledValues.has(key)) {
         // First time initialization
@@ -141,4 +176,62 @@ export class ControllableStore<State> extends Store<State> {
 
     super.update({ ...this.state, ...newValues });
   }
+
+  /**
+   * Returns a value from the store's state using a selector function.
+   * Used to subscribe to specific parts of the state.
+   * This methods causes a rerender whenever the selected state changes.
+   *
+   * @param key Key of the selector to use.
+   */
+  public useState<Key extends keyof Selectors>(key: Key): ReturnType<Selectors[Key]> {
+    if (!this.selectors) {
+      throw new Error('Base UI: selectors are required to call useState.');
+    }
+    return useStore<State, ReturnType<Selectors[Key]>>(
+      this,
+      this.selectors[key] as (state: State) => ReturnType<Selectors[Key]>,
+    );
+  }
+
+  /**
+   * Wraps a function with `useEventCallback` to ensure it has a stable reference
+   * and assigns it to the context.
+   *
+   * @param key Key of the event callback. Must be a function in the context.
+   * @param fn Function to assign.
+   */
+  public useContextCallback<Key extends ContextFunctionKeys<Context>>(
+    key: Key,
+    fn: ContextFunction<Context, Key>,
+  ) {
+    const stableFunction = useEventCallback(fn);
+    (this.context as Record<Key, ContextFunction<Context, Key>>)[key] = stableFunction;
+  }
+
+  /**
+   * Returns a stable setter function for a specific key in the store's state.
+   * It's commonly used to pass as a ref callback to React elements.
+   * @param key Key of the state to set.
+   */
+  public getElementSetter<Key extends keyof State, Value extends State[Key]>(key: keyof State) {
+    return React.useCallback(
+      (element: Value) => {
+        this.set(key, element);
+      },
+      [key],
+    );
+  }
 }
+
+type MaybeCallable = (...args: any[]) => any;
+
+type ContextFunctionKeys<Context> = {
+  [Key in keyof Context]-?: Extract<Context[Key], MaybeCallable> extends never ? never : Key;
+}[keyof Context];
+
+type ContextFunction<Context, Key extends keyof Context> = Extract<Context[Key], MaybeCallable>;
+
+type KeysAllowingUndefined<State> = {
+  [Key in keyof State]-?: undefined extends State[Key] ? Key : never;
+}[keyof State];

@@ -3,22 +3,22 @@ import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim/w
 import type { Store } from './Store';
 
 export function useStore<State, Value>(
-  store: Store<State, any, any>,
+  store: Store<State>,
   selector: (state: State) => Value,
 ): Value;
 export function useStore<State, Value, A1>(
-  store: Store<State, any, any>,
+  store: Store<State>,
   selector: (state: State, a1: A1) => Value,
   a1: A1,
 ): Value;
 export function useStore<State, Value, A1, A2>(
-  store: Store<State, any, any>,
+  store: Store<State>,
   selector: (state: State, a1: A1, a2: A2) => Value,
   a1: A1,
   a2: A2,
 ): Value;
 export function useStore<State, Value, A1, A2, A3>(
-  store: Store<State, any, any>,
+  store: Store<State>,
   selector: (state: State, a1: A1, a2: A2, a3: A3) => Value,
   a1: A1,
   a2: A2,
@@ -35,7 +35,7 @@ export function useStore<State, Value, A1, A2, A3>(
  * @param a3 Optional third argument for the selector function.
  */
 export function useStore(
-  store: Store<unknown, any, any>,
+  store: Store<unknown>,
   selector: Function,
   a1?: unknown,
   a2?: unknown,

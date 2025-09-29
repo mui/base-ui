@@ -1,23 +1,23 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, createRenderer } from '@mui/internal-test-utils';
-import { ControllableStore } from './ControllableStore';
+import { ReactStore } from './ReactStore';
 import { useRefWithInit } from '../useRefWithInit';
 
 type TestState = { value: number; label: string };
 
-function useStableStore(initial: TestState) {
-  return useRefWithInit(() => new ControllableStore<TestState>(initial)).current;
+function useStableStore<State>(initial: State) {
+  return useRefWithInit(() => new ReactStore<State>(initial)).current;
 }
 
-describe('ControllableStore', () => {
+describe('ReactStore', () => {
   const { render } = createRenderer();
 
   it('initializes uncontrolled key with default value', () => {
-    let store!: ControllableStore<TestState>;
+    let store!: ReactStore<TestState>;
 
     function Test() {
-      store = useStableStore({ value: 0, label: '' });
+      store = useStableStore<TestState>({ value: 0, label: '' });
       store.useControlledProp('value', undefined, 5);
       return null;
     }
@@ -27,10 +27,10 @@ describe('ControllableStore', () => {
   });
 
   it('syncs internal state from controlled prop and ignores manual mutations for that key', () => {
-    let store!: ControllableStore<TestState>;
+    let store!: ReactStore<TestState>;
 
     function Test({ controlled }: { controlled: number | undefined }) {
-      store = useStableStore({ value: 0, label: '' });
+      store = useStableStore<TestState>({ value: 0, label: '' });
       store.useControlledProp('value', controlled, 1);
       return null;
     }
@@ -66,10 +66,10 @@ describe('ControllableStore', () => {
   });
 
   it('allows set/apply/update on uncontrolled keys', () => {
-    let store!: ControllableStore<TestState>;
+    let store!: ReactStore<TestState>;
 
     function Test() {
-      store = useStableStore({ value: 0, label: '' });
+      store = useStableStore<TestState>({ value: 0, label: '' });
       store.useControlledProp('value', undefined, 1);
       return null;
     }
@@ -96,7 +96,7 @@ describe('ControllableStore', () => {
 
   it('warns on switching from uncontrolled to controlled', () => {
     function Test({ controlled }: { controlled?: number }) {
-      const store = useStableStore({ value: 0, label: '' });
+      const store = useStableStore<TestState>({ value: 0, label: '' });
       store.useControlledProp('value', controlled, undefined as any);
       return null;
     }
@@ -113,7 +113,7 @@ describe('ControllableStore', () => {
 
   it('warns on switching from controlled to uncontrolled', () => {
     function Test({ controlled }: { controlled?: number }) {
-      const store = useStableStore({ value: 0, label: '' });
+      const store = useStableStore<TestState>({ value: 0, label: '' });
       store.useControlledProp('value', controlled, undefined as any);
       return null;
     }
@@ -129,10 +129,10 @@ describe('ControllableStore', () => {
   });
 
   it('useProp updates a single key when the passed value changes', () => {
-    let store!: ControllableStore<TestState>;
+    let store!: ReactStore<TestState>;
 
     function Test({ value }: { value: number }) {
-      store = useStableStore({ value: 0, label: '' });
+      store = useStableStore<TestState>({ value: 0, label: '' });
       store.useSyncedValue('value', value);
       return null;
     }
@@ -145,10 +145,10 @@ describe('ControllableStore', () => {
   });
 
   it('useProps applies multiple keys from a props object', () => {
-    let store!: ControllableStore<TestState>;
+    let store!: ReactStore<TestState>;
 
     function Test({ props }: { props: Partial<TestState> }) {
-      store = useStableStore({ value: 0, label: '' });
+      store = useStableStore<TestState>({ value: 0, label: '' });
       store.useSyncedValues(props);
       return null;
     }
@@ -160,5 +160,71 @@ describe('ControllableStore', () => {
     act(() => setProps({ props: { value: 6, label: 'b' } }));
     expect(store.state.value).to.equal(6);
     expect(store.state.label).to.equal('b');
+  });
+
+  it('useSyncedValueWithCleanup synchronizes value and resets on cleanup', () => {
+    type CleanupState = { node: HTMLDivElement | undefined };
+    let store!: ReactStore<CleanupState>;
+
+    const firstNode = document.createElement('div');
+    const secondNode = document.createElement('div');
+
+    function Test({ node }: { node: HTMLDivElement | undefined }) {
+      store = useStableStore<CleanupState>({ node: undefined });
+      store.useSyncedValueWithCleanup('node', node);
+      return null;
+    }
+
+    const { setProps, unmount } = render(<Test node={firstNode} />);
+    expect(store.state.node).to.equal(firstNode);
+
+    act(() => {
+      setProps({ node: secondNode });
+    });
+    expect(store.state.node).to.equal(secondNode);
+
+    act(() => {
+      unmount();
+    });
+    expect(store.state.node).to.equal(undefined);
+  });
+
+  it('getElementSetter returns a stable callback that updates the store state', () => {
+    type ElementState = { element: HTMLDivElement | null };
+    let store!: ReactStore<ElementState>;
+    let forceUpdate!: React.Dispatch<React.SetStateAction<number>>;
+    let lastSetter!: (element: HTMLDivElement | null) => void;
+
+    const element = document.createElement('div');
+
+    function Test() {
+      store = useStableStore<ElementState>({ element: null });
+      const setter = store.getElementSetter('element');
+      lastSetter = setter;
+      const [, setTick] = React.useState(0);
+      forceUpdate = setTick;
+
+      React.useEffect(() => {
+        setter(element);
+      }, [setter]);
+
+      return null;
+    }
+
+    render(<Test />);
+    const firstSetter = lastSetter;
+    expect(store.state.element).to.equal(element);
+
+    act(() => {
+      forceUpdate((value) => value + 1);
+    });
+
+    expect(lastSetter).to.equal(firstSetter);
+
+    act(() => {
+      lastSetter(null);
+    });
+
+    expect(store.state.element).to.equal(null);
   });
 });
