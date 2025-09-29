@@ -5,6 +5,7 @@ import { Store } from './Store';
 import { useStore } from './useStore';
 import { useEventCallback } from '../useEventCallback';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
+import { NOOP } from '../empty';
 
 /**
  * A Store that supports controlled state keys.
@@ -235,5 +236,3 @@ type ContextFunction<Context, Key extends keyof Context> = Extract<Context[Key],
 type KeysAllowingUndefined<State> = {
   [Key in keyof State]-?: undefined extends State[Key] ? Key : never;
 }[keyof State];
-
-function NOOP() {}
