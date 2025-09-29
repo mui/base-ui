@@ -48,6 +48,7 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useSyncedValue('nested', nested);
+  store.useContextCallback('openChange', onOpenChange);
   store.useContextCallback('openChangeComplete', onOpenChangeComplete);
 
   useDialogRoot({
