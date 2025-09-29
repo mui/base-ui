@@ -75,7 +75,7 @@
     "@types/unist": "^3.0.3",
     "chai": "^4.5.0",
     "mdast-util-mdx-jsx": "^3.2.0",
-    "motion": "^12.23.12",
+    "motion": "^12.23.22",
     "prettier": "^3.6.2",
     "react-reconciler": "^0.32.0",
     "remark-parse": "^11.0.0",
@@ -87,6 +87,6 @@
     "unist-util-visit": "^5.0.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "yargs": "^18.0.0",
-    "zod": "^4.1.8"
+    "zod": "^4.1.11"
   }
 }
