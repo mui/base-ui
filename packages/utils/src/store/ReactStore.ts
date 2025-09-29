@@ -203,9 +203,9 @@ export class ReactStore<
    */
   public useContextCallback<Key extends ContextFunctionKeys<Context>>(
     key: Key,
-    fn: ContextFunction<Context, Key>,
+    fn: ContextFunction<Context, Key> | undefined,
   ) {
-    const stableFunction = useEventCallback(fn);
+    const stableFunction = useEventCallback(fn ?? (NOOP as ContextFunction<Context, Key>));
     (this.context as Record<Key, ContextFunction<Context, Key>>)[key] = stableFunction;
   }
 
@@ -235,3 +235,5 @@ type ContextFunction<Context, Key extends keyof Context> = Extract<Context[Key],
 type KeysAllowingUndefined<State> = {
   [Key in keyof State]-?: undefined extends State[Key] ? Key : never;
 }[keyof State];
+
+function NOOP() {}
