@@ -67,6 +67,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   const highlightTimeout = useTimeout();
 
+  const id = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
   const popupProps = useStore(store, selectors.popupProps);
@@ -349,7 +350,16 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   }, [setOpen, alignItemWithTriggerActive, positionerElement, mounted]);
 
   const defaultProps: HTMLProps = {
-    'aria-multiselectable': multiple || undefined,
+    ...(listElement
+      ? {
+          role: 'presentation',
+          'aria-orientation': undefined,
+        }
+      : {
+          role: 'listbox',
+          'aria-multiselectable': multiple || undefined,
+          id: `${id}-list`,
+        }),
     onKeyDown() {
       keyboardActiveRef.current = true;
     },

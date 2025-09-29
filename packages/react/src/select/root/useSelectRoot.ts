@@ -13,7 +13,6 @@ import {
   useFloatingRootContext,
   useInteractions,
   useListNavigation,
-  useRole,
   useTypeahead,
   FloatingRootContext,
 } from '../../floating-ui-react';
@@ -406,10 +405,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     bubbles: false,
   });
 
-  const role = useRole(floatingContext, {
-    role: 'select',
-  });
-
   const listNavigation = useListNavigation(floatingContext, {
     enabled: !readOnly && !disabled,
     listRef,
@@ -451,7 +446,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
     click,
     dismiss,
-    role,
     listNavigation,
     typeahead,
   ]);
