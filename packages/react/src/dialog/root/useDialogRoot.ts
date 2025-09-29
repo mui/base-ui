@@ -109,11 +109,11 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const { getReferenceProps, getFloatingProps } = useInteractions([role, click, dismiss]);
 
   // Listen for nested open/close events on this store to maintain the count
-  store.useEventCallback('nestedDialogOpen', (ownChildrenCount) => {
+  store.useContextCallback('nestedDialogOpen', (ownChildrenCount) => {
     setOwnNestedOpenDialogs(ownChildrenCount + 1);
   });
 
-  store.useEventCallback('nestedDialogClose', () => {
+  store.useContextCallback('nestedDialogClose', () => {
     setOwnNestedOpenDialogs(0);
   });
 

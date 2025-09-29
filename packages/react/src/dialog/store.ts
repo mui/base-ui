@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ControllableStore, createSelector } from '@base-ui-components/utils/store';
+import { createSelector, ReactStore } from '@base-ui-components/utils/store';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { type DialogRoot } from './root/DialogRoot';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
@@ -99,7 +99,7 @@ const selectors = {
   triggerElement: createSelector((state: State) => state.triggerElement),
 };
 
-export class DialogStore extends ControllableStore<State, Context, typeof selectors> {
+export class DialogStore extends ReactStore<State, Context, typeof selectors> {
   static create(initialState: State) {
     const context: Context = {
       popupRef: React.createRef<HTMLElement>(),
