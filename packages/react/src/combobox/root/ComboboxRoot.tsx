@@ -81,7 +81,7 @@ export namespace ComboboxRoot {
      * The items to be displayed in the list.
      * Can be either a flat array of items or an array of groups with items.
      */
-    items?: ItemValue[] | Group<ItemValue>[];
+    items?: readonly ItemValue[] | readonly Group<ItemValue>[];
     /**
      * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
      * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.

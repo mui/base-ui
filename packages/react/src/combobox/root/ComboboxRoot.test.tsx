@@ -283,9 +283,10 @@ describe('<Combobox.Root />', () => {
 
       it('should reset input value to selected value when popup closes without selection', async () => {
         const items = ['apple', 'banana', 'cherry'];
+        const onInputValueChange = spy();
 
         const { user } = await render(
-          <Combobox.Root items={items} defaultValue="apple">
+          <Combobox.Root items={items} defaultValue="apple" onInputValueChange={onInputValueChange}>
             <Combobox.Input data-testid="input" />
             <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
             <Combobox.Portal>
@@ -319,7 +320,9 @@ describe('<Combobox.Root />', () => {
 
         await user.click(document.body);
 
-        expect(input).to.have.value('apple');
+        await waitFor(() => expect(input).to.have.value('apple'));
+        expect(onInputValueChange.lastCall.args[0]).to.equal('apple');
+        expect(onInputValueChange.lastCall.args[1].reason).to.equal('none');
       });
 
       it('should not auto-close during browser autofill', async () => {

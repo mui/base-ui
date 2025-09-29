@@ -183,7 +183,7 @@ interface SelectRootProps<Value> {
    */
   required?: boolean;
   /**
-   * Whether the user should be unable to choose a different option from the select menu.
+   * Whether the user should be unable to choose a different option from the select popup.
    * @default false
    */
   readOnly?: boolean;
@@ -213,22 +213,22 @@ interface SelectRootProps<Value> {
    */
   defaultValue?: Value | null;
   /**
-   * Whether the select menu is initially open.
+   * Whether the select popup is initially open.
    *
-   * To render a controlled select menu, use the `open` prop instead.
+   * To render a controlled select popup, use the `open` prop instead.
    * @default false
    */
   defaultOpen?: boolean;
   /**
-   * Event handler called when the select menu is opened or closed.
+   * Event handler called when the select popup is opened or closed.
    */
   onOpenChange?: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   /**
-   * Event handler called after any animations complete when the select menu is opened or closed.
+   * Event handler called after any animations complete when the select popup is opened or closed.
    */
   onOpenChangeComplete?: (open: boolean) => void;
   /**
-   * Whether the select menu is currently open.
+   * Whether the select popup is currently open.
    */
   open?: boolean;
   /**
@@ -246,7 +246,7 @@ interface SelectRootProps<Value> {
    */
   actionsRef?: React.RefObject<SelectRoot.Actions>;
   /**
-   * Data structure of the items rendered in the select menu.
+   * Data structure of the items rendered in the select popup.
    * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.
    * @example
    * ```tsx
@@ -259,7 +259,7 @@ interface SelectRootProps<Value> {
    * <Select.Root items={items} />
    * ```
    */
-  items?: Record<string, React.ReactNode> | Array<{ label: React.ReactNode; value: Value }>;
+  items?: Record<string, React.ReactNode> | ReadonlyArray<{ label: React.ReactNode; value: Value }>;
   /**
    * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.

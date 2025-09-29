@@ -3,7 +3,11 @@ import * as React from 'react';
 import { serializeValue } from './serializeValue';
 
 type ItemRecord = Record<string, React.ReactNode>;
-type ItemsInput = ItemRecord | LabeledItem[] | Group<LabeledItem>[] | undefined;
+type ItemsInput =
+  | ItemRecord
+  | ReadonlyArray<LabeledItem>
+  | ReadonlyArray<Group<LabeledItem>>
+  | undefined;
 
 interface LabeledItem {
   value: any;
@@ -15,7 +19,9 @@ export interface Group<Item = any> {
   items: Item[];
 }
 
-export function isGroupedItems(items: (any | Group<any>)[] | undefined): items is Group<any>[] {
+export function isGroupedItems(
+  items: ReadonlyArray<any | Group<any>> | undefined,
+): items is Group<any>[] {
   return (
     items != null &&
     items.length > 0 &&
@@ -66,7 +72,7 @@ export function resolveSelectedLabel(
 
   // Items provided as plain record map
   if (items && !Array.isArray(items)) {
-    return items[value] ?? stringifyAsLabel(value, itemToStringLabel);
+    return (items as any)[value] ?? stringifyAsLabel(value, itemToStringLabel);
   }
 
   // Items provided as array (flat or grouped)

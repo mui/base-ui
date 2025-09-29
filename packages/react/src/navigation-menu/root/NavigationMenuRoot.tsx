@@ -23,6 +23,8 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';
 import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
+const blockedReturnFocusReasons = new Set<string>(['trigger-hover', 'outside-press', 'focus-out']);
+
 /**
  * Groups all parts of the navigation menu.
  * Renders a `<nav>` element at the root, or `<div>` element when nested.
@@ -114,10 +116,14 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     const doc = ownerDocument(rootRef.current);
     const activeEl = activeElement(doc);
 
+    const isReturnFocusBlocked = closeReasonRef.current
+      ? blockedReturnFocusReasons.has(closeReasonRef.current)
+      : false;
+
     if (
-      closeReasonRef.current !== 'trigger-hover' &&
+      !isReturnFocusBlocked &&
       isHTMLElement(prevTriggerElementRef.current) &&
-      contains(popupElement, activeEl) &&
+      (activeEl === ownerDocument(popupElement).body || contains(popupElement, activeEl)) &&
       popupElement
     ) {
       prevTriggerElementRef.current.focus({ preventScroll: true });

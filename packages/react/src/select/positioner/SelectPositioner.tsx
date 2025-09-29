@@ -13,7 +13,7 @@ import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { clearPositionerStyles } from '../popup/utils';
+import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -22,7 +22,7 @@ import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
 /**
- * Positions the select menu popup.
+ * Positions the select popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -57,6 +57,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     alignItemWithTriggerActiveRef,
     valuesRef,
     initialValueRef,
+    popupRef,
     setValue,
   } = useSelectRootContext();
   const floatingRootContext = useSelectFloatingContext();
@@ -207,9 +208,9 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         scrollDownArrowVisible: false,
       });
 
-      if (positionerElement) {
-        clearPositionerStyles(positionerElement, { height: '' });
-      }
+      const stylesToClear: React.CSSProperties = { height: '' };
+      clearStyles(positionerElement, stylesToClear);
+      clearStyles(popupRef.current, stylesToClear);
     }
   });
 

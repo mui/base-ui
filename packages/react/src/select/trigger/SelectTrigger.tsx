@@ -15,7 +15,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { selectors } from '../store';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import { contains } from '../../floating-ui-react/utils';
+import { contains, getFloatingFocusElement } from '../../floating-ui-react/utils';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -30,7 +30,7 @@ const stateAttributesMapping: StateAttributesMapping<SelectTrigger.State> = {
 };
 
 /**
- * A button that opens the select menu.
+ * A button that opens the select popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -65,6 +65,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const value = useStore(store, selectors.value);
   const triggerProps = useStore(store, selectors.triggerProps);
   const positionerElement = useStore(store, selectors.positionerElement);
+  const listElement = useStore(store, selectors.listElement);
 
   const positionerRef = useLatestRef(positionerElement);
 
@@ -121,9 +122,17 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return undefined;
   }, [open, selectionRef, timeoutMouseDown, timeout1, timeout2]);
 
+  const ariaControlsId = React.useMemo(() => {
+    return listElement?.id ?? getFloatingFocusElement(positionerElement)?.id;
+  }, [listElement, positionerElement]);
+
   const props: HTMLProps = mergeProps<'div'>(
     triggerProps,
     {
+      role: 'combobox',
+      'aria-expanded': open ? 'true' : 'false',
+      'aria-haspopup': 'listbox',
+      'aria-controls': open ? ariaControlsId : undefined,
       'aria-labelledby': labelId,
       'aria-readonly': readOnly || undefined,
       tabIndex: disabled ? -1 : 0,
@@ -245,11 +254,11 @@ export namespace SelectTrigger {
 
   export interface State extends FieldRoot.State {
     /**
-     * Whether the select menu is currently open.
+     * Whether the select popup is currently open.
      */
     open: boolean;
     /**
-     * Whether the select menu is readonly.
+     * Whether the select popup is readonly.
      */
     readOnly: boolean;
     /**
