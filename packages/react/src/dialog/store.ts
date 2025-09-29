@@ -110,7 +110,7 @@ export class DialogStore extends ReactStore<State, Context, typeof selectors> {
     return new DialogStore(initialState, context, selectors);
   }
 
-  public setOpen(nextOpen: boolean, eventDetails: DialogRoot.ChangeEventDetails) {
+  public setOpen = (nextOpen: boolean, eventDetails: DialogRoot.ChangeEventDetails) => {
     this.context.openChange?.(nextOpen, eventDetails);
 
     if (eventDetails.isCanceled) {
@@ -127,5 +127,5 @@ export class DialogStore extends ReactStore<State, Context, typeof selectors> {
     this.state.floatingRootContext.events?.emit('openchange', details);
 
     this.set('open', nextOpen);
-  }
+  };
 }

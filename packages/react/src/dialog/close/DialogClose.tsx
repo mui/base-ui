@@ -29,7 +29,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
   const { getRootProps, ref } = useDialogClose({
     disabled,
     open,
-    setOpen: store.setOpen.bind(store),
+    setOpen: store.setOpen,
     nativeButton,
   });
 

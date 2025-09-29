@@ -29,7 +29,7 @@ export const AlertDialogClose = React.forwardRef(function AlertDialogClose(
   const { getRootProps, ref } = useDialogClose({
     disabled,
     open,
-    setOpen: store.setOpen.bind(store),
+    setOpen: store.setOpen,
     nativeButton,
   });
 

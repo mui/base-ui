@@ -55,7 +55,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },
     open,
-    onOpenChange: store.setOpen.bind(store),
+    onOpenChange: store.setOpen,
     noEmit: true,
   });
 
