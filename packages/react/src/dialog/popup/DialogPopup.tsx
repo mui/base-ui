@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogPopup } from './useDialogPopup';
@@ -15,7 +14,6 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { DialogPopupCssVars } from './DialogPopupCssVars';
 import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
-import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
@@ -56,7 +54,6 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     titleElementId,
     transitionStatus,
     onOpenChangeComplete,
-    internalBackdropRef,
   } = useDialogRootContext();
 
   useDialogPortalContext();
@@ -123,23 +120,18 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   });
 
   return (
-    <React.Fragment>
-      {mounted && modal === true && (
-        <InternalBackdrop ref={internalBackdropRef} inert={inertValue(!open)} />
-      )}
-      <FloatingFocusManager
-        context={floatingRootContext}
-        openInteractionType={openMethod}
-        disabled={!mounted}
-        closeOnFocusOut={dismissible}
-        initialFocus={resolvedInitialFocus}
-        returnFocus={finalFocus}
-        modal={modal !== false}
-        restoreFocus="popup"
-      >
-        {element}
-      </FloatingFocusManager>
-    </React.Fragment>
+    <FloatingFocusManager
+      context={floatingRootContext}
+      openInteractionType={openMethod}
+      disabled={!mounted}
+      closeOnFocusOut={dismissible}
+      initialFocus={resolvedInitialFocus}
+      returnFocus={finalFocus}
+      modal={modal !== false}
+      restoreFocus="popup"
+    >
+      {element}
+    </FloatingFocusManager>
   );
 });
 

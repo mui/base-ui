@@ -12,7 +12,7 @@ import {
   useInteractions,
   useRole,
 } from '../../floating-ui-react';
-import { getTarget } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import type { RequiredExcept, HTMLProps, FloatingUIOpenChangeDetails } from '../../utils/types';
@@ -140,7 +140,9 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
         // https://github.com/mui/base-ui/issues/1320
         if (modal) {
           return internalBackdropRef.current || backdropRef.current
-            ? internalBackdropRef.current === eventTarget || backdropRef.current === eventTarget
+            ? internalBackdropRef.current === eventTarget ||
+                backdropRef.current === eventTarget ||
+                contains(eventTarget, popupElement)
             : true;
         }
         return true;

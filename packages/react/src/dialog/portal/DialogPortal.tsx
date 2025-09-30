@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
+import { inertValue } from '@base-ui-components/utils/inertValue';
 import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { DialogPortalContext } from './DialogPortalContext';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -13,7 +15,7 @@ import { DialogPortalContext } from './DialogPortalContext';
 export function DialogPortal(props: DialogPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
-  const { mounted } = useDialogRootContext();
+  const { mounted, internalBackdropRef, modal } = useDialogRootContext();
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
@@ -22,7 +24,12 @@ export function DialogPortal(props: DialogPortal.Props) {
 
   return (
     <DialogPortalContext.Provider value={keepMounted}>
-      <FloatingPortal root={container}>{children}</FloatingPortal>
+      <FloatingPortal root={container}>
+        {mounted && modal === true && (
+          <InternalBackdrop ref={internalBackdropRef} inert={inertValue(!open)} />
+        )}
+        {children}
+      </FloatingPortal>
     </DialogPortalContext.Provider>
   );
 }

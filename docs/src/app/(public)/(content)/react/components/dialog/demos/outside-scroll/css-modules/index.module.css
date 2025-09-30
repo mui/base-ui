@@ -1,0 +1,178 @@
+.Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 0.875rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+  color: var(--color-gray-900);
+  user-select: none;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:active {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.Backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: black;
+  opacity: 0.2;
+  transition: opacity 150ms cubic-bezier(0.45, 1.005, 0, 1.005);
+
+  @media (prefers-color-scheme: dark) {
+    opacity: 0.7;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+}
+
+.Viewport {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: block;
+  padding-block: 2rem;
+}
+
+.Popup {
+  box-sizing: border-box;
+  position: relative;
+  width: min(40rem, calc(100vw - 2rem));
+  padding: 2rem;
+  margin: 0 auto;
+  border-radius: 0.5rem;
+  outline: 1px solid var(--color-gray-200);
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-900);
+  box-shadow: 0 24px 45px rgba(15, 23, 42, 0.18);
+  transition:
+    transform 150ms ease,
+    opacity 150ms ease;
+
+  @media (prefers-color-scheme: dark) {
+    outline: 1px solid var(--color-gray-300);
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+}
+
+.PopupHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.Title {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.875rem;
+  font-weight: 600;
+}
+
+.Description {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  line-height: 1.6rem;
+  color: var(--color-gray-600);
+}
+
+.Close {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-600);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+      color: var(--color-gray-900);
+    }
+  }
+
+  &:active {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 1px;
+  }
+}
+
+.CloseIcon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.Body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.SectionTitle {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+}
+
+.SectionBody {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55rem;
+  color: var(--color-gray-700);
+}
+
+.FooterNote {
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5rem;
+  color: var(--color-gray-600);
+}
+
+.Actions {
+  display: flex;
+  justify-content: flex-end;
+}
