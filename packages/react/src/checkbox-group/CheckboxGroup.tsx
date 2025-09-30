@@ -13,7 +13,7 @@ import { useField } from '../field/useField';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
-import { BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
+import { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -178,5 +178,5 @@ export namespace CheckboxGroup {
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

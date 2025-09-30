@@ -4,7 +4,7 @@ import { useId } from '@base-ui-components/utils/useId';
 import { ContextMenuRootContext } from './ContextMenuRootContext';
 import { Menu } from '../../menu';
 import { MenuRootContext } from '../../menu/root/MenuRootContext';
-import type { BaseUIEventDetails } from '../../types';
+import type { BaseUIChangeEventDetails } from '../../types';
 import type { MenuRoot } from '../../menu/root/MenuRoot';
 
 /**
@@ -65,5 +65,5 @@ export namespace ContextMenuRoot {
   }
 
   export type ChangeEventReason = MenuRoot.ChangeEventReason;
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

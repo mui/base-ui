@@ -174,6 +174,43 @@ describe('<Combobox.Input />', () => {
   });
 
   describe('interaction behavior', () => {
+    it('clears selected value when input text is cleared (single selection)', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana']} defaultValue="apple">
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      expect(input.value).to.equal('apple');
+
+      await user.clear(input);
+
+      expect(input.value).to.equal('');
+
+      await user.type(input, 'a');
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const options = screen.getAllByRole('option');
+      options.forEach((opt) => {
+        expect(opt).to.not.have.attribute('aria-selected', 'true');
+      });
+    });
+
     it('should open popup on typing when enabled', async () => {
       const { user } = await render(
         <Combobox.Root>

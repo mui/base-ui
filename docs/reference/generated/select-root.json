@@ -75,7 +75,7 @@
       "type": "boolean | undefined",
       "default": "false",
       "description": "Whether multiple items can be selected.",
-      "detailedType": "boolean | undefined | undefined"
+      "detailedType": "boolean | undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
