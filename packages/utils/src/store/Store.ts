@@ -60,16 +60,12 @@ export class Store<State> {
     this.updateTick += 1;
 
     const currentTick = this.updateTick;
-
-    const it = this.listeners.values();
-    let result;
-    while (((result = it.next()), !result.done)) {
+    for (const listener of this.listeners) {
       if (currentTick !== this.updateTick) {
         // If the tick has changed, a recursive `setState` call has been made,
         // and it has already notified all listeners.
         return;
       }
-      const listener = result.value;
       listener(newState);
     }
   }
