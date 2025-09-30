@@ -5,7 +5,6 @@ import { expect } from 'chai';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
-import { spy } from 'sinon';
 
 describe('<Autocomplete.Root />', () => {
   beforeEach(() => {
@@ -194,34 +193,6 @@ describe('<Autocomplete.Root />', () => {
       await user.keyboard('{ArrowDown}');
       await waitFor(() => {
         expect(input).to.have.attribute('aria-activedescendant');
-      });
-    });
-  });
-
-  describe('inline list', () => {
-    it('allows keyboard selection when rendered without Popup', async () => {
-      const onItemPress = spy();
-      const { user } = await render(
-        <Autocomplete.Root items={['alpha', 'beta']}>
-          <Autocomplete.Input />
-          <Autocomplete.List>
-            {(item: string) => (
-              <Autocomplete.Item key={item} value={item} onClick={onItemPress}>
-                {item}
-              </Autocomplete.Item>
-            )}
-          </Autocomplete.List>
-        </Autocomplete.Root>,
-      );
-
-      const input = screen.getByRole('combobox');
-      await user.click(input);
-      await user.keyboard('{ArrowDown}');
-      await user.keyboard('{ArrowDown}');
-      await user.keyboard('{Enter}');
-
-      await waitFor(() => {
-        expect(onItemPress.callCount).to.equal(1);
       });
     });
   });

@@ -99,7 +99,7 @@ export const selectors = {
   selectedValue: createSelector((state: State) => state.selectedValue),
   inputValue: createSelector((state: State) => state.inputValue),
 
-  open: createSelector((state: State) => (state.inline ? true : state.open)),
+  open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
   forceMounted: createSelector((state: State) => state.forceMounted),
 

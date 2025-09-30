@@ -19,7 +19,7 @@ export default function ExampleCommandPalette() {
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-[transform,opacity] duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 dark:opacity-70" />
         <Dialog.Popup className="fixed top-1/2 left-1/2 flex w-[calc(100vw-1rem)] max-h-[min(32rem,calc(100vh-6rem))] max-w-[28rem] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg bg-[canvas] text-gray-900 outline outline-1 outline-gray-200 shadow-lg shadow-gray-200 transition-[transform,scale,opacity] duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:text-gray-50 dark:outline-gray-300 dark:shadow-none">
-          <Autocomplete.Root items={groupedItems} autoHighlight>
+          <Autocomplete.Root open items={groupedItems} autoHighlight>
             <Autocomplete.Input
               className="w-full border-b border-gray-200 bg-[canvas] px-4 py-4 text-base text-gray-900 outline-none focus-visible:outline-none dark:border-gray-300 dark:text-gray-50"
               placeholder="Search for apps and commands..."
