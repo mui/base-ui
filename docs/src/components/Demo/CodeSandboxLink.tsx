@@ -108,7 +108,13 @@ export function CodeSandboxLink({ title, description, ...props }: CodeSandboxLin
   }, [files, language, name, title, description]);
 
   return (
-    <GhostButton aria-label="Open in CodeSandbox" type="button" onClick={handleClick} {...props}>
+    <GhostButton
+      aria-label="Open in CodeSandbox"
+      type="button"
+      onClick={handleClick}
+      className="ExternalLink"
+      {...props}
+    >
       CodeSandbox
       <ExternalLinkIcon />
     </GhostButton>

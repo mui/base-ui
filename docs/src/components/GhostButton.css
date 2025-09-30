@@ -11,6 +11,10 @@
     outline: 0;
     user-select: none;
 
+    &.ExternalLink {
+      cursor: pointer;
+    }
+
     &::before,
     &::after {
       content: '';
