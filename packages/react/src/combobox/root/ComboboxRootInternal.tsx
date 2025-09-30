@@ -1187,7 +1187,7 @@ interface ComboboxRootProps<ItemValue> {
    */
   defaultOpen?: boolean;
   /**
-   * Whether the popup is currently open.
+   * Whether the popup is currently open. Use when controlled.
    */
   open?: boolean;
   /**
@@ -1209,7 +1209,7 @@ interface ComboboxRootProps<ItemValue> {
    */
   autoHighlight?: boolean;
   /**
-   * The input value of the combobox.
+   * The input value of the combobox. Use when controlled.
    */
   inputValue?: React.ComponentProps<'input'>['value'];
   /**
@@ -1221,6 +1221,8 @@ interface ComboboxRootProps<ItemValue> {
   ) => void;
   /**
    * The uncontrolled input value when initially rendered.
+   *
+   * To render a controlled input, use the `inputValue` prop instead.
    */
   defaultInputValue?: React.ComponentProps<'input'>['defaultValue'];
   /**
