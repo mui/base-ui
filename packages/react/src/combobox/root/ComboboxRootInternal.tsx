@@ -427,13 +427,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   });
 
   useIsoLayoutEffect(() => {
-    if (!items) {
-      return;
+    if (items) {
+      valuesRef.current = flatFilteredItems;
+      listRef.current.length = flatFilteredItems.length;
     }
+  }, [items, flatFilteredItems]);
 
-    valuesRef.current = flatFilteredItems;
-    listRef.current.length = flatFilteredItems.length;
-
+  useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
       if (pendingHighlight.hasQuery) {
@@ -485,7 +485,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         createGenericEventDetails('none', undefined, { index: storeActiveIndex }),
       );
     }
-  }, [items, flatFilteredItems, store]);
+  }, [flatFilteredItems, store]);
 
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
