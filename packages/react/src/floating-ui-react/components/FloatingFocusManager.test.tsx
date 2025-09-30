@@ -1602,44 +1602,44 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
           <input
             ref={refs.setReference}
             {...getReferenceProps()}
-            data-testid="input-regression"
+            data-testid="input"
             role="combobox"
           />
           {isOpen && (
             <FloatingFocusManager context={context} initialFocus={false} modal>
-              <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating-regression">
+              <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating">
                 <button tabIndex={-1}>one</button>
               </div>
             </FloatingFocusManager>
           )}
-          <button data-testid="after-regression" />
+          <button data-testid="after" />
         </>
       );
     }
 
     render(<App />);
 
-    await userEvent.click(screen.getByTestId('input-regression'));
+    await userEvent.click(screen.getByTestId('input'));
     await flushMicrotasks();
 
-    expect(screen.getByTestId('input-regression')).toHaveFocus();
+    expect(screen.getByTestId('input')).toHaveFocus();
 
     await userEvent.tab();
     await flushMicrotasks();
 
-    expect(screen.getByTestId('after-regression')).toHaveFocus();
-    expect(screen.queryByTestId('floating-regression')).not.toBeInTheDocument();
+    expect(screen.getByTestId('after')).toHaveFocus();
+    expect(screen.queryByTestId('floating')).not.toBeInTheDocument();
 
-    await userEvent.click(screen.getByTestId('input-regression'));
+    await userEvent.click(screen.getByTestId('input'));
     await flushMicrotasks();
 
-    expect(screen.getByTestId('input-regression')).toHaveFocus();
+    expect(screen.getByTestId('input')).toHaveFocus();
 
     await userEvent.tab();
     await flushMicrotasks();
 
-    expect(screen.getByTestId('after-regression')).toHaveFocus();
-    expect(screen.queryByTestId('floating-regression')).not.toBeInTheDocument();
+    expect(screen.getByTestId('after')).toHaveFocus();
+    expect(screen.queryByTestId('floating')).not.toBeInTheDocument();
   });
 
   test('focus does not return to reference when floating element is triggered by hover', async () => {
