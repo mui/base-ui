@@ -2,7 +2,7 @@
 import * as React from 'react';
 
 interface GroupCollectionContext {
-  items: any[];
+  items: readonly any[];
 }
 
 const GroupCollectionContext = React.createContext<GroupCollectionContext | null>(null);
@@ -26,6 +26,6 @@ export function GroupCollectionProvider(props: GroupCollectionProvider.Props) {
 namespace GroupCollectionProvider {
   export interface Props {
     children: React.ReactNode;
-    items: any[];
+    items: readonly any[];
   }
 }

@@ -54,7 +54,8 @@ export const TabsList = React.forwardRef(function TabsList(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
       if (newValue !== value) {
         const activationDirection = detectActivationDirection(newValue);
-        onValueChange(newValue, activationDirection, eventDetails);
+        eventDetails.activationDirection = activationDirection;
+        onValueChange(newValue, eventDetails);
       }
     },
   );

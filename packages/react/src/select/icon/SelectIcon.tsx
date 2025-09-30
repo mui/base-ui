@@ -8,7 +8,7 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { selectors } from '../store';
 
 /**
- * An icon that indicates that the trigger button opens a select menu.
+ * An icon that indicates that the trigger button opens a select popup.
  * Renders a `<span>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
