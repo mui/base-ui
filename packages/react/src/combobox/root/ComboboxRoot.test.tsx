@@ -2059,7 +2059,7 @@ describe('<Combobox.Root />', () => {
           defaultOpen
           onItemHighlighted={onItemHighlighted}
         >
-          <Combobox.Input data-testid="input" />
+          <Combobox.Input />
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>
@@ -2076,7 +2076,7 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const input = screen.getByTestId('input');
+      const input = screen.getByRole('combobox');
 
       await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
       await user.click(input);
@@ -2097,7 +2097,8 @@ describe('<Combobox.Root />', () => {
       });
       const [nextValue, data] = onItemHighlighted.lastCall.args;
       expect(nextValue).to.equal('apple');
-      expect(data).to.deep.equal({ type: 'none', index: 0 });
+      expect(data.reason).to.equal('none');
+      expect(data.index).to.equal(0);
     });
   });
 

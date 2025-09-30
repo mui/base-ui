@@ -53,11 +53,7 @@ import {
   isGroupedItems,
 } from '../../utils/resolveValueLabel';
 import { defaultItemEquality, findItemIndex, itemIncludes } from '../../utils/itemEquality';
-import {
-  INITIAL_LAST_HIGHLIGHT,
-  NO_ACTIVE_VALUE,
-  PROGRAMMATIC_NO_HIGHLIGHT,
-} from './utils/constants';
+import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
 /**
  * @internal
@@ -445,7 +441,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
     if (storeActiveIndex >= flatFilteredItems.length) {
       lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
-      store.state.onItemHighlighted(undefined, PROGRAMMATIC_NO_HIGHLIGHT);
+      store.state.onItemHighlighted(
+        undefined,
+        createGenericEventDetails('none', undefined, { index: -1 }),
+      );
       store.set('activeIndex', null);
       return;
     }
@@ -458,7 +457,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
     if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
       lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
-      store.state.onItemHighlighted(nextActiveValue, { type: 'none', index: storeActiveIndex });
+      store.state.onItemHighlighted(
+        nextActiveValue,
+        createGenericEventDetails('none', undefined, { index: storeActiveIndex }),
+      );
     }
   }, [items, flatFilteredItems, store]);
 
