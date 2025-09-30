@@ -390,5 +390,57 @@ describe('<Combobox.Input />', () => {
       expect(input.selectionStart).to.equal(6);
       expect(input.selectionEnd).to.equal(6);
     });
+
+    it('closes the popup when tabbing out', async () => {
+      const { user } = await render(
+        <div>
+          <Combobox.Root>
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="apple">apple</Combobox.Item>
+                    <Combobox.Item value="banana">banana</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+          <button type="button" data-testid="button">
+            button
+          </button>
+        </div>,
+      );
+
+      const input = screen.getByRole('combobox');
+      const button = screen.getByTestId('button');
+
+      await user.click(input);
+
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+
+      await user.tab();
+
+      await waitFor(() => {
+        expect(button).toHaveFocus();
+      });
+      expect(screen.queryByRole('listbox')).to.equal(null);
+
+      await user.click(input);
+
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+
+      await user.tab();
+
+      await waitFor(() => {
+        expect(button).toHaveFocus();
+      });
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
   });
 });
