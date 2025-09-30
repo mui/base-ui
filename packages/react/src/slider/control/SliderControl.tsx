@@ -8,7 +8,7 @@ import { activeElement, contains } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
 import { clamp } from '../../utils/clamp';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useSliderRootContext } from '../root/SliderRootContext';
@@ -282,7 +282,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
     onValueCommitted(
       lastChangedValueRef.current ?? finger.value,
-      createBaseUIEventDetails('none', nativeEvent),
+      createGenericEventDetails('none', nativeEvent),
     );
 
     if (

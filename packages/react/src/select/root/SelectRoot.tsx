@@ -6,8 +6,8 @@ import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import {
-  type BaseUIEventDetails,
-  createBaseUIEventDetails,
+  type BaseUIChangeEventDetails,
+  createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import { stringifyAsValue } from '../../utils/resolveValueLabel';
 
@@ -115,7 +115,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               }
 
               const nextValue = event.target.value;
-              const details = createBaseUIEventDetails('none', event.nativeEvent);
+              const details = createChangeEventDetails('none', event.nativeEvent);
 
               function handleChange() {
                 if (isMultiple) {
@@ -332,5 +332,5 @@ export namespace SelectRoot {
     | 'list-navigation'
     | 'cancel-open'
     | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

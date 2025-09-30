@@ -8,8 +8,10 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import {
-  createBaseUIEventDetails,
-  type BaseUIEventDetails,
+  createChangeEventDetails,
+  createGenericEventDetails,
+  type BaseUIChangeEventDetails,
+  type BaseUIGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -78,14 +80,13 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const onValueChange = useEventCallback(
     onValueChangeProp as (
       value: number | number[],
-      data: BaseUIEventDetails<'none'>,
-      activeThumbIndex: number,
+      eventDetails: SliderRoot.ChangeEventDetails,
     ) => void,
   );
   const onValueCommitted = useEventCallback(
     onValueCommittedProp as (
       value: number | readonly number[],
-      data: BaseUIEventDetails<'none'>,
+      eventDetails: SliderRoot.CommitEventDetails,
     ) => void,
   );
 
@@ -188,9 +189,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       lastChangedValueRef.current = newValue;
 
-      const details = createBaseUIEventDetails('none', clonedEvent);
+      const details = createChangeEventDetails('none', clonedEvent, {
+        activeThumbIndex: thumbIndex,
+      });
 
-      onValueChange(newValue, details, thumbIndex);
+      onValueChange(newValue, details);
 
       if (details.isCanceled) {
         return;
@@ -213,7 +216,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         setTouched(true);
 
         const nextValue = lastChangedValueRef.current ?? newValue;
-        onValueCommitted(nextValue, createBaseUIEventDetails('none', event.nativeEvent));
+        onValueCommitted(nextValue, createGenericEventDetails('none', event.nativeEvent));
         clearErrors(name);
 
         if (validationMode === 'onChange') {
@@ -486,30 +489,28 @@ export namespace SliderRoot {
     value?: Value;
     /**
      * Callback function that is fired when the slider's value changed.
-     *
-     * @param {number | number[]} value The new value.
-     * @param {Event} event The corresponding event that initiated the change.
      * You can pull out the new value by accessing `event.target.value` (any).
-     * @param {number} activeThumbIndex Index of the currently moved thumb.
      */
     onValueChange?: (
       value: Value extends number ? number : Value,
       eventDetails: ChangeEventDetails,
-      activeThumbIndex: number,
     ) => void;
     /**
      * Callback function that is fired when the `pointerup` is triggered.
-     *
-     * @param {number | number[]} value The new value.
-     * @param {Event} event The corresponding event that initiated the change.
      * **Warning**: This is a generic event not a change event.
      */
     onValueCommitted?: (
       value: Value extends number ? number : Value,
-      eventDetails: ChangeEventDetails,
+      eventDetails: CommitEventDetails,
     ) => void;
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<
+    ChangeEventReason,
+    { activeThumbIndex: number }
+  >;
+
+  export type CommitEventReason = 'none';
+  export type CommitEventDetails = BaseUIGenericEventDetails<CommitEventReason>;
 }
