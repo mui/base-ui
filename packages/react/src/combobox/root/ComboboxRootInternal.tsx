@@ -896,8 +896,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       ? (index) => index < 0 || index >= flatFilteredItems.length
       : (EMPTY_ARRAY as number[]),
     onNavigate(nextActiveIndex, event) {
+      const isClosing = !open || transitionStatus === 'ending';
+
       // Retain the highlight only while actually transitioning out or closed.
-      if (nextActiveIndex === null && (!open || transitionStatus === 'ending')) {
+      if (nextActiveIndex === null && !inline && isClosing) {
         return;
       }
 
