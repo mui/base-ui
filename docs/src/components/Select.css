@@ -2,6 +2,7 @@
   .SelectPositioner {
     /* The outline is sometimes seen in Safari when the positioner is focused intermittently */
     outline: 0;
+    z-index: 1;
 
     @media (prefers-color-scheme: light) {
       /* Use filter for the shadow in order to catch the arrow part */
