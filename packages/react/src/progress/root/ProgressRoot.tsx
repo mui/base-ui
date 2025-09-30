@@ -122,9 +122,6 @@ export namespace ProgressRoot {
     format?: Intl.NumberFormatOptions;
     /**
      * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar.
-     * @param {string} formattedValue The component's formatted value.
-     * @param {number | null} value The component's numerical value.
-     * @returns {string}
      */
     getAriaValueText?: (formattedValue: string | null, value: number | null) => string;
     /**

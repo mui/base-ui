@@ -6,6 +6,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStateAttributesMapping } from './stateAttributesMapping';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups all parts of the collapsible.
@@ -97,7 +98,7 @@ export namespace CollapsibleRoot {
     /**
      * Event handler called when the panel is opened or closed.
      */
-    onOpenChange?: (open: boolean) => void;
+    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -105,4 +106,7 @@ export namespace CollapsibleRoot {
     disabled?: boolean;
     render?: BaseUIComponentProps<'div', State>['render'] | null;
   }
+
+  export type ChangeEventReason = 'trigger-press' | 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

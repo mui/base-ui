@@ -14,6 +14,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { getViewportRect } from '../utils/getViewportRect';
 import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewportResize';
 import { DEFAULT_STEP } from '../utils/constants';
+import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * An interactive area where the user can click and drag to change the field value.
@@ -45,6 +46,9 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     inputRef,
     incrementValue,
     getStepAmount,
+    onValueCommitted,
+    lastChangedValueRef,
+    valueRef,
   } = useNumberFieldRootContext();
 
   const latestValueRef = useLatestRef(value);
@@ -137,7 +141,8 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
   React.useEffect(
     function registerGlobalScrubbingEventListeners() {
-      if (!inputRef.current || disabled || readOnly) {
+      // Only listen while actively scrubbing; avoids unrelated pointerup events committing.
+      if (!inputRef.current || disabled || readOnly || !isScrubbing) {
         return undefined;
       }
 
@@ -152,6 +157,10 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
         } finally {
           isScrubbingRef.current = false;
           onScrubbingChange(false, event);
+          onValueCommitted(
+            lastChangedValueRef.current ?? valueRef.current,
+            createGenericEventDetails('none', event),
+          );
         }
       }
 
@@ -189,6 +198,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     [
       disabled,
       readOnly,
+      isScrubbing,
       incrementValue,
       latestValueRef,
       getStepAmount,
@@ -197,6 +207,9 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       onScrub,
       direction,
       pixelSensitivity,
+      lastChangedValueRef,
+      onValueCommitted,
+      valueRef,
     ],
   );
 

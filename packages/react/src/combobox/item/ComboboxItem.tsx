@@ -17,6 +17,7 @@ import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
+import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
 
 /**
  * An individual item in the list.
@@ -30,7 +31,7 @@ export const ComboboxItem = React.memo(
     const {
       render,
       className,
-      value,
+      value = null,
       index: indexProp,
       disabled = false,
       nativeButton = false,
@@ -54,9 +55,12 @@ export const ComboboxItem = React.memo(
     const listRef = useStore(store, selectors.listRef);
     const valuesRef = useStore(store, selectors.valuesRef);
     const allValuesRef = useStore(store, selectors.allValuesRef);
+    const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const selectable = selectionMode !== 'none';
-    const index = indexProp ?? (virtualized ? flatFilteredItems.indexOf(value) : listItem.index);
+    const index =
+      indexProp ??
+      (virtualized ? findItemIndex(flatFilteredItems, value, isItemEqualToValue) : listItem.index);
 
     const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
@@ -118,10 +122,10 @@ export const ComboboxItem = React.memo(
         ? rootSelectedValue[rootSelectedValue.length - 1]
         : rootSelectedValue;
 
-      if (lastSelectedValue != null && lastSelectedValue === value) {
+      if (compareItemEquality(lastSelectedValue, value, isItemEqualToValue)) {
         store.set('selectedIndex', index);
       }
-    }, [hasRegistered, items, store, index, value, rootSelectedValue]);
+    }, [hasRegistered, items, store, index, value, rootSelectedValue, isItemEqualToValue]);
 
     const state: ComboboxItem.State = React.useMemo(
       () => ({
@@ -204,11 +208,17 @@ export namespace ComboboxItem {
       Omit<BaseUIComponentProps<'div', State>, 'id'> {
     children?: React.ReactNode;
     /**
+     * An optional click handler for the item when selected.
+     * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.
+     */
+    onClick?: React.MouseEventHandler<HTMLElement>;
+    /**
      * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
      */
     index?: number;
     /**
      * A unique value that identifies this item.
+     * @default null
      */
     value?: any;
     /**

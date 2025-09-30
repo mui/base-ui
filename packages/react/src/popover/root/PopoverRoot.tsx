@@ -18,13 +18,13 @@ import {
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { type BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { mergeProps } from '../../merge-props';
-import type { FloatingUIOpenChangeDetails, BaseUIChangeEventReason } from '../../utils/types';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
@@ -113,7 +113,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       const details: FloatingUIOpenChangeDetails = {
         open: nextOpen,
         nativeEvent: eventDetails.event,
-        reason: eventDetails.reason as BaseUIChangeEventReason,
+        reason: eventDetails.reason,
         nested,
       };
 
@@ -341,6 +341,14 @@ export namespace PopoverRoot {
     unmount: () => void;
   }
 
-  export type ChangeEventReason = BaseUIChangeEventReason | 'close-press';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventReason =
+    | 'trigger-hover'
+    | 'trigger-focus'
+    | 'trigger-press'
+    | 'outside-press'
+    | 'escape-key'
+    | 'close-press'
+    | 'focus-out'
+    | 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

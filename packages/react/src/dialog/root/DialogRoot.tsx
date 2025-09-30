@@ -3,8 +3,7 @@ import * as React from 'react';
 import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
 import { useDialogRoot } from './useDialogRoot';
-import type { BaseUIChangeEventReason } from '../../utils/types';
-import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups all parts of the dialog.
@@ -68,6 +67,12 @@ export namespace DialogRoot {
     unmount: () => void;
   }
 
-  export type ChangeEventReason = BaseUIChangeEventReason | 'close-press';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventReason =
+    | 'trigger-press'
+    | 'outside-press'
+    | 'escape-key'
+    | 'close-press'
+    | 'focus-out'
+    | 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

@@ -4,7 +4,6 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useRenderElement } from '../../utils/useRenderElement';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
 import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
 import { CollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
@@ -13,6 +12,8 @@ import type { AccordionRoot } from '../root/AccordionRoot';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStateAttributesMapping } from './stateAttributesMapping';
+import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups an accordion header with the corresponding panel.
@@ -63,10 +64,17 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     return false;
   }, [openValues, value]);
 
-  const onOpenChange = useEventCallback((nextOpen: boolean) => {
-    handleValueChange(value, nextOpen);
-    onOpenChangeProp?.(nextOpen);
-  });
+  const onOpenChange = useEventCallback(
+    (nextOpen: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => {
+      onOpenChangeProp?.(nextOpen, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      handleValueChange(value, nextOpen);
+    },
+  );
 
   const collapsible = useCollapsibleRoot({
     open: isOpen,
@@ -141,7 +149,7 @@ export namespace AccordionItem {
 
   export interface Props
     extends BaseUIComponentProps<'div', State>,
-      Partial<Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'>> {
+      Partial<Pick<useCollapsibleRoot.Parameters, 'disabled'>> {
     /**
      * A unique value that identifies this accordion item.
      * If no value is provided, a unique ID will be generated automatically.
@@ -156,5 +164,12 @@ export namespace AccordionItem {
      * ```
      */
     value?: AccordionItemValue;
+    /**
+     * Event handler called when the panel is opened or closed.
+     */
+    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
   }
+
+  export type ChangeEventReason = 'trigger-press' | 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

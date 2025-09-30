@@ -7,7 +7,8 @@ import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 
 const LONG_PRESS_DELAY = 500;
 
@@ -30,6 +31,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     backdropRef,
     positionerRef,
     allowMouseUpTriggerRef,
+    rootId,
   } = useContextMenuRootContext(false);
 
   const triggerRef = React.useRef<HTMLDivElement | null>(null);
@@ -54,7 +56,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       });
 
       allowMouseUpRef.current = false;
-      actionsRef.current?.setOpen(true, createBaseUIEventDetails('trigger-press', event));
+      actionsRef.current?.setOpen(true, createChangeEventDetails('trigger-press', event));
 
       allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
         allowMouseUpRef.current = true;
@@ -80,11 +82,17 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
         allowMouseUpTimeout.clear();
         allowMouseUpRef.current = false;
 
-        if (contains(positionerRef.current, getTarget(mouseEvent) as Element | null)) {
+        const mouseUpTarget = getTarget(mouseEvent) as Element | null;
+
+        if (contains(positionerRef.current, mouseUpTarget)) {
           return;
         }
 
-        actionsRef.current?.setOpen(false, createBaseUIEventDetails('cancel-open', mouseEvent));
+        if (rootId && mouseUpTarget && findRootOwnerId(mouseUpTarget) === rootId) {
+          return;
+        }
+
+        actionsRef.current?.setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
       },
       { once: true },
     );
