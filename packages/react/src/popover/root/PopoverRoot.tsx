@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -41,35 +40,23 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const nested = useFloatingParentNodeId() != null;
 
   let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
-
-  const [openState, setOpenState] = useControlled({
-    controlled: openProp,
-    default: defaultOpenProp,
-    name: 'Popover',
-    state: 'open',
-  });
-
-  const [triggerId, setTriggerId] = useControlled<string | null | undefined>({
-    controlled: triggerIdProp,
-    default: defaultTriggerIdProp,
-    name: 'Popover',
-    state: 'triggerId',
-  });
-
   const store = useRefWithInit(() => {
     return (
       handle ||
       new PopoverStore<Payload>({
-        open: openState,
+        open: openProp ?? defaultOpenProp,
         modal,
-        activeTriggerId: triggerId,
+        activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
       })
     );
   }).current;
 
-  const triggerElements = store.useState('triggers');
+  store.useControlledProp('open', openProp, defaultOpenProp);
+  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
 
   const open = store.useState('open');
+  const triggerElements = store.useState('triggers');
+  const activeTriggerId = store.useState('activeTriggerId');
   const positionerElement = store.useState('positionerElement');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const payload = store.useState('payload') as Payload | undefined;
@@ -83,18 +70,16 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   if (mounted === true && triggerIdProp === undefined && triggerElements.size === 1) {
     resolvedTriggerId = triggerElements.keys().next().value || null;
   } else {
-    resolvedTriggerId = triggerId ?? null;
+    resolvedTriggerId = activeTriggerId ?? null;
   }
 
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   useIsoLayoutEffect(() => {
-    store.set('open', openState);
-    store.set('mounted', mounted);
     if (!mounted) {
       store.set('activeTriggerId', null);
     }
-  }, [store, openState, mounted]);
+  }, [store, mounted]);
 
   useIsoLayoutEffect(() => {
     if (open) {
@@ -107,10 +92,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       }
     }
   }, [store, resolvedTriggerId, triggerElements, open]);
-
-  useIsoLayoutEffect(() => {
-    store.set('transitionStatus', transitionStatus);
-  }, [store, transitionStatus]);
 
   useScrollLock({
     enabled: open && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch',
@@ -170,18 +151,15 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     floatingEvents?.emit('openchange', details);
 
     function changeState() {
-      const newTriggerId = eventDetails.trigger?.id ?? null;
-      setOpenState(nextOpen);
-      setTriggerId(newTriggerId);
+      store.set('open', nextOpen);
 
       if (nextOpen) {
         store.set('openReason', eventDetails.reason ?? null);
       }
 
-      store.set('open', nextOpen);
-
       // If a popup is closing, the `trigger` may be null.
       // We want to keep the previous value so that exit animations are played and focus is returned correctly.
+      const newTriggerId = eventDetails.trigger?.id ?? null;
       if (newTriggerId || nextOpen) {
         store.set('activeTriggerId', newTriggerId);
       }
@@ -278,15 +256,15 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([dismiss, role]);
 
-  useIsoLayoutEffect(() => {
-    store.apply({
-      modal,
-      activeTriggerProps: getReferenceProps(),
-      inactiveTriggerProps: getTriggerProps(),
-      popupProps: getFloatingProps(),
-      floatingRootContext: floatingContext,
-    });
-  }, [modal, getReferenceProps, getTriggerProps, getFloatingProps, floatingContext, store]);
+  store.useSyncedValues({
+    mounted,
+    transitionStatus,
+    modal,
+    activeTriggerProps: getReferenceProps(),
+    inactiveTriggerProps: getTriggerProps(),
+    popupProps: getFloatingProps(),
+    floatingRootContext: floatingContext,
+  });
 
   const popoverContext: PopoverRootContext = React.useMemo(
     () => ({
