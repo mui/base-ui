@@ -25,7 +25,7 @@ Errors in production are minified. They are extracted out of the source code by 
 pnpm extract-error-codes
 ```
 
-This will update the `./src/error-codes.json` file with the newly extracted errors.
+This updates the `./src/error-codes.json` file with the newly extracted errors.
 
 Important: If you just altered the text of an error, you are allowed to update the existing error code with the new text in `./src/error-codes.json`, but only under the following conditions:
 
