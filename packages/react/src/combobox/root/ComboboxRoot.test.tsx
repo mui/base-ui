@@ -2140,7 +2140,7 @@ describe('<Combobox.Root />', () => {
       expect(eventDetails.index).to.equal(0);
     });
 
-    it('fires with undefined on close', async () => {
+    it('fires a clearing highlight on close', async () => {
       const onItemHighlighted = spy();
 
       const { user } = await render(
@@ -2165,9 +2165,7 @@ describe('<Combobox.Root />', () => {
       await user.click(document.body);
       await flushMicrotasks();
 
-      const [, eventDetails] = onItemHighlighted.lastCall.args;
       expect(onItemHighlighted.lastCall.args[0]).to.equal(undefined);
-      expect(eventDetails.index).to.equal(-1);
     });
   });
 

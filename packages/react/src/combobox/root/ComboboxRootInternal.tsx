@@ -288,6 +288,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
   const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
+  const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -433,18 +434,40 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     valuesRef.current = flatFilteredItems;
     listRef.current.length = flatFilteredItems.length;
 
+    const pendingHighlight = pendingQueryHighlightRef.current;
+    if (pendingHighlight) {
+      if (pendingHighlight.hasQuery) {
+        if (store.state.autoHighlight) {
+          const nextActiveIndex = flatFilteredItems.length > 0 ? 0 : null;
+          store.set('activeIndex', nextActiveIndex);
+        }
+      } else if (store.state.autoHighlight) {
+        store.set('activeIndex', null);
+      }
+      pendingQueryHighlightRef.current = null;
+    }
+
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
+      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+        store.state.onItemHighlighted(
+          undefined,
+          createGenericEventDetails('none', undefined, { index: -1 }),
+        );
+      }
       return;
     }
 
     if (storeActiveIndex >= flatFilteredItems.length) {
-      lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
-      store.state.onItemHighlighted(
-        undefined,
-        createGenericEventDetails('none', undefined, { index: -1 }),
-      );
+      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+        store.state.onItemHighlighted(
+          undefined,
+          createGenericEventDetails('none', undefined, { index: -1 }),
+        );
+      }
       store.set('activeIndex', null);
       return;
     }
@@ -581,8 +604,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       }
 
       if (options.activeIndex === null) {
-        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
-        onItemHighlighted(undefined, createGenericEventDetails(type, undefined, { index: -1 }));
+        if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+          lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+          onItemHighlighted(undefined, createGenericEventDetails(type, undefined, { index: -1 }));
+        }
       } else {
         const activeValue = valuesRef.current[options.activeIndex];
         lastHighlightRef.current = { value: activeValue, index: options.activeIndex };
@@ -613,16 +638,11 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         if (hasQuery) {
           setQueryChangedAfterOpen(true);
         }
-
-        // Avoid out-of-range indices when the visible list becomes smaller.
-        if (hasQuery) {
-          if (autoHighlight) {
-            setIndices({ activeIndex: 0, selectedIndex: null });
-          } else {
-            setIndices({ selectedIndex: null });
-          }
-        } else if (autoHighlight) {
-          setIndices({ activeIndex: null });
+        // Defer index updates until after the filtered items have been derived to ensure
+        // `onItemHighlighted` receives the latest item.
+        pendingQueryHighlightRef.current = { hasQuery };
+        if (hasQuery && autoHighlight && store.state.activeIndex == null) {
+          store.set('activeIndex', 0);
         }
       }
 
@@ -654,6 +674,19 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
           // For multiple selection, clear the input immediately on close while retaining filtering via closeQuery.
           setCloseQuery(query);
           setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
+        }
+      }
+
+      if (!nextOpen && open) {
+        const highlightDetails = createGenericEventDetails('none', eventDetails.event, {
+          index: -1,
+        });
+        // Ensure we always trigger a final highlight event on close if needed.
+        if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+          lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+          store.state.onItemHighlighted(undefined, highlightDetails);
+        } else if (store.state.activeIndex == null) {
+          store.state.onItemHighlighted(undefined, highlightDetails);
         }
       }
 
