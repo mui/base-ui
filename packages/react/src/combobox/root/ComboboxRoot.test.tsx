@@ -2100,6 +2100,53 @@ describe('<Combobox.Root />', () => {
       expect(data.reason).to.equal('none');
       expect(data.index).to.equal(0);
     });
+
+    it('fires a single clearing highlight on Enter selection', async () => {
+      const onItemHighlighted = spy();
+
+      const { user } = await render(
+        <Combobox.Root
+          items={['Apple', 'Apricot', 'Banana']}
+          autoHighlight
+          onItemHighlighted={onItemHighlighted}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await user.type(input, 'app');
+
+      // Reset history to focus on close events only.
+      onItemHighlighted.resetHistory();
+      await user.keyboard('{Enter}');
+      await flushMicrotasks();
+
+      const clearingCalls = onItemHighlighted
+        .getCalls()
+        .filter((call) => call.args[0] === undefined);
+      expect(clearingCalls.length).to.equal(1);
+      const postClearCalls = onItemHighlighted
+        .getCalls()
+        .slice(onItemHighlighted.getCalls().indexOf(clearingCalls[0]) + 1);
+      expect(postClearCalls.every((c) => c.args[0] === undefined)).to.equal(true);
+    });
   });
 
   describe('prop: onItemHighlighted', () => {
@@ -2138,34 +2185,6 @@ describe('<Combobox.Root />', () => {
       expect(value).to.equal('a');
       expect(eventDetails.reason).to.equal('keyboard');
       expect(eventDetails.index).to.equal(0);
-    });
-
-    it('fires a clearing highlight on close', async () => {
-      const onItemHighlighted = spy();
-
-      const { user } = await render(
-        <Combobox.Root defaultOpen onItemHighlighted={onItemHighlighted}>
-          <Combobox.Input data-testid="input" />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  <Combobox.Item value="a">a</Combobox.Item>
-                  <Combobox.Item value="b">b</Combobox.Item>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      await user.keyboard('{ArrowDown}');
-      await user.keyboard('{ArrowDown}');
-
-      await user.click(document.body);
-      await flushMicrotasks();
-
-      expect(onItemHighlighted.lastCall.args[0]).to.equal(undefined);
     });
   });
 

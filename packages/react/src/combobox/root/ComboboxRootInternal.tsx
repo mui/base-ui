@@ -447,6 +447,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       pendingQueryHighlightRef.current = null;
     }
 
+    if (!store.state.open && !store.state.inline) {
+      return;
+    }
+
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
@@ -674,19 +678,6 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
           // For multiple selection, clear the input immediately on close while retaining filtering via closeQuery.
           setCloseQuery(query);
           setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
-        }
-      }
-
-      if (!nextOpen && open) {
-        const highlightDetails = createGenericEventDetails('none', eventDetails.event, {
-          index: -1,
-        });
-        // Ensure we always trigger a final highlight event on close if needed.
-        if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
-          lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
-          store.state.onItemHighlighted(undefined, highlightDetails);
-        } else if (store.state.activeIndex == null) {
-          store.state.onItemHighlighted(undefined, highlightDetails);
         }
       }
 
