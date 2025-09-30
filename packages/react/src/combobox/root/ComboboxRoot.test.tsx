@@ -314,9 +314,8 @@ describe('<Combobox.Root />', () => {
         expect(input).to.have.value('apple');
 
         await user.click(trigger);
-        await user.clear(input);
         await user.type(input, 'xyz');
-        expect(input).to.have.value('xyz');
+        expect(input).to.have.value('applexyz');
 
         await user.click(document.body);
 

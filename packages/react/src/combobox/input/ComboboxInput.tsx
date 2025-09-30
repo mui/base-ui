@@ -236,8 +236,17 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             createChangeEventDetails('input-change', event.nativeEvent),
           );
 
-          if (event.currentTarget.value === '' && !openOnInputClick && !hasPositionerParent) {
-            store.state.setOpen(false, createChangeEventDetails('input-clear', event.nativeEvent));
+          const empty = event.currentTarget.value === '';
+          const clearDetails = createChangeEventDetails('input-clear', event.nativeEvent);
+
+          if (empty && !hasPositionerParent) {
+            if (selectionMode === 'single') {
+              store.state.setSelectedValue(null, clearDetails);
+            }
+
+            if (!openOnInputClick) {
+              store.state.setOpen(false, clearDetails);
+            }
           }
 
           if (!readOnly && !disabled) {
