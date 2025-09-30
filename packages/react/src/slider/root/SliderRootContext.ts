@@ -5,7 +5,6 @@ import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot } from './SliderRoot';
-import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface SliderRootContext {
   /**
@@ -53,7 +52,7 @@ export interface SliderRootContext {
    */
   onValueCommitted: (
     newValue: number | readonly number[],
-    data: BaseUIEventDetails<'none'>,
+    data: SliderRoot.CommitEventDetails,
   ) => void;
   /**
    * The component orientation.

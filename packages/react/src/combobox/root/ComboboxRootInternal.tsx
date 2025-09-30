@@ -19,8 +19,10 @@ import {
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
-  createBaseUIEventDetails,
-  type BaseUIEventDetails,
+  createChangeEventDetails,
+  createGenericEventDetails,
+  type BaseUIChangeEventDetails,
+  type BaseUIGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import {
   ComboboxFloatingContext,
@@ -570,7 +572,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       type?: 'none' | 'keyboard' | 'pointer';
     }) => {
       store.apply(options);
-      const type = options.type || 'none';
+      const type: ComboboxRootInternal.HighlightEventReason = options.type || 'none';
 
       if (options.activeIndex === undefined) {
         return;
@@ -578,14 +580,16 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
       if (options.activeIndex === null) {
         lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
-        onItemHighlighted(undefined, { type, index: -1 });
+        onItemHighlighted(undefined, createGenericEventDetails(type, undefined, { index: -1 }));
       } else {
         const activeValue = valuesRef.current[options.activeIndex];
         lastHighlightRef.current = { value: activeValue, index: options.activeIndex };
-        onItemHighlighted(activeValue, {
-          type,
-          index: options.activeIndex,
-        });
+        onItemHighlighted(
+          activeValue,
+          createGenericEventDetails(type, undefined, {
+            index: options.activeIndex,
+          }),
+        );
       }
     },
   );
@@ -647,7 +651,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
           // Freeze the current query so filtering remains stable while exiting.
           // For multiple selection, clear the input immediately on close while retaining filtering via closeQuery.
           setCloseQuery(query);
-          setInputValue('', createBaseUIEventDetails('input-clear', eventDetails.event));
+          setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
         }
       }
 
@@ -674,7 +678,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       if (shouldFillInput) {
         setInputValue(
           stringifyAsLabel(nextValue, itemToStringLabel),
-          createBaseUIEventDetails(eventDetails.reason, eventDetails.event),
+          createChangeEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
 
@@ -726,7 +730,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       const targetEl = getTarget(event) as HTMLElement | null;
       const overrideEvent = selectionEventRef.current ?? event;
       selectionEventRef.current = null;
-      const eventDetails = createBaseUIEventDetails('item-press', overrideEvent);
+      const eventDetails = createChangeEventDetails('item-press', overrideEvent);
 
       // Let the link handle the click.
       const href = targetEl?.closest('a')?.getAttribute('href');
@@ -752,7 +756,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         }
 
         if (store.state.inputInsidePopup) {
-          setInputValue('', createBaseUIEventDetails('input-clear', eventDetails.event));
+          setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
         } else {
           setOpen(false, eventDetails);
         }
@@ -785,7 +789,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       inputRef.current.value !== '' &&
       !hadInputClearRef.current
     ) {
-      setInputValue('', createBaseUIEventDetails('input-clear'));
+      setInputValue('', createChangeEventDetails('input-clear'));
     }
 
     // Single selection mode:
@@ -794,14 +798,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     if (selectionMode === 'single') {
       if (store.state.inputInsidePopup) {
         if (inputRef.current && inputRef.current.value !== '') {
-          setInputValue('', createBaseUIEventDetails('input-clear'));
+          setInputValue('', createChangeEventDetails('input-clear'));
         }
       } else {
         const stringVal = stringifyAsLabel(selectedValue, itemToStringLabel);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
-          const reason = stringVal === '' ? 'input-clear' : 'item-press';
-          setInputValue(stringVal, createBaseUIEventDetails(reason));
+          const reason = stringVal === '' ? 'input-clear' : 'none';
+          setInputValue(stringVal, createChangeEventDetails(reason));
         }
       }
     }
@@ -919,7 +923,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     orientation: grid ? 'horizontal' : undefined,
     disabledIndices: virtualized
       ? (index) => index < 0 || index >= flatFilteredItems.length
-      : EMPTY_ARRAY,
+      : (EMPTY_ARRAY as number[]),
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if (nextActiveIndex === null && (!open || transitionStatus === 'ending')) {
@@ -947,7 +951,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     onMatch(index) {
       const nextSelectedValue = valuesRef.current[index];
       if (nextSelectedValue !== undefined) {
-        setSelectedValue(nextSelectedValue, createBaseUIEventDetails('none'));
+        setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
       }
     },
   });
@@ -1100,7 +1104,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
             }
 
             const nextValue = event.target.value;
-            const details = createBaseUIEventDetails('input-change', event.nativeEvent);
+            const details = createChangeEventDetails('input-change', event.nativeEvent);
 
             function handleChange() {
               // Browser autofill only writes a single scalar value.
@@ -1262,17 +1266,11 @@ interface ComboboxRootProps<ItemValue> {
   actionsRef?: React.RefObject<ComboboxRootInternal.Actions>;
   /**
    * Callback fired when the user navigates the list and highlights an item.
-   * Passes the item and the type of navigation or `undefined` when no item is highlighted.
-   * - `keyboard`: The item was highlighted via keyboard navigation.
-   * - `pointer`: The item was highlighted via pointer navigation.
-   * - `none`: The item was highlighted via programmatic navigation.
+   * Receives the highlighted item value (or `undefined` when no highlight is present), and event details describing the navigation reason and highlighted index.
    */
   onItemHighlighted?: (
     itemValue: ItemValue | undefined,
-    data: {
-      type: 'keyboard' | 'pointer' | 'none';
-      index: number;
-    },
+    eventDetails: ComboboxRootInternal.HighlightEventDetails,
   ) => void;
   /**
    * A ref to the hidden input element.
@@ -1401,6 +1399,13 @@ export namespace ComboboxRootInternal {
     unmount: () => void;
   }
 
+  export type HighlightEventReason = 'keyboard' | 'pointer' | 'none';
+  export type HighlightEventDetails = BaseUIGenericEventDetails<
+    HighlightEventReason,
+    Event,
+    { index: number }
+  >;
+
   export type ChangeEventReason =
     | 'trigger-press'
     | 'outside-press'
@@ -1413,5 +1418,5 @@ export namespace ComboboxRootInternal {
     | 'clear-press'
     | 'chip-remove-press'
     | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

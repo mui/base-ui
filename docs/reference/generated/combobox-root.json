@@ -119,9 +119,9 @@
       "detailedType": "| ((\n    value: string,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemHighlighted": {
-      "type": "((itemValue: any, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",
-      "description": "Callback fired when the user navigates the list and highlights an item.\nPasses the item and the type of navigation or `undefined` when no item is highlighted.\n- `keyboard`: The item was highlighted via keyboard navigation.\n- `pointer`: The item was highlighted via pointer navigation.\n- `none`: The item was highlighted via programmatic navigation.",
-      "detailedType": "| ((\n    itemValue: any,\n    data: {\n      type: 'none' | 'keyboard' | 'pointer'\n      index: number\n    },\n  ) => void)\n| undefined"
+      "type": "((itemValue: any, eventDetails: Combobox.Root.HighlightEventDetails) => void)",
+      "description": "Callback fired when the user navigates the list and highlights an item.\nReceives the highlighted item value (or `undefined` when no highlight is present), and event details describing the navigation reason and highlighted index.",
+      "detailedType": "| ((\n    itemValue: any,\n    eventDetails: Combobox.Root.HighlightEventDetails,\n  ) => void)\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

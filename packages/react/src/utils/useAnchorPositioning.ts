@@ -276,11 +276,14 @@ export function useAnchorPositioning(
                       return {};
                     }
                     const { width, height } = arrowRef.current.getBoundingClientRect();
-                    const arrowSize = getSideAxis(limitData.placement) === 'y' ? width : height;
+                    const sideAxis = getSideAxis(getSide(limitData.placement));
+                    const arrowSize = sideAxis === 'y' ? width : height;
+                    const offsetAmount =
+                      sideAxis === 'y'
+                        ? collisionPadding.left + collisionPadding.right
+                        : collisionPadding.top + collisionPadding.bottom;
                     return {
-                      offset:
-                        arrowSize / 2 +
-                        (typeof collisionPadding === 'number' ? collisionPadding : 0),
+                      offset: arrowSize / 2 + offsetAmount / 2,
                     };
                   }),
           };

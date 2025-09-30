@@ -29,7 +29,12 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+  type BaseUIChangeEventDetails,
+  type BaseUIGenericEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { isReactEvent } from '../../floating-ui-react/utils';
 
 /**
@@ -122,7 +127,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const hasPendingCommitRef = React.useRef(false);
 
   const onValueCommitted = useEventCallback(
-    (nextValue: number | null, eventDetails: NumberFieldRoot.ChangeEventDetails) => {
+    (nextValue: number | null, eventDetails: NumberFieldRoot.CommitEventDetails) => {
       hasPendingCommitRef.current = false;
       onValueCommittedProp?.(nextValue, eventDetails);
     },
@@ -211,7 +216,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       const eventWithOptionalKeyState = event as EventWithOptionalKeyState;
       const nativeEvent = event && isReactEvent(event) ? event.nativeEvent : event;
 
-      const details = createBaseUIEventDetails('none', nativeEvent);
+      const details = createChangeEventDetails('none', nativeEvent);
       const validatedValue = toValidatedNumber(unvalidatedValue, {
         step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
         format: formatOptionsRef.current,
@@ -305,7 +310,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
           isPressedRef.current = false;
           stopAutoChange();
           const committed = lastChangedValueRef.current ?? valueRef.current;
-          onValueCommitted(committed, createBaseUIEventDetails('none', event));
+          onValueCommitted(committed, createGenericEventDetails('none', event));
         },
         { once: true },
       );
@@ -610,7 +615,7 @@ export namespace NumberFieldRoot {
      *
      * **Warning**: This is a generic event not a change event.
      */
-    onValueCommitted?: (value: number | null, eventDetails: ChangeEventDetails) => void;
+    onValueCommitted?: (value: number | null, eventDetails: CommitEventDetails) => void;
     /**
      * The locale of the input element.
      * Defaults to the user's runtime locale.
@@ -650,7 +655,10 @@ export namespace NumberFieldRoot {
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+
+  export type CommitEventReason = 'none';
+  export type CommitEventDetails = BaseUIGenericEventDetails<CommitEventReason>;
 }
 
 function getControlledInputValue(

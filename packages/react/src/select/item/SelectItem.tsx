@@ -15,7 +15,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { compareItemEquality, itemIncludes, removeItem } from '../../utils/itemEquality';
 
 /**
@@ -138,14 +138,16 @@ export const SelectItem = React.memo(
         const nextValue = selected
           ? removeItem(currentValue, value, isItemEqualToValue)
           : [...currentValue, value];
-        setValue(nextValue, createBaseUIEventDetails('item-press', event));
+        setValue(nextValue, createChangeEventDetails('item-press', event));
       } else {
-        setValue(value, createBaseUIEventDetails('item-press', event));
-        setOpen(false, createBaseUIEventDetails('item-press', event));
+        setValue(value, createChangeEventDetails('item-press', event));
+        setOpen(false, createChangeEventDetails('item-press', event));
       }
     }
 
     const defaultProps: HTMLProps = {
+      role: 'option',
+      'aria-selected': selected,
       'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {
