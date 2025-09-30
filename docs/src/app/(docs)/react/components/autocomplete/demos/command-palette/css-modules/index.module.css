@@ -66,7 +66,7 @@
   transition:
     transform 150ms,
     opacity 150ms;
-  max-height: min(32rem, calc(100vh - 6rem));
+  max-height: min(44rem, calc(100dvh - 1rem));
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -111,17 +111,34 @@
   }
 }
 
+.ListArea {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: min(70dvh, 30rem);
+  overflow: hidden;
+}
+
+.ListViewport {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+
+  &:focus-visible {
+    outline: 1px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
 .List {
   box-sizing: border-box;
-  overflow: auto;
   scroll-padding-block: 0.5rem;
-  overscroll-behavior: contain;
   padding: 0.5rem 1rem;
-  height: min(50dvh, 25.5rem);
 
   &:empty {
     padding: 0;
-    height: 0;
   }
 }
 
@@ -189,7 +206,47 @@
   font-size: 0.925rem;
   line-height: 1rem;
   color: var(--color-gray-600);
-  height: min(50dvh, 25.5rem);
+  min-height: min(70dvh, 30rem);
+}
+
+.Scrollbar {
+  position: absolute;
+  display: flex;
+  width: 0.25rem;
+  margin: 0.25rem;
+  justify-content: center;
+  border-radius: 1rem;
+  opacity: 0;
+  transition: opacity 250ms;
+  pointer-events: none;
+
+  &[data-hovering],
+  &[data-scrolling] {
+    opacity: 1;
+    transition-duration: 75ms;
+    transition-delay: 0ms;
+    pointer-events: auto;
+  }
+
+  @media (min-width: 768px) {
+    width: 0.325rem;
+  }
+}
+
+.ScrollbarThumb {
+  width: 100%;
+  border-radius: inherit;
+  background-color: var(--color-gray-500);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% + 1rem);
+    height: calc(100% + 1rem);
+  }
 }
 
 .Footer {
