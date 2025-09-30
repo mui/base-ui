@@ -62,10 +62,7 @@ export type State = {
     selectedIndex?: number | null;
     type?: 'keyboard' | 'pointer' | 'none';
   }) => void;
-  onItemHighlighted: (
-    item: any,
-    info: { type: 'keyboard' | 'pointer' | 'none'; index: number },
-  ) => void;
+  onItemHighlighted: (item: any, eventDetails: ComboboxRootInternal.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
   getItemProps: (

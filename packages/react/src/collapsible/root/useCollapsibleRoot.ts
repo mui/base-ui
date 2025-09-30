@@ -4,7 +4,7 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
 import type { CollapsibleRoot } from './CollapsibleRoot';
@@ -53,7 +53,7 @@ export function useCollapsibleRoot(
 
   const handleTrigger = useEventCallback((event: React.MouseEvent | React.KeyboardEvent) => {
     const nextOpen = !open;
-    const eventDetails = createBaseUIEventDetails('trigger-press', event.nativeEvent);
+    const eventDetails = createChangeEventDetails('trigger-press', event.nativeEvent);
 
     onOpenChange(nextOpen, eventDetails);
 

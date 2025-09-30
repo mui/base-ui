@@ -10,8 +10,8 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
-  createBaseUIEventDetails,
-  type BaseUIEventDetails,
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 
 const rootStateAttributesMapping = {
@@ -79,7 +79,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   const handleValueChange = React.useCallback(
     (newValue: number | string, nextOpen: boolean) => {
-      const details = createBaseUIEventDetails('none');
+      const details = createChangeEventDetails('none');
       if (!multiple) {
         const nextValue = value[0] === newValue ? [] : [newValue];
         onValueChange(nextValue, details);
@@ -231,5 +231,5 @@ export namespace AccordionRoot {
   }
 
   export type ChangeEventReason = 'trigger-press' | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }
