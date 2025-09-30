@@ -614,9 +614,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
             setQueryChangedAfterOpen(false);
           }
         } else if (selectionMode === 'multiple') {
-          // Freeze the current query so filtering remains stable while exiting.
-          // For multiple selection, clear the input immediately on close while retaining filtering via closeQuery.
-          setCloseQuery(query);
+          if (inline || inputInsidePopup) {
+            setIndices({ activeIndex: null });
+          } else {
+            // Freeze the current query so filtering remains stable while exiting.
+            setCloseQuery(query);
+          }
+          // Clear the input immediately on close while retaining filtering via closeQuery for exit animations
+          // if the input is outside the popup.
           setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
         }
       }
@@ -891,8 +896,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       ? (index) => index < 0 || index >= flatFilteredItems.length
       : (EMPTY_ARRAY as number[]),
     onNavigate(nextActiveIndex, event) {
+      const isClosing = !open || transitionStatus === 'ending';
+
       // Retain the highlight only while actually transitioning out or closed.
-      if (nextActiveIndex === null && (!open || transitionStatus === 'ending')) {
+      if (nextActiveIndex === null && !inline && isClosing) {
         return;
       }
 
