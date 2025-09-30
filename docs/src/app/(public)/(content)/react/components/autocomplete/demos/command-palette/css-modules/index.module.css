@@ -120,7 +120,7 @@
   scroll-padding-block: 0.5rem;
   overscroll-behavior: contain;
   padding: 0.5rem 1rem;
-  height: min(50vw, 25.5rem);
+  height: min(50dvh, 25.5rem);
 
   &:empty {
     padding: 0;
@@ -192,7 +192,7 @@
   font-size: 0.925rem;
   line-height: 1rem;
   color: var(--color-gray-600);
-  height: min(50vw, 25.5rem);
+  height: min(50dvh, 25.5rem);
 }
 
 .Loading {

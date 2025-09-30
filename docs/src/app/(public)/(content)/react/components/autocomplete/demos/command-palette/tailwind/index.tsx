@@ -25,11 +25,11 @@ export default function ExampleCommandPalette() {
               placeholder="Search for apps and commands..."
             />
 
-            <Autocomplete.Empty className="flex h-[min(25.5rem,50vw)] items-center justify-center px-4 py-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:h-0 empty:p-0 empty:hidden dark:text-gray-400">
+            <Autocomplete.Empty className="flex h-[min(25.5rem,50dvh)] items-center justify-center px-4 py-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:h-0 empty:p-0 empty:hidden dark:text-gray-400">
               No results found.
             </Autocomplete.Empty>
 
-            <Autocomplete.List className="h-[min(25.5rem,50vw)] overflow-auto overscroll-contain px-4 py-2 text-base text-gray-900 scroll-pt-2 scroll-pb-2 empty:h-0 empty:p-0 dark:text-gray-50">
+            <Autocomplete.List className="h-[min(25.5rem,50dvh)] overflow-auto overscroll-contain px-4 py-2 text-base text-gray-900 scroll-pt-2 scroll-pb-2 empty:h-0 empty:p-0 dark:text-gray-50">
               {(group: Group) => (
                 <Autocomplete.Group
                   key={group.value}
