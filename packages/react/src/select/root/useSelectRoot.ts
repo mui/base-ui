@@ -13,7 +13,6 @@ import {
   useFloatingRootContext,
   useInteractions,
   useListNavigation,
-  useRole,
   useTypeahead,
   FloatingRootContext,
 } from '../../floating-ui-react';
@@ -23,7 +22,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
@@ -406,16 +405,12 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     bubbles: false,
   });
 
-  const role = useRole(floatingContext, {
-    role: 'select',
-  });
-
   const listNavigation = useListNavigation(floatingContext, {
     enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
     selectedIndex,
-    disabledIndices: EMPTY_ARRAY,
+    disabledIndices: EMPTY_ARRAY as number[],
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
@@ -438,7 +433,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index], createBaseUIEventDetails('none'));
+        setValue(valuesRef.current[index], createChangeEventDetails('none'));
       }
     },
     onTypingChange(typing) {
@@ -451,7 +446,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
     click,
     dismiss,
-    role,
     listNavigation,
     typeahead,
   ]);

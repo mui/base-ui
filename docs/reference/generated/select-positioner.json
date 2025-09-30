@@ -1,6 +1,6 @@
 {
   "name": "SelectPositioner",
-  "description": "Positions the select menu popup.\nRenders a `<div>` element.",
+  "description": "Positions the select popup.\nRenders a `<div>` element.",
   "props": {
     "alignItemWithTrigger": {
       "type": "boolean",

@@ -56,6 +56,6 @@ export namespace ComboboxGroup {
      * Items to be rendered within this group.
      * When provided, child `Collection` components will use these items.
      */
-    items?: any[];
+    items?: readonly any[];
   }
 }

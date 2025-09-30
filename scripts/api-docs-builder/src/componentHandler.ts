@@ -85,7 +85,126 @@ function rewriteTypeValue(value: string, componentGroup: string): string {
     next = next.replaceAll(/\bCombobox\./g, 'Autocomplete.');
   }
 
-  return next;
+  return dedupeUnionMembers(next);
+}
+
+function dedupeUnionMembers(value: string): string {
+  if (!value.includes('|')) {
+    return value;
+  }
+
+  const unionLinePattern = /^\s*\|/m;
+  if (unionLinePattern.test(value)) {
+    const seen = new Set<string>();
+    const lines = value.split('\n');
+    const resultLines: string[] = [];
+    let currentEntry: string[] | null = null;
+
+    const flushEntry = () => {
+      if (!currentEntry) {
+        return;
+      }
+
+      const entryText = currentEntry.join('\n');
+      const key = entryText.replace(/^\s*\|\s*/, '').trim();
+      if (!seen.has(key)) {
+        seen.add(key);
+        resultLines.push(entryText);
+      }
+
+      currentEntry = null;
+    };
+
+    lines.forEach((line) => {
+      if (line.trim().startsWith('|')) {
+        flushEntry();
+        currentEntry = [line];
+      } else if (currentEntry) {
+        currentEntry.push(line);
+      } else {
+        resultLines.push(line);
+      }
+    });
+
+    flushEntry();
+
+    return resultLines.join('\n');
+  }
+
+  const parts = splitTopLevelUnion(value);
+  const seen = new Set<string>();
+  const dedupedParts = parts.filter((part) => {
+    const key = part.trim();
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+
+  return dedupedParts.join(' | ');
+}
+
+function splitTopLevelUnion(value: string): string[] {
+  const parts: string[] = [];
+  let current = '';
+  let depthAngle = 0;
+  let depthParen = 0;
+  let depthCurly = 0;
+  let depthSquare = 0;
+
+  for (let i = 0; i < value.length; i += 1) {
+    const char = value[i];
+
+    switch (char) {
+      case '<':
+        depthAngle += 1;
+        break;
+      case '>':
+        depthAngle = Math.max(0, depthAngle - 1);
+        break;
+      case '(': {
+        depthParen += 1;
+        break;
+      }
+      case ')':
+        depthParen = Math.max(0, depthParen - 1);
+        break;
+      case '{':
+        depthCurly += 1;
+        break;
+      case '}':
+        depthCurly = Math.max(0, depthCurly - 1);
+        break;
+      case '[':
+        depthSquare += 1;
+        break;
+      case ']':
+        depthSquare = Math.max(0, depthSquare - 1);
+        break;
+      default:
+        break;
+    }
+
+    if (
+      char === '|' &&
+      depthAngle === 0 &&
+      depthParen === 0 &&
+      depthCurly === 0 &&
+      depthSquare === 0
+    ) {
+      parts.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  if (current.trim() !== '') {
+    parts.push(current.trim());
+  }
+
+  return parts.length > 0 ? parts : [value];
 }
 
 function rewriteTypeStringsDeep(node: any, componentGroup: string): any {

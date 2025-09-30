@@ -13,7 +13,7 @@ export type State = {
 
   filter: (item: any, query: string) => boolean;
 
-  items: any[] | undefined;
+  items: readonly any[] | undefined;
 
   selectedValue: any;
   inputValue: React.ComponentProps<'input'>['value'];
@@ -62,10 +62,7 @@ export type State = {
     selectedIndex?: number | null;
     type?: 'keyboard' | 'pointer' | 'none';
   }) => void;
-  onItemHighlighted: (
-    item: any,
-    info: { type: 'keyboard' | 'pointer' | 'none'; index: number },
-  ) => void;
+  onItemHighlighted: (item: any, eventDetails: ComboboxRootInternal.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
   getItemProps: (

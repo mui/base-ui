@@ -7,8 +7,22 @@ const objectItems = [
   { value: 'c', label: 'cherry' },
 ];
 
+const objectItemsReadonly = [
+  { value: 'a', label: 'apple' },
+  { value: 'b', label: 'banana' },
+  { value: 'c', label: 'cherry' },
+] as const;
+
 <Autocomplete.Root
   items={objectItems}
+  defaultValue="a"
+  onValueChange={(value) => {
+    value.startsWith('a');
+  }}
+/>;
+
+<Autocomplete.Root
+  items={objectItemsReadonly}
   defaultValue="a"
   onValueChange={(value) => {
     value.startsWith('a');

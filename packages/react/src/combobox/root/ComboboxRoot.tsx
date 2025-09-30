@@ -7,10 +7,10 @@ import type { Group } from '../../utils/resolveValueLabel';
  * Groups all parts of the combobox.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/autocomplete)
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot<ItemValue, Multiple extends boolean | undefined = false>(
-  props: Omit<ComboboxRoot.Props<ItemValue, ItemValue, Multiple>, 'items'> & {
+export function ComboboxRoot<SelectedValue, Multiple extends boolean | undefined = false>(
+  props: Omit<ComboboxRoot.Props<SelectedValue, SelectedValue, Multiple>, 'items'> & {
     /**
      * The items to be displayed in the list.
      * Can be either a flat array of items or an array of groups with items.
@@ -81,7 +81,7 @@ export namespace ComboboxRoot {
      * The items to be displayed in the list.
      * Can be either a flat array of items or an array of groups with items.
      */
-    items?: ItemValue[] | Group<ItemValue>[];
+    items?: readonly ItemValue[] | readonly Group<ItemValue>[];
     /**
      * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
      * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
@@ -129,4 +129,6 @@ export namespace ComboboxRoot {
 
   export type ChangeEventReason = ComboboxRootInternal.ChangeEventReason;
   export type ChangeEventDetails = ComboboxRootInternal.ChangeEventDetails;
+  export type HighlightEventReason = ComboboxRootInternal.HighlightEventReason;
+  export type HighlightEventDetails = ComboboxRootInternal.HighlightEventDetails;
 }

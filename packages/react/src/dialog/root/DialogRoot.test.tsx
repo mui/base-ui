@@ -437,7 +437,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('BaseUIEventDetails', () => {
+  describe('BaseUIChangeEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       const { user } = await render(
         <Dialog.Root
@@ -634,7 +634,7 @@ describe('<Dialog.Root />', () => {
       });
     });
 
-    it('should not dismiss the dialog when dismissing outside a nested select menu', async () => {
+    it('should not dismiss the dialog when dismissing outside a nested select popup', async () => {
       const { user } = await render(
         <Dialog.Root>
           <Dialog.Trigger>Open dialog</Dialog.Trigger>

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { fireEvent, screen, flushMicrotasks, act, within } from '@mui/internal-test-utils';
+import { fireEvent, screen, flushMicrotasks, act, within, waitFor } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
 import { createRenderer, describeConformance } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
@@ -296,6 +296,55 @@ describe('<NavigationMenu.Root />', () => {
 
       expect(screen.queryByTestId('popup-1')).to.equal(null);
       expect(last).toHaveFocus();
+    });
+
+    it('does not restore focus to the trigger when closed via hover', async () => {
+      await render(<TestNavigationMenu />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(OPEN_DELAY);
+
+      const popup = await screen.findByTestId('popup-1');
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
+
+      fireEvent.mouseLeave(trigger);
+      fireEvent.mouseLeave(popup);
+      clock.tick(50);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).to.equal(null);
+      });
+      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(trigger).not.toHaveFocus();
+    });
+
+    it('does not restore focus to the trigger when focus moves outside', async () => {
+      const { user } = await render(
+        <div>
+          <button data-testid="first" />
+          <TestNavigationMenu />
+          <button data-testid="last" />
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger-1');
+      const last = screen.getByTestId('last');
+
+      await act(async () => trigger.focus());
+
+      await user.click(trigger);
+      await user.tab();
+      await user.tab();
+      await user.tab();
+      await user.tab();
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).to.equal(null);
+      });
+      expect(last).toHaveFocus();
+      expect(trigger).not.toHaveFocus();
     });
   });
 

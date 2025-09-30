@@ -66,7 +66,7 @@ export namespace SelectBackdrop {
 
   export interface State {
     /**
-     * Whether the select menu is currently open.
+     * Whether the select popup is currently open.
      */
     open: boolean;
     transitionStatus: TransitionStatus;

@@ -22,23 +22,25 @@ export default function ObjectValueSelect() {
       </Select.Trigger>
       <Select.Portal>
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
-          <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
-            {shippingMethods.map((method) => (
-              <Select.Item key={method.id} value={method} className={styles.Item}>
-                <Select.ItemIndicator className={styles.ItemIndicator}>
-                  <CheckIcon className={styles.ItemIndicatorIcon} />
-                </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>
-                  <span className={styles.ItemLabel}>{method.name}</span>
-                  <span className={styles.ItemDescription}>
-                    {method.duration} ({method.price})
-                  </span>
-                </Select.ItemText>
-              </Select.Item>
-            ))}
+            <Select.ScrollUpArrow className={styles.ScrollArrow} />
+            <Select.List className={styles.List}>
+              {shippingMethods.map((method) => (
+                <Select.Item key={method.id} value={method} className={styles.Item}>
+                  <Select.ItemIndicator className={styles.ItemIndicator}>
+                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                  </Select.ItemIndicator>
+                  <Select.ItemText className={styles.ItemText}>
+                    <span className={styles.ItemLabel}>{method.name}</span>
+                    <span className={styles.ItemDescription}>
+                      {method.duration} ({method.price})
+                    </span>
+                  </Select.ItemText>
+                </Select.Item>
+              ))}
+            </Select.List>
+            <Select.ScrollDownArrow className={styles.ScrollArrow} />
           </Select.Popup>
-          <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>
       </Select.Portal>
     </Select.Root>

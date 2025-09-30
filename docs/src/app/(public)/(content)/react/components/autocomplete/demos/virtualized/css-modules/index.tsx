@@ -48,14 +48,14 @@ export default function ExampleVirtualizedAutocomplete() {
       value={searchValue}
       onValueChange={setSearchValue}
       openOnInputClick
-      onItemHighlighted={(item, { type, index }) => {
+      onItemHighlighted={(item, { reason, index }) => {
         if (!item) {
           return;
         }
 
         const isStart = index === 0;
         const isEnd = index === filteredItems.length - 1;
-        const shouldScroll = type === 'none' || (type === 'keyboard' && (isStart || isEnd));
+        const shouldScroll = reason === 'none' || (reason === 'keyboard' && (isStart || isEnd));
         if (shouldScroll) {
           queueMicrotask(() => {
             virtualizer.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });

@@ -13,7 +13,9 @@ npm i @base-ui-components/react
 
 All components are included in a single package. Base UI is tree-shakeable, so your app bundle will contain only the components that you actually use.
 
-## Set up portals
+## Set up
+
+### Portals
 
 Base UI uses portals for components that render popups, such as Dialog and Popover.
 To make portalled components always appear on top of the entire page, add the following style to your application layout root:
@@ -35,6 +37,16 @@ To make portalled components always appear on top of the entire page, add the fo
 
 This style creates a separate stacking context for your application's `.root` element.
 This way, popups will always appear above the page contents, and any `z-index` property in your styles won't interfere with them.
+
+### iOS Safari
+
+Backdrops must use `position: absolute` instead of `position: fixed` in order to cover the entire visible viewport on iOS 26. For this to work after scrolling, `position: relative` must be set on the `<body>`.
+
+```css title="styles.css"
+body {
+  position: relative;
+}
+```
 
 ## Assemble a component
 

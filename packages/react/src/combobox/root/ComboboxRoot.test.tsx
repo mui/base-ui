@@ -4,6 +4,7 @@ import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Combobox } from '@base-ui-components/react/combobox';
+import { Dialog } from '@base-ui-components/react/dialog';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
 
@@ -283,9 +284,10 @@ describe('<Combobox.Root />', () => {
 
       it('should reset input value to selected value when popup closes without selection', async () => {
         const items = ['apple', 'banana', 'cherry'];
+        const onInputValueChange = spy();
 
         const { user } = await render(
-          <Combobox.Root items={items} defaultValue="apple">
+          <Combobox.Root items={items} defaultValue="apple" onInputValueChange={onInputValueChange}>
             <Combobox.Input data-testid="input" />
             <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
             <Combobox.Portal>
@@ -313,13 +315,14 @@ describe('<Combobox.Root />', () => {
         expect(input).to.have.value('apple');
 
         await user.click(trigger);
-        await user.clear(input);
         await user.type(input, 'xyz');
-        expect(input).to.have.value('xyz');
+        expect(input).to.have.value('applexyz');
 
         await user.click(document.body);
 
-        expect(input).to.have.value('apple');
+        await waitFor(() => expect(input).to.have.value('apple'));
+        expect(onInputValueChange.lastCall.args[0]).to.equal('apple');
+        expect(onInputValueChange.lastCall.args[1].reason).to.equal('none');
       });
 
       it('should not auto-close during browser autofill', async () => {
@@ -1722,6 +1725,102 @@ describe('<Combobox.Root />', () => {
       expect(onInput.lastCall.args[0]).to.equal('');
       expect(onInput.lastCall.args[1].reason).to.equal('input-clear');
     });
+
+    describe('dialog pattern', () => {
+      function DialogMultipleCombobox({ defaultOpen = true }: { defaultOpen?: boolean }) {
+        const [open, setOpen] = React.useState(defaultOpen);
+        const fruits = ['Apple', 'Apricot', 'Banana', 'Grape', 'Orange'];
+        return (
+          <Combobox.Root multiple items={fruits}>
+            <Dialog.Root open={open} onOpenChange={setOpen}>
+              <Dialog.Trigger>Trigger</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup aria-label="Fruit chooser">
+                  <Combobox.Chips>
+                    <Combobox.Input data-testid="dialog-input" />
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Chips>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </Combobox.Root>
+        );
+      }
+
+      it('clears input after filtering, removes filter and highlight', async () => {
+        const { user } = await render(<DialogMultipleCombobox />);
+
+        const input = await screen.findByTestId('dialog-input');
+
+        await user.type(input, 'ap');
+
+        await waitFor(() => {
+          expect(screen.queryByRole('option', { name: 'Banana' })).to.equal(null);
+        });
+        expect(screen.getByRole('option', { name: 'Apple' })).not.to.equal(null);
+        expect(screen.getByRole('option', { name: 'Apricot' })).not.to.equal(null);
+
+        await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+        expect(input).to.have.value('');
+        await waitFor(() => {
+          expect(screen.queryByRole('option', { name: 'Banana' })).not.to.equal(null);
+        });
+        expect(input).to.have.attribute('aria-activedescendant');
+      });
+
+      it('still filters after selecting an item', async () => {
+        const { user } = await render(<DialogMultipleCombobox />);
+
+        const input = await screen.findByTestId('dialog-input');
+
+        await user.type(input, 'ap');
+
+        await waitFor(() => {
+          expect(screen.queryByRole('option', { name: 'Banana' })).to.equal(null);
+        });
+        expect(screen.getByRole('option', { name: 'Apple' })).not.to.equal(null);
+        expect(screen.getByRole('option', { name: 'Apricot' })).not.to.equal(null);
+
+        await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+        expect(input).to.have.value('');
+        await waitFor(() => {
+          expect(screen.queryByRole('option', { name: 'Banana' })).not.to.equal(null);
+        });
+        expect(input).to.have.attribute('aria-activedescendant');
+
+        await user.type(input, 'ap');
+
+        await waitFor(() => {
+          expect(screen.queryByRole('option', { name: 'Banana' })).to.equal(null);
+        });
+      });
+
+      it('retains highlight on selected item when not filtering', async () => {
+        const { user } = await render(<DialogMultipleCombobox />);
+
+        const input = await screen.findByTestId('dialog-input');
+
+        await user.keyboard('{ArrowDown}');
+        const apple = screen.getByRole('option', { name: 'Apple' });
+        await waitFor(() => {
+          expect(input).to.have.attribute('aria-activedescendant', apple.id);
+        });
+
+        await user.keyboard('{Enter}');
+
+        await waitFor(() => {
+          expect(input).to.have.attribute('aria-activedescendant', apple.id);
+        });
+      });
+    });
   });
 
   describe('prop: filter', () => {
@@ -2078,9 +2177,10 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => {
         expect(onItemHighlighted.callCount).to.be.greaterThan(0);
       });
-      const [value, data] = onItemHighlighted.lastCall.args;
+      const [value, eventDetails] = onItemHighlighted.lastCall.args;
       expect(value).to.equal('a');
-      expect(data).to.deep.equal({ type: 'keyboard', index: 0 });
+      expect(eventDetails.reason).to.equal('keyboard');
+      expect(eventDetails.index).to.equal(0);
     });
 
     it('fires with undefined on close', async () => {
@@ -2108,9 +2208,9 @@ describe('<Combobox.Root />', () => {
       await user.click(document.body);
       await flushMicrotasks();
 
-      const [, data] = onItemHighlighted.lastCall.args;
+      const [, eventDetails] = onItemHighlighted.lastCall.args;
       expect(onItemHighlighted.lastCall.args[0]).to.equal(undefined);
-      expect(data.index).to.equal(-1);
+      expect(eventDetails.index).to.equal(-1);
     });
   });
 

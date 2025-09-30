@@ -5,6 +5,14 @@ type Listener<T> = (state: T) => void;
  * It uses an observer pattern to notify subscribers when the state changes.
  */
 export class Store<State> {
+  /**
+   * The current state of the store.
+   * This property is updated immediately when the state changes as a result of calling {@link update}, {@link apply}, or {@link set}.
+   * To subscribe to state changes, use the {@link useState} method. The value returned by {@link useState} is updated after the component renders (similarly to React's useState).
+   * The values can be used directly (to avoid subscribing to the store) in effects or event handlers.
+   *
+   * Do not modify properties in state directly. Instead, use the provided methods to ensure proper state management and listener notification.
+   */
   public state: State;
 
   private listeners: Set<Listener<State>>;
@@ -39,12 +47,12 @@ export class Store<State> {
    *
    * @param newState The new state to set for the store.
    */
-  public update = (newState: State) => {
+  public update(newState: State) {
     if (this.state !== newState) {
       this.state = newState;
       this.listeners.forEach((l) => l(newState));
     }
-  };
+  }
 
   /**
    * Merges the provided changes into the current state and notifies listeners if there are changes.

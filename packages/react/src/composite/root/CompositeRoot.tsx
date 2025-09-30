@@ -20,7 +20,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
   const {
     render,
     className,
-    refs = EMPTY_ARRAY,
+    refs = EMPTY_ARRAY as React.Ref<Element>[],
     props = EMPTY_ARRAY,
     state = EMPTY_OBJECT as State,
     stateAttributesMapping,

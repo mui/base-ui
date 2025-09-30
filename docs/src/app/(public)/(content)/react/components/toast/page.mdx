@@ -181,7 +181,7 @@ toastManager.close(toastId);
 Creates an asynchronous toast with three possible states: `loading`, `success`, and `error`.
 
 ```tsx title="Description configuration"
-const toastId = toastManager.promise(
+const promise = toastManager.promise(
   new Promise((resolve) => {
     setTimeout(() => resolve('world!'), 1000);
   }),
@@ -197,7 +197,7 @@ const toastId = toastManager.promise(
 Each state also accepts the [method options](/react/components/toast#method-options) object to granularly control the toast for each state:
 
 ```tsx title="Method options configuration"
-const toastId = toastManager.promise(
+const promise = toastManager.promise(
   new Promise((resolve) => {
     setTimeout(() => resolve('world!'), 1000);
   }),

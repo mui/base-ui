@@ -7,7 +7,7 @@ import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 
 const LONG_PRESS_DELAY = 500;
@@ -56,7 +56,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       });
 
       allowMouseUpRef.current = false;
-      actionsRef.current?.setOpen(true, createBaseUIEventDetails('trigger-press', event));
+      actionsRef.current?.setOpen(true, createChangeEventDetails('trigger-press', event));
 
       allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
         allowMouseUpRef.current = true;
@@ -92,7 +92,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
           return;
         }
 
-        actionsRef.current?.setOpen(false, createBaseUIEventDetails('cancel-open', mouseEvent));
+        actionsRef.current?.setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
       },
       { once: true },
     );

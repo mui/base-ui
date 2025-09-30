@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
+import { Menu } from '@base-ui-components/react/menu';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -155,6 +156,63 @@ describe('<Popover.Root />', () => {
     });
   });
 
+  describe('nested menu interactions', () => {
+    it('keeps the popover open when a nested menu opens via Enter using a shared container', async () => {
+      function Test() {
+        const [dialogNode, setDialogNode] = React.useState<HTMLDialogElement | null>(null);
+        const handleDialogRef = React.useCallback((node: HTMLDialogElement | null) => {
+          if (node) {
+            setDialogNode(node);
+          }
+        }, []);
+
+        return (
+          <dialog open ref={handleDialogRef}>
+            <Popover.Root>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal container={dialogNode ?? undefined}>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popover-popup">
+                    <Menu.Root>
+                      <Menu.Trigger>Open nested</Menu.Trigger>
+                      <Menu.Portal container={dialogNode ?? undefined}>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="menu-popup">Nested Menu</Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.Root>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </dialog>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const popoverTrigger = screen.getByRole('button', { name: 'Open' });
+
+      await act(async () => {
+        popoverTrigger.focus();
+      });
+
+      await user.keyboard('{Enter}');
+      await screen.findByTestId('popover-popup');
+
+      const nestedTrigger = await screen.findByRole('button', { name: 'Open nested' });
+
+      await act(async () => {
+        nestedTrigger.focus();
+      });
+
+      await user.keyboard('{Enter}');
+      await screen.findByTestId('menu-popup');
+
+      expect(screen.getByTestId('popover-popup')).not.to.equal(null);
+    });
+  });
+
   describe('prop: defaultOpen', () => {
     it('should open when the component is rendered', async () => {
       await render(
@@ -293,7 +351,7 @@ describe('<Popover.Root />', () => {
     });
   });
 
-  describe('BaseUIEventDetails', () => {
+  describe('BaseUIChangeEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       await render(
         <Root

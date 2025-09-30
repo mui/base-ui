@@ -6,7 +6,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStateAttributesMapping } from './stateAttributesMapping';
-import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups all parts of the collapsible.
@@ -108,5 +108,5 @@ export namespace CollapsibleRoot {
   }
 
   export type ChangeEventReason = 'trigger-press' | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

@@ -220,7 +220,7 @@ export namespace SelectScrollArrow {
   export interface Props extends BaseUIComponentProps<'div', State> {
     direction: 'up' | 'down';
     /**
-     * Whether to keep the HTML element in the DOM while the select menu is not scrollable.
+     * Whether to keep the HTML element in the DOM while the select popup is not scrollable.
      * @default false
      */
     keepMounted?: boolean;

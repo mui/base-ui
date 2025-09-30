@@ -27,9 +27,13 @@ export const SelectList = React.forwardRef(function SelectList(
 
   const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
   const touchModality = useStore(store, selectors.touchModality);
+  const multiple = useStore(store, selectors.multiple);
+  const id = useStore(store, selectors.id);
 
   const defaultProps: HTMLProps = {
-    role: 'presentation',
+    id: `${id}-list`,
+    role: 'listbox',
+    'aria-multiselectable': multiple || undefined,
     onScroll(event) {
       scrollHandlerRef.current?.(event.currentTarget);
     },
