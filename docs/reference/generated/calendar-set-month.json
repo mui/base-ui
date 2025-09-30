@@ -9,7 +9,7 @@
       "detailedType": "boolean | undefined"
     },
     "target": {
-      "type": "Date",
+      "type": "Date | TZDate",
       "required": true,
       "description": "The month to navigate to."
     },

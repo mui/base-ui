@@ -3,14 +3,14 @@
   "description": "An individual day header cell in the calendar.\nRenders a `<th>` element.",
   "props": {
     "value": {
-      "type": "Date",
+      "type": "Date | TZDate",
       "required": true
     },
     "formatter": {
-      "type": "((date: Date) => string)",
+      "type": "((date: Date | TZDate) => string)",
       "default": "(date) => adapter.format(date, 'weekday3Letters').charAt(0).toUpperCase()",
       "description": "The formatter function used to display the day of the week.",
-      "detailedType": "((date: Date) => string) | undefined"
+      "detailedType": "((date: Date | TZDate) => string) | undefined"
     },
     "className": {
       "type": "string | ((state: Calendar.DayGridHeaderCell.State) => string)",

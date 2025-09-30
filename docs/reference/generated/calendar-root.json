@@ -5,12 +5,12 @@
     "defaultValue": {
       "type": "TemporalNonRangeValue",
       "description": "The uncontrolled value that should be initially selected.\nTo render a controlled (Range)Calendar, use the `value` prop instead.",
-      "detailedType": "Date | null | undefined"
+      "detailedType": "Date | TZDate | null | undefined"
     },
     "value": {
       "type": "TemporalNonRangeValue",
       "description": "The controlled value that should be selected.\nTo render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead.",
-      "detailedType": "Date | null | undefined"
+      "detailedType": "Date | TZDate | null | undefined"
     },
     "onValueChange": {
       "type": "((value: TemporalNonRangeValue, context: useSharedCalendarRoot.ValueChangeHandlerContext<validateDate.ReturnValue>) => void)",
@@ -18,24 +18,24 @@
       "detailedType": "| ((\n    value: TemporalNonRangeValue,\n    context: useSharedCalendarRoot.ValueChangeHandlerContext<validateDate.ReturnValue>,\n  ) => void)\n| undefined"
     },
     "defaultVisibleDate": {
-      "type": "Date",
+      "type": "Date | TZDate",
       "description": "The date used to decide which month should be initially displayed in the Day Grid.\nTo render a controlled Calendar, use the `visibleDate` prop instead.",
-      "detailedType": "Date | undefined"
+      "detailedType": "Date | TZDate | undefined"
     },
     "isDateUnavailable": {
-      "type": "((day: Date) => boolean)",
+      "type": "((day: Date | TZDate) => boolean)",
       "description": "Mark specific dates as unavailable.\nThose dates will not be selectable but they will still be focusable with the keyboard.",
-      "detailedType": "((day: Date) => boolean) | undefined"
+      "detailedType": "((day: Date | TZDate) => boolean) | undefined"
     },
     "maxDate": {
-      "type": "Date",
+      "type": "Date | TZDate",
       "description": "Maximal selectable date.",
-      "detailedType": "Date | undefined"
+      "detailedType": "Date | TZDate | undefined"
     },
     "minDate": {
-      "type": "Date",
+      "type": "Date | TZDate",
       "description": "Minimal selectable date.",
-      "detailedType": "Date | undefined"
+      "detailedType": "Date | TZDate | undefined"
     },
     "monthPageSize": {
       "type": "number",
@@ -44,15 +44,15 @@
       "detailedType": "number | undefined"
     },
     "onVisibleDateChange": {
-      "type": "((visibleDate: Date) => void)",
+      "type": "((visibleDate: Date | TZDate) => void)",
       "description": "Event handler called when the visible date changes.\nProvides the new visible date as an argument.",
-      "detailedType": "((visibleDate: Date) => void) | undefined"
+      "detailedType": "((visibleDate: Date | TZDate) => void) | undefined"
     },
     "referenceDate": {
-      "type": "Date",
+      "type": "Date | TZDate",
       "default": "'The closest valid date using the validation props.'",
       "description": "The date used to generate the new value when both `value` and `defaultValue` are empty.",
-      "detailedType": "Date | undefined"
+      "detailedType": "Date | TZDate | undefined"
     },
     "timezone": {
       "type": "string",
@@ -61,9 +61,9 @@
       "detailedType": "string | undefined"
     },
     "visibleDate": {
-      "type": "Date",
+      "type": "Date | TZDate",
       "description": "The date used to decide which month should be displayed in the Day Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead.",
-      "detailedType": "Date | undefined"
+      "detailedType": "Date | TZDate | undefined"
     },
     "disabled": {
       "type": "boolean",
