@@ -21,7 +21,7 @@
     "@emotion/styled": "^11.14.1",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
-    "@mui/internal-docs-infra": "0.1.1-alpha.18",
+    "@mui/internal-docs-infra": "^0.2.0",
     "@mui/system": "7.3.1",
     "@next/mdx": "^15.4.6",
     "@react-spring/web": "^10.0.1",
