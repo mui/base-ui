@@ -16,20 +16,25 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
-  FULLWIDTH_DECIMAL,
-  FULLWIDTH_GROUP,
+  getNumberLocaleDetails,
   PERMILLE,
   PERCENTAGES,
-  UNICODE_MINUS_SIGNS,
-  UNICODE_PLUS_SIGNS,
-  getNumberLocaleDetails,
+  SPACE_SEPARATOR_RE,
+  BASE_NON_NUMERIC_SYMBOLS,
+  MINUS_SIGNS_WITH_ASCII,
+  PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+  type BaseUIChangeEventDetails,
+  type BaseUIGenericEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { isReactEvent } from '../../floating-ui-react/utils';
 
 /**
@@ -91,18 +96,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const BASE_NON_NUMERIC_SYMBOLS = [
-    '.',
-    ',',
-    FULLWIDTH_DECIMAL,
-    FULLWIDTH_GROUP,
-    '٫',
-    '٬',
-  ] as const;
-  const SPACE_SEPARATOR_RE = /\p{Zs}/u;
-  const PLUS_SIGNS_WITH_ASCII = ['+', ...UNICODE_PLUS_SIGNS];
-  const MINUS_SIGNS_WITH_ASCII = ['-', ...UNICODE_MINUS_SIGNS];
-
   const id = useBaseUiId(idProp);
 
   useIsoLayoutEffect(() => {
@@ -134,7 +127,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const hasPendingCommitRef = React.useRef(false);
 
   const onValueCommitted = useEventCallback(
-    (nextValue: number | null, eventDetails: NumberFieldRoot.ChangeEventDetails) => {
+    (nextValue: number | null, eventDetails: NumberFieldRoot.CommitEventDetails) => {
       hasPendingCommitRef.current = false;
       onValueCommittedProp?.(nextValue, eventDetails);
     },
@@ -223,7 +216,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       const eventWithOptionalKeyState = event as EventWithOptionalKeyState;
       const nativeEvent = event && isReactEvent(event) ? event.nativeEvent : event;
 
-      const details = createBaseUIEventDetails('none', nativeEvent);
+      const details = createChangeEventDetails('none', nativeEvent);
       const validatedValue = toValidatedNumber(unvalidatedValue, {
         step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
         format: formatOptionsRef.current,
@@ -317,7 +310,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
           isPressedRef.current = false;
           stopAutoChange();
           const committed = lastChangedValueRef.current ?? valueRef.current;
-          onValueCommitted(committed, createBaseUIEventDetails('none', event));
+          onValueCommitted(committed, createGenericEventDetails('none', event));
         },
         { once: true },
       );
@@ -613,13 +606,16 @@ export namespace NumberFieldRoot {
      */
     onValueChange?: (value: number | null, eventDetails: ChangeEventDetails) => void;
     /**
-     * Callback function that is fired when the value is committed. It runs later than `onValueChange`, when:
+     * Callback function that is fired when the value is committed.
+     * It runs later than `onValueChange`, when:
      * - The input is blurred after typing a value.
      * - The pointer is released after scrubbing or pressing the increment/decrement buttons.
      *
+     * It runs simultaneously with `onValueChange` when interacting with the keyboard.
+     *
      * **Warning**: This is a generic event not a change event.
      */
-    onValueCommitted?: (value: number | null, eventDetails: ChangeEventDetails) => void;
+    onValueCommitted?: (value: number | null, eventDetails: CommitEventDetails) => void;
     /**
      * The locale of the input element.
      * Defaults to the user's runtime locale.
@@ -659,7 +655,10 @@ export namespace NumberFieldRoot {
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+
+  export type CommitEventReason = 'none';
+  export type CommitEventDetails = BaseUIGenericEventDetails<CommitEventReason>;
 }
 
 function getControlledInputValue(

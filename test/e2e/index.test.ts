@@ -84,7 +84,7 @@ describe('e2e', () => {
 
   describe('<Slider />', () => {
     it('overlapping thumbs', async () => {
-      await renderFixture('RangeSlider');
+      await renderFixture('slider/Range');
 
       // mouse down at the center of the lower thumb but the upper thumb
       // is moved due to overlap
@@ -97,7 +97,7 @@ describe('e2e', () => {
     });
 
     it('overlapping thumbs at max', async () => {
-      await renderFixture('RangeSliderMax');
+      await renderFixture('slider/RangeSliderMax');
 
       // both thumbs are at max with the upper thumb completely covering the
       // lower one; the lower one will be moved by the pointer instead so the
@@ -108,6 +108,24 @@ describe('e2e', () => {
       await page.mouse.up();
 
       await expect(page.getByRole('status')).toHaveText('50 – 100');
+    });
+
+    it('inset thumbs', async () => {
+      await renderFixture('slider/Inset');
+      await expect(page.getByRole('status')).toHaveText('30');
+
+      // click the left inset offset region
+      await page.mouse.click(10, 10);
+      await expect(page.getByRole('status')).toHaveText('0');
+      // click the right inset offset region
+      await page.mouse.click(110, 10);
+      await expect(page.getByRole('status')).toHaveText('100');
+      // drag from the center of the thumb
+      await page.mouse.move(110, 10);
+      await page.mouse.down();
+      await page.mouse.move(90, 10);
+      await page.mouse.up();
+      await expect(page.getByRole('status')).toHaveText('80');
     });
   });
 });

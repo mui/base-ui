@@ -26,7 +26,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
 
   const selectionMode = useStore(store, selectors.selectionMode);
-  const cols = useStore(store, selectors.cols);
+  const grid = useStore(store, selectors.grid);
   const popupRef = useStore(store, selectors.popupRef);
   const popupProps = useStore(store, selectors.popupProps);
   const disabled = useStore(store, selectors.disabled);
@@ -73,7 +73,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         children: resolvedChildren,
         tabIndex: -1,
         id: floatingRootContext.floatingId,
-        role: cols > 1 ? 'grid' : 'listbox',
+        role: grid ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
         onKeyDown(event) {
           if (disabled || readOnly) {
@@ -81,13 +81,26 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
           }
 
           if (event.key === 'Enter') {
-            if (store.state.activeIndex == null) {
+            const activeIndex = store.state.activeIndex;
+
+            if (activeIndex == null) {
               // Allow form submission when no item is highlighted.
               return;
             }
 
             stopEvent(event);
-            store.state.handleSelection(event.nativeEvent);
+
+            const nativeEvent = event.nativeEvent;
+            const listItem = store.state.listRef.current[activeIndex];
+
+            if (listItem) {
+              store.state.selectionEventRef.current = nativeEvent;
+              listItem.click();
+              store.state.selectionEventRef.current = null;
+              return;
+            }
+
+            store.state.handleSelection(nativeEvent);
           }
         },
         onKeyDownCapture() {
