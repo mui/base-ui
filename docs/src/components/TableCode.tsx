@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Code } from './Code';
 import { getChildrenText } from '../utils/getChildrenText';
 
-interface TableCodeProps extends React.ComponentProps<'code'> {
+export interface TableCodeProps extends React.ComponentProps<'code'> {
   printWidth?: number;
 }
 
