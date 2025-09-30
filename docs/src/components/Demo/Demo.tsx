@@ -45,7 +45,7 @@ export function Demo({ defaultOpen = false, compact = false, className, ...demoP
       {demo.files.map(({ slug }) => (
         <span key={slug} id={slug} />
       ))}
-      <DemoPlayground component={demo.component} name={demo.name} />
+      <DemoPlayground component={demo.component} variant={demo.selectedVariant} />
       <Collapsible.Root open={demo.expanded} onOpenChange={demo.setExpanded}>
         <div role="figure" aria-label="Component demo code">
           {(compact ? demo.expanded : true) && (
