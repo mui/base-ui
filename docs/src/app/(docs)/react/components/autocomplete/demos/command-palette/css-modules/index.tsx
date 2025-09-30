@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { Autocomplete } from '@base-ui/react/autocomplete';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import styles from './index.module.css';
 
 export default function ExampleAutocompleteCommandPalette() {
@@ -23,38 +24,53 @@ export default function ExampleAutocompleteCommandPalette() {
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Popup className={styles.Popup} aria-label="Command palette">
-          <Autocomplete.Root items={groupedItems} filter={customFilter} autoHighlight="always">
+          <Autocomplete.Root open items={groupedItems} filter={customFilter} autoHighlight="always">
             <Autocomplete.Input
               className={styles.Input}
               placeholder="Search for apps and commands..."
             />
 
-            <Autocomplete.Empty className={styles.Empty}>No results found.</Autocomplete.Empty>
+            <ScrollArea.Root className={styles.ListArea}>
+              <ScrollArea.Viewport className={styles.ListViewport}>
+                <ScrollArea.Content>
+                  <Autocomplete.Empty className={styles.Empty}>
+                    No results found.
+                  </Autocomplete.Empty>
 
-            <Autocomplete.List className={styles.List}>
-              {(group: Group) => (
-                <Autocomplete.Group key={group.value} items={group.items} className={styles.Group}>
-                  <Autocomplete.GroupLabel className={styles.GroupLabel}>
-                    {group.value}
-                  </Autocomplete.GroupLabel>
-                  <Autocomplete.Collection>
-                    {(item: Item) => (
-                      <Autocomplete.Item
-                        key={item.value}
-                        value={item}
-                        className={styles.Item}
-                        onClick={handleItemClick}
+                  <Autocomplete.List className={styles.List}>
+                    {(group: Group) => (
+                      <Autocomplete.Group
+                        key={group.value}
+                        items={group.items}
+                        className={styles.Group}
                       >
-                        <span className={styles.ItemLabel}>{item.label}</span>
-                        <span className={styles.ItemType}>
-                          {group.value === 'Suggestions' ? 'Application' : 'Command'}
-                        </span>
-                      </Autocomplete.Item>
+                        <Autocomplete.GroupLabel className={styles.GroupLabel}>
+                          {group.value}
+                        </Autocomplete.GroupLabel>
+                        <Autocomplete.Collection>
+                          {(item: Item) => (
+                            <Autocomplete.Item
+                              key={item.value}
+                              value={item}
+                              className={styles.Item}
+                              onClick={handleItemClick}
+                            >
+                              <span className={styles.ItemLabel}>{item.label}</span>
+                              <span className={styles.ItemType}>
+                                {group.value === 'Suggestions' ? 'Application' : 'Command'}
+                              </span>
+                            </Autocomplete.Item>
+                          )}
+                        </Autocomplete.Collection>
+                      </Autocomplete.Group>
                     )}
-                  </Autocomplete.Collection>
-                </Autocomplete.Group>
-              )}
-            </Autocomplete.List>
+                  </Autocomplete.List>
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar className={styles.Scrollbar}>
+                <ScrollArea.Thumb className={styles.ScrollbarThumb} />
+              </ScrollArea.Scrollbar>
+            </ScrollArea.Root>
 
             <div className={styles.Footer}>
               <div className={styles.FooterLeft}>

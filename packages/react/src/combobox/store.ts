@@ -119,7 +119,7 @@ export const selectors = {
     return enabled ? hasNullItemLabel(state.items) : false;
   }),
 
-  open: createSelector((state: State) => (state.inline ? true : state.open)),
+  open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
   forceMounted: createSelector((state: State) => state.forceMounted),
 
