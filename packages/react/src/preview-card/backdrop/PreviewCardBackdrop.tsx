@@ -7,6 +7,8 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useBodySize } from '../../utils/useBodySize';
+import { PreviewCardBackdropCssVars } from './PreviewCardBackdropCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<PreviewCardBackdrop.State> = {
   ...baseMapping,
@@ -27,6 +29,10 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
 
   const { open, mounted, transitionStatus } = usePreviewCardRootContext();
 
+  const backdropRef = React.useRef<HTMLDivElement | null>(null);
+
+  const bodySize = useBodySize(backdropRef, open);
+
   const state: PreviewCardBackdrop.State = React.useMemo(
     () => ({
       open,
@@ -37,7 +43,7 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef],
+    ref: [backdropRef, forwardedRef],
     props: [
       {
         role: 'presentation',
@@ -46,6 +52,8 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
           pointerEvents: 'none',
           userSelect: 'none',
           WebkitUserSelect: 'none',
+          [PreviewCardBackdropCssVars.bodyWidth as string]: `${bodySize.width}px`,
+          [PreviewCardBackdropCssVars.bodyHeight as string]: `${bodySize.height}px`,
         },
       },
       elementProps,

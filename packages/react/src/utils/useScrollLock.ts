@@ -7,6 +7,8 @@ import { NOOP } from './noop';
 
 /* eslint-disable lines-between-class-members */
 
+export const SCROLL_LOCK_ATTRIBUTE = 'data-base-ui-scroll-locked';
+
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
 let originalHtmlScrollBehavior = '';
@@ -120,7 +122,7 @@ function preventScrollStandard(referenceElement: Element | null) {
 
     body.scrollTop = scrollTop;
     body.scrollLeft = scrollLeft;
-    html.setAttribute('data-base-ui-scroll-locked', '');
+    html.setAttribute(SCROLL_LOCK_ATTRIBUTE, '');
     html.style.scrollBehavior = 'unset';
   }
 
@@ -129,7 +131,7 @@ function preventScrollStandard(referenceElement: Element | null) {
     Object.assign(body.style, originalBodyStyles);
     html.scrollTop = scrollTop;
     html.scrollLeft = scrollLeft;
-    html.removeAttribute('data-base-ui-scroll-locked');
+    html.removeAttribute(SCROLL_LOCK_ATTRIBUTE);
     html.style.scrollBehavior = originalHtmlScrollBehavior;
   }
 

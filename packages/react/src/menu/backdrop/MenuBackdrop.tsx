@@ -8,6 +8,8 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { useBodySize } from '../../utils/useBodySize';
+import { MenuBackdropCssVars } from './MenuBackdropCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<MenuBackdrop.State> = {
   ...baseMapping,
@@ -29,6 +31,10 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   const { open, mounted, transitionStatus, lastOpenChangeReason } = useMenuRootContext();
   const contextMenuContext = useContextMenuRootContext();
 
+  const backdropRef = React.useRef<HTMLDivElement | null>(null);
+
+  const bodySize = useBodySize(contextMenuContext?.backdropRef || backdropRef, open);
+
   const state: MenuBackdrop.State = React.useMemo(
     () => ({
       open,
@@ -39,8 +45,8 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
 
   return useRenderElement('div', componentProps, {
     ref: contextMenuContext?.backdropRef
-      ? [forwardedRef, contextMenuContext.backdropRef]
-      : forwardedRef,
+      ? [backdropRef, forwardedRef, contextMenuContext.backdropRef]
+      : [backdropRef, forwardedRef],
     state,
     stateAttributesMapping,
     props: [
@@ -51,6 +57,8 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
           pointerEvents: lastOpenChangeReason === 'trigger-hover' ? 'none' : undefined,
           userSelect: 'none',
           WebkitUserSelect: 'none',
+          [MenuBackdropCssVars.bodyWidth as string]: `${bodySize.width}px`,
+          [MenuBackdropCssVars.bodyHeight as string]: `${bodySize.height}px`,
         },
       },
       elementProps,

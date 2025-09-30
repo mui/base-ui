@@ -27,5 +27,14 @@
       "description": "Present when the preview card is animating out."
     }
   },
-  "cssVariables": {}
+  "cssVariables": {
+    "--body-height": {
+      "description": "Indicates the height of the body. Use with position: absolute.",
+      "type": "number"
+    },
+    "--body-width": {
+      "description": "Indicates the width of the body. Use with position: absolute.",
+      "type": "number"
+    }
+  }
 }
