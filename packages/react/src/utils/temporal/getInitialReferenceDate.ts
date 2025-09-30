@@ -41,37 +41,45 @@ export function getInitialReferenceDate(
     externalReferenceDate,
     validationProps: { minDate, maxDate, minTime, maxTime },
   } = parameters;
+  let referenceDate: TemporalSupportedObject | null = null;
 
   if (adapter.isValid(externalDate)) {
-    return externalDate;
+    referenceDate = externalDate;
+    // return externalDate;
   }
 
   if (adapter.isValid(externalReferenceDate)) {
-    return externalReferenceDate;
+    referenceDate = externalReferenceDate;
+    // return externalReferenceDate;
+  }
+  if (!referenceDate) {
+    referenceDate = roundDate(adapter, precision, getCurrentDate(adapter, timezone, false));
+    if (minDate != null && isAfterDay(adapter, minDate, referenceDate)) {
+      referenceDate = roundDate(adapter, precision, minDate);
+    }
+    if (maxDate != null && isBeforeDay(adapter, maxDate, referenceDate)) {
+      referenceDate = roundDate(adapter, precision, maxDate);
+    }
+
+    if (minTime != null && isTimePartAfter(adapter, minTime, referenceDate)) {
+      referenceDate = roundDate(
+        adapter,
+        precision,
+        mergeDateAndTime(adapter, referenceDate, minTime),
+      );
+    }
+
+    if (maxTime != null && isTimePartAfter(adapter, referenceDate, maxTime)) {
+      referenceDate = roundDate(
+        adapter,
+        precision,
+        mergeDateAndTime(adapter, referenceDate, maxTime),
+      );
+    }
   }
 
-  let referenceDate = roundDate(adapter, precision, getCurrentDate(adapter, timezone, false));
-  if (minDate != null && isAfterDay(adapter, minDate, referenceDate)) {
-    referenceDate = roundDate(adapter, precision, minDate);
-  }
-  if (maxDate != null && isBeforeDay(adapter, maxDate, referenceDate)) {
-    referenceDate = roundDate(adapter, precision, maxDate);
-  }
-
-  if (minTime != null && isTimePartAfter(adapter, minTime, referenceDate)) {
-    referenceDate = roundDate(
-      adapter,
-      precision,
-      mergeDateAndTime(adapter, referenceDate, minTime),
-    );
-  }
-
-  if (maxTime != null && isTimePartAfter(adapter, referenceDate, maxTime)) {
-    referenceDate = roundDate(
-      adapter,
-      precision,
-      mergeDateAndTime(adapter, referenceDate, maxTime),
-    );
+  if (timezone && timezone !== adapter.getTimezone(referenceDate)) {
+    referenceDate = adapter.setTimezone(referenceDate, timezone);
   }
 
   return referenceDate;

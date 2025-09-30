@@ -137,7 +137,7 @@ const isDayButtonSelectedSelector = createSelector(
   selectedDatesSelector,
   (state: CalendarState, value: TemporalSupportedObject) => value,
   (adapter, selectedDates, cellValue) => {
-    return selectedDates.some((date) => adapter.isSameDay(date, cellValue));
+    return selectedDates.some((date) => adapter.isSameDay(cellValue, date));
   },
 );
 

@@ -12,7 +12,6 @@ export default function ExampleCalendar() {
     <Calendar.Root
       className={styles.Root}
       isDateUnavailable={isDateUnavailable}
-      timezone="America/New_York"
       aria-label="Departure date"
     >
       {({ visibleDate }) => (
