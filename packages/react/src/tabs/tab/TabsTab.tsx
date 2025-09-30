@@ -12,6 +12,8 @@ import { useCompositeItem } from '../../composite/item/useCompositeItem';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useTabsListContext } from '../list/TabsListContext';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { activeElement, contains } from '../../floating-ui-react/utils';
 
 /**
  * An individual interactive tab button that toggles the corresponding panel.
@@ -39,8 +41,13 @@ export const TabsTab = React.forwardRef(function TabsTab(
     orientation,
   } = useTabsRootContext();
 
-  const { activateOnFocus, highlightedTabIndex, onTabActivation, setHighlightedTabIndex } =
-    useTabsListContext();
+  const {
+    activateOnFocus,
+    highlightedTabIndex,
+    onTabActivation,
+    setHighlightedTabIndex,
+    tabsListRef,
+  } = useTabsListContext();
 
   const id = useBaseUiId(idProp);
 
@@ -79,10 +86,21 @@ export const TabsTab = React.forwardRef(function TabsTab(
       return;
     }
 
-    if (selected && index > -1 && highlightedTabIndex !== index) {
-      setHighlightedTabIndex(index);
+    if (!(selected && index > -1 && highlightedTabIndex !== index)) {
+      return;
     }
-  }, [selected, index, highlightedTabIndex, setHighlightedTabIndex, disabled]);
+
+    // If focus is currently within the tabs list, don't override the roving
+    // focus highlight. This keeps keyboard navigation relative to the focused
+    // item after an external/asynchronous selection change.
+    const listElement = tabsListRef.current;
+    const activeEl = activeElement(ownerDocument(listElement));
+    if (listElement && activeEl && contains(listElement, activeEl)) {
+      return;
+    }
+
+    setHighlightedTabIndex(index);
+  }, [selected, index, highlightedTabIndex, setHighlightedTabIndex, disabled, tabsListRef]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -100,7 +118,10 @@ export const TabsTab = React.forwardRef(function TabsTab(
       return;
     }
 
-    onTabActivation(tabValue, event.nativeEvent);
+    onTabActivation(
+      tabValue,
+      createChangeEventDetails('none', event.nativeEvent, { activationDirection: 'none' }),
+    );
   });
 
   const onFocus = useEventCallback((event: React.FocusEvent<HTMLButtonElement>) => {
@@ -117,10 +138,13 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
 
     if (
-      (activateOnFocus && !isPressingRef.current) || // keyboard focus
-      (isPressingRef.current && isMainButtonRef.current) // focus caused by pointerdown
+      (activateOnFocus && !isPressingRef.current) || // keyboard or touch focus
+      (isPressingRef.current && isMainButtonRef.current) // mouse focus
     ) {
-      onTabActivation(tabValue, event.nativeEvent);
+      onTabActivation(
+        tabValue,
+        createChangeEventDetails('none', event.nativeEvent, { activationDirection: 'none' }),
+      );
     }
   });
 

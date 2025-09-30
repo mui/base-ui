@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useMenuRadioItemContext } from '../radio-item/MenuRadioItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
-import { itemMapping } from '../utils/styleHookMapping';
+import { itemMapping } from '../utils/stateAttributesMapping';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
@@ -47,7 +47,7 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
 
   const element = useRenderElement('span', componentProps, {
     state,
-    customStyleHookMapping: itemMapping,
+    stateAttributesMapping: itemMapping,
     ref: [forwardedRef, indicatorRef],
     props: {
       'aria-hidden': true,

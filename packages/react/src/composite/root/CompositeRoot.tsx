@@ -9,7 +9,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { Dimensions, ModifierKey } from '../composite';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
 /**
  * @internal
@@ -20,10 +20,10 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
   const {
     render,
     className,
-    refs = EMPTY_ARRAY,
+    refs = EMPTY_ARRAY as React.Ref<Element>[],
     props = EMPTY_ARRAY,
     state = EMPTY_OBJECT as State,
-    customStyleHookMapping,
+    stateAttributesMapping,
     highlightedIndex: highlightedIndexProp,
     onHighlightedIndexChange: onHighlightedIndexChangeProp,
     orientation,
@@ -38,6 +38,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     disabledIndices,
     modifierKeys,
     highlightItemOnHover = false,
+    tag = 'div',
     ...elementProps
   } = componentProps;
 
@@ -72,11 +73,11 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     },
   );
 
-  const element = useRenderElement('div', componentProps, {
+  const element = useRenderElement(tag, componentProps, {
     state,
     ref: refs,
     props: [defaultProps, ...props, elementProps],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
@@ -98,7 +99,7 @@ export namespace CompositeRoot {
     extends Pick<BaseUIComponentProps<'div', State>, 'render' | 'className' | 'children'> {
     props?: Array<Record<string, any> | (() => Record<string, any>)>;
     state?: State;
-    customStyleHookMapping?: CustomStyleHookMapping<State>;
+    stateAttributesMapping?: StateAttributesMapping<State>;
     refs?: React.Ref<HTMLElement | null>[];
     tag?: keyof React.JSX.IntrinsicElements;
     orientation?: 'horizontal' | 'vertical' | 'both';

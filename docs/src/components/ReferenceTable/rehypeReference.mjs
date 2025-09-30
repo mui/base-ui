@@ -1,7 +1,7 @@
 // @ts-check
 import { readFileSync, existsSync } from 'node:fs';
 import { visitParents } from 'unist-util-visit-parents';
-import kebabCase from 'lodash/kebabCase.js';
+import kebabCase from 'es-toolkit/compat/kebabCase';
 import { join } from 'path';
 import { createMdxElement } from 'docs/src/mdx/createMdxElement.mjs';
 import { createHast } from 'docs/src/mdx/createHast.mjs';
@@ -38,6 +38,12 @@ export function rehypeReference() {
       const parts = node.attributes.find(
         /** @param {{ name: string; }} attr */
         (attr) => attr.name === 'parts',
+      )?.value;
+
+      /** @type {string | undefined} */
+      const asParam = node.attributes.find(
+        /** @param {{ name: string; }} attr */
+        (attr) => attr.name === 'as',
       )?.value;
 
       if (!component) {
@@ -104,7 +110,15 @@ export function rehypeReference() {
             subtree.push(
               createMdxElement({
                 name: PROPS_TABLE,
-                props: { name: def.name, data: def.props },
+                props: {
+                  name:
+                    asParam && def.name.startsWith(component)
+                      ? `${asParam}${def.name.substring(component.length)}`
+                      : def.name,
+                  data: def.props,
+                  renameFrom: asParam ? component : undefined,
+                  renameTo: asParam,
+                },
               }),
             );
           }

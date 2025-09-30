@@ -5,6 +5,7 @@ import { FloatingEvents } from '../../floating-ui-react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 export const REGULAR_ITEM = {
   type: 'regular-item' as const,
@@ -21,9 +22,12 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     typingRef,
     nativeButton,
     itemMetadata,
+    nodeId,
   } = params;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
+  const contextMenuContext = useContextMenuRootContext(true);
+  const isContextMenu = contextMenuContext !== undefined;
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -33,11 +37,23 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 
   const getItemProps = React.useCallback(
     (externalProps?: HTMLProps): HTMLProps => {
-      return mergeProps(
+      return mergeProps<'div'>(
         {
           id,
           role: 'menuitem',
           tabIndex: highlighted ? 0 : -1,
+          onMouseMove(event) {
+            if (!nodeId) {
+              return;
+            }
+
+            // Inform the floating tree that a menu item within this menu was hovered/moved over
+            // so unrelated descendant submenus can be closed.
+            menuEvents.emit('itemhover', {
+              nodeId,
+              target: event.currentTarget,
+            });
+          },
           onMouseEnter() {
             if (itemMetadata.type !== 'submenu-trigger') {
               return;
@@ -45,18 +61,22 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 
             itemMetadata.setActive();
           },
-          onKeyUp: (event: BaseUIEvent<React.KeyboardEvent>) => {
+          onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
             if (event.key === ' ' && typingRef.current) {
               event.preventBaseUIHandler();
             }
           },
-          onClick: (event: React.MouseEvent | React.KeyboardEvent) => {
+          onClick(event) {
             if (closeOnClick) {
               menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
             }
           },
-          onMouseUp: () => {
-            if (itemRef.current && allowMouseUpTriggerRef.current) {
+          onMouseUp(event) {
+            if (
+              itemRef.current &&
+              allowMouseUpTriggerRef.current &&
+              (!isContextMenu || event.button === 2)
+            ) {
               // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
               // We trigger the click and override the `closeOnClick` preference to always close the menu.
               if (itemMetadata.type === 'regular-item') {
@@ -77,7 +97,9 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
       closeOnClick,
       menuEvents,
       allowMouseUpTriggerRef,
+      isContextMenu,
       itemMetadata,
+      nodeId,
     ],
   );
 
@@ -133,6 +155,10 @@ export namespace useMenuItem {
      * Additional data specific to the item type.
      */
     itemMetadata: Metadata;
+    /**
+     * The node id of the menu positioner.
+     */
+    nodeId: string | undefined;
   }
 
   export type Metadata =

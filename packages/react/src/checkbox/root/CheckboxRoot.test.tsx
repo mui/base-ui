@@ -226,11 +226,12 @@ describe('<Checkbox.Root />', () => {
     expect(checkbox).not.to.have.attribute('data-checked');
   });
 
-  it('should set the name attribute on the input', async () => {
+  it('should set the name attribute only on the input', async () => {
     const { container } = await render(<Checkbox.Root name="checkbox-name" />);
-    const input = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
 
+    const input = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
     expect(input).to.have.attribute('name', 'checkbox-name');
+    expect(screen.getByRole('checkbox')).not.to.have.attribute('name');
   });
 
   describe('Form', () => {
@@ -541,6 +542,39 @@ describe('<Checkbox.Root />', () => {
       expect(button).not.to.have.attribute('data-focused');
     });
 
+    it('[data-invalid]', async () => {
+      await render(
+        <Field.Root invalid>
+          <Checkbox.Root data-testid="button" />
+        </Field.Root>,
+      );
+
+      const button = screen.getByTestId('button');
+
+      expect(button).to.have.attribute('data-invalid', '');
+    });
+
+    it('[data-valid]', async () => {
+      await render(
+        <Field.Root validationMode="onBlur">
+          <Checkbox.Root data-testid="button" required />
+        </Field.Root>,
+      );
+
+      const button = screen.getByTestId('button');
+
+      expect(button).not.to.have.attribute('data-valid');
+      expect(button).not.to.have.attribute('data-invalid');
+
+      // Check the checkbox and trigger validation
+      fireEvent.click(button);
+      fireEvent.focus(button);
+      fireEvent.blur(button);
+
+      expect(button).to.have.attribute('data-valid', '');
+      expect(button).not.to.have.attribute('data-invalid');
+    });
+
     it('prop: validate', async () => {
       await render(
         <Field.Root validate={() => 'error'}>
@@ -618,7 +652,7 @@ describe('<Checkbox.Root />', () => {
         const button = screen.getByTestId('button');
 
         await waitFor(() => {
-          expect(label.getAttribute('for')).to.not.equal(null);
+          expect(label.getAttribute('for')).not.to.equal(null);
         });
 
         expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));

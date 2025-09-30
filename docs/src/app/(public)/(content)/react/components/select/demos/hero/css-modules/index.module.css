@@ -49,16 +49,14 @@
 
 .Popup {
   box-sizing: border-box;
-  padding-block: 0.25rem;
   border-radius: 0.375rem;
   background-color: canvas;
+  background-clip: padding-box;
   color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
   transition:
     transform 150ms,
     opacity 150ms;
-  overflow-y: auto;
-  max-height: var(--available-height);
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -81,8 +79,16 @@
 
   @media (prefers-color-scheme: dark) {
     outline: 1px solid var(--color-gray-300);
-    outline-offset: -1px;
   }
+}
+
+.List {
+  box-sizing: border-box;
+  position: relative;
+  padding-block: 0.25rem;
+  overflow-y: auto;
+  max-height: var(--available-height);
+  scroll-padding-block: 1.5rem;
 }
 
 .Arrow {
@@ -141,7 +147,6 @@
   cursor: default;
   -webkit-user-select: none;
   user-select: none;
-  scroll-margin-block: 1rem;
 
   @media (pointer: coarse) {
     padding-block: 0.625rem;

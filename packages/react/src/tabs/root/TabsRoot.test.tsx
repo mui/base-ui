@@ -187,7 +187,7 @@ describe('<Tabs.Root />', () => {
       expect(handlePointerDown.callCount).to.equal(1);
     });
 
-    it('should call onValueChange when clicking', async () => {
+    it.skipIf(isJSDOM)('should call onValueChange when clicking', async () => {
       const handleChange = spy();
       const { getAllByRole } = await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
@@ -201,6 +201,7 @@ describe('<Tabs.Root />', () => {
       fireEvent.click(getAllByRole('tab')[1]);
       expect(handleChange.callCount).to.equal(1);
       expect(handleChange.firstCall.args[0]).to.equal(1);
+      expect(handleChange.firstCall.args[1].activationDirection).to.equal('right');
     });
 
     it('should not call onValueChange on non-main button clicks', async () => {
@@ -465,7 +466,7 @@ describe('<Tabs.Root />', () => {
               });
             });
 
-            describe('with `activateOnFocus = true`', async () => {
+            describe('with `activateOnFocus = true`', () => {
               it('moves focus to the last tab while activating it if focus is on the first tab', async () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
@@ -1152,33 +1153,73 @@ describe('<Tabs.Root />', () => {
     });
   });
 
-  it('updates the highlighted index when value changes externally', async () => {
-    const { getAllByRole, setProps } = await render(
-      <Tabs.Root value={0}>
-        <Tabs.List activateOnFocus={false}>
-          <Tabs.Tab value={0} />
-          <Tabs.Tab value={1} />
-          <Tabs.Tab value={2} />
-        </Tabs.List>
-      </Tabs.Root>,
-    );
+  describe('highlight synchronization on external value change relative to focus', () => {
+    it('when focus is outside the tablist, highlight follows the new selected tab (tabIndex=0 moves)', async () => {
+      const { getAllByRole, setProps } = await render(
+        <Tabs.Root value={0}>
+          <Tabs.List activateOnFocus={false}>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+            <Tabs.Tab value={2} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
 
-    const [firstTab, secondTab, thirdTab] = getAllByRole('tab');
+      const [firstTab, secondTab, thirdTab] = getAllByRole('tab');
 
-    expect(firstTab.tabIndex).to.equal(0);
+      expect(firstTab.tabIndex).to.equal(0);
 
-    await setProps({ value: 2 });
-    await flushMicrotasks();
+      await setProps({ value: 2 });
+      await flushMicrotasks();
 
-    expect(firstTab.tabIndex).to.equal(-1);
-    expect(secondTab.tabIndex).to.equal(-1);
-    expect(thirdTab.tabIndex).to.equal(0);
+      expect(firstTab.tabIndex).to.equal(-1);
+      expect(secondTab.tabIndex).to.equal(-1);
+      expect(thirdTab.tabIndex).to.equal(0);
 
-    await setProps({ value: 1 });
-    await flushMicrotasks();
+      await setProps({ value: 1 });
+      await flushMicrotasks();
 
-    expect(firstTab.tabIndex).to.equal(-1);
-    expect(secondTab.tabIndex).to.equal(0);
-    expect(thirdTab.tabIndex).to.equal(-1);
+      expect(firstTab.tabIndex).to.equal(-1);
+      expect(secondTab.tabIndex).to.equal(0);
+      expect(thirdTab.tabIndex).to.equal(-1);
+    });
+
+    it('when focus is inside the tablist, highlight stays put on external change and arrow keys continue from the focused tab', async () => {
+      const { getAllByRole, setProps } = await render(
+        <Tabs.Root value={0}>
+          <Tabs.List activateOnFocus={false}>
+            <Tabs.Tab value={0}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 2</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const [firstTab, secondTab, thirdTab] = getAllByRole('tab');
+
+      await act(async () => {
+        firstTab.focus();
+      });
+      expect(firstTab).to.have.property('tabIndex', 0);
+
+      await setProps({ value: 2 });
+      await flushMicrotasks();
+
+      // Highlight should not change (still on first tab), but selection did
+      expect(firstTab.tabIndex).to.equal(0);
+      expect(secondTab.tabIndex).to.equal(-1);
+      expect(thirdTab.tabIndex).to.equal(-1);
+      expect(firstTab).to.have.attribute('aria-selected', 'false');
+      expect(thirdTab).to.have.attribute('aria-selected', 'true');
+
+      // Arrow navigation should continue from the highlighted tab
+      fireEvent.keyDown(firstTab, { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      expect(secondTab).toHaveFocus();
+      // Selection remains the externally-set tab since activateOnFocus=false
+      expect(thirdTab).to.have.attribute('aria-selected', 'true');
+      expect(secondTab).to.have.attribute('aria-selected', 'false');
+    });
   });
 });

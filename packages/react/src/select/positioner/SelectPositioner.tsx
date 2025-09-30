@@ -13,14 +13,16 @@ import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { clearPositionerStyles } from '../popup/utils';
+import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { useScrollLock } from '../../utils/useScrollLock';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
 /**
- * Positions the select menu popup.
+ * Positions the select popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -48,8 +50,16 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     ...elementProps
   } = componentProps;
 
-  const { store, listRef, labelsRef, alignItemWithTriggerActiveRef, valuesRef } =
-    useSelectRootContext();
+  const {
+    store,
+    listRef,
+    labelsRef,
+    alignItemWithTriggerActiveRef,
+    valuesRef,
+    initialValueRef,
+    popupRef,
+    setValue,
+  } = useSelectRootContext();
   const floatingRootContext = useSelectFloatingContext();
 
   const open = useStore(store, selectors.open);
@@ -59,6 +69,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const touchModality = useStore(store, selectors.touchModality);
   const positionerElement = useStore(store, selectors.positionerElement);
   const triggerElement = useStore(store, selectors.triggerElement);
+  const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+
+  const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
 
   const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
     React.useState(alignItemWithTrigger);
@@ -69,7 +83,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   }
 
   useIsoLayoutEffect(() => {
-    if (!alignItemWithTrigger || !mounted) {
+    if (!mounted) {
       if (selectors.scrollUpArrowVisible(store.state)) {
         store.set('scrollUpArrowVisible', false);
       }
@@ -77,7 +91,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         store.set('scrollDownArrowVisible', false);
       }
     }
-  }, [store, mounted, alignItemWithTrigger]);
+  }, [store, mounted]);
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
@@ -143,7 +157,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setPositionerElement],
     state,
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
     props: [defaultProps, elementProps],
   });
 
@@ -165,13 +179,26 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       return;
     }
 
-    if (!store.state.multiple && value !== null) {
-      const valueIndex = valuesRef.current.indexOf(value);
+    const eventDetails = createChangeEventDetails('none');
+
+    if (prevSize !== 0 && !store.state.multiple && value !== null) {
+      const valueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
       if (valueIndex === -1) {
-        store.apply({
-          label: '',
-          selectedIndex: null,
-        });
+        const initial = initialValueRef.current;
+        const hasInitial =
+          initial != null && itemIncludes(valuesRef.current, initial, isItemEqualToValue);
+        const nextValue = hasInitial ? initial : null;
+        setValue(nextValue, eventDetails);
+      }
+    }
+
+    if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
+      const nextValue = value.filter((v) => itemIncludes(valuesRef.current, v, isItemEqualToValue));
+      if (
+        nextValue.length !== value.length ||
+        nextValue.some((v) => !itemIncludes(value, v, isItemEqualToValue))
+      ) {
+        setValue(nextValue, eventDetails);
       }
     }
 
@@ -181,9 +208,9 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         scrollDownArrowVisible: false,
       });
 
-      if (positionerElement) {
-        clearPositionerStyles(positionerElement, { height: '' });
-      }
+      const stylesToClear: React.CSSProperties = { height: '' };
+      clearStyles(positionerElement, stylesToClear);
+      clearStyles(popupRef.current, stylesToClear);
     }
   });
 
@@ -193,6 +220,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       side: renderedSide,
       alignItemWithTriggerActive,
       setControlledAlignItemWithTrigger,
+      scrollUpArrowRef,
+      scrollDownArrowRef,
     }),
     [positioning, renderedSide, alignItemWithTriggerActive, setControlledAlignItemWithTrigger],
   );

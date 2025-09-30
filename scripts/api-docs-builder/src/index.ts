@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable prefer-template */
 /* eslint-disable no-console */
 import * as fs from 'node:fs';
@@ -6,9 +7,9 @@ import * as inspector from 'node:inspector';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import * as tae from 'typescript-api-extractor';
-import kebabCase from 'lodash/kebabCase';
+import kebabCase from 'es-toolkit/compat/kebabCase';
 import ts from 'typescript';
-import glob from 'fast-glob';
+import { globby } from 'globby';
 import { isPublicComponent, formatComponentData } from './componentHandler';
 import { isPublicHook, formatHookData } from './hookHandler';
 
@@ -33,13 +34,13 @@ async function run(options: RunOptions) {
   const { exports, errorCount } = findAllExports(program, files);
 
   for (const exportNode of exports.filter(isPublicComponent)) {
-    const componentApiReference = formatComponentData(exportNode, exports);
+    const componentApiReference = await formatComponentData(exportNode, exports);
     const json = JSON.stringify(componentApiReference, null, 2) + '\n';
     fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
   }
 
   for (const exportNode of exports.filter(isPublicHook)) {
-    const json = JSON.stringify(formatHookData(exportNode), null, 2) + '\n';
+    const json = JSON.stringify(await formatHookData(exportNode), null, 2) + '\n';
     fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
   }
 
@@ -52,7 +53,7 @@ async function run(options: RunOptions) {
 
 async function getFilesToProcess(options: RunOptions, config: TsConfig): Promise<string[]> {
   if (options.files && options.files.length > 0) {
-    const files = await glob(options.files, {
+    const files = await globby(options.files, {
       cwd: path.dirname(options.configPath),
       absolute: true,
       onlyFiles: true,
@@ -126,7 +127,7 @@ function findAllExports(program: ts.Program, sourceFiles: string[]) {
       const ast = tae.parseFromProgram(file, program);
       allExports.push(...ast.exports);
     } catch (error) {
-      console.error(`⛔ Error processing ${file}: ${error.message}`);
+      console.error(`⛔ Error processing ${file}: ${(error as Error).message}`);
       errorCounter += 1;
     } finally {
       if (!isDebug) {

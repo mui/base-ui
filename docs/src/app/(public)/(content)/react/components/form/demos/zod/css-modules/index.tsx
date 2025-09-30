@@ -7,8 +7,8 @@ import { Form } from '@base-ui-components/react/form';
 import styles from './index.module.css';
 
 const schema = z.object({
-  name: z.string().min(1),
-  age: z.coerce.number().positive(),
+  name: z.string().min(1, 'Name is required'),
+  age: z.coerce.number('Age must be a number').positive('Age must be a positive number'),
 });
 
 async function submitForm(event: React.FormEvent<HTMLFormElement>) {
@@ -19,7 +19,7 @@ async function submitForm(event: React.FormEvent<HTMLFormElement>) {
 
   if (!result.success) {
     return {
-      errors: result.error.flatten().fieldErrors,
+      errors: z.flattenError(result.error).fieldErrors,
     };
   }
 

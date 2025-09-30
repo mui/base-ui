@@ -143,7 +143,7 @@ describe('<Field.Root />', () => {
       await flushMicrotasks();
 
       await waitFor(() => {
-        expect(screen.queryByText('value missing')).to.not.equal(null);
+        expect(screen.queryByText('value missing')).not.to.equal(null);
       });
       await waitFor(() => {
         expect(screen.queryByText('custom error')).to.equal(null);
@@ -157,7 +157,7 @@ describe('<Field.Root />', () => {
         expect(screen.queryByText('value missing')).to.equal(null);
       });
       await waitFor(() => {
-        expect(screen.queryByText('custom error')).to.not.equal(null);
+        expect(screen.queryByText('custom error')).not.to.equal(null);
       });
     });
 
@@ -696,7 +696,7 @@ describe('<Field.Root />', () => {
       });
     });
 
-    describe('filled', async () => {
+    describe('filled', () => {
       it('should apply [data-filled] style hook to all components when filled', async () => {
         await render(
           <Field.Root data-testid="root">
@@ -793,6 +793,56 @@ describe('<Field.Root />', () => {
         expect(label).not.to.have.attribute('data-focused');
         expect(description).not.to.have.attribute('data-focused');
       });
+    });
+  });
+
+  describe('defaultValue behavior', () => {
+    it('should not reset to defaultValue when input value is programmatically changed and then focused', async () => {
+      const inputRef = React.createRef<HTMLInputElement>();
+
+      await render(
+        <Field.Root>
+          <Field.Control ref={inputRef} defaultValue="foo" data-testid="input" />
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input') as HTMLInputElement;
+
+      expect(input.value).to.equal('foo');
+
+      if (inputRef.current) {
+        inputRef.current.value = '';
+      }
+
+      expect(input.value).to.equal('');
+
+      fireEvent.focus(input);
+
+      expect(input.value).to.equal('');
+    });
+
+    it('should not reset to defaultValue when input value is programmatically changed to non-empty value and then focused', async () => {
+      const inputRef = React.createRef<HTMLInputElement>();
+
+      await render(
+        <Field.Root>
+          <Field.Control ref={inputRef} defaultValue="foo" data-testid="input" />
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input') as HTMLInputElement;
+
+      expect(input.value).to.equal('foo');
+
+      if (inputRef.current) {
+        inputRef.current.value = 'abc';
+      }
+
+      expect(input.value).to.equal('abc');
+
+      fireEvent.focus(input);
+
+      expect(input.value).to.equal('abc');
     });
   });
 });

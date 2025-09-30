@@ -4,6 +4,8 @@ import { useId } from '@base-ui-components/utils/useId';
 import { ContextMenuRootContext } from './ContextMenuRootContext';
 import { Menu } from '../../menu';
 import { MenuRootContext } from '../../menu/root/MenuRootContext';
+import type { BaseUIChangeEventDetails } from '../../types';
+import type { MenuRoot } from '../../menu/root/MenuRoot';
 
 /**
  * A component that creates a context menu activated by right clicking or long pressing.
@@ -52,5 +54,16 @@ export namespace ContextMenuRoot {
   export interface State {}
 
   export interface Props
-    extends Omit<Menu.Root.Props, 'modal' | 'openOnHover' | 'delay' | 'closeDelay'> {}
+    extends Omit<
+      Menu.Root.Props,
+      'modal' | 'openOnHover' | 'delay' | 'closeDelay' | 'onOpenChange'
+    > {
+    /**
+     * Event handler called when the menu is opened or closed.
+     */
+    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
+  }
+
+  export type ChangeEventReason = MenuRoot.ChangeEventReason;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

@@ -1,0 +1,154 @@
+# Combobox
+
+<Subtitle>An input combined with a list of predefined items to select.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React combobox component that renders an input combined with a list of predefined items to select."
+/>
+
+import { DemoComboboxHero } from './demos/hero';
+
+<DemoComboboxHero />
+
+## Usage guidelines
+
+- **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
+- **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
+
+## Anatomy
+
+Import the components and place them together:
+
+```jsx title="Anatomy"
+import { Combobox } from '@base-ui-components/react/combobox';
+
+<Combobox.Root>
+  <Combobox.Input />
+  <Combobox.Trigger />
+  <Combobox.Icon />
+  <Combobox.Clear />
+  <Combobox.Value />
+
+  <Combobox.Chips>
+    <Combobox.Chip>
+      <Combobox.ChipRemove />
+    </Combobox.Chip>
+  </Combobox.Chips>
+
+  <Combobox.Portal>
+    <Combobox.Backdrop />
+    <Combobox.Positioner>
+      <Combobox.Popup>
+        <Combobox.Arrow />
+
+        <Combobox.Status />
+        <Combobox.Empty />
+
+        <Combobox.List>
+          <Combobox.Row>
+            <Combobox.Item>
+              <Combobox.ItemIndicator />
+            </Combobox.Item>
+          </Combobox.Row>
+
+          <Combobox.Separator />
+
+          <Combobox.Group>
+            <Combobox.GroupLabel />
+          </Combobox.Group>
+
+          <Combobox.Collection />
+        </Combobox.List>
+      </Combobox.Popup>
+    </Combobox.Positioner>
+  </Combobox.Portal>
+</Combobox.Root>;
+```
+
+## API reference
+
+<Reference
+  component="Combobox"
+  parts="Root, Value, Icon, Input, Clear, Trigger, Chips, Chip, ChipRemove, List, Portal, Backdrop, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
+/>
+
+## useFilter
+
+Matches items against a query using `Intl.Collator` for robust string matching. This hook is used when externally filtering items. Pass the result to the `filter` prop of `Combobox.Root`.
+
+### Input parameters
+
+Accepts all `Intl.CollatorOptions`, plus the following options:
+
+<PropsReferenceTable
+  data={{
+    locale: {
+      type: 'Intl.LocalesArgument',
+      description: 'The locale to use for string comparison.',
+    },
+    multiple: {
+      type: 'boolean',
+      description: 'Whether the combobox is in multiple selection mode.',
+      default: 'false',
+    },
+    value: {
+      type: 'any',
+      description:
+        'The current value of the combobox. For single selection, pass this so the selected item remains visible when the query is empty or matches the selection.',
+    },
+  }}
+/>
+
+### Return value
+
+<PropsReferenceTable
+  type="return"
+  data={{
+    contains: {
+      type: '(itemValue: any, query: string) => boolean',
+      description: 'Returns whether the item matches the query anywhere.',
+    },
+    startsWith: {
+      type: '(itemValue: any, query: string) => boolean',
+      description: 'Returns whether the item starts with the query.',
+    },
+    endsWith: {
+      type: '(itemValue: any, query: string) => boolean',
+      description: 'Returns whether the item ends with the query.',
+    },
+  }}
+/>
+
+## Examples
+
+### Multiple select
+
+The combobox can allow multiple selections by adding the `multiple` prop to `Combobox.Root`. Selection chips are rendered with `Combobox.Chip` inside the input that can be removed.
+
+import { DemoComboboxMultiple } from './demos/multiple';
+
+<DemoComboboxMultiple compact />
+
+### Input inside popup
+
+`Combobox.Input` can be rendered inside `Combobox.Popup` to create a searchable select popup.
+
+import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
+
+<DemoComboboxInputInsidePopup compact />
+
+### Creatable
+
+Create a new item when the filter matches no items, opening a creation `Dialog`.
+
+import { DemoComboboxCreatable } from './demos/creatable';
+
+<DemoComboboxCreatable compact />
+
+### Virtualized
+
+Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
+
+import { DemoComboboxVirtualized } from './demos/virtualized';
+
+<DemoComboboxVirtualized compact />

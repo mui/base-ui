@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { screen, fireEvent, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 
 describe('<NumberField.Increment />', () => {
@@ -70,10 +70,28 @@ describe('<NumberField.Increment />', () => {
     const increase = screen.getByLabelText('Increase');
 
     await user.click(screen.getByText('external'));
-    expect(input).to.have.value('1.23456');
+    expect(input).to.have.value((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
 
     await user.click(increase);
-    expect(input).to.have.value('2.235');
+    expect(input).to.have.value((2.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
+  });
+
+  it('only calls onValueChange once per increment', async () => {
+    const handleValueChange = spy();
+    const { user } = await render(
+      <NumberField.Root onValueChange={handleValueChange}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+
+    await user.click(button);
+    expect(handleValueChange.callCount).to.equal(1);
+
+    await user.click(button);
+    expect(handleValueChange.callCount).to.equal(2);
   });
 
   describe('press and hold', () => {
@@ -313,6 +331,30 @@ describe('<NumberField.Increment />', () => {
     expect(input).to.have.value('2');
   });
 
+  it.skipIf(isJSDOM)('fires onValueCommitted once on first soft tap (touch)', async () => {
+    const onValueCommitted = spy();
+    await render(
+      <NumberField.Root defaultValue={0} onValueCommitted={onValueCommitted}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByLabelText('Increase');
+
+    // Simulate the typical sequence with a 300ms tap delay producing mouse compatibility events
+    fireEvent.touchStart(button);
+    fireEvent.pointerDown(button, { pointerType: 'touch' });
+    // No movement; quick tap
+    fireEvent.touchEnd(button);
+    // Compatibility mouse events and click
+    fireEvent.mouseEnter(button);
+    fireEvent.click(button, { detail: 1 });
+
+    expect(onValueCommitted.callCount).to.equal(1);
+    expect(onValueCommitted.firstCall.args[0]).to.equal(1);
+  });
+
   describe('prop: snapOnStep', () => {
     it('should increment by exact step without rounding when snapOnStep is false', async () => {
       await render(
@@ -325,7 +367,7 @@ describe('<NumberField.Increment />', () => {
       const button = screen.getByRole('button');
       fireEvent.click(button);
 
-      expect(screen.getByRole('textbox')).to.have.value('4.7');
+      expect(screen.getByRole('textbox')).to.have.value((4.7).toLocaleString());
     });
 
     it('should snap on increment when snapOnStep is true', async () => {
@@ -413,7 +455,7 @@ describe('<NumberField.Increment />', () => {
       expect(input).to.have.value('0');
     });
 
-    describe('should be provided to className prop as a fn argument', async () => {
+    describe('should be provided to className prop as a fn argument', () => {
       it('when root is disabled', async () => {
         const classNameSpy = spy();
         await render(

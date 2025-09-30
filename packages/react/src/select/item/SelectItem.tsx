@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
@@ -14,9 +15,11 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { compareItemEquality, itemIncludes, removeItem } from '../../utils/itemEquality';
 
 /**
- * An individual option in the select menu.
+ * An individual option in the select popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -53,14 +56,16 @@ export const SelectItem = React.memo(
       valuesRef,
       registerItemIndex,
       keyboardActiveRef,
-      highlightTimeout,
       multiple,
     } = useSelectRootContext();
+
+    const highlightTimeout = useTimeout();
 
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const selected = useStore(store, selectors.isSelected, listItem.index, value);
     const rootValue = useStore(store, selectors.value);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
+    const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(listItem.index);
@@ -83,15 +88,24 @@ export const SelectItem = React.memo(
     useIsoLayoutEffect(() => {
       if (hasRegistered) {
         if (multiple) {
-          const isValueSelected = Array.isArray(rootValue) && rootValue.includes(value);
+          const isValueSelected =
+            Array.isArray(rootValue) && itemIncludes(rootValue, value, isItemEqualToValue);
           if (isValueSelected) {
             registerItemIndex(listItem.index);
           }
-        } else if (value === rootValue) {
+        } else if (compareItemEquality(rootValue, value, isItemEqualToValue)) {
           registerItemIndex(listItem.index);
         }
       }
-    }, [hasRegistered, listItem.index, registerItemIndex, value, rootValue, multiple]);
+    }, [
+      hasRegistered,
+      listItem.index,
+      registerItemIndex,
+      value,
+      rootValue,
+      multiple,
+      isItemEqualToValue,
+    ]);
 
     const state: SelectItem.State = React.useMemo(
       () => ({
@@ -122,16 +136,18 @@ export const SelectItem = React.memo(
       if (multiple) {
         const currentValue = Array.isArray(rootValue) ? rootValue : [];
         const nextValue = selected
-          ? currentValue.filter((v) => v !== value)
+          ? removeItem(currentValue, value, isItemEqualToValue)
           : [...currentValue, value];
-        setValue(nextValue, event);
+        setValue(nextValue, createChangeEventDetails('item-press', event));
       } else {
-        setValue(value, event);
-        setOpen(false, event, 'item-press');
+        setValue(value, createChangeEventDetails('item-press', event));
+        setOpen(false, createChangeEventDetails('item-press', event));
       }
     }
 
     const defaultProps: HTMLProps = {
+      role: 'option',
+      'aria-selected': selected,
       'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {
@@ -160,11 +176,9 @@ export const SelectItem = React.memo(
         selectionRef.current = {
           allowSelectedMouseUp: false,
           allowUnselectedMouseUp: false,
-          allowSelect: true,
         };
       },
       onKeyDown(event) {
-        selectionRef.current.allowSelect = true;
         lastKeyRef.current = event.key;
         store.set('activeIndex', indexRef.current);
       },
@@ -184,10 +198,8 @@ export const SelectItem = React.memo(
           return;
         }
 
-        if (selectionRef.current.allowSelect) {
-          lastKeyRef.current = null;
-          commitSelection(event.nativeEvent);
-        }
+        lastKeyRef.current = null;
+        commitSelection(event.nativeEvent);
       },
       onPointerEnter(event) {
         pointerTypeRef.current = event.pointerType;
@@ -217,11 +229,7 @@ export const SelectItem = React.memo(
           return;
         }
 
-        if (selectionRef.current.allowSelect || !selected) {
-          commitSelection(event.nativeEvent);
-        }
-
-        selectionRef.current.allowSelect = true;
+        commitSelection(event.nativeEvent);
       },
     };
 

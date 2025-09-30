@@ -179,17 +179,13 @@ const SOURCE_CODE_REPO = process.env.SOURCE_CODE_REPO;
 
 export function resolveDependencies(packageName: string): Record<string, string> {
   switch (packageName) {
-    case '@base-ui-components/react': {
-      if (COMMIT_REF === undefined || SOURCE_CODE_REPO !== 'https://github.com/mui/base-ui') {
-        // #default-branch-switch
-        return {
-          '@base-ui-components/react': 'latest',
-        };
-      }
-      const shortSha = COMMIT_REF.slice(0, 8);
-      return {
-        '@base-ui-components/react': `https://pkg.csb.dev/mui/base-ui/commit/${shortSha}/@base-ui-components/react`,
-      };
+    case '@base-ui-components/react':
+    case '@base-ui-components/utils': {
+      const version =
+        COMMIT_REF === undefined || SOURCE_CODE_REPO !== 'https://github.com/mui/base-ui'
+          ? 'latest' // #npm-tag-reference
+          : `https://pkg.pr.new/mui/base-ui/${packageName}@${COMMIT_REF}`;
+      return { [packageName]: version };
     }
 
     case '@mui/material':

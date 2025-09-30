@@ -7,6 +7,10 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import { useButton } from '../use-button/useButton';
 import { CompositeItem } from '../composite/item/CompositeItem';
+import {
+  type BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../utils/createBaseUIEventDetails';
 
 /**
  * A two-state button that can be on or off.
@@ -49,10 +53,12 @@ export const Toggle = React.forwardRef(function Toggle(
     state: 'pressed',
   });
 
-  const onPressedChange = useEventCallback((nextPressed: boolean, event: Event) => {
-    groupContext?.setGroupValue?.(value, nextPressed, event);
-    onPressedChangeProp?.(nextPressed, event);
-  });
+  const onPressedChange = useEventCallback(
+    (nextPressed: boolean, eventDetails: Toggle.ChangeEventDetails) => {
+      groupContext?.setGroupValue?.(value, nextPressed, eventDetails);
+      onPressedChangeProp?.(nextPressed, eventDetails);
+    },
+  );
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -73,8 +79,15 @@ export const Toggle = React.forwardRef(function Toggle(
       'aria-pressed': pressed,
       onClick(event: React.MouseEvent) {
         const nextPressed = !pressed;
+        const details = createChangeEventDetails('none', event.nativeEvent);
+
+        onPressedChange(nextPressed, details);
+
+        if (details.isCanceled) {
+          return;
+        }
+
         setPressedState(nextPressed);
-        onPressedChange(nextPressed, event.nativeEvent);
       },
     },
     elementProps,
@@ -135,15 +148,15 @@ export namespace Toggle {
     disabled?: boolean;
     /**
      * Callback fired when the pressed state is changed.
-     *
-     * @param {boolean} pressed The new pressed state.
-     * @param {Event} event The corresponding event that initiated the change.
      */
-    onPressedChange?: (pressed: boolean, event: Event) => void;
+    onPressedChange?: (pressed: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * A unique string that identifies the toggle when used
      * inside a toggle group.
      */
     value?: string;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

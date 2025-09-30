@@ -9,8 +9,12 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import {
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 
-const rootStyleHookMapping = {
+const rootStateAttributesMapping = {
   value: () => null,
 };
 
@@ -32,7 +36,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     keepMounted: keepMountedProp,
     loop = true,
     onValueChange: onValueChangeProp,
-    openMultiple = true,
+    multiple = true,
     orientation = 'vertical',
     value: valueProp,
     defaultValue: defaultValueProp,
@@ -75,22 +79,32 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   const handleValueChange = React.useCallback(
     (newValue: number | string, nextOpen: boolean) => {
-      if (!openMultiple) {
+      const details = createChangeEventDetails('none');
+      if (!multiple) {
         const nextValue = value[0] === newValue ? [] : [newValue];
+        onValueChange(nextValue, details);
+        if (details.isCanceled) {
+          return;
+        }
         setValue(nextValue);
-        onValueChange(nextValue);
       } else if (nextOpen) {
         const nextOpenValues = value.slice();
         nextOpenValues.push(newValue);
+        onValueChange(nextOpenValues, details);
+        if (details.isCanceled) {
+          return;
+        }
         setValue(nextOpenValues);
-        onValueChange(nextOpenValues);
       } else {
         const nextOpenValues = value.filter((v) => v !== newValue);
+        onValueChange(nextOpenValues, details);
+        if (details.isCanceled) {
+          return;
+        }
         setValue(nextOpenValues);
-        onValueChange(nextOpenValues);
       }
     },
-    [onValueChange, openMultiple, setValue, value],
+    [onValueChange, multiple, setValue, value],
   );
 
   const state: AccordionRoot.State = React.useMemo(
@@ -138,7 +152,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
       },
       elementProps,
     ],
-    customStyleHookMapping: rootStyleHookMapping,
+    stateAttributesMapping: rootStateAttributesMapping,
   });
 
   return (
@@ -202,12 +216,12 @@ export namespace AccordionRoot {
      * Event handler called when an accordion item is expanded or collapsed.
      * Provides the new value as an argument.
      */
-    onValueChange?: (value: AccordionValue) => void;
+    onValueChange?: (value: AccordionValue, eventDetails: ChangeEventDetails) => void;
     /**
      * Whether multiple items can be open at the same time.
      * @default true
      */
-    openMultiple?: boolean;
+    multiple?: boolean;
     /**
      * The visual orientation of the accordion.
      * Controls whether roving focus uses left/right or up/down arrow keys.
@@ -215,4 +229,7 @@ export namespace AccordionRoot {
      */
     orientation?: Orientation;
   }
+
+  export type ChangeEventReason = 'trigger-press' | 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { spy } from 'sinon';
 
 const PANEL_CONTENT = 'This is panel content';
 
@@ -62,6 +63,32 @@ describe('<Collapsible.Root />', () => {
     });
   });
 
+  describe('BaseUIChangeEventDetails', () => {
+    it('calls onOpenChange with eventDetails', async () => {
+      const handleOpenChange = spy();
+
+      const { getByRole, user } = await render(
+        <Collapsible.Root onOpenChange={handleOpenChange}>
+          <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+          <Collapsible.Panel>{PANEL_CONTENT}</Collapsible.Panel>
+        </Collapsible.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Toggle' });
+      await user.click(trigger);
+
+      expect(handleOpenChange.callCount).to.equal(1);
+      const [openArg, details] = handleOpenChange.firstCall.args as [boolean, any];
+      expect(openArg).to.equal(true);
+      expect(details).to.not.equal(undefined);
+      expect(details.reason).to.equal('trigger-press');
+      expect(details.event).to.be.instanceOf(MouseEvent);
+      expect(details.isCanceled).to.equal(false);
+      expect(typeof details.cancel).to.equal('function');
+      expect(typeof details.allowPropagation).to.equal('function');
+    });
+  });
+
   describe.skipIf(isJSDOM)('open state', () => {
     it('controlled mode', async () => {
       function App() {
@@ -92,7 +119,7 @@ describe('<Collapsible.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('aria-controls');
 
-      expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
+      expect(queryByText(PANEL_CONTENT)).not.to.equal(null);
       expect(queryByText(PANEL_CONTENT)).toBeVisible();
       expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
       expect(trigger).to.have.attribute('data-panel-open');
@@ -122,7 +149,7 @@ describe('<Collapsible.Root />', () => {
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('aria-controls');
-      expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
+      expect(queryByText(PANEL_CONTENT)).not.to.equal(null);
       expect(queryByText(PANEL_CONTENT)).toBeVisible();
       expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
       expect(trigger).to.have.attribute('data-panel-open');
@@ -174,7 +201,7 @@ describe('<Collapsible.Root />', () => {
         expect(trigger).to.have.attribute('aria-expanded', 'true');
         expect(trigger).to.have.attribute('data-panel-open');
         expect(queryByText(PANEL_CONTENT)).toBeVisible();
-        expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
+        expect(queryByText(PANEL_CONTENT)).not.to.equal(null);
         expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
 
         await user.keyboard(`[${key}]`);

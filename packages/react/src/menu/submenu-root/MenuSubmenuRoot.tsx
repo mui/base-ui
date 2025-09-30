@@ -12,21 +12,30 @@ export { useMenuSubmenuRootContext } from './MenuSubmenuRootContext';
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
+  const { closeParentOnEsc = false } = props;
+
   return (
     <MenuSubmenuRootContext.Provider value>
-      <MenuRoot {...props} />
+      <MenuRoot closeParentOnEsc={closeParentOnEsc} {...props} />
     </MenuSubmenuRootContext.Provider>
   );
 }
 
 export namespace MenuSubmenuRoot {
-  export interface Props extends Omit<MenuRoot.Props, 'modal' | 'openOnHover'> {
+  export interface Props extends Omit<MenuRoot.Props, 'modal' | 'openOnHover' | 'onOpenChange'> {
     /**
      * Whether the submenu should open when the trigger is hovered.
      * @default true
      */
     openOnHover?: MenuRoot.Props['openOnHover'];
+    /**
+     * Event handler called when the menu is opened or closed.
+     */
+    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
   }
 
   export interface State {}
+
+  export type ChangeEventReason = MenuRoot.ChangeEventReason;
+  export type ChangeEventDetails = MenuRoot.ChangeEventDetails;
 }

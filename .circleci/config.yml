@@ -27,7 +27,7 @@ default-job: &default-job
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
   working_directory: /tmp/base-ui
   docker:
-    - image: cimg/node:22.17
+    - image: cimg/node:22.18
 
 default-context: &default-context
   context:
@@ -132,8 +132,15 @@ jobs:
       - install_js:
           react-version: << parameters.react-version >>
       - run:
-          name: 'Prettier'
-          command: pnpm prettier --check
+          name: '`pnpm prettier` changes committed?'
+          command: |
+            # #target-branch-reference
+            if [[ $(git diff --name-status master | grep pnpm-lock) == "" ]];
+            then
+                pnpm prettier --check
+            else
+                pnpm exec prettier --check . --ignore-path .lintignore
+            fi
       - run:
           name: ESLint
           command: pnpm eslint:ci
@@ -227,12 +234,6 @@ jobs:
             # "If there are multiple matches, the most recently generated cache will be used."
             - typescript-declaration-files-master
       - run:
-          name: Diff declaration files
-          command: |
-            git add -f packages/react/build || echo 'Base UI declarations do not exist'
-            pnpm -r build:types
-            git --no-pager diff
-      - run:
           name: Log defect declaration files
           command: |
             # ignore build failures
@@ -245,7 +246,7 @@ jobs:
     <<: *default-job
     resource_class: 'medium+'
     docker:
-      - image: mcr.microsoft.com/playwright:v1.54.2-noble
+      - image: mcr.microsoft.com/playwright:v1.55.1-noble
     steps:
       - checkout
       - install_js:
@@ -270,7 +271,7 @@ jobs:
   test_regressions:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.54.2-noble
+      - image: mcr.microsoft.com/playwright:v1.55.1-noble
     steps:
       - checkout
       - install_js:
@@ -285,7 +286,7 @@ jobs:
   test_e2e:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.54.2-noble
+      - image: mcr.microsoft.com/playwright:v1.55.1-noble
     steps:
       - checkout
       - install_js:
@@ -300,11 +301,6 @@ jobs:
       - checkout
       - install_js:
           react-version: << parameters.react-version >>
-      - run:
-          name: prepare danger on PRs
-          command: pnpm danger ci
-          environment:
-            DANGER_COMMAND: prepareBundleSizeReport
       - run:
           name: Build packages
           command: pnpm release:build
@@ -321,11 +317,6 @@ jobs:
             export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_ARTIFACTS
             export AWS_REGION=$AWS_REGION_ARTIFACTS
             pnpm size:snapshot
-      - run:
-          name: Run danger on PRs
-          command: pnpm danger ci --fail-on-errors
-          environment:
-            DANGER_COMMAND: reportBundleSize
 
 workflows:
   pipeline:
@@ -367,10 +358,6 @@ workflows:
       - test_browser:
           <<: *default-context
           name: 'Browser tests (React 18)'
-          react-version: '^18'
-      - test_regressions:
-          <<: *default-context
-          name: 'Regression tests (React 18)'
           react-version: '^18'
       - test_types:
           <<: *default-context

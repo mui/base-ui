@@ -12,10 +12,7 @@ import {
 } from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import {
-  translateOpenChangeReason,
-  type BaseOpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -76,13 +73,20 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
   React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
-      const isHover = reason === 'trigger-hover';
-      const isFocusOpen = nextOpen && reason === 'trigger-focus';
-      const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
+    (nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => {
+      const isHover = eventDetails.reason === 'trigger-hover';
+      const isFocusOpen = nextOpen && eventDetails.reason === 'trigger-focus';
+      const isDismissClose =
+        !nextOpen &&
+        (eventDetails.reason === 'trigger-press' || eventDetails.reason === 'escape-key');
+
+      onOpenChange(nextOpen, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
 
       function changeState() {
-        onOpenChange(nextOpen, event, reason);
         setOpenUnwrapped(nextOpen);
       }
 
@@ -96,7 +100,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
 
       if (isFocusOpen || isDismissClose) {
         setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else if (reason === 'trigger-hover') {
+      } else if (eventDetails.reason === 'trigger-hover') {
         setInstantTypeState(undefined);
       }
     },
@@ -108,9 +112,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
       floating: positionerElement,
     },
     open,
-    onOpenChange(openValue, eventValue, reasonValue) {
-      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
-    },
+    onOpenChange: setOpen,
   });
 
   const instantType = instantTypeState;
@@ -192,11 +194,7 @@ export namespace PreviewCardRoot {
     /**
      * Event handler called when the preview card is opened or closed.
      */
-    onOpenChange?: (
-      open: boolean,
-      event: Event | undefined,
-      reason: OpenChangeReason | undefined,
-    ) => void;
+    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * Event handler called after any animations complete when the preview card is opened or closed.
      */
@@ -224,5 +222,12 @@ export namespace PreviewCardRoot {
     unmount: () => void;
   }
 
-  export type OpenChangeReason = BaseOpenChangeReason;
+  export type ChangeEventReason =
+    | 'trigger-hover'
+    | 'trigger-focus'
+    | 'trigger-press'
+    | 'outside-press'
+    | 'escape-key'
+    | 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

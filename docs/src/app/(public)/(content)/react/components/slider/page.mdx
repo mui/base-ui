@@ -36,8 +36,21 @@ import { Slider } from '@base-ui-components/react/slider';
 
 ### Range slider
 
-To create a range slider, provide an array of values with corresponding thumbs:
+To create a range slider:
+
+1. Pass an array of values and place `Slider.Thumb`s for each value in the array
+2. Additionally for server-side rendering, specify a numeric `index` for each thumb that corresponds to the index of its value in the value array
 
 import { DemoSliderRangeSlider } from './demos/range-slider';
 
 <DemoSliderRangeSlider compact />
+
+### Thumb alignment
+
+Set `thumbAlignment="edge"` to inset the thumb(s) such that their edges align with the edges of the control when the value is at `min` or `max`, without overflowing the control like the default `"center"` alignment.
+
+A client-only alternative `thumbAlignment="edge-client-only"` can be used to gain a smaller bundle size but only renders after React hydration.
+
+import { DemoSliderEdgeAlignment } from './demos/edge-alignment';
+
+<DemoSliderEdgeAlignment compact />

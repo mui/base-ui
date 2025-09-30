@@ -22,7 +22,7 @@ describe('<Meter.Value />', () => {
         </Meter.Root>,
       );
       const value = getByTestId('value');
-      expect(value).to.have.text('30%');
+      expect(value).to.have.text((0.3).toLocaleString(undefined, { style: 'percent' }));
     });
 
     it('renders a formatted value when a format is provided', async () => {

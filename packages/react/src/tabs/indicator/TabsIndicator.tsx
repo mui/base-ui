@@ -8,14 +8,14 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import { tabsStyleHookMapping } from '../root/styleHooks';
+import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsListContext } from '../list/TabsListContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
 
-const customStyleHookMapping = {
-  ...tabsStyleHookMapping,
+const stateAttributesMapping = {
+  ...tabsStateAttributesMapping,
   selectedTabPosition: () => null,
   selectedTabSize: () => null,
 };
@@ -78,22 +78,21 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     isTabSelected = true;
 
     if (selectedTab != null) {
+      // Use offset-based positioning, but determine size using sub-pixel
+      // precision and floor it to avoid potential overflow.
+      // See https://github.com/mui/base-ui/issues/2235.
       left = selectedTab.offsetLeft - tabsList.clientLeft;
+      top = selectedTab.offsetTop - tabsList.clientTop;
+
+      const { width: rectWidth, height: rectHeight } = selectedTab.getBoundingClientRect();
+      width = Math.floor(rectWidth);
+      height = Math.floor(rectHeight);
+
       right =
         direction === 'ltr'
-          ? tabsList.scrollWidth -
-            selectedTab.offsetLeft -
-            selectedTab.offsetWidth -
-            tabsList.clientLeft
+          ? tabsList.scrollWidth - selectedTab.offsetLeft - width - tabsList.clientLeft
           : selectedTab.offsetLeft - tabsList.clientLeft;
-      top = selectedTab.offsetTop - tabsList.clientTop;
-      bottom =
-        tabsList.scrollHeight -
-        selectedTab.offsetTop -
-        selectedTab.offsetHeight -
-        tabsList.clientTop;
-      width = selectedTab.offsetWidth;
-      height = selectedTab.offsetHeight;
+      bottom = tabsList.scrollHeight - selectedTab.offsetTop - height - tabsList.clientTop;
     }
   }
 
@@ -165,7 +164,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
         suppressHydrationWarning: true,
       },
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   if (activeTabValue == null) {
