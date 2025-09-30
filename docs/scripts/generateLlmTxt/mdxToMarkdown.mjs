@@ -91,8 +91,9 @@ function transformJsx() {
         }
 
         if (node.name.startsWith('Demo')) {
-          // handled by import
-          return visit.SKIP;
+          // Remove Demo components - they are handled by the import statement
+          parent.children.splice(index, 1);
+          return [visit.SKIP, index];
         }
 
         // Process different component types
