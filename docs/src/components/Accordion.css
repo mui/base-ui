@@ -44,7 +44,7 @@
     width: 100%;
     min-height: 2.5rem;
     align-items: center;
-    /* make padding match TableCell height */
+    /* use padding to match TableCell height in CSS vars or data attributes table */
     padding-block: 0.5rem;
     padding-inline: 0.75rem 0.5rem;
     border: none;
@@ -87,7 +87,6 @@
     flex-shrink: 0;
     width: 0.75rem;
     height: 0.75rem;
-    margin-inline: auto 0.5rem;
 
     [open] & {
       transform: rotate(180deg);
