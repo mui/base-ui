@@ -191,13 +191,13 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       // Store the last selected index for later use when closing the popup.
       lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;
 
-      store.apply({
+      store.update({
         label: labels.join(', '),
       });
     } else {
       const index = findItemIndex(valuesRef.current, value as Value, isItemEqualToValue);
 
-      store.apply({
+      store.update({
         selectedIndex: index === -1 ? null : index,
         label: labelsRef.current[index] ?? '',
       });
@@ -323,7 +323,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         computedSelectedIndex = lastIndex === -1 ? null : lastIndex;
       }
 
-      store.apply({
+      store.update({
         selectedIndex: computedSelectedIndex,
         label: labels.join(', '),
       });
@@ -332,7 +332,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       const hasIndex = index !== -1;
 
       if (hasIndex || value === null) {
-        store.apply({
+        store.update({
           selectedIndex: hasIndex ? index : null,
           label: hasIndex ? (labelsRef.current[index] ?? '') : '',
         });
@@ -453,14 +453,14 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   useOnFirstRender(() => {
     // These should be initialized at store creation, but there is an interdependency
     // between some values used in floating hooks above.
-    store.apply({
+    store.update({
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
     });
   });
 
   useIsoLayoutEffect(() => {
-    store.apply({
+    store.update({
       id,
       modal,
       multiple,
