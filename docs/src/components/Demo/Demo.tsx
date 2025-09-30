@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Collapsible } from '@base-ui-components/react/collapsible';
-import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter';
+import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/types';
 import { useDemo } from '@mui/internal-docs-infra/useDemo';
 import { CopyIcon } from 'docs/src/icons/CopyIcon';
 import clsx from 'clsx';
