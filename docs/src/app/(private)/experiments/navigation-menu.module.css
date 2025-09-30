@@ -245,9 +245,7 @@
   }
 
   @media (min-width: 425px) {
-    & {
-      padding: 0.75rem;
-    }
+    padding: 0.75rem;
   }
 }
 

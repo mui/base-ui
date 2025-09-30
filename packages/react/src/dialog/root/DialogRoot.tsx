@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
-import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { DialogStore } from '../store';
 import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
@@ -121,5 +121,5 @@ export namespace DialogRoot {
     | 'close-press'
     | 'focus-out'
     | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

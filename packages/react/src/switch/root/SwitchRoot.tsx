@@ -17,8 +17,8 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
-import { BaseUIEventDetails } from '../../types';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../types';
 
 /**
  * Represents the switch itself.
@@ -191,7 +191,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
             }
 
             const nextChecked = event.target.checked;
-            const eventDetails = createBaseUIEventDetails('none', event.nativeEvent);
+            const eventDetails = createChangeEventDetails('none', event.nativeEvent);
 
             onCheckedChange?.(nextChecked, eventDetails);
 
@@ -329,5 +329,5 @@ export namespace SwitchRoot {
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

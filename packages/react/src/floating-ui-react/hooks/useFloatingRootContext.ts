@@ -4,14 +4,14 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useId } from '@base-ui-components/utils/useId';
 
 import type { FloatingRootContext, ReferenceElement, ContextData } from '../types';
-import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
-  onOpenChange?(open: boolean, eventDetails: BaseUIEventDetails<string>): void;
+  onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
@@ -48,7 +48,7 @@ export function useFloatingRootContext(
   );
 
   const onOpenChange = useEventCallback(
-    (newOpen: boolean, eventDetails: BaseUIEventDetails<string>) => {
+    (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
       dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
       if (!options.noEmit) {
         const details: FloatingUIOpenChangeDetails = {

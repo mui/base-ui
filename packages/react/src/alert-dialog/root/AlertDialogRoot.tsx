@@ -6,7 +6,7 @@ import { DialogStore } from '../../dialog/store';
 import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
-import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { EMPTY_OBJECT } from '../../utils/constants';
 
 const INITIAL_STATE = {
@@ -84,5 +84,5 @@ export namespace AlertDialogRoot {
   export type Actions = DialogRoot.Actions;
 
   export type ChangeEventReason = DialogRoot.ChangeEventReason;
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

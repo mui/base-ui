@@ -98,8 +98,8 @@ export class ReactStore<
     const isControlled = controlled !== undefined;
 
     if (process.env.NODE_ENV !== 'production') {
-      const previoslyControlled = this.controlledValues.get(key);
-      if (previoslyControlled !== undefined && previoslyControlled !== isControlled) {
+      const previouslyControlled = this.controlledValues.get(key);
+      if (previouslyControlled !== undefined && previouslyControlled !== isControlled) {
         console.error(
           `A component is changing the ${
             isControlled ? '' : 'un'
@@ -108,16 +108,16 @@ export class ReactStore<
       }
     }
 
-    useIsoLayoutEffect(() => {
-      if (!this.controlledValues.has(key)) {
-        // First time initialization
-        this.controlledValues.set(key, isControlled);
+    if (!this.controlledValues.has(key)) {
+      // First time initialization
+      this.controlledValues.set(key, isControlled);
 
-        if (!isControlled && defaultValue !== undefined) {
-          super.set(key, defaultValue as State[typeof key]);
-        }
+      if (!isControlled && !Object.is(this.state[key], defaultValue)) {
+        super.update({ ...(this.state as State), [key]: defaultValue } as State);
       }
+    }
 
+    useIsoLayoutEffect(() => {
       if (isControlled && !Object.is(this.state[key], controlled)) {
         // Set the internal state to match the controlled value.
         super.update({ ...(this.state as State), [key]: controlled } as State);

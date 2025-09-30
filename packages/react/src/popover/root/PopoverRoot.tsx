@@ -18,12 +18,12 @@ import {
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { type BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { mergeProps } from '../../merge-props';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
@@ -350,5 +350,5 @@ export namespace PopoverRoot {
     | 'close-press'
     | 'focus-out'
     | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }
