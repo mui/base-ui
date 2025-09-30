@@ -15,7 +15,6 @@ export default function CalendarWithTimezone() {
         className={styles.Root}
         timezone="America/New_York"
         value={value}
-        // timezone="Europe/Paris"
         onValueChange={setValue}
       >
         {({ visibleDate }) => (
