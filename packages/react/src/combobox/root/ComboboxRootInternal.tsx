@@ -438,8 +438,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     if (pendingHighlight) {
       if (pendingHighlight.hasQuery) {
         if (store.state.autoHighlight) {
-          const nextActiveIndex = flatFilteredItems.length > 0 ? 0 : null;
-          store.set('activeIndex', nextActiveIndex);
+          store.set('activeIndex', 0);
         }
       } else if (store.state.autoHighlight) {
         store.set('activeIndex', null);
@@ -451,6 +450,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       return;
     }
 
+    const candidateItems = items ? flatFilteredItems : valuesRef.current;
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
@@ -464,7 +464,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       return;
     }
 
-    if (storeActiveIndex >= flatFilteredItems.length) {
+    if (storeActiveIndex >= candidateItems.length) {
       if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
         lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
         store.state.onItemHighlighted(
@@ -476,7 +476,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       return;
     }
 
-    const nextActiveValue = flatFilteredItems[storeActiveIndex];
+    const nextActiveValue = candidateItems[storeActiveIndex];
     const lastHighlightedValue = lastHighlightRef.current.value;
     const isSameItem =
       lastHighlightedValue !== NO_ACTIVE_VALUE &&
@@ -489,7 +489,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         createGenericEventDetails('none', undefined, { index: storeActiveIndex }),
       );
     }
-  }, [flatFilteredItems, store]);
+  }, [flatFilteredItems, store, items, valuesRef]);
 
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.

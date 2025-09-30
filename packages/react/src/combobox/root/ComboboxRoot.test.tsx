@@ -1900,6 +1900,36 @@ describe('<Combobox.Root />', () => {
       expect(input).to.have.attribute('aria-activedescendant', cherry.id);
     });
 
+    it('highlights the first matching item for a static list without the items prop', async () => {
+      const { user } = await render(
+        <Combobox.Root autoHighlight>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="alpha">alpha</Combobox.Item>
+                  <Combobox.Item value="alphabet">alphabet</Combobox.Item>
+                  <Combobox.Item value="beta">beta</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'al');
+
+      const alpha = screen.getByRole('option', { name: 'alpha' });
+      await waitFor(() => expect(alpha).to.have.attribute('data-highlighted'));
+      expect(input).to.have.attribute('aria-activedescendant', alpha.id);
+
+      await user.type(input, ' ');
+      expect(alpha).to.have.attribute('data-highlighted');
+      expect(input).to.have.attribute('aria-activedescendant', alpha.id);
+    });
+
     it('clears highlight when query is cleared back to empty', async () => {
       const { user } = await render(
         <Combobox.Root items={['apple', 'banana', 'cherry']} autoHighlight>
