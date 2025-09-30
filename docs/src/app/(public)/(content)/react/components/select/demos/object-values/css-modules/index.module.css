@@ -112,6 +112,12 @@
   scroll-padding-block: 1.5rem;
 }
 
+.ItemDescription {
+  font-size: 0.825rem;
+  line-height: 1rem;
+  opacity: 0.8;
+}
+
 .Item {
   box-sizing: border-box;
   outline: 0;
@@ -187,12 +193,6 @@
 .ItemLabel {
   font-size: 1rem;
   line-height: 1.5rem;
-}
-
-.ItemDescription {
-  font-size: 0.825rem;
-  line-height: 1rem;
-  opacity: 0.8;
 }
 
 .ScrollArrow {
