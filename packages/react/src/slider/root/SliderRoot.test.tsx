@@ -630,6 +630,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
       expect(handleValueChange.callCount).to.equal(1);
       expect(handleValueChange.args[0][0]).to.equal(10);
+      expect(handleValueChange.args[0][1].activeThumbIndex).to.equal(0);
       expect(handleValueCommitted.callCount).to.equal(1);
       expect(handleValueCommitted.args[0][0]).to.equal(10);
 
@@ -1040,7 +1041,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.be.greaterThan(0);
 
       const [newValue] = handleValueChange.lastCall.args;
-      expect(handleValueChange.lastCall.args[2]).to.equal(2);
+      expect(handleValueChange.lastCall.args[1].activeThumbIndex).to.equal(2);
       expect(newValue[0]).to.equal(10);
       expect(newValue[1]).to.equal(40);
       expect(newValue[2]).to.not.equal(60);

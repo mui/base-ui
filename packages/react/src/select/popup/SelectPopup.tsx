@@ -24,7 +24,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { clearStyles, LIST_FUNCTIONAL_STYLES } from './utils';
 import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -339,7 +339,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const win = ownerWindow(positionerElement);
 
     function handleResize(event: Event) {
-      setOpen(false, createBaseUIEventDetails('window-resize', event));
+      setOpen(false, createChangeEventDetails('window-resize', event));
     }
 
     win.addEventListener('resize', handleResize);

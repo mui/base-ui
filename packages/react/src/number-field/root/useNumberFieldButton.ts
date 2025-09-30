@@ -9,9 +9,10 @@ import {
   TOUCH_TIMEOUT,
 } from '../utils/constants';
 import { parseNumber } from '../utils/parse';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { HTMLProps } from '../../utils/types';
 import type { EventWithOptionalKeyState } from '../utils/types';
+import type { NumberFieldRoot } from './NumberFieldRoot';
 
 export function useNumberFieldButton(
   params: useNumberFieldButton.Parameters,
@@ -105,7 +106,7 @@ export function useNumberFieldButton(
 
         const committed = lastChangedValueRef.current ?? valueRef.current;
         if (committed !== prev) {
-          onValueCommitted(committed, createBaseUIEventDetails('none', event.nativeEvent));
+          onValueCommitted(committed, createGenericEventDetails('none', event.nativeEvent));
         }
       },
       onPointerDown(event) {
@@ -265,7 +266,7 @@ export namespace useNumberFieldButton {
     lastChangedValueRef: React.RefObject<number | null>;
     onValueCommitted: (
       value: number | null,
-      eventDetails: import('../root/NumberFieldRoot').NumberFieldRoot.ChangeEventDetails,
+      eventDetails: NumberFieldRoot.CommitEventDetails,
     ) => void;
   }
 

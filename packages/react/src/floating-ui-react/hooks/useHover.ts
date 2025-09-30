@@ -15,7 +15,7 @@ import type {
   FloatingTreeType,
   SafePolygonOptions,
 } from '../types';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
@@ -174,7 +174,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
     function onLeave(event: MouseEvent) {
       if (isHoverOpen()) {
-        onOpenChange(false, createBaseUIEventDetails('trigger-hover', event));
+        onOpenChange(false, createChangeEventDetails('trigger-hover', event));
       }
     }
 
@@ -190,11 +190,11 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
         timeout.start(closeDelay, () =>
-          onOpenChange(false, createBaseUIEventDetails('trigger-hover', event)),
+          onOpenChange(false, createChangeEventDetails('trigger-hover', event)),
         );
       } else if (runElseBranch) {
         timeout.clear();
-        onOpenChange(false, createBaseUIEventDetails('trigger-hover', event));
+        onOpenChange(false, createChangeEventDetails('trigger-hover', event));
       }
     },
     [delayRef, onOpenChange, timeout],
@@ -244,11 +244,11 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
-            onOpenChange(true, createBaseUIEventDetails('trigger-hover', event));
+            onOpenChange(true, createChangeEventDetails('trigger-hover', event));
           }
         });
       } else if (!open) {
-        onOpenChange(true, createBaseUIEventDetails('trigger-hover', event));
+        onOpenChange(true, createChangeEventDetails('trigger-hover', event));
       }
     }
 
@@ -484,7 +484,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && !openRef.current) {
-            onOpenChange(true, createBaseUIEventDetails('trigger-hover', nativeEvent));
+            onOpenChange(true, createChangeEventDetails('trigger-hover', nativeEvent));
           }
         }
 

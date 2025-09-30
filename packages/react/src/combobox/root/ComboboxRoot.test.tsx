@@ -2081,9 +2081,10 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => {
         expect(onItemHighlighted.callCount).to.be.greaterThan(0);
       });
-      const [value, data] = onItemHighlighted.lastCall.args;
+      const [value, eventDetails] = onItemHighlighted.lastCall.args;
       expect(value).to.equal('a');
-      expect(data).to.deep.equal({ type: 'keyboard', index: 0 });
+      expect(eventDetails.reason).to.equal('keyboard');
+      expect(eventDetails.index).to.equal(0);
     });
 
     it('fires with undefined on close', async () => {
@@ -2111,9 +2112,9 @@ describe('<Combobox.Root />', () => {
       await user.click(document.body);
       await flushMicrotasks();
 
-      const [, data] = onItemHighlighted.lastCall.args;
+      const [, eventDetails] = onItemHighlighted.lastCall.args;
       expect(onItemHighlighted.lastCall.args[0]).to.equal(undefined);
-      expect(data.index).to.equal(-1);
+      expect(eventDetails.index).to.equal(-1);
     });
   });
 

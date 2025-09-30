@@ -21,7 +21,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';
-import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const blockedReturnFocusReasons = new Set<string>(['trigger-hover', 'outside-press', 'focus-out']);
 
@@ -350,5 +350,5 @@ export namespace NavigationMenuRoot {
     | 'escape-key'
     | 'link-press'
     | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

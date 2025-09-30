@@ -13,7 +13,7 @@ import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStateAttributesMapping } from './stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups an accordion header with the corresponding panel.
@@ -171,5 +171,5 @@ export namespace AccordionItem {
   }
 
   export type ChangeEventReason = 'trigger-press' | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }
