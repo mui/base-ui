@@ -1,0 +1,42 @@
+'use client';
+import * as React from 'react';
+import { useSearchParams } from 'next/navigation';
+import codes from 'docs/src/error-codes.json';
+
+export interface ErrorDisplayProps {
+  msg: string;
+}
+
+function ErrorMessageWithArgs({ msg }: ErrorDisplayProps) {
+  const searchParams = useSearchParams();
+  return React.useMemo(() => {
+    const args = searchParams.getAll('args[]');
+    let index = 0;
+    return msg.replace(/%s/g, () => {
+      const replacement = args[index];
+      index += 1;
+      return replacement === undefined ? '[missing argument]' : replacement;
+    });
+  }, [msg, searchParams]);
+}
+
+/**
+ * Client component that interpolates arguments in an error message. Must be
+ * a client component because it reads the search params.
+ */
+export default function ErrorDisplay() {
+  const code = useSearchParams().get('code');
+  const msg =
+    (code ? (codes as Partial<Record<string, string>>)[code ?? ''] : null) ??
+    `Unknown error code: ${code}`;
+
+  const fallbackMsg = React.useMemo(() => msg.replace(/%s/g, '…'), [msg]);
+
+  return (
+    <code>
+      <React.Suspense fallback={fallbackMsg}>
+        <ErrorMessageWithArgs msg={msg} />
+      </React.Suspense>
+    </code>
+  );
+}
