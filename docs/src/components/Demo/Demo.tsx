@@ -69,11 +69,11 @@ export function Demo({ defaultOpen = false, compact = false, className, ...demoP
                   selectTransform={demo.selectTransform}
                 />
                 <GhostButton
-                  aria-label="Open in StackBlitz"
+                  aria-label="Open in CodeSandbox"
                   type="button"
-                  onClick={demo.openStackBlitz}
+                  onClick={demo.openCodeSandbox}
                 >
-                  StackBlitz
+                  CodeSandbox
                   <ExternalLinkIcon />
                 </GhostButton>
                 <GhostButton aria-label="Copy code" onClick={demo.copy}>
