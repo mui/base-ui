@@ -203,3 +203,15 @@
   font-weight: 500;
   padding: 0;
 }
+
+.Wrapper {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+}
+
+.Text {
+  color: var(--color-gray-900);
+  width: 100%;
+  text-align: center;
+}
