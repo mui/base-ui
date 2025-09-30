@@ -117,10 +117,8 @@
     transform 100ms ease-in;
 
   @starting-style {
-    & {
-      opacity: 0;
-      transform: scale(0.8);
-    }
+    opacity: 0;
+    transform: scale(0.8);
   }
 
   &[data-exiting] {
@@ -231,8 +229,9 @@
 
 .Backdrop {
   background: rgb(0 0 0 / 0.35);
-  position: fixed;
+  position: absolute;
   inset: 0;
   backdrop-filter: blur(4px);
   z-index: 2000;
+  min-height: 100dvh;
 }

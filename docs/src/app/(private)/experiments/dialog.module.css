@@ -131,10 +131,11 @@
 }
 
 .backdrop {
+  position: absolute;
   background: radial-gradient(#cecdcf36, #8b94ab47);
   z-index: 0;
-  position: fixed;
   inset: 0;
+  min-height: 100dvh;
 
   &.withTransitions {
     transition:
