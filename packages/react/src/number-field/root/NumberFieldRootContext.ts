@@ -47,7 +47,7 @@ export interface NumberFieldRootContext {
   state: NumberFieldRoot.State;
   onValueCommitted: (
     value: number | null,
-    eventDetails: NumberFieldRoot.ChangeEventDetails,
+    eventDetails: NumberFieldRoot.CommitEventDetails,
   ) => void;
 }
 

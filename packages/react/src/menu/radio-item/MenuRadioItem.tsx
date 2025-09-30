@@ -13,7 +13,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import type { MenuRoot } from '../root/MenuRoot';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuRadioItem(
@@ -70,7 +70,7 @@ const InnerMenuRadioItem = React.memo(
           role: 'menuitemradio',
           'aria-checked': checked,
           onClick(event: React.MouseEvent) {
-            setChecked(createBaseUIEventDetails('item-press', event.nativeEvent));
+            setChecked(createChangeEventDetails('item-press', event.nativeEvent));
           },
         },
         elementProps,

@@ -24,7 +24,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { clearStyles, LIST_FUNCTIONAL_STYLES } from './utils';
 import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -67,6 +67,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   const highlightTimeout = useTimeout();
 
+  const id = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
   const popupProps = useStore(store, selectors.popupProps);
@@ -338,7 +339,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const win = ownerWindow(positionerElement);
 
     function handleResize(event: Event) {
-      setOpen(false, createBaseUIEventDetails('window-resize', event));
+      setOpen(false, createChangeEventDetails('window-resize', event));
     }
 
     win.addEventListener('resize', handleResize);
@@ -349,7 +350,16 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   }, [setOpen, alignItemWithTriggerActive, positionerElement, mounted]);
 
   const defaultProps: HTMLProps = {
-    'aria-multiselectable': multiple || undefined,
+    ...(listElement
+      ? {
+          role: 'presentation',
+          'aria-orientation': undefined,
+        }
+      : {
+          role: 'listbox',
+          'aria-multiselectable': multiple || undefined,
+          id: `${id}-list`,
+        }),
     onKeyDown() {
       keyboardActiveRef.current = true;
     },
