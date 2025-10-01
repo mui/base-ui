@@ -290,7 +290,7 @@ const TRIGGER_GRID_LAYOUT =
 
 const PANEL_GRID_LAYOUT =
   'max-xs:flex max-xs:flex-col ' +
-  'max-xs:gap-3 ' +
+  'min-xs:gap-0 ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
   // 5fr+11.5fr aligns with 5fr+7fr+4.5fr above
