@@ -512,19 +512,19 @@ describe('<RadioGroup />', () => {
 
     describe('Field.Label', () => {
       it('associates implicitly', async () => {
-        const changeSpy = spy();
+        const changeSpy = spy((newValue) => newValue);
         const { container } = await render(
           <Field.Root name="options">
             <RadioGroup onValueChange={changeSpy}>
               <Field.Item>
                 <Field.Label>
-                  <Radio.Root value="apple" data-testid="radio1" />
+                  <Radio.Root value="apple" />
                   Apple
                 </Field.Label>
               </Field.Item>
               <Field.Item>
                 <Field.Label>
-                  <Radio.Root value="banana" data-testid="radio2" />
+                  <Radio.Root value="banana" />
                   Banana
                 </Field.Label>
               </Field.Item>
@@ -540,7 +540,46 @@ describe('<RadioGroup />', () => {
 
         fireEvent.click(screen.getByText('Apple'));
         expect(changeSpy.callCount).to.equal(1);
-        expect(changeSpy.args[0][0]).to.equal('apple');
+        expect(changeSpy.lastCall.returnValue).to.equal('apple');
+      });
+
+      it('associates explicitly', async () => {
+        const changeSpy = spy((newValue) => newValue);
+        const { container } = await render(
+          <Field.Root name="options">
+            <RadioGroup onValueChange={changeSpy}>
+              <Field.Item>
+                <Radio.Root value="apple" />
+                <Field.Label>Apple</Field.Label>
+                <Field.Description>
+                  An apple is the round, edible fruit of an apple tree
+                </Field.Description>
+              </Field.Item>
+              <Field.Item>
+                <Radio.Root value="banana" />
+                <Field.Label>Banana</Field.Label>
+                <Field.Description>A banana is an elongated, edible fruit</Field.Description>
+              </Field.Item>
+            </RadioGroup>
+          </Field.Root>,
+        );
+
+        const radios = screen.getAllByRole('radio');
+        const labels = container.querySelectorAll('label');
+        const descriptions = container.querySelectorAll('p');
+
+        radios.forEach((radio, index) => {
+          const label = labels[index];
+          const description = descriptions[index];
+
+          expect(label.getAttribute('for')).to.not.equal(null);
+          expect(label.getAttribute('for')).to.equal(radio.getAttribute('id'));
+          expect(description.getAttribute('id')).to.not.equal(null);
+          expect(description.getAttribute('id')).to.equal(radio.getAttribute('aria-describedby'));
+        });
+
+        fireEvent.click(screen.getByText('Banana'));
+        expect(changeSpy.lastCall.returnValue).to.equal('banana');
       });
     });
   });
