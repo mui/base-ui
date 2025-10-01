@@ -76,7 +76,7 @@
     outline: 2px solid var(--calendar-button-focus-border-color);
   }
 
-  &:disabled {
+  &[data-disabled] {
     pointer-events: none;
     color: var(--calendar-cell-disabled-color);
   }
@@ -115,6 +115,9 @@
   justify-content: center;
   font-size: 0.75rem;
   color: var(--calendar-day-grid-header-color);
+  /* Avoid the bold front weight from the th element */
+  font-weight: 500;
+  padding: 0;
 }
 
 .DayButton {
@@ -163,11 +166,11 @@
     background-color: var(--calendar-cell-selected-bg-color);
   }
 
-  &:disabled {
+  &[data-disabled] {
     pointer-events: none;
   }
 
-  &:not([data-outside-month]):disabled {
+  &:not([data-outside-month])[data-disabled] {
     color: var(--calendar-cell-disabled-color);
   }
 
@@ -195,4 +198,6 @@
   text-align: center;
   font-size: 0.75rem;
   color: var(--calendar-day-grid-header-color);
+  font-weight: 500;
+  padding: 0;
 }

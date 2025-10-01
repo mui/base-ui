@@ -3,7 +3,7 @@ import { format } from 'date-fns/format';
 import { fr } from 'date-fns/locale/fr';
 import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui-components/react/temporal-locale-provider';
 import { Calendar } from '@base-ui-components/react/calendar';
-import styles from './index.module.css';
+import styles from '../../../calendar.module.css';
 
 export default function ExampleCalendar() {
   return (
