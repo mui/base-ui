@@ -12,7 +12,7 @@ import {
   useInteractions,
   useRole,
 } from '../../floating-ui-react';
-import { getTarget } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import type { RequiredExcept, HTMLProps, FloatingUIOpenChangeDetails } from '../../utils/types';
@@ -134,14 +134,15 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       }
       const target = getTarget(event) as Element | null;
       if (isTopmost && dismissible) {
-        const eventTarget = target as Element | null;
         // Only close if the click occurred on the dialog's owning backdrop.
         // This supports multiple modal dialogs that aren't nested in the React tree:
         // https://github.com/mui/base-ui/issues/1320
         if (modal) {
-          return internalBackdropRef.current || backdropRef.current
-            ? internalBackdropRef.current === eventTarget || backdropRef.current === eventTarget
-            : true;
+          const internalBackdrop = internalBackdropRef.current;
+          const userBackdrop = backdropRef.current;
+          if (internalBackdrop || userBackdrop) {
+            return contains(internalBackdrop, target) || contains(userBackdrop, target);
+          }
         }
         return true;
       }
