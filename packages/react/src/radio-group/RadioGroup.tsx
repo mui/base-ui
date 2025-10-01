@@ -236,7 +236,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
         stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
-        stopEventPropagation
       />
       <input {...inputProps} />
     </RadioGroupContext.Provider>
