@@ -476,8 +476,8 @@ export namespace SliderRoot {
     largeStep?: number;
     /**
      * How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`:
-     * - `center`: The center of the thumb is aligned with the control edges
-     * - `edge`: The thumb(s) are inset within the control such that thumb edges are aligned with the control edges
+     * - `center`: The center of the thumb is aligned with the control edge
+     * - `edge`: The thumb is inset within the control such that its edge is aligned with the control edge
      * - `edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return
      * @default 'center'
      */
