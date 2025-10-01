@@ -28,6 +28,7 @@
   border-radius: 100%;
   background-color: white;
   outline: 1px solid var(--color-gray-300);
+  outline-offset: -1px;
   user-select: none;
 
   &:has(:focus-visible) {
