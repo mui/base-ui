@@ -57,7 +57,7 @@ export default function MenuComplexNestingExperiment() {
                   </Menu.Item>
 
                   <Dialog.Portal>
-                    <Dialog.Backdrop className="absolute inset-0 min-h-dvh bg-black/50" />
+                    <Dialog.Backdrop className="fixed inset-0 bg-black/50" />
                     <Dialog.Popup className="fixed top-1/2 left-1/2 w-[500px] max-w-[90vw] -translate-x-1/2 -translate-y-1/2 transform rounded-lg bg-white p-6 shadow-xl">
                       <Dialog.Title className="mb-4 text-xl font-semibold">
                         Settings (Nested Dialog)
