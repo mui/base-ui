@@ -2,7 +2,7 @@ export enum CalendarRootDataAttributes {
   /**
    * Present when the current value is empty.
    */
-  empty = 'data-boolean',
+  empty = 'data-empty',
   /**
    * Present when the current value is invalid.
    */

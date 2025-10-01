@@ -107,7 +107,7 @@
     "data-invalid": {
       "description": "Present when the current value is invalid."
     },
-    "data-boolean": {
+    "data-empty": {
       "description": "Present when the current value is empty."
     }
   },
