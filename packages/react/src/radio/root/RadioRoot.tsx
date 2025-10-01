@@ -85,10 +85,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const radioId = idProp ?? labelableContext.controlId;
 
-  const fieldItemMessageIds = labelableContext?.messageIds.length
-    ? { 'aria-describedby': labelableContext.messageIds.join(' ') }
-    : undefined;
-
   const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
     () => ({
       role: 'radio',
@@ -134,7 +130,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   useIsoLayoutEffect(() => {
     const element = radioRef?.current;
 
-    if (!element || !labelableContext) {
+    if (!element || labelableContext.setControlId === NOOP) {
       return undefined;
     }
 
@@ -222,8 +218,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const refs = [forwardedRef, registerControlRef, radioRef, buttonRef];
   const props = [
     rootProps,
+    labelableContext.getDescriptionProps,
     fieldControlValidation?.getValidationProps ?? EMPTY_OBJECT,
-    fieldItemMessageIds ?? EMPTY_OBJECT,
     elementProps,
     getButtonProps,
   ];

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createRenderer, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { Field } from '@base-ui-components/react/field';
@@ -556,6 +556,34 @@ describe('<CheckboxGroup />', () => {
 
       const submit = screen.getByText('Submit');
       fireEvent.click(submit);
+    });
+
+    it('appends the id attribute of the error to aria-describedby of individual checkboxes', async () => {
+      await render(
+        <Form errors={{ group: 'error' }}>
+          <Field.Root name="group">
+            <CheckboxGroup defaultValue={['one']}>
+              <Field.Item>
+                <Checkbox.Root value="one" />
+                <Field.Description>Description</Field.Description>
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="two" />
+              </Field.Item>
+            </CheckboxGroup>
+            <Field.Error data-testid="error" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+      const error = screen.getByTestId('error');
+      expect(error).to.not.equal(null);
+
+      const [checkbox1] = screen.getAllByRole('checkbox');
+      expect(checkbox1.getAttribute('aria-describedby')).to.include(error.getAttribute('id'));
+      expect(checkbox1.getAttribute('aria-describedby')).to.include(
+        screen.getByText('Description').getAttribute('id'),
+      );
     });
   });
 });

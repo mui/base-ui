@@ -5,7 +5,7 @@ import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../../form/FormContext';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -128,7 +128,10 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     ],
   );
 
-  const labelableContextValue: LabelableContext = React.useMemo(() => labelable, [labelable]);
+  const labelableContextValue: LabelableContext = React.useMemo(
+    () => ({ ...labelable, getDescriptionProps: (externalProps: HTMLProps) => externalProps }),
+    [labelable],
+  );
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,

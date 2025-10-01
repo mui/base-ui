@@ -654,5 +654,32 @@ describe('<RadioGroup />', () => {
       expect(screen.queryByTestId('error')).to.equal(null);
       expect(radioGroup).not.to.have.attribute('aria-invalid', 'true');
     });
+
+    it('appends the id attribute of the error to aria-describedby of individual radios', async () => {
+      const { user } = await renderFakeTimers(
+        <Form>
+          <Field.Root name="test" data-testid="field">
+            <RadioGroup name="group" required>
+              <Field.Item>
+                <Radio.Root value="a" />
+                <Field.Description>description</Field.Description>
+              </Field.Item>
+            </RadioGroup>
+            <Field.Error match="valueMissing" data-testid="error" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      await user.click(screen.getByText('Submit'));
+
+      const error = screen.getByTestId('error');
+      const radio = screen.getByRole('radio');
+      const description = screen.getByText('description');
+      expect(radio.getAttribute('aria-describedby')).to.include(error.getAttribute('id'));
+      expect(radio.getAttribute('aria-describedby')).to.include(description.getAttribute('id'));
+    });
   });
 });
