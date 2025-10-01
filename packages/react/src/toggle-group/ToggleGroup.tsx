@@ -125,7 +125,6 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
           props={[defaultProps, elementProps]}
           stateAttributesMapping={stateAttributesMapping}
           loop={loop}
-          stopEventPropagation
         />
       )}
     </ToggleGroupContext.Provider>
