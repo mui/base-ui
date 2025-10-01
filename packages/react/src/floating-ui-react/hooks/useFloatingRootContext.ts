@@ -92,3 +92,25 @@ export function useFloatingRootContext(
     [open, onOpenChange, elements, events, floatingId, refs],
   );
 }
+
+export function getEmptyContext(): FloatingRootContext {
+  return {
+    open: false,
+    onOpenChange: () => {},
+    dataRef: { current: {} },
+    elements: {
+      floating: null,
+      reference: null,
+      domReference: null,
+    },
+    events: {
+      on: () => {},
+      off: () => {},
+      emit: () => {},
+    },
+    floatingId: '',
+    refs: {
+      setPositionReference: () => {},
+    },
+  };
+}
