@@ -66,7 +66,6 @@
   background-color: transparent;
   border-radius: 4px;
   text-align: center;
-  cursor: pointer;
   color: var(--calendar-root-color);
 
   &:hover {
@@ -130,7 +129,6 @@
   position: relative;
   user-select: none;
   border: none;
-  cursor: pointer;
   background-color: transparent;
   outline: none;
   box-sizing: border-box;
