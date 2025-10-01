@@ -42,8 +42,8 @@ export function Demo({ defaultOpen = false, compact = false, className, ...demoP
 
   return (
     <div className={clsx('DemoRoot', className)}>
-      {demo.files.map(({ slug }) => (
-        <span key={slug} id={slug} />
+      {demo.allFilesSlugs.map(({ slug }) => (
+        <span key={slug} id={slug} className="scroll-mt-4" />
       ))}
       <DemoPlayground component={demo.component} variant={demo.selectedVariant} />
       <Collapsible.Root open={demo.expanded} onOpenChange={demo.setExpanded}>
