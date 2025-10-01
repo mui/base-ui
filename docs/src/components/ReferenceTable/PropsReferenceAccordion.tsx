@@ -8,7 +8,7 @@ import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
 import type { PropDef as BasePropDef } from './types';
-import { TableCode } from '../TableCode';
+import { TableCode, type TableCodeProps } from '../TableCode';
 import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
 function ExpandedCode(props: React.ComponentProps<'code'>) {
@@ -138,7 +138,11 @@ export async function PropsReferenceAccordion({
 
         const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ code: TableCode }),
+          useMDXComponents: () => ({
+            code: (codeProps: TableCodeProps) => (
+              <TableCode {...codeProps} printWidth={name === 'children' ? 999 : undefined} />
+            ),
+          }),
         });
 
         const PropDefault = await createMdxComponent(`\`${prop.default}\``, {
@@ -286,7 +290,7 @@ const TRIGGER_GRID_LAYOUT =
 
 const PANEL_GRID_LAYOUT =
   'max-xs:flex max-xs:flex-col ' +
-  'max-xs:gap-3 ' +
+  'min-xs:gap-0 ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
   // 5fr+11.5fr aligns with 5fr+7fr+4.5fr above

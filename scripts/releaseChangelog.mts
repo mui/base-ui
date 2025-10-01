@@ -6,7 +6,7 @@ import chalk from 'chalk';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import startCase from 'es-toolkit/compat/startCase';
-import packageJson from '../package.json';
+import packageJson from '../package.json' with { type: 'json' };
 
 const exec = promisify(childProcess.exec);
 
