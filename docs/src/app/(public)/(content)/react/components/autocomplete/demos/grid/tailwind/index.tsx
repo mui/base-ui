@@ -42,7 +42,7 @@ export default function ExampleEmojiPicker() {
 
         <Autocomplete.Root
           items={emojiGroups}
-          cols={COLUMNS}
+          grid
           open={pickerOpen}
           onOpenChange={setPickerOpen}
           onOpenChangeComplete={() => setSearchValue('')}

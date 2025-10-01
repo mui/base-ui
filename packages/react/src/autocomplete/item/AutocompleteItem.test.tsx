@@ -39,7 +39,7 @@ describe('<Autocomplete.Item />', () => {
       expect(handleClick.callCount).to.equal(1);
     });
 
-    it('calls onClick when selected with Enter key', async () => {
+    it('calls onClick when selected with Enter key (via root interaction)', async () => {
       const handleClick = spy();
       const { user } = await render(
         <Autocomplete.Root items={['one', 'two']} openOnInputClick>

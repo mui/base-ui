@@ -19,14 +19,16 @@ import {
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
-  createBaseUIEventDetails,
-  type BaseUIEventDetails,
+  createChangeEventDetails,
+  createGenericEventDetails,
+  type BaseUIChangeEventDetails,
+  type BaseUIGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
-import type { BaseUIChangeEventReason } from '../../utils/types';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
   ComboboxRootContext,
+  ComboboxInputValueContext,
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
@@ -36,14 +38,7 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import {
-  type Group,
-  isGroupedItems,
-  stringifyItem,
-  stringifyItemValue,
-  createCollatorItemFilter,
-  createSingleSelectionCollatorFilter,
-} from './utils';
+import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { EMPTY_ARRAY } from '../../utils/constants';
@@ -51,18 +46,25 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { HTMLProps } from '../../utils/types';
 import { useValueChanged } from './utils/useValueChanged';
 import { NOOP } from '../../utils/noop';
+import {
+  stringifyAsLabel,
+  stringifyAsValue,
+  Group,
+  isGroupedItems,
+} from '../../utils/resolveValueLabel';
+import { defaultItemEquality, findItemIndex, itemIncludes } from '../../utils/itemEquality';
 
 /**
  * @internal
  */
 export function ComboboxRootInternal<Value, Mode extends SelectionMode = 'none'>(
   props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
-    items: Group<Value>[];
+    items: readonly Group<Value>[];
   },
 ): React.JSX.Element;
 export function ComboboxRootInternal<Value, Mode extends SelectionMode = 'none'>(
   props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
-    items?: Value[];
+    items?: readonly Value[];
   },
 ): React.JSX.Element;
 export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = 'none'>(
@@ -74,7 +76,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     defaultSelectedValue = null,
     selectedValue: selectedValueProp,
     onSelectedValueChange,
-    defaultInputValue = '',
+    defaultInputValue: defaultInputValueProp,
     inputValue: inputValueProp,
     selectionMode = 'none',
     onItemHighlighted: onItemHighlightedProp,
@@ -83,19 +85,21 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     readOnly = false,
     required = false,
     inputRef: inputRefProp,
-    cols = 1,
+    grid = false,
     items,
     filter: filterProp,
     openOnInputClick = true,
     autoHighlight = false,
     itemToStringLabel,
     itemToStringValue,
+    isItemEqualToValue = defaultItemEquality,
     virtualized = false,
     fillInputOnItemPress = true,
     modal = false,
     limit = -1,
     autoComplete = 'list',
     locale,
+    alwaysSubmitOnEnter = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -115,6 +119,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
+  const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const commitValidation = fieldControlValidation.commitValidation;
 
   useIsoLayoutEffect(() => {
@@ -155,9 +160,23 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     itemToStringLabel,
   ]);
 
+  // If neither inputValue nor defaultInputValue are provided, derive it from the
+  // selected value for single mode so the input reflects the selection on mount.
+  const initialDefaultInputValue = useRefWithInit<React.ComponentProps<'input'>['defaultValue']>(
+    () => {
+      if (hasInputValue) {
+        return defaultInputValueProp ?? '';
+      }
+      if (selectionMode === 'single') {
+        return stringifyAsLabel(selectedValue, itemToStringLabel);
+      }
+      return '';
+    },
+  ).current;
+
   const [inputValue, setInputValueUnwrapped] = useControlled({
     controlled: inputValueProp,
-    default: defaultInputValue,
+    default: initialDefaultInputValue,
     name: 'Combobox',
     state: 'value',
   });
@@ -174,9 +193,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
   const isGrouped = isGroupedItems(items);
 
-  const flatItems: Value[] = React.useMemo(() => {
+  const flatItems: readonly any[] = React.useMemo(() => {
     if (!items) {
-      return [];
+      return EMPTY_ARRAY;
     }
 
     if (isGrouped) {
@@ -192,7 +211,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
 
     if (isGrouped) {
-      const groupedItems = items as Group<Value>[];
+      const groupedItems = items;
       const resultingGroups: Group<Value>[] = [];
       let currentCount = 0;
 
@@ -224,7 +243,15 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
 
     if (query === '') {
-      return limit > -1 ? flatItems.slice(0, limit) : flatItems;
+      return limit > -1
+        ? flatItems.slice(0, limit)
+        : // The cast here is done as `flatItems` is readonly.
+          // valuesRef.current, a mutable ref, can be set to `flatFilteredItems`, which may
+          // reference this exact readonly value, creating a mutation risk.
+          // However, <Combobox.Item> can never mutate this value as the mutating effect
+          // bails early when `items` is provided, and this is only ever returned
+          // when `items` is provided due to the early return at the top of this hook.
+          (flatItems as Value[]);
     }
 
     const limitedItems: Value[] = [];
@@ -248,6 +275,8 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     return filteredItems as Value[];
   }, [filteredItems, isGrouped]);
 
+  const hasItems = items !== undefined;
+
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -256,19 +285,19 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const hadInputClearRef = React.useRef(false);
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
+  const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
 
   /**
    * Contains the currently visible list of item values post-filtering.
    */
-  const valuesRef = React.useRef<Array<any>>([]);
+  const valuesRef = React.useRef<any[]>([]);
   /**
    * Contains all item values in a stable, unfiltered order.
-   * - When `items` prop is provided, this mirrors the flat items.
-   * - When `items` is not provided, this accumulates values on first mount and
-   *   does not remove them on unmount (due to filtering), providing a stable
-   *   index for selected value tracking.
+   * This is only used when `items` prop is not provided.
+   * It accumulates values on first mount and does not remove them on unmount due to
+   * filtering, providing a stable index for selected value tracking.
    */
-  const allValuesRef = React.useRef<Array<any>>([]);
+  const allValuesRef = React.useRef<any[]>([]);
 
   const store = useRefWithInit(
     () =>
@@ -289,18 +318,22 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         clearRef,
         valuesRef,
         allValuesRef,
+        selectionEventRef,
         name,
         disabled,
         readOnly,
         required,
         fieldControlValidation,
-        cols,
+        grid,
         isGrouped,
         virtualized,
         openOnInputClick,
         itemToStringLabel,
+        isItemEqualToValue,
         modal,
         autoHighlight,
+        alwaysSubmitOnEnter,
+        hasInputValue,
         mounted: false,
         forceMounted: false,
         transitionStatus: 'idle',
@@ -324,7 +357,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         setSelectedValue: NOOP,
         setIndices: NOOP,
         onItemHighlighted: NOOP,
-        handleEnterSelection: NOOP,
+        handleSelection: NOOP,
         getItemProps() {
           return {};
         },
@@ -358,7 +391,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   const forceMount = useEventCallback(() => {
     if (items) {
       // Ensure typeahead works on a closed list.
-      labelsRef.current = flatFilteredItems.map((item) => stringifyItem(item, itemToStringLabel));
+      labelsRef.current = flatFilteredItems.map((item) =>
+        stringifyAsLabel(item, itemToStringLabel),
+      );
     } else {
       store.set('forceMounted', true);
     }
@@ -391,10 +426,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   useIsoLayoutEffect(() => {
     if (items) {
       valuesRef.current = flatFilteredItems;
-      allValuesRef.current = flatItems;
       listRef.current.length = flatFilteredItems.length;
     }
-  }, [items, flatFilteredItems, flatItems]);
+  }, [items, flatFilteredItems]);
 
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
@@ -408,27 +442,33 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
     if (multiple) {
       const current = Array.isArray(selectedValue) ? selectedValue : EMPTY_ARRAY;
-      const next = current.filter((v) => registry.includes(v));
+      const next = current.filter((v) => itemIncludes(registry, v, store.state.isItemEqualToValue));
       if (next.length !== current.length) {
         setSelectedValueUnwrapped(next);
       }
       return;
     }
 
-    const isStillPresent = selectedValue == null ? true : registry.includes(selectedValue);
+    const isStillPresent =
+      selectedValue == null
+        ? true
+        : itemIncludes(registry, selectedValue, store.state.isItemEqualToValue);
     if (isStillPresent) {
       return;
     }
 
     let fallback = null;
-    if (defaultSelectedValue != null && registry.includes(defaultSelectedValue as Value)) {
+    if (
+      defaultSelectedValue != null &&
+      itemIncludes(registry, defaultSelectedValue, store.state.isItemEqualToValue)
+    ) {
       fallback = defaultSelectedValue;
     }
     setSelectedValueUnwrapped(fallback);
 
     // Keep the input text in sync when the input is rendered outside the popup.
     if (!store.state.inputInsidePopup) {
-      const stringVal = stringifyItem(fallback, itemToStringLabel);
+      const stringVal = stringifyAsLabel(fallback, itemToStringLabel);
       if (inputRef.current && inputRef.current.value !== stringVal) {
         setInputValueUnwrapped(stringVal);
       }
@@ -447,7 +487,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   ]);
 
   useValueChanged(queryRef, query, () => {
-    if (!open || query === '' || query === String(defaultInputValue)) {
+    if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
     }
     setQueryChangedAfterOpen(true);
@@ -500,31 +540,29 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       type?: 'none' | 'keyboard' | 'pointer';
     }) => {
       store.apply(options);
-      const type = options.type || 'none';
+      const type: ComboboxRootInternal.HighlightEventReason = options.type || 'none';
 
       if (options.activeIndex === undefined) {
         return;
       }
 
       if (options.activeIndex === null) {
-        onItemHighlighted(undefined, { type, index: -1 });
+        onItemHighlighted(undefined, createGenericEventDetails(type, undefined, { index: -1 }));
       } else {
         const activeValue = valuesRef.current[options.activeIndex];
-        onItemHighlighted(activeValue, {
-          type,
-          index: options.activeIndex,
-        });
+        onItemHighlighted(
+          activeValue,
+          createGenericEventDetails(type, undefined, {
+            index: options.activeIndex,
+          }),
+        );
       }
     },
   );
 
   const setInputValue = useEventCallback(
     (next: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
-      if (eventDetails.reason === 'input-clear' && open) {
-        hadInputClearRef.current = true;
-        // Defer clearing until close transition completes to avoid flicker
-        return;
-      }
+      hadInputClearRef.current = eventDetails.reason === 'input-clear';
 
       props.onInputValueChange?.(next, eventDetails);
 
@@ -539,8 +577,16 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         if (hasQuery) {
           setQueryChangedAfterOpen(true);
         }
-        if (selectionMode === 'none' && autoHighlight) {
-          setIndices({ activeIndex: hasQuery ? 0 : null });
+
+        // Avoid out-of-range indices when the visible list becomes smaller.
+        if (hasQuery) {
+          if (autoHighlight) {
+            setIndices({ activeIndex: 0, selectedIndex: null });
+          } else {
+            setIndices({ selectedIndex: null });
+          }
+        } else if (autoHighlight) {
+          setIndices({ activeIndex: null });
         }
       }
 
@@ -550,17 +596,33 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
+      if (open === nextOpen) {
+        return;
+      }
+
       props.onOpenChange?.(nextOpen, eventDetails);
 
       if (eventDetails.isCanceled) {
         return;
       }
 
-      if (selectionMode === 'single' && !nextOpen && queryChangedAfterOpen) {
-        setCloseQuery(query);
-        // Avoid a flicker when closing the popup with an empty query.
-        if (query === '') {
-          setQueryChangedAfterOpen(false);
+      if (!nextOpen && queryChangedAfterOpen) {
+        if (selectionMode === 'single') {
+          setCloseQuery(query);
+          // Avoid a flicker when closing the popup with an empty query.
+          if (query === '') {
+            setQueryChangedAfterOpen(false);
+          }
+        } else if (selectionMode === 'multiple') {
+          if (inline || inputInsidePopup) {
+            setIndices({ activeIndex: null });
+          } else {
+            // Freeze the current query so filtering remains stable while exiting.
+            setCloseQuery(query);
+          }
+          // Clear the input immediately on close while retaining filtering via closeQuery for exit animations
+          // if the input is outside the popup.
+          setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
         }
       }
 
@@ -586,28 +648,18 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
       if (shouldFillInput) {
         setInputValue(
-          stringifyItem(nextValue, itemToStringLabel),
-          createBaseUIEventDetails(eventDetails.reason, eventDetails.event),
+          stringifyAsLabel(nextValue, itemToStringLabel),
+          createChangeEventDetails(eventDetails.reason, eventDetails.event),
         );
-      }
-
-      const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-      if (multiple && hadInputValue) {
-        setInputValue('', createBaseUIEventDetails(eventDetails.reason, eventDetails.event));
-        // Reset active index and clear any highlighted item since the list will re-filter.
-        setIndices({ activeIndex: null });
       }
 
       if (
         selectionMode === 'single' &&
         nextValue != null &&
-        eventDetails.reason !== 'input-change'
+        eventDetails.reason !== 'input-change' &&
+        queryChangedAfterOpen
       ) {
-        setOpen(false, createBaseUIEventDetails('item-press', eventDetails.event as any));
-
-        if (queryChangedAfterOpen) {
-          setCloseQuery(query);
-        }
+        setCloseQuery(query);
       }
     },
   );
@@ -622,10 +674,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     if (multiple) {
       const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
       const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = registry.indexOf(lastValue);
+      const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
       setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
     } else {
-      const index = registry.indexOf(selectedValue);
+      const index = findItemIndex(registry, selectedValue, isItemEqualToValue);
       setIndices({ selectedIndex: index === -1 ? null : index });
     }
   });
@@ -636,11 +688,55 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
   }, [open, selectedValue, syncSelectedIndex]);
 
-  const handleEnterSelection = useEventCallback(() => {
-    if (activeIndex != null) {
-      listRef.current[activeIndex]?.click();
-    }
-  });
+  const handleSelection = useEventCallback(
+    (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
+      let value = passedValue;
+      if (value === undefined) {
+        if (activeIndex === null) {
+          return;
+        }
+        value = valuesRef.current[activeIndex];
+      }
+
+      const targetEl = getTarget(event) as HTMLElement | null;
+      const overrideEvent = selectionEventRef.current ?? event;
+      selectionEventRef.current = null;
+      const eventDetails = createChangeEventDetails('item-press', overrideEvent);
+
+      // Let the link handle the click.
+      const href = targetEl?.closest('a')?.getAttribute('href');
+      if (href) {
+        if (href.startsWith('#')) {
+          setOpen(false, eventDetails);
+        }
+        return;
+      }
+
+      if (multiple) {
+        const currentSelectedValue = Array.isArray(selectedValue) ? selectedValue : [];
+        const isCurrentlySelected = currentSelectedValue.includes(value);
+        const nextValue = isCurrentlySelected
+          ? currentSelectedValue.filter((v) => v !== value)
+          : [...currentSelectedValue, value];
+
+        setSelectedValue(nextValue, eventDetails);
+
+        const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
+        if (!wasFiltering) {
+          return;
+        }
+
+        if (store.state.inputInsidePopup) {
+          setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
+        } else {
+          setOpen(false, eventDetails);
+        }
+      } else {
+        setSelectedValue(value, eventDetails);
+        setOpen(false, eventDetails);
+      }
+    },
+  );
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -655,25 +751,16 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       setIndices({ activeIndex: null });
     }
 
-    // If an input-clear was requested while open, perform it here after close completes
-    // to avoid mid-exit flicker.
-    if (hadInputClearRef.current && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', createBaseUIEventDetails('input-clear'));
-      hadInputClearRef.current = false;
-    }
-
-    // If explicitly requested by a wrapper (e.g., FilterableMenu), clear the input
-    // after close completes regardless of selection mode. This ensures the next open
-    // starts from a blank query without requiring external state resets.
-    if (props.clearInputOnCloseComplete && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', createBaseUIEventDetails('input-clear'));
-    }
-
     // Multiple selection mode:
     // If the user typed a filter and didn't select in multiple mode, clear the input
     // after close completes to avoid mid-exit flicker and start fresh on next open.
-    if (selectionMode === 'multiple' && inputRef.current && inputRef.current.value !== '') {
-      setInputValue('', createBaseUIEventDetails('input-clear'));
+    if (
+      selectionMode === 'multiple' &&
+      inputRef.current &&
+      inputRef.current.value !== '' &&
+      !hadInputClearRef.current
+    ) {
+      setInputValue('', createChangeEventDetails('input-clear'));
     }
 
     // Single selection mode:
@@ -682,14 +769,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     if (selectionMode === 'single') {
       if (store.state.inputInsidePopup) {
         if (inputRef.current && inputRef.current.value !== '') {
-          setInputValue('', createBaseUIEventDetails('input-clear'));
+          setInputValue('', createChangeEventDetails('input-clear'));
         }
       } else {
-        const stringVal = stringifyItem(selectedValue, itemToStringLabel);
+        const stringVal = stringifyAsLabel(selectedValue, itemToStringLabel);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
-          const reason = stringVal === '' ? 'input-clear' : 'item-press';
-          setInputValue(stringVal, createBaseUIEventDetails(reason));
+          const reason = stringVal === '' ? 'input-clear' : 'none';
+          setInputValue(stringVal, createChangeEventDetails(reason));
         }
       }
     }
@@ -708,6 +795,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
+  // Ensures that the active index is not set to 0 when the list is empty.
+  // This avoids needing to press ArrowDown twice under certain conditions.
+  React.useEffect(() => {
+    if (hasItems && autoHighlight && flatFilteredItems.length === 0) {
+      setIndices({ activeIndex: null });
+    }
+  }, [hasItems, autoHighlight, flatFilteredItems.length, setIndices]);
+
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
     onOpenChange: setOpen,
@@ -720,7 +815,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   let ariaHasPopup: 'grid' | 'listbox' | undefined;
   let ariaExpanded: 'true' | 'false' | undefined;
   if (!inline) {
-    ariaHasPopup = cols > 1 ? 'grid' : 'listbox';
+    ariaHasPopup = grid ? 'grid' : 'listbox';
     ariaExpanded = open ? 'true' : 'false';
   }
 
@@ -791,14 +886,20 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     loop: true,
     allowEscape: !autoHighlight,
     focusItemOnOpen: queryChangedAfterOpen || selectionMode === 'none' ? false : 'auto',
-    cols,
-    orientation: cols > 1 ? 'horizontal' : undefined,
+    // `cols` > 1 enables grid navigation.
+    // Since <Combobox.Row> infers column sizes (and is required when building a grid),
+    // it works correctly even with a value of `2`.
+    // Floating UI tests don't require `role="row"` wrappers, so retains the number API.
+    cols: grid ? 2 : 1,
+    orientation: grid ? 'horizontal' : undefined,
     disabledIndices: virtualized
       ? (index) => index < 0 || index >= flatFilteredItems.length
-      : EMPTY_ARRAY,
+      : (EMPTY_ARRAY as number[]),
     onNavigate(nextActiveIndex, event) {
+      const isClosing = !open || transitionStatus === 'ending';
+
       // Retain the highlight only while actually transitioning out or closed.
-      if (nextActiveIndex === null && (!open || transitionStatus === 'ending')) {
+      if (nextActiveIndex === null && !inline && isClosing) {
         return;
       }
 
@@ -823,7 +924,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     onMatch(index) {
       const nextSelectedValue = valuesRef.current[index];
       if (nextSelectedValue !== undefined) {
-        setSelectedValue(nextSelectedValue, createBaseUIEventDetails('none'));
+        setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
       }
     },
   });
@@ -847,12 +948,12 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       setSelectedValue,
       setIndices,
       onItemHighlighted,
-      handleEnterSelection,
+      handleSelection,
       forceMount,
     });
   });
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     store.apply({
       id,
       selectedValue,
@@ -873,7 +974,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       readOnly,
       required,
       fieldControlValidation,
-      cols,
+      grid,
       isGrouped,
       virtualized,
       onOpenChangeComplete,
@@ -881,6 +982,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       itemToStringLabel,
       modal,
       autoHighlight,
+      isItemEqualToValue,
+      alwaysSubmitOnEnter,
+      hasInputValue,
     });
   }, [
     store,
@@ -903,7 +1007,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     readOnly,
     required,
     fieldControlValidation,
-    cols,
+    grid,
     isGrouped,
     virtualized,
     onOpenChangeComplete,
@@ -911,6 +1015,9 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     itemToStringLabel,
     modal,
     autoHighlight,
+    isItemEqualToValue,
+    alwaysSubmitOnEnter,
+    hasInputValue,
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
@@ -928,7 +1035,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     if (Array.isArray(formValue)) {
       return '';
     }
-    return stringifyItemValue(formValue, itemToStringValue);
+    return stringifyAsValue(formValue, itemToStringValue);
   }, [formValue, itemToStringValue]);
 
   const hiddenInputs = React.useMemo(() => {
@@ -937,7 +1044,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
 
     return selectedValue.map((value: Value) => {
-      const currentSerializedValue = stringifyItemValue(value, itemToStringValue);
+      const currentSerializedValue = stringifyAsValue(value, itemToStringValue);
       return (
         <input
           key={currentSerializedValue}
@@ -970,9 +1077,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
             }
 
             const nextValue = event.target.value;
-            const details = createBaseUIEventDetails('input-change', event.nativeEvent);
+            const details = createChangeEventDetails('input-change', event.nativeEvent);
 
             function handleChange() {
+              // Browser autofill only writes a single scalar value.
+              if (multiple) {
+                return;
+              }
+
               if (selectionMode === 'none') {
                 setDirty(nextValue !== validityData.initialValue);
                 setInputValue(nextValue, details);
@@ -983,19 +1095,20 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
                 return;
               }
 
-              const exactValue = valuesRef.current.find(
-                (v: any) =>
-                  v === nextValue ||
-                  (typeof selectedValue === 'string' &&
-                    nextValue.toLowerCase() === v.toLowerCase()),
-              );
+              const matchingValue = valuesRef.current.find((v) => {
+                const candidate = stringifyAsValue(v, itemToStringValue);
+                if (candidate.toLowerCase() === nextValue.toLowerCase()) {
+                  return true;
+                }
+                return false;
+              });
 
-              if (exactValue != null) {
-                setDirty(exactValue !== validityData.initialValue);
-                setSelectedValue?.(exactValue, details);
+              if (matchingValue != null) {
+                setDirty(matchingValue !== validityData.initialValue);
+                setSelectedValue?.(matchingValue, details);
 
                 if (validationMode === 'onChange') {
-                  fieldControlValidation.commitValidation(exactValue);
+                  fieldControlValidation.commitValidation(matchingValue);
                 }
               }
             }
@@ -1027,13 +1140,15 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     <ComboboxRootContext.Provider value={store}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
         <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
-          {virtualized ? (
-            children
-          ) : (
-            <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
-              {children}
-            </CompositeList>
-          )}
+          <ComboboxInputValueContext.Provider value={inputValue}>
+            {virtualized ? (
+              children
+            ) : (
+              <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
+                {children}
+              </CompositeList>
+            )}
+          </ComboboxInputValueContext.Provider>
         </ComboboxDerivedItemsContext.Provider>
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
@@ -1079,7 +1194,7 @@ interface ComboboxRootProps<ItemValue> {
    */
   defaultOpen?: boolean;
   /**
-   * Whether the popup is currently open.
+   * Whether the popup is currently open. Use when controlled.
    */
   open?: boolean;
   /**
@@ -1096,12 +1211,12 @@ interface ComboboxRootProps<ItemValue> {
    */
   openOnInputClick?: boolean;
   /**
-   * Whether to automatically highlight the first item when the popup opens.
+   * Whether to automatically highlight the first item while filtering.
    * @default false
    */
   autoHighlight?: boolean;
   /**
-   * The input value of the combobox.
+   * The input value of the combobox. Use when controlled.
    */
   inputValue?: React.ComponentProps<'input'>['value'];
   /**
@@ -1113,6 +1228,8 @@ interface ComboboxRootProps<ItemValue> {
   ) => void;
   /**
    * The uncontrolled input value when initially rendered.
+   *
+   * To render a controlled input, use the `inputValue` prop instead.
    */
   defaultInputValue?: React.ComponentProps<'input'>['defaultValue'];
   /**
@@ -1124,33 +1241,27 @@ interface ComboboxRootProps<ItemValue> {
   actionsRef?: React.RefObject<ComboboxRootInternal.Actions>;
   /**
    * Callback fired when the user navigates the list and highlights an item.
-   * Passes the item and the type of navigation or `undefined` when no item is highlighted.
-   * - `keyboard`: The item was highlighted via keyboard navigation.
-   * - `pointer`: The item was highlighted via pointer navigation.
-   * - `none`: The item was highlighted via programmatic navigation.
+   * Receives the highlighted item value (or `undefined` when no highlight is present), and event details describing the navigation reason and highlighted index.
    */
   onItemHighlighted?: (
     itemValue: ItemValue | undefined,
-    data: {
-      type: 'keyboard' | 'pointer' | 'none';
-      index: number;
-    },
+    eventDetails: ComboboxRootInternal.HighlightEventDetails,
   ) => void;
   /**
    * A ref to the hidden input element.
    */
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement>;
   /**
-   * The maximum number of columns present when the items are rendered in grid layout.
-   * A value of more than `1` turns the listbox into a grid.
-   * @default 1
+   * Whether list items are presented in a grid layout.
+   * When enabled, arrow keys navigate across rows and columns inferred from DOM rows.
+   * @default false
    */
-  cols?: number;
+  grid?: boolean;
   /**
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: ItemValue[] | Group<ItemValue>[];
+  items?: readonly ItemValue[] | readonly Group<ItemValue>[];
   /**
    * Filter function used to match items vs input query.
    * The `itemToStringLabel` function is provided to help convert items to strings for comparison.
@@ -1163,13 +1274,20 @@ interface ComboboxRootProps<ItemValue> {
         itemToStringLabel?: (itemValue: ItemValue) => string,
       ) => boolean);
   /**
-   * When items' values are objects, converts its value to a string label for display.
+   * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
+   * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
    */
   itemToStringLabel?: (itemValue: ItemValue) => string;
   /**
-   * When items' values are objects, converts its value to a string value for form submission.
+   * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.
+   * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
    */
   itemToStringValue?: (itemValue: ItemValue) => string;
+  /**
+   * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
+   * Defaults to `Object.is` comparison.
+   */
+  isItemEqualToValue?: (itemValue: ItemValue, selectedValue: ItemValue) => boolean;
   /**
    * Whether the items are being externally virtualized.
    * @default false
@@ -1202,11 +1320,11 @@ interface ComboboxRootProps<ItemValue> {
    */
   locale?: Intl.LocalesArgument;
   /**
-   * INTERNAL: Clears the input value after close animation completes.
-   * Useful for wrappers like FilterableMenu so they don't need to reset externally.
+   * Whether pressing Enter in the input should always allow forms to submit.
+   * By default, pressing Enter in the input will stop form submission if an item is highlighted.
    * @default false
    */
-  clearInputOnCloseComplete?: boolean;
+  alwaysSubmitOnEnter?: boolean;
   /**
    * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
    */
@@ -1256,11 +1374,24 @@ export namespace ComboboxRootInternal {
     unmount: () => void;
   }
 
+  export type HighlightEventReason = 'keyboard' | 'pointer' | 'none';
+  export type HighlightEventDetails = BaseUIGenericEventDetails<
+    HighlightEventReason,
+    Event,
+    { index: number }
+  >;
+
   export type ChangeEventReason =
-    | BaseUIChangeEventReason
+    | 'trigger-press'
+    | 'outside-press'
+    | 'item-press'
+    | 'escape-key'
+    | 'list-navigation'
+    | 'focus-out'
     | 'input-change'
     | 'input-clear'
     | 'clear-press'
-    | 'chip-remove-press';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+    | 'chip-remove-press'
+    | 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

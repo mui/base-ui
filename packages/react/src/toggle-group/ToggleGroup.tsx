@@ -8,9 +8,9 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 
-const customStyleHookMapping = {
+const stateAttributesMapping = {
   multiple(value: boolean) {
     if (value) {
       return { [ToggleGroupDataAttributes.multiple]: '' } as Record<string, string>;
@@ -34,7 +34,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     loop = true,
     onValueChange,
     orientation = 'horizontal',
-    toggleMultiple = false,
+    multiple = false,
     value: valueProp,
     className,
     render,
@@ -60,34 +60,34 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     state: 'value',
   });
 
-  const setGroupValue = useEventCallback((newValue: string, nextPressed: boolean, event: Event) => {
-    let newGroupValue: any[] | undefined;
-    if (toggleMultiple) {
-      newGroupValue = groupValue.slice();
-      if (nextPressed) {
-        newGroupValue.push(newValue);
+  const setGroupValue = useEventCallback(
+    (newValue: string, nextPressed: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => {
+      let newGroupValue: any[] | undefined;
+      if (multiple) {
+        newGroupValue = groupValue.slice();
+        if (nextPressed) {
+          newGroupValue.push(newValue);
+        } else {
+          newGroupValue.splice(groupValue.indexOf(newValue), 1);
+        }
       } else {
-        newGroupValue.splice(groupValue.indexOf(newValue), 1);
+        newGroupValue = nextPressed ? [newValue] : [];
       }
-    } else {
-      newGroupValue = nextPressed ? [newValue] : [];
-    }
-    if (Array.isArray(newGroupValue)) {
-      const details = createBaseUIEventDetails('none', event);
+      if (Array.isArray(newGroupValue)) {
+        onValueChange?.(newGroupValue, eventDetails);
 
-      onValueChange?.(newGroupValue, details);
+        if (eventDetails.isCanceled) {
+          return;
+        }
 
-      if (details.isCanceled) {
-        return;
+        setValueState(newGroupValue);
       }
-
-      setValueState(newGroupValue);
-    }
-  });
+    },
+  );
 
   const state: ToggleGroup.State = React.useMemo(
-    () => ({ disabled, multiple: toggleMultiple, orientation }),
-    [disabled, orientation, toggleMultiple],
+    () => ({ disabled, multiple, orientation }),
+    [disabled, orientation, multiple],
   );
 
   const contextValue: ToggleGroupContext = React.useMemo(
@@ -109,7 +109,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     state,
     ref: forwardedRef,
     props: [defaultProps, elementProps],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (
@@ -123,7 +123,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
           state={state}
           refs={[forwardedRef]}
           props={[defaultProps, elementProps]}
-          customStyleHookMapping={customStyleHookMapping}
+          stateAttributesMapping={stateAttributesMapping}
           loop={loop}
           stopEventPropagation
         />
@@ -179,9 +179,9 @@ export namespace ToggleGroup {
      * When `true` multiple items can be pressed.
      * @default false
      */
-    toggleMultiple?: boolean;
+    multiple?: boolean;
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

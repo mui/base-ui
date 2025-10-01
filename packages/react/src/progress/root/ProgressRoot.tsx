@@ -4,7 +4,7 @@ import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { formatNumber } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
-import { progressStyleHookMapping } from './styleHooks';
+import { progressStateAttributesMapping } from './stateAttributesMapping';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 
 function formatValue(
@@ -96,7 +96,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     state,
     ref: forwardedRef,
     props: [defaultProps, elementProps],
-    customStyleHookMapping: progressStyleHookMapping,
+    stateAttributesMapping: progressStateAttributesMapping,
   });
 
   return (
@@ -122,9 +122,6 @@ export namespace ProgressRoot {
     format?: Intl.NumberFormatOptions;
     /**
      * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar.
-     * @param {string} formattedValue The component's formatted value.
-     * @param {number | null} value The component's numerical value.
-     * @returns {string}
      */
     getAriaValueText?: (formattedValue: string | null, value: number | null) => string;
     /**

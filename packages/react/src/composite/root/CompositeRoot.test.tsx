@@ -100,6 +100,29 @@ describe('Composite', () => {
       expect(item1).toHaveFocus();
     });
 
+    it.skipIf(isJSDOM)('updates the order of items', async () => {
+      function App(props: { items: string[] }) {
+        return (
+          <CompositeRoot>
+            {props.items.map((item) => (
+              <CompositeItem key={item} data-testid={item}>
+                {item}
+              </CompositeItem>
+            ))}
+          </CompositeRoot>
+        );
+      }
+      const { getByTestId, user, rerender } = render(<App items={['1', '2', '3']} />);
+      rerender(<App items={['1', '3', '2']} />);
+
+      const item1 = getByTestId('1');
+      const item3 = getByTestId('3');
+
+      act(() => item1.focus());
+      await user.keyboard('{ArrowDown}');
+      expect(item3).toHaveFocus();
+    });
+
     describe('Home and End keys', () => {
       it('Home key moves focus to the first item', async () => {
         const { getByTestId } = render(

@@ -31,7 +31,7 @@ import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -338,9 +338,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       if (value != null) {
         setValue(
           itemValue,
-          createBaseUIEventDetails(
+          createChangeEventDetails(
             event.type === 'mouseenter' ? 'trigger-hover' : 'trigger-press',
-            event.nativeEvent as any,
+            event.nativeEvent,
           ),
         );
       }
@@ -396,7 +396,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
 
       if (openHorizontal || openVertical) {
-        setValue(itemValue, createBaseUIEventDetails('list-navigation', event.nativeEvent));
+        setValue(itemValue, createChangeEventDetails('list-navigation', event.nativeEvent));
         handleOpenEvent(event);
         stopEvent(event);
       }
@@ -413,7 +413,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           { popupElement, rootRef, tree, nodeId },
         )
       ) {
-        setValue(null, createBaseUIEventDetails('focus-out', event.nativeEvent));
+        setValue(null, createChangeEventDetails('focus-out', event.nativeEvent));
       }
     },
   };
@@ -433,7 +433,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         render={render}
         className={className}
         state={state}
-        customStyleHookMapping={pressableTriggerOpenStateMapping}
+        stateAttributesMapping={pressableTriggerOpenStateMapping}
         refs={[forwardedRef, setTriggerElement, buttonRef]}
         props={[getReferenceProps, defaultProps, elementProps, getButtonProps]}
       />
@@ -465,7 +465,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
                 nextTabbable?.focus();
 
                 if (!contains(rootRef.current, nextTabbable)) {
-                  setValue(null, createBaseUIEventDetails('focus-out', event.nativeEvent));
+                  setValue(null, createChangeEventDetails('focus-out', event.nativeEvent));
                 }
               }
             }}

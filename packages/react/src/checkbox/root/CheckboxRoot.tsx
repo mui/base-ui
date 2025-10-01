@@ -5,7 +5,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
+import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -18,7 +18,10 @@ import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 
 const EMPTY = {};
 export const PARENT_CHECKBOX = 'data-parent';
@@ -204,7 +207,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         }
 
         const nextChecked = event.target.checked;
-        const details = createBaseUIEventDetails('none', event.nativeEvent);
+        const details = createChangeEventDetails('none', event.nativeEvent);
 
         groupOnChange?.(nextChecked, details);
         onCheckedChange(nextChecked, details);
@@ -277,7 +280,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     [fieldState, computedChecked, disabled, readOnly, required, computedIndeterminate],
   );
 
-  const customStyleHookMapping = useCustomStyleHookMapping(state);
+  const stateAttributesMapping = useStateAttributesMapping(state);
 
   const element = useRenderElement('button', componentProps, {
     state,
@@ -301,7 +304,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       otherGroupProps,
       getButtonProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (
@@ -372,9 +375,6 @@ export namespace CheckboxRoot {
     disabled?: boolean;
     /**
      * Event handler called when the checkbox is ticked or unticked.
-     *
-     * @param {boolean} checked The new checked state.
-     * @param {Event} event The corresponding event that initiated the change.
      */
     onCheckedChange?: (checked: boolean, eventDetails: ChangeEventDetails) => void;
     /**
@@ -410,5 +410,5 @@ export namespace CheckboxRoot {
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

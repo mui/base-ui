@@ -2,6 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { spy } from 'sinon';
 import { afterEach } from 'vitest';
 import { Menubar } from '@base-ui-components/react/menubar';
 import { Menu } from '@base-ui-components/react/menu';
@@ -469,6 +470,96 @@ describe('<Menubar />', () => {
       expect(shareTrigger).toHaveFocus();
     });
 
+    it.skipIf(!isJSDOM)(
+      'closes open submenus when navigating to the next menubar item with ArrowRight',
+      async () => {
+        const rootOnOpenChange = spy();
+        const submenuOnOpenChange = spy();
+        const nextOnOpenChange = spy();
+
+        function SpyMenubar() {
+          return (
+            <Menubar>
+              <Menu.Root onOpenChange={rootOnOpenChange}>
+                <Menu.Trigger data-testid="menubar-file-trigger">File</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner data-testid="menubar-file-menu">
+                    <Menu.Popup>
+                      <Menu.Item data-testid="menubar-file-item">Item 1</Menu.Item>
+                      <Menu.SubmenuRoot onOpenChange={submenuOnOpenChange}>
+                        <Menu.SubmenuTrigger data-testid="menubar-submenu-trigger">
+                          Share
+                        </Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner data-testid="menubar-submenu-menu">
+                            <Menu.Popup>
+                              <Menu.Item data-testid="menubar-submenu-item">Email</Menu.Item>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+              <Menu.Root onOpenChange={nextOnOpenChange}>
+                <Menu.Trigger data-testid="menubar-next-trigger">Edit</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner data-testid="menubar-next-menu">
+                    <Menu.Popup>
+                      <Menu.Item>Edit Item</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menubar>
+          );
+        }
+
+        const { user } = await render(<SpyMenubar />);
+        const fileTrigger = screen.getByTestId('menubar-file-trigger');
+
+        await act(async () => {
+          fileTrigger.focus();
+        });
+        await user.keyboard('{Enter}');
+        await screen.findByTestId('menubar-file-menu');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('menubar-file-item')).toHaveFocus();
+        });
+
+        await user.keyboard('{ArrowDown}');
+        const submenuTrigger = screen.getByTestId('menubar-submenu-trigger');
+        await waitFor(() => {
+          expect(submenuTrigger).toHaveFocus();
+        });
+
+        await user.keyboard('{ArrowRight}');
+        await screen.findByTestId('menubar-submenu-menu');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('menubar-submenu-item')).toHaveFocus();
+        });
+
+        await user.keyboard('{ArrowRight}');
+
+        await screen.findByTestId('menubar-next-menu');
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('menubar-submenu-menu')).to.equal(null);
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('menubar-file-menu')).to.equal(null);
+        });
+
+        expect(submenuOnOpenChange.lastCall?.args[0]).to.equal(false);
+        expect(rootOnOpenChange.lastCall?.args[0]).to.equal(false);
+        expect(nextOnOpenChange.lastCall?.args[0]).to.equal(true);
+      },
+    );
+
     // Doesn't work in headless mode.
     it.skipIf(!isJSDOM)(
       'should navigate between menus using left/right arrow keys when menus are open',
@@ -631,6 +722,26 @@ describe('<Menubar />', () => {
         await user.keyboard('{ArrowLeft}');
         expect(firstItem).toHaveFocus();
       });
+    });
+  });
+
+  describe('prop: disabled', () => {
+    it('disables child menus when menubar is disabled', async () => {
+      const { user } = await render(<TestMenubar disabled />);
+
+      const fileTrigger = screen.getByTestId('file-trigger');
+
+      // Trigger should be disabled
+      expect(fileTrigger).to.have.attribute('disabled');
+
+      // It should not be reachable via Tab
+      await user.tab();
+      expect(fileTrigger).not.toHaveFocus();
+      expect(document.body).toHaveFocus();
+
+      // Clicking should not open the menu
+      await user.click(fileTrigger);
+      expect(screen.queryByTestId('file-menu')).to.equal(null);
     });
   });
 

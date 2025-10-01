@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { error } from '@base-ui-components/utils/error';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -16,12 +17,12 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     native: isNativeButton = true,
   } = parameters;
 
-  const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
+  const elementRef = React.useRef<HTMLElement | null>(null);
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
   const isValidLink = useEventCallback(() => {
-    const element = buttonRef.current;
+    const element = elementRef.current;
     return Boolean(element?.tagName === 'A' && (element as HTMLAnchorElement)?.href);
   });
 
@@ -36,11 +37,11 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
-      if (!buttonRef.current) {
+      if (!elementRef.current) {
         return;
       }
 
-      const isButtonTag = buttonRef.current.tagName === 'BUTTON';
+      const isButtonTag = elementRef.current.tagName === 'BUTTON';
 
       if (isNativeButton) {
         if (!isButtonTag) {
@@ -60,9 +61,10 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
   // the `disabled` prop needs to pass through 2 `useButton`s then finally
   // delete the `disabled` attribute from DOM
-  useIsoLayoutEffect(() => {
-    const element = buttonRef.current;
-    if (!(element instanceof HTMLButtonElement)) {
+  const updateDisabled = React.useCallback(() => {
+    const element = elementRef.current;
+
+    if (!isButtonElement(element)) {
       return;
     }
 
@@ -75,6 +77,8 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       element.disabled = false;
     }
   }, [disabled, focusableWhenDisabledProps.disabled, isCompositeItem]);
+
+  useIsoLayoutEffect(updateDisabled, [updateDisabled]);
 
   const getButtonProps = React.useCallback(
     (externalProps: GenericButtonProps = {}) => {
@@ -171,10 +175,21 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink],
   );
 
+  const buttonRef = useEventCallback((element: HTMLElement | null) => {
+    elementRef.current = element;
+    updateDisabled();
+  });
+
   return {
     getButtonProps,
     buttonRef,
   };
+}
+
+function isButtonElement(
+  elem: HTMLButtonElement | HTMLAnchorElement | HTMLElement | null,
+): elem is HTMLButtonElement {
+  return isHTMLElement(elem) && elem.tagName === 'BUTTON';
 }
 
 interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {
@@ -222,6 +237,6 @@ export namespace useButton {
      * A ref to the button DOM element. This ref should be passed to the rendered element.
      * It is not a part of the props returned by `getButtonProps`.
      */
-    buttonRef: React.RefObject<HTMLElement | null>;
+    buttonRef: React.Ref<HTMLElement>;
   }
 }

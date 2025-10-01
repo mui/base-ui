@@ -9,8 +9,10 @@ import {
   TOUCH_TIMEOUT,
 } from '../utils/constants';
 import { parseNumber } from '../utils/parse';
+import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { HTMLProps } from '../../utils/types';
 import type { EventWithOptionalKeyState } from '../utils/types';
+import type { NumberFieldRoot } from './NumberFieldRoot';
 
 export function useNumberFieldButton(
   params: useNumberFieldButton.Parameters,
@@ -37,6 +39,8 @@ export function useNumberFieldButton(
     stopAutoChange,
     value,
     valueRef,
+    lastChangedValueRef,
+    onValueCommitted,
   } = params;
 
   const incrementDownCoordsRef = React.useRef({ x: 0, y: 0 });
@@ -96,7 +100,14 @@ export function useNumberFieldButton(
 
         const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
+        const prev = valueRef.current;
+
         incrementValue(amount, isIncrement ? 1 : -1, undefined, event.nativeEvent);
+
+        const committed = lastChangedValueRef.current ?? valueRef.current;
+        if (committed !== prev) {
+          onValueCommitted(committed, createGenericEventDetails('none', event.nativeEvent));
+        }
       },
       onPointerDown(event) {
         const isMainButton = !event.button || event.button === 0;
@@ -123,13 +134,26 @@ export function useNumberFieldButton(
           intentionalTouchCheckTimeout.start(TOUCH_TIMEOUT, () => {
             const moves = movesAfterTouchRef.current;
             movesAfterTouchRef.current = 0;
-            if (moves != null && moves < MAX_POINTER_MOVES_AFTER_TOUCH) {
-              ignoreClickRef.current = true;
+            // Only start auto-change if the touch is still pressed (prevents races
+            // with pointerup occurring before the timeout fires on quick taps).
+            const stillPressed = isPressedRef.current;
+            if (stillPressed && moves != null && moves < MAX_POINTER_MOVES_AFTER_TOUCH) {
               startAutoChange(isIncrement, event);
+              ignoreClickRef.current = true; // synthesized click should be ignored
             } else {
+              // No auto-change (simple tap or scroll gesture), allow the click handler
+              // to perform a single increment and commit.
+              ignoreClickRef.current = false;
               stopAutoChange();
             }
           });
+        }
+      },
+      onPointerUp(event) {
+        // Ensure we mark the press as released for touch flows even if auto-change never started,
+        // so the delayed auto-change check won’t start after a quick tap.
+        if (event.pointerType === 'touch') {
+          isPressedRef.current = false;
         }
       },
       onPointerMove(event) {
@@ -182,20 +206,23 @@ export function useNumberFieldButton(
       },
     }),
     [
-      commitValue,
       disabled,
-      getStepAmount,
-      id,
-      incrementValue,
-      inputRef,
       isIncrement,
-      intentionalTouchCheckTimeout,
       isMax,
       isMin,
-      isPressedRef,
-      movesAfterTouchRef,
       readOnly,
+      id,
+      commitValue,
+      getStepAmount,
+      valueRef,
+      incrementValue,
+      lastChangedValueRef,
+      onValueCommitted,
+      isPressedRef,
+      inputRef,
       startAutoChange,
+      intentionalTouchCheckTimeout,
+      movesAfterTouchRef,
       stopAutoChange,
     ],
   );
@@ -236,6 +263,11 @@ export namespace useNumberFieldButton {
     stopAutoChange: () => void;
     value: number | null;
     valueRef: React.RefObject<number | null>;
+    lastChangedValueRef: React.RefObject<number | null>;
+    onValueCommitted: (
+      value: number | null,
+      eventDetails: NumberFieldRoot.CommitEventDetails,
+    ) => void;
   }
 
   export interface ReturnValue {

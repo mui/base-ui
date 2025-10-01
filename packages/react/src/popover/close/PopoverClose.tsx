@@ -4,7 +4,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * A button that closes the popover.
@@ -31,7 +31,7 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
     props: [
       {
         onClick(event) {
-          setOpen(false, createBaseUIEventDetails('close-press', event.nativeEvent));
+          setOpen(false, createChangeEventDetails('close-press', event.nativeEvent));
         },
       },
       elementProps,
