@@ -337,6 +337,36 @@ describe('<Dialog.Root />', () => {
       });
       expect(handleOpenChange.callCount).to.equal(1);
     });
+
+    it('dismisses when clicking a descendant element within the user backdrop', async () => {
+      const handleOpenChange = spy();
+
+      const { queryByRole } = await render(
+        <Dialog.Root defaultOpen onOpenChange={handleOpenChange} modal>
+          <Dialog.Portal>
+            <Dialog.Backdrop data-testid="backdrop">
+              <span data-testid="backdrop-child">Child</span>
+            </Dialog.Backdrop>
+            <Dialog.Popup />
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const backdropChild = screen.getByTestId('backdrop-child');
+
+      fireEvent.mouseDown(backdropChild);
+
+      expect(queryByRole('dialog')).not.to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
+
+      fireEvent.click(backdropChild);
+
+      await waitFor(() => {
+        expect(queryByRole('dialog')).to.equal(null);
+      });
+      expect(handleOpenChange.callCount).to.equal(1);
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal('outside-press');
+    });
   });
 
   it('waits for the exit transition to finish before unmounting', async ({ skip }) => {
