@@ -1,8 +1,8 @@
 @layer components {
   .MobileNavBackdrop {
-    position: absolute;
+    position: fixed;
     inset: 0;
-    min-height: 100dvh;
+    height: 100dvh;
 
     transition-duration: 600ms;
     transition-property: -webkit-backdrop-filter, backdrop-filter, opacity;

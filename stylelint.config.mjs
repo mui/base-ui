@@ -14,6 +14,8 @@ export default {
     'at-rule-empty-line-before': null,
     'function-no-unknown': true,
     'number-max-precision': 5,
+
+    'no-descending-specificity': null, // Some styles depend on order
   },
   overrides: [
     {

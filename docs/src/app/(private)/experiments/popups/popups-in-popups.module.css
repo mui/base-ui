@@ -319,8 +319,7 @@
 
 .Backdrop {
   background: rgb(0 0 0 / 0.35);
-  position: absolute;
+  position: fixed;
   inset: 0;
   backdrop-filter: blur(4px);
-  min-height: 100dvh;
 }

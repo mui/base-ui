@@ -1585,6 +1585,63 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
     expect(screen.getByTestId('after')).toHaveFocus();
   });
 
+  test('untrapped typeable combobox closes on second tab sequence (click -> tab -> click -> tab)', async () => {
+    function App() {
+      const [isOpen, setIsOpen] = React.useState(false);
+
+      const { refs, context } = useFloating({
+        open: isOpen,
+        onOpenChange: setIsOpen,
+      });
+
+      const click = useClick(context);
+      const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+
+      return (
+        <>
+          <input
+            ref={refs.setReference}
+            {...getReferenceProps()}
+            data-testid="input"
+            role="combobox"
+          />
+          {isOpen && (
+            <FloatingFocusManager context={context} initialFocus={false} modal>
+              <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating">
+                <button tabIndex={-1}>one</button>
+              </div>
+            </FloatingFocusManager>
+          )}
+          <button data-testid="after" />
+        </>
+      );
+    }
+
+    render(<App />);
+
+    await userEvent.click(screen.getByTestId('input'));
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('input')).toHaveFocus();
+
+    await userEvent.tab();
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('after')).toHaveFocus();
+    expect(screen.queryByTestId('floating')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByTestId('input'));
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('input')).toHaveFocus();
+
+    await userEvent.tab();
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('after')).toHaveFocus();
+    expect(screen.queryByTestId('floating')).not.toBeInTheDocument();
+  });
+
   test('focus does not return to reference when floating element is triggered by hover', async () => {
     function App() {
       const [isOpen, setIsOpen] = React.useState(false);

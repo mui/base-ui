@@ -220,9 +220,8 @@
 
 /* Dialog styles (reused from dialog hero demo) */
 .Backdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  min-height: 100dvh;
   background-color: black;
   opacity: 0.2;
   transition: opacity 150ms cubic-bezier(0.45, 1.005, 0, 1.005);
