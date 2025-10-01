@@ -11,6 +11,9 @@ export default function CalendarWithTimezone() {
   );
   return (
     <div className={indexStyles.Wrapper}>
+      <p className={indexStyles.Text}>
+        Calendar is displayed in <strong>America/New_York</strong> timezone.
+      </p>
       <Calendar.Root
         className={styles.Root}
         timezone="America/New_York"
