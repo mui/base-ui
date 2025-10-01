@@ -81,7 +81,6 @@
   background-clip: padding-box;
   color: var(--color-gray-900);
   user-select: none;
-  background-color: green;
 
   @media (hover: hover) {
     &:hover {
