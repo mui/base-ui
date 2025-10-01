@@ -69,7 +69,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     validityData,
   } = useFieldRootContext();
 
-  const { labelId, setControlId, ...labelableContext } = useLabelableContext();
+  const { labelId, controlId, setControlId, getDescriptionProps } = useLabelableContext();
 
   const groupContext = useCheckboxGroupContext();
   const parentContext = groupContext?.parent;
@@ -82,8 +82,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const id = useBaseUiId(idProp);
 
   const checkboxId =
-    idProp ??
-    (isGroupedWithParent && !parent ? `${parentContext.id}-${value}` : labelableContext.controlId);
+    idProp ?? (isGroupedWithParent && !parent ? `${parentContext.id}-${value}` : controlId);
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGroupedWithParent) {
@@ -197,10 +196,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     inputRef.current?.click();
   }
 
-  const fieldItemMessageIds = labelableContext?.messageIds.length
-    ? { 'aria-describedby': labelableContext.messageIds.join(' ') }
-    : undefined;
-
   const inputId = useBaseUiId();
 
   const inputProps = mergeProps<'input'>(
@@ -271,10 +266,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     valueProp !== undefined
       ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
       : EMPTY,
+    getDescriptionProps,
     groupContext
       ? fieldControlValidation.getValidationProps
       : fieldControlValidation.getInputValidationProps,
-    fieldItemMessageIds,
   );
 
   const computedChecked = isGroupedWithParent ? Boolean(groupChecked) : checked;
@@ -319,8 +314,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         onBlur,
         onClick,
       },
+      getDescriptionProps,
       fieldControlValidation.getValidationProps,
-      fieldItemMessageIds,
       elementProps,
       otherGroupProps,
       getButtonProps,

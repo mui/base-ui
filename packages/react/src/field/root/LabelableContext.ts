@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { NOOP } from '../../utils/noop';
+import { HTMLProps } from '../../utils/types';
 
 export interface LabelableContext {
   /**
@@ -19,6 +20,7 @@ export interface LabelableContext {
    */
   messageIds: string[];
   setMessageIds: React.Dispatch<React.SetStateAction<string[]>>;
+  getDescriptionProps: (externalProps: HTMLProps) => HTMLProps;
 }
 
 /**
@@ -32,6 +34,7 @@ export const LabelableContext = React.createContext<LabelableContext>({
   setLabelId: NOOP,
   messageIds: [],
   setMessageIds: NOOP,
+  getDescriptionProps: (externalProps: HTMLProps) => externalProps,
 });
 
 export function useLabelableContext() {
