@@ -155,6 +155,8 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
           return;
         }
 
+        event.preventDefault();
+
         inputRef?.current?.click();
       },
     }),

@@ -365,28 +365,40 @@ describe('<CheckboxGroup />', () => {
 
     it('explicit association', async () => {
       const changeSpy = spy();
-      await render(
+      const { container } = await render(
         <Field.Root name="apple">
           <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
             <Field.Item>
               <Checkbox.Root value="fuji-apple" />
               <Field.Label>Fuji</Field.Label>
+              <Field.Description>
+                A fuji apple is the round, edible fruit of an apple tree
+              </Field.Description>
             </Field.Item>
             <Field.Item>
               <Checkbox.Root value="gala-apple" onCheckedChange={changeSpy} />
               <Field.Label>Gala</Field.Label>
+              <Field.Description>
+                A gala apple is the round, edible fruit of an apple tree
+              </Field.Description>
             </Field.Item>
           </CheckboxGroup>
         </Field.Root>,
       );
 
       const checkboxes = screen.getAllByRole('checkbox');
+      const labels = container.querySelectorAll('label');
+      const descriptions = container.querySelectorAll('p');
 
-      const label1 = screen.getByText('Fuji');
-      await waitFor(() => {
-        expect(label1.getAttribute('for')).to.not.equal(null);
+      checkboxes.forEach((checkbox, index) => {
+        const label = labels[index];
+        const description = descriptions[index];
+
+        expect(label.getAttribute('for')).to.not.equal(null);
+        expect(label.getAttribute('for')).to.equal(checkbox.getAttribute('id'));
+        expect(description.getAttribute('id')).to.not.equal(null);
+        expect(description.getAttribute('id')).to.equal(checkbox.getAttribute('aria-describedby'));
       });
-      expect(label1.getAttribute('for')).to.equal(checkboxes[0].getAttribute('id'));
 
       fireEvent.click(screen.getByText('Gala'));
       expect(changeSpy.callCount).to.equal(1);
