@@ -9,7 +9,7 @@ export interface TemporalTimezoneProps {
    * Choose which timezone to use for the value.
    * Example: "default", "system", "UTC", "America/New_York".
    * If you pass values from other timezones to some props, they will be converted to this timezone before being used.
-   * @default "The timezone of the `value` or `defaultValue` prop if defined, 'default' otherwise."
+   * @default 'The timezone of the "value" or "defaultValue" prop if defined, "default" otherwise.'
    */
   timezone?: TemporalTimezone;
 }

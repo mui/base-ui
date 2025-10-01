@@ -56,7 +56,7 @@
     },
     "timezone": {
       "type": "string",
-      "default": "\"The timezone of the `value` or `defaultValue` prop if defined, 'default' otherwise.\"",
+      "default": "'The timezone of the \"value\" or \"defaultValue\" prop if defined, \"default\" otherwise.'",
       "description": "Choose which timezone to use for the value.\nExample: \"default\", \"system\", \"UTC\", \"America/New_York\".\nIf you pass values from other timezones to some props, they will be converted to this timezone before being used.",
       "detailedType": "string | undefined"
     },
