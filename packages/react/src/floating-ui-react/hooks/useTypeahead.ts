@@ -3,7 +3,7 @@ import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { stopEvent } from '../utils';
+import { contains, stopEvent } from '../utils';
 
 import type { ElementProps, FloatingRootContext } from '../types';
 
@@ -88,12 +88,17 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
   const ignoreKeysRef = useLatestRef(ignoreKeys);
 
   useIsoLayoutEffect(() => {
-    if (open) {
-      timeout.clear();
-      matchIndexRef.current = null;
+    if (!open && selectedIndex !== null) {
+      return;
+    }
+
+    timeout.clear();
+    matchIndexRef.current = null;
+
+    if (stringRef.current !== '') {
       stringRef.current = '';
     }
-  }, [open, timeout]);
+  }, [open, selectedIndex, timeout]);
 
   useIsoLayoutEffect(() => {
     // Sync arrow key navigation but not typeahead navigation.
@@ -201,9 +206,9 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
   });
 
   const onBlur = useEventCallback((event: React.FocusEvent) => {
-    const next = event.relatedTarget as Node | null;
-    const withinReference = next ? elements.domReference?.contains(next) === true : false;
-    const withinFloating = next ? elements.floating?.contains(next) === true : false;
+    const next = event.relatedTarget as Element | null;
+    const withinReference = contains(elements.domReference, next);
+    const withinFloating = contains(elements.floating, next);
 
     // Keep the session if focus moves within the composite (reference <-> floating).
     if (withinReference || withinFloating) {
