@@ -61,7 +61,6 @@
       var(--toast-swipe-movement-y)
   );
   position: absolute;
-  left: 0;
   right: 0;
   margin: 0 auto;
   box-sizing: border-box;
@@ -70,7 +69,7 @@
   border: 1px solid var(--color-gray-200);
   padding: 1rem;
   width: 100%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
   background-clip: padding-box;
   border-radius: 0.5rem;
   transform-origin: bottom center;
@@ -94,10 +93,6 @@
       )
     )
     scale(var(--scale));
-
-  &::after {
-    top: 100%;
-  }
 
   &[data-expanded] {
     transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
@@ -134,6 +129,7 @@
     content: '';
     position: absolute;
     width: 100%;
+    top: 100%;
     left: 0;
     height: calc(var(--gap) + 1px);
   }

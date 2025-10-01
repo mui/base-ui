@@ -13,7 +13,8 @@ import { DialogPortalContext } from './DialogPortalContext';
 export function DialogPortal(props: DialogPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
-  const { mounted } = useDialogRootContext();
+  const { store } = useDialogRootContext();
+  const mounted = store.useState('mounted');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
