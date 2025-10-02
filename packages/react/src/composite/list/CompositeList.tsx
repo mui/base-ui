@@ -27,9 +27,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   // information for list navigation.
 
   const map = useRefWithInit(createMap<Metadata>).current;
-  // `mapTick` intentionally uses a counter-based update rather than unique objects.
-  // This is because the chance of precision loss in the counter is extremely low,
-  // while `mapTick` updates relatively often and is more memory-efficient.
+  // `mapTick` uses a counter rather than objects for low precision-loss risk and better memory efficiency
   const [mapTick, setMapTick] = React.useState(0);
   const lastTickRef = React.useRef(mapTick);
 
