@@ -7,7 +7,7 @@ import { mergeProps } from '../../merge-props';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
-
+import { FieldItemContext } from './FieldItemContext';
 import { useLabelable } from '../root/useLabelable';
 import { LabelableContext, useLabelableContext } from '../root/LabelableContext';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
@@ -22,9 +22,11 @@ export const FieldItem = React.forwardRef(function FieldItem(
   componentProps: FieldItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
 
-  const { state } = useFieldRootContext(false);
+  const { state, disabled: rootDisabled } = useFieldRootContext(false);
+
+  const disabled = rootDisabled || disabledProp;
 
   const { messageIds: parentMessageIds } = useLabelableContext();
 
@@ -48,10 +50,12 @@ export const FieldItem = React.forwardRef(function FieldItem(
     [parentMessageIds, labelable.messageIds],
   );
 
-  const contextValue: LabelableContext = React.useMemo(
+  const labelableContext: LabelableContext = React.useMemo(
     () => ({ ...labelable, getDescriptionProps }),
     [labelable, getDescriptionProps],
   );
+
+  const fieldItemContext: FieldItemContext = React.useMemo(() => ({ disabled }), [disabled]);
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
@@ -60,11 +64,22 @@ export const FieldItem = React.forwardRef(function FieldItem(
     stateAttributesMapping: fieldValidityMapping,
   });
 
-  return <LabelableContext.Provider value={contextValue}>{element}</LabelableContext.Provider>;
+  return (
+    <LabelableContext.Provider value={labelableContext}>
+      <FieldItemContext.Provider value={fieldItemContext}>{element}</FieldItemContext.Provider>
+    </LabelableContext.Provider>
+  );
 });
 
 export namespace FieldItem {
   export type State = FieldRoot.State;
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {
+    /**
+     * Whether the wrapped control should ignore user interaction.
+     * The `disabled` prop on `<Field.Root>` takes precedence over this.
+     * @default false
+     */
+    disabled?: boolean;
+  }
 }

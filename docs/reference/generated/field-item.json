@@ -2,6 +2,12 @@
   "name": "FieldItem",
   "description": "Groups individual items in a checkbox group or radio group with a label and description.\nRenders a `<div>` element.",
   "props": {
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the wrapped control should ignore user interaction.\nThe `disabled` prop on `<Field.Root>` takes precedence over this.",
+      "detailedType": "boolean | undefined"
+    },
     "className": {
       "type": "string | ((state: Field.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
