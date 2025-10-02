@@ -103,20 +103,16 @@
   justify-content: center;
 }
 
-.DayGridCell {
+.DayGridHeaderCell {
+  width: 36px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--calendar-day-grid-header-color);
+  font-weight: 500;
   padding: 0;
 }
 
-.DayWeekNumber {
-  height: 36px;
-  width: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  color: var(--calendar-day-grid-header-color);
-  /* Avoid the bold front weight from the th element */
-  font-weight: 500;
+.DayGridCell {
   padding: 0;
 }
 
@@ -191,15 +187,6 @@
     text-decoration: line-through;
     color: var(--calendar-cell-unavailable-color);
   }
-}
-
-.DayGridHeaderCell {
-  width: 36px;
-  text-align: center;
-  font-size: 0.75rem;
-  color: var(--calendar-day-grid-header-color);
-  font-weight: 500;
-  padding: 0;
 }
 
 .Wrapper {
