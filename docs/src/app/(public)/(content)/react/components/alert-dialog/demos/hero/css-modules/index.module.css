@@ -44,6 +44,12 @@
   opacity: 0.2;
   transition: opacity 150ms;
 
+  /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
+  @supports (-webkit-touch-callout: none) {
+    position: absolute;
+    min-height: 100dvh;
+  }
+
   @media (prefers-color-scheme: dark) {
     opacity: 0.7;
   }
