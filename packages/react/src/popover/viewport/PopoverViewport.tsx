@@ -86,11 +86,13 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const handleMeasureLayout = useEventCallback(() => {
     currentContainerRef.current?.style.setProperty('animation', 'none');
     currentContainerRef.current?.style.setProperty('transition', 'none');
+    currentContainerRef.current?.removeAttribute('data-starting-style');
 
     previousContainerRef.current?.style.setProperty('display', 'none');
 
     nextContainerRef.current?.style.setProperty('animation', 'none');
     nextContainerRef.current?.style.setProperty('transition', 'none');
+    nextContainerRef.current?.removeAttribute('data-starting-style');
   });
 
   type MeasureLayoutCompleteData = {
@@ -101,11 +103,13 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const handleMeasureLayoutComplete = useEventCallback((data: MeasureLayoutCompleteData) => {
     currentContainerRef.current?.style.removeProperty('animation');
     currentContainerRef.current?.style.removeProperty('transition');
+    currentContainerRef.current?.setAttribute('data-starting-style', '');
 
     previousContainerRef.current?.style.removeProperty('display');
 
     nextContainerRef.current?.style.removeProperty('animation');
     nextContainerRef.current?.style.removeProperty('transition');
+    nextContainerRef.current?.setAttribute('data-starting-style', '');
 
     if (!previousContentDimensions) {
       setPreviousContentDimensions(data.previousDimensions);
