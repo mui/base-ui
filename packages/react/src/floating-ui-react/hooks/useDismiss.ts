@@ -24,7 +24,7 @@ import {
 
 import { useFloatingTree } from '../components/FloatingTree';
 import type { ElementProps, FloatingRootContext } from '../types';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 
 type PressType = 'intentional' | 'sloppy';
@@ -215,7 +215,7 @@ export function useDismiss(
       }
 
       const native = isReactEvent(event) ? event.nativeEvent : event;
-      const eventDetails = createBaseUIEventDetails('escape-key', native);
+      const eventDetails = createChangeEventDetails('escape-key', native);
 
       onOpenChange(false, eventDetails);
 
@@ -362,7 +362,7 @@ export function useDismiss(
         }
       }
 
-      onOpenChange(false, createBaseUIEventDetails('outside-press', event));
+      onOpenChange(false, createChangeEventDetails('outside-press', event));
     },
   );
 
@@ -487,7 +487,7 @@ export function useDismiss(
     const compositionTimeout = new Timeout();
 
     function onScroll(event: Event) {
-      onOpenChange(false, createBaseUIEventDetails('none', event));
+      onOpenChange(false, createChangeEventDetails('none', event));
     }
 
     function handleCompositionStart() {
@@ -633,11 +633,11 @@ export function useDismiss(
       onKeyDown: closeOnEscapeKeyDown,
       ...(referencePress && {
         [bubbleHandlerKeys[referencePressEvent]]: (event: React.SyntheticEvent) => {
-          onOpenChange(false, createBaseUIEventDetails('trigger-press', event.nativeEvent as any));
+          onOpenChange(false, createChangeEventDetails('trigger-press', event.nativeEvent as any));
         },
         ...(referencePressEvent !== 'intentional' && {
           onClick(event) {
-            onOpenChange(false, createBaseUIEventDetails('trigger-press', event.nativeEvent));
+            onOpenChange(false, createChangeEventDetails('trigger-press', event.nativeEvent));
           },
         }),
       }),

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
-import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { AlertDialogPortalContext } from './AlertDialogPortalContext';
 
 /**
@@ -13,7 +13,8 @@ import { AlertDialogPortalContext } from './AlertDialogPortalContext';
 export function AlertDialogPortal(props: AlertDialogPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
-  const { mounted } = useAlertDialogRootContext();
+  const { store } = useDialogRootContext();
+  const mounted = store.useState('mounted');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {

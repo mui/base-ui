@@ -212,16 +212,20 @@
   }
 
   &[data-direction='up'] {
-    &::before {
-      top: -100%;
+    &[data-side='none'] {
+      &::before {
+        top: -100%;
+      }
     }
   }
 
   &[data-direction='down'] {
     bottom: 0;
 
-    &::before {
-      bottom: -100%;
+    &[data-side='none'] {
+      &::before {
+        bottom: -100%;
+      }
     }
   }
 }

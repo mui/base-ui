@@ -126,7 +126,6 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
         refs={[forwardedRef, ref, handleCurrentContentRef]}
         props={[defaultProps, elementProps]}
         stateAttributesMapping={stateAttributesMapping}
-        stopEventPropagation
       />
     </FloatingNode>,
     portalContainer,

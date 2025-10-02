@@ -15,7 +15,7 @@ import type {
   FloatingTreeType,
   SafePolygonOptions,
 } from '../types';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { getEmptyContext } from './useFloatingRootContext';
@@ -187,7 +187,7 @@ export function useHover(
       if (isHoverOpen()) {
         onOpenChange(
           false,
-          createBaseUIEventDetails(
+          createChangeEventDetails(
             'trigger-hover',
             event,
             (event.currentTarget as HTMLElement) ?? undefined,
@@ -208,11 +208,11 @@ export function useHover(
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
         timeout.start(closeDelay, () =>
-          onOpenChange(false, createBaseUIEventDetails('trigger-hover', event)),
+          onOpenChange(false, createChangeEventDetails('trigger-hover', event)),
         );
       } else if (runElseBranch) {
         timeout.clear();
-        onOpenChange(false, createBaseUIEventDetails('trigger-hover', event));
+        onOpenChange(false, createChangeEventDetails('trigger-hover', event));
       }
     },
     [delayRef, onOpenChange, timeout],
@@ -266,11 +266,11 @@ export function useHover(
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
-            onOpenChange(true, createBaseUIEventDetails('trigger-hover', event, trigger));
+            onOpenChange(true, createChangeEventDetails('trigger-hover', event, trigger));
           }
         });
       } else if (!open || isOverInactiveTrigger) {
-        onOpenChange(true, createBaseUIEventDetails('trigger-hover', event, trigger));
+        onOpenChange(true, createChangeEventDetails('trigger-hover', event, trigger));
       }
     }
 
@@ -533,7 +533,7 @@ export function useHover(
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && (!openRef.current || isOverInactiveTrigger)) {
-            onOpenChange(true, createBaseUIEventDetails('trigger-hover', nativeEvent, trigger));
+            onOpenChange(true, createChangeEventDetails('trigger-hover', nativeEvent, trigger));
           }
         }
 

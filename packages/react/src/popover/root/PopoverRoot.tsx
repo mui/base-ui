@@ -14,15 +14,15 @@ import {
   useFloatingParentNodeId,
 } from '../../floating-ui-react';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import {
-  createBaseUIEventDetails,
-  type BaseUIEventDetails,
-} from '../../utils/createBaseUIEventDetails';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store';
+import {
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
@@ -110,7 +110,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   function createPopoverEventDetails(reason: PopoverRoot.ChangeEventReason) {
     const details: PopoverRoot.ChangeEventDetails =
-      createBaseUIEventDetails<PopoverRoot.ChangeEventReason>(
+      createChangeEventDetails<PopoverRoot.ChangeEventReason>(
         reason,
       ) as PopoverRoot.ChangeEventDetails;
     details.preventUnmountOnClose = () => {
@@ -377,7 +377,7 @@ export namespace PopoverRoot {
     | 'imperative-action'
     | 'none';
 
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason> & {
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason> & {
     preventUnmountOnClose(): void;
   };
 }

@@ -27,7 +27,7 @@ import {
   getTabbableBeforeElement,
   isOutsideEvent,
 } from '../../floating-ui-react/utils';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * A button that opens the popover.
@@ -192,7 +192,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     ReactDOM.flushSync(() => {
       store.setOpen(
         false,
-        createBaseUIEventDetails(
+        createChangeEventDetails(
           'focus-out',
           event.nativeEvent,
           event.currentTarget as HTMLElement,
@@ -213,7 +213,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       ReactDOM.flushSync(() => {
         store.setOpen(
           false,
-          createBaseUIEventDetails(
+          createChangeEventDetails(
             'focus-out',
             event.nativeEvent,
             event.currentTarget as HTMLElement,

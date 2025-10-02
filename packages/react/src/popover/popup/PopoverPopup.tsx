@@ -16,6 +16,8 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import { COMPOSITE_KEYS } from '../../composite/composite';
+import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverPopup.State> = {
   ...baseMapping,
@@ -37,6 +39,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const { store } = usePopoverRootContext();
 
   const positioner = usePopoverPositionerContext();
+  const insideToolbar = useToolbarRootContext(true) != null;
   const direction = useDirection();
 
   const open = store.useState('open');
@@ -157,6 +160,11 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
         style: anchoringStyles,
+        onKeyDown(event) {
+          if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
+            event.stopPropagation();
+          }
+        },
       },
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,

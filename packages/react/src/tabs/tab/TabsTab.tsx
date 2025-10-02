@@ -12,7 +12,7 @@ import { useCompositeItem } from '../../composite/item/useCompositeItem';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useTabsListContext } from '../list/TabsListContext';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 
 /**
@@ -118,7 +118,12 @@ export const TabsTab = React.forwardRef(function TabsTab(
       return;
     }
 
-    onTabActivation(tabValue, createBaseUIEventDetails('none', event.nativeEvent));
+    onTabActivation(
+      tabValue,
+      createChangeEventDetails('none', event.nativeEvent, undefined, {
+        activationDirection: 'none',
+      }),
+    );
   });
 
   const onFocus = useEventCallback((event: React.FocusEvent<HTMLButtonElement>) => {
@@ -138,7 +143,12 @@ export const TabsTab = React.forwardRef(function TabsTab(
       (activateOnFocus && !isPressingRef.current) || // keyboard or touch focus
       (isPressingRef.current && isMainButtonRef.current) // mouse focus
     ) {
-      onTabActivation(tabValue, createBaseUIEventDetails('none', event.nativeEvent));
+      onTabActivation(
+        tabValue,
+        createChangeEventDetails('none', event.nativeEvent, undefined, {
+          activationDirection: 'none',
+        }),
+      );
     }
   });
 

@@ -5,7 +5,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { isMouseLikePointerType, isTypeableElement } from '../utils';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { getEmptyContext } from './useFloatingRootContext';
 
 export interface UseClickProps {
@@ -103,7 +103,7 @@ export function useClick(
         // Animations sometimes won't run on a typeable element if using a rAF.
         // Focus is always set on these elements. For touch, we may delay opening.
         if (isTypeableElement(nativeEvent.target)) {
-          const details = createBaseUIEventDetails(
+          const details = createChangeEventDetails(
             'trigger-press',
             nativeEvent,
             nativeEvent.target as HTMLElement,
@@ -121,7 +121,7 @@ export function useClick(
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
-          const details = createBaseUIEventDetails(
+          const details = createChangeEventDetails(
             'trigger-press',
             nativeEvent,
             event.currentTarget as HTMLElement,
@@ -166,7 +166,7 @@ export function useClick(
                 openEventType === 'keyup'
               : true)
           );
-        const details = createBaseUIEventDetails(
+        const details = createChangeEventDetails(
           'trigger-press',
           event.nativeEvent,
           event.currentTarget as HTMLElement,
