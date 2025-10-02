@@ -119,6 +119,7 @@
     "vitest-browser-react": "^1.0.1"
   },
   "peerDependencies": {
+    "@date-fns/tz": "^1.2.0",
     "@types/react": "^17 || ^18 || ^19",
     "date-fns": "^4.0.0",
     "react": "^17 || ^18 || ^19",
