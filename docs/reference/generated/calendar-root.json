@@ -13,9 +13,9 @@
       "detailedType": "Date | TZDate | null | undefined"
     },
     "onValueChange": {
-      "type": "((value: TemporalNonRangeValue, context: useSharedCalendarRoot.ValueChangeHandlerContext<validateDate.ReturnValue>) => void)",
+      "type": "((value: TemporalNonRangeValue, eventDetails: Calendar.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.",
-      "detailedType": "| ((\n    value: TemporalNonRangeValue,\n    context: useSharedCalendarRoot.ValueChangeHandlerContext<validateDate.ReturnValue>,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: TemporalNonRangeValue,\n    eventDetails: Calendar.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultVisibleDate": {
       "type": "Date | TZDate",
