@@ -12,7 +12,7 @@ import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-
+import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 
 import { useLabelableContext } from '../../field/root/LabelableContext';
@@ -45,9 +45,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   } = componentProps;
 
   const {
-    disabled: disabledRoot,
-    readOnly: readOnlyRoot,
-    required: requiredRoot,
+    disabled: disabledGroup,
+    readOnly: readOnlyGroup,
+    required: requiredGroup,
     checkedValue,
     setCheckedValue,
     touched,
@@ -64,12 +64,12 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     state: fieldState,
     disabled: fieldDisabled,
   } = useFieldRootContext();
-
+  const fieldItemContext = useFieldItemContext();
   const labelableContext = useLabelableContext();
 
-  const disabled = fieldDisabled || disabledRoot || disabledProp;
-  const readOnly = readOnlyRoot || readOnlyProp;
-  const required = requiredRoot || requiredProp;
+  const disabled = fieldDisabled || fieldItemContext.disabled || disabledGroup || disabledProp;
+  const readOnly = readOnlyGroup || readOnlyProp;
+  const required = requiredGroup || requiredProp;
 
   const checked = checkedValue === value;
 

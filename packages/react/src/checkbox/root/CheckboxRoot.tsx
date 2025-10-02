@@ -14,6 +14,7 @@ import { useButton } from '../../use-button/useButton';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableContext } from '../../field/root/LabelableContext';
+import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
@@ -58,7 +59,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const { clearErrors } = useFormContext();
   const {
-    disabled: fieldDisabled,
+    disabled: rootDisabled,
     name: fieldName,
     setDirty,
     setFilled,
@@ -68,14 +69,15 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     validationMode,
     validityData,
   } = useFieldRootContext();
-
+  const fieldItemContext = useFieldItemContext();
   const { labelId, controlId, setControlId, getDescriptionProps } = useLabelableContext();
 
   const groupContext = useCheckboxGroupContext();
   const parentContext = groupContext?.parent;
   const isGroupedWithParent = parentContext && groupContext.allValues;
 
-  const disabled = fieldDisabled || groupContext?.disabled || disabledProp;
+  const disabled =
+    rootDisabled || fieldItemContext.disabled || groupContext?.disabled || disabledProp;
   const name = fieldName ?? nameProp;
   const value = valueProp ?? name;
 
