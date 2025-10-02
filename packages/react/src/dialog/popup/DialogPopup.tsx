@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
-import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { type BaseUIComponentProps } from '../../utils/types';
@@ -18,6 +16,7 @@ import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { COMPOSITE_KEYS } from '../../composite/composite';
 
 const stateAttributesMapping: StateAttributesMapping<DialogPopup.State> = {
   ...baseMapping,
@@ -39,48 +38,31 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 ) {
   const { className, finalFocus, initialFocus, render, ...elementProps } = componentProps;
 
-  const {
-    descriptionElementId,
-    dismissible,
-    floatingRootContext,
-    getPopupProps,
-    modal,
-    mounted,
-    nested,
-    nestedOpenDialogCount,
-    setOpen,
-    open,
-    openMethod,
-    popupRef,
-    setPopupElement,
-    titleElementId,
-    transitionStatus,
-    onOpenChangeComplete,
-    internalBackdropRef,
-  } = useDialogRootContext();
+  const { store } = useDialogRootContext();
+
+  const descriptionElementId = store.useState('descriptionElementId');
+  const dismissible = store.useState('dismissible');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const rootPopupProps = store.useState('popupProps');
+  const modal = store.useState('modal');
+  const mounted = store.useState('mounted');
+  const nested = store.useState('nested');
+  const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
+  const open = store.useState('open');
+  const openMethod = store.useState('openMethod');
+  const titleElementId = store.useState('titleElementId');
+  const transitionStatus = store.useState('transitionStatus');
 
   useDialogPortalContext();
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.context.openChangeComplete?.(true);
       }
     },
-  });
-
-  const mergedRef = useMergedRefs(forwardedRef, popupRef);
-
-  const { popupProps } = useDialogPopup({
-    descriptionElementId,
-    mounted,
-    setOpen,
-    openMethod,
-    ref: mergedRef,
-    setPopupElement,
-    titleElementId,
   });
 
   // Default initial focus logic:
@@ -88,7 +70,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   // (this is required for Android specifically as iOS handles this automatically).
   const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
     if (interactionType === 'touch') {
-      return popupRef.current;
+      return store.context.popupRef.current;
     }
     return true;
   });
@@ -110,22 +92,32 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [
-      getPopupProps(),
-      popupProps,
+      rootPopupProps,
       {
+        'aria-labelledby': titleElementId ?? undefined,
+        'aria-describedby': descriptionElementId ?? undefined,
+        role: 'dialog',
+        tabIndex: -1,
+        hidden: !mounted,
+        onKeyDown(event: React.KeyboardEvent) {
+          if (COMPOSITE_KEYS.has(event.key)) {
+            event.stopPropagation();
+          }
+        },
         style: {
           [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
         } as React.CSSProperties,
       },
       elementProps,
     ],
+    ref: [forwardedRef, store.context.popupRef, store.getElementSetter('popupElement')],
     stateAttributesMapping,
   });
 
   return (
     <React.Fragment>
       {mounted && modal === true && (
-        <InternalBackdrop ref={internalBackdropRef} inert={inertValue(!open)} />
+        <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
       )}
       <FloatingFocusManager
         context={floatingRootContext}

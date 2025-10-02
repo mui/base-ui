@@ -50,7 +50,6 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
       loop={false}
       orientation={orientation}
       tag="ul"
-      stopEventPropagation
     />
   );
 });

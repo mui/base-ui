@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -17,16 +16,11 @@ export const DialogTitle = React.forwardRef(function DialogTitle(
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, id: idProp, ...elementProps } = componentProps;
-  const { setTitleElementId } = useDialogRootContext();
+  const { store } = useDialogRootContext();
 
   const id = useBaseUiId(idProp);
 
-  useIsoLayoutEffect(() => {
-    setTitleElementId(id);
-    return () => {
-      setTitleElementId(undefined);
-    };
-  }, [id, setTitleElementId]);
+  store.useSyncedValueWithCleanup('titleElementId', id);
 
   return useRenderElement('h2', componentProps, {
     ref: forwardedRef,
