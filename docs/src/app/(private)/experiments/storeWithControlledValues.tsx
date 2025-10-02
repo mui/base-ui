@@ -9,12 +9,12 @@ export default function Playground() {
   const [value, setValue] = React.useState(0);
 
   return (
-    <div className="w-lg mx-auto">
-      <h2 className="text-lg mb-4">Controlled mode</h2>
-      <div className="flex gap-2 mb-16 items-baseline">
+    <div className="mx-auto w-lg">
+      <h2 className="mb-4 text-lg">Controlled mode</h2>
+      <div className="mb-16 flex items-baseline gap-2">
         <button
           type="button"
-          className="border-1 border-gray-300 px-4 py-1 rounded-sm"
+          className="rounded-sm border-1 border-gray-300 px-4 py-1"
           onClick={() => setOpen((o) => !o)}
         >
           Toggle externally
@@ -29,8 +29,8 @@ export default function Playground() {
         />
       </div>
 
-      <h2 className="text-lg mb-4">Uncontrolled mode (open by default)</h2>
-      <div className="flex gap-2 mb-16 items-baseline">
+      <h2 className="mb-4 text-lg">Uncontrolled mode (open by default)</h2>
+      <div className="mb-16 flex items-baseline gap-2">
         <ControllableComponent
           defaultOpen={true}
           onOpenChange={(_, reason) => {
@@ -40,8 +40,8 @@ export default function Playground() {
         />
       </div>
 
-      <h2 className="text-lg mb-4">Uncontrolled mode (closed by default)</h2>
-      <div className="flex gap-2 mb-16 items-baseline">
+      <h2 className="mb-4 text-lg">Uncontrolled mode (closed by default)</h2>
+      <div className="mb-16 flex items-baseline gap-2">
         <ControllableComponent
           defaultOpen={false}
           onOpenChange={(_, reason) => {
@@ -52,7 +52,7 @@ export default function Playground() {
       </div>
 
       <h2>Value updater</h2>
-      <div className="flex gap-2 mb-16 items-baseline">
+      <div className="mb-16 flex items-baseline gap-2">
         <input
           type="number"
           value={value}
@@ -92,7 +92,7 @@ function ControllableComponent(props: Props) {
       <ChildComponent store={store} />
       <button
         type="button"
-        className="border-1 border-gray-300 px-4 py-1 rounded-sm"
+        className="rounded-sm border-1 border-gray-300 px-4 py-1"
         onClick={handleClick}
       >
         Toggle internally
