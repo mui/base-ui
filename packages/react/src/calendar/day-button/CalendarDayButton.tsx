@@ -81,11 +81,11 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     [adapter, value, format],
   );
 
-  const onClick = useEventCallback(() => {
+  const onClick = useEventCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     if (isUnavailable) {
       return;
     }
-    selectDate(value);
+    selectDate(value, event);
   });
 
   const itemMetadata = React.useMemo(

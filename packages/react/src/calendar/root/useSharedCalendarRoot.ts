@@ -12,6 +12,8 @@ import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/typ
 import { selectors, SharedCalendarStore, CalendarState } from '../store';
 import { useAssertModelConsistency } from '../../utils/useAssertModelConsistency';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
+import type { CalendarRoot } from './CalendarRoot';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TError>(
   parameters: useSharedCalendarRoot.Parameters<TValue, TError>,
@@ -96,17 +98,20 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
   const value = useStore(store, selectors.valueWithTimezoneToRender);
   const referenceDate = useStore(store, selectors.referenceDate);
 
-  const setValue = useEventCallback((newValue: TValue) => {
-    const inputTimezone = manager.getTimezone(store.state.value);
-    const newValueWithInputTimezone =
-      inputTimezone == null ? newValue : manager.setTimezone(newValue, inputTimezone);
+  const setValue = useEventCallback(
+    (newValue: TValue, event: React.MouseEvent<HTMLButtonElement>) => {
+      const inputTimezone = manager.getTimezone(store.state.value);
+      const newValueWithInputTimezone =
+        inputTimezone == null ? newValue : manager.setTimezone(newValue, inputTimezone);
 
-    store.set('value', newValueWithInputTimezone);
-    onValueChange?.(newValueWithInputTimezone, {
-      getValidationError: () =>
-        manager.getValidationError(newValueWithInputTimezone, store.state.validationProps),
-    });
-  });
+      store.set('value', newValueWithInputTimezone);
+      const eventDetails = createChangeEventDetails('day-press', event.nativeEvent, {
+        getValidationError: () =>
+          manager.getValidationError(newValueWithInputTimezone, store.state.validationProps),
+      });
+      onValueChange?.(newValueWithInputTimezone, eventDetails);
+    },
+  );
 
   const isInvalid = React.useMemo(() => {
     if (invalid != null) {
@@ -175,7 +180,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
   }, [value, prevValue, getActiveDateFromValue, adapter, handleVisibleDateChange]);
 
   const selectDate = useEventCallback<SharedCalendarRootContext['selectDate']>(
-    (selectedDate: TemporalSupportedObject) => {
+    (selectedDate: TemporalSupportedObject, event: React.MouseEvent<HTMLButtonElement>) => {
       if (readOnly) {
         return;
       }
@@ -184,7 +189,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       const cleanSelectedDate = mergeDateAndTime(adapter, selectedDate, activeDate);
 
       onSelectDate({
-        setValue,
+        setValue: (newValue) => setValue(newValue, event),
         prevValue: value,
         selectedDate: cleanSelectedDate,
         referenceDate,
@@ -282,7 +287,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
 }
 
 export namespace useSharedCalendarRoot {
-  export interface PublicParameters<TValue extends TemporalSupportedValue, TError>
+  export interface PublicParameters<TValue extends TemporalSupportedValue>
     extends TemporalTimezoneProps,
       validateDate.ValidationProps {
     /**
@@ -299,7 +304,7 @@ export namespace useSharedCalendarRoot {
      * Event handler called when the selected value changes.
      * Provides the new value as an argument.
      */
-    onValueChange?: (value: TValue, context: ValueChangeHandlerContext<TError>) => void;
+    onValueChange?: (value: TValue, eventDetails: CalendarRoot.ChangeEventDetails) => void;
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -349,7 +354,7 @@ export namespace useSharedCalendarRoot {
   }
 
   export interface Parameters<TValue extends TemporalSupportedValue, TError>
-    extends PublicParameters<TValue, TError> {
+    extends PublicParameters<TValue> {
     /**
      * The manager of the calendar (uses `useDateManager` for Calendar and `useDateRangeManager` for RangeCalendar).
      */

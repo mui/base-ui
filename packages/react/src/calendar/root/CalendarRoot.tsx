@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
+import { BaseUIChangeEventDetails } from '@base-ui-components/react/types';
 import { TemporalNonRangeValue } from '../../types/temporal';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useSharedCalendarRoot } from './useSharedCalendarRoot';
@@ -8,7 +9,6 @@ import { useDateManager } from '../../utils/temporal/useDateManager';
 import { CalendarContext } from '../use-context/CalendarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
-import { validateDate } from '../../utils/temporal/validateDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { selectors } from '../store';
 
@@ -127,7 +127,7 @@ export namespace CalendarRoot {
 
   export interface Props
     extends Omit<BaseUIComponentProps<'div', State>, 'children'>,
-      useSharedCalendarRoot.PublicParameters<TemporalNonRangeValue, validateDate.ReturnValue> {
+      useSharedCalendarRoot.PublicParameters<TemporalNonRangeValue> {
     /**
      * The children of the component.
      * If a function is provided, it will be called with the public context as its parameter.
@@ -136,5 +136,11 @@ export namespace CalendarRoot {
   }
 
   export interface ValueChangeHandlerContext
-    extends useSharedCalendarRoot.ValueChangeHandlerContext<validateDate.ReturnValue> {}
+    extends useSharedCalendarRoot.ValueChangeHandlerContext<any> {}
+
+  export type ChangeEventReason = 'day-press' | 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<
+    ChangeEventReason,
+    ValueChangeHandlerContext
+  >;
 }

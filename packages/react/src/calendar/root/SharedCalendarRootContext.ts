@@ -10,7 +10,7 @@ export interface SharedCalendarRootContext {
   /**
    * Selects a date.
    */
-  selectDate: (date: TemporalSupportedObject) => void;
+  selectDate: (date: TemporalSupportedObject, event: React.MouseEvent<HTMLButtonElement>) => void;
   /**
    * Sets the visible data.
    */
