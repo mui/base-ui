@@ -11,7 +11,7 @@ export default function Homepage() {
       <Header isProduction={true} />
       <div className="ContentLayoutMain">
         <h1 className="mb-4 text-3xl font-bold text-balance">Design Engineer</h1>
-        <p className="-mt-2 mb-5 text-lg text-pretty text-gray">
+        <p className="text-gray -mt-2 mb-5 text-lg text-pretty">
           Help us make Base UI the most intuitive, accessible, and powerful open-source UI library
           for React.
         </p>

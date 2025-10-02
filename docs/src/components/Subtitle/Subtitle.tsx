@@ -6,7 +6,7 @@ export function Subtitle({ className, ...props }: React.ComponentProps<'p'>) {
   return (
     <div
       className={clsx(
-        'Subtitle flex items-baseline justify-between flex-col md:flex-row',
+        'Subtitle flex flex-col items-baseline justify-between md:flex-row',
         className,
       )}
     >
