@@ -6,7 +6,7 @@ import { Calendar } from '@base-ui-components/react/calendar';
 import styles from './calendar.module.css';
 
 export default function CalendarWithTimezone() {
-  const [value, setValue] = React.useState<TZDate | null>(
+  const [value, setValue] = React.useState<Date | null>(
     new TZDate(2025, 3, 17, 4, 45, 0, 0, 'Europe/Paris'),
   );
   return (

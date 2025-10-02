@@ -82,7 +82,7 @@ const FORMATS: TemporalAdapterFormats = {
 
 declare module '@base-ui-components/react/types' {
   interface TemporalSupportedObjectLookup {
-    'date-fns': Date | TZDate;
+    'date-fns': Date;
   }
 }
 
