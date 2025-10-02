@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { readFile, writeFile } from 'node:fs/promises';
 import { globby } from 'globby';
 import * as jsxRuntime from 'react/jsx-runtime';
@@ -108,6 +108,7 @@ async function getLinksAndAnchors(
 
   const { tableOfContents } = await evaluate(mdxSource, {
     ...jsxRuntime,
+    baseUrl: pathToFileURL(filePath),
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
       rehypeReference,
