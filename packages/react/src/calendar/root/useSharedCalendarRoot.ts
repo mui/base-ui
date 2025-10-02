@@ -104,12 +104,15 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       const newValueWithInputTimezone =
         inputTimezone == null ? newValue : manager.setTimezone(newValue, inputTimezone);
 
-      store.set('value', newValueWithInputTimezone);
       const eventDetails = createChangeEventDetails('day-press', event.nativeEvent, {
         getValidationError: () =>
           manager.getValidationError(newValueWithInputTimezone, store.state.validationProps),
       });
       onValueChange?.(newValueWithInputTimezone, eventDetails);
+      if (eventDetails.isCanceled) {
+        return;
+      }
+      store.set('value', newValueWithInputTimezone);
     },
   );
 
