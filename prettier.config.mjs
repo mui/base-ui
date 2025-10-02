@@ -1,3 +1,8 @@
 import { createBaseConfig } from '@mui/internal-code-infra/prettier';
 
-export default createBaseConfig();
+const base = createBaseConfig();
+
+export default {
+  ...base,
+  plugins: ['prettier-plugin-tailwindcss'],
+};

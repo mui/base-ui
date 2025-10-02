@@ -69,12 +69,12 @@ export default function ExampleVirtualizedCombobox() {
     >
       <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
         Search 10,000 items
-        <Combobox.Input className="h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" />
+        <Combobox.Input className="h-10 w-64 rounded-md border border-gray-200 bg-[canvas] pl-3.5 text-base font-normal text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" />
       </label>
 
       <Combobox.Portal>
         <Combobox.Positioner className="outline-none" sideOffset={4}>
-          <Combobox.Popup className="w-[var(--anchor-width)] max-h-[min(22rem,var(--available-height))] max-w-[var(--available-width)] rounded-md bg-[canvas] text-gray-900 outline-1 outline-gray-200 shadow-lg shadow-gray-200 dark:-outline-offset-1 dark:outline-gray-300">
+          <Combobox.Popup className="max-h-[min(22rem,var(--available-height))] w-[var(--anchor-width)] max-w-[var(--available-width)] rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:-outline-offset-1 dark:outline-gray-300">
             <Combobox.Empty className="px-4 py-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
               No items found.
             </Combobox.Empty>
@@ -83,7 +83,7 @@ export default function ExampleVirtualizedCombobox() {
                 <div
                   role="presentation"
                   ref={handleScrollElementRef}
-                  className="h-[min(22rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-p-2"
+                  className="h-[min(22rem,var(--total-size))] max-h-[var(--available-height)] scroll-p-2 overflow-auto overscroll-contain"
                   style={{ '--total-size': totalSizePx } as React.CSSProperties}
                 >
                   <div
