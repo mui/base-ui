@@ -3,7 +3,6 @@ import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPortalContext } from './PreviewCardPortalContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
-import type { FloatingPortalProps } from '../../floating-ui-react';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -11,8 +10,11 @@ import type { FloatingPortalProps } from '../../floating-ui-react';
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-export function PreviewCardPortal(props: PreviewCardPortal.Props) {
-  const { children, keepMounted = false, container } = props;
+export const PreviewCardPortal = React.forwardRef(function PreviewCardPortal(
+  props: PreviewCardPortal.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { children, keepMounted = false, ...portalProps } = props;
 
   const { mounted } = usePreviewCardRootContext();
 
@@ -23,14 +25,15 @@ export function PreviewCardPortal(props: PreviewCardPortal.Props) {
 
   return (
     <PreviewCardPortalContext.Provider value={keepMounted}>
-      <FloatingPortalLite root={container}>{children}</FloatingPortalLite>
+      <FloatingPortalLite ref={forwardedRef} {...portalProps}>
+        {children}
+      </FloatingPortalLite>
     </PreviewCardPortalContext.Provider>
   );
-}
+});
 
 export namespace PreviewCardPortal {
-  export interface Props {
-    children?: React.ReactNode;
+  export interface Props extends FloatingPortalLite.Props {
     /**
      * Whether to keep the portal mounted in the DOM while the popup is hidden.
      * @default false
@@ -39,6 +42,6 @@ export namespace PreviewCardPortal {
     /**
      * A parent element to render the portal element into.
      */
-    container?: FloatingPortalProps['root'];
+    container?: FloatingPortalLite.Props['container'];
   }
 }

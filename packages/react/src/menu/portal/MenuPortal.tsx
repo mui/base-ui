@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
+import { FloatingPortal } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuPortalContext } from './MenuPortalContext';
 
@@ -10,8 +10,11 @@ import { MenuPortalContext } from './MenuPortalContext';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export function MenuPortal(props: MenuPortal.Props) {
-  const { children, keepMounted = false, container } = props;
+export const MenuPortal = React.forwardRef(function MenuPortal(
+  props: MenuPortal.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { children, keepMounted = false, ...portalProps } = props;
 
   const { mounted } = useMenuRootContext();
 
@@ -22,14 +25,15 @@ export function MenuPortal(props: MenuPortal.Props) {
 
   return (
     <MenuPortalContext.Provider value={keepMounted}>
-      <FloatingPortal root={container}>{children}</FloatingPortal>
+      <FloatingPortal ref={forwardedRef} {...portalProps}>
+        {children}
+      </FloatingPortal>
     </MenuPortalContext.Provider>
   );
-}
+});
 
 export namespace MenuPortal {
-  export interface Props {
-    children?: React.ReactNode;
+  export interface Props extends FloatingPortal.Props {
     /**
      * Whether to keep the portal mounted in the DOM while the popup is hidden.
      * @default false
@@ -38,6 +42,6 @@ export namespace MenuPortal {
     /**
      * A parent element to render the portal element into.
      */
-    container?: FloatingPortalProps['root'];
+    container?: FloatingPortal.Props['container'];
   }
 }

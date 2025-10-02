@@ -10,8 +10,11 @@ import { NavigationMenuPortalContext } from './NavigationMenuPortalContext';
  *
  * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
  */
-export function NavigationMenuPortal(props: NavigationMenuPortal.Props) {
-  const { children, keepMounted = false, container } = props;
+export const NavigationMenuPortal = React.forwardRef(function NavigationMenuPortal(
+  props: NavigationMenuPortal.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { children, keepMounted = false, ...portalProps } = props;
 
   const { mounted } = useNavigationMenuRootContext();
 
@@ -22,13 +25,15 @@ export function NavigationMenuPortal(props: NavigationMenuPortal.Props) {
 
   return (
     <NavigationMenuPortalContext.Provider value={keepMounted}>
-      <FloatingPortal root={container}>{children}</FloatingPortal>
+      <FloatingPortal ref={forwardedRef} {...portalProps}>
+        {children}
+      </FloatingPortal>
     </NavigationMenuPortalContext.Provider>
   );
-}
+});
 
 export namespace NavigationMenuPortal {
-  export interface Props {
+  export interface Props extends FloatingPortal.Props {
     children?: React.ReactNode;
     /**
      * Whether to keep the portal mounted in the DOM while the popup is hidden.
@@ -38,6 +43,6 @@ export namespace NavigationMenuPortal {
     /**
      * A parent element to render the portal element into.
      */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
+    container?: FloatingPortal.Props['container'];
   }
 }

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
+import { FloatingPortal } from '../../floating-ui-react';
 import { SelectPortalContext } from './SelectPortalContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { selectors } from '../store';
@@ -12,8 +12,11 @@ import { selectors } from '../store';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-export function SelectPortal(props: SelectPortal.Props) {
-  const { children, container } = props;
+export const SelectPortal = React.forwardRef(function SelectPortal(
+  props: SelectPortal.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { children, ...portalProps } = props;
 
   const { store } = useSelectRootContext();
   const mounted = useStore(store, selectors.mounted);
@@ -26,17 +29,18 @@ export function SelectPortal(props: SelectPortal.Props) {
 
   return (
     <SelectPortalContext.Provider value>
-      <FloatingPortal root={container}>{children}</FloatingPortal>
+      <FloatingPortal ref={forwardedRef} {...portalProps}>
+        {children}
+      </FloatingPortal>
     </SelectPortalContext.Provider>
   );
-}
+});
 
 export namespace SelectPortal {
-  export interface Props {
-    children?: React.ReactNode;
+  export interface Props extends FloatingPortal.Props {
     /**
      * A parent element to render the portal element into.
      */
-    container?: FloatingPortalProps['root'];
+    container?: FloatingPortal.Props['container'];
   }
 }

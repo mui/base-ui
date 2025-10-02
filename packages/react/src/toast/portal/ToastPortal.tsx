@@ -1,5 +1,4 @@
 'use client';
-import * as React from 'react';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 
 /**
@@ -8,17 +7,13 @@ import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
-export function ToastPortal(props: ToastPortal.Props) {
-  const { children, container } = props;
-  return <FloatingPortalLite root={container}>{children}</FloatingPortalLite>;
-}
+export const ToastPortal = FloatingPortalLite;
 
 export namespace ToastPortal {
-  export interface Props {
-    children?: React.ReactNode;
+  export interface Props extends FloatingPortalLite.Props {
     /**
      * A parent element to render the portal element into.
      */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
+    container?: FloatingPortalLite.Props['container'];
   }
 }

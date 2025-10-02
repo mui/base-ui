@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
+import { FloatingPortal } from '../../floating-ui-react';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { AlertDialogPortalContext } from './AlertDialogPortalContext';
 
@@ -10,8 +10,11 @@ import { AlertDialogPortalContext } from './AlertDialogPortalContext';
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-export function AlertDialogPortal(props: AlertDialogPortal.Props) {
-  const { children, keepMounted = false, container } = props;
+export const AlertDialogPortal = React.forwardRef(function AlertDialogPortal(
+  props: AlertDialogPortal.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { children, keepMounted = false, ...portalProps } = props;
 
   const { store } = useDialogRootContext();
   const mounted = store.useState('mounted');
@@ -23,14 +26,15 @@ export function AlertDialogPortal(props: AlertDialogPortal.Props) {
 
   return (
     <AlertDialogPortalContext.Provider value={keepMounted}>
-      <FloatingPortal root={container}>{children}</FloatingPortal>
+      <FloatingPortal ref={forwardedRef} {...portalProps}>
+        {children}
+      </FloatingPortal>
     </AlertDialogPortalContext.Provider>
   );
-}
+});
 
 export namespace AlertDialogPortal {
-  export interface Props {
-    children?: React.ReactNode;
+  export interface Props extends FloatingPortal.Props {
     /**
      * Whether to keep the portal mounted in the DOM while the popup is hidden.
      * @default false
@@ -39,6 +43,6 @@ export namespace AlertDialogPortal {
     /**
      * A parent element to render the portal element into.
      */
-    container?: FloatingPortalProps['root'];
+    container?: FloatingPortal.Props['container'];
   }
 }
