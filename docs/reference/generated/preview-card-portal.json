@@ -11,11 +11,21 @@
       "type": "ReactNode",
       "detailedType": "React.ReactNode"
     },
+    "className": {
+      "type": "string | ((state: FloatingPortalLite.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: FloatingPortalLite.State) => string)"
+    },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
       "description": "Whether to keep the portal mounted in the DOM while the popup is hidden.",
       "detailedType": "boolean | undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLAttributes<HTMLDivElement>, state: FloatingPortalLite.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLAttributes<HTMLDivElement>,\n    state: FloatingPortalLite.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

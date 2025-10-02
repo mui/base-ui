@@ -3,13 +3,22 @@
   "description": "A portal element that moves the viewport to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.",
   "props": {
     "container": {
-      "type": "HTMLElement | RefObject<HTMLElement | null> | null",
-      "description": "A parent element to render the portal element into.",
-      "detailedType": "| HTMLElement\n| React.RefObject<HTMLElement | null>\n| null\n| undefined"
+      "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
+      "detailedType": "| HTMLElement\n| ShadowRoot\n| React.RefObject<HTMLElement | ShadowRoot | null>\n| null\n| undefined"
     },
     "children": {
       "type": "ReactNode",
       "detailedType": "React.ReactNode"
+    },
+    "className": {
+      "type": "string | ((state: FloatingPortalLite.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: FloatingPortalLite.State) => string)"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLAttributes<HTMLDivElement>, state: FloatingPortalLite.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLAttributes<HTMLDivElement>,\n    state: FloatingPortalLite.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},
