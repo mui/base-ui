@@ -31,5 +31,5 @@ export function Separator(props: React.ComponentProps<'div'>) {
 }
 
 function Inner(props: React.ComponentProps<'div'>) {
-  return <div {...props} className={clsx('DescriptionListInner gap-3 w-full', props.className)} />;
+  return <div {...props} className={clsx('DescriptionListInner w-full gap-3', props.className)} />;
 }

@@ -5,7 +5,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
 export default function ExamplePopoverCombobox() {
   return (
     <Combobox.Root items={countries} defaultValue={countries[0]}>
-      <Combobox.Trigger className="flex bg-[canvas] h-10 min-w-[12rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default">
+      <Combobox.Trigger className="flex h-10 min-w-[12rem] cursor-default items-center justify-between gap-3 rounded-md border border-gray-200 bg-[canvas] pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
         <Combobox.Value />
         <Combobox.Icon className="flex">
           <ChevronUpDownIcon />
@@ -14,19 +14,19 @@ export default function ExamplePopoverCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner align="start" sideOffset={4}>
           <Combobox.Popup
-            className="[--input-container-height:3rem] origin-[var(--transform-origin)] max-w-[var(--available-width)] max-h-[24rem] rounded-lg bg-[canvas] shadow-lg shadow-gray-200 text-gray-900 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
+            className="max-h-[24rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] [--input-container-height:3rem] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
             aria-label="Select country"
           >
-            <div className="w-80 h-[var(--input-container-height)] text-center p-2">
+            <div className="h-[var(--input-container-height)] w-80 p-2 text-center">
               <Combobox.Input
                 placeholder="e.g. United Kingdom"
-                className="h-10 w-full font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+                className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
               />
             </div>
             <Combobox.Empty className="p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
               No countries found.
             </Combobox.Empty>
-            <Combobox.List className="overflow-y-auto scroll-py-2 py-2 overscroll-contain max-h-[min(calc(24rem-var(--input-container-height)),calc(var(--available-height)-var(--input-container-height)))] empty:p-0">
+            <Combobox.List className="max-h-[min(calc(24rem-var(--input-container-height)),calc(var(--available-height)-var(--input-container-height)))] scroll-py-2 overflow-y-auto overscroll-contain py-2 empty:p-0">
               {(country: Country) => (
                 <Combobox.Item
                   key={country.code}
