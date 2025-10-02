@@ -306,6 +306,7 @@ export namespace useSharedCalendarRoot {
     /**
      * Event handler called when the selected value changes.
      * Provides the new value as an argument.
+     * Has `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.
      */
     onValueChange?: (value: TValue, eventDetails: CalendarRoot.ChangeEventDetails) => void;
     /**
