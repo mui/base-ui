@@ -13,7 +13,6 @@ import {
   useFloatingRootContext,
   useInteractions,
   useListNavigation,
-  useRole,
   useTypeahead,
   FloatingRootContext,
 } from '../../floating-ui-react';
@@ -23,12 +22,13 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
 import type { SelectRootConditionalProps, SelectRoot } from './SelectRoot';
 import { EMPTY_ARRAY } from '../../utils/constants';
+import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 
 export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   params: useSelectRoot.Parameters<Value, Multiple>,
@@ -45,6 +45,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     multiple = false,
     itemToStringLabel,
     itemToStringValue,
+    isItemEqualToValue = defaultItemEquality,
   } = params;
 
   const { clearErrors } = useFormContext();
@@ -88,6 +89,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
+  const scrollArrowsMountedCountRef = React.useRef(0);
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
@@ -111,6 +114,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         multiple,
         itemToStringLabel,
         itemToStringValue,
+        isItemEqualToValue,
         value,
         label: '',
         open,
@@ -125,8 +129,10 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         triggerProps: {},
         triggerElement: null,
         positionerElement: null,
+        listElement: null,
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
+        hasScrollArrows: false,
       }),
   ).current;
 
@@ -174,13 +180,13 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
       const labels = currentValue
         .map((v) => {
-          const index = valuesRef.current.indexOf(v);
+          const index = findItemIndex(valuesRef.current, v, isItemEqualToValue);
           return index !== -1 ? (labelsRef.current[index] ?? '') : '';
         })
         .filter(Boolean);
 
       const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = lastValue != null ? valuesRef.current.indexOf(lastValue) : -1;
+      const lastIndex = findItemIndex(valuesRef.current, lastValue, isItemEqualToValue);
 
       // Store the last selected index for later use when closing the popup.
       lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;
@@ -189,7 +195,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         label: labels.join(', '),
       });
     } else {
-      const index = valuesRef.current.indexOf(value);
+      const index = findItemIndex(valuesRef.current, value as Value, isItemEqualToValue);
 
       store.apply({
         selectedIndex: index === -1 ? null : index,
@@ -215,6 +221,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     validityData.initialValue,
     setFilled,
     multiple,
+    isItemEqualToValue,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -297,13 +304,16 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
       const labels = currentValue
         .map((v) => {
-          const index = valuesRef.current.indexOf(v);
+          const index = findItemIndex(valuesRef.current, v, isItemEqualToValue);
           return index !== -1 ? (labelsRef.current[index] ?? '') : '';
         })
         .filter(Boolean);
 
       const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = lastValue !== undefined ? valuesRef.current.indexOf(lastValue) : -1;
+      const lastIndex =
+        lastValue !== undefined
+          ? findItemIndex(valuesRef.current, lastValue, isItemEqualToValue)
+          : -1;
 
       // Store the last selected index for later use when closing the popup.
       lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;
@@ -318,7 +328,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         label: labels.join(', '),
       });
     } else {
-      const index = valuesRef.current.indexOf(value);
+      const index = findItemIndex(valuesRef.current, value as Value, isItemEqualToValue);
       const hasIndex = index !== -1;
 
       if (hasIndex || value === null) {
@@ -359,15 +369,15 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   useIsoLayoutEffect(syncSelectedState, [value, syncSelectedState]);
 
   const handleScrollArrowVisibility = useEventCallback(() => {
-    const popupElement = popupRef.current;
-    if (!popupElement) {
+    const scroller = store.state.listElement || popupRef.current;
+    if (!scroller) {
       return;
     }
 
-    const viewportTop = popupElement.scrollTop;
-    const viewportBottom = popupElement.scrollTop + popupElement.clientHeight;
+    const viewportTop = scroller.scrollTop;
+    const viewportBottom = scroller.scrollTop + scroller.clientHeight;
     const shouldShowUp = viewportTop > 1;
-    const shouldShowDown = viewportBottom < popupElement.scrollHeight - 1;
+    const shouldShowDown = viewportBottom < scroller.scrollHeight - 1;
 
     if (store.state.scrollUpArrowVisible !== shouldShowUp) {
       store.set('scrollUpArrowVisible', shouldShowUp);
@@ -395,16 +405,12 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     bubbles: false,
   });
 
-  const role = useRole(floatingContext, {
-    role: 'select',
-  });
-
   const listNavigation = useListNavigation(floatingContext, {
     enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
     selectedIndex,
-    disabledIndices: EMPTY_ARRAY,
+    disabledIndices: EMPTY_ARRAY as number[],
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
@@ -427,7 +433,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index], createBaseUIEventDetails('none'));
+        setValue(valuesRef.current[index], createChangeEventDetails('none'));
       }
     },
     onTypingChange(typing) {
@@ -440,7 +446,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
     click,
     dismiss,
-    role,
     listNavigation,
     typeahead,
   ]);
@@ -468,6 +473,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       items,
       itemToStringLabel,
       itemToStringValue,
+      isItemEqualToValue,
     });
   }, [
     store,
@@ -483,6 +489,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     items,
     itemToStringLabel,
     itemToStringValue,
+    isItemEqualToValue,
   ]);
 
   const rootContext: SelectRootContext = React.useMemo(
@@ -499,7 +506,9 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       setOpen,
       listRef,
       popupRef,
+      scrollHandlerRef,
       handleScrollArrowVisibility,
+      scrollArrowsMountedCountRef,
       getItemProps,
       events: floatingContext.events,
       valueRef,
@@ -528,6 +537,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       setOpen,
       listRef,
       popupRef,
+      scrollHandlerRef,
       getItemProps,
       floatingContext.events,
       valueRef,

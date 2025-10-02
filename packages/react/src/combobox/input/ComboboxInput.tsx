@@ -1,22 +1,23 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../../field/utils/constants';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxInput.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
 };
@@ -54,14 +55,22 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const triggerProps = useStore(store, selectors.triggerProps);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
-  const inputValue = useStore(store, selectors.inputValue);
+
+  // `inputValue` can't be placed in the store.
+  // https://github.com/mui/base-ui/issues/2703
+  const inputValue = useComboboxInputValueContext();
+
+  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
 
-  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
-
   const setInputElement = useEventCallback((element) => {
+    // The search filter for the input-inside-popup pattern should be empty initially.
+    if (hasPositionerParent && !store.state.hasInputValue) {
+      store.state.setInputValue('', createChangeEventDetails('none'));
+    }
+
     store.apply({
       inputElement: element,
       inputInsidePopup: hasPositionerParent,
@@ -173,7 +182,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           setComposingValue(null);
           store.state.setInputValue(
             next,
-            createBaseUIEventDetails('input-change', event.nativeEvent),
+            createChangeEventDetails('input-change', event.nativeEvent),
           );
         },
         onChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -186,15 +195,18 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             if (nextVal === '' && !openOnInputClick && !hasPositionerParent) {
               store.state.setOpen(
                 false,
-                createBaseUIEventDetails('input-clear', event.nativeEvent),
+                createChangeEventDetails('input-clear', event.nativeEvent),
               );
             }
 
             if (!readOnly && !disabled) {
               const trimmed = nextVal.trim();
               if (trimmed !== '') {
-                store.state.setOpen(true, createBaseUIEventDetails('none', event.nativeEvent));
-                if (!(selectionMode === 'none' && autoHighlight)) {
+                store.state.setOpen(
+                  true,
+                  createChangeEventDetails('input-change', event.nativeEvent),
+                );
+                if (!autoHighlight) {
                   store.state.setIndices({
                     activeIndex: null,
                     selectedIndex: null,
@@ -207,7 +219,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             if (
               open &&
               store.state.activeIndex !== null &&
-              !(selectionMode === 'none' && autoHighlight && nextVal.trim() !== '')
+              !(autoHighlight && nextVal.trim() !== '')
             ) {
               store.state.setIndices({
                 activeIndex: null,
@@ -221,19 +233,31 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
           store.state.setInputValue(
             event.currentTarget.value,
-            createBaseUIEventDetails('input-change', event.nativeEvent),
+            createChangeEventDetails('input-change', event.nativeEvent),
           );
 
-          if (event.currentTarget.value === '' && !openOnInputClick && !hasPositionerParent) {
-            store.state.setOpen(false, createBaseUIEventDetails('input-clear', event.nativeEvent));
+          const empty = event.currentTarget.value === '';
+          const clearDetails = createChangeEventDetails('input-clear', event.nativeEvent);
+
+          if (empty && !hasPositionerParent) {
+            if (selectionMode === 'single') {
+              store.state.setSelectedValue(null, clearDetails);
+            }
+
+            if (!openOnInputClick) {
+              store.state.setOpen(false, clearDetails);
+            }
           }
 
           if (!readOnly && !disabled) {
             const trimmed = event.currentTarget.value.trim();
             if (trimmed !== '') {
-              store.state.setOpen(true, createBaseUIEventDetails('none', event.nativeEvent));
-              // When autoHighlight is enabled for autocomplete, keep the highlight (will be set to 0 in root).
-              if (!(selectionMode === 'none' && autoHighlight)) {
+              store.state.setOpen(
+                true,
+                createChangeEventDetails('input-change', event.nativeEvent),
+              );
+              // When autoHighlight is enabled, keep the highlight (will be set to 0 in root).
+              if (!autoHighlight) {
                 store.state.setIndices({
                   activeIndex: null,
                   selectedIndex: null,
@@ -249,7 +273,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (
             open &&
             store.state.activeIndex !== null &&
-            !(selectionMode === 'none' && autoHighlight && event.currentTarget.value.trim() !== '')
+            !(autoHighlight && event.currentTarget.value.trim() !== '')
           ) {
             store.state.setIndices({
               activeIndex: null,
@@ -288,7 +312,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
                 ? selectedValue.length === 0
                 : selectedValue === null;
 
-            const details = createBaseUIEventDetails('none', event.nativeEvent);
+            const details = createChangeEventDetails('escape-key', event.nativeEvent);
             const value = selectionMode === 'multiple' ? [] : null;
             store.state.setInputValue('', details);
             store.state.setSelectedValue(value, details);
@@ -318,7 +342,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             });
             store.state.setSelectedValue(
               newValue,
-              createBaseUIEventDetails('none', event.nativeEvent),
+              createChangeEventDetails('none', event.nativeEvent),
             );
             return;
           }
@@ -339,14 +363,35 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           if (event.key === 'Enter' && open) {
-            stopEvent(event);
+            const activeIndex = store.state.activeIndex;
+            const nativeEvent = event.nativeEvent;
 
-            if (store.state.activeIndex === null) {
-              store.state.setOpen(false, createBaseUIEventDetails('none', event.nativeEvent));
+            if (activeIndex === null) {
+              store.state.setOpen(false, createChangeEventDetails('none', nativeEvent));
               return;
             }
 
-            store.state.handleEnterSelection(event.nativeEvent);
+            const selectActiveItem = () => {
+              const listItem = store.state.listRef.current[activeIndex];
+
+              if (listItem) {
+                store.state.selectionEventRef.current = nativeEvent;
+                listItem.click();
+                store.state.selectionEventRef.current = null;
+                return;
+              }
+
+              store.state.handleSelection(nativeEvent);
+            };
+
+            if (store.state.alwaysSubmitOnEnter) {
+              // Commit the input value update synchronously so the form reads the committed value.
+              ReactDOM.flushSync(selectActiveItem);
+              return;
+            }
+
+            stopEvent(event);
+            selectActiveItem();
           }
         },
         onPointerMove() {
@@ -360,7 +405,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         ? fieldControlValidation.getValidationProps(elementProps)
         : elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

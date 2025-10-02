@@ -6,8 +6,6 @@ import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
 import type { Group } from '../../utils/resolveValueLabel';
 
-const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
-
 /**
  * Groups all parts of the autocomplete.
  * Doesn't render its own HTML element.
@@ -15,10 +13,10 @@ const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
  * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
  */
 export function AutocompleteRoot<Value>(
-  props: Omit<AutocompleteRoot.Props<Value>, 'items'> & { items: Group<Value>[] },
+  props: Omit<AutocompleteRoot.Props<Value>, 'items'> & { items: readonly Group<Value>[] },
 ): React.JSX.Element;
 export function AutocompleteRoot<Value>(
-  props: Omit<AutocompleteRoot.Props<Value>, 'items'> & { items?: Value[] },
+  props: Omit<AutocompleteRoot.Props<Value>, 'items'> & { items?: readonly Value[] },
 ): React.JSX.Element;
 export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): React.JSX.Element {
   const {
@@ -30,7 +28,8 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
     autoHighlight = false,
     itemToStringValue,
     items,
-    ...rest
+    alwaysSubmitOnEnter = false,
+    ...other
   } = props;
 
   const enableInline = mode === 'inline' || mode === 'both';
@@ -69,24 +68,24 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
     },
   );
 
-  const collator = useCoreFilter(DEFAULT_FILTER_OPTIONS);
+  const collator = useCoreFilter();
 
   const baseFilter = React.useMemo(() => {
-    if (rest.filter) {
-      return rest.filter;
+    if (other.filter) {
+      return other.filter;
     }
 
     return (item: any, query: string, toString?: (item: any) => string) => {
       return collator.contains(stringifyAsLabel(item, toString), query);
     };
-  }, [rest, collator]);
+  }, [other, collator]);
 
   const query = String(isControlled ? value : internalValue).trim();
 
   // In "both", wrap filtering to use only the typed value, ignoring overlay.
-  let effectiveFilter: typeof rest.filter;
+  let effectiveFilter: typeof other.filter;
   if (mode !== 'both') {
-    effectiveFilter = staticItems ? null : rest.filter;
+    effectiveFilter = staticItems ? null : other.filter;
   } else {
     effectiveFilter = (item: any, _query: string, toString?: (item: any) => string) => {
       return baseFilter(item, query, toString);
@@ -94,10 +93,10 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
   }
 
   const handleItemHighlighted: ComboboxRootInternal.Props<Value, 'none'>['onItemHighlighted'] =
-    useEventCallback((highlightedValue, data) => {
-      props.onItemHighlighted?.(highlightedValue, data);
+    useEventCallback((highlightedValue, eventDetails) => {
+      props.onItemHighlighted?.(highlightedValue, eventDetails);
 
-      if (data.type === 'pointer') {
+      if (eventDetails.reason === 'pointer') {
         return;
       }
 
@@ -114,7 +113,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
 
   return (
     <ComboboxRootInternal
-      {...rest}
+      {...other}
       items={items as any} // Block `Group` type inference
       itemToStringLabel={itemToStringValue}
       openOnInputClick={openOnInputClick}
@@ -127,6 +126,7 @@ export function AutocompleteRoot<Value>(props: AutocompleteRoot.Props<Value>): R
       onInputValueChange={handleValueChange}
       onItemHighlighted={handleItemHighlighted}
       autoComplete={mode}
+      alwaysSubmitOnEnter={alwaysSubmitOnEnter}
     />
   );
 }
@@ -140,8 +140,8 @@ export namespace AutocompleteRoot {
       | 'defaultSelectedValue'
       | 'onSelectedValueChange'
       | 'fillInputOnItemPress'
-      | 'clearInputOnCloseComplete'
       | 'itemToStringValue'
+      | 'isItemEqualToValue'
       // Different names
       | 'inputValue' // value
       | 'defaultInputValue' // defaultValue
@@ -181,7 +181,7 @@ export namespace AutocompleteRoot {
      */
     onValueChange?: (value: string, eventDetails: ChangeEventDetails) => void;
     /**
-     * When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for display in the input.
+     * When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.
      * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
      */
     itemToStringValue?: (itemValue: ItemValue) => string;
@@ -200,4 +200,7 @@ export namespace AutocompleteRoot {
 
   export type ChangeEventReason = ComboboxRootInternal.ChangeEventReason;
   export type ChangeEventDetails = ComboboxRootInternal.ChangeEventDetails;
+
+  export type HighlightEventReason = ComboboxRootInternal.HighlightEventReason;
+  export type HighlightEventDetails = ComboboxRootInternal.HighlightEventDetails;
 }

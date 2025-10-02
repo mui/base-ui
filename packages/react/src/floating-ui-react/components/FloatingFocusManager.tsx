@@ -29,7 +29,7 @@ import {
   getPreviousTabbable,
 } from '../utils';
 import type { FloatingRootContext } from '../types';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
@@ -480,15 +480,19 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           relatedTarget &&
           movedToUnrelatedNode &&
           // Fix React 18 Strict Mode returnFocus due to double rendering.
-          relatedTarget !== getPreviouslyFocusedElement()
+          // For an "untrapped" typeable combobox (input role=combobox with
+          // initialFocus=false), re-opening the popup and tabbing out should still close it even
+          // when the previously focused element (e.g. the next tabbable outside the popup) is
+          // focused again. Otherwise, the popup remains open on the second Tab sequence:
+          // click input -> Tab (closes) -> click input -> Tab.
+          // Allow closing when `isUntrappedTypeableCombobox` regardless of the previously focused element.
+          (isUntrappedTypeableCombobox || relatedTarget !== getPreviouslyFocusedElement())
         ) {
           preventReturnFocusRef.current = true;
-          onOpenChange(false, createBaseUIEventDetails('focus-out', event));
+          onOpenChange(false, createChangeEventDetails('focus-out', event));
         }
       });
     }
-
-    const shouldHandleBlurCapture = Boolean(!tree && portalContext);
 
     function markInsideReactTree() {
       dataRef.current.insideReactTree = true;
@@ -502,7 +506,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       domReference.addEventListener('pointerdown', handlePointerDown);
       floating.addEventListener('focusout', handleFocusOutside);
 
-      if (shouldHandleBlurCapture) {
+      if (portalContext) {
         floating.addEventListener('focusout', markInsideReactTree, true);
       }
 
@@ -511,7 +515,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         domReference.removeEventListener('pointerdown', handlePointerDown);
         floating.removeEventListener('focusout', handleFocusOutside);
 
-        if (shouldHandleBlurCapture) {
+        if (portalContext) {
           floating.removeEventListener('focusout', markInsideReactTree, true);
         }
       };

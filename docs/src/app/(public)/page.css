@@ -1,3 +1,16 @@
+@import 'docs/src/breakpoints.css';
+
+@layer base {
+  body {
+    /* iOS overscroll background */
+    background-color: var(--color-content);
+
+    @media (--lg) {
+      background-color: var(--color-background);
+    }
+  }
+}
+
 @layer components {
   .HomepageRoot {
     display: flex;

@@ -502,7 +502,7 @@ describe('<Select.Root />', () => {
     });
   });
 
-  describe('BaseUIEventDetails', () => {
+  describe('BaseUIChangeEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       await render(
         <Select.Root
@@ -984,6 +984,78 @@ describe('<Select.Root />', () => {
       await waitFor(() => {
         expect(handleOpenChange.callCount).to.equal(1);
       });
+    });
+  });
+
+  describe('prop: readOnly', () => {
+    it('sets the readOnly state', async () => {
+      const handleOpenChange = spy();
+      const { user } = await render(
+        <Select.Root defaultValue="b" onOpenChange={handleOpenChange} readOnly>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+      expect(trigger).to.have.attribute('aria-readonly', 'true');
+      expect(trigger).to.have.attribute('data-readonly');
+
+      await user.keyboard('[Tab]');
+      expect(trigger).toHaveFocus();
+
+      await user.click(trigger);
+      expect(handleOpenChange.callCount).to.equal(0);
+    });
+
+    it('should not open the select when clicked', async () => {
+      const handleOpenChange = spy();
+      const { user } = await render(
+        <Select.Root onOpenChange={handleOpenChange} readOnly>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+
+      await user.click(trigger);
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
+    });
+
+    it('should not open the select when using keyboard', async () => {
+      const handleOpenChange = spy();
+      const { user } = await render(
+        <Select.Root onOpenChange={handleOpenChange} readOnly>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(document.activeElement).to.equal(trigger);
+
+      await user.keyboard('[ArrowDown]');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
+
+      await user.keyboard('[Enter]');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
+
+      await user.keyboard('[Space]');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
     });
   });
 
@@ -2299,6 +2371,48 @@ describe('<Select.Root />', () => {
       expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
       expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-selected', '');
       expect(screen.getByRole('option', { name: 'c' })).to.have.attribute('data-selected', '');
+    });
+  });
+
+  describe('prop: isItemEqualToValue', () => {
+    it('matches object values using the provided comparator', async () => {
+      const users = [
+        { id: 1, name: 'Alice' },
+        { id: 2, name: 'Bob' },
+      ];
+
+      await render(
+        <Select.Root
+          value={{ id: 2, name: 'Bob' }}
+          itemToStringLabel={(item) => item.name}
+          itemToStringValue={(item) => String(item.id)}
+          isItemEqualToValue={(item, value) => item.id === value.id}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {users.map((user) => (
+                  <Select.Item key={user.id} value={user}>
+                    {user.name}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.text('Bob');
+
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Bob' })).to.have.attribute('data-selected', '');
+      });
     });
   });
 });

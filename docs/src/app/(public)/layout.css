@@ -3,14 +3,12 @@
 @layer base {
   html {
     color-scheme: light dark;
-
-    /* macOS overscroll background */
-    background-color: var(--color-gray-50);
   }
 
   body {
     min-width: 320px;
     line-height: 1.5;
+    /* It's also the iOS footer overscroll background */
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
@@ -95,12 +93,14 @@
   }
 
   .RootLayoutFooter {
-    background-color: var(--color-background);
-    width: 100%;
-    height: var(--header-height);
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    @media (--lg) {
+      background-color: var(--color-background);
+      width: 100%;
+      height: var(--header-height);
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
   }
 }

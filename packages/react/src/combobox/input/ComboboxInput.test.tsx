@@ -174,6 +174,43 @@ describe('<Combobox.Input />', () => {
   });
 
   describe('interaction behavior', () => {
+    it('clears selected value when input text is cleared (single selection)', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana']} defaultValue="apple">
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      expect(input.value).to.equal('apple');
+
+      await user.clear(input);
+
+      expect(input.value).to.equal('');
+
+      await user.type(input, 'a');
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const options = screen.getAllByRole('option');
+      options.forEach((opt) => {
+        expect(opt).to.not.have.attribute('aria-selected', 'true');
+      });
+    });
+
     it('should open popup on typing when enabled', async () => {
       const { user } = await render(
         <Combobox.Root>
@@ -356,6 +393,91 @@ describe('<Combobox.Input />', () => {
 
       expect(input.selectionStart).to.equal(input.value.length);
       expect(input.selectionEnd).to.equal(input.value.length);
+    });
+
+    it('preserves caret position when controlled and inserting in the middle', async () => {
+      function Controlled() {
+        const [value, setValue] = React.useState('');
+        return (
+          <Combobox.Root inputValue={value} onInputValueChange={setValue}>
+            <Combobox.Input />
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<Controlled />);
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.type(input, 'abcd');
+      expect(input.value).to.equal('abcd');
+
+      // Move caret left twice to position after "ab"
+      await user.keyboard('{ArrowLeft}{ArrowLeft}');
+      expect(input.selectionStart).to.equal(2);
+      expect(input.selectionEnd).to.equal(2);
+
+      await user.keyboard('xxx');
+      expect(input.value).to.equal('abxxxcd');
+      expect(input.selectionStart).to.equal(5);
+      expect(input.selectionEnd).to.equal(5);
+
+      await user.keyboard('y');
+      expect(input.value).to.equal('abxxxycd');
+      expect(input.selectionStart).to.equal(6);
+      expect(input.selectionEnd).to.equal(6);
+    });
+
+    it('closes the popup when tabbing out', async () => {
+      const { user } = await render(
+        <div>
+          <Combobox.Root>
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="apple">apple</Combobox.Item>
+                    <Combobox.Item value="banana">banana</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+          <button type="button" data-testid="button">
+            button
+          </button>
+        </div>,
+      );
+
+      const input = screen.getByRole('combobox');
+      const button = screen.getByTestId('button');
+
+      await user.click(input);
+
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+
+      await user.tab();
+
+      await waitFor(() => {
+        expect(button).toHaveFocus();
+      });
+      expect(screen.queryByRole('listbox')).to.equal(null);
+
+      await user.click(input);
+
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+
+      await user.tab();
+
+      await waitFor(() => {
+        expect(button).toHaveFocus();
+      });
+      expect(screen.queryByRole('listbox')).to.equal(null);
     });
   });
 });

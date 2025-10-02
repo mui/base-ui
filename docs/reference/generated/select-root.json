@@ -26,23 +26,28 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the select menu is initially open.\n\nTo render a controlled select menu, use the `open` prop instead.",
+      "description": "Whether the select popup is initially open.\n\nTo render a controlled select popup, use the `open` prop instead.",
       "detailedType": "boolean | undefined"
     },
     "open": {
       "type": "boolean",
-      "description": "Whether the select menu is currently open.",
+      "description": "Whether the select popup is currently open.",
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
       "type": "((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => void)",
-      "description": "Event handler called when the select menu is opened or closed.",
+      "description": "Event handler called when the select popup is opened or closed.",
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Select.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the select will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the select manually.\nUseful when the select's animation is controlled by an external library.",
       "detailedType": "React.RefObject<Select.Root.Actions> | undefined"
+    },
+    "isItemEqualToValue": {
+      "type": "((itemValue: Value, value: Value) => boolean)",
+      "description": "Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.\nDefaults to `Object.is` comparison.",
+      "detailedType": "| ((itemValue: Value, value: Value) => boolean)\n| undefined"
     },
     "itemToStringLabel": {
       "type": "((itemValue: Value) => string)",
@@ -56,7 +61,7 @@
     },
     "items": {
       "type": "Record<string, ReactNode> | ({ label: ReactNode, value: Value })[]",
-      "description": "Data structure of the items rendered in the select menu.\nWhen specified, `<Select.Value>` renders the label of the selected item instead of the raw value.",
+      "description": "Data structure of the items rendered in the select popup.\nWhen specified, `<Select.Value>` renders the label of the selected item instead of the raw value.",
       "example": "```tsx\nconst items = {\n  sans: 'Sans-serif',\n  serif: 'Serif',\n  mono: 'Monospace',\n  cursive: 'Cursive',\n};\n<Select.Root items={items} />\n```",
       "detailedType": "| Record<string, ReactNode>\n| { label: ReactNode; value: Value }[]\n| undefined"
     },
@@ -70,11 +75,11 @@
       "type": "boolean | undefined",
       "default": "false",
       "description": "Whether multiple items can be selected.",
-      "detailedType": "boolean | undefined | undefined"
+      "detailedType": "boolean | undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
-      "description": "Event handler called after any animations complete when the select menu is opened or closed.",
+      "description": "Event handler called after any animations complete when the select popup is opened or closed.",
       "detailedType": "((open: boolean) => void) | undefined"
     },
     "disabled": {
@@ -86,7 +91,7 @@
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the user should be unable to choose a different option from the select menu.",
+      "description": "Whether the user should be unable to choose a different option from the select popup.",
       "detailedType": "boolean | undefined"
     },
     "required": {

@@ -5,7 +5,6 @@ import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot } from './SliderRoot';
-import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface SliderRootContext {
   /**
@@ -22,6 +21,8 @@ export interface SliderRootContext {
     index: number,
     event: React.KeyboardEvent | React.ChangeEvent,
   ) => void;
+  indicatorPosition: (number | undefined)[];
+  inset: boolean;
   labelId?: string;
   /**
    * The large step value of the slider when incrementing or decrementing while the shift key is held,
@@ -47,13 +48,13 @@ export interface SliderRootContext {
    * The minimum steps between values in a range slider.
    */
   minStepsBetweenValues: number;
-  name: string;
+  name: string | undefined;
   /**
    * Function to be called when drag ends and the pointer is released.
    */
   onValueCommitted: (
     newValue: number | readonly number[],
-    data: BaseUIEventDetails<'none'>,
+    data: SliderRoot.CommitEventDetails,
   ) => void;
   /**
    * The component orientation.
@@ -64,8 +65,10 @@ export interface SliderRootContext {
   pressedThumbCenterOffsetRef: React.RefObject<number | null>;
   pressedThumbIndexRef: React.RefObject<number>;
   registerFieldControlRef: React.RefCallback<Element> | null;
+  renderBeforeHydration: boolean;
   setActive: React.Dispatch<React.SetStateAction<number>>;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
+  setIndicatorPosition: React.Dispatch<React.SetStateAction<(number | undefined)[]>>;
   /**
    * Callback fired when dragging and invokes onValueChange.
    */

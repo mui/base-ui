@@ -7,15 +7,17 @@ import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
+import { COMPOSITE_KEYS } from '../../composite/composite';
+import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 
-const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<PopoverPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -47,6 +49,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     openMethod,
   } = usePopoverRootContext();
   const positioner = usePopoverPositionerContext();
+  const insideToolbar = useToolbarRootContext(true) != null;
 
   useOpenChangeComplete({
     open,
@@ -89,11 +92,16 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       {
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
+        onKeyDown(event) {
+          if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
+            event.stopPropagation();
+          }
+        },
       },
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (

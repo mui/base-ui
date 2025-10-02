@@ -10,9 +10,9 @@ import {
   stringifyAsValue,
 } from '../../utils/resolveValueLabel';
 import { selectors } from '../store';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectValue.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectValue.State> = {
   value: () => null,
 };
 
@@ -64,7 +64,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
     state,
     ref: [forwardedRef, valueRef],
     props: [{ children }, elementProps],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

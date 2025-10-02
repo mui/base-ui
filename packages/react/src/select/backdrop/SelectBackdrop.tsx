@@ -4,13 +4,13 @@ import { useStore } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectBackdrop.State> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
@@ -55,7 +55,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
       },
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;
@@ -66,7 +66,7 @@ export namespace SelectBackdrop {
 
   export interface State {
     /**
-     * Whether the select menu is currently open.
+     * Whether the select popup is currently open.
      */
     open: boolean;
     transitionStatus: TransitionStatus;

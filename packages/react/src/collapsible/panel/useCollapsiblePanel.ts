@@ -7,9 +7,11 @@ import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { warn } from '@base-ui-components/utils/warn';
 import { HTMLProps } from '../../utils/types';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
+import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 
 export function useCollapsiblePanel(
   parameters: useCollapsiblePanel.Parameters,
@@ -117,7 +119,7 @@ export function useCollapsiblePanel(
      * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
      * https://github.com/tailwindlabs/tailwindcss/blob/cd154a4f471e7a63cc27cad15dada650de89d52b/packages/tailwindcss/preflight.css#L320-L326
      */
-    element.style.setProperty('display', 'block', 'important');
+    element.style.setProperty('display', getComputedStyle(element).display || 'block', 'important');
 
     if (height === undefined || width === undefined) {
       setDimensions({ height: element.scrollHeight, width: element.scrollWidth });
@@ -173,8 +175,18 @@ export function useCollapsiblePanel(
     }
 
     if (open) {
+      const originalLayoutStyles = {
+        'justify-content': panel.style.justifyContent,
+        'align-items': panel.style.alignItems,
+        'align-content': panel.style.alignContent,
+        'justify-items': panel.style.justifyItems,
+      };
+
       /* opening */
-      panel.style.setProperty('display', 'block', 'important');
+      panel.style.setProperty('display', getComputedStyle(panel).display || 'block', 'important');
+      Object.keys(originalLayoutStyles).forEach((key) => {
+        panel.style.setProperty(key, 'initial', 'important');
+      });
 
       /**
        * When `keepMounted={false}` and the panel is initially closed, the very
@@ -191,6 +203,13 @@ export function useCollapsiblePanel(
 
       resizeFrame = AnimationFrame.request(() => {
         panel.style.removeProperty('display');
+        Object.entries(originalLayoutStyles).forEach(([key, value]) => {
+          if (value === '') {
+            panel.style.removeProperty(key);
+          } else {
+            panel.style.setProperty(key, value);
+          }
+        });
       });
     } else {
       /* closing */
@@ -351,10 +370,10 @@ export function useCollapsiblePanel(
         return undefined;
       }
 
-      function handleBeforeMatch() {
+      function handleBeforeMatch(event: Event) {
         isBeforeMatchRef.current = true;
         setOpen(true);
-        onOpenChange(true);
+        onOpenChange(true, createChangeEventDetails('none', event));
       }
 
       panel.addEventListener('beforematch', handleBeforeMatch);
@@ -407,7 +426,7 @@ export namespace useCollapsiblePanel {
      * Whether the collapsible panel is currently mounted.
      */
     mounted: boolean;
-    onOpenChange: (open: boolean) => void;
+    onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
     /**
      * Whether the collapsible panel is currently open.
      */

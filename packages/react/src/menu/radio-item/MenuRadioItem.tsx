@@ -8,12 +8,12 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
-import { itemMapping } from '../utils/styleHookMapping';
+import { itemMapping } from '../utils/stateAttributesMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import type { MenuRoot } from '../root/MenuRoot';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuRadioItem(
@@ -62,7 +62,7 @@ const InnerMenuRadioItem = React.memo(
 
     return useRenderElement('div', componentProps, {
       state,
-      customStyleHookMapping: itemMapping,
+      stateAttributesMapping: itemMapping,
       ref: [itemRef, forwardedRef],
       props: [
         itemProps,
@@ -70,7 +70,7 @@ const InnerMenuRadioItem = React.memo(
           role: 'menuitemradio',
           'aria-checked': checked,
           onClick(event: React.MouseEvent) {
-            setChecked(createBaseUIEventDetails('item-press', event.nativeEvent));
+            setChecked(createChangeEventDetails('item-press', event.nativeEvent));
           },
         },
         elementProps,
