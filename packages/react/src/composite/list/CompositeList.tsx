@@ -4,7 +4,6 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { EMPTY_OBJECT } from '../../utils/constants';
 import { CompositeListContext } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
@@ -28,18 +27,19 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   // information for list navigation.
 
   const map = useRefWithInit(createMap<Metadata>).current;
-  const [mapTick, setMapTick] = React.useState(EMPTY_OBJECT);
+  // `mapTick` uses a counter rather than objects for low precision-loss risk and better memory efficiency
+  const [mapTick, setMapTick] = React.useState(0);
   const lastTickRef = React.useRef(mapTick);
 
   const register = useEventCallback((node: Element, metadata: Metadata) => {
     map.set(node, metadata ?? null);
-    lastTickRef.current = {};
+    lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
   });
 
   const unregister = useEventCallback((node: Element) => {
     map.delete(node);
-    lastTickRef.current = {};
+    lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
   });
 
@@ -71,7 +71,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
         entry.addedNodes.forEach(updateDiff);
       });
       if (diff.size === 0) {
-        lastTickRef.current = {};
+        lastTickRef.current += 1;
         setMapTick(lastTickRef.current);
       }
     });
