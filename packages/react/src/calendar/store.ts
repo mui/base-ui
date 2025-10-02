@@ -109,7 +109,14 @@ const valueWithTimezoneToRenderSelector = createSelector((state: CalendarState) 
 const selectedDatesSelector = createSelectorMemoized(
   (state: CalendarState) => state.manager,
   (state: CalendarState) => state.value,
-  (manager, value) => manager.getDatesFromValue(value),
+  timezoneToRenderSelector,
+  (manager, value, timezoneToRender) =>
+    manager.getDatesFromValue(value).map((date) => {
+      if (manager.getTimezone(date) === timezoneToRender) {
+        return date;
+      }
+      return manager.setTimezone(date, timezoneToRender);
+    }),
 );
 
 const isDayCellDisabledSelector = createSelector(
