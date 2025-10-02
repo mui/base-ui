@@ -45,24 +45,28 @@ A checkbox that controls other checkboxes within a `CheckboxGroup` can be create
 
 To use checkbox group in a form:
 
-1. Pass the group's `name` to a `Field`
-2. Use `Field.Label` to label each checkbox
-3. Use the `render` prop to render the field as a `Fieldset` in order to label the group
+1. Pass the group's `name` to `Field`
+2. Use the `render` prop to compose `Fieldset` and `CheckboxGroup`
+3. Use `Field.Item` to wrap each checkbox in the group
 
 ```tsx title="Using CheckboxGroup in a form"
 <Form>
-  <Field.Root name="toppings" render={<Fieldset.Root />}>
-    <Fieldset.Legend>Toppings</Fieldset.Legend>
-    <CheckboxGroup>
-      <Field.Label>
-        <Checkbox.Root value="anchovies" />
-        Anchovies
-      </Field.Label>
-      <Field.Label>
-        <Checkbox.Root value="olives" />
-        Olives
-      </Field.Label>
-    <CheckboxGroup>
+  <Field.Root name="toppings">
+    <Fieldset.Root render={<CheckboxGroup />}>
+      <Fieldset.Legend>Toppings</Fieldset.Legend>
+      <Field.Item>
+        <Field.Label>
+          <Checkbox.Root value="anchovies" />
+          Anchovies
+        </Field.Label>
+      </Field.Item>
+      <Field.Item>
+        <Field.Label>
+          <Checkbox.Root value="olives" />
+          Olives
+        </Field.Label>
+      </Field.Item>
+    <Fieldset.Root>
   </Field.Root>
 </Form>
 ```
