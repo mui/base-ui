@@ -159,6 +159,57 @@ describe('useCheckboxGroupParent', () => {
     expect(parent).to.have.attribute('aria-controls', allValues.map((v) => `${id}-${v}`).join(' '));
   });
 
+  it('should honor custom id on parent checkbox', () => {
+    function App() {
+      const [value, setValue] = React.useState<string[]>([]);
+      return (
+        <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
+          <Checkbox.Root parent id="custom-parent-id" data-testid="parent" />
+          <Checkbox.Root value="a" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
+        </CheckboxGroup>
+      );
+    }
+
+    render(<App />);
+
+    const parent = screen.getByTestId('parent');
+
+    expect(parent).to.have.attribute('id', 'custom-parent-id');
+    expect(parent).to.have.attribute(
+      'aria-controls',
+      allValues.map((v) => `custom-parent-id-${v}`).join(' '),
+    );
+  });
+
+  it('should allow label association via htmlFor with custom id', () => {
+    function App() {
+      const [value, setValue] = React.useState<string[]>([]);
+      return (
+        <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
+          <label htmlFor="parent-checkbox-id">Select All</label>
+          <Checkbox.Root parent id="parent-checkbox-id" data-testid="parent" />
+          <Checkbox.Root value="a" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
+        </CheckboxGroup>
+      );
+    }
+
+    render(<App />);
+
+    const parent = screen.getByTestId('parent');
+    const label = screen.getByText('Select All');
+
+    expect(parent).to.have.attribute('id', 'parent-checkbox-id');
+    expect(label).to.have.attribute('for', 'parent-checkbox-id');
+
+    // Click the label should toggle the parent checkbox
+    fireEvent.click(label);
+    expect(parent).to.have.attribute('aria-checked', 'true');
+  });
+
   it('preserves initial state if mixed when parent is clicked', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);

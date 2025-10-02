@@ -78,10 +78,12 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const name = fieldName ?? nameProp;
   const value = valueProp ?? name;
 
+  const id = useBaseUiId(idProp);
+
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGrouped) {
     if (parent) {
-      groupProps = groupContext.parent.getParentProps();
+      groupProps = groupContext.parent.getParentProps(id);
     } else if (value) {
       groupProps = groupContext.parent.getChildProps(value);
     }
@@ -118,8 +120,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     name: 'Checkbox',
     state: 'checked',
   });
-
-  const id = useBaseUiId(idProp);
 
   useIsoLayoutEffect(() => {
     const element = controlRef?.current;

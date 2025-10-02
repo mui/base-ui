@@ -23,11 +23,10 @@ export function useCheckboxGroupParent(
   const onValueChange = useEventCallback(onValueChangeProp);
 
   const getParentProps: useCheckboxGroupParent.ReturnValue['getParentProps'] = React.useCallback(
-    () => ({
-      id,
+    (parentId?: string) => ({
       indeterminate,
       checked,
-      'aria-controls': allValues.map((v) => `${id}-${v}`).join(' '),
+      'aria-controls': allValues.map((v) => `${parentId ?? id}-${v}`).join(' '),
       onCheckedChange(_, eventDetails) {
         const uncontrolledState = uncontrolledStateRef.current;
 
@@ -114,8 +113,7 @@ export namespace useCheckboxGroupParent {
     id: string | undefined;
     indeterminate: boolean;
     disabledStatesRef: React.RefObject<Map<string, boolean>>;
-    getParentProps: () => {
-      id: string | undefined;
+    getParentProps: (parentId?: string) => {
       indeterminate: boolean;
       checked: boolean;
       'aria-controls': string;
