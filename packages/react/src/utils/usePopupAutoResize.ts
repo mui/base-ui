@@ -61,6 +61,16 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     const restorePopupPosition = overrideElementStyle(popupElement, 'position', 'static');
     const restorePopupTransform = overrideElementStyle(popupElement, 'transform', 'none');
     const restorePopupScale = overrideElementStyle(popupElement, 'scale', '1');
+    const restoreAvailableWidth = overrideElementStyle(
+      positionerElement,
+      '--available-width',
+      'max-content',
+    );
+    const restoreAvailableHeight = overrideElementStyle(
+      positionerElement,
+      '--available-height',
+      'max-content',
+    );
     onMeasureLayout?.();
 
     // Initial render (for each time the popup opens).
@@ -75,6 +85,8 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       restorePopupPosition();
       restorePopupTransform();
       restorePopupScale();
+      restoreAvailableWidth();
+      restoreAvailableHeight();
       onMeasureLayoutComplete?.(null, dimensions);
 
       isInitialRender.current = false;
@@ -96,6 +108,8 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     popupElement.style.setProperty('--popup-height', `${previousDimensionsRef.current.height}px`);
     restorePopupPosition();
     restorePopupTransform();
+    restoreAvailableWidth();
+    restoreAvailableHeight();
     onMeasureLayoutComplete?.(previousDimensionsRef.current, newDimensions);
 
     positionerElement.style.setProperty('--positioner-width', `${newDimensions.width}px`);
