@@ -14,9 +14,9 @@
       "detailedType": "number | undefined"
     },
     "children": {
-      "type": "ReactNode | ((week: Date | TZDate, index: number, weeks: (Date | TZDate)[]) => ReactNode)",
+      "type": "ReactNode | ((week: Date, index: number, weeks: Date[]) => ReactNode)",
       "description": "The children of the component.\nIf a function is provided, it will be called for each week to render as its parameter.",
-      "detailedType": "| React.ReactNode\n| ((\n    week: Date | TZDate,\n    index: number,\n    weeks: (Date | TZDate)[],\n  ) => ReactNode)"
+      "detailedType": "| React.ReactNode\n| ((\n    week: Date,\n    index: number,\n    weeks: Date[],\n  ) => ReactNode)"
     },
     "className": {
       "type": "string | ((state: Calendar.DayGridBody.State) => string)",

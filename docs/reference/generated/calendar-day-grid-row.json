@@ -3,14 +3,14 @@
   "description": "Groups all cells of a given calendar's day grid row.\nRenders a `<tr>` element.",
   "props": {
     "value": {
-      "type": "Date | TZDate",
+      "type": "Date",
       "required": true,
       "description": "The date object representing the week."
     },
     "children": {
-      "type": "ReactNode | ((day: Date | TZDate, index: number, days: (Date | TZDate)[]) => ReactNode)",
+      "type": "ReactNode | ((day: Date, index: number, days: Date[]) => ReactNode)",
       "description": "The children of the component.\nIf a function is provided, it will be called for each day of the week as its parameter.",
-      "detailedType": "| React.ReactNode\n| ((\n    day: Date | TZDate,\n    index: number,\n    days: (Date | TZDate)[],\n  ) => ReactNode)"
+      "detailedType": "| React.ReactNode\n| ((day: Date, index: number, days: Date[]) => ReactNode)"
     },
     "className": {
       "type": "string | ((state: Calendar.DayGridRow.State) => string)",
