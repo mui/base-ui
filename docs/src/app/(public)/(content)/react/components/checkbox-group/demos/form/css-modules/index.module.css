@@ -6,19 +6,12 @@
   max-width: 16rem;
 }
 
-.Fieldset {
-  border: 0;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
-
 .Legend {
   font-size: 1rem;
   line-height: 1.25rem;
   font-weight: 500;
   color: var(--color-gray-900);
-  margin-block-end: 8px;
+  margin-block-end: 4px;
 }
 
 .CheckboxGroup {
