@@ -281,15 +281,12 @@ export default function Page() {
           <Fieldset.Legend className={styles.Legend}>Show scroll bars</Fieldset.Legend>
           <RadioGroup required={native} className={styles.RadioGroup}>
             <Field.Item className={styles.FieldItem}>
-              <Radio.Root value="auto" className={styles.Radio}>
-                <Radio.Indicator className={styles.Indicator} />
-              </Radio.Root>
-              <div className={styles.FieldItemName}>
-                <Field.Label className={styles.Label}>Automatically</Field.Label>
-                <Field.Description className={styles.Description}>
-                  Based on mouse or trackpad
-                </Field.Description>
-              </div>
+              <Field.Label className={styles.Label}>
+                <Radio.Root value="auto" className={styles.Radio}>
+                  <Radio.Indicator className={styles.Indicator} />
+                </Radio.Root>
+                Automatically based on mouse or trackpad
+              </Field.Label>
             </Field.Item>
 
             <Field.Item className={styles.FieldItem}>
@@ -359,15 +356,18 @@ export default function Page() {
           <Field.Error className={styles.Error} />
         </Field.Root>
 
-        <Field.Root name="checkbox-group" render={<Fieldset.Root />} className={styles.Field}>
-          <Fieldset.Legend className={styles.Legend}>Content blocking</Fieldset.Legend>
-          <CheckboxGroup
-            value={checkboxGroupValue}
-            onValueChange={setCheckboxGroupValue}
-            allValues={ALL_CHECKBOX_GROUP_VALUES}
-            className={styles.CheckboxGroup}
-            role={undefined}
+        <Field.Root name="checkbox-group" className={styles.Field}>
+          <Fieldset.Root
+            render={
+              <CheckboxGroup
+                value={checkboxGroupValue}
+                onValueChange={setCheckboxGroupValue}
+                allValues={ALL_CHECKBOX_GROUP_VALUES}
+                className={styles.CheckboxGroup}
+              />
+            }
           >
+            <Fieldset.Legend className={styles.Legend}>Content blocking</Fieldset.Legend>
             <Field.Item className={styles.FieldItem}>
               <Field.Label className={styles.Label}>
                 <Checkbox.Root parent className={styles.Checkbox}>
@@ -434,7 +434,7 @@ export default function Page() {
                 Block trackers
               </Field.Label>
             </Field.Item>
-          </CheckboxGroup>
+          </Fieldset.Root>
         </Field.Root>
 
         <Field.Root name="multi-select" className={styles.Field}>

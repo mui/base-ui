@@ -402,7 +402,7 @@
   gap: 0.5rem;
 }
 
-.CheckboxGroup:has([data-parent]) {
+.CheckboxGroup:has([data-parent]) .FieldItem:not(:has([data-parent])) {
   margin-left: 1rem;
 }
 
@@ -684,10 +684,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-
-  &:has([data-parent]) {
-    margin-left: -1rem;
-  }
 }
 
 .FieldItemName {
