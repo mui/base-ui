@@ -581,7 +581,7 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       tsx:
-        specifier: ^4.20.5
+        specifier: ^4.20.6
         version: 4.20.6
       typescript-api-extractor:
         specifier: 1.0.0-alpha.8
