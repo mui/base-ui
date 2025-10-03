@@ -210,6 +210,33 @@ describe('useCheckboxGroupParent', () => {
     expect(parent).to.have.attribute('aria-checked', 'true');
   });
 
+  it('should allow label association via htmlFor with custom id on child checkbox', () => {
+    function App() {
+      const [value, setValue] = React.useState<string[]>([]);
+      return (
+        <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
+          <Checkbox.Root parent data-testid="parent" />
+          <label htmlFor="child-checkbox-a">Option A</label>
+          <Checkbox.Root value="a" id="child-checkbox-a" data-testid="child-a" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
+        </CheckboxGroup>
+      );
+    }
+
+    render(<App />);
+
+    const childA = screen.getByTestId('child-a');
+    const label = screen.getByText('Option A');
+
+    expect(childA).to.have.attribute('id', 'child-checkbox-a');
+    expect(label).to.have.attribute('for', 'child-checkbox-a');
+
+    // Click the label should toggle the child checkbox
+    fireEvent.click(label);
+    expect(childA).to.have.attribute('aria-checked', 'true');
+  });
+
   it('preserves initial state if mixed when parent is clicked', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);

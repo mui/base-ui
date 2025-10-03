@@ -85,7 +85,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     if (parent) {
       groupProps = groupContext.parent.getParentProps(id);
     } else if (value) {
-      groupProps = groupContext.parent.getChildProps(value);
+      groupProps = groupContext.parent.getChildProps(value, id);
     }
   }
 

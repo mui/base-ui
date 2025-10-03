@@ -71,9 +71,9 @@ export function useCheckboxGroupParent(
   );
 
   const getChildProps: useCheckboxGroupParent.ReturnValue['getChildProps'] = React.useCallback(
-    (name: string) => ({
+    (name: string, childId?: string) => ({
       name,
-      id: `${id}-${name}`,
+      id: childId ?? `${id}-${name}`,
       checked: value.includes(name),
       onCheckedChange(nextChecked, eventDetails) {
         const newValue = value.slice();
@@ -119,7 +119,7 @@ export namespace useCheckboxGroupParent {
       'aria-controls': string;
       onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
     };
-    getChildProps: (name: string) => {
+    getChildProps: (name: string, childId?: string) => {
       name: string;
       id: string;
       checked: boolean;
