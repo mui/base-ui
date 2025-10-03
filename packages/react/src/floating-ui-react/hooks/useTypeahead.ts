@@ -3,7 +3,7 @@ import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { stopEvent } from '../utils';
+import { contains, stopEvent } from '../utils';
 
 import type { ElementProps, FloatingRootContext } from '../types';
 
@@ -63,7 +63,7 @@ export interface UseTypeaheadProps {
  * @see https://floating-ui.com/docs/useTypeahead
  */
 export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadProps): ElementProps {
-  const { open, dataRef } = context;
+  const { open, dataRef, elements } = context;
   const {
     listRef,
     activeIndex,
@@ -88,12 +88,17 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
   const ignoreKeysRef = useLatestRef(ignoreKeys);
 
   useIsoLayoutEffect(() => {
-    if (open) {
-      timeout.clear();
-      matchIndexRef.current = null;
+    if (!open && selectedIndex !== null) {
+      return;
+    }
+
+    timeout.clear();
+    matchIndexRef.current = null;
+
+    if (stringRef.current !== '') {
       stringRef.current = '';
     }
-  }, [open, timeout]);
+  }, [open, selectedIndex, timeout]);
 
   useIsoLayoutEffect(() => {
     // Sync arrow key navigation but not typeahead navigation.
@@ -157,6 +162,9 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
       setTypingChange(true);
     }
 
+    // Capture whether this is a new typing session before mutating the string.
+    const isNewSession = stringRef.current === '';
+
     // Bail out if the list contains a word like "llama" or "aaron". TODO:
     // allow it in this case, too.
     const allowRapidSuccessionOfFirstLetter = listContent.every((text) =>
@@ -177,7 +185,10 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
       setTypingChange(false);
     });
 
-    const prevIndex = prevIndexRef.current;
+    // Compute the starting index for this search.
+    // If this is a new typing session (string is empty), base it on the current
+    // selection/active item; otherwise continue from the last matched index.
+    const prevIndex = isNewSession ? (selectedIndex ?? activeIndex ?? -1) : prevIndexRef.current;
 
     const index = getMatchingIndex(
       listContent,
@@ -194,7 +205,27 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     }
   });
 
-  const reference: ElementProps['reference'] = React.useMemo(() => ({ onKeyDown }), [onKeyDown]);
+  const onBlur = useEventCallback((event: React.FocusEvent) => {
+    const next = event.relatedTarget as Element | null;
+    const withinReference = contains(elements.domReference, next);
+    const withinFloating = contains(elements.floating, next);
+
+    // Keep the session if focus moves within the composite (reference <-> floating).
+    if (withinReference || withinFloating) {
+      return;
+    }
+
+    // End the current typing session when focus leaves the composite entirely.
+    timeout.clear();
+    stringRef.current = '';
+    prevIndexRef.current = matchIndexRef.current;
+    setTypingChange(false);
+  });
+
+  const reference: ElementProps['reference'] = React.useMemo(
+    () => ({ onKeyDown, onBlur }),
+    [onKeyDown, onBlur],
+  );
 
   const floating: ElementProps['floating'] = React.useMemo(() => {
     return {
@@ -204,8 +235,9 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
           setTypingChange(false);
         }
       },
+      onBlur,
     };
-  }, [onKeyDown, setTypingChange]);
+  }, [onKeyDown, onBlur, setTypingChange]);
 
   return React.useMemo(
     () => (enabled ? { reference, floating } : {}),
