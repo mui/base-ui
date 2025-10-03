@@ -148,7 +148,7 @@ export default defineConfig(
     files: [`test/**/*.${EXTENSION_TS}`],
     rules: {
       'guard-for-in': 'off',
-      'testing-library/no-dom-import': 'off', // We use `screen` in tests, so we need to import `@testing-library/dom`.
+      'testing-library/prefer-screen-queries': 'off', // Enable usage of playwright queries
       'testing-library/render-result-naming-convention': 'off', // inconsequential in regression tests
     },
   },

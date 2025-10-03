@@ -12,11 +12,10 @@ import {
 } from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { type BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import type { BaseUIChangeEventReason } from '../../utils/types';
 
 /**
  * Groups all parts of the preview card.
@@ -223,6 +222,12 @@ export namespace PreviewCardRoot {
     unmount: () => void;
   }
 
-  export type ChangeEventReason = BaseUIChangeEventReason;
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventReason =
+    | 'trigger-hover'
+    | 'trigger-focus'
+    | 'trigger-press'
+    | 'outside-press'
+    | 'escape-key'
+    | 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

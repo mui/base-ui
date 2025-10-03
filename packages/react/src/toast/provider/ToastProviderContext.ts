@@ -8,6 +8,7 @@ export interface ToastContextValue<Data extends object> {
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;
   focused: boolean;
   setFocused: React.Dispatch<React.SetStateAction<boolean>>;
+  expanded: boolean;
   add: (options: useToastManager.AddOptions<Data>) => string;
   update: (id: string, options: useToastManager.UpdateOptions<Data>) => void;
   promise: <Value>(
@@ -23,7 +24,6 @@ export interface ToastContextValue<Data extends object> {
   viewportRef: React.RefObject<HTMLElement | null>;
   windowFocusedRef: React.RefObject<boolean>;
   scheduleTimer: (id: string, delay: number, callback: () => void) => void;
-  hasDifferingHeights: boolean;
 }
 
 export type ToastContext<Data extends object> = ToastContextValue<Data>;

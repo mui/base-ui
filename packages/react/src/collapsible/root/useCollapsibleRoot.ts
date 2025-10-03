@@ -4,8 +4,10 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
+import type { CollapsibleRoot } from './CollapsibleRoot';
 
 export type AnimationType = 'css-transition' | 'css-animation' | 'none' | null;
 
@@ -49,8 +51,15 @@ export function useCollapsibleRoot(
 
   const runOnceAnimationsFinish = useAnimationsFinished(panelRef, false);
 
-  const handleTrigger = useEventCallback(() => {
+  const handleTrigger = useEventCallback((event: React.MouseEvent | React.KeyboardEvent) => {
     const nextOpen = !open;
+    const eventDetails = createChangeEventDetails('trigger-press', event.nativeEvent);
+
+    onOpenChange(nextOpen, eventDetails);
+
+    if (eventDetails.isCanceled) {
+      return;
+    }
 
     const panel = panelRef.current;
 
@@ -76,12 +85,9 @@ export function useCollapsibleRoot(
     }
 
     setOpen(nextOpen);
-    onOpenChange(nextOpen);
 
-    if (animationTypeRef.current === 'none') {
-      if (mounted && !nextOpen) {
-        setMounted(false);
-      }
+    if (animationTypeRef.current === 'none' && mounted && !nextOpen) {
+      setMounted(false);
     }
   });
 
@@ -162,7 +168,7 @@ export namespace useCollapsibleRoot {
     /**
      * Event handler called when the panel is opened or closed.
      */
-    onOpenChange: (open: boolean) => void;
+    onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -177,7 +183,7 @@ export namespace useCollapsibleRoot {
      * Whether the component should ignore user interaction.
      */
     disabled: boolean;
-    handleTrigger: () => void;
+    handleTrigger: (event: React.MouseEvent | React.KeyboardEvent) => void;
     /**
      * The height of the panel.
      */

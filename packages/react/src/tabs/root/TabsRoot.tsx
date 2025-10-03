@@ -8,10 +8,10 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { TabsRootContext } from './TabsRootContext';
-import { tabsStyleHookMapping } from './styleHooks';
+import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -55,21 +55,15 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     React.useState<TabsTab.ActivationDirection>('none');
 
   const onValueChange = useEventCallback(
-    (
-      newValue: TabsTab.Value,
-      activationDirection: TabsTab.ActivationDirection,
-      event: Event | undefined,
-    ) => {
-      const details = createBaseUIEventDetails('none', event);
+    (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
+      onValueChangeProp?.(newValue, eventDetails);
 
-      onValueChangeProp?.(newValue, details);
-
-      if (details.isCanceled) {
+      if (eventDetails.isCanceled) {
         return;
       }
 
       setValue(newValue);
-      setTabActivationDirection(activationDirection);
+      setTabActivationDirection(eventDetails.activationDirection);
     },
   );
 
@@ -185,7 +179,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: tabsStyleHookMapping,
+    stateAttributesMapping: tabsStateAttributesMapping,
   });
 
   return (
@@ -230,5 +224,8 @@ export namespace TabsRoot {
   }
 
   export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<
+    ChangeEventReason,
+    { activationDirection: TabsTab.ActivationDirection }
+  >;
 }

@@ -12,12 +12,12 @@ import {
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<NavigationMenuContent.State> = {
+const stateAttributesMapping: StateAttributesMapping<NavigationMenuContent.State> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
   activationDirection(value) {
@@ -125,8 +125,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
         state={state}
         refs={[forwardedRef, ref, handleCurrentContentRef]}
         props={[defaultProps, elementProps]}
-        customStyleHookMapping={customStyleHookMapping}
-        stopEventPropagation
+        stateAttributesMapping={stateAttributesMapping}
       />
     </FloatingNode>,
     portalContainer,
