@@ -439,6 +439,8 @@ interface FingerState {
   thumbIndex: number;
 }
 
+export interface SliderControlProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+
 export namespace SliderControl {
-  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
+  export type Props = SliderControlProps;
 }

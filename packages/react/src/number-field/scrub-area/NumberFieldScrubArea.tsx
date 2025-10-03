@@ -309,25 +309,29 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   );
 });
 
-export namespace NumberFieldScrubArea {
-  export interface State extends NumberFieldRoot.State {}
+export interface NumberFieldScrubAreaState extends NumberFieldRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    /**
-     * Cursor movement direction in the scrub area.
-     * @default 'horizontal'
-     */
-    direction?: 'horizontal' | 'vertical';
-    /**
-     * Determines how many pixels the cursor must move before the value changes.
-     * A higher value will make scrubbing less sensitive.
-     * @default 2
-     */
-    pixelSensitivity?: number;
-    /**
-     * If specified, determines the distance that the cursor may move from the center
-     * of the scrub area before it will loop back around.
-     */
-    teleportDistance?: number | undefined;
-  }
+export interface NumberFieldScrubAreaProps
+  extends BaseUIComponentProps<'span', NumberFieldScrubAreaState> {
+  /**
+   * Cursor movement direction in the scrub area.
+   * @default 'horizontal'
+   */
+  direction?: 'horizontal' | 'vertical';
+  /**
+   * Determines how many pixels the cursor must move before the value changes.
+   * A higher value will make scrubbing less sensitive.
+   * @default 2
+   */
+  pixelSensitivity?: number;
+  /**
+   * If specified, determines the distance that the cursor may move from the center
+   * of the scrub area before it will loop back around.
+   */
+  teleportDistance?: number | undefined;
+}
+
+export namespace NumberFieldScrubArea {
+  export type State = NumberFieldScrubAreaState;
+  export type Props = NumberFieldScrubAreaProps;
 }

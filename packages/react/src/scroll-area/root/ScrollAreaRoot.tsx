@@ -322,39 +322,36 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   );
 });
 
-export namespace ScrollAreaRoot {
-  export interface State {
-    /** Whether horizontal overflow is present. */
-    hasOverflowX: boolean;
-    /** Whether vertical overflow is present. */
-    hasOverflowY: boolean;
-    /** Whether there is overflow on the inline start side for the horizontal axis. */
-    overflowXStart: boolean;
-    /** Whether there is overflow on the inline end side for the horizontal axis. */
-    overflowXEnd: boolean;
-    /** Whether there is overflow on the block start side. */
-    overflowYStart: boolean;
-    /** Whether there is overflow on the block end side. */
-    overflowYEnd: boolean;
-    /** Whether the scrollbar corner is hidden. */
-    cornerHidden: boolean;
-  }
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The threshold in pixels that must be passed before the overflow edge attributes are applied.
-     * Accepts a single number for all edges or an object to configure them individually.
-     * @default 0
-     */
-    overflowEdgeThreshold?:
-      | number
-      | Partial<{
-          xStart: number;
-          xEnd: number;
-          yStart: number;
-          yEnd: number;
-        }>;
-  }
+export interface ScrollAreaRootState {
+  /** Whether horizontal overflow is present. */
+  hasOverflowX: boolean;
+  /** Whether vertical overflow is present. */
+  hasOverflowY: boolean;
+  /** Whether there is overflow on the inline start side for the horizontal axis. */
+  overflowXStart: boolean;
+  /** Whether there is overflow on the inline end side for the horizontal axis. */
+  overflowXEnd: boolean;
+  /** Whether there is overflow on the block start side. */
+  overflowYStart: boolean;
+  /** Whether there is overflow on the block end side. */
+  overflowYEnd: boolean;
+  /** Whether the scrollbar corner is hidden. */
+  cornerHidden: boolean;
+}
+export interface ScrollAreaRootProps extends BaseUIComponentProps<'div', ScrollAreaRootState> {
+  /**
+   * The threshold in pixels that must be passed before the overflow edge attributes are applied.
+   * Accepts a single number for all edges or an object to configure them individually.
+   * @default 0
+   */
+  overflowEdgeThreshold?:
+    | number
+    | Partial<{
+        xStart: number;
+        xEnd: number;
+        yStart: number;
+        yEnd: number;
+      }>;
 }
 
 function normalizeOverflowEdgeThreshold(
@@ -376,4 +373,9 @@ function normalizeOverflowEdgeThreshold(
     yStart: Math.max(0, threshold?.yStart || 0),
     yEnd: Math.max(0, threshold?.yEnd || 0),
   };
+}
+
+export namespace ScrollAreaRoot {
+  export type State = ScrollAreaRootState;
+  export type Props = ScrollAreaRootProps;
 }

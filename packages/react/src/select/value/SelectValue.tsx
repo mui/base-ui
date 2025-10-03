@@ -8,7 +8,7 @@ import { resolveSelectedLabel, resolveMultipleLabels } from '../../utils/resolve
 import { selectors } from '../store';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
-const stateAttributesMapping: StateAttributesMapping<SelectValue.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectValueState> = {
   value: () => null,
 };
 
@@ -19,7 +19,7 @@ const stateAttributesMapping: StateAttributesMapping<SelectValue.State> = {
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectValue = React.forwardRef(function SelectValue(
-  componentProps: SelectValue.Props,
+  componentProps: SelectValueProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { className, render, children: childrenProp, ...elementProps } = componentProps;
@@ -30,7 +30,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const items = useStore(store, selectors.items);
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
 
-  const state: SelectValue.State = React.useMemo(
+  const state: SelectValueState = React.useMemo(
     () => ({
       value,
     }),
@@ -45,7 +45,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
           ? resolveMultipleLabels(value, itemToStringLabel)
           : resolveSelectedLabel(value, items, itemToStringLabel)));
 
-  const element = useRenderElement('span', componentProps, {
+  const element = useRenderElement('span', componentProps as any, {
     state,
     ref: [forwardedRef, valueRef],
     props: [{ children }, elementProps],
@@ -55,24 +55,16 @@ export const SelectValue = React.forwardRef(function SelectValue(
   return element;
 });
 
-export namespace SelectValue {
-  export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    /**
-     * Accepts a function that returns a `ReactNode` to format the selected value.
-     * @example
-     * ```tsx
-     * <Select.Value>
-     *   {(value: string | null) => value ? labels[value] : 'No value'}
-     * </Select.Value>
-     * ```
-     */
-    children?: React.ReactNode | ((value: any) => React.ReactNode);
-  }
+export interface SelectValueState {
+  value: any;
+}
+export interface SelectValueProps
+  extends Omit<BaseUIComponentProps<'span', SelectValueState>, 'children'> {
+  /** Accepts a function that returns a `ReactNode` to format the selected value. */
+  children?: React.ReactNode | ((value: any) => React.ReactNode);
+}
 
-  export interface State {
-    /**
-     * The value of the currently selected item.
-     */
-    value: any;
-  }
+export namespace SelectValue {
+  export type State = SelectValueState;
+  export type Props = SelectValueProps;
 }

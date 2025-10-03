@@ -48,14 +48,17 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
   return wrappedElement;
 });
 
-export namespace ComboboxGroup {
-  export interface State {}
+export interface ComboboxGroupState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Items to be rendered within this group.
-     * When provided, child `Collection` components will use these items.
-     */
-    items?: readonly any[];
-  }
+export interface ComboboxGroupProps extends BaseUIComponentProps<'div', ComboboxGroupState> {
+  /**
+   * Items to be rendered within this group.
+   * When provided, child `Collection` components will use these items.
+   */
+  items?: readonly any[];
+}
+
+export namespace ComboboxGroup {
+  export type State = ComboboxGroupState;
+  export type Props = ComboboxGroupProps;
 }

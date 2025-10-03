@@ -136,13 +136,16 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
   );
 });
 
-export namespace ComboboxChip {
-  export interface State {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-  }
+export interface ComboboxChipState {
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ComboboxChipProps extends BaseUIComponentProps<'div', ComboboxChipState> {}
+
+export namespace ComboboxChip {
+  export type State = ComboboxChipState;
+  export type Props = ComboboxChipProps;
 }

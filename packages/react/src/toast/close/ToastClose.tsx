@@ -51,13 +51,18 @@ export const ToastClose = React.forwardRef(function ToastClose(
   return element;
 });
 
-export namespace ToastClose {
-  export interface State {
-    /**
-     * The type of the toast.
-     */
-    type: string | undefined;
-  }
+export interface ToastCloseState {
+  /**
+   * The type of the toast.
+   */
+  type: string | undefined;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface ToastCloseProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ToastCloseState> {}
+
+export namespace ToastClose {
+  export type State = ToastCloseState;
+  export type Props = ToastCloseProps;
 }

@@ -42,16 +42,19 @@ export const PopoverArrow = React.forwardRef(function PopoverArrow(
   return element;
 });
 
-export namespace PopoverArrow {
-  export interface State {
-    /**
-     * Whether the popover is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    uncentered: boolean;
-  }
+export interface PopoverArrowState {
+  /**
+   * Whether the popover is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface PopoverArrowProps extends BaseUIComponentProps<'div', PopoverArrowState> {}
+
+export namespace PopoverArrow {
+  export type State = PopoverArrowState;
+  export type Props = PopoverArrowProps;
 }

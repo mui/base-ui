@@ -10,7 +10,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 
-const stateAttributesMapping: StateAttributesMapping<SelectBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectBackdropState> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
@@ -22,7 +22,7 @@ const stateAttributesMapping: StateAttributesMapping<SelectBackdrop.State> = {
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
-  componentProps: SelectBackdrop.Props,
+  componentProps: SelectBackdropProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
@@ -33,7 +33,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   const mounted = useStore(store, selectors.mounted);
   const transitionStatus = useStore(store, selectors.transitionStatus);
 
-  const state: SelectBackdrop.State = React.useMemo(
+  const state: SelectBackdropState = React.useMemo(
     () => ({
       open,
       transitionStatus,
@@ -41,7 +41,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     [open, transitionStatus],
   );
 
-  const element = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps as any, {
     state,
     ref: forwardedRef,
     props: [
@@ -61,14 +61,13 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   return element;
 });
 
-export namespace SelectBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface SelectBackdropState {
+  open: boolean;
+  transitionStatus: TransitionStatus;
+}
+export interface SelectBackdropProps extends BaseUIComponentProps<'div', SelectBackdropState> {}
 
-  export interface State {
-    /**
-     * Whether the select popup is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export namespace SelectBackdrop {
+  export type State = SelectBackdropState;
+  export type Props = SelectBackdropProps;
 }

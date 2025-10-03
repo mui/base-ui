@@ -421,15 +421,18 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   );
 });
 
-export namespace SelectPopup {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    children?: React.ReactNode;
-  }
+export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopupState> {
+  children?: React.ReactNode;
+}
 
-  export interface State {
-    side: Side | 'none';
-    align: Align;
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface SelectPopupState {
+  side: Side | 'none';
+  align: Align;
+  open: boolean;
+  transitionStatus: TransitionStatus;
+}
+
+export namespace SelectPopup {
+  export type Props = SelectPopupProps;
+  export type State = SelectPopupState;
 }

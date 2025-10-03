@@ -59,25 +59,29 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
   return element;
 });
 
-export namespace MenuRadioItemIndicator {
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    /**
-     * Whether to keep the HTML element in the DOM when the radio item is inactive.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface MenuRadioItemIndicatorProps
+  extends BaseUIComponentProps<'span', MenuRadioItemIndicatorState> {
+  /**
+   * Whether to keep the HTML element in the DOM when the radio item is inactive.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
 
-  export interface State {
-    /**
-     * Whether the radio item is currently selected.
-     */
-    checked: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    highlighted: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface MenuRadioItemIndicatorState {
+  /**
+   * Whether the radio item is currently selected.
+   */
+  checked: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  highlighted: boolean;
+  transitionStatus: TransitionStatus;
+}
+
+export namespace MenuRadioItemIndicator {
+  export type Props = MenuRadioItemIndicatorProps;
+  export type State = MenuRadioItemIndicatorState;
 }

@@ -50,20 +50,18 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
   );
 }
 
+export interface ContextMenuRootState {}
+export interface ContextMenuRootProps
+  extends Omit<Menu.Root.Props, 'modal' | 'openOnHover' | 'delay' | 'closeDelay' | 'onOpenChange'> {
+  onOpenChange?: (open: boolean, eventDetails: ContextMenuRootChangeEventDetails) => void;
+}
+export type ContextMenuRootChangeEventReason = MenuRoot.ChangeEventReason;
+export type ContextMenuRootChangeEventDetails =
+  BaseUIChangeEventDetails<ContextMenuRootChangeEventReason>;
+
 export namespace ContextMenuRoot {
-  export interface State {}
-
-  export interface Props
-    extends Omit<
-      Menu.Root.Props,
-      'modal' | 'openOnHover' | 'delay' | 'closeDelay' | 'onOpenChange'
-    > {
-    /**
-     * Event handler called when the menu is opened or closed.
-     */
-    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
-  }
-
-  export type ChangeEventReason = MenuRoot.ChangeEventReason;
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type State = ContextMenuRootState;
+  export type Props = ContextMenuRootProps;
+  export type ChangeEventReason = ContextMenuRootChangeEventReason;
+  export type ChangeEventDetails = ContextMenuRootChangeEventDetails;
 }

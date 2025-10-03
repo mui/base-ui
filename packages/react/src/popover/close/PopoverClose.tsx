@@ -42,8 +42,13 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
   return element;
 });
 
-export namespace PopoverClose {
-  export interface State {}
+export interface PopoverCloseState {}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface PopoverCloseProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', PopoverCloseState> {}
+
+export namespace PopoverClose {
+  export type State = PopoverCloseState;
+  export type Props = PopoverCloseProps;
 }

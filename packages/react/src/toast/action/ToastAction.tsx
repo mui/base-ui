@@ -54,13 +54,18 @@ export const ToastAction = React.forwardRef(function ToastAction(
   return element;
 });
 
-export namespace ToastAction {
-  export interface State {
-    /**
-     * The type of the toast.
-     */
-    type: string | undefined;
-  }
+export interface ToastActionState {
+  /**
+   * The type of the toast.
+   */
+  type: string | undefined;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface ToastActionProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ToastActionState> {}
+
+export namespace ToastAction {
+  export type State = ToastActionState;
+  export type Props = ToastActionProps;
 }

@@ -68,17 +68,20 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   return element;
 });
 
-export namespace TooltipPopup {
-  export interface State {
-    /**
-     * Whether the tooltip is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    instant: 'delay' | 'focus' | 'dismiss' | undefined;
-    transitionStatus: TransitionStatus;
-  }
+export interface TooltipPopupState {
+  /**
+   * Whether the tooltip is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  instant: 'delay' | 'focus' | 'dismiss' | undefined;
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface TooltipPopupProps extends BaseUIComponentProps<'div', TooltipPopupState> {}
+
+export namespace TooltipPopup {
+  export type State = TooltipPopupState;
+  export type Props = TooltipPopupProps;
 }

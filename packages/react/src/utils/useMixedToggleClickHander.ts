@@ -41,20 +41,22 @@ export function useMixedToggleClickHandler(params: useMixedToggleClickHandler.Pa
   }, [enabled, mouseDownAction, open]);
 }
 
+export interface useMixedToggleClickHandlerParameters {
+  /**
+   * Whether the mixed toggle click handler is enabled.
+   * @default true
+   */
+  enabled?: boolean;
+  /**
+   * Determines what action is performed on mousedown.
+   */
+  mouseDownAction: 'open' | 'close';
+  /**
+   * The current open state of the popup.
+   */
+  open: boolean;
+}
+
 export namespace useMixedToggleClickHandler {
-  export interface Parameters {
-    /**
-     * Whether the mixed toggle click handler is enabled.
-     * @default true
-     */
-    enabled?: boolean;
-    /**
-     * Determines what action is performed on mousedown.
-     */
-    mouseDownAction: 'open' | 'close';
-    /**
-     * The current open state of the popup.
-     */
-    open: boolean;
-  }
+  export type Parameters = useMixedToggleClickHandlerParameters;
 }

@@ -62,8 +62,11 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   return element;
 });
 
-export namespace FieldLabel {
-  export type State = FieldRoot.State;
+export type FieldLabelState = FieldRoot.State;
 
-  export interface Props extends BaseUIComponentProps<'label', State> {}
+export interface FieldLabelProps extends BaseUIComponentProps<'label', FieldLabelState> {}
+
+export namespace FieldLabel {
+  export type State = FieldLabelState;
+  export type Props = FieldLabelProps;
 }

@@ -67,33 +67,36 @@ interface FocusableWhenDisabledProps {
   tabIndex: number;
 }
 
-export namespace useFocusableWhenDisabled {
-  export interface Parameters {
-    /**
-     * Whether the component should be focusable when disabled.
-     * When `undefined`, composite items are focusable when disabled by default.
-     */
-    focusableWhenDisabled?: boolean | undefined;
-    /**
-     * The disabled state of the component.
-     */
-    disabled: boolean;
-    /**
-     * Whether this is a composite item or not.
-     * @default false
-     */
-    composite?: boolean;
-    /**
-     * @default 0
-     */
-    tabIndex?: number;
-    /**
-     * @default true
-     */
-    isNativeButton: boolean;
-  }
+export interface useFocusableWhenDisabledParameters {
+  /**
+   * Whether the component should be focusable when disabled.
+   * When `undefined`, composite items are focusable when disabled by default.
+   */
+  focusableWhenDisabled?: boolean | undefined;
+  /**
+   * The disabled state of the component.
+   */
+  disabled: boolean;
+  /**
+   * Whether this is a composite item or not.
+   * @default false
+   */
+  composite?: boolean;
+  /**
+   * @default 0
+   */
+  tabIndex?: number;
+  /**
+   * @default true
+   */
+  isNativeButton: boolean;
+}
 
-  export interface ReturnValue {
-    props: FocusableWhenDisabledProps;
-  }
+export interface useFocusableWhenDisabledReturnValue {
+  props: FocusableWhenDisabledProps;
+}
+
+export namespace useFocusableWhenDisabled {
+  export type Parameters = useFocusableWhenDisabledParameters;
+  export type ReturnValue = useFocusableWhenDisabledReturnValue;
 }

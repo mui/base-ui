@@ -58,20 +58,23 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   });
 });
 
-export namespace DialogBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether the backdrop is forced to render even when nested.
-     * @default false
-     */
-    forceRender?: boolean;
-  }
+export interface DialogBackdropProps extends BaseUIComponentProps<'div', DialogBackdropState> {
+  /**
+   * Whether the backdrop is forced to render even when nested.
+   * @default false
+   */
+  forceRender?: boolean;
+}
 
-  export interface State {
-    /**
-     * Whether the dialog is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface DialogBackdropState {
+  /**
+   * Whether the dialog is currently open.
+   */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+}
+
+export namespace DialogBackdrop {
+  export type Props = DialogBackdropProps;
+  export type State = DialogBackdropState;
 }

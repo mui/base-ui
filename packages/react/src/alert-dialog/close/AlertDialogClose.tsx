@@ -42,13 +42,18 @@ export const AlertDialogClose = React.forwardRef(function AlertDialogClose(
   });
 });
 
-export namespace AlertDialogClose {
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface AlertDialogCloseProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', AlertDialogCloseState> {}
 
-  export interface State {
-    /**
-     * Whether the button is currently disabled.
-     */
-    disabled: boolean;
-  }
+export interface AlertDialogCloseState {
+  /**
+   * Whether the button is currently disabled.
+   */
+  disabled: boolean;
+}
+
+export namespace AlertDialogClose {
+  export type Props = AlertDialogCloseProps;
+  export type State = AlertDialogCloseState;
 }

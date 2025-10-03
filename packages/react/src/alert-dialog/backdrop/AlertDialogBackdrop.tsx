@@ -58,20 +58,24 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
   });
 });
 
-export namespace AlertDialogBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether the backdrop is forced to render even when nested.
-     * @default false
-     */
-    forceRender?: boolean;
-  }
+export interface AlertDialogBackdropProps
+  extends BaseUIComponentProps<'div', AlertDialogBackdropState> {
+  /**
+   * Whether the backdrop is forced to render even when nested.
+   * @default false
+   */
+  forceRender?: boolean;
+}
 
-  export interface State {
-    /**
-     * Whether the dialog is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface AlertDialogBackdropState {
+  /**
+   * Whether the dialog is currently open.
+   */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+}
+
+export namespace AlertDialogBackdrop {
+  export type Props = AlertDialogBackdropProps;
+  export type State = AlertDialogBackdropState;
 }

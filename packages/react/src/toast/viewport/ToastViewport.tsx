@@ -323,13 +323,16 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   );
 });
 
-export namespace ToastViewport {
-  export interface State {
-    /**
-     * Whether toasts are expanded in the viewport.
-     */
-    expanded: boolean;
-  }
+export interface ToastViewportState {
+  /**
+   * Whether toasts are expanded in the viewport.
+   */
+  expanded: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ToastViewportProps extends BaseUIComponentProps<'div', ToastViewportState> {}
+
+export namespace ToastViewport {
+  export type State = ToastViewportState;
+  export type Props = ToastViewportProps;
 }

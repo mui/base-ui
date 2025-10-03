@@ -216,51 +216,32 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   );
 });
 
-export namespace RadioRoot {
-  export interface Props
-    extends NativeButtonProps,
-      Omit<BaseUIComponentProps<'button', State>, 'value'> {
-    /**
-     * The unique identifying value of the radio in a group.
-     */
-    value: any;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Whether the user must choose a value before submitting a form.
-     * @default false
-     */
-    required?: boolean;
-    /**
-     * Whether the user should be unable to select the radio button.
-     * @default false
-     */
-    readOnly?: boolean;
-    /**
-     * A ref to access the hidden input element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
-  }
+export interface RadioRootState extends FieldRoot.State {
+  /** Whether the radio button is currently selected. */
+  checked: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the user should be unable to select the radio button. */
+  readOnly: boolean;
+  /** Whether the user must choose a value before submitting a form. */
+  required: boolean;
+}
+export interface RadioRootProps
+  extends NativeButtonProps,
+    Omit<BaseUIComponentProps<'button', RadioRootState>, 'value'> {
+  /** The unique identifying value of the radio in a group. */
+  value: any;
+  /** Whether the component should ignore user interaction. */
+  disabled?: boolean;
+  /** Whether the user must choose a value before submitting a form. */
+  required?: boolean;
+  /** Whether the user should be unable to select the radio button. */
+  readOnly?: boolean;
+  /** A ref to access the hidden input element. */
+  inputRef?: React.Ref<HTMLInputElement>;
+}
 
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the radio button is currently selected.
-     */
-    checked: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the user should be unable to select the radio button.
-     */
-    readOnly: boolean;
-    /**
-     * Whether the user must choose a value before submitting a form.
-     */
-    required: boolean;
-  }
+export namespace RadioRoot {
+  export type State = RadioRootState;
+  export type Props = RadioRootProps;
 }

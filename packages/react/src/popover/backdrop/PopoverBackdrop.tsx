@@ -56,14 +56,17 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   return element;
 });
 
-export namespace PopoverBackdrop {
-  export interface State {
-    /**
-     * Whether the popover is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface PopoverBackdropState {
+  /**
+   * Whether the popover is currently open.
+   */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface PopoverBackdropProps extends BaseUIComponentProps<'div', PopoverBackdropState> {}
+
+export namespace PopoverBackdrop {
+  export type State = PopoverBackdropState;
+  export type Props = PopoverBackdropProps;
 }

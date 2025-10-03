@@ -13,7 +13,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  */
 export const SelectItemText = React.memo(
   React.forwardRef(function SelectItemText(
-    componentProps: SelectItemText.Props,
+    componentProps: SelectItemTextProps,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
     const { indexRef, textRef, selectedByFocus } = useSelectItemContext();
@@ -38,7 +38,7 @@ export const SelectItemText = React.memo(
       [selectedItemTextRef, indexRef, selectedByFocus],
     );
 
-    const element = useRenderElement('div', componentProps, {
+    const element = useRenderElement('div', componentProps as any, {
       ref: [localRef, forwardedRef, textRef],
       props: elementProps,
     });
@@ -47,8 +47,10 @@ export const SelectItemText = React.memo(
   }),
 );
 
-export namespace SelectItemText {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface SelectItemTextState {}
+export interface SelectItemTextProps extends BaseUIComponentProps<'div', SelectItemTextState> {}
 
-  export interface State {}
+export namespace SelectItemText {
+  export type State = SelectItemTextState;
+  export type Props = SelectItemTextProps;
 }

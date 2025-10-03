@@ -289,19 +289,22 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   );
 });
 
-export namespace MenuPositioner {
-  export interface State {
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-    nested: boolean;
-  }
+export interface MenuPositionerState {
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+  nested: boolean;
+}
 
-  export interface Props
-    extends useAnchorPositioning.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+export interface MenuPositionerProps
+  extends useAnchorPositioning.SharedParameters,
+    BaseUIComponentProps<'div', MenuPositionerState> {}
+
+export namespace MenuPositioner {
+  export type State = MenuPositionerState;
+  export type Props = MenuPositionerProps;
 }

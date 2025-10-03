@@ -1,1 +1,34 @@
 export * as ContextMenu from './index.parts';
+
+export type * from './root/ContextMenuRoot';
+export type * from './trigger/ContextMenuTrigger';
+
+export type { MenuBackdropProps as ContextMenuBackdropProps } from '../menu/backdrop/MenuBackdrop';
+export type { MenuBackdropState as ContextMenuBackdropState } from '../menu/backdrop/MenuBackdrop';
+export type { MenuPortalProps as ContextMenuPortalProps } from '../menu/portal/MenuPortal';
+export type { MenuPositionerProps as ContextMenuPositionerProps } from '../menu/positioner/MenuPositioner';
+export type { MenuPositionerState as ContextMenuPositionerState } from '../menu/positioner/MenuPositioner';
+export type { MenuPopupProps as ContextMenuPopupProps } from '../menu/popup/MenuPopup';
+export type { MenuPopupState as ContextMenuPopupState } from '../menu/popup/MenuPopup';
+export type { MenuArrowProps as ContextMenuArrowProps } from '../menu/arrow/MenuArrow';
+export type { MenuArrowState as ContextMenuArrowState } from '../menu/arrow/MenuArrow';
+export type { MenuGroupProps as ContextMenuGroupProps } from '../menu/group/MenuGroup';
+export type { MenuGroupState as ContextMenuGroupState } from '../menu/group/MenuGroup';
+export type { MenuGroupLabelProps as ContextMenuGroupLabelProps } from '../menu/group-label/MenuGroupLabel';
+export type { MenuGroupLabelState as ContextMenuGroupLabelState } from '../menu/group-label/MenuGroupLabel';
+export type { MenuItemProps as ContextMenuItemProps } from '../menu/item/MenuItem';
+export type { MenuItemState as ContextMenuItemState } from '../menu/item/MenuItem';
+export type { MenuCheckboxItemProps as ContextMenuCheckboxItemProps } from '../menu/checkbox-item/MenuCheckboxItem';
+export type { MenuCheckboxItemState as ContextMenuCheckboxItemState } from '../menu/checkbox-item/MenuCheckboxItem';
+export type { MenuCheckboxItemIndicatorProps as ContextMenuCheckboxItemIndicatorProps } from '../menu/checkbox-item-indicator/MenuCheckboxItemIndicator';
+export type { MenuCheckboxItemIndicatorState as ContextMenuCheckboxItemIndicatorState } from '../menu/checkbox-item-indicator/MenuCheckboxItemIndicator';
+export type { MenuRadioGroupProps as ContextMenuRadioGroupProps } from '../menu/radio-group/MenuRadioGroup';
+export type { MenuRadioGroupState as ContextMenuRadioGroupState } from '../menu/radio-group/MenuRadioGroup';
+export type { MenuRadioItemProps as ContextMenuRadioItemProps } from '../menu/radio-item/MenuRadioItem';
+export type { MenuRadioItemState as ContextMenuRadioItemState } from '../menu/radio-item/MenuRadioItem';
+export type { MenuRadioItemIndicatorProps as ContextMenuRadioItemIndicatorProps } from '../menu/radio-item-indicator/MenuRadioItemIndicator';
+export type { MenuRadioItemIndicatorState as ContextMenuRadioItemIndicatorState } from '../menu/radio-item-indicator/MenuRadioItemIndicator';
+export type { MenuSubmenuRootProps as ContextMenuSubmenuRootProps } from '../menu/submenu-root/MenuSubmenuRoot';
+export type { MenuSubmenuRootState as ContextMenuSubmenuRootState } from '../menu/submenu-root/MenuSubmenuRoot';
+export type { MenuSubmenuTriggerProps as ContextMenuSubmenuTriggerProps } from '../menu/submenu-trigger/MenuSubmenuTrigger';
+export type { MenuSubmenuTriggerState as ContextMenuSubmenuTriggerState } from '../menu/submenu-trigger/MenuSubmenuTrigger';

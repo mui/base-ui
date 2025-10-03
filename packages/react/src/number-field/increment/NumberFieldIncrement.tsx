@@ -103,8 +103,13 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
   return element;
 });
 
-export namespace NumberFieldIncrement {
-  export interface State extends NumberFieldRoot.State {}
+export interface NumberFieldIncrementState extends NumberFieldRoot.State {}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface NumberFieldIncrementProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', NumberFieldIncrementState> {}
+
+export namespace NumberFieldIncrement {
+  export type State = NumberFieldIncrementState;
+  export type Props = NumberFieldIncrementProps;
 }

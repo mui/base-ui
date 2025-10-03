@@ -164,12 +164,15 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
   return element;
 });
 
-export namespace AccordionPanel {
-  export interface State extends AccordionItem.State {
-    transitionStatus: TransitionStatus;
-  }
+export interface AccordionPanelState extends AccordionItem.State {
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props
-    extends BaseUIComponentProps<'div', State>,
-      Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
+export interface AccordionPanelProps
+  extends BaseUIComponentProps<'div', AccordionPanelState>,
+    Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
+
+export namespace AccordionPanel {
+  export type State = AccordionPanelState;
+  export type Props = AccordionPanelProps;
 }

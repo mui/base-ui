@@ -66,60 +66,63 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
   return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
 };
 
+export interface DialogRootProps {
+  children?: React.ReactNode;
+  /**
+   * Whether the dialog is currently open.
+   */
+  open?: boolean;
+  /**
+   * Whether the dialog is initially open.
+   *
+   * To render a controlled dialog, use the `open` prop instead.
+   * @default false
+   */
+  defaultOpen?: boolean;
+  /**
+   * Determines if the dialog enters a modal state when open.
+   * - `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.
+   * - `false`: user interaction with the rest of the document is allowed.
+   * - `'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled.
+   * @default true
+   */
+  modal?: boolean | 'trap-focus';
+  /**
+   * Event handler called when the dialog is opened or closed.
+   */
+  onOpenChange?: (open: boolean, eventDetails: DialogRootChangeEventDetails) => void;
+  /**
+   * Event handler called after any animations complete when the dialog is opened or closed.
+   */
+  onOpenChangeComplete?: (open: boolean) => void;
+  /**
+   * Determines whether the dialog should close on outside clicks.
+   * @default true
+   */
+  dismissible?: boolean;
+  /**
+   * A ref to imperative actions.
+   * - `unmount`: When specified, the dialog will not be unmounted when closed.
+   * Instead, the `unmount` function must be called to unmount the dialog manually.
+   * Useful when the dialog's animation is controlled by an external library.
+   */
+  actionsRef?: React.RefObject<DialogRootActions>;
+}
+export interface DialogRootActions {
+  unmount: () => void;
+}
+export type DialogRootChangeEventReason =
+  | 'trigger-press'
+  | 'outside-press'
+  | 'escape-key'
+  | 'close-press'
+  | 'focus-out'
+  | 'none';
+export type DialogRootChangeEventDetails = BaseUIChangeEventDetails<DialogRootChangeEventReason>;
+
 export namespace DialogRoot {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * Whether the dialog is currently open.
-     */
-    open?: boolean;
-    /**
-     * Whether the dialog is initially open.
-     *
-     * To render a controlled dialog, use the `open` prop instead.
-     * @default false
-     */
-    defaultOpen?: boolean;
-    /**
-     * Determines if the dialog enters a modal state when open.
-     * - `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.
-     * - `false`: user interaction with the rest of the document is allowed.
-     * - `'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled.
-     * @default true
-     */
-    modal?: boolean | 'trap-focus';
-    /**
-     * Event handler called when the dialog is opened or closed.
-     */
-    onOpenChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
-    /**
-     * Event handler called after any animations complete when the dialog is opened or closed.
-     */
-    onOpenChangeComplete?: (open: boolean) => void;
-    /**
-     * Determines whether the dialog should close on outside clicks.
-     * @default true
-     */
-    dismissible?: boolean;
-    /**
-     * A ref to imperative actions.
-     * - `unmount`: When specified, the dialog will not be unmounted when closed.
-     * Instead, the `unmount` function must be called to unmount the dialog manually.
-     * Useful when the dialog's animation is controlled by an external library.
-     */
-    actionsRef?: React.RefObject<DialogRoot.Actions>;
-  }
-
-  export interface Actions {
-    unmount: () => void;
-  }
-
-  export type ChangeEventReason =
-    | 'trigger-press'
-    | 'outside-press'
-    | 'escape-key'
-    | 'close-press'
-    | 'focus-out'
-    | 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type Props = DialogRootProps;
+  export type Actions = DialogRootActions;
+  export type ChangeEventReason = DialogRootChangeEventReason;
+  export type ChangeEventDetails = DialogRootChangeEventDetails;
 }

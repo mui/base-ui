@@ -242,56 +242,63 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   );
 });
 
+export interface RadioGroupState extends FieldRoot.State {
+  /**
+   * Whether the user should be unable to select a different radio button in the group.
+   */
+  readOnly: boolean | undefined;
+}
+
+export interface RadioGroupProps
+  extends Omit<BaseUIComponentProps<'div', RadioGroupState>, 'value'> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Whether the user should be unable to select a different radio button in the group.
+   * @default false
+   */
+  readOnly?: boolean;
+  /**
+   * Whether the user must choose a value before submitting a form.
+   * @default false
+   */
+  required?: boolean;
+  /**
+   * Identifies the field when a form is submitted.
+   */
+  name?: string;
+  /**
+   * The controlled value of the radio item that should be currently selected.
+   *
+   * To render an uncontrolled radio group, use the `defaultValue` prop instead.
+   */
+  value?: unknown;
+  /**
+   * The uncontrolled value of the radio button that should be initially selected.
+   *
+   * To render a controlled radio group, use the `value` prop instead.
+   */
+  defaultValue?: unknown;
+  /**
+   * Callback fired when the value changes.
+   */
+  onValueChange?: (value: unknown, eventDetails: RadioGroupChangeEventDetails) => void;
+  /**
+   * A ref to access the hidden input element.
+   */
+  inputRef?: React.Ref<HTMLInputElement>;
+}
+
+export type RadioGroupChangeEventReason = 'none';
+
+export type RadioGroupChangeEventDetails = BaseUIChangeEventDetails<RadioGroupChangeEventReason>;
+
 export namespace RadioGroup {
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the user should be unable to select a different radio button in the group.
-     */
-    readOnly: boolean | undefined;
-  }
-
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'value'> {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Whether the user should be unable to select a different radio button in the group.
-     * @default false
-     */
-    readOnly?: boolean;
-    /**
-     * Whether the user must choose a value before submitting a form.
-     * @default false
-     */
-    required?: boolean;
-    /**
-     * Identifies the field when a form is submitted.
-     */
-    name?: string;
-    /**
-     * The controlled value of the radio item that should be currently selected.
-     *
-     * To render an uncontrolled radio group, use the `defaultValue` prop instead.
-     */
-    value?: unknown;
-    /**
-     * The uncontrolled value of the radio button that should be initially selected.
-     *
-     * To render a controlled radio group, use the `value` prop instead.
-     */
-    defaultValue?: unknown;
-    /**
-     * Callback fired when the value changes.
-     */
-    onValueChange?: (value: unknown, eventDetails: ChangeEventDetails) => void;
-    /**
-     * A ref to access the hidden input element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
-  }
-
-  export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type State = RadioGroupState;
+  export type Props = RadioGroupProps;
+  export type ChangeEventReason = RadioGroupChangeEventReason;
+  export type ChangeEventDetails = RadioGroupChangeEventDetails;
 }

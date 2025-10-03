@@ -49,17 +49,22 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   });
 });
 
-export namespace AlertDialogTrigger {
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface AlertDialogTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', AlertDialogTriggerState> {}
 
-  export interface State {
-    /**
-     * Whether the dialog is currently disabled.
-     */
-    disabled: boolean;
-    /**
-     * Whether the dialog is currently open.
-     */
-    open: boolean;
-  }
+export interface AlertDialogTriggerState {
+  /**
+   * Whether the dialog is currently disabled.
+   */
+  disabled: boolean;
+  /**
+   * Whether the dialog is currently open.
+   */
+  open: boolean;
+}
+
+export namespace AlertDialogTrigger {
+  export type Props = AlertDialogTriggerProps;
+  export type State = AlertDialogTriggerState;
 }

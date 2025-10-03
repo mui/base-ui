@@ -28,8 +28,11 @@ export const DialogDescription = React.forwardRef(function DialogDescription(
   });
 });
 
-export namespace DialogDescription {
-  export interface Props extends BaseUIComponentProps<'p', State> {}
+export interface DialogDescriptionProps extends BaseUIComponentProps<'p', DialogDescriptionState> {}
 
-  export interface State {}
+export interface DialogDescriptionState {}
+
+export namespace DialogDescription {
+  export type Props = DialogDescriptionProps;
+  export type State = DialogDescriptionState;
 }

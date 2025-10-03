@@ -234,22 +234,25 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   );
 });
 
-export namespace NavigationMenuPositioner {
-  export interface State {
-    /**
-     * Whether the navigation menu is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-    /**
-     * Whether CSS transitions should be disabled.
-     */
-    instant: boolean;
-  }
+export interface NavigationMenuPositionerState {
+  /**
+   * Whether the navigation menu is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+  /**
+   * Whether CSS transitions should be disabled.
+   */
+  instant: boolean;
+}
 
-  export interface Props
-    extends useAnchorPositioning.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+export interface NavigationMenuPositionerProps
+  extends useAnchorPositioning.SharedParameters,
+    BaseUIComponentProps<'div', NavigationMenuPositionerState> {}
+
+export namespace NavigationMenuPositioner {
+  export type State = NavigationMenuPositionerState;
+  export type Props = NavigationMenuPositionerProps;
 }

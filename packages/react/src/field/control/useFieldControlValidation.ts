@@ -289,11 +289,13 @@ export function useFieldControlValidation() {
   );
 }
 
+export interface useFieldControlValidationReturnValue {
+  getValidationProps: (props?: HTMLProps) => HTMLProps;
+  getInputValidationProps: (props?: HTMLProps) => HTMLProps;
+  inputRef: React.MutableRefObject<any>;
+  commitValidation: (value: unknown, revalidate?: boolean) => void;
+}
+
 export namespace useFieldControlValidation {
-  export interface ReturnValue {
-    getValidationProps: (props?: HTMLProps) => HTMLProps;
-    getInputValidationProps: (props?: HTMLProps) => HTMLProps;
-    inputRef: React.MutableRefObject<any>;
-    commitValidation: (value: unknown, revalidate?: boolean) => void;
-  }
+  export type ReturnValue = useFieldControlValidationReturnValue;
 }

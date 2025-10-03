@@ -129,36 +129,39 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   );
 });
 
-export namespace MenuPopup {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    children?: React.ReactNode;
-    /**
-     * @ignore
-     */
-    id?: string;
-    /**
-     * Determines the element to focus when the menu is closed.
-     *
-     * - `false`: Do not move focus.
-     * - `true`: Move focus based on the default behavior (trigger or previously focused element).
-     * - `RefObject`: Move focus to the ref element.
-     * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
-     *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
-     */
-    finalFocus?:
-      | boolean
-      | React.RefObject<HTMLElement | null>
-      | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
-  }
+export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupState> {
+  children?: React.ReactNode;
+  /**
+   * @ignore
+   */
+  id?: string;
+  /**
+   * Determines the element to focus when the menu is closed.
+   *
+   * - `false`: Do not move focus.
+   * - `true`: Move focus based on the default behavior (trigger or previously focused element).
+   * - `RefObject`: Move focus to the ref element.
+   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+   *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
+   */
+  finalFocus?:
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
+}
 
-  export type State = {
-    transitionStatus: TransitionStatus;
-    side: Side;
-    align: Align;
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-    nested: boolean;
-  };
+export type MenuPopupState = {
+  transitionStatus: TransitionStatus;
+  side: Side;
+  align: Align;
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+  nested: boolean;
+};
+
+export namespace MenuPopup {
+  export type Props = MenuPopupProps;
+  export type State = MenuPopupState;
 }

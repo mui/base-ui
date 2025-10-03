@@ -58,16 +58,19 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
   return element;
 });
 
-export namespace SelectArrow {
-  export interface State {
-    /**
-     * Whether the select popup is currently open.
-     */
-    open: boolean;
-    side: Side | 'none';
-    align: Align;
-    uncentered: boolean;
-  }
+export interface SelectArrowState {
+  /**
+   * Whether the select popup is currently open.
+   */
+  open: boolean;
+  side: Side | 'none';
+  align: Align;
+  uncentered: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface SelectArrowProps extends BaseUIComponentProps<'div', SelectArrowState> {}
+
+export namespace SelectArrow {
+  export type State = SelectArrowState;
+  export type Props = SelectArrowProps;
 }

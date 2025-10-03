@@ -31,13 +31,17 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   return element;
 });
 
-export namespace PreviewCardTrigger {
-  export interface State {
-    /**
-     * Whether the preview card is currently open.
-     */
-    open: boolean;
-  }
+export interface PreviewCardTriggerState {
+  /**
+   * Whether the preview card is currently open.
+   */
+  open: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'a', State> {}
+export interface PreviewCardTriggerProps
+  extends BaseUIComponentProps<'a', PreviewCardTriggerState> {}
+
+export namespace PreviewCardTrigger {
+  export type State = PreviewCardTriggerState;
+  export type Props = PreviewCardTriggerProps;
 }

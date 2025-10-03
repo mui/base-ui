@@ -232,26 +232,30 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
   );
 });
 
-export namespace ScrollAreaScrollbar {
-  export interface State extends ScrollAreaRoot.State {
-    /** Whether the scroll area is being hovered. */
-    hovering: boolean;
-    /** Whether the scroll area is being scrolled. */
-    scrolling: boolean;
-    /** The orientation of the scrollbar. */
-    orientation: 'vertical' | 'horizontal';
-  }
+export interface ScrollAreaScrollbarState extends ScrollAreaRoot.State {
+  /** Whether the scroll area is being hovered. */
+  hovering: boolean;
+  /** Whether the scroll area is being scrolled. */
+  scrolling: boolean;
+  /** The orientation of the scrollbar. */
+  orientation: 'vertical' | 'horizontal';
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether the scrollbar controls vertical or horizontal scroll.
-     * @default 'vertical'
-     */
-    orientation?: 'vertical' | 'horizontal';
-    /**
-     * Whether to keep the HTML element in the DOM when the viewport isn’t scrollable.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface ScrollAreaScrollbarProps
+  extends BaseUIComponentProps<'div', ScrollAreaScrollbarState> {
+  /**
+   * Whether the scrollbar controls vertical or horizontal scroll.
+   * @default 'vertical'
+   */
+  orientation?: 'vertical' | 'horizontal';
+  /**
+   * Whether to keep the HTML element in the DOM when the viewport isn’t scrollable.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
+
+export namespace ScrollAreaScrollbar {
+  export type State = ScrollAreaScrollbarState;
+  export type Props = ScrollAreaScrollbarProps;
 }

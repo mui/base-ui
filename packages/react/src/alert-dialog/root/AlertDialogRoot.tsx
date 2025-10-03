@@ -65,24 +65,21 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
   return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
 };
 
+export interface AlertDialogRootProps
+  extends Omit<DialogRoot.Props, 'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef'> {
+  /** Event handler called when the dialog is opened or closed. */
+  onOpenChange?: (open: boolean, eventDetails: AlertDialogRootChangeEventDetails) => void;
+  /** A ref to imperative actions. */
+  actionsRef?: React.RefObject<AlertDialogRootActions>;
+}
+export type AlertDialogRootActions = DialogRoot.Actions;
+export type AlertDialogRootChangeEventReason = DialogRoot.ChangeEventReason;
+export type AlertDialogRootChangeEventDetails =
+  BaseUIChangeEventDetails<AlertDialogRootChangeEventReason>;
+
 export namespace AlertDialogRoot {
-  export interface Props
-    extends Omit<DialogRoot.Props, 'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef'> {
-    /**
-     * Event handler called when the dialog is opened or closed.
-     */
-    onOpenChange?: (open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void;
-    /**
-     * A ref to imperative actions.
-     * - `unmount`: When specified, the dialog will not be unmounted when closed.
-     * Instead, the `unmount` function must be called to unmount the dialog manually.
-     * Useful when the dialog's animation is controlled by an external library.
-     */
-    actionsRef?: React.RefObject<AlertDialogRoot.Actions>;
-  }
-
-  export type Actions = DialogRoot.Actions;
-
-  export type ChangeEventReason = DialogRoot.ChangeEventReason;
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type Props = AlertDialogRootProps;
+  export type Actions = AlertDialogRootActions;
+  export type ChangeEventReason = AlertDialogRootChangeEventReason;
+  export type ChangeEventDetails = AlertDialogRootChangeEventDetails;
 }

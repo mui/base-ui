@@ -1371,36 +1371,50 @@ export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'no
   ) => void;
 };
 
+export type ComboboxRootInternalProps<
+  Value,
+  Mode extends SelectionMode = 'none',
+> = ComboboxRootConditionalProps<Value, Mode>;
+
+export interface ComboboxRootInternalState {}
+
+export interface ComboboxRootInternalActions {
+  unmount: () => void;
+}
+
+export type ComboboxRootInternalHighlightEventReason = 'keyboard' | 'pointer' | 'none';
+
+export type ComboboxRootInternalHighlightEventDetails = BaseUIGenericEventDetails<
+  ComboboxRootInternalHighlightEventReason,
+  Event,
+  { index: number }
+>;
+
+export type ComboboxRootInternalChangeEventReason =
+  | 'trigger-press'
+  | 'outside-press'
+  | 'item-press'
+  | 'escape-key'
+  | 'list-navigation'
+  | 'focus-out'
+  | 'input-change'
+  | 'input-clear'
+  | 'clear-press'
+  | 'chip-remove-press'
+  | 'none';
+
+export type ComboboxRootInternalChangeEventDetails =
+  BaseUIChangeEventDetails<ComboboxRootInternalChangeEventReason>;
+
 export namespace ComboboxRootInternal {
-  export type Props<Value, Mode extends SelectionMode = 'none'> = ComboboxRootConditionalProps<
+  export type Props<Value, Multiple extends SelectionMode = 'none'> = ComboboxRootInternalProps<
     Value,
-    Mode
+    Multiple
   >;
-
-  export interface State {}
-
-  export interface Actions {
-    unmount: () => void;
-  }
-
-  export type HighlightEventReason = 'keyboard' | 'pointer' | 'none';
-  export type HighlightEventDetails = BaseUIGenericEventDetails<
-    HighlightEventReason,
-    Event,
-    { index: number }
-  >;
-
-  export type ChangeEventReason =
-    | 'trigger-press'
-    | 'outside-press'
-    | 'item-press'
-    | 'escape-key'
-    | 'list-navigation'
-    | 'focus-out'
-    | 'input-change'
-    | 'input-clear'
-    | 'clear-press'
-    | 'chip-remove-press'
-    | 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type State = ComboboxRootInternalState;
+  export type Actions = ComboboxRootInternalActions;
+  export type HighlightEventReason = ComboboxRootInternalHighlightEventReason;
+  export type HighlightEventDetails = ComboboxRootInternalHighlightEventDetails;
+  export type ChangeEventReason = ComboboxRootInternalChangeEventReason;
+  export type ChangeEventDetails = ComboboxRootInternalChangeEventDetails;
 }

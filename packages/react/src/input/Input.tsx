@@ -16,17 +16,22 @@ export const Input = React.forwardRef(function Input(
   return <Field.Control ref={forwardedRef} {...props} />;
 });
 
+export interface InputProps extends BaseUIComponentProps<'input', InputState> {
+  /**
+   * Callback fired when the `value` changes. Use when controlled.
+   */
+  onValueChange?: Field.Control.Props['onValueChange'];
+  defaultValue?: Field.Control.Props['defaultValue'];
+}
+
+export interface InputState extends Field.Control.State {}
+
+export type InputChangeEventReason = Field.Control.ChangeEventReason;
+export type InputChangeEventDetails = Field.Control.ChangeEventDetails;
+
 export namespace Input {
-  export interface Props extends BaseUIComponentProps<'input', State> {
-    /**
-     * Callback fired when the `value` changes. Use when controlled.
-     */
-    onValueChange?: Field.Control.Props['onValueChange'];
-    defaultValue?: Field.Control.Props['defaultValue'];
-  }
-
-  export interface State extends Field.Control.State {}
-
-  export type ChangeEventReason = Field.Control.ChangeEventReason;
-  export type ChangeEventDetails = Field.Control.ChangeEventDetails;
+  export type Props = InputProps;
+  export type State = InputState;
+  export type ChangeEventReason = InputChangeEventReason;
+  export type ChangeEventDetails = InputChangeEventDetails;
 }

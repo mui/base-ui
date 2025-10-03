@@ -65,13 +65,16 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
   return element;
 });
 
-export namespace ToastDescription {
-  export interface State {
-    /**
-     * The type of the toast.
-     */
-    type: string | undefined;
-  }
+export interface ToastDescriptionState {
+  /**
+   * The type of the toast.
+   */
+  type: string | undefined;
+}
 
-  export interface Props extends BaseUIComponentProps<'p', State> {}
+export interface ToastDescriptionProps extends BaseUIComponentProps<'p', ToastDescriptionState> {}
+
+export namespace ToastDescription {
+  export type State = ToastDescriptionState;
+  export type Props = ToastDescriptionProps;
 }

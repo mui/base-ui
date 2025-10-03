@@ -118,25 +118,28 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   );
 });
 
-export namespace TooltipPositioner {
-  export interface State {
-    /**
-     * Whether the tooltip is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-  }
+export interface TooltipPositionerState {
+  /**
+   * Whether the tooltip is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+}
 
-  export interface Props
-    extends BaseUIComponentProps<'div', State>,
-      Omit<useAnchorPositioning.SharedParameters, 'side'> {
-    /**
-     * Which side of the anchor element to align the popup against.
-     * May automatically change to avoid collisions.
-     * @default 'top'
-     */
-    side?: Side;
-  }
+export interface TooltipPositionerProps
+  extends BaseUIComponentProps<'div', TooltipPositionerState>,
+    Omit<useAnchorPositioning.SharedParameters, 'side'> {
+  /**
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
+   * @default 'top'
+   */
+  side?: Side;
+}
+
+export namespace TooltipPositioner {
+  export type State = TooltipPositionerState;
+  export type Props = TooltipPositionerProps;
 }

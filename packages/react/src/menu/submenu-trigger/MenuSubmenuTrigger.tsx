@@ -103,29 +103,34 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   });
 });
 
-export namespace MenuSubmenuTrigger {
-  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
-    children?: React.ReactNode;
-    onClick?: React.MouseEventHandler<HTMLElement>;
-    /**
-     * Overrides the text label to use when the item is matched during keyboard text navigation.
-     */
-    label?: string;
-    /**
-     * @ignore
-     */
-    id?: string;
-  }
+export interface MenuSubmenuTriggerProps
+  extends NonNativeButtonProps,
+    BaseUIComponentProps<'div', MenuSubmenuTriggerState> {
+  children?: React.ReactNode;
+  onClick?: React.MouseEventHandler<HTMLElement>;
+  /**
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
+   */
+  label?: string;
+  /**
+   * @ignore
+   */
+  id?: string;
+}
 
-  export interface State {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    highlighted: boolean;
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-  }
+export interface MenuSubmenuTriggerState {
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  highlighted: boolean;
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+}
+
+export namespace MenuSubmenuTrigger {
+  export type Props = MenuSubmenuTriggerProps;
+  export type State = MenuSubmenuTriggerState;
 }

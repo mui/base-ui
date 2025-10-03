@@ -72,17 +72,22 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   return element;
 });
 
-export namespace PopoverTrigger {
-  export interface State {
-    /**
-     * Whether the popover is currently disabled.
-     */
-    disabled: boolean;
-    /**
-     * Whether the popover is currently open.
-     */
-    open: boolean;
-  }
+export interface PopoverTriggerState {
+  /**
+   * Whether the popover is currently disabled.
+   */
+  disabled: boolean;
+  /**
+   * Whether the popover is currently open.
+   */
+  open: boolean;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface PopoverTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', PopoverTriggerState> {}
+
+export namespace PopoverTrigger {
+  export type State = PopoverTriggerState;
+  export type Props = PopoverTriggerProps;
 }

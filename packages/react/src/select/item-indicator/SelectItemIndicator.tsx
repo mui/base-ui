@@ -14,7 +14,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
-  componentProps: SelectItemIndicator.Props,
+  componentProps: SelectItemIndicatorProps,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const keepMounted = componentProps.keepMounted ?? false;
@@ -35,7 +35,7 @@ export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator
 const Inner = React.memo(
   React.forwardRef(
     (
-      componentProps: SelectItemIndicator.Props,
+      componentProps: SelectItemIndicatorProps,
       forwardedRef: React.ForwardedRef<HTMLSpanElement>,
     ) => {
       const { render, className, keepMounted, ...elementProps } = componentProps;
@@ -46,7 +46,7 @@ const Inner = React.memo(
 
       const { mounted, transitionStatus, setMounted } = useTransitionStatus(selected);
 
-      const state: SelectItemIndicator.State = React.useMemo(
+      const state: SelectItemIndicatorState = React.useMemo(
         () => ({
           selected,
           transitionStatus,
@@ -54,7 +54,7 @@ const Inner = React.memo(
         [selected, transitionStatus],
       );
 
-      const element = useRenderElement('span', componentProps, {
+      const element = useRenderElement('span', componentProps as any, {
         ref: [forwardedRef, indicatorRef],
         state,
         props: [
@@ -83,18 +83,18 @@ const Inner = React.memo(
   ),
 );
 
-export namespace SelectItemIndicator {
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the HTML element in the DOM when the item is not selected.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface SelectItemIndicatorState {
+  selected: boolean;
+  transitionStatus: TransitionStatus;
+}
+export interface SelectItemIndicatorProps
+  extends BaseUIComponentProps<'span', SelectItemIndicatorState> {
+  children?: React.ReactNode;
+  /** Whether to keep the HTML element in the DOM when the item is not selected. */
+  keepMounted?: boolean;
+}
 
-  export interface State {
-    selected: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export namespace SelectItemIndicator {
+  export type State = SelectItemIndicatorState;
+  export type Props = SelectItemIndicatorProps;
 }

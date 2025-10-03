@@ -149,29 +149,33 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
   return <FloatingNode id={nodeId}>{props.children}</FloatingNode>;
 }
 
+export interface MenubarState {}
+
+export interface MenubarProps extends BaseUIComponentProps<'div', MenubarState> {
+  /**
+   * Whether the menubar is modal.
+   * @default true
+   */
+  modal?: boolean;
+  /**
+   * Whether the whole menubar is disabled.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * The orientation of the menubar.
+   * @default 'horizontal'
+   */
+  orientation?: MenuRoot.Orientation;
+  /**
+   * Whether to loop keyboard focus back to the first item
+   * when the end of the list is reached while using the arrow keys.
+   * @default true
+   */
+  loop?: boolean;
+}
+
 export namespace Menubar {
-  export interface State {}
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether the menubar is modal.
-     * @default true
-     */
-    modal?: boolean;
-    /**
-     * Whether the whole menubar is disabled.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * The orientation of the menubar.
-     * @default 'horizontal'
-     */
-    orientation?: MenuRoot.Orientation;
-    /**
-     * Whether to loop keyboard focus back to the first item
-     * when the end of the list is reached while using the arrow keys.
-     * @default true
-     */
-    loop?: boolean;
-  }
+  export type State = MenubarState;
+  export type Props = MenubarProps;
 }

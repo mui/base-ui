@@ -411,19 +411,22 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   return element;
 });
 
-export namespace ComboboxInput {
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the popup is open.
-     */
-    open: boolean;
-  }
+export interface ComboboxInputState extends FieldRoot.State {
+  /**
+   * Whether the popup is open.
+   */
+  open: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'input', State> {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface ComboboxInputProps extends BaseUIComponentProps<'input', ComboboxInputState> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+export namespace ComboboxInput {
+  export type State = ComboboxInputState;
+  export type Props = ComboboxInputProps;
 }

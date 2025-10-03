@@ -145,59 +145,69 @@ type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicEle
   ? React.JSX.IntrinsicElements[TagName]
   : React.HTMLAttributes<any>;
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export type useRenderElementParameters<
+  State,
+  RenderedElementType extends Element,
+  TagName,
+  Enabled extends boolean | undefined,
+> = {
+  /**
+   * If `false`, the hook will skip most of its internal logic and return `null`.
+   * This is useful for rendering a component conditionally.
+   * @default true
+   */
+  enabled?: Enabled;
+  /**
+   * @deprecated
+   */
+  propGetter?: (externalProps: HTMLProps) => HTMLProps;
+  /**
+   * The ref to apply to the rendered element.
+   */
+  ref?: React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[];
+  /**
+   * The state of the component.
+   */
+  state?: State;
+  /**
+   * Intrinsic props to be spread on the rendered element.
+   */
+  props?:
+    | RenderFunctionProps<TagName>
+    | Array<
+        | RenderFunctionProps<TagName>
+        | undefined
+        | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
+      >;
+  /**
+   * A mapping of state to `data-*` attributes.
+   */
+  stateAttributesMapping?: StateAttributesMapping<State>;
+};
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export interface useRenderElementComponentProps<State> {
+  /**
+   * The class name to apply to the rendered element.
+   * Can be a string or a function that accepts the state and returns a string.
+   */
+  className?: string | ((state: State) => string);
+  /**
+   * The render prop or React element to override the default element.
+   */
+  render?:
+    | undefined
+    | ComponentRenderFn<React.HTMLAttributes<any>, State>
+    | React.ReactElement<Record<string, unknown>>;
+}
+
 export namespace useRenderElement {
   export type Parameters<
     State,
     RenderedElementType extends Element,
     TagName,
     Enabled extends boolean | undefined,
-  > = {
-    /**
-     * If `false`, the hook will skip most of its internal logic and return `null`.
-     * This is useful for rendering a component conditionally.
-     * @default true
-     */
-    enabled?: Enabled;
-    /**
-     * @deprecated
-     */
-    propGetter?: (externalProps: HTMLProps) => HTMLProps;
-    /**
-     * The ref to apply to the rendered element.
-     */
-    ref?: React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[];
-    /**
-     * The state of the component.
-     */
-    state?: State;
-    /**
-     * Intrinsic props to be spread on the rendered element.
-     */
-    props?:
-      | RenderFunctionProps<TagName>
-      | Array<
-          | RenderFunctionProps<TagName>
-          | undefined
-          | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
-        >;
-    /**
-     * A mapping of state to `data-*` attributes.
-     */
-    stateAttributesMapping?: StateAttributesMapping<State>;
-  };
-
-  export interface ComponentProps<State> {
-    /**
-     * The class name to apply to the rendered element.
-     * Can be a string or a function that accepts the state and returns a string.
-     */
-    className?: string | ((state: State) => string);
-    /**
-     * The render prop or React element to override the default element.
-     */
-    render?:
-      | undefined
-      | ComponentRenderFn<React.HTMLAttributes<any>, State>
-      | React.ReactElement<Record<string, unknown>>;
-  }
+  > = useRenderElementParameters<State, RenderedElementType, TagName, Enabled>;
+  export type ComponentProps<State> = useRenderElementComponentProps<State>;
 }

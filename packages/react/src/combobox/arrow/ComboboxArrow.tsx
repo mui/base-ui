@@ -46,16 +46,19 @@ export const ComboboxArrow = React.forwardRef(function ComboboxArrow(
   });
 });
 
-export namespace ComboboxArrow {
-  export interface State {
-    /**
-     * Whether the popup is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    uncentered: boolean;
-  }
+export interface ComboboxArrowState {
+  /**
+   * Whether the popup is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ComboboxArrowProps extends BaseUIComponentProps<'div', ComboboxArrowState> {}
+
+export namespace ComboboxArrow {
+  export type State = ComboboxArrowState;
+  export type Props = ComboboxArrowProps;
 }

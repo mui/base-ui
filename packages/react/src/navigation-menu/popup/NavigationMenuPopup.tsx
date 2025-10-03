@@ -79,17 +79,21 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
   return element;
 });
 
-export namespace NavigationMenuPopup {
-  export interface State {
-    /**
-     * If `true`, the popup is open.
-     */
-    open: boolean;
-    /**
-     * The transition status of the popup.
-     */
-    transitionStatus: TransitionStatus;
-  }
+export interface NavigationMenuPopupState {
+  /**
+   * If `true`, the popup is open.
+   */
+  open: boolean;
+  /**
+   * The transition status of the popup.
+   */
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'nav', State> {}
+export interface NavigationMenuPopupProps
+  extends BaseUIComponentProps<'nav', NavigationMenuPopupState> {}
+
+export namespace NavigationMenuPopup {
+  export type State = NavigationMenuPopupState;
+  export type Props = NavigationMenuPopupProps;
 }

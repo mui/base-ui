@@ -56,14 +56,18 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
   return element;
 });
 
-export namespace PreviewCardBackdrop {
-  export interface State {
-    /**
-     * Whether the preview card is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface PreviewCardBackdropState {
+  /**
+   * Whether the preview card is currently open.
+   */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface PreviewCardBackdropProps
+  extends BaseUIComponentProps<'div', PreviewCardBackdropState> {}
+
+export namespace PreviewCardBackdrop {
+  export type State = PreviewCardBackdropState;
+  export type Props = PreviewCardBackdropProps;
 }

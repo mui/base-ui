@@ -67,16 +67,19 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   return element;
 });
 
-export namespace PreviewCardPopup {
-  export interface State {
-    /**
-     * Whether the preview card is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    transitionStatus: TransitionStatus;
-  }
+export interface PreviewCardPopupState {
+  /**
+   * Whether the preview card is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface PreviewCardPopupProps extends BaseUIComponentProps<'div', PreviewCardPopupState> {}
+
+export namespace PreviewCardPopup {
+  export type State = PreviewCardPopupState;
+  export type Props = PreviewCardPopupProps;
 }

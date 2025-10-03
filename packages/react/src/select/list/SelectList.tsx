@@ -53,8 +53,11 @@ export const SelectList = React.forwardRef(function SelectList(
   });
 });
 
-export namespace SelectList {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface SelectListProps extends BaseUIComponentProps<'div', SelectListState> {}
 
-  export interface State {}
+export interface SelectListState {}
+
+export namespace SelectList {
+  export type Props = SelectListProps;
+  export type State = SelectListState;
 }

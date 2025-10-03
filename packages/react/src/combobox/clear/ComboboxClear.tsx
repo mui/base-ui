@@ -142,29 +142,34 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   return element;
 });
 
-export namespace ComboboxClear {
-  export interface State {
-    /**
-     * Whether the popup is open.
-     */
-    open: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface ComboboxClearState {
+  /**
+   * Whether the popup is open.
+   */
+  open: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Whether the component should remain mounted in the DOM when not visible.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface ComboboxClearProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ComboboxClearState> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Whether the component should remain mounted in the DOM when not visible.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
+
+export namespace ComboboxClear {
+  export type State = ComboboxClearState;
+  export type Props = ComboboxClearProps;
 }

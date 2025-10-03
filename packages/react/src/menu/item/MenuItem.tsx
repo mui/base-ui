@@ -113,42 +113,47 @@ interface InnerMenuItemProps extends MenuItem.Props {
   nodeId: string | undefined;
 }
 
-export namespace MenuItem {
-  export interface State {
-    /**
-     * Whether the item should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the item is highlighted.
-     */
-    highlighted: boolean;
-  }
+export interface MenuItemState {
+  /**
+   * Whether the item should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the item is highlighted.
+   */
+  highlighted: boolean;
+}
 
-  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
-    children?: React.ReactNode;
-    /**
-     * The click handler for the menu item.
-     */
-    onClick?: React.MouseEventHandler<HTMLElement>;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Overrides the text label to use when the item is matched during keyboard text navigation.
-     */
-    label?: string;
-    /**
-     * @ignore
-     */
-    id?: string;
-    /**
-     * Whether to close the menu when the item is clicked.
-     *
-     * @default true
-     */
-    closeOnClick?: boolean;
-  }
+export interface MenuItemProps
+  extends NonNativeButtonProps,
+    BaseUIComponentProps<'div', MenuItemState> {
+  children?: React.ReactNode;
+  /**
+   * The click handler for the menu item.
+   */
+  onClick?: React.MouseEventHandler<HTMLElement>;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
+   */
+  label?: string;
+  /**
+   * @ignore
+   */
+  id?: string;
+  /**
+   * Whether to close the menu when the item is clicked.
+   *
+   * @default true
+   */
+  closeOnClick?: boolean;
+}
+
+export namespace MenuItem {
+  export type State = MenuItemState;
+  export type Props = MenuItemProps;
 }

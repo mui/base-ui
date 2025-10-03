@@ -28,8 +28,12 @@ export const AlertDialogDescription = React.forwardRef(function AlertDialogDescr
   });
 });
 
-export namespace AlertDialogDescription {
-  export interface Props extends BaseUIComponentProps<'p', State> {}
+export interface AlertDialogDescriptionProps
+  extends BaseUIComponentProps<'p', AlertDialogDescriptionState> {}
 
-  export interface State {}
+export interface AlertDialogDescriptionState {}
+
+export namespace AlertDialogDescription {
+  export type Props = AlertDialogDescriptionProps;
+  export type State = AlertDialogDescriptionState;
 }

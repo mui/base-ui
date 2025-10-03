@@ -117,46 +117,54 @@ export const Toggle = React.forwardRef(function Toggle(
   return element;
 });
 
+export interface ToggleState {
+  /**
+   * Whether the toggle is currently pressed.
+   */
+  pressed: boolean;
+  /**
+   * Whether the toggle should ignore user interaction.
+   */
+  disabled: boolean;
+}
+
+export interface ToggleProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ToggleState> {
+  /**
+   * Whether the toggle button is currently pressed.
+   * This is the controlled counterpart of `defaultPressed`.
+   */
+  pressed?: boolean;
+  /**
+   * Whether the toggle button is currently pressed.
+   * This is the uncontrolled counterpart of `pressed`.
+   * @default false
+   */
+  defaultPressed?: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Callback fired when the pressed state is changed.
+   */
+  onPressedChange?: (pressed: boolean, eventDetails: ToggleChangeEventDetails) => void;
+  /**
+   * A unique string that identifies the toggle when used
+   * inside a toggle group.
+   */
+  value?: string;
+}
+
+export type ToggleChangeEventReason = 'none';
+
+export type ToggleChangeEventDetails = BaseUIChangeEventDetails<ToggleChangeEventReason>;
+
 export namespace Toggle {
-  export interface State {
-    /**
-     * Whether the toggle is currently pressed.
-     */
-    pressed: boolean;
-    /**
-     * Whether the toggle should ignore user interaction.
-     */
-    disabled: boolean;
-  }
-
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the toggle button is currently pressed.
-     * This is the controlled counterpart of `defaultPressed`.
-     */
-    pressed?: boolean;
-    /**
-     * Whether the toggle button is currently pressed.
-     * This is the uncontrolled counterpart of `pressed`.
-     * @default false
-     */
-    defaultPressed?: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Callback fired when the pressed state is changed.
-     */
-    onPressedChange?: (pressed: boolean, eventDetails: ChangeEventDetails) => void;
-    /**
-     * A unique string that identifies the toggle when used
-     * inside a toggle group.
-     */
-    value?: string;
-  }
-
-  export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type State = ToggleState;
+  export type Props = ToggleProps;
+  export type ChangeEventReason = ToggleChangeEventReason;
+  export type ChangeEventDetails = ToggleChangeEventDetails;
 }

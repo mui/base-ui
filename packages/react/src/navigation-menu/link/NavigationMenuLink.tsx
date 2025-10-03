@@ -76,24 +76,28 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   );
 });
 
-export namespace NavigationMenuLink {
-  export interface State {
-    /**
-     * Whether the link is the currently active page.
-     */
-    active: boolean;
-  }
+export interface NavigationMenuLinkState {
+  /**
+   * Whether the link is the currently active page.
+   */
+  active: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'a', State> {
-    /**
-     * Whether the link is the currently active page.
-     * @default false
-     */
-    active?: boolean;
-    /**
-     * Whether to close the navigation menu when the link is clicked.
-     * @default false
-     */
-    closeOnClick?: boolean;
-  }
+export interface NavigationMenuLinkProps
+  extends BaseUIComponentProps<'a', NavigationMenuLinkState> {
+  /**
+   * Whether the link is the currently active page.
+   * @default false
+   */
+  active?: boolean;
+  /**
+   * Whether to close the navigation menu when the link is clicked.
+   * @default false
+   */
+  closeOnClick?: boolean;
+}
+
+export namespace NavigationMenuLink {
+  export type State = NavigationMenuLinkState;
+  export type Props = NavigationMenuLinkProps;
 }

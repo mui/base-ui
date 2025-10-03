@@ -108,17 +108,21 @@ export const Form = React.forwardRef(function Form(
   return <FormContext.Provider value={contextValue}>{element}</FormContext.Provider>;
 });
 
+export interface FormState {}
+
+export interface FormProps extends BaseUIComponentProps<'form', FormState> {
+  /**
+   * An object where the keys correspond to the `name` attribute of the form fields,
+   * and the values correspond to the error(s) related to that field.
+   */
+  errors?: FormContext['errors'];
+  /**
+   * Event handler called when the `errors` object is cleared.
+   */
+  onClearErrors?: (errors: FormContext['errors']) => void;
+}
+
 export namespace Form {
-  export interface Props extends BaseUIComponentProps<'form', State> {
-    /**
-     * An object where the keys correspond to the `name` attribute of the form fields,
-     * and the values correspond to the error(s) related to that field.
-     */
-    errors?: FormContext['errors'];
-    /**
-     * Event handler called when the `errors` object is cleared.
-     */
-    onClearErrors?: (errors: FormContext['errors']) => void;
-  }
-  export interface State {}
+  export type Props = FormProps;
+  export type State = FormState;
 }

@@ -235,42 +235,45 @@ export function useNumberFieldButton(
   );
 }
 
-export namespace useNumberFieldButton {
-  export interface Parameters {
-    allowInputSyncRef: React.RefObject<boolean | null>;
-    disabled: boolean;
-    formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
-    getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
-    id: string | undefined;
-    incrementValue: (
-      amount: number,
-      dir: 1 | -1,
-      currentValue?: number | null,
-      event?: Event,
-    ) => void;
-    inputRef: React.RefObject<HTMLInputElement | null>;
-    inputValue: string;
-    intentionalTouchCheckTimeout: Timeout;
-    isIncrement: boolean;
-    isPressedRef: React.RefObject<boolean | null>;
-    locale?: Intl.LocalesArgument;
-    maxWithDefault: number;
-    minWithDefault: number;
-    movesAfterTouchRef: React.RefObject<number | null>;
-    readOnly: boolean;
-    setValue: (unvalidatedValue: number | null, event?: Event) => void;
-    startAutoChange: (isIncrement: boolean, event?: React.MouseEvent | Event) => void;
-    stopAutoChange: () => void;
-    value: number | null;
-    valueRef: React.RefObject<number | null>;
-    lastChangedValueRef: React.RefObject<number | null>;
-    onValueCommitted: (
-      value: number | null,
-      eventDetails: NumberFieldRoot.CommitEventDetails,
-    ) => void;
-  }
+export interface useNumberFieldButtonParameters {
+  allowInputSyncRef: React.RefObject<boolean | null>;
+  disabled: boolean;
+  formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
+  getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
+  id: string | undefined;
+  incrementValue: (
+    amount: number,
+    dir: 1 | -1,
+    currentValue?: number | null,
+    event?: Event,
+  ) => void;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  inputValue: string;
+  intentionalTouchCheckTimeout: Timeout;
+  isIncrement: boolean;
+  isPressedRef: React.RefObject<boolean | null>;
+  locale?: Intl.LocalesArgument;
+  maxWithDefault: number;
+  minWithDefault: number;
+  movesAfterTouchRef: React.RefObject<number | null>;
+  readOnly: boolean;
+  setValue: (unvalidatedValue: number | null, event?: Event) => void;
+  startAutoChange: (isIncrement: boolean, event?: React.MouseEvent | Event) => void;
+  stopAutoChange: () => void;
+  value: number | null;
+  valueRef: React.RefObject<number | null>;
+  lastChangedValueRef: React.RefObject<number | null>;
+  onValueCommitted: (
+    value: number | null,
+    eventDetails: NumberFieldRoot.CommitEventDetails,
+  ) => void;
+}
 
-  export interface ReturnValue {
-    props: HTMLProps;
-  }
+export interface useNumberFieldButtonReturnValue {
+  props: HTMLProps;
+}
+
+export namespace useNumberFieldButton {
+  export type Parameters = useNumberFieldButtonParameters;
+  export type ReturnValue = useNumberFieldButtonReturnValue;
 }

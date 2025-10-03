@@ -55,17 +55,22 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   });
 });
 
-export namespace DialogTrigger {
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface DialogTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', DialogTriggerState> {}
 
-  export interface State {
-    /**
-     * Whether the dialog is currently disabled.
-     */
-    disabled: boolean;
-    /**
-     * Whether the dialog is currently open.
-     */
-    open: boolean;
-  }
+export interface DialogTriggerState {
+  /**
+   * Whether the dialog is currently disabled.
+   */
+  disabled: boolean;
+  /**
+   * Whether the dialog is currently open.
+   */
+  open: boolean;
+}
+
+export namespace DialogTrigger {
+  export type Props = DialogTriggerProps;
+  export type State = DialogTriggerState;
 }
