@@ -4,16 +4,14 @@ import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 /**
  * A portal element that moves the viewport to a different part of the DOM.
  * By default, the portal element is appended to `<body>`.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
 export const ToastPortal = FloatingPortalLite;
 
 export namespace ToastPortal {
-  export interface Props extends FloatingPortalLite.Props {
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: FloatingPortalLite.Props['container'];
-  }
+  export interface State {}
+
+  export type Props = FloatingPortalLite.Props<State>;
 }

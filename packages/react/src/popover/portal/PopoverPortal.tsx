@@ -7,6 +7,7 @@ import { PopoverPortalContext } from './PopoverPortalContext';
 /**
  * A portal element that moves the popup to a different part of the DOM.
  * By default, the portal element is appended to `<body>`.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
@@ -14,7 +15,7 @@ export const PopoverPortal = React.forwardRef(function PopoverPortal(
   props: PopoverPortal.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, keepMounted = false, ...portalProps } = props;
+  const { keepMounted = false, ...portalProps } = props;
 
   const { mounted } = usePopoverRootContext();
 
@@ -25,23 +26,19 @@ export const PopoverPortal = React.forwardRef(function PopoverPortal(
 
   return (
     <PopoverPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps}>
-        {children}
-      </FloatingPortal>
+      <FloatingPortal ref={forwardedRef} {...portalProps} />
     </PopoverPortalContext.Provider>
   );
 });
 
 export namespace PopoverPortal {
-  export interface Props extends FloatingPortal.Props {
+  export interface State {}
+
+  export interface Props extends FloatingPortal.Props<State> {
     /**
      * Whether to keep the portal mounted in the DOM while the popup is hidden.
      * @default false
      */
     keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: FloatingPortal.Props['container'];
   }
 }

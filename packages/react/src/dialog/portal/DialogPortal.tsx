@@ -15,7 +15,7 @@ export const DialogPortal = React.forwardRef(function DialogPortal(
   props: DialogPortal.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, keepMounted = false, ...portalProps } = props;
+  const { keepMounted = false, ...portalProps } = props;
 
   const { store } = useDialogRootContext();
   const mounted = store.useState('mounted');
@@ -27,15 +27,15 @@ export const DialogPortal = React.forwardRef(function DialogPortal(
 
   return (
     <DialogPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps}>
-        {children}
-      </FloatingPortal>
+      <FloatingPortal ref={forwardedRef} {...portalProps} />
     </DialogPortalContext.Provider>
   );
 });
 
 export namespace DialogPortal {
-  export interface Props extends FloatingPortal.Props {
+  export interface State {}
+
+  export interface Props extends FloatingPortal.Props<State> {
     /**
      * Whether to keep the portal mounted in the DOM while the popup is hidden.
      * @default false
@@ -44,6 +44,6 @@ export namespace DialogPortal {
     /**
      * A parent element to render the portal element into.
      */
-    container?: FloatingPortal.Props['container'];
+    container?: FloatingPortal.Props<State>['container'];
   }
 }

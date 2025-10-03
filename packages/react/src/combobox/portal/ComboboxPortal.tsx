@@ -9,12 +9,13 @@ import { selectors } from '../store';
 /**
  * A portal element that moves the popup to a different part of the DOM.
  * By default, the portal element is appended to `<body>`.
+ * Renders a `<div>` element.
  */
 export const ComboboxPortal = React.forwardRef(function ComboboxPortal(
   props: ComboboxPortal.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, keepMounted = false, ...portalProps } = props;
+  const { keepMounted = false, ...portalProps } = props;
 
   const store = useComboboxRootContext();
 
@@ -28,24 +29,19 @@ export const ComboboxPortal = React.forwardRef(function ComboboxPortal(
 
   return (
     <ComboboxPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps}>
-        {children}
-      </FloatingPortal>
+      <FloatingPortal ref={forwardedRef} {...portalProps} />
     </ComboboxPortalContext.Provider>
   );
 });
 
 export namespace ComboboxPortal {
-  export interface Props extends FloatingPortal.Props {
-    children?: React.ReactNode;
+  export interface State {}
+
+  export interface Props extends FloatingPortal.Props<State> {
     /**
      * Whether to keep the portal mounted in the DOM while the popup is hidden.
      * @default false
      */
     keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: FloatingPortal.Props['container'];
   }
 }

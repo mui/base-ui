@@ -79,6 +79,7 @@ export function useFloatingPortalNode(
   }, []);
 
   useIsoLayoutEffect(() => {
+    // Wait for the container to be resolved if explicitly `null`.
     if (containerProp === null) {
       if (containerRef.current) {
         containerRef.current = null;
@@ -93,11 +94,10 @@ export function useFloatingPortalNode(
       return;
     }
 
-    const defaultContainer = typeof document !== 'undefined' ? document.body : null;
     const resolvedContainer =
       (containerProp && (isNode(containerProp) ? containerProp : containerProp.current)) ??
       parentPortalNode ??
-      defaultContainer;
+      document.body;
 
     if (resolvedContainer == null) {
       if (containerRef.current) {
@@ -115,25 +115,20 @@ export function useFloatingPortalNode(
     }
   }, [containerProp, parentPortalNode, uniqueId]);
 
-  const enabled = containerElement != null && uniqueId != null;
-
-  const basePortalProps = React.useMemo(() => {
-    if (!enabled) {
-      return undefined;
-    }
-    return {
-      id: uniqueId,
-      [attr]: '',
-    };
-  }, [enabled, uniqueId]);
-
   const portalElement = useRenderElement('div', componentProps, {
-    enabled,
     ref: [ref, setPortalNodeRef],
     state: elementState,
-    props: enabled && basePortalProps ? [elementProps, basePortalProps] : elementProps,
+    props: [
+      {
+        id: uniqueId,
+        [attr]: '',
+      },
+      elementProps,
+    ],
   });
 
+  // This `createPortal` call injects `portalElement` into the `container`.
+  // Another call inside `FloatingPortal`/`FloatingPortalLite` then injects the children into `portalElement`.
   const portalSubtree =
     containerElement && portalElement
       ? ReactDOM.createPortal(portalElement, containerElement)
@@ -155,12 +150,10 @@ export function useFloatingPortalNode(
  * @internal
  */
 export const FloatingPortal = React.forwardRef(function FloatingPortal(
-  componentProps: FloatingPortal.Props,
+  componentProps: FloatingPortal.Props<any>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { children, container, className, render, ...elementProps } = componentProps;
-
-  const [focusManagerState, setFocusManagerState] = React.useState<FocusManagerState>(null);
 
   const { portalNode, portalSubtree } = useFloatingPortalNode({
     container,
@@ -174,6 +167,8 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   const beforeInsideRef = React.useRef<HTMLSpanElement>(null);
   const afterInsideRef = React.useRef<HTMLSpanElement>(null);
 
+  const [focusManagerState, setFocusManagerState] = React.useState<FocusManagerState>(null);
+
   const modal = focusManagerState?.modal;
   const open = focusManagerState?.open;
 
@@ -185,6 +180,9 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
       return undefined;
     }
 
+    // Make sure elements inside the portal element are tabbable only when the
+    // portal has already been focused, either by tabbing into a focus trap
+    // element outside or using the mouse.
     function onFocus(event: FocusEvent) {
       if (portalNode && isOutsideEvent(event)) {
         const focusing = event.type === 'focusin';
@@ -193,6 +191,8 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
       }
     }
 
+    // Listen to the event on the capture phase so they run before the focus
+    // trap elements onFocus prop is called.
     portalNode.addEventListener('focusin', onFocus, true);
     portalNode.addEventListener('focusout', onFocus, true);
     return () => {
@@ -208,22 +208,22 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     enableFocusInside(portalNode);
   }, [open, portalNode]);
 
+  const portalContextValue = React.useMemo(
+    () => ({
+      beforeOutsideRef,
+      afterOutsideRef,
+      beforeInsideRef,
+      afterInsideRef,
+      portalNode,
+      setFocusManagerState,
+    }),
+    [portalNode],
+  );
+
   return (
     <React.Fragment>
       {portalSubtree}
-      <PortalContext.Provider
-        value={React.useMemo(
-          () => ({
-            beforeOutsideRef,
-            afterOutsideRef,
-            beforeInsideRef,
-            afterInsideRef,
-            portalNode,
-            setFocusManagerState,
-          }),
-          [portalNode],
-        )}
-      >
+      <PortalContext.Provider value={portalContextValue}>
         {shouldRenderGuards && portalNode && (
           <FocusGuard
             data-type="outside"
@@ -271,12 +271,9 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
 });
 
 export namespace FloatingPortal {
-  export interface State {}
-
-  export interface Props extends BaseUIComponentProps<'div', {}> {
-    children?: React.ReactNode;
+  export interface Props<State> extends BaseUIComponentProps<'div', State> {
     /**
-     * Specifies the container node the portal element will be appended to.
+     * A parent element to render the portal element into.
      */
     container?: UseFloatingPortalNodeProps['container'];
   }

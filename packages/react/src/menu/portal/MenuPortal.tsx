@@ -7,6 +7,7 @@ import { MenuPortalContext } from './MenuPortalContext';
 /**
  * A portal element that moves the popup to a different part of the DOM.
  * By default, the portal element is appended to `<body>`.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
@@ -14,7 +15,7 @@ export const MenuPortal = React.forwardRef(function MenuPortal(
   props: MenuPortal.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, keepMounted = false, ...portalProps } = props;
+  const { keepMounted = false, ...portalProps } = props;
 
   const { mounted } = useMenuRootContext();
 
@@ -25,23 +26,19 @@ export const MenuPortal = React.forwardRef(function MenuPortal(
 
   return (
     <MenuPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps}>
-        {children}
-      </FloatingPortal>
+      <FloatingPortal ref={forwardedRef} {...portalProps} />
     </MenuPortalContext.Provider>
   );
 });
 
 export namespace MenuPortal {
-  export interface Props extends FloatingPortal.Props {
+  export interface State {}
+
+  export interface Props extends FloatingPortal.Props<State> {
     /**
      * Whether to keep the portal mounted in the DOM while the popup is hidden.
      * @default false
      */
     keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: FloatingPortal.Props['container'];
   }
 }

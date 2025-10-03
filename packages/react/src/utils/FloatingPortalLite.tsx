@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useFloatingPortalNode, type FloatingPortal } from '../floating-ui-react';
-import type { BaseUIComponentProps } from '../utils/types';
 
 /**
  * `FloatingPortal` includes tabbable logic handling for focus management.
@@ -10,12 +9,10 @@ import type { BaseUIComponentProps } from '../utils/types';
  * @internal
  */
 export const FloatingPortalLite = React.forwardRef(function FloatingPortalLite(
-  props: FloatingPortalLite.Props,
+  componentProps: FloatingPortalLite.Props<any>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, container, className, render, ...elementProps } = props;
-
-  const componentProps = React.useMemo(() => ({ className, render }), [className, render]);
+  const { children, container, className, render, ...elementProps } = componentProps;
 
   const { portalNode, portalSubtree } = useFloatingPortalNode({
     container,
@@ -37,11 +34,5 @@ export const FloatingPortalLite = React.forwardRef(function FloatingPortalLite(
 });
 
 export namespace FloatingPortalLite {
-  export interface State {}
-
-  export interface Props
-    extends BaseUIComponentProps<'div', State, React.HTMLAttributes<HTMLDivElement>> {
-    children?: React.ReactNode;
-    container?: FloatingPortal.Props['container'];
-  }
+  export type Props<State> = FloatingPortal.Props<State>;
 }
