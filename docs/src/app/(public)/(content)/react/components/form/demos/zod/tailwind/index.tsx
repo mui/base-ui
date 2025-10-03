@@ -2,12 +2,10 @@ import * as React from 'react';
 import { z } from 'zod';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
-import { Textarea } from '@base-ui-components/react/textarea';
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
   age: z.coerce.number('Age must be a number').positive('Age must be a positive number'),
-  notes: z.string().optional(),
 });
 
 async function submitForm(event: React.FormEvent<HTMLFormElement>) {
@@ -53,15 +51,6 @@ export default function Page() {
         <Field.Control
           placeholder="Enter age"
           className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
-        />
-        <Field.Error className="text-sm text-red-800" />
-      </Field.Root>
-
-      <Field.Root name="notes" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-medium text-gray-900">Notes</Field.Label>
-        <Textarea
-          placeholder="Enter notes"
-          className="w-full rounded-md border border-gray-200 px-3.5 py-2 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
         <Field.Error className="text-sm text-red-800" />
       </Field.Root>
