@@ -83,6 +83,10 @@
     user-select: text;
   }
 
+  .DemoFilename:hover {
+    text-decoration: underline;
+  }
+
   .DemoTabsList {
     display: flex;
     gap: 1rem;
