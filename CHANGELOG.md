@@ -1,5 +1,147 @@
 # Versions
 
+## v1.0.0-beta.4
+
+_Oct 1, 2025_
+
+### General changes
+
+- **Breaking change:** Generic event details.
+  The main exported type is now `BaseUIChangeEventDetails` (with a paired `BaseUIGenericEventDetails`), not `BaseUIEventDetails`.
+  (#2796) by @atomiks
+- Update `disabled` prop of buttons when ref changes (#2756) by @chuganzy
+- Refine event details (#2698) by @atomiks
+
+### Accordion
+
+- **Breaking change:** Use `useId` instead of composite index as fallback value.
+  Accordion items must have an explicit `value` set in order to be initially open. Inferring the value by their DOM index is no longer supported.
+  (#2664) by @mj12albert
+- **Breaking change:** Rename `openMultiple` prop to `multiple`
+  (#2764) by @LukasTy
+
+### Autocomplete
+
+- **Breaking change:** Rename `cols` to `grid` prop.
+  Specify `grid={true}` instead of `cols={number}` - the columns are automatically inferred from `Autocomplete.Row`
+  (#2683) by @atomiks
+- Fix duplicate `onOpenChange` calls and pass correct DOM `event`.
+  (#2682) by @atomiks
+- Fix controlled input value updates (#2707) by @atomiks
+- Fix input focus on close when clicking trigger (#2723) by @atomiks
+- Add `alwaysSubmitOnEnter` prop and allow form submission on <kbd>Enter</kbd> if no item is highlighted by default (#2700) by @atomiks
+- Use `ReadonlyArray` type for `items` (#2819) by @atomiks
+
+### Collapsible
+
+- Fix CollapsiblePanel type to use its own state (#2697) by @chuganzy
+- Respect user's CSS `display` property on panel (#2772) by @mj12albert
+
+### Combobox
+
+- **Breaking change**: `onItemHighlighted` now has a `reason` property instead of `type` to be consistent with the `eventDetails` API. (#2796) by @atomiks
+- **Breaking change:** Rename `cols` to `grid` prop.
+  Specify `grid={true}` instead of `cols={number}` - the columns are automatically inferred from `Combobox.Row`
+  (#2683) by @atomiks
+- Fix duplicate `onOpenChange` calls and pass correct DOM `event`.
+  (#2682) by @atomiks
+- Fix initial closed typeahead (#2665) by @atomiks
+- Support `autoHighlight` prop (#2668) by @atomiks
+- Set default input value based on `value` prop (#2680) by @atomiks
+- Fix controlled input value updates (#2707) by @atomiks
+- Fix input focus on close when clicking trigger. Fixes a jump to the bottom of the page in Safari (#2723) by @atomiks
+- Fix unexpected close with multiple selection and input inside popup (#2771) by @atomiks
+- Allow form submission on <kbd>Enter</kbd> if no item is highlighted by default (#2700) by @atomiks
+- Avoid refiltering with ending transition in multiple selection mode (#2681) by @atomiks
+- Support object values with `isItemEqualToValue` prop (#2704) by @atomiks
+- Use `ReadonlyArray` type for `items` (#2819) by @atomiks
+- Fix misleading `item-press` reason in `onInputValueChange` (#2830) by @atomiks
+- Clear single-select value on input clear (#2860) by @atomiks
+- Fix `focusout` of input not closing popup under certain conditions (#2864)
+
+### Context Menu
+
+- Ensure submenus close when parents close (#2768) by @atomiks
+- Fix `onClick` firing twice on first click of item (#2849) by @atomiks
+
+### Menu
+
+- Ensure submenus close when parents close (#2768) by @atomiks
+- Allow non-nested portals across differing popup trees (#2818) by @atomiks
+
+### Menubar
+
+- Fix Menubar not disabling child Menus (#2736) by @aarongarciah
+- Ensure submenus close when parents close (#2768) by @atomiks
+- Fix `CompositeList` not updating item order on reordering (#2675) by @chuganzy
+
+### Navigation Menu
+
+- Make link close on click configurable (#2740) by @atomiks
+- Fix focus returning to trigger without animations (#2779) by @atomiks
+- Fix `CompositeList` not updating item order on reordering (#2675) by @chuganzy
+
+### Number Field
+
+- Fix stuck virtual cursor after mouse tap (#2720) by @atomiks
+- Improve parsing logic (#2725) by @atomiks
+- Align value changes with `Slider`. An `onValueCommitted` callback has been added. (#2726) by @atomiks
+
+### Popover
+
+- Allow non-nested portals across differing popup trees (#2818) by @atomiks
+
+### Scroll Area
+
+- Add overflow presence state attributes and CSS variables (#2478) by @atomiks
+- Fix RTL horizontal scrollbar on Safari (#2776) by @atomiks
+- Fix thumb size flicker (#2778) by @atomiks
+
+### Select
+
+- **Breaking change:** Add `Select.List` component. It is now possible for `Select.ScrollArrow` to show when in fallback (`alignItemWithTrigger` deactivated). As a result, if you want the scroll arrows to be hidden in this mode like before, change the styles to default to `display: none` on `.ScrollArrow`, and `display: block` when `[data-side="none"]`. (#2596) by @atomiks
+- Block opening the popup when provided `readOnly` (#2717) by @seongminn
+- Add `open` state for `Select.Icon` and fix `ref` type (#2714) by @seongminn
+- Support object values with `isItemEqualToValue` prop (#2704) by @atomiks
+- Use `ReadonlyArray` type for `items` (#2819) by @atomiks
+
+### Slider
+
+- **Breaking change:** `onValueChange` has `activeThumbIndex` as part of the `eventDetails` object as a second parameter, not third. (#2796) by @atomiks
+- **Breaking change:** Remove redundant hidden inputs.
+  The `inputRef` prop is moved from `Root` to `Thumb`.
+  (#2631) by @mj12albert
+- Fix pointer tracking bugs (#2688) by @mj12albert
+- Fix input attributes (#2728) by @mj12albert
+- Add `thumbAlignment` prop (#2540) by @mj12albert
+
+### Switch
+
+- Fix duplicate `name` attribute (#2763) by @mj12albert
+
+### Toast
+
+- **Breaking change:** Support variable height stacking.
+  Toasts that have varying heights no longer force a `data-expanded` expanded state on the viewport. CSS should be amended to ensure larger toasts don't overflow a small toast stacked at the front. See this [diff](https://github.com/mui/base-ui/pull/2742/files#diff-e378460dafb74fe0c90ef960ad0ef1c38d68d74b63815520bb437f9041361917) for new styles, along with general improvements to stacking styles.
+  (#2742) by @atomiks
+- Reduce stickiness of expanded state (#2770) by @atomiks
+- Ensure toast is frozen at its current visual transform while swiping (#2769) by @atomiks
+
+### Toggle Group
+
+- **Breaking change:** Rename `toggleMultiple` prop to `multiple`.
+  (#2764) by @LukasTy
+
+### Toolbar
+
+- Fix `CompositeList` not updating item order on reordering (#2675) by @chuganzy
+
+### useRender
+
+- Add div as a `defaultTagName` (#2692) by @mnajdova
+
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @brijeshb42, @chuganzy, @Copilot, @Janpot, @LukasTy, @martenbjork, @michaldudak, @mj12albert, @mnajdova, @oliviertassinari, @seongminn, @sukvvon, @vladmoroz
+
 ## v1.0.0-beta.3
 
 _Sep 3, 2025_
