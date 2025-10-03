@@ -47,7 +47,7 @@ export default function PopoverDetachedTriggersControlledDemo() {
         triggerId={triggerId}
       >
         <Popover.Portal>
-          <Popover.Positioner sideOffset={8}>
+          <Popover.Positioner className={styles.Positioner} sideOffset={8}>
             <Popover.Popup className={styles.Popup}>
               <Popover.Arrow className={styles.Arrow}>
                 <ArrowSvg />

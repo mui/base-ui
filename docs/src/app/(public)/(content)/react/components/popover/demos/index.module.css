@@ -39,6 +39,12 @@
   height: 1.25rem;
 }
 
+.Positioner {
+  width: var(--positioner-width);
+  height: var(--positioner-height);
+  max-width: var(--available-width);
+}
+
 .Popup {
   box-sizing: border-box;
   padding: 1rem 1.5rem;
@@ -49,6 +55,10 @@
   transition:
     transform 150ms,
     opacity 150ms;
+
+  width: var(--popup-width, auto);
+  height: var(--popup-height, auto);
+  max-width: 500px;
 
   &[data-starting-style],
   &[data-ending-style] {
