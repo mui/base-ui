@@ -1,5 +1,5 @@
 {
-  "name": "SelectRoot",
+  "name": "Select.Root",
   "description": "Groups all parts of the select.\nDoesn’t render its own HTML element.",
   "props": {
     "name": {

@@ -1,5 +1,5 @@
 {
-  "name": "SelectItemText",
+  "name": "Select.ItemText",
   "description": "A text label of the select item.\nRenders a `<div>` element.",
   "props": {
     "className": {

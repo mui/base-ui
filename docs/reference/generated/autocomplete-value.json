@@ -1,5 +1,5 @@
 {
-  "name": "AutocompleteValue",
+  "name": "Autocomplete.Value",
   "description": "The current value of the autocomplete.\nDoesn't render its own HTML element.",
   "props": {
     "children": {

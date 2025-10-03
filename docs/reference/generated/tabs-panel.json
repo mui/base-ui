@@ -1,5 +1,5 @@
 {
-  "name": "TabsPanel",
+  "name": "Tabs.Panel",
   "description": "A panel displayed when the corresponding tab is active.\nRenders a `<div>` element.",
   "props": {
     "value": {

@@ -77,16 +77,20 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   return element;
 });
 
-export namespace CheckboxIndicator {
-  export interface State extends CheckboxRoot.State {
-    transitionStatus: TransitionStatus;
-  }
+export interface CheckboxIndicatorState extends CheckboxRoot.State {
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    /**
-     * Whether to keep the element in the DOM when the checkbox is not checked.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface CheckboxIndicatorProps
+  extends BaseUIComponentProps<'span', CheckboxIndicator.State> {
+  /**
+   * Whether to keep the element in the DOM when the checkbox is not checked.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
+
+export namespace CheckboxIndicator {
+  export type State = CheckboxIndicatorState;
+  export type Props = CheckboxIndicatorProps;
 }

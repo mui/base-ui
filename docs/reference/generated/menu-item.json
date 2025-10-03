@@ -1,5 +1,5 @@
 {
-  "name": "MenuItem",
+  "name": "Menu.Item",
   "description": "An individual interactive item in the menu.\nRenders a `<div>` element.",
   "props": {
     "label": {

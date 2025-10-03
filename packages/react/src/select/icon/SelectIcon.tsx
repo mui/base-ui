@@ -29,7 +29,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
     [open],
   );
 
-  const element = useRenderElement('span', componentProps, {
+  const element = useRenderElement('span', componentProps as any, {
     state,
     ref: forwardedRef,
     props: [{ 'aria-hidden': true, children: '▼' }, elementProps],
@@ -39,8 +39,10 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
   return element;
 });
 
-export namespace SelectIcon {
-  export interface State {}
+export interface SelectIconState {}
+export interface SelectIconProps extends BaseUIComponentProps<'span', SelectIcon.State> {}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+export namespace SelectIcon {
+  export type State = SelectIconState;
+  export type Props = SelectIconProps;
 }

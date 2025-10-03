@@ -1,5 +1,5 @@
 {
-  "name": "MeterTrack",
+  "name": "Meter.Track",
   "description": "Contains the meter indicator and represents the entire range of the meter.\nRenders a `<div>` element.",
   "props": {
     "className": {

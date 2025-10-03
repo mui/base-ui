@@ -28,17 +28,19 @@ export function AlertDialogPortal(props: AlertDialogPortal.Props) {
   );
 }
 
+export interface AlertDialogPortalProps {
+  children?: React.ReactNode;
+  /**
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?: FloatingPortalProps['root'];
+}
+
 export namespace AlertDialogPortal {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the portal mounted in the DOM while the popup is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: FloatingPortalProps['root'];
-  }
+  export type Props = AlertDialogPortalProps;
 }

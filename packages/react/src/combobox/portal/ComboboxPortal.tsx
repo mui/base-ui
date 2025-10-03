@@ -30,17 +30,19 @@ export function ComboboxPortal(props: ComboboxPortal.Props) {
   );
 }
 
+export interface ComboboxPortalProps {
+  children?: React.ReactNode;
+  /**
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
+}
+
 export namespace ComboboxPortal {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the portal mounted in the DOM while the popup is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
-  }
+  export type Props = ComboboxPortalProps;
 }

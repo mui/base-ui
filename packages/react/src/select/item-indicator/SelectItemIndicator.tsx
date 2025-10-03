@@ -54,7 +54,7 @@ const Inner = React.memo(
         [selected, transitionStatus],
       );
 
-      const element = useRenderElement('span', componentProps, {
+      const element = useRenderElement('span', componentProps as any, {
         ref: [forwardedRef, indicatorRef],
         state,
         props: [
@@ -83,18 +83,18 @@ const Inner = React.memo(
   ),
 );
 
-export namespace SelectItemIndicator {
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the HTML element in the DOM when the item is not selected.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface SelectItemIndicatorState {
+  selected: boolean;
+  transitionStatus: TransitionStatus;
+}
+export interface SelectItemIndicatorProps
+  extends BaseUIComponentProps<'span', SelectItemIndicator.State> {
+  children?: React.ReactNode;
+  /** Whether to keep the HTML element in the DOM when the item is not selected. */
+  keepMounted?: boolean;
+}
 
-  export interface State {
-    selected: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export namespace SelectItemIndicator {
+  export type State = SelectItemIndicatorState;
+  export type Props = SelectItemIndicatorProps;
 }

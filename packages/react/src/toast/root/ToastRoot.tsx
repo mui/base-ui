@@ -565,42 +565,34 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   return <ToastRootContext.Provider value={toastRoot}>{element}</ToastRootContext.Provider>;
 });
 
+export type ToastRootToastObject<Data extends object = any> = ToastObjectType<Data>;
+export interface ToastRootState {
+  transitionStatus: TransitionStatus;
+  /** Whether the toasts in the viewport are expanded. */
+  expanded: boolean;
+  /** Whether the toast was removed due to exceeding the limit. */
+  limited: boolean;
+  /** The type of the toast. */
+  type: string | undefined;
+  /** Whether the toast is being swiped. */
+  swiping: boolean;
+  /** The direction the toast is being swiped. */
+  swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
+}
+export interface ToastRootProps extends BaseUIComponentProps<'div', ToastRoot.State> {
+  /**
+   * The toast to render.
+   */
+  toast: ToastRootToastObject<any>;
+  /**
+   * Direction(s) in which the toast can be swiped to dismiss.
+   * @default ['down', 'right']
+   */
+  swipeDirection?: 'up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[];
+}
+
 export namespace ToastRoot {
-  export type ToastObject<Data extends object = any> = ToastObjectType<Data>;
-
-  export interface State {
-    transitionStatus: TransitionStatus;
-    /**
-     * Whether the toasts in the viewport are expanded.
-     */
-    expanded: boolean;
-    /**
-     * Whether the toast was removed due to exceeding the limit.
-     */
-    limited: boolean;
-    /**
-     * The type of the toast.
-     */
-    type: string | undefined;
-    /**
-     * Whether the toast is being swiped.
-     */
-    swiping: boolean;
-    /**
-     * The direction the toast is being swiped.
-     */
-    swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
-  }
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The toast to render.
-     */
-    toast: ToastObject<any>;
-    /**
-     * Direction(s) in which the toast can be swiped to dismiss.
-     * @default ['down', 'right']
-     */
-    swipeDirection?: 'up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[];
-  }
+  export type ToastObject<Data extends object = any> = ToastRootToastObject<Data>;
+  export type State = ToastRootState;
+  export type Props = ToastRootProps;
 }

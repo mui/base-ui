@@ -1,5 +1,5 @@
 {
-  "name": "AccordionPanel",
+  "name": "Accordion.Panel",
   "description": "A collapsible panel with the accordion item contents.\nRenders a `<div>` element.",
   "props": {
     "hiddenUntilFound": {

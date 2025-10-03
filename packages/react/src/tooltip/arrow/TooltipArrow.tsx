@@ -41,16 +41,19 @@ export const TooltipArrow = React.forwardRef(function TooltipArrow(
   return element;
 });
 
-export namespace TooltipArrow {
-  export interface State {
-    /**
-     * Whether the tooltip is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    uncentered: boolean;
-  }
+export interface TooltipArrowState {
+  /**
+   * Whether the tooltip is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface TooltipArrowProps extends BaseUIComponentProps<'div', TooltipArrow.State> {}
+
+export namespace TooltipArrow {
+  export type State = TooltipArrowState;
+  export type Props = TooltipArrowProps;
 }

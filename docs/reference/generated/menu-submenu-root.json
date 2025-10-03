@@ -1,5 +1,5 @@
 {
-  "name": "MenuSubmenuRoot",
+  "name": "Menu.SubmenuRoot",
   "description": "Groups all parts of a submenu.\nDoesn’t render its own HTML element.",
   "props": {
     "defaultOpen": {

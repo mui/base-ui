@@ -1,5 +1,5 @@
 {
-  "name": "PopoverTitle",
+  "name": "Popover.Title",
   "description": "A heading that labels the popover.\nRenders an `<h2>` element.",
   "props": {
     "className": {

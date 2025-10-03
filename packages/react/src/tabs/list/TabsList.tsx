@@ -196,21 +196,24 @@ function useActivationDirectionDetector(
   );
 }
 
-export namespace TabsList {
-  export interface State extends TabsRoot.State {}
+export interface TabsListState extends TabsRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to automatically change the active tab on arrow key focus.
-     * Otherwise, tabs will be activated using Enter or Spacebar key press.
-     * @default true
-     */
-    activateOnFocus?: boolean;
-    /**
-     * Whether to loop keyboard focus back to the first item
-     * when the end of the list is reached while using the arrow keys.
-     * @default true
-     */
-    loop?: boolean;
-  }
+export interface TabsListProps extends BaseUIComponentProps<'div', TabsList.State> {
+  /**
+   * Whether to automatically change the active tab on arrow key focus.
+   * Otherwise, tabs will be activated using Enter or Spacebar key press.
+   * @default true
+   */
+  activateOnFocus?: boolean;
+  /**
+   * Whether to loop keyboard focus back to the first item
+   * when the end of the list is reached while using the arrow keys.
+   * @default true
+   */
+  loop?: boolean;
+}
+
+export namespace TabsList {
+  export type State = TabsListState;
+  export type Props = TabsListProps;
 }

@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenuItem",
+  "name": "NavigationMenu.Item",
   "description": "An individual navigation menu item.\nRenders a `<div>` element.",
   "props": {
     "value": {

@@ -1,5 +1,5 @@
 {
-  "name": "AvatarRoot",
+  "name": "Avatar.Root",
   "description": "Displays a user's profile picture, initials, or fallback icon.\nRenders a `<span>` element.",
   "props": {
     "className": {

@@ -1,5 +1,5 @@
 {
-  "name": "DialogBackdrop",
+  "name": "Dialog.Backdrop",
   "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
   "props": {
     "forceRender": {

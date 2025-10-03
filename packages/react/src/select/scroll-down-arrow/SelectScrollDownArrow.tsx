@@ -16,14 +16,18 @@ export const SelectScrollDownArrow = React.forwardRef(function SelectScrollDownA
   return <SelectScrollArrow {...props} ref={forwardedRef} direction="down" />;
 });
 
-export namespace SelectScrollDownArrow {
-  export interface State {}
+export interface SelectScrollDownArrowState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to keep the HTML element in the DOM while the select popup is not scrollable.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface SelectScrollDownArrowProps
+  extends BaseUIComponentProps<'div', SelectScrollDownArrow.State> {
+  /**
+   * Whether to keep the HTML element in the DOM while the select popup is not scrollable.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
+
+export namespace SelectScrollDownArrow {
+  export type State = SelectScrollDownArrowState;
+  export type Props = SelectScrollDownArrowProps;
 }

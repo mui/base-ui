@@ -1,5 +1,5 @@
 {
-  "name": "ToolbarLink",
+  "name": "Toolbar.Link",
   "description": "A link component.\nRenders an `<a>` element.",
   "props": {
     "className": {

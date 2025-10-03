@@ -9,13 +9,13 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: Separator.State) => string)",
+      "type": "string | ((state: SeparatorState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Separator.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: SeparatorState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Separator.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: SeparatorState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

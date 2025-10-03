@@ -1,5 +1,5 @@
 {
-  "name": "MenuRadioGroup",
+  "name": "Menu.RadioGroup",
   "description": "Groups related radio items.\nRenders a `<div>` element.",
   "props": {
     "defaultValue": {

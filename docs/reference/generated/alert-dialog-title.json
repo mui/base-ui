@@ -1,11 +1,10 @@
 {
-  "name": "AlertDialogTitle",
+  "name": "AlertDialog.Title",
   "description": "A heading that labels the dialog.\nRenders an `<h2>` element.",
   "props": {
     "className": {
       "type": "string | ((state: AlertDialog.Title.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: AlertDialog.Title.State) => string)"
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: AlertDialog.Title.State) => ReactElement)",

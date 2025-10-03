@@ -1,5 +1,5 @@
 {
-  "name": "ToastClose",
+  "name": "Toast.Close",
   "description": "Closes the toast when clicked.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {

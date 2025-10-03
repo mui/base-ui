@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenuRoot",
+  "name": "NavigationMenu.Root",
   "description": "Groups all parts of the navigation menu.\nRenders a `<nav>` element at the root, or `<div>` element when nested.",
   "props": {
     "defaultValue": {

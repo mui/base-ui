@@ -31,12 +31,14 @@ export function SelectPortal(props: SelectPortal.Props) {
   );
 }
 
+export interface SelectPortalProps {
+  children?: React.ReactNode;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?: FloatingPortalProps['root'];
+}
+
 export namespace SelectPortal {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: FloatingPortalProps['root'];
-  }
+  export type Props = SelectPortalProps;
 }

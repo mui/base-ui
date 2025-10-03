@@ -1,5 +1,5 @@
 {
-  "name": "PreviewCardTrigger",
+  "name": "PreviewCard.Trigger",
   "description": "A link that opens the preview card.\nRenders an `<a>` element.",
   "props": {
     "className": {

@@ -1,5 +1,5 @@
 {
-  "name": "DialogTrigger",
+  "name": "Dialog.Trigger",
   "description": "A button that opens the dialog.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {

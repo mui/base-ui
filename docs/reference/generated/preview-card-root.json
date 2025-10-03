@@ -1,11 +1,10 @@
 {
-  "name": "PreviewCardRoot",
+  "name": "PreviewCard.Root",
   "description": "Groups all parts of the preview card.\nDoesn’t render its own HTML element.",
   "props": {
     "defaultOpen": {
       "type": "boolean",
-      "default": "false",
-      "description": "Whether the preview card is initially open.\n\nTo render a controlled preview card, use the `open` prop instead.",
+      "description": "Whether the preview card is initially open.",
       "detailedType": "boolean | undefined"
     },
     "open": {
@@ -20,7 +19,7 @@
     },
     "actionsRef": {
       "type": "RefObject<PreviewCard.Root.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the preview card will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the preview card manually.\nUseful when the preview card's animation is controlled by an external library.",
+      "description": "A ref to imperative actions.",
       "detailedType": "| React.RefObject<PreviewCard.Root.Actions>\n| undefined"
     },
     "onOpenChangeComplete": {
@@ -30,13 +29,11 @@
     },
     "delay": {
       "type": "number",
-      "default": "600",
       "description": "How long to wait before the preview card opens. Specified in milliseconds.",
       "detailedType": "number | undefined"
     },
     "closeDelay": {
       "type": "number",
-      "default": "300",
       "description": "How long to wait before closing the preview card. Specified in milliseconds.",
       "detailedType": "number | undefined"
     },

@@ -1,5 +1,5 @@
 {
-  "name": "ScrollAreaContent",
+  "name": "ScrollArea.Content",
   "description": "A container for the content of the scroll area.\nRenders a `<div>` element.",
   "props": {
     "className": {

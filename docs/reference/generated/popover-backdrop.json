@@ -1,11 +1,10 @@
 {
-  "name": "PopoverBackdrop",
+  "name": "Popover.Backdrop",
   "description": "An overlay displayed beneath the popover.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Popover.Backdrop.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Popover.Backdrop.State) => string)"
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Popover.Backdrop.State) => ReactElement)",

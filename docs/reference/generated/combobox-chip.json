@@ -1,5 +1,5 @@
 {
-  "name": "ComboboxChip",
+  "name": "Combobox.Chip",
   "description": "An individual chip that represents a value in a multiselectable input.\nRenders a `<div>` element.",
   "props": {
     "className": {

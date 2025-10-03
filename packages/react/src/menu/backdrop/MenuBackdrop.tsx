@@ -58,14 +58,17 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   });
 });
 
-export namespace MenuBackdrop {
-  export interface State {
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface MenuBackdropState {
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface MenuBackdropProps extends BaseUIComponentProps<'div', MenuBackdrop.State> {}
+
+export namespace MenuBackdrop {
+  export type State = MenuBackdropState;
+  export type Props = MenuBackdropProps;
 }

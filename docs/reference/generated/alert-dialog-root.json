@@ -1,5 +1,5 @@
 {
-  "name": "AlertDialogRoot",
+  "name": "AlertDialog.Root",
   "description": "Groups all parts of the alert dialog.\nDoesn’t render its own HTML element.",
   "props": {
     "defaultOpen": {
@@ -20,7 +20,7 @@
     },
     "actionsRef": {
       "type": "RefObject<AlertDialog.Root.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the dialog will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the dialog manually.\nUseful when the dialog's animation is controlled by an external library.",
+      "description": "A ref to imperative actions.",
       "detailedType": "| React.RefObject<AlertDialog.Root.Actions>\n| undefined"
     },
     "onOpenChangeComplete": {

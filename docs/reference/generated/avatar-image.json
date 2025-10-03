@@ -1,5 +1,5 @@
 {
-  "name": "AvatarImage",
+  "name": "Avatar.Image",
   "description": "The image to be displayed in the avatar.\nRenders an `<img>` element.",
   "props": {
     "onLoadingStatusChange": {

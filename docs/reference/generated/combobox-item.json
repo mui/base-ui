@@ -1,5 +1,5 @@
 {
-  "name": "ComboboxItem",
+  "name": "Combobox.Item",
   "description": "An individual item in the list.\nRenders a `<div>` element.",
   "props": {
     "value": {

@@ -1,5 +1,5 @@
 {
-  "name": "ProgressLabel",
+  "name": "Progress.Label",
   "description": "An accessible label for the progress bar.\nRenders a `<span>` element.",
   "props": {
     "className": {

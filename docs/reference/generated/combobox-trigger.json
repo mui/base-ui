@@ -1,5 +1,5 @@
 {
-  "name": "ComboboxTrigger",
+  "name": "Combobox.Trigger",
   "description": "A button that opens the popup.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
@@ -16,8 +16,7 @@
     },
     "className": {
       "type": "string | ((state: Combobox.Trigger.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Combobox.Trigger.State) => string)"
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Combobox.Trigger.State) => ReactElement)",

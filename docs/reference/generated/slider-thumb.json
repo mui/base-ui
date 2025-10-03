@@ -1,5 +1,5 @@
 {
-  "name": "SliderThumb",
+  "name": "Slider.Thumb",
   "description": "The draggable part of the the slider at the tip of the indicator.\nRenders a `<div>` element and a nested `<input type=\"range\">`.",
   "props": {
     "getAriaLabel": {

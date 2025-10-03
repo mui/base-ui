@@ -103,29 +103,32 @@ export function useCheckboxGroupParent(
   );
 }
 
-export namespace useCheckboxGroupParent {
-  export interface Parameters {
-    allValues?: string[];
-    value?: string[];
-    onValueChange?: (value: string[], eventDetails: BaseUIChangeEventDetails<'none'>) => void;
-  }
+export interface UseCheckboxGroupParentParameters {
+  allValues?: string[];
+  value?: string[];
+  onValueChange?: (value: string[], eventDetails: BaseUIChangeEventDetails<'none'>) => void;
+}
 
-  export interface ReturnValue {
+export interface UseCheckboxGroupParentReturnValue {
+  id: string | undefined;
+  indeterminate: boolean;
+  disabledStatesRef: React.RefObject<Map<string, boolean>>;
+  getParentProps: () => {
     id: string | undefined;
     indeterminate: boolean;
-    disabledStatesRef: React.RefObject<Map<string, boolean>>;
-    getParentProps: () => {
-      id: string | undefined;
-      indeterminate: boolean;
-      checked: boolean;
-      'aria-controls': string;
-      onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
-    };
-    getChildProps: (name: string) => {
-      name: string;
-      id: string;
-      checked: boolean;
-      onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
-    };
-  }
+    checked: boolean;
+    'aria-controls': string;
+    onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
+  };
+  getChildProps: (name: string) => {
+    name: string;
+    id: string;
+    checked: boolean;
+    onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
+  };
+}
+
+export namespace useCheckboxGroupParent {
+  export type Parameters = UseCheckboxGroupParentParameters;
+  export type ReturnValue = UseCheckboxGroupParentReturnValue;
 }

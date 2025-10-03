@@ -364,24 +364,26 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   return <ToastContext.Provider value={contextValue}>{children}</ToastContext.Provider>;
 };
 
+export interface ToastProviderProps {
+  children?: React.ReactNode;
+  /**
+   * The default amount of time (in ms) before a toast is auto dismissed.
+   * A value of `0` will prevent the toast from being dismissed automatically.
+   * @default 5000
+   */
+  timeout?: number;
+  /**
+   * The maximum number of toasts that can be displayed at once.
+   * When the limit is reached, the oldest toast will be removed to make room for the new one.
+   * @default 3
+   */
+  limit?: number;
+  /**
+   * A global manager for toasts to use outside of a React component.
+   */
+  toastManager?: createToastManager.ToastManager;
+}
+
 export namespace ToastProvider {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * The default amount of time (in ms) before a toast is auto dismissed.
-     * A value of `0` will prevent the toast from being dismissed automatically.
-     * @default 5000
-     */
-    timeout?: number;
-    /**
-     * The maximum number of toasts that can be displayed at once.
-     * When the limit is reached, the oldest toast will be removed to make room for the new one.
-     * @default 3
-     */
-    limit?: number;
-    /**
-     * A global manager for toasts to use outside of a React component.
-     */
-    toastManager?: createToastManager.ToastManager;
-  }
+  export type Props = ToastProviderProps;
 }

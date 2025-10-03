@@ -1,5 +1,5 @@
 {
-  "name": "SelectItemIndicator",
+  "name": "Select.ItemIndicator",
   "description": "Indicates whether the select item is selected.\nRenders a `<span>` element.",
   "props": {
     "children": {
@@ -13,7 +13,6 @@
     },
     "keepMounted": {
       "type": "boolean",
-      "default": "false",
       "description": "Whether to keep the HTML element in the DOM when the item is not selected.",
       "detailedType": "boolean | undefined"
     },

@@ -1,5 +1,5 @@
 {
-  "name": "AccordionRoot",
+  "name": "Accordion.Root",
   "description": "Groups all parts of the accordion.\nRenders a `<div>` element.",
   "props": {
     "defaultValue": {

@@ -1,5 +1,5 @@
 {
-  "name": "SelectBackdrop",
+  "name": "Select.Backdrop",
   "description": "An overlay displayed beneath the menu popup.\nRenders a `<div>` element.",
   "props": {
     "className": {

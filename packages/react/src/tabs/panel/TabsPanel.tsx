@@ -88,27 +88,31 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   return element;
 });
 
+export interface TabsPanelMetadata {
+  id?: string;
+  value: TabsTab.Value;
+}
+
+export interface TabsPanelState extends TabsRoot.State {
+  hidden: boolean;
+}
+
+export interface TabsPanelProps extends BaseUIComponentProps<'div', TabsPanel.State> {
+  /**
+   * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
+   * If not provided, it will fall back to the index of the panel.
+   * It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.
+   */
+  value?: TabsTab.Value;
+  /**
+   * Whether to keep the HTML element in the DOM while the panel is hidden.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
+
 export namespace TabsPanel {
-  export interface Metadata {
-    id?: string;
-    value: TabsTab.Value;
-  }
-
-  export interface State extends TabsRoot.State {
-    hidden: boolean;
-  }
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
-     * If not provided, it will fall back to the index of the panel.
-     * It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.
-     */
-    value?: TabsTab.Value;
-    /**
-     * Whether to keep the HTML element in the DOM while the panel is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+  export type Metadata = TabsPanelMetadata;
+  export type State = TabsPanelState;
+  export type Props = TabsPanelProps;
 }

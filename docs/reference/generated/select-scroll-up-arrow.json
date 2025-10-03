@@ -1,5 +1,5 @@
 {
-  "name": "SelectScrollUpArrow",
+  "name": "Select.ScrollUpArrow",
   "description": "An element that scrolls the select popup up when hovered. Does not render when using touch input.\nRenders a `<div>` element.",
   "props": {
     "className": {

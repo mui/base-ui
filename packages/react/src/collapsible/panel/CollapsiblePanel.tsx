@@ -156,26 +156,29 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   return element;
 });
 
-export namespace CollapsiblePanel {
-  export interface State extends CollapsibleRoot.State {
-    transitionStatus: TransitionStatus;
-  }
+export interface CollapsiblePanelState extends CollapsibleRoot.State {
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Allows the browser’s built-in page search to find and expand the panel contents.
-     *
-     * Overrides the `keepMounted` prop and uses `hidden="until-found"`
-     * to hide the element without removing it from the DOM.
-     *
-     * @default false
-     */
-    hiddenUntilFound?: boolean;
-    /**
-     * Whether to keep the element in the DOM while the panel is hidden.
-     * This prop is ignored when `hiddenUntilFound` is used.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface CollapsiblePanelProps extends BaseUIComponentProps<'div', CollapsiblePanel.State> {
+  /**
+   * Allows the browser’s built-in page search to find and expand the panel contents.
+   *
+   * Overrides the `keepMounted` prop and uses `hidden="until-found"`
+   * to hide the element without removing it from the DOM.
+   *
+   * @default false
+   */
+  hiddenUntilFound?: boolean;
+  /**
+   * Whether to keep the element in the DOM while the panel is hidden.
+   * This prop is ignored when `hiddenUntilFound` is used.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
+
+export namespace CollapsiblePanel {
+  export type State = CollapsiblePanelState;
+  export type Props = CollapsiblePanelProps;
 }

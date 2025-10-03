@@ -31,10 +31,13 @@ export function ComboboxValue(props: ComboboxValue.Props) {
   return resolveSelectedLabel(selectedValue, items, itemToStringLabel);
 }
 
-export namespace ComboboxValue {
-  export interface State {}
+export interface ComboboxValueState {}
 
-  export interface Props {
-    children?: React.ReactNode | ((selectedValue: any) => React.ReactNode);
-  }
+export interface ComboboxValueProps {
+  children?: React.ReactNode | ((selectedValue: any) => React.ReactNode);
+}
+
+export namespace ComboboxValue {
+  export type State = ComboboxValueState;
+  export type Props = ComboboxValueProps;
 }

@@ -1,5 +1,5 @@
 {
-  "name": "AlertDialogClose",
+  "name": "AlertDialog.Close",
   "description": "A button that closes the alert dialog.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
@@ -10,8 +10,7 @@
     },
     "className": {
       "type": "string | ((state: AlertDialog.Close.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: AlertDialog.Close.State) => string)"
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: AlertDialog.Close.State) => ReactElement)",

@@ -28,8 +28,11 @@ export const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
   });
 });
 
-export namespace AlertDialogTitle {
-  export interface Props extends BaseUIComponentProps<'h2', State> {}
+export interface AlertDialogTitleProps extends BaseUIComponentProps<'h2', AlertDialogTitle.State> {}
 
-  export interface State {}
+export interface AlertDialogTitleState {}
+
+export namespace AlertDialogTitle {
+  export type Props = AlertDialogTitleProps;
+  export type State = AlertDialogTitleState;
 }

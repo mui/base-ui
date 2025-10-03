@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenuLink",
+  "name": "NavigationMenu.Link",
   "description": "A link in the navigation menu that can be used to navigate to a different page or section.\nRenders an `<a>` element.",
   "props": {
     "closeOnClick": {

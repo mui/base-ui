@@ -1,5 +1,5 @@
 {
-  "name": "TooltipArrow",
+  "name": "Tooltip.Arrow",
   "description": "Displays an element positioned against the tooltip anchor.\nRenders a `<div>` element.",
   "props": {
     "className": {

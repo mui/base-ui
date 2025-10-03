@@ -1,5 +1,5 @@
 {
-  "name": "MeterValue",
+  "name": "Meter.Value",
   "description": "A text element displaying the current value.\nRenders a `<span>` element.",
   "props": {
     "children": {

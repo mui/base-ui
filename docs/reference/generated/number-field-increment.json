@@ -1,5 +1,5 @@
 {
-  "name": "NumberFieldIncrement",
+  "name": "NumberField.Increment",
   "description": "A stepper button that increases the field value when clicked.\nRenders an `<button>` element.",
   "props": {
     "nativeButton": {

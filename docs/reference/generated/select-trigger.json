@@ -1,5 +1,5 @@
 {
-  "name": "SelectTrigger",
+  "name": "Select.Trigger",
   "description": "A button that opens the select popup.\nRenders a `<div>` element.",
   "props": {
     "nativeButton": {
@@ -10,7 +10,6 @@
     },
     "disabled": {
       "type": "boolean",
-      "default": "false",
       "description": "Whether the component should ignore user interaction.",
       "detailedType": "boolean | undefined"
     },

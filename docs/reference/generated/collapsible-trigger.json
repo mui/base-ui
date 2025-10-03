@@ -1,5 +1,5 @@
 {
-  "name": "CollapsibleTrigger",
+  "name": "Collapsible.Trigger",
   "description": "A button that opens and closes the collapsible panel.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
@@ -10,8 +10,7 @@
     },
     "className": {
       "type": "string | ((state: Collapsible.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Collapsible.Root.State) => string)"
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement)",

@@ -13,12 +13,14 @@ export function ToastPortal(props: ToastPortal.Props) {
   return <FloatingPortalLite root={container}>{children}</FloatingPortalLite>;
 }
 
+export interface ToastPortalProps {
+  children?: React.ReactNode;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
+}
+
 export namespace ToastPortal {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
-  }
+  export type Props = ToastPortalProps;
 }

@@ -34,15 +34,20 @@ export function CompositeItem<Metadata, State extends Record<string, any>>(
   });
 }
 
+export interface CompositeItemProps<Metadata, State extends Record<string, any>>
+  extends Pick<BaseUIComponentProps<any, State>, 'render' | 'className'> {
+  children?: React.ReactNode;
+  metadata?: Metadata;
+  refs?: React.Ref<HTMLElement | null>[];
+  props?: Array<Record<string, any> | (() => Record<string, any>)>;
+  state?: State;
+  stateAttributesMapping?: StateAttributesMapping<State>;
+  tag?: keyof React.JSX.IntrinsicElements;
+}
+
 export namespace CompositeItem {
-  export interface Props<Metadata, State extends Record<string, any>>
-    extends Pick<BaseUIComponentProps<any, State>, 'render' | 'className'> {
-    children?: React.ReactNode;
-    metadata?: Metadata;
-    refs?: React.Ref<HTMLElement | null>[];
-    props?: Array<Record<string, any> | (() => Record<string, any>)>;
-    state?: State;
-    stateAttributesMapping?: StateAttributesMapping<State>;
-    tag?: keyof React.JSX.IntrinsicElements;
-  }
+  export type Props<Metadata, State extends Record<string, any>> = CompositeItemProps<
+    Metadata,
+    State
+  >;
 }

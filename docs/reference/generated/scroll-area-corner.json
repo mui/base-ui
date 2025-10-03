@@ -1,11 +1,10 @@
 {
-  "name": "ScrollAreaCorner",
+  "name": "ScrollArea.Corner",
   "description": "A small rectangular area that appears at the intersection of horizontal and vertical scrollbars.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: ScrollArea.Corner.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: ScrollArea.Corner.State) => string)"
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: ScrollArea.Corner.State) => ReactElement)",

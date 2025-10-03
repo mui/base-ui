@@ -28,17 +28,19 @@ export function TooltipPortal(props: TooltipPortal.Props) {
   );
 }
 
+export interface TooltipPortalProps {
+  children?: React.ReactNode;
+  /**
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?: FloatingPortalProps['root'];
+}
+
 export namespace TooltipPortal {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the portal mounted in the DOM while the popup is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: FloatingPortalProps['root'];
-  }
+  export type Props = TooltipPortalProps;
 }

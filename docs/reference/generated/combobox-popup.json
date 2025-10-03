@@ -1,5 +1,5 @@
 {
-  "name": "ComboboxPopup",
+  "name": "Combobox.Popup",
   "description": "A container for the list.\nRenders a `<div>` element.",
   "props": {
     "initialFocus": {

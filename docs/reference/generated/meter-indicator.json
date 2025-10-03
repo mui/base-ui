@@ -1,5 +1,5 @@
 {
-  "name": "MeterIndicator",
+  "name": "Meter.Indicator",
   "description": "Visualizes the position of the value along the range.\nRenders a `<div>` element.",
   "props": {
     "className": {

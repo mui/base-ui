@@ -1,5 +1,5 @@
 {
-  "name": "DialogClose",
+  "name": "Dialog.Close",
   "description": "A button that closes the dialog.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
