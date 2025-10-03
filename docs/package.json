@@ -31,7 +31,7 @@
     "cross-env": "^10.0.0",
     "es-toolkit": "^1.39.10",
     "estree-util-value-to-estree": "^3.4.0",
-    "globby": "^14.1.0",
+    "globby": "^15.0.0",
     "hast": "^1.0.0",
     "hast-util-heading-rank": "^3.0.0",
     "hast-util-to-string": "^3.0.1",
