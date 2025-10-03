@@ -584,7 +584,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
         <>
           {React.cloneElement(children, getReferenceProps({ ref: refs.setReference }))}
           {open && (
-            <FloatingPortal root={portalRef}>
+            <FloatingPortal container={portalRef}>
               <FloatingFocusManager context={context} modal={false}>
                 <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                   {render()}
