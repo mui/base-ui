@@ -41,6 +41,8 @@ export const Textarea = React.forwardRef(function Textarea(
     ...elementProps
   } = componentProps;
 
+  const placeholder = (elementProps as any)?.placeholder as string | undefined;
+
   const { state: fieldState, name: fieldName, disabled: fieldDisabled } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
@@ -67,6 +69,9 @@ export const Textarea = React.forwardRef(function Textarea(
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();
+
+  const hiddenTextareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const heightRef = React.useRef<number | null>(null);
 
   const id = useBaseUiId(idProp);
 
@@ -118,29 +123,189 @@ export const Textarea = React.forwardRef(function Textarea(
 
   useIsoLayoutEffect(() => {
     const el = inputRef.current;
-    if (!el || (minRows == null && maxRows == null)) {
+    const hidden = hiddenTextareaRef.current;
+
+    if (!el || !hidden || (minRows == null && maxRows == null)) {
       return undefined;
     }
 
-    const resize = () => {
-      el.style.height = 'auto';
-      const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 24;
-      const min = minRows != null ? minRows * lineHeight : 0;
-      const maxPx = maxRows != null ? maxRows * lineHeight : Infinity;
-      const target = Math.min(maxPx, Math.max(min, el.scrollHeight));
-      el.style.height = `${target}px`;
-      el.style.overflowY = el.scrollHeight > target ? 'auto' : 'hidden';
+    const getStyleValue = (str: string) => parseInt(str, 10) || 0;
+
+    const calculate = () => {
+      const computedStyle = getComputedStyle(el);
+
+      let width = computedStyle.width;
+      if (!width || width === '0px') {
+        const rect = el.getBoundingClientRect();
+        width = rect.width ? `${rect.width}px` : width;
+      }
+
+      if (!width || width === '0px') {
+        return null;
+      }
+
+      const styleToCopy = [
+        'boxSizing',
+        'width',
+        'paddingTop',
+        'paddingBottom',
+        'paddingLeft',
+        'paddingRight',
+        'borderTopWidth',
+        'borderBottomWidth',
+        'fontFamily',
+        'fontSize',
+        'fontWeight',
+        'fontStyle',
+        'letterSpacing',
+        'textTransform',
+        'textIndent',
+        'lineHeight',
+        'whiteSpace',
+      ];
+
+      hidden.style.width = width;
+      for (const propName of styleToCopy) {
+        hidden.style[propName as keyof Omit<CSSStyleDeclaration, 'length' | 'parentRule'>] = (computedStyle as any)[propName];
+      }
+
+      hidden.style.whiteSpace =
+        computedStyle.whiteSpace === 'pre-wrap' || computedStyle.whiteSpace === 'pre-line'
+          ? computedStyle.whiteSpace
+          : 'pre-wrap';
+
+      hidden.value = el.value || placeholder || 'x';
+      if (hidden.value.slice(-1) === '\n') {
+        hidden.value += ' ';
+      }
+
+      const boxSizing = computedStyle.boxSizing;
+      const paddingTop = getStyleValue(computedStyle.paddingTop);
+      const paddingBottom = getStyleValue(computedStyle.paddingBottom);
+      const padding = paddingTop + paddingBottom;
+      const border =
+        getStyleValue(computedStyle.borderBottomWidth) +
+        getStyleValue(computedStyle.borderTopWidth);
+
+      const innerScrollHeight = hidden.scrollHeight;
+
+      hidden.value = 'x';
+      const singleRowScrollHeight = hidden.scrollHeight || 1;
+      const singleRowContentHeight = Math.max(singleRowScrollHeight - padding, 1);
+
+      const currentContentHeight = Math.max(innerScrollHeight - padding, 0);
+
+      let desiredContentHeight = currentContentHeight;
+      if (minRows) {
+        desiredContentHeight = Math.max(
+          Number(minRows) * singleRowContentHeight,
+          desiredContentHeight,
+        );
+      }
+      if (maxRows) {
+        desiredContentHeight = Math.min(
+          Number(maxRows) * singleRowContentHeight,
+          desiredContentHeight,
+        );
+      }
+      desiredContentHeight = Math.max(desiredContentHeight, singleRowContentHeight);
+
+      const outerHeightStyle =
+        boxSizing === 'border-box' ? desiredContentHeight + padding + border : desiredContentHeight;
+
+      const isOverflowing = currentContentHeight > desiredContentHeight + 1;
+
+      const rowsOccupied = currentContentHeight / singleRowContentHeight;
+
+      return {
+        outerHeightStyle,
+        isOverflowing,
+        rowsOccupied,
+      } as { outerHeightStyle: number; isOverflowing: boolean; rowsOccupied: number };
     };
 
-    resize();
+    const applyHeight = (target: number | null, isOverflowing: boolean) => {
+      if (target == null) {
+        if (heightRef.current !== null) {
+          el.style.height = '';
+          heightRef.current = null;
+        }
+
+        const overflowValue = isOverflowing ? 'auto' : 'hidden';
+        if (el.style.overflowY !== overflowValue) {
+          el.style.overflowY = overflowValue;
+        }
+
+        return;
+      }
+
+      if (heightRef.current !== target) {
+        el.style.height = `${target}px`;
+        heightRef.current = target;
+      }
+
+      const overflowValue = isOverflowing ? 'auto' : 'hidden';
+      if (el.style.overflowY !== overflowValue) {
+        el.style.overflowY = overflowValue;
+      }
+    };
+
+    const resize = () => {
+      const styles = calculate();
+      if (!styles) {
+        return;
+      }
+
+      const { outerHeightStyle, isOverflowing, rowsOccupied } = styles;
+
+      // only apply height if we are not at minimum rows yet
+      if (minRows != null) {
+        const needsMoreThanMin = rowsOccupied > Number(minRows) + 0.0001;
+
+        if (!needsMoreThanMin) {
+          applyHeight(null, isOverflowing);
+          return;
+        }
+      }
+
+      applyHeight(outerHeightStyle, isOverflowing);
+    };
+
+    let rafId = 0 as number;
+    rafId = requestAnimationFrame(resize);
+
     el.addEventListener('input', resize);
     window.addEventListener('resize', resize);
+
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => {
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+        }
+        rafId = requestAnimationFrame(resize);
+      });
+      try {
+        ro.observe(el);
+        if (el.parentElement) {
+          ro.observe(el.parentElement);
+        }
+      } catch (err) {
+        // ignore observation errors
+      }
+    }
 
     return () => {
       el.removeEventListener('input', resize);
       window.removeEventListener('resize', resize);
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+      if (ro) {
+        ro.disconnect();
+      }
     };
-  }, [inputRef, minRows, maxRows]);
+  }, [inputRef, minRows, maxRows, placeholder]);
 
   const element = useRenderElement('textarea', componentProps, {
     ref: forwardedRef || undefined,
@@ -157,7 +322,7 @@ export const Textarea = React.forwardRef(function Textarea(
           ? {
               style: {
                 ...(style as React.CSSProperties),
-                height: `${minRows * 24}px`,
+                height: 'auto',
                 resize: 'none',
               },
             }
@@ -198,7 +363,29 @@ export const Textarea = React.forwardRef(function Textarea(
     stateAttributesMapping: fieldValidityMapping,
   });
 
-  return element;
+  return React.createElement(
+    React.Fragment,
+    null,
+    element,
+    React.createElement('textarea', {
+      'aria-hidden': true,
+      readOnly: true,
+      ref: hiddenTextareaRef,
+      tabIndex: -1,
+      style: {
+        visibility: 'hidden',
+        position: 'absolute',
+        overflow: 'hidden',
+        height: 0,
+        top: 0,
+        left: 0,
+        transform: 'translateZ(0)',
+        paddingTop: 0,
+        paddingBottom: 0,
+        ...(style as React.CSSProperties),
+      },
+    }),
+  );
 });
 
 export namespace Textarea {
@@ -207,9 +394,6 @@ export namespace Textarea {
   export interface Props extends BaseUIComponentProps<'textarea', State> {
     /**
      * Enable automatic height resizing by setting the minimum number of rows.
-     *
-     * Prefer the CSS property `field-sizing: content` when supported (not
-     * supported in Safari and Firefox).
      */
     minRows?: number;
     /**
