@@ -3,7 +3,9 @@ import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { TabsRoot } from '../root/TabsRoot';
+import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -122,7 +124,7 @@ export const TabsList = React.forwardRef(function TabsList(
         }
       }
 
-      onValueChange(newVal, 'none', undefined);
+      onValueChange(newVal, createChangeEventDetails('none'));
     }
   }, [value, highlightedTabIndex, tabMap, onValueChange]);
 
