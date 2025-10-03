@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
@@ -47,7 +48,7 @@ export function useFieldControlValidation() {
     name,
   } = useFieldRootContext();
 
-  const { messageIds, controlId } = useLabelableContext();
+  const { controlId, getDescriptionProps } = useLabelableContext();
 
   const { formRef, clearErrors } = useFormContext();
 
@@ -216,13 +217,11 @@ export function useFieldControlValidation() {
   const getValidationProps = React.useCallback(
     (externalProps = {}) =>
       mergeProps<any>(
-        {
-          ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
-          ...(state.valid === false && { 'aria-invalid': true }),
-        },
+        getDescriptionProps,
+        state.valid === false ? { 'aria-invalid': true } : EMPTY_OBJECT,
         externalProps,
       ),
-    [messageIds, state.valid],
+    [getDescriptionProps, state.valid],
   );
 
   const getInputValidationProps = React.useCallback(

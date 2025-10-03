@@ -8,6 +8,7 @@ import { useFormContext } from '../../form/FormContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { mergeProps } from '../../merge-props';
 
 import { useLabelable } from '../root/useLabelable';
 import { LabelableContext } from './LabelableContext';
@@ -128,9 +129,19 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     ],
   );
 
+  const getDescriptionProps = React.useCallback(
+    (externalProps: HTMLProps) => {
+      return mergeProps(
+        { 'aria-describedby': labelable.messageIds.join(' ') || undefined },
+        externalProps,
+      );
+    },
+    [labelable.messageIds],
+  );
+
   const labelableContextValue: LabelableContext = React.useMemo(
-    () => ({ ...labelable, getDescriptionProps: (externalProps: HTMLProps) => externalProps }),
-    [labelable],
+    () => ({ ...labelable, getDescriptionProps }),
+    [labelable, getDescriptionProps],
   );
 
   const element = useRenderElement('div', componentProps, {
