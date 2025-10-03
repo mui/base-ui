@@ -77,7 +77,8 @@ export interface PreviewCardPopupState {
   transitionStatus: TransitionStatus;
 }
 
-export interface PreviewCardPopupProps extends BaseUIComponentProps<'div', PreviewCardPopup.State> {}
+export interface PreviewCardPopupProps
+  extends BaseUIComponentProps<'div', PreviewCardPopup.State> {}
 
 export namespace PreviewCardPopup {
   export type State = PreviewCardPopupState;

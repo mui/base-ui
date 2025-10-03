@@ -32,7 +32,8 @@ export const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
 
 export interface NumberFieldGroupState extends NumberFieldRoot.State {}
 
-export interface NumberFieldGroupProps extends BaseUIComponentProps<'div', NumberFieldGroup.State> {}
+export interface NumberFieldGroupProps
+  extends BaseUIComponentProps<'div', NumberFieldGroup.State> {}
 
 export namespace NumberFieldGroup {
   export type State = NumberFieldGroupState;
