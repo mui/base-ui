@@ -2,10 +2,36 @@ import * as React from 'react';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import * as ScrollArea from '../ScrollArea';
 
-import '@wooorm/starry-night/style/both';
+import './CodeHighlighting.css';
+
+function fileNameToLanguage(fileName: string | undefined) {
+  if (!fileName) {
+    return 'text';
+  }
+  if (fileName.endsWith('.tsx') || fileName.endsWith('.ts')) {
+    return 'tsx';
+  }
+  if (fileName.endsWith('.js') || fileName.endsWith('.jsx')) {
+    return 'jsx';
+  }
+  if (fileName.endsWith('.json')) {
+    return 'json';
+  }
+  if (fileName.endsWith('.html')) {
+    return 'html';
+  }
+  if (fileName.endsWith('.css')) {
+    return 'css';
+  }
+  if (fileName.endsWith('.mdx')) {
+    return 'mdx';
+  }
+  return 'text';
+}
 
 interface DemoCodeBlockProps {
   selectedFile: React.ReactNode;
+  selectedFileName: string | undefined;
   selectedFileLines: number;
   collapsibleOpen: boolean;
   /** How many lines should the code block have to get collapsed instead of rendering fully */
@@ -37,6 +63,7 @@ function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
 
 export function DemoCodeBlock({
   selectedFile,
+  selectedFileName,
   selectedFileLines,
   compact,
   collapsibleOpen,
@@ -46,7 +73,7 @@ export function DemoCodeBlock({
     return (
       <Root>
         <ScrollArea.Viewport>
-          <pre className="DemoSourceBrowser" data-language={'TODO'}>
+          <pre className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
             {selectedFile}
           </pre>
         </ScrollArea.Viewport>
@@ -73,7 +100,7 @@ export function DemoCodeBlock({
           className="DemoCodeBlockViewport"
           {...(!collapsibleOpen && { tabIndex: undefined, style: { overflow: undefined } })}
         >
-          <pre className="DemoSourceBrowser" data-language={'TODO'}>
+          <pre className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
             {selectedFile}
           </pre>
         </ScrollArea.Viewport>
