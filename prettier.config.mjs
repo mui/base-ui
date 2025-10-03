@@ -4,5 +4,6 @@ const base = createBaseConfig();
 
 export default {
   ...base,
+  tailwindPreserveWhitespace: true,
   plugins: ['prettier-plugin-tailwindcss'],
 };
