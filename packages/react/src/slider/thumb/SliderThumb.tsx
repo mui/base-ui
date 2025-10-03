@@ -23,7 +23,10 @@ import {
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useLabelableContext, type LabelableContext } from '../../field/root/LabelableContext';
+import {
+  useLabelableContext,
+  type LabelableContext,
+} from '../../labelable-provider/LabelableContext';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';

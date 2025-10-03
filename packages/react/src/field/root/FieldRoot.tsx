@@ -5,13 +5,10 @@ import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../../form/FormContext';
+import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { mergeProps } from '../../merge-props';
-
-import { useLabelable } from '../root/useLabelable';
-import { LabelableContext } from './LabelableContext';
 
 /**
  * Groups all parts of the field.
@@ -44,10 +41,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   const disabled = disabledFieldset || disabledProp;
 
   const defaultControlId = useBaseUiId();
-
-  const labelable = useLabelable({
-    initialControlId: defaultControlId,
-  });
 
   const [touched, setTouched] = React.useState(false);
   const [dirty, setDirtyUnwrapped] = React.useState(false);
@@ -129,21 +122,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     ],
   );
 
-  const getDescriptionProps = React.useCallback(
-    (externalProps: HTMLProps) => {
-      return mergeProps(
-        { 'aria-describedby': labelable.messageIds.join(' ') || undefined },
-        externalProps,
-      );
-    },
-    [labelable.messageIds],
-  );
-
-  const labelableContextValue: LabelableContext = React.useMemo(
-    () => ({ ...labelable, getDescriptionProps }),
-    [labelable, getDescriptionProps],
-  );
-
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     state,
@@ -152,9 +130,9 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   });
 
   return (
-    <LabelableContext.Provider value={labelableContextValue}>
+    <LabelableProvider initialControlId={defaultControlId}>
       <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>
-    </LabelableContext.Provider>
+    </LabelableProvider>
   );
 });
 

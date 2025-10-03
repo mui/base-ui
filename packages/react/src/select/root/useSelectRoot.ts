@@ -18,7 +18,7 @@ import {
 } from '../../floating-ui-react';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useLabelableContext } from '../../field/root/LabelableContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';

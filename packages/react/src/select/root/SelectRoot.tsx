@@ -5,7 +5,7 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useLabelableContext } from '../../field/root/LabelableContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,

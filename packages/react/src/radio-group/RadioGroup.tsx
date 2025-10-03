@@ -13,7 +13,7 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useFormContext } from '../form/FormContext';
 import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
-import { useLabelableContext } from '../field/root/LabelableContext';
+import { useLabelableContext } from '../labelable-provider/LabelableContext';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRoot } from '../field/root/FieldRoot';

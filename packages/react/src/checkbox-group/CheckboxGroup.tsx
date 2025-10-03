@@ -7,7 +7,7 @@ import { useRenderElement } from '../utils/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRoot } from '../field/root/FieldRoot';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
-import { useLabelableContext } from '../field/root/LabelableContext';
+import { useLabelableContext } from '../labelable-provider/LabelableContext';
 import type { BaseUIComponentProps } from '../utils/types';
 import { fieldValidityMapping } from '../field/utils/constants';
 import { useField } from '../field/useField';

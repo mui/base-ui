@@ -15,7 +15,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 
-import { useLabelableContext } from '../../field/root/LabelableContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
