@@ -18,9 +18,9 @@
       "detailedType": "number | number[] | undefined"
     },
     "onValueChange": {
-      "type": "((value: number | number[], eventDetails: { reason: 'none', event: ReasonToEvent, cancel: (() => void), allowPropagation: (() => void), isCanceled: boolean, isPropagationAllowed: boolean } & { activeThumbIndex: number }) => void)",
+      "type": "((value: number | number[], eventDetails: { reason: 'none', event: ReasonToEvent, cancel: (() => void), allowPropagation: (() => void), isCanceled: boolean, isPropagationAllowed: boolean, trigger: HTMLElement | undefined } & { activeThumbIndex: number }) => void)",
       "description": "Callback function that is fired when the slider's value changed.\nYou can pull out the new value by accessing `event.target.value` (any).",
-      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: {\n      reason: 'none'\n      event: ReasonToEvent\n      cancel: () => void\n      allowPropagation: () => void\n      isCanceled: boolean\n      isPropagationAllowed: boolean\n    } & { activeThumbIndex: number },\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: {\n      reason: 'none'\n      event: ReasonToEvent\n      cancel: () => void\n      allowPropagation: () => void\n      isCanceled: boolean\n      isPropagationAllowed: boolean\n      trigger: HTMLElement | undefined\n    } & { activeThumbIndex: number },\n  ) => void)\n| undefined"
     },
     "onValueCommitted": {
       "type": "((value: number | number[], eventDetails: Slider.Root.CommitEventDetails) => void)",

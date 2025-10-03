@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
-import styles from './index.module.css';
+import styles from '../../index.module.css';
 
 export default function ExamplePopover() {
   return (

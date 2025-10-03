@@ -124,10 +124,10 @@ function evaluateRenderProp<T extends React.ElementType, S>(
 
 function renderTag(Tag: string, props: Record<string, any>) {
   if (Tag === 'button') {
-    return <button type="button" {...props} />;
+    return <button type="button" {...props} key={props.key} />;
   }
   if (Tag === 'img') {
-    return <img alt="" {...props} />;
+    return <img alt="" {...props} key={props.key} />;
   }
   return React.createElement(Tag, props);
 }

@@ -13,7 +13,8 @@ import { PopoverPortalContext } from './PopoverPortalContext';
 export function PopoverPortal(props: PopoverPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
-  const { mounted } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
+  const mounted = store.useState('mounted');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
@@ -22,7 +23,9 @@ export function PopoverPortal(props: PopoverPortal.Props) {
 
   return (
     <PopoverPortalContext.Provider value={keepMounted}>
-      <FloatingPortal root={container}>{children}</FloatingPortal>
+      <FloatingPortal root={container} renderGuards={false}>
+        {children}
+      </FloatingPortal>
     </PopoverPortalContext.Provider>
   );
 }

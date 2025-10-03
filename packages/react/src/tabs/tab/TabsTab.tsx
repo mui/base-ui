@@ -120,7 +120,9 @@ export const TabsTab = React.forwardRef(function TabsTab(
 
     onTabActivation(
       tabValue,
-      createChangeEventDetails('none', event.nativeEvent, { activationDirection: 'none' }),
+      createChangeEventDetails('none', event.nativeEvent, undefined, {
+        activationDirection: 'none',
+      }),
     );
   });
 
@@ -143,7 +145,9 @@ export const TabsTab = React.forwardRef(function TabsTab(
     ) {
       onTabActivation(
         tabValue,
-        createChangeEventDetails('none', event.nativeEvent, { activationDirection: 'none' }),
+        createChangeEventDetails('none', event.nativeEvent, undefined, {
+          activationDirection: 'none',
+        }),
       );
     }
   });
