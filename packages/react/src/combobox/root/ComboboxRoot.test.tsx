@@ -3510,10 +3510,10 @@ describe('<Combobox.Root />', () => {
 
       await user.keyboard('{ArrowLeft}');
       const button2 = screen.getByRole('button', { name: 'Item 2' });
-      await expect(button2).toHaveFocus();
+      expect(button2).toHaveFocus();
 
       await user.keyboard('{ArrowRight}');
-      await expect(input).toHaveFocus();
+      expect(input).toHaveFocus();
     });
   });
 });
