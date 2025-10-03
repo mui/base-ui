@@ -3,14 +3,14 @@
   "description": "A link that opens the preview card.\nRenders an `<a>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: PreviewCard.Trigger.State) => string)",
+      "type": "string | ((state: PreviewCardTriggerState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: PreviewCard.Trigger.State) => string)"
+      "detailedType": "| string\n| ((state: PreviewCardTriggerState) => string)"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: PreviewCard.Trigger.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: PreviewCardTriggerState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: PreviewCard.Trigger.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: PreviewCardTriggerState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

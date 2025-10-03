@@ -20,14 +20,14 @@
       "detailedType": "number | undefined"
     },
     "className": {
-      "type": "string | ((state: NumberField.ScrubArea.State) => string)",
+      "type": "string | ((state: NumberFieldScrubAreaState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: NumberField.ScrubArea.State) => string)"
+      "detailedType": "| string\n| ((state: NumberFieldScrubAreaState) => string)"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: NumberField.ScrubArea.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: NumberFieldScrubAreaState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NumberField.ScrubArea.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NumberFieldScrubAreaState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

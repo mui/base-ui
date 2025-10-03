@@ -39,9 +39,9 @@
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Combobox.Root.Actions>",
+      "type": "RefObject<ComboboxRootInternalActions> | RefObject<Combobox.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<Combobox.Root.Actions>\n| undefined"
+      "detailedType": "| React.RefObject<ComboboxRootInternalActions>\n| React.RefObject<Combobox.Root.Actions>\n| undefined"
     },
     "autoHighlight": {
       "type": "boolean",

@@ -14,14 +14,14 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, eventDetails: Dialog.Root.ChangeEventDetails) => void)",
+      "type": "((open: boolean, eventDetails: DialogRootChangeEventDetails) => void)",
       "description": "Event handler called when the dialog is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Dialog.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: DialogRootChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Dialog.Root.Actions>",
+      "type": "RefObject<DialogRootActions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the dialog will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the dialog manually.\nUseful when the dialog's animation is controlled by an external library.",
-      "detailedType": "React.RefObject<Dialog.Root.Actions> | undefined"
+      "detailedType": "React.RefObject<DialogRootActions> | undefined"
     },
     "dismissible": {
       "type": "boolean",

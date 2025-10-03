@@ -19,9 +19,9 @@
       "detailedType": "boolean | undefined"
     },
     "onCheckedChange": {
-      "type": "((checked: boolean, eventDetails: Switch.Root.ChangeEventDetails) => void)",
+      "type": "((checked: boolean, eventDetails: SwitchRootChangeEventDetails) => void)",
       "description": "Event handler called when the switch is activated or deactivated.",
-      "detailedType": "| ((\n    checked: boolean,\n    eventDetails: Switch.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    checked: boolean,\n    eventDetails: SwitchRootChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "nativeButton": {
       "type": "boolean",
@@ -58,13 +58,13 @@
       "detailedType": "string | undefined"
     },
     "className": {
-      "type": "string | ((state: Switch.Root.State) => string)",
+      "type": "string | ((state: SwitchRootState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Switch.Root.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: SwitchRootState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Switch.Root.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: SwitchRootState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

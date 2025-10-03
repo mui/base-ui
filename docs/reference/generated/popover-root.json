@@ -14,14 +14,14 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, eventDetails: Popover.Root.ChangeEventDetails) => void)",
+      "type": "((open: boolean, eventDetails: PopoverRootChangeEventDetails) => void)",
       "description": "Event handler called when the popover is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Popover.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: PopoverRootChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Popover.Root.Actions>",
+      "type": "RefObject<PopoverRootActions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library.",
-      "detailedType": "React.RefObject<Popover.Root.Actions> | undefined"
+      "detailedType": "React.RefObject<PopoverRootActions> | undefined"
     },
     "modal": {
       "type": "boolean | 'trap-focus'",

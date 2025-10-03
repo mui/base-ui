@@ -21,9 +21,9 @@
       "detailedType": "boolean | undefined"
     },
     "onCheckedChange": {
-      "type": "((checked: boolean, eventDetails: Checkbox.Root.ChangeEventDetails) => void)",
+      "type": "((checked: boolean, eventDetails: CheckboxRootChangeEventDetails) => void)",
       "description": "Event handler called when the checkbox is ticked or unticked.",
-      "detailedType": "| ((\n    checked: boolean,\n    eventDetails: Checkbox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    checked: boolean,\n    eventDetails: CheckboxRootChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "indeterminate": {
       "type": "boolean",
@@ -77,13 +77,13 @@
       "detailedType": "string | undefined"
     },
     "className": {
-      "type": "string | ((state: Checkbox.Root.State) => string)",
+      "type": "string | ((state: CheckboxRootState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Checkbox.Root.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: CheckboxRootState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Checkbox.Root.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: CheckboxRootState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

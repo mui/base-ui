@@ -14,14 +14,14 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, eventDetails: AlertDialog.Root.ChangeEventDetails) => void)",
+      "type": "((open: boolean, eventDetails: AlertDialogRootChangeEventDetails) => void)",
       "description": "Event handler called when the dialog is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    eventDetails: AlertDialog.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: AlertDialogRootChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<AlertDialog.Root.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the dialog will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the dialog manually.\nUseful when the dialog's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<AlertDialog.Root.Actions>\n| undefined"
+      "type": "RefObject<AlertDialogRootActions>",
+      "description": "A ref to imperative actions.",
+      "detailedType": "React.RefObject<AlertDialogRootActions> | undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

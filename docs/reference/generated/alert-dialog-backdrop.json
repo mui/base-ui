@@ -9,14 +9,14 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: AlertDialog.Backdrop.State) => string)",
+      "type": "string | ((state: AlertDialogBackdropState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: AlertDialog.Backdrop.State) => string)"
+      "detailedType": "| string\n| ((state: AlertDialogBackdropState) => string)"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: AlertDialog.Backdrop.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: AlertDialogBackdropState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: AlertDialog.Backdrop.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: AlertDialogBackdropState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

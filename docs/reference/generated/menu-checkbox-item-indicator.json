@@ -3,9 +3,9 @@
   "description": "Indicates whether the checkbox item is ticked.\nRenders a `<div>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: Menu.CheckboxItemIndicator.State) => string)",
+      "type": "string | ((state: MenuCheckboxItemIndicatorState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Menu.CheckboxItemIndicator.State) => string)"
+      "detailedType": "| string\n| ((state: MenuCheckboxItemIndicatorState) => string)"
     },
     "keepMounted": {
       "type": "boolean",
@@ -14,9 +14,9 @@
       "detailedType": "boolean | undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Menu.CheckboxItemIndicator.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: MenuCheckboxItemIndicatorState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.CheckboxItemIndicator.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: MenuCheckboxItemIndicatorState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

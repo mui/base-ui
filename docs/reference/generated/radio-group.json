@@ -16,9 +16,9 @@
       "description": "The controlled value of the radio item that should be currently selected.\n\nTo render an uncontrolled radio group, use the `defaultValue` prop instead."
     },
     "onValueChange": {
-      "type": "((value: unknown, eventDetails: Radio.Group.ChangeEventDetails) => void)",
+      "type": "((value: unknown, eventDetails: RadioGroupChangeEventDetails) => void)",
       "description": "Callback fired when the value changes.",
-      "detailedType": "| ((\n    value: unknown,\n    eventDetails: Radio.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: unknown,\n    eventDetails: RadioGroupChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "disabled": {
       "type": "boolean",
@@ -44,13 +44,13 @@
       "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "className": {
-      "type": "string | ((state: Radio.Group.State) => string)",
+      "type": "string | ((state: RadioGroupState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Radio.Group.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: RadioGroupState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Radio.Group.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: RadioGroupState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -8,13 +8,13 @@
       "detailedType": "number | undefined"
     },
     "className": {
-      "type": "string | ((state: Avatar.Root.State) => string)",
+      "type": "string | ((state: AvatarRootState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: AvatarRootState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Avatar.Root.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: AvatarRootState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

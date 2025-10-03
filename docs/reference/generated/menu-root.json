@@ -14,14 +14,14 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, eventDetails: Menu.Root.ChangeEventDetails) => void)",
+      "type": "((open: boolean, eventDetails: MenuRootChangeEventDetails) => void)",
       "description": "Event handler called when the menu is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Menu.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: MenuRootChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Menu.Root.Actions>",
+      "type": "RefObject<MenuRootActions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the menu will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the menu manually.\nUseful when the menu's animation is controlled by an external library.",
-      "detailedType": "React.RefObject<Menu.Root.Actions> | undefined"
+      "detailedType": "React.RefObject<MenuRootActions> | undefined"
     },
     "closeParentOnEsc": {
       "type": "boolean",
@@ -70,7 +70,7 @@
       "detailedType": "boolean | undefined"
     },
     "orientation": {
-      "type": "Menu.Root.Orientation",
+      "type": "MenuRootOrientation",
       "default": "'vertical'",
       "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys.",
       "detailedType": "'horizontal' | 'vertical' | undefined"

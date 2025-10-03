@@ -7,18 +7,18 @@
       "detailedType": "string | number | string[] | undefined"
     },
     "onValueChange": {
-      "type": "((value: string, eventDetails: Field.Control.ChangeEventDetails) => void)",
+      "type": "((value: string, eventDetails: FieldControlChangeEventDetails) => void)",
       "description": "Callback fired when the `value` changes. Use when controlled.",
-      "detailedType": "| ((\n    value: string,\n    eventDetails: Field.Control.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: string,\n    eventDetails: FieldControlChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: Field.Root.State) => string)",
+      "type": "string | ((state: FieldRootState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: FieldRootState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Field.Root.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: FieldRootState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

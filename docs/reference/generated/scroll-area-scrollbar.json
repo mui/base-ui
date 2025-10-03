@@ -9,9 +9,9 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: ScrollArea.Scrollbar.State) => string)",
+      "type": "string | ((state: ScrollAreaScrollbarState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: ScrollArea.Scrollbar.State) => string)"
+      "detailedType": "| string\n| ((state: ScrollAreaScrollbarState) => string)"
     },
     "keepMounted": {
       "type": "boolean",
@@ -20,9 +20,9 @@
       "detailedType": "boolean | undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: ScrollArea.Scrollbar.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: ScrollAreaScrollbarState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ScrollArea.Scrollbar.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ScrollAreaScrollbarState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -9,14 +9,14 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: NumberField.Decrement.State) => string)",
+      "type": "string | ((state: NumberFieldDecrementState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: NumberField.Decrement.State) => string)"
+      "detailedType": "| string\n| ((state: NumberFieldDecrementState) => string)"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: NumberField.Decrement.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: NumberFieldDecrementState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NumberField.Decrement.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NumberFieldDecrementState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

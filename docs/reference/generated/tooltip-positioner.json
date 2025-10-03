@@ -6,7 +6,7 @@
       "type": "CollisionAvoidance",
       "description": "Determines how to handle collisions when positioning the popup.",
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
-      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'shift' | 'none' | 'flip'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| {\n    side?: 'shift' | 'none'\n    align?: 'shift' | 'none'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| undefined"
+      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'none' | 'shift' | 'flip'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| {\n    side?: 'none' | 'shift'\n    align?: 'none' | 'shift'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| undefined"
     },
     "align": {
       "type": "Align",
@@ -76,14 +76,14 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Tooltip.Positioner.State) => string)",
+      "type": "string | ((state: TooltipPositionerState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Tooltip.Positioner.State) => string)"
+      "detailedType": "| string\n| ((state: TooltipPositionerState) => string)"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Tooltip.Positioner.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: TooltipPositionerState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tooltip.Positioner.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: TooltipPositionerState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

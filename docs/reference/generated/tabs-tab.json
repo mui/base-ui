@@ -3,7 +3,7 @@
   "description": "An individual interactive tab button that toggles the corresponding panel.\nRenders a `<button>` element.",
   "props": {
     "value": {
-      "type": "Tabs.Tab.Value",
+      "type": "TabsTabValue",
       "description": "The value of the Tab.\nWhen not specified, the value is the child position index."
     },
     "nativeButton": {
@@ -13,13 +13,13 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Tabs.Tab.State) => string)",
+      "type": "string | ((state: TabsTabState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Tabs.Tab.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: TabsTabState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tabs.Tab.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: TabsTabState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

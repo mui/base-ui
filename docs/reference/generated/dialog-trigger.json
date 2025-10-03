@@ -9,13 +9,13 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Dialog.Trigger.State) => string)",
+      "type": "string | ((state: DialogTriggerState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Dialog.Trigger.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: DialogTriggerState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Dialog.Trigger.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: DialogTriggerState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

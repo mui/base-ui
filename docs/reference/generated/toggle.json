@@ -19,9 +19,9 @@
       "detailedType": "boolean | undefined"
     },
     "onPressedChange": {
-      "type": "((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void)",
+      "type": "((pressed: boolean, eventDetails: ToggleChangeEventDetails) => void)",
       "description": "Callback fired when the pressed state is changed.",
-      "detailedType": "| ((\n    pressed: boolean,\n    eventDetails: Toggle.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    pressed: boolean,\n    eventDetails: ToggleChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "nativeButton": {
       "type": "boolean",
@@ -36,13 +36,13 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Toggle.State) => string)",
+      "type": "string | ((state: ToggleState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Toggle.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: ToggleState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toggle.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((props: HTMLProps, state: ToggleState) => ReactElement)"
     }
   },
   "dataAttributes": {

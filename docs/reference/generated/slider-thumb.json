@@ -45,13 +45,13 @@
       "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "className": {
-      "type": "string | ((state: Slider.Thumb.State) => string)",
+      "type": "string | ((state: SliderThumbState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Slider.Thumb.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: SliderThumbState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Slider.Thumb.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: SliderThumbState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -39,9 +39,9 @@
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Autocomplete.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Autocomplete.Root.Actions>",
+      "type": "RefObject<ComboboxRootInternalActions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the autocomplete will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the autocomplete manually.\nUseful when the autocomplete's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<Autocomplete.Root.Actions>\n| undefined"
+      "detailedType": "| React.RefObject<ComboboxRootInternalActions>\n| undefined"
     },
     "alwaysSubmitOnEnter": {
       "type": "boolean",

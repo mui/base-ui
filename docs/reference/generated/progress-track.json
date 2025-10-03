@@ -3,13 +3,13 @@
   "description": "Contains the progress bar indicator.\nRenders a `<div>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: Progress.Root.State) => string)",
+      "type": "string | ((state: ProgressRootState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Progress.Root.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: ProgressRootState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Progress.Root.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ProgressRootState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -19,19 +19,19 @@
       "detailedType": "boolean | undefined"
     },
     "orientation": {
-      "type": "Toolbar.Root.Orientation",
+      "type": "ToolbarRootOrientation",
       "default": "'horizontal'",
       "description": "The orientation of the toolbar.",
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: Toolbar.Root.State) => string)",
+      "type": "string | ((state: ToolbarRootState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Root.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: ToolbarRootState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toolbar.Root.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ToolbarRootState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

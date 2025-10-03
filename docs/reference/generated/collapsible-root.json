@@ -14,9 +14,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, eventDetails: Collapsible.Root.ChangeEventDetails) => void)",
+      "type": "((open: boolean, eventDetails: CollapsibleRootChangeEventDetails) => void)",
       "description": "Event handler called when the panel is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Collapsible.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: CollapsibleRootChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "disabled": {
       "type": "boolean",
@@ -25,13 +25,12 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Collapsible.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Collapsible.Root.State) => string)"
+      "type": "string | ((state: CollapsibleRootState) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement) | null",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Collapsible.Root.State,\n  ) => ReactElement)\n| null"
+      "type": "ReactElement | ((props: HTMLProps, state: CollapsibleRootState) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: CollapsibleRootState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

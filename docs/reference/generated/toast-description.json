@@ -3,14 +3,13 @@
   "description": "A description that describes the toast.\nCan be used as the default message for the toast when no title is provided.\nRenders a `<p>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: Toast.Description.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Toast.Description.State) => string)"
+      "type": "string | ((state: ToastDescriptionState) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Toast.Description.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: ToastDescriptionState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toast.Description.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ToastDescriptionState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

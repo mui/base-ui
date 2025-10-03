@@ -3,14 +3,14 @@
   "description": "A paragraph with additional information about the popover.\nRenders a `<p>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: Popover.Description.State) => string)",
+      "type": "string | ((state: PopoverDescriptionState) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Popover.Description.State) => string)"
+      "detailedType": "| string\n| ((state: PopoverDescriptionState) => string)"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Popover.Description.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: PopoverDescriptionState) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Popover.Description.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: PopoverDescriptionState,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},
