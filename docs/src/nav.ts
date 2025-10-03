@@ -184,6 +184,11 @@ export const nav: NavGroup[] = [
         href: '/react/components/tabs',
       },
       {
+        label: 'Textarea',
+        href: '/react/components/textarea',
+        isNew: true,
+      },
+      {
         label: 'Toast',
         href: '/react/components/toast',
       },

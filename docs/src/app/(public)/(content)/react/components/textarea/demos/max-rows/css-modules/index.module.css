@@ -1,0 +1,24 @@
+.Textarea {
+  box-sizing: border-box;
+  margin: 0;
+  border: 1px solid var(--color-gray-200);
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  max-width: 16rem;
+  min-height: 4rem;
+  border-radius: 0.375rem;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  letter-spacing: 0em;
+  font-weight: normal;
+  background-color: transparent;
+  color: var(--color-gray-900);
+  field-sizing: content;
+  resize: vertical;
+
+  &:focus {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
