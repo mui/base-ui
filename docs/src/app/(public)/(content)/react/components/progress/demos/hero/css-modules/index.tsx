@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Progress } from '@base-ui-components/react/progress';
 import styles from './index.module.css';
