@@ -13,7 +13,7 @@ export const Button = React.forwardRef<
       ref={ref}
       className={c(
         props.className,
-        'bg-slate-200/90 hover:bg-slate-200/50 data-[open]:bg-slate-200/50 rounded p-2 px-3 transition-colors',
+        'rounded bg-slate-200/90 p-2 px-3 transition-colors hover:bg-slate-200/50 data-[open]:bg-slate-200/50',
       )}
     />
   );
