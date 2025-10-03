@@ -1,5 +1,5 @@
 {
-  "name": "ComboboxClear",
+  "name": "Combobox.Clear",
   "description": "Clears the value when clicked.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
@@ -15,7 +15,7 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: ComboboxClearState) => string)",
+      "type": "string | ((state: Combobox.Clear.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
@@ -25,9 +25,9 @@
       "detailedType": "boolean | undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: ComboboxClearState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Clear.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ComboboxClearState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Clear.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

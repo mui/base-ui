@@ -1,5 +1,5 @@
 {
-  "name": "PopoverClose",
+  "name": "Popover.Close",
   "description": "A button that closes the popover.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
@@ -9,13 +9,13 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: PopoverCloseState) => string)",
+      "type": "string | ((state: Popover.Close.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: PopoverCloseState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Popover.Close.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: PopoverCloseState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Popover.Close.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

@@ -1,5 +1,5 @@
 {
-  "name": "MenuTrigger",
+  "name": "Menu.Trigger",
   "description": "A button that opens the menu.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
@@ -19,13 +19,13 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: MenuTriggerState) => string)",
+      "type": "string | ((state: Menu.Trigger.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: MenuTriggerState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Menu.Trigger.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: MenuTriggerState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.Trigger.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

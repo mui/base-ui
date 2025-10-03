@@ -1,5 +1,5 @@
 {
-  "name": "ComboboxPositioner",
+  "name": "Combobox.Positioner",
   "description": "Positions the popup against the trigger.\nRenders a `<div>` element.",
   "props": {
     "collisionAvoidance": {
@@ -76,14 +76,14 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: ComboboxPositionerState) => string)",
+      "type": "string | ((state: Combobox.Positioner.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: ComboboxPositionerState) => string)"
+      "detailedType": "| string\n| ((state: Combobox.Positioner.State) => string)"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: ComboboxPositionerState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Positioner.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ComboboxPositionerState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Positioner.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

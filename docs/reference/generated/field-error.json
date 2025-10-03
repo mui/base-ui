@@ -1,5 +1,5 @@
 {
-  "name": "FieldError",
+  "name": "Field.Error",
   "description": "An error message displayed if the field control fails validation.\nRenders a `<div>` element.",
   "props": {
     "match": {
@@ -8,13 +8,13 @@
       "detailedType": "| boolean\n| 'valid'\n| 'badInput'\n| 'customError'\n| 'patternMismatch'\n| 'rangeOverflow'\n| 'rangeUnderflow'\n| 'stepMismatch'\n| 'tooLong'\n| 'tooShort'\n| 'typeMismatch'\n| 'valueMissing'\n| undefined"
     },
     "className": {
-      "type": "string | ((state: FieldRootState) => string)",
+      "type": "string | ((state: Field.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: FieldRootState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: FieldRootState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Field.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

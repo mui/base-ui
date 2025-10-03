@@ -1,5 +1,5 @@
 {
-  "name": "ProgressValue",
+  "name": "Progress.Value",
   "description": "A text label displaying the current value.\nRenders a `<span>` element.",
   "props": {
     "children": {
@@ -7,13 +7,13 @@
       "detailedType": "| ((\n    formattedValue: string | null,\n    value: number | null,\n  ) => ReactNode)\n| null\n| undefined"
     },
     "className": {
-      "type": "string | ((state: ProgressRootState) => string)",
+      "type": "string | ((state: Progress.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: ProgressRootState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Progress.Root.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ProgressRootState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Progress.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

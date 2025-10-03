@@ -1,5 +1,5 @@
 {
-  "name": "TabsList",
+  "name": "Tabs.List",
   "description": "Groups the individual tab buttons.\nRenders a `<div>` element.",
   "props": {
     "activateOnFocus": {
@@ -15,13 +15,13 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: TabsListState) => string)",
+      "type": "string | ((state: Tabs.List.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: TabsListState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Tabs.List.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: TabsListState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tabs.List.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

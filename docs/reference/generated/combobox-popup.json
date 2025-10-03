@@ -1,5 +1,5 @@
 {
-  "name": "ComboboxPopup",
+  "name": "Combobox.Popup",
   "description": "A container for the list.\nRenders a `<div>` element.",
   "props": {
     "initialFocus": {
@@ -13,13 +13,13 @@
       "detailedType": "| boolean\n| React.RefObject<HTMLElement | null>\n| ((\n    closeType: InteractionType,\n  ) => boolean | void | HTMLElement | null)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: ComboboxPopupState) => string)",
+      "type": "string | ((state: Combobox.Popup.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: ComboboxPopupState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Popup.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ComboboxPopupState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Popup.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

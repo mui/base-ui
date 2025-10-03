@@ -1,5 +1,5 @@
 {
-  "name": "TooltipPositioner",
+  "name": "Tooltip.Positioner",
   "description": "Positions the tooltip against the trigger.\nRenders a `<div>` element.",
   "props": {
     "collisionAvoidance": {
@@ -76,14 +76,14 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: TooltipPositionerState) => string)",
+      "type": "string | ((state: Tooltip.Positioner.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: TooltipPositionerState) => string)"
+      "detailedType": "| string\n| ((state: Tooltip.Positioner.State) => string)"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: TooltipPositionerState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Tooltip.Positioner.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: TooltipPositionerState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tooltip.Positioner.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -1,5 +1,5 @@
 {
-  "name": "ComboboxItemIndicator",
+  "name": "Combobox.ItemIndicator",
   "description": "Indicates whether the item is selected.\nRenders a `<span>` element.",
   "props": {
     "children": {
@@ -7,9 +7,9 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: ComboboxItemIndicatorState) => string)",
+      "type": "string | ((state: Combobox.ItemIndicator.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: ComboboxItemIndicatorState) => string)"
+      "detailedType": "| string\n| ((state: Combobox.ItemIndicator.State) => string)"
     },
     "keepMounted": {
       "type": "boolean",
@@ -18,9 +18,9 @@
       "detailedType": "boolean | undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: ComboboxItemIndicatorState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.ItemIndicator.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ComboboxItemIndicatorState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.ItemIndicator.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

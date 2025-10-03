@@ -1,5 +1,5 @@
 {
-  "name": "RadioRoot",
+  "name": "Radio.Root",
   "description": "Represents the radio button itself.\nRenders a `<button>` element and a hidden `<input>` beside.",
   "props": {
     "value": {
@@ -34,13 +34,13 @@
       "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "className": {
-      "type": "string | ((state: RadioRootState) => string)",
+      "type": "string | ((state: Radio.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: RadioRootState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Radio.Root.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: RadioRootState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Radio.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

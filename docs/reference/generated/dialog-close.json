@@ -1,5 +1,5 @@
 {
-  "name": "DialogClose",
+  "name": "Dialog.Close",
   "description": "A button that closes the dialog.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
@@ -9,13 +9,13 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: DialogCloseState) => string)",
+      "type": "string | ((state: Dialog.Close.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: DialogCloseState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Dialog.Close.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: DialogCloseState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Dialog.Close.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -74,7 +74,7 @@ export function useField(params: useField.Parameters) {
   }, [formRef, id]);
 }
 
-export interface useFieldParameters {
+export interface UseFieldParameters {
   enabled?: boolean;
   value: unknown;
   getValue?: (() => unknown) | undefined;
@@ -89,5 +89,5 @@ export interface useFieldParameters {
 }
 
 export namespace useField {
-  export type Parameters = useFieldParameters;
+  export type Parameters = UseFieldParameters;
 }

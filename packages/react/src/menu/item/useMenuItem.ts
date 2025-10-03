@@ -114,7 +114,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
   );
 }
 
-export interface useMenuItemParameters {
+export interface UseMenuItemParameters {
   /**
    * Whether to close the menu when the item is clicked.
    */
@@ -160,7 +160,7 @@ export interface useMenuItemParameters {
   nodeId: string | undefined;
 }
 
-export type useMenuItemMetadata =
+export type UseMenuItemMetadata =
   | typeof REGULAR_ITEM
   | {
       type: 'submenu-trigger';
@@ -168,7 +168,7 @@ export type useMenuItemMetadata =
       allowMouseEnterEnabled: boolean;
     };
 
-export interface useMenuItemReturnValue {
+export interface UseMenuItemReturnValue {
   /**
    * Resolver for the root slot's props.
    * @param externalProps event handlers for the root slot
@@ -182,7 +182,7 @@ export interface useMenuItemReturnValue {
 }
 
 export namespace useMenuItem {
-  export type Parameters = useMenuItemParameters;
-  export type Metadata = useMenuItemMetadata;
-  export type ReturnValue = useMenuItemReturnValue;
+  export type Parameters = UseMenuItemParameters;
+  export type Metadata = UseMenuItemMetadata;
+  export type ReturnValue = UseMenuItemReturnValue;
 }

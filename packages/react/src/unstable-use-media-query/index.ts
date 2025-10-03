@@ -60,7 +60,7 @@ export function useMediaQuery(query: string, options: useMediaQuery.Options): bo
   return match;
 }
 
-export interface useMediaQueryOptions {
+export interface UseMediaQueryOptions {
   /**
    * As `window.matchMedia()` is unavailable on the server,
    * it returns a default matches during the first mount.
@@ -87,5 +87,5 @@ export interface useMediaQueryOptions {
 }
 
 export namespace useMediaQuery {
-  export type Options = useMediaQueryOptions;
+  export type Options = UseMediaQueryOptions;
 }

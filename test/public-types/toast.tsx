@@ -10,8 +10,11 @@ export type ToastManagerUpdate = ToastManagerReturn['update'];
 export type ToastManagerPromise = ToastManagerReturn['promise'];
 
 export type ToastManagerAddOptions<Data extends object> = Toast.useToastManager.AddOptions<Data>;
-export type ToastManagerUpdateOptions<Data extends object> = Toast.useToastManager.UpdateOptions<Data>;
-export type ToastManagerPromiseOptions<Value, Data extends object> =
-  Toast.useToastManager.PromiseOptions<Value, Data>;
+export type ToastManagerUpdateOptions<Data extends object> =
+  Toast.useToastManager.UpdateOptions<Data>;
+export type ToastManagerPromiseOptions<
+  Value,
+  Data extends object,
+> = Toast.useToastManager.PromiseOptions<Value, Data>;
 
 export type ToastCreateManagerReturn = ReturnType<typeof Toast.createToastManager>;

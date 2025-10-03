@@ -1,5 +1,5 @@
 {
-  "name": "CollapsibleRoot",
+  "name": "Collapsible.Root",
   "description": "Groups all parts of the collapsible.\nRenders a `<div>` element.",
   "props": {
     "defaultOpen": {
@@ -25,12 +25,12 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: CollapsibleRootState) => string)",
+      "type": "string | ((state: Collapsible.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: CollapsibleRootState) => ReactElement)",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: CollapsibleRootState,\n  ) => ReactElement)"
+      "type": "ReactElement | ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Collapsible.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

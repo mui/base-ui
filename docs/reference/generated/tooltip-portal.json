@@ -1,5 +1,5 @@
 {
-  "name": "TooltipPortal",
+  "name": "Tooltip.Portal",
   "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.",
   "props": {
     "container": {

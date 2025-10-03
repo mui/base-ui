@@ -1,5 +1,5 @@
 {
-  "name": "ToolbarButton",
+  "name": "Toolbar.Button",
   "description": "A button that can be used as-is or as a trigger for other components.\nRenders a `<button>` element.",
   "props": {
     "focusableWhenDisabled": {
@@ -21,13 +21,13 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: ToolbarButtonState) => string)",
+      "type": "string | ((state: Toolbar.Button.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: ToolbarButtonState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Button.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ToolbarButtonState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toolbar.Button.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

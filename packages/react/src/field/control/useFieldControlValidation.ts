@@ -289,7 +289,7 @@ export function useFieldControlValidation() {
   );
 }
 
-export interface useFieldControlValidationReturnValue {
+export interface UseFieldControlValidationReturnValue {
   getValidationProps: (props?: HTMLProps) => HTMLProps;
   getInputValidationProps: (props?: HTMLProps) => HTMLProps;
   inputRef: React.MutableRefObject<any>;
@@ -297,5 +297,5 @@ export interface useFieldControlValidationReturnValue {
 }
 
 export namespace useFieldControlValidation {
-  export type ReturnValue = useFieldControlValidationReturnValue;
+  export type ReturnValue = UseFieldControlValidationReturnValue;
 }

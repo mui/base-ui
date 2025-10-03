@@ -1,5 +1,5 @@
 {
-  "name": "MenuRadioGroup",
+  "name": "Menu.RadioGroup",
   "description": "Groups related radio items.\nRenders a `<div>` element.",
   "props": {
     "defaultValue": {
@@ -27,13 +27,13 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: MenuRadioGroupState) => string)",
+      "type": "string | ((state: Menu.RadioGroup.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: MenuRadioGroupState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Menu.RadioGroup.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: MenuRadioGroupState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.RadioGroup.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

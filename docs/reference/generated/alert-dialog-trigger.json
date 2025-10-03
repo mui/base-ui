@@ -1,5 +1,5 @@
 {
-  "name": "AlertDialogTrigger",
+  "name": "AlertDialog.Trigger",
   "description": "A button that opens the alert dialog.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
@@ -9,14 +9,14 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: AlertDialogTriggerState) => string)",
+      "type": "string | ((state: AlertDialog.Trigger.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: AlertDialogTriggerState) => string)"
+      "detailedType": "| string\n| ((state: AlertDialog.Trigger.State) => string)"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: AlertDialogTriggerState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: AlertDialog.Trigger.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: AlertDialogTriggerState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: AlertDialog.Trigger.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

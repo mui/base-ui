@@ -1,5 +1,5 @@
 {
-  "name": "SelectItem",
+  "name": "Select.Item",
   "description": "An individual option in the select popup.\nRenders a `<div>` element.",
   "props": {
     "label": {
@@ -29,13 +29,13 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: SelectItemState) => string)",
+      "type": "string | ((state: Select.Item.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: SelectItemState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Select.Item.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: SelectItemState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.Item.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

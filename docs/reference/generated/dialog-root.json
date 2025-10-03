@@ -1,5 +1,5 @@
 {
-  "name": "DialogRoot",
+  "name": "Dialog.Root",
   "description": "Groups all parts of the dialog.\nDoesn’t render its own HTML element.",
   "props": {
     "defaultOpen": {

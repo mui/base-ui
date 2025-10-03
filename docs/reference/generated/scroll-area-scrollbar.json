@@ -1,5 +1,5 @@
 {
-  "name": "ScrollAreaScrollbar",
+  "name": "ScrollArea.Scrollbar",
   "description": "A vertical or horizontal scrollbar for the scroll area.\nRenders a `<div>` element.",
   "props": {
     "orientation": {
@@ -9,9 +9,9 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: ScrollAreaScrollbarState) => string)",
+      "type": "string | ((state: ScrollArea.Scrollbar.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: ScrollAreaScrollbarState) => string)"
+      "detailedType": "| string\n| ((state: ScrollArea.Scrollbar.State) => string)"
     },
     "keepMounted": {
       "type": "boolean",
@@ -20,9 +20,9 @@
       "detailedType": "boolean | undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: ScrollAreaScrollbarState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: ScrollArea.Scrollbar.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ScrollAreaScrollbarState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ScrollArea.Scrollbar.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

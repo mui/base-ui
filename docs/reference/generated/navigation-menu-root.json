@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenuRoot",
+  "name": "NavigationMenu.Root",
   "description": "Groups all parts of the navigation menu.\nRenders a `<nav>` element at the root, or `<div>` element when nested.",
   "props": {
     "defaultValue": {
@@ -46,14 +46,14 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: NavigationMenuRootState) => string)",
+      "type": "string | ((state: NavigationMenu.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: NavigationMenuRootState) => string)"
+      "detailedType": "| string\n| ((state: NavigationMenu.Root.State) => string)"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: NavigationMenuRootState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Root.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NavigationMenuRootState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NavigationMenu.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

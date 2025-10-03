@@ -148,19 +148,19 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   });
 }
 
-export interface useDialogRootSharedParameters {}
+export interface UseDialogRootSharedParameters {}
 
-export interface useDialogRootParameters {
+export interface UseDialogRootParameters {
   store: DialogStore;
   actionsRef?: DialogRoot.Props['actionsRef'];
   parentContext?: DialogStore['context'];
   onOpenChange: DialogRoot.Props['onOpenChange'];
 }
 
-export type useDialogRootReturnValue = void;
+export type UseDialogRootReturnValue = void;
 
 export namespace useDialogRoot {
-  export type SharedParameters = useDialogRootSharedParameters;
-  export type Parameters = useDialogRootParameters;
-  export type ReturnValue = useDialogRootReturnValue;
+  export type SharedParameters = UseDialogRootSharedParameters;
+  export type Parameters = UseDialogRootParameters;
+  export type ReturnValue = UseDialogRootReturnValue;
 }

@@ -1,15 +1,15 @@
 {
-  "name": "PopoverArrow",
+  "name": "Popover.Arrow",
   "description": "Displays an element positioned against the popover anchor.\nRenders a `<div>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: PopoverArrowState) => string)",
+      "type": "string | ((state: Popover.Arrow.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: PopoverArrowState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Popover.Arrow.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: PopoverArrowState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Popover.Arrow.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

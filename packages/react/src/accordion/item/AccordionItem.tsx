@@ -140,8 +140,6 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   );
 });
 
-export type AccordionItemValue = any | null;
-
 export interface AccordionItemState extends AccordionRoot.State {
   index: number;
   open: boolean;
@@ -163,7 +161,7 @@ export interface AccordionItemProps
    * </Accordion.Root>
    * ```
    */
-  value?: AccordionItemValue;
+  value?: any;
   /**
    * Event handler called when the panel is opened or closed.
    */

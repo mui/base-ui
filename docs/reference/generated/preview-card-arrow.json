@@ -1,15 +1,15 @@
 {
-  "name": "PreviewCardArrow",
+  "name": "PreviewCard.Arrow",
   "description": "Displays an element positioned against the preview card anchor.\nRenders a `<div>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: PreviewCardArrowState) => string)",
+      "type": "string | ((state: PreviewCard.Arrow.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: PreviewCardArrowState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: PreviewCard.Arrow.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: PreviewCardArrowState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: PreviewCard.Arrow.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

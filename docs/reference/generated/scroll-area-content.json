@@ -1,16 +1,16 @@
 {
-  "name": "ScrollAreaContent",
+  "name": "ScrollArea.Content",
   "description": "A container for the content of the scroll area.\nRenders a `<div>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: ScrollAreaContentState) => string)",
+      "type": "string | ((state: ScrollArea.Content.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: ScrollAreaContentState) => string)"
+      "detailedType": "| string\n| ((state: ScrollArea.Content.State) => string)"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: ScrollAreaContentState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: ScrollArea.Content.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ScrollAreaContentState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ScrollArea.Content.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

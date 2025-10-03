@@ -150,7 +150,7 @@ export function useCollapsibleRoot(
   );
 }
 
-export interface useCollapsibleRootParameters {
+export interface UseCollapsibleRootParameters {
   /**
    * Whether the collapsible panel is currently open.
    *
@@ -175,7 +175,7 @@ export interface useCollapsibleRootParameters {
   disabled: boolean;
 }
 
-export interface useCollapsibleRootReturnValue {
+export interface UseCollapsibleRootReturnValue {
   abortControllerRef: React.RefObject<AbortController | null>;
   animationTypeRef: React.RefObject<AnimationType>;
   /**
@@ -219,6 +219,6 @@ export interface useCollapsibleRootReturnValue {
 }
 
 export namespace useCollapsibleRoot {
-  export type Parameters = useCollapsibleRootParameters;
-  export type ReturnValue = useCollapsibleRootReturnValue;
+  export type Parameters = UseCollapsibleRootParameters;
+  export type ReturnValue = UseCollapsibleRootReturnValue;
 }

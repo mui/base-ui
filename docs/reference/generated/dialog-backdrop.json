@@ -1,5 +1,5 @@
 {
-  "name": "DialogBackdrop",
+  "name": "Dialog.Backdrop",
   "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
   "props": {
     "forceRender": {
@@ -9,13 +9,13 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: DialogBackdropState) => string)",
+      "type": "string | ((state: Dialog.Backdrop.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: DialogBackdropState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Dialog.Backdrop.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: DialogBackdropState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Dialog.Backdrop.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

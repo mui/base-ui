@@ -235,7 +235,7 @@ export function useNumberFieldButton(
   );
 }
 
-export interface useNumberFieldButtonParameters {
+export interface UseNumberFieldButtonParameters {
   allowInputSyncRef: React.RefObject<boolean | null>;
   disabled: boolean;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
@@ -269,11 +269,11 @@ export interface useNumberFieldButtonParameters {
   ) => void;
 }
 
-export interface useNumberFieldButtonReturnValue {
+export interface UseNumberFieldButtonReturnValue {
   props: HTMLProps;
 }
 
 export namespace useNumberFieldButton {
-  export type Parameters = useNumberFieldButtonParameters;
-  export type ReturnValue = useNumberFieldButtonReturnValue;
+  export type Parameters = UseNumberFieldButtonParameters;
+  export type ReturnValue = UseNumberFieldButtonReturnValue;
 }

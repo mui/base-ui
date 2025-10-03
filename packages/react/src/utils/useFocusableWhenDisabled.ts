@@ -67,7 +67,7 @@ interface FocusableWhenDisabledProps {
   tabIndex: number;
 }
 
-export interface useFocusableWhenDisabledParameters {
+export interface UseFocusableWhenDisabledParameters {
   /**
    * Whether the component should be focusable when disabled.
    * When `undefined`, composite items are focusable when disabled by default.
@@ -92,11 +92,11 @@ export interface useFocusableWhenDisabledParameters {
   isNativeButton: boolean;
 }
 
-export interface useFocusableWhenDisabledReturnValue {
+export interface UseFocusableWhenDisabledReturnValue {
   props: FocusableWhenDisabledProps;
 }
 
 export namespace useFocusableWhenDisabled {
-  export type Parameters = useFocusableWhenDisabledParameters;
-  export type ReturnValue = useFocusableWhenDisabledReturnValue;
+  export type Parameters = UseFocusableWhenDisabledParameters;
+  export type ReturnValue = UseFocusableWhenDisabledReturnValue;
 }

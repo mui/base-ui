@@ -30,7 +30,7 @@ export function useDialogClose(params: useDialogClose.Parameters): useDialogClos
   };
 }
 
-export interface useDialogCloseParameters {
+export interface UseDialogCloseParameters {
   /**
    * Whether the button is currently disabled.
    */
@@ -52,7 +52,7 @@ export interface useDialogCloseParameters {
   nativeButton: boolean;
 }
 
-export interface useDialogCloseReturnValue {
+export interface UseDialogCloseReturnValue {
   /**
    * Resolver for the root element props.
    */
@@ -61,6 +61,6 @@ export interface useDialogCloseReturnValue {
 }
 
 export namespace useDialogClose {
-  export type Parameters = useDialogCloseParameters;
-  export type ReturnValue = useDialogCloseReturnValue;
+  export type Parameters = UseDialogCloseParameters;
+  export type ReturnValue = UseDialogCloseReturnValue;
 }

@@ -27,7 +27,7 @@ export function useOpenChangeComplete(parameters: useOpenChangeComplete.Paramete
   }, [enabled, open, onComplete, runOnceAnimationsFinish, openRef]);
 }
 
-export interface useOpenChangeCompleteParameters {
+export interface UseOpenChangeCompleteParameters {
   /**
    * Whether the hook is enabled.
    * @default true
@@ -48,5 +48,5 @@ export interface useOpenChangeCompleteParameters {
 }
 
 export namespace useOpenChangeComplete {
-  export type Parameters = useOpenChangeCompleteParameters;
+  export type Parameters = UseOpenChangeCompleteParameters;
 }

@@ -84,7 +84,7 @@ export function createToastManager(): createToastManager.ToastManager {
   };
 }
 
-export interface createToastManagerToastManager {
+export interface CreateToastManagerToastManager {
   ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
   add: <Data extends object>(options: useToastManager.AddOptions<Data>) => string;
   close: (id: string) => void;
@@ -96,5 +96,5 @@ export interface createToastManagerToastManager {
 }
 
 export namespace createToastManager {
-  export type ToastManager = createToastManagerToastManager;
+  export type ToastManager = CreateToastManagerToastManager;
 }

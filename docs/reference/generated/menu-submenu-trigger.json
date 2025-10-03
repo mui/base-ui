@@ -1,5 +1,5 @@
 {
-  "name": "MenuSubmenuTrigger",
+  "name": "Menu.SubmenuTrigger",
   "description": "A menu item that opens a submenu.\nRenders a `<div>` element.",
   "props": {
     "label": {
@@ -26,14 +26,14 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: MenuSubmenuTriggerState) => string)",
+      "type": "string | ((state: Menu.SubmenuTrigger.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: MenuSubmenuTriggerState) => string)"
+      "detailedType": "| string\n| ((state: Menu.SubmenuTrigger.State) => string)"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: MenuSubmenuTriggerState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Menu.SubmenuTrigger.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: MenuSubmenuTriggerState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.SubmenuTrigger.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

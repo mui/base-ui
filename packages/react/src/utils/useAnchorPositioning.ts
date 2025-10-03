@@ -530,7 +530,7 @@ function isRef(
   return param != null && 'current' in param;
 }
 
-export interface useAnchorPositioningSharedParameters {
+export interface UseAnchorPositioningSharedParameters {
   /**
    * An element to position the popup against.
    * By default, the popup will be positioned against the trigger.
@@ -653,7 +653,7 @@ export interface useAnchorPositioningSharedParameters {
   collisionAvoidance?: CollisionAvoidance;
 }
 
-export interface useAnchorPositioningParameters extends useAnchorPositioning.SharedParameters {
+export interface UseAnchorPositioningParameters extends useAnchorPositioning.SharedParameters {
   keepMounted?: boolean;
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
   floatingRootContext?: FloatingRootContext;
@@ -666,7 +666,7 @@ export interface useAnchorPositioningParameters extends useAnchorPositioning.Sha
   lazyFlip?: boolean;
 }
 
-export interface useAnchorPositioningReturnValue {
+export interface UseAnchorPositioningReturnValue {
   positionerStyles: React.CSSProperties;
   arrowStyles: React.CSSProperties;
   arrowRef: React.RefObject<Element | null>;
@@ -682,7 +682,7 @@ export interface useAnchorPositioningReturnValue {
 }
 
 export namespace useAnchorPositioning {
-  export type SharedParameters = useAnchorPositioningSharedParameters;
-  export type Parameters = useAnchorPositioningParameters;
-  export type ReturnValue = useAnchorPositioningReturnValue;
+  export type SharedParameters = UseAnchorPositioningSharedParameters;
+  export type Parameters = UseAnchorPositioningParameters;
+  export type ReturnValue = UseAnchorPositioningReturnValue;
 }

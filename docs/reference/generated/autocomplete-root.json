@@ -1,5 +1,5 @@
 {
-  "name": "AutocompleteRoot",
+  "name": "Autocomplete.Root",
   "description": "Groups all parts of the autocomplete.\nDoesn't render its own HTML element.",
   "props": {
     "name": {
@@ -39,9 +39,9 @@
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Autocomplete.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<ComboboxRootInternalActions>",
+      "type": "RefObject<Combobox.Root.InternalActions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the autocomplete will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the autocomplete manually.\nUseful when the autocomplete's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<ComboboxRootInternalActions>\n| undefined"
+      "detailedType": "| React.RefObject<Combobox.Root.InternalActions>\n| undefined"
     },
     "alwaysSubmitOnEnter": {
       "type": "boolean",

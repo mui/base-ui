@@ -397,7 +397,7 @@ export function useCollapsiblePanel(
   );
 }
 
-export interface useCollapsiblePanelParameters {
+export interface UseCollapsiblePanelParameters {
   abortControllerRef: React.RefObject<AbortController | null>;
   animationTypeRef: React.RefObject<AnimationType>;
   externalRef: React.ForwardedRef<HTMLDivElement>;
@@ -448,11 +448,11 @@ export interface useCollapsiblePanelParameters {
   width: number | undefined;
 }
 
-export interface useCollapsiblePanelReturnValue {
+export interface UseCollapsiblePanelReturnValue {
   props: HTMLProps;
 }
 
 export namespace useCollapsiblePanel {
-  export type Parameters = useCollapsiblePanelParameters;
-  export type ReturnValue = useCollapsiblePanelReturnValue;
+  export type Parameters = UseCollapsiblePanelParameters;
+  export type ReturnValue = UseCollapsiblePanelReturnValue;
 }

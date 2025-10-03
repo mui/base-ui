@@ -1,5 +1,5 @@
 {
-  "name": "ToastAction",
+  "name": "Toast.Action",
   "description": "Performs an action when clicked.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
@@ -9,13 +9,13 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: ToastActionState) => string)",
+      "type": "string | ((state: Toast.Action.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: ToastActionState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Toast.Action.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ToastActionState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toast.Action.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

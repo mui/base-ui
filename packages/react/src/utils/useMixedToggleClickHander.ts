@@ -41,7 +41,7 @@ export function useMixedToggleClickHandler(params: useMixedToggleClickHandler.Pa
   }, [enabled, mouseDownAction, open]);
 }
 
-export interface useMixedToggleClickHandlerParameters {
+export interface UseMixedToggleClickHandlerParameters {
   /**
    * Whether the mixed toggle click handler is enabled.
    * @default true
@@ -58,5 +58,5 @@ export interface useMixedToggleClickHandlerParameters {
 }
 
 export namespace useMixedToggleClickHandler {
-  export type Parameters = useMixedToggleClickHandlerParameters;
+  export type Parameters = UseMixedToggleClickHandlerParameters;
 }
