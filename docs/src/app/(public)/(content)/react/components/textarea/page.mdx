@@ -1,0 +1,43 @@
+# Textarea
+
+<Subtitle>
+  A native textarea element that automatically works with [Field](/react/components/field).
+</Subtitle>
+
+<Meta name="description" content="A high-quality, unstyled React textarea component." />
+
+<Demo path="./demos/hero" />
+
+## Anatomy
+
+Import the component and use it as a single part:
+
+```jsx title="Anatomy"
+import { Textarea } from '@base-ui-components/react/textarea';
+
+<Textarea />;
+```
+
+## API reference
+
+<Reference component="Textarea" />
+
+## Examples
+
+### Infinite resize
+
+Setting only a `minRows` will make the textarea automatically resize to fit its content.
+
+<Demo path="./demos/infinite-resize" compact />
+
+### Max rows
+
+Setting both `minRows` and `maxRows` will make the textarea automatically resize between those limits.
+
+<Demo path="./demos/max-rows" compact />
+
+### Form integration
+
+The textarea works seamlessly with the [Form](/react/components/form) component and supports libraries like [Zod](https://zod.dev/) for schema validation.
+
+<Demo path="./demos/form" compact />

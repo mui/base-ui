@@ -1,0 +1,58 @@
+{
+  "name": "Textarea",
+  "description": "A native textarea element that automatically works with [Field](https://base-ui.com/react/components/field).\nRenders an `<textarea>` element.",
+  "props": {
+    "defaultValue": {
+      "type": "string | number | string[]",
+      "detailedType": "string | number | string[] | undefined"
+    },
+    "onValueChange": {
+      "type": "((value: string, eventDetails: Textarea.ChangeEventDetails) => void)",
+      "description": "Callback fired when the `value` changes. Use when controlled.",
+      "detailedType": "| ((\n    value: string,\n    eventDetails: Textarea.ChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "maxRows": {
+      "type": "number",
+      "description": "Limit automatic height resizing to this many rows.",
+      "detailedType": "number | undefined"
+    },
+    "minRows": {
+      "type": "number",
+      "description": "Enable automatic height resizing by setting the minimum number of rows.\n\nPrefer the CSS property `field-sizing: content` when supported (not\nsupported in Safari and Firefox).",
+      "detailedType": "number | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Field.Root.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Field.Root.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the textarea is disabled."
+    },
+    "data-valid": {
+      "description": "Present when the textarea is in valid state."
+    },
+    "data-invalid": {
+      "description": "Present when the textarea is in invalid state."
+    },
+    "data-dirty": {
+      "description": "Present when the textarea's value has changed."
+    },
+    "data-touched": {
+      "description": "Present when the textarea has been touched."
+    },
+    "data-filled": {
+      "description": "Present when the textarea is filled."
+    },
+    "data-focused": {
+      "description": "Present when the textarea is focused."
+    }
+  },
+  "cssVariables": {}
+}

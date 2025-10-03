@@ -58,6 +58,7 @@
     "./slider": "./src/slider/index.ts",
     "./switch": "./src/switch/index.ts",
     "./tabs": "./src/tabs/index.ts",
+    "./textarea": "./src/textarea/index.ts",
     "./toast": "./src/toast/index.ts",
     "./toggle": "./src/toggle/index.ts",
     "./toggle-group": "./src/toggle-group/index.ts",
