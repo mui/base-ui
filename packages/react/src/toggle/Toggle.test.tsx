@@ -11,6 +11,8 @@ describe('<Toggle />', () => {
 
   describeConformance(<Toggle />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render,
   }));
 
@@ -102,7 +104,7 @@ describe('<Toggle />', () => {
     });
   });
 
-  describe('prop: render', async () => {
+  describe('prop: render', () => {
     it('should pass composite props', async () => {
       const renderSpy = spy();
 

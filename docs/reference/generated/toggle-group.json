@@ -4,34 +4,41 @@
   "props": {
     "defaultValue": {
       "type": "any[]",
-      "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the uncontrolled counterpart of `value`."
+      "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the uncontrolled counterpart of `value`.",
+      "detailedType": "any[] | undefined"
     },
     "value": {
       "type": "any[]",
-      "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the controlled counterpart of `defaultValue`."
+      "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the controlled counterpart of `defaultValue`.",
+      "detailedType": "any[] | undefined"
     },
     "onValueChange": {
-      "type": "((groupValue: any[], event: Event) => void)",
-      "description": "Callback fired when the pressed states of the toggle group changes."
+      "type": "((groupValue: any[], eventDetails: Toggle.Group.ChangeEventDetails) => void)",
+      "description": "Callback fired when the pressed states of the toggle group changes.",
+      "detailedType": "| ((\n    groupValue: any[],\n    eventDetails: Toggle.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
-    "toggleMultiple": {
+    "multiple": {
       "type": "boolean",
       "default": "false",
-      "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed."
+      "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed.",
+      "detailedType": "boolean | undefined"
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the toggle group should ignore user interaction."
+      "description": "Whether the toggle group should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "loop": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
+      "detailedType": "boolean | undefined"
     },
     "orientation": {
       "type": "Orientation",
-      "default": "'horizontal'"
+      "default": "'horizontal'",
+      "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
       "type": "string | ((state: Toggle.Group.State) => string)",
@@ -39,7 +46,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toggle.Group.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toggle.Group.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

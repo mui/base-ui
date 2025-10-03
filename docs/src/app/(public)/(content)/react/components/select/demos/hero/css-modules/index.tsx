@@ -21,20 +21,20 @@ export default function ExampleSelect() {
       </Select.Trigger>
       <Select.Portal>
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
-          <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
-            {fonts.map(({ label, value }) => (
-              <Select.Item key={label} value={value} className={styles.Item}>
-                <Select.ItemIndicator className={styles.ItemIndicator}>
-                  <CheckIcon className={styles.ItemIndicatorIcon} />
-                </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>
-                  {label}
-                </Select.ItemText>
-              </Select.Item>
-            ))}
+            <Select.ScrollUpArrow className={styles.ScrollArrow} />
+            <Select.List className={styles.List}>
+              {fonts.map(({ label, value }) => (
+                <Select.Item key={label} value={value} className={styles.Item}>
+                  <Select.ItemIndicator className={styles.ItemIndicator}>
+                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                  </Select.ItemIndicator>
+                  <Select.ItemText className={styles.ItemText}>{label}</Select.ItemText>
+                </Select.Item>
+              ))}
+            </Select.List>
+            <Select.ScrollDownArrow className={styles.ScrollArrow} />
           </Select.Popup>
-          <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>
       </Select.Portal>
     </Select.Root>

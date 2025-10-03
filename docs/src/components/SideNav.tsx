@@ -34,10 +34,6 @@ export function List(props: React.ComponentProps<'ul'>) {
   return <ul {...props} className={clsx('SideNavList', props.className)} />;
 }
 
-export function Label(props: React.ComponentProps<'span'>) {
-  return <span {...props} className={clsx('SideNavLabel', props.className)} />;
-}
-
 export function Badge(props: React.ComponentProps<'span'>) {
   return <span {...props} className={clsx('SideNavBadge', props.className)} />;
 }
@@ -46,11 +42,13 @@ interface ItemProps extends React.ComponentProps<'li'> {
   active?: boolean;
   href: string;
   isNew?: boolean;
+  external?: boolean;
 }
 
 const SCROLL_MARGIN = 48;
 
-export function Item({ children, href, ...props }: ItemProps) {
+export function Item(props: ItemProps) {
+  const { children, className, href, external, ...other } = props;
   const ref = React.useRef<HTMLLIElement>(null);
   const pathname = usePathname();
   const active = pathname === href;
@@ -85,23 +83,27 @@ export function Item({ children, href, ...props }: ItemProps) {
     }
   }, [active]);
 
+  const LinkComponent = external ? 'a' : NextLink;
+
   return (
-    <li ref={ref} {...props} className={clsx('SideNavItem', props.className)}>
-      <NextLink
-        aria-current={active ? 'page' : undefined}
-        data-active={active || undefined}
+    <li ref={ref} {...other} className={clsx('SideNavItem', className)}>
+      <LinkComponent
         className="SideNavLink"
         href={href}
-        scroll={!active}
-        onClick={() => {
-          // Scroll to top smoothly when clicking on the currently active item
-          if (active) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
-        }}
+        scroll={external ? undefined : !active}
+        {...(active
+          ? {
+              'aria-current': true,
+              'data-active': true,
+              onClick: () => {
+                // Scroll to top smoothly when clicking on the currently active item
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              },
+            }
+          : {})}
       >
         {children}
-      </NextLink>
+      </LinkComponent>
     </li>
   );
 }

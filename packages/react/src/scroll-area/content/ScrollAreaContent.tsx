@@ -1,9 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useScrollAreaViewportContext } from '../viewport/ScrollAreaViewportContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
+import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
+import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
 
 /**
  * A container for the content of the scroll area.
@@ -20,8 +23,9 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
   const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
 
   const { computeThumbPosition } = useScrollAreaViewportContext();
+  const { viewportState } = useScrollAreaRootContext();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }
@@ -39,6 +43,8 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, contentWrapperRef],
+    state: viewportState,
+    stateAttributesMapping: scrollAreaStateAttributesMapping,
     props: [
       {
         role: 'presentation',
@@ -54,7 +60,7 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
 });
 
 export namespace ScrollAreaContent {
-  export interface State {}
+  export interface State extends ScrollAreaRoot.State {}
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }

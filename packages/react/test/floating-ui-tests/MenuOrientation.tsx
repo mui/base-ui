@@ -1,6 +1,6 @@
 import * as React from 'react';
 import c from 'clsx';
-import { useForkRefN } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefsN } from '@base-ui-components/utils/useMergedRefs';
 import { CompositeList } from '../../src/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';
 import {
@@ -197,16 +197,16 @@ export const MenuComponent = React.forwardRef<
     <FloatingNode id={nodeId}>
       <button
         type="button"
-        ref={useForkRefN([refs.setReference, item.ref, forwardedRef])}
+        ref={useMergedRefsN([refs.setReference, item.ref, forwardedRef])}
         data-open={isOpen ? '' : undefined}
         // eslint-disable-next-line no-nested-ternary
         tabIndex={!isNested ? props.tabIndex : parent.activeIndex === item.index ? 0 : -1}
         className={c(
           props.className || 'flex items-center justify-between gap-4 rounded px-2 py-1 text-left',
           {
-            'focus:bg-blue-500 outline-none focus:text-white': isNested,
+            'outline-none focus:bg-blue-500 focus:text-white': isNested,
             'bg-blue-500 text-white': isOpen && isNested && !hasFocusInside,
-            'bg-slate-200 rounded px-2 py-1': isNested && isOpen && hasFocusInside,
+            'rounded bg-slate-200 px-2 py-1': isNested && isOpen && hasFocusInside,
             'bg-slate-200': !isNested && isOpen,
           },
         )}
@@ -254,13 +254,13 @@ export const MenuComponent = React.forwardRef<
               <FloatingFocusManager
                 context={context}
                 modal={false}
-                initialFocus={isNested ? -1 : 0}
+                initialFocus={!isNested}
                 returnFocus={!isNested}
               >
                 <div
                   ref={refs.setFloating}
                   className={c(
-                    'border-slate-900/10 rounded border bg-white bg-clip-padding p-1 shadow-lg outline-none',
+                    'rounded border border-slate-900/10 bg-white bg-clip-padding p-1 shadow-lg outline-none',
                     {
                       'flex flex-col': !cols && orientation !== 'horizontal',
                     },
@@ -273,7 +273,7 @@ export const MenuComponent = React.forwardRef<
                   )}
                   style={{
                     ...floatingStyles,
-                    // @ts-ignore
+                    // @ts-expect-error css var
                     '--cols': cols,
                     // eslint-disable-next-line no-nested-ternary
                     visibility: !keepMounted ? undefined : isOpen ? 'visible' : 'hidden',
@@ -310,13 +310,13 @@ export const MenuItem = React.forwardRef<
   return (
     <button
       {...props}
-      ref={useForkRefN([item.ref, forwardedRef])}
+      ref={useMergedRefsN([item.ref, forwardedRef])}
       type="button"
       role="menuitem"
       disabled={disabled}
       tabIndex={isActive ? 0 : -1}
       className={c(
-        'focus:bg-blue-500 flex rounded px-2 py-1 text-left outline-none focus:text-white',
+        'flex rounded px-2 py-1 text-left outline-none focus:bg-blue-500 focus:text-white',
         { 'opacity-40': disabled },
       )}
       {...menu.getItemProps({
@@ -381,7 +381,7 @@ export function HorizontalMenu() {
   return (
     <React.Fragment>
       <h1 className="mb-8 text-5xl font-bold">Horizontal menu</h1>
-      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
+      <div className="mb-4 grid h-[20rem] place-items-center rounded border border-slate-400 lg:w-[40rem]">
         <Menu label="Edit" orientation="horizontal">
           <MenuItem
             label="Undo"
@@ -418,7 +418,7 @@ export function VerticalMenu() {
   return (
     <React.Fragment>
       <h1 className="mb-8 text-5xl font-bold">Vertical menu</h1>
-      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
+      <div className="mb-4 grid h-[20rem] place-items-center rounded border border-slate-400 lg:w-[40rem]">
         <Menu label="Edit">
           <MenuItem
             label="Undo"
@@ -455,7 +455,7 @@ export function HorizontalMenuWithHorizontalSubmenus() {
   return (
     <React.Fragment>
       <h1 className="mb-8 text-5xl font-bold">Horizontal menu with horizontal submenus</h1>
-      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
+      <div className="mb-4 grid h-[20rem] place-items-center rounded border border-slate-400 lg:w-[40rem]">
         <Menu label="Edit" orientation="horizontal">
           <MenuItem
             label="Undo"

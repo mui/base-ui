@@ -1,3 +1,4 @@
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import type { TextDirection } from '../direction-provider/DirectionContext';
 
 export {
@@ -40,13 +41,17 @@ export const META = 'Meta' as const;
 export const MODIFIER_KEYS = new Set([SHIFT, CONTROL, ALT, META] as const);
 export type ModifierKey = typeof MODIFIER_KEYS extends Set<infer Keys> ? Keys : never;
 
+function isInputElement(element: EventTarget): element is HTMLInputElement {
+  return isHTMLElement(element) && element.tagName === 'INPUT';
+}
+
 export function isNativeInput(
   element: EventTarget,
 ): element is HTMLElement & (HTMLInputElement | HTMLTextAreaElement) {
-  if (element instanceof HTMLInputElement && element.selectionStart != null) {
+  if (isInputElement(element) && element.selectionStart != null) {
     return true;
   }
-  if (element instanceof HTMLTextAreaElement) {
+  if (isHTMLElement(element) && element.tagName === 'TEXTAREA') {
     return true;
   }
   return false;
@@ -58,7 +63,7 @@ export function scrollIntoViewIfNeeded(
   direction: TextDirection,
   orientation: 'horizontal' | 'vertical' | 'both',
 ) {
-  if (!scrollContainer || !element) {
+  if (!scrollContainer || !element || !element.scrollTo) {
     return;
   }
 
@@ -70,7 +75,7 @@ export function scrollIntoViewIfNeeded(
 
   if (isOverflowingX && orientation !== 'vertical') {
     const elementOffsetLeft = getOffset(scrollContainer, element, 'left');
-    const containerStyles = getStyles(element);
+    const containerStyles = getStyles(scrollContainer);
     const elementStyles = getStyles(element);
 
     if (direction === 'ltr') {
@@ -124,7 +129,7 @@ export function scrollIntoViewIfNeeded(
 
   if (isOverflowingY && orientation !== 'horizontal') {
     const elementOffsetTop = getOffset(scrollContainer, element, 'top');
-    const containerStyles = getStyles(element);
+    const containerStyles = getStyles(scrollContainer);
     const elementStyles = getStyles(element);
 
     if (

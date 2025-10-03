@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useCompositeRootContext } from '../root/CompositeRootContext';
 import { useCompositeListItem } from '../list/useCompositeListItem';
 import { HTMLProps } from '../../utils/types';
@@ -17,7 +17,7 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
   const isHighlighted = highlightedIndex === index;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
-  const mergedRef = useForkRef(ref, itemRef);
+  const mergedRef = useMergedRefs(ref, itemRef);
 
   const compositeProps = React.useMemo<HTMLProps>(
     () => ({

@@ -4,6 +4,13 @@ export type HTMLProps<T = any> = React.HTMLAttributes<T> & {
   ref?: React.Ref<T> | undefined;
 };
 
+export interface FloatingUIOpenChangeDetails {
+  open: boolean;
+  reason: string;
+  nativeEvent: Event;
+  nested: boolean;
+}
+
 export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
   preventBaseUIHandler: () => void;
   readonly baseUIHandlerPrevented?: boolean;
@@ -62,6 +69,26 @@ export type BaseUIComponentProps<
     | ComponentRenderFn<RenderFunctionProps, State>
     | React.ReactElement<Record<string, unknown>>;
 };
+
+export interface NativeButtonProps {
+  /**
+   * Whether the component renders a native `<button>` element when replacing it
+   * via the `render` prop.
+   * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+   * @default true
+   */
+  nativeButton?: boolean;
+}
+
+export interface NonNativeButtonProps {
+  /**
+   * Whether the component renders a native `<button>` element when replacing it
+   * via the `render` prop.
+   * Set to `true` if the rendered element is a native button.
+   * @default false
+   */
+  nativeButton?: boolean;
+}
 
 /**
  * Simplifies the display of a type (without modifying it).

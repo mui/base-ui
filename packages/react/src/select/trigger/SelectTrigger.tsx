@@ -3,33 +3,34 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { selectors } from '../store';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import { contains } from '../../floating-ui-react/utils';
+import { contains, getFloatingFocusElement } from '../../floating-ui-react/utils';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import type { FieldRoot } from '../../field/root/FieldRoot';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const BOUNDARY_OFFSET = 2;
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectTrigger.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectTrigger.State> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
   value: () => null,
 };
 
 /**
- * A button that opens the select menu.
+ * A button that opens the select popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -60,10 +61,11 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   const disabled = fieldDisabled || selectDisabled || disabledProp;
 
-  const open = useSelector(store, selectors.open);
-  const value = useSelector(store, selectors.value);
-  const triggerProps = useSelector(store, selectors.triggerProps);
-  const positionerElement = useSelector(store, selectors.positionerElement);
+  const open = useStore(store, selectors.open);
+  const value = useStore(store, selectors.value);
+  const triggerProps = useStore(store, selectors.triggerProps);
+  const positionerElement = useStore(store, selectors.positionerElement);
+  const listElement = useStore(store, selectors.listElement);
 
   const positionerRef = useLatestRef(positionerElement);
 
@@ -82,7 +84,12 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     store.set('triggerElement', element);
   });
 
-  const mergedRef = useForkRef<HTMLElement>(forwardedRef, triggerRef, buttonRef, setTriggerElement);
+  const mergedRef = useMergedRefs<HTMLElement>(
+    forwardedRef,
+    triggerRef,
+    buttonRef,
+    setTriggerElement,
+  );
 
   const timeout1 = useTimeout();
   const timeout2 = useTimeout();
@@ -108,7 +115,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     selectionRef.current = {
       allowSelectedMouseUp: false,
       allowUnselectedMouseUp: false,
-      allowSelect: true,
     };
 
     timeoutMouseDown.clear();
@@ -116,9 +122,17 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return undefined;
   }, [open, selectionRef, timeoutMouseDown, timeout1, timeout2]);
 
+  const ariaControlsId = React.useMemo(() => {
+    return listElement?.id ?? getFloatingFocusElement(positionerElement)?.id;
+  }, [listElement, positionerElement]);
+
   const props: HTMLProps = mergeProps<'div'>(
     triggerProps,
     {
+      role: 'combobox',
+      'aria-expanded': open ? 'true' : 'false',
+      'aria-haspopup': 'listbox',
+      'aria-controls': open ? ariaControlsId : undefined,
       'aria-labelledby': labelId,
       'aria-readonly': readOnly || undefined,
       tabIndex: disabled ? -1 : 0,
@@ -127,7 +141,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         setFocused(true);
         // The popup element shouldn't obscure the focused trigger.
         if (open && alignItemWithTriggerActiveRef.current) {
-          setOpen(false, event.nativeEvent, 'focus-out');
+          setOpen(false, createChangeEventDetails('focus-out', event.nativeEvent));
         }
 
         // Saves a re-render on initial click: `forceMount === true` mounts
@@ -154,12 +168,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       onPointerDown({ pointerType }) {
         store.set('touchModality', pointerType === 'touch');
       },
-      onKeyDown(event) {
+      onKeyDown() {
         keyboardActiveRef.current = true;
-
-        if (event.key === 'ArrowDown') {
-          setOpen(true, event.nativeEvent, 'list-navigation');
-        }
       },
       onMouseDown(event) {
         if (open) {
@@ -195,7 +205,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          setOpen(false, mouseEvent, 'cancel-open');
+          setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
         }
 
         // Firefox can fire this upon mousedown
@@ -227,35 +237,28 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, triggerRef],
     state,
-    customStyleHookMapping,
+    stateAttributesMapping,
     props,
   });
 });
 
 export namespace SelectTrigger {
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
      * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default false
-     */
-    nativeButton?: boolean;
   }
 
   export interface State extends FieldRoot.State {
     /**
-     * Whether the select menu is currently open.
+     * Whether the select popup is currently open.
      */
     open: boolean;
     /**
-     * Whether the select menu is readonly.
+     * Whether the select popup is readonly.
      */
     readOnly: boolean;
     /**

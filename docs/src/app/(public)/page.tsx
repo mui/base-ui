@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Link } from 'docs/src/components/Link';
 import { ArrowRightIcon } from 'docs/src/icons/ArrowRightIcon';
 import { Logo } from 'docs/src/components/Logo';
@@ -25,8 +25,7 @@ export default function Homepage() {
         <div className="HomepageContent">
           <Logo className="mb-8 ml-px" aria-label="Base UI" />
           <h1 className="HomepageHeading">
-            Unstyled UI components for building accessible web apps and design
-            systems.
+            Unstyled UI components for building accessible web apps and design systems.
           </h1>
           <p className="HomepageCaption">
             From the creators of Radix, Floating&nbsp;UI, and Material&nbsp;UI.
@@ -43,8 +42,7 @@ export default function Homepage() {
   );
 }
 
-const description =
-  'Unstyled UI components for building accessible web apps and design systems.';
+const description = 'Unstyled UI components for building accessible web apps and design systems.';
 
 export const metadata: Metadata = {
   description,
@@ -54,4 +52,29 @@ export const metadata: Metadata = {
   openGraph: {
     description,
   },
+};
+
+// Custom viewport for the homepage because on mobile it doesn't have a header
+export const viewport: Viewport = {
+  themeColor: [
+    // Desktop Safari page background
+    {
+      media: '(prefers-color-scheme: light) and (min-width: 1024px)',
+      color: 'oklch(95% 0.25% 264)',
+    },
+    {
+      media: '(prefers-color-scheme: dark) and (min-width: 1024px)',
+      color: 'oklch(25% 1% 264)',
+    },
+
+    // Mobile Safari header background (match the page content)
+    {
+      media: '(prefers-color-scheme: light)',
+      color: '#FFF',
+    },
+    {
+      media: '(prefers-color-scheme: dark)',
+      color: '#000',
+    },
+  ],
 };

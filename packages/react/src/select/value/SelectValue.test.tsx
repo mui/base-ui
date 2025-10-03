@@ -209,7 +209,7 @@ describe('<Select.Value />', () => {
       ];
 
       function App() {
-        const [value, setValue] = React.useState<string | null>('sans');
+        const [value, setValue] = React.useState('sans');
         return (
           <div>
             <button onClick={() => setValue('serif')}>serif</button>
@@ -271,6 +271,123 @@ describe('<Select.Value />', () => {
       );
 
       expect(screen.getByTestId('value').querySelector('strong')).to.have.text('Bold Text');
+    });
+
+    it('is not stale after being updated', async () => {
+      function App() {
+        const [value, setValue] = React.useState('a');
+        const [items, setItems] = React.useState([
+          { value: 'a', label: 'a' },
+          { value: 'b', label: 'b' },
+        ]);
+
+        function updateItems() {
+          setItems([
+            { value: 'a', label: 'a new' },
+            { value: 'b', label: 'b new' },
+            { value: 'c', label: 'c' },
+          ]);
+        }
+
+        return (
+          <div>
+            <button onClick={updateItems}>update</button>
+            <button onClick={() => setValue('c')}>select c</button>
+            <Select.Root value={value} onValueChange={setValue} items={items}>
+              <Select.Trigger>
+                <Select.Value data-testid="value" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item.value} value={item.value}>
+                        {item.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.getByTestId('value')).to.have.text('a');
+
+      await user.click(screen.getByRole('button', { name: 'update' }));
+
+      expect(screen.getByTestId('value')).to.have.text('a new');
+
+      await user.click(screen.getByRole('button', { name: 'select c' }));
+
+      expect(screen.getByTestId('value')).to.have.text('c');
+    });
+  });
+
+  describe('prop: itemToStringLabel', () => {
+    it('uses custom itemToStringLabel function', async () => {
+      const items = [
+        { country: 'United States', code: 'US' },
+        { country: 'Canada', code: 'CA' },
+      ];
+
+      await render(
+        <Select.Root
+          value={items[1]}
+          itemToStringLabel={(i: any) => i.country}
+          itemToStringValue={(i: any) => i.code}
+        >
+          <Select.Trigger>
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {items.map((it) => (
+                  <Select.Item key={it.code} value={it}>
+                    {it.country}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Canada');
+    });
+
+    it('falls back to label/value properties when functions are not provided', async () => {
+      const items = [
+        { label: 'United States', value: 'US' },
+        { label: 'Canada', value: 'CA' },
+      ];
+
+      const { container } = await render(
+        <Select.Root name="country" value={items[1]}>
+          <Select.Trigger>
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {items.map((it) => (
+                  <Select.Item key={it.value} value={it}>
+                    {it.label}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Canada');
+      const hiddenInput = container.querySelector('input[name="country"]');
+      expect(hiddenInput).to.have.value('CA');
     });
   });
 

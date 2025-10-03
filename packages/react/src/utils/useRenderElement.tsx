@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { useForkRef, useForkRefN } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs, useMergedRefsN } from '@base-ui-components/utils/useMergedRefs';
 import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
 import { mergeObjects } from '@base-ui-components/utils/mergeObjects';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
-import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
+import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
 import { resolveClassName } from './resolveClassName';
 import { mergeProps, mergePropsN, mergeClassNames } from '../merge-props';
 import { EMPTY_OBJECT } from './constants';
@@ -57,41 +57,33 @@ function useRenderElementProps<
     state = EMPTY_OBJECT as State,
     ref,
     props,
-    disableStyleHooks,
-    customStyleHookMapping,
+    stateAttributesMapping,
     enabled = true,
   } = params;
 
   const className = enabled ? resolveClassName(classNameProp, state) : undefined;
 
-  let styleHooks: Record<string, string> | undefined;
-  if (disableStyleHooks !== true) {
-    // SAFETY: We use typings to ensure `disableStyleHooks` is either always set or
-    // always unset, so this `if` block is stable across renders.
-    /* eslint-disable-next-line react-hooks/rules-of-hooks */
-    styleHooks = React.useMemo(
-      () => (enabled ? getStyleHookProps(state, customStyleHookMapping) : EMPTY_OBJECT),
-      [state, customStyleHookMapping, enabled],
-    );
-  }
-
-  const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
-    ? (mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT)
+  const stateProps = enabled
+    ? getStateAttributesProps(state, stateAttributesMapping)
     : EMPTY_OBJECT;
 
-  // SAFETY: The `useForkRef` functions use a single hook to store the same value,
+  const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
+    ? (mergeObjects(stateProps, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT)
+    : EMPTY_OBJECT;
+
+  // SAFETY: The `useMergedRefs` functions use a single hook to store the same value,
   // switching between them at runtime is safe. If this assertion fails, React will
   // throw at runtime anyway.
-  // This also skips the `useForkRef` call on the server, which is fine because
+  // This also skips the `useMergedRefs` call on the server, which is fine because
   // refs are not used on the server side.
   /* eslint-disable react-hooks/rules-of-hooks */
   if (typeof document !== 'undefined') {
     if (!enabled) {
-      useForkRef(null, null);
+      useMergedRefs(null, null);
     } else if (Array.isArray(ref)) {
-      outProps.ref = useForkRefN([outProps.ref, getChildRef(renderProp), ...ref]);
+      outProps.ref = useMergedRefsN([outProps.ref, getChildRef(renderProp), ...ref]);
     } else {
-      outProps.ref = useForkRef(outProps.ref, getChildRef(renderProp), ref);
+      outProps.ref = useMergedRefs(outProps.ref, getChildRef(renderProp), ref);
     }
   }
 
@@ -189,23 +181,10 @@ export namespace useRenderElement {
           | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
         >;
     /**
-     * A mapping of state to style hooks.
+     * A mapping of state to `data-*` attributes.
      */
-    customStyleHookMapping?: CustomStyleHookMapping<State>;
-  } /* This typing ensures `disableStyleHookMapping` is constantly defined or undefined */ & (
-    | {
-        /**
-         * Disable style hook mapping.
-         */
-        disableStyleHooks: true;
-      }
-    | {
-        /**
-         * Disable style hook mapping.
-         */
-        disableStyleHooks?: false;
-      }
-  );
+    stateAttributesMapping?: StateAttributesMapping<State>;
+  };
 
   export interface ComponentProps<State> {
     /**

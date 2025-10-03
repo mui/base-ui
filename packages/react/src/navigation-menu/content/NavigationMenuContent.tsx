@@ -12,12 +12,12 @@ import {
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<NavigationMenuContent.State> = {
+const stateAttributesMapping: StateAttributesMapping<NavigationMenuContent.State> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
   activationDirection(value) {
@@ -49,6 +49,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     value,
     activationDirection,
     currentContentRef,
+    viewportTargetElement,
   } = useNavigationMenuRootContext();
   const itemValue = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
@@ -109,9 +110,10 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
         }
       : commonProps;
 
-  const shouldRender = viewportElement !== null && mounted;
+  const portalContainer = viewportTargetElement || viewportElement;
+  const shouldRender = portalContainer !== null && mounted;
 
-  if (!viewportElement || !shouldRender) {
+  if (!portalContainer || !shouldRender) {
     return null;
   }
 
@@ -123,11 +125,10 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
         state={state}
         refs={[forwardedRef, ref, handleCurrentContentRef]}
         props={[defaultProps, elementProps]}
-        customStyleHookMapping={customStyleHookMapping}
-        stopEventPropagation
+        stateAttributesMapping={stateAttributesMapping}
       />
     </FloatingNode>,
-    viewportElement,
+    portalContainer,
   );
 });
 

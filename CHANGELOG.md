@@ -1,5 +1,442 @@
 # Versions
 
+## v1.0.0-beta.4
+
+_Oct 1, 2025_
+
+### General changes
+
+- **Breaking change:** Generic event details.
+  The main exported type is now `BaseUIChangeEventDetails` (with a paired `BaseUIGenericEventDetails`), not `BaseUIEventDetails`.
+  (#2796) by @atomiks
+- Update `disabled` prop of buttons when ref changes (#2756) by @chuganzy
+- Refine event details (#2698) by @atomiks
+
+### Accordion
+
+- **Breaking change:** Use `useId` instead of composite index as fallback value.
+  Accordion items must have an explicit `value` set in order to be initially open. Inferring the value by their DOM index is no longer supported.
+  (#2664) by @mj12albert
+- **Breaking change:** Rename `openMultiple` prop to `multiple`
+  (#2764) by @LukasTy
+
+### Autocomplete
+
+- **Breaking change:** Rename `cols` to `grid` prop.
+  Specify `grid={true}` instead of `cols={number}` - the columns are automatically inferred from `Autocomplete.Row`
+  (#2683) by @atomiks
+- Fix duplicate `onOpenChange` calls and pass correct DOM `event`.
+  (#2682) by @atomiks
+- Fix controlled input value updates (#2707) by @atomiks
+- Fix input focus on close when clicking trigger (#2723) by @atomiks
+- Add `alwaysSubmitOnEnter` prop and allow form submission on <kbd>Enter</kbd> if no item is highlighted by default (#2700) by @atomiks
+- Use `ReadonlyArray` type for `items` (#2819) by @atomiks
+
+### Collapsible
+
+- Fix CollapsiblePanel type to use its own state (#2697) by @chuganzy
+- Respect user's CSS `display` property on panel (#2772) by @mj12albert
+
+### Combobox
+
+- **Breaking change**: `onItemHighlighted` now has a `reason` property instead of `type` to be consistent with the `eventDetails` API. (#2796) by @atomiks
+- **Breaking change:** Rename `cols` to `grid` prop.
+  Specify `grid={true}` instead of `cols={number}` - the columns are automatically inferred from `Combobox.Row`
+  (#2683) by @atomiks
+- Fix duplicate `onOpenChange` calls and pass correct DOM `event`.
+  (#2682) by @atomiks
+- Fix initial closed typeahead (#2665) by @atomiks
+- Support `autoHighlight` prop (#2668) by @atomiks
+- Set default input value based on `value` prop (#2680) by @atomiks
+- Fix controlled input value updates (#2707) by @atomiks
+- Fix input focus on close when clicking trigger. Fixes a jump to the bottom of the page in Safari (#2723) by @atomiks
+- Fix unexpected close with multiple selection and input inside popup (#2771) by @atomiks
+- Allow form submission on <kbd>Enter</kbd> if no item is highlighted by default (#2700) by @atomiks
+- Avoid refiltering with ending transition in multiple selection mode (#2681) by @atomiks
+- Support object values with `isItemEqualToValue` prop (#2704) by @atomiks
+- Use `ReadonlyArray` type for `items` (#2819) by @atomiks
+- Fix misleading `item-press` reason in `onInputValueChange` (#2830) by @atomiks
+- Clear single-select value on input clear (#2860) by @atomiks
+- Fix `focusout` of input not closing popup under certain conditions (#2864)
+
+### Context Menu
+
+- Ensure submenus close when parents close (#2768) by @atomiks
+- Fix `onClick` firing twice on first click of item (#2849) by @atomiks
+
+### Menu
+
+- Ensure submenus close when parents close (#2768) by @atomiks
+- Allow non-nested portals across differing popup trees (#2818) by @atomiks
+
+### Menubar
+
+- Fix Menubar not disabling child Menus (#2736) by @aarongarciah
+- Ensure submenus close when parents close (#2768) by @atomiks
+- Fix `CompositeList` not updating item order on reordering (#2675) by @chuganzy
+
+### Navigation Menu
+
+- Make link close on click configurable (#2740) by @atomiks
+- Fix focus returning to trigger without animations (#2779) by @atomiks
+- Fix `CompositeList` not updating item order on reordering (#2675) by @chuganzy
+
+### Number Field
+
+- Fix stuck virtual cursor after mouse tap (#2720) by @atomiks
+- Improve parsing logic (#2725) by @atomiks
+- Align value changes with `Slider`. An `onValueCommitted` callback has been added. (#2726) by @atomiks
+
+### Popover
+
+- Allow non-nested portals across differing popup trees (#2818) by @atomiks
+
+### Scroll Area
+
+- Add overflow presence state attributes and CSS variables (#2478) by @atomiks
+- Fix RTL horizontal scrollbar on Safari (#2776) by @atomiks
+- Fix thumb size flicker (#2778) by @atomiks
+
+### Select
+
+- **Breaking change:** Add `Select.List` component. It is now possible for `Select.ScrollArrow` to show when in fallback (`alignItemWithTrigger` deactivated). As a result, if you want the scroll arrows to be hidden in this mode like before, change the styles to default to `display: none` on `.ScrollArrow`, and `display: block` when `[data-side="none"]`. (#2596) by @atomiks
+- Block opening the popup when provided `readOnly` (#2717) by @seongminn
+- Add `open` state for `Select.Icon` and fix `ref` type (#2714) by @seongminn
+- Support object values with `isItemEqualToValue` prop (#2704) by @atomiks
+- Use `ReadonlyArray` type for `items` (#2819) by @atomiks
+
+### Slider
+
+- **Breaking change:** `onValueChange` has `activeThumbIndex` as part of the `eventDetails` object as a second parameter, not third. (#2796) by @atomiks
+- **Breaking change:** Remove redundant hidden inputs.
+  The `inputRef` prop is moved from `Root` to `Thumb`.
+  (#2631) by @mj12albert
+- Fix pointer tracking bugs (#2688) by @mj12albert
+- Fix input attributes (#2728) by @mj12albert
+- Add `thumbAlignment` prop (#2540) by @mj12albert
+
+### Switch
+
+- Fix duplicate `name` attribute (#2763) by @mj12albert
+
+### Toast
+
+- **Breaking change:** Support variable height stacking.
+  Toasts that have varying heights no longer force a `data-expanded` expanded state on the viewport. CSS should be amended to ensure larger toasts don't overflow a small toast stacked at the front. See this [diff](https://github.com/mui/base-ui/pull/2742/files#diff-e378460dafb74fe0c90ef960ad0ef1c38d68d74b63815520bb437f9041361917) for new styles, along with general improvements to stacking styles.
+  (#2742) by @atomiks
+- Reduce stickiness of expanded state (#2770) by @atomiks
+- Ensure toast is frozen at its current visual transform while swiping (#2769) by @atomiks
+
+### Toggle Group
+
+- **Breaking change:** Rename `toggleMultiple` prop to `multiple`.
+  (#2764) by @LukasTy
+
+### Toolbar
+
+- Fix `CompositeList` not updating item order on reordering (#2675) by @chuganzy
+
+### useRender
+
+- Add div as a `defaultTagName` (#2692) by @mnajdova
+
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @brijeshb42, @chuganzy, @Copilot, @Janpot, @LukasTy, @martenbjork, @michaldudak, @mj12albert, @mnajdova, @oliviertassinari, @seongminn, @sukvvon, @vladmoroz
+
+## v1.0.0-beta.3
+
+_Sep 3, 2025_
+
+### General changes
+
+- **Breaking change:** Base UI event details.
+  Custom event callbacks provide BaseUIEventDetails object as their second parameter.
+  This object contains the source event, reason and methods to customize the behavior (where applicable).
+  For example, `onOpenChange(open, event, reason)` becomes `onOpenChange(open, eventDetails)`, where `eventDetails` contains `event` and `reason` properties.
+  ```diff
+  -onOpenChange: (open, event, reason) => {
+  +onOpenChange: (open, eventDetails) => {
+  -  if (reason === 'escape-key') {
+  +  if (eventDetails.reason === 'escape-key') {
+       // ...
+     }
+   }
+  ```
+  (#2382) by @atomiks
+
+### Alert Dialog
+
+- **Breaking change:** Support `initialFocus` and `finalFocus` functions.
+  The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
+  This is a new feature for `finalFocus` and a breaking change for `initialFocus` as the element must be returned directly (not as a ref).
+  (#2536) by @atomiks
+
+### Autocomplete
+
+- New Autocomplete component (#2105) by @atomiks
+
+### Checkbox
+
+- Fix missing validity attributes when wrapped in `Field` (#2572) by @Copilot
+
+### Combobox
+
+- New Combobox component (#2105) by @atomiks
+
+### Context Menu
+
+- Fix default offsets when `align="center"` or `side` differs (#2601) by @atomiks
+
+### Dialog
+
+- **Breaking change:** Support `initialFocus` and `finalFocus` functions.
+  The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
+  This is a new feature for `finalFocus` and a breaking change for `initialFocus` as the element must be returned directly (not as a ref).
+  (#2536) by @atomiks
+- Restore focus to popup when focused element is removed (#2479) by @atomiks
+
+### Field
+
+- Prevent defaultValue reset on focus for uncontrolled inputs (#2543) by @ingokpp
+- Allow `onValueChange` to fire when `defaultValue`/`value` are not set (#2600) by @atomiks
+
+### Input
+
+- Allow `onValueChange` to fire when `defaultValue`/`value` are not set (#2600) by @atomiks
+
+### Menu
+
+- **Breaking change:** Fix `closeParentOnEsc` default value.
+  The default value of `closeParentOnEsc` in Menu.SubmenuRoot is now false.
+  When the <kbd>Esc</kbd> key is pressed in a Submenu, the Submenu closes, and the focus correctly moves to the SubmenuTrigger.
+  (#2493) by @seongminn
+- **Breaking change:** Support `initialFocus` and `finalFocus` functions.
+  The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
+  This is a new feature for `finalFocus` and a breaking change for `initialFocus` as the element must be returned directly (not as a ref).
+  (#2536) by @atomiks
+- Fix menu not opening when inside context menu trigger (#2506) by @baptisteArno
+- Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
+- Fix submenu events (#2483) by @atomiks
+- Fix `limitShift` offset based on arrow size (#2571) by @atomiks
+
+### Navigation Menu
+
+- **Breaking change:** Semantic element structure and `active` page prop.
+  `NavigationMenu.List` renders `<ul>` and `NavigationMenu.Item` renders `<li>` by default.
+  (#2526) by @atomiks
+- Unshare `AbortController` instance (#2441) by @tomokinat
+- Close on link click by default (#2535) by @atomiks
+
+### Number Field
+
+- Fix duplicate `onValueChange` calls (#2591) by @atomiks
+
+### Popover
+
+- **Breaking change:** Support `initialFocus` and `finalFocus` functions.
+  The `initialFocus` and `finalFocus` props can be functions that return DOM elements to focus.
+  This is a new feature for `finalFocus` and a breaking change for `initialFocus` as the element must be returned directly (not as a ref).
+  (#2536) by @atomiks
+- Fix outside click after right clicking in popup (#2508) by @baptisteArno
+- Fix unexpected close when nested inside two popovers (#2481) by @atomiks
+- Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
+- Restore focus to popup when focused element is removed (#2479) by @atomiks
+- Fix `limitShift` offset based on arrow size (#2571) by @atomiks
+
+### Preview Card
+
+- Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
+- Fix `limitShift` offset based on arrow size (#2571) by @atomiks
+
+### Radio Group
+
+- Return null in form data when no option selected (#2473) by @ingokpp
+
+### Scroll Area
+
+- Prevent pointer events from sibling portals triggering hover (#2542) by @KenanYusuf
+
+### Select
+
+- Fix stale `items` prop (#2397) by @atomiks
+- Fix unexpected close when nested inside two popovers (#2481) by @atomiks
+- Fix `onValueChange` type inference (#2372) by @atomiks
+- Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
+- Reset state when selected item is removed (#2577) by @atomiks
+- Fix `data-highlighted` and DOM focus item desync (#2569) by @atomiks
+- Fix item click with `defaultOpen` prop (#2570) by @atomiks
+- Fix scroll arrows not propagating scroll fully to start/end of list (#2523) by @atomiks
+- Fix `limitShift` offset based on arrow size (#2571) by @atomiks
+
+### Slider
+
+- **Breaking change:** Instead of the thumb div, the `input type="range"` element receives focus. Focus styles that were targeting the thumb, should be updated.
+  For example `.Thumb:focus-visible` should be replaced with `.Thumb:has(:focus-visible)`.
+  The `tabIndex` prop is moved from Root to Thumb where it gets forwarded to the input.
+  The thumb's `render` prop no longer contains the third `inputProps` argument; the input element is instead merged with children.
+  (#2578) by @mj12albert
+- Reduce bundle size (#2551) by @oliviertassinari
+- Fix thumb `:focus-visible` with mixed keyboard and pointer modality (#2584) by @mj12albert
+- Add `index` prop to `Slider.Thumb` (#2593) by @mj12albert
+
+### Tabs
+
+- Fix tab size rounding (#2488) by @atomiks
+- Fix highlight sync when focus is inside list (#2487) by @atomiks
+
+### Tooltip
+
+- Fix `transform-origin` variable calculation when Positioner `sideOffset` is a function (#2511) by @atomiks
+- Fix `limitShift` offset based on arrow size (#2571) by @atomiks
+
+### useRender
+
+- Add support for data-\* attributes (#2524) by @Raghuboi
+- Add `defaultTagName` parameter (#2527) by @atomiks
+
+All contributors of this release in alphabetical order: @atomiks, @baptisteArno, @brijeshb42, @Copilot, @ingokpp, @Janpot, @KenanYusuf, @LukasTy, @michaldudak, @mirka, @mj12albert, @mnajdova, @oliviertassinari, @Powerplex, @Raghuboi, @seongminn, @tomokinat
+
+## v1.0.0-beta.2
+
+_Jul 30, 2025_
+
+### General changes
+
+- Fix navigator checks and ensure safe platform retrieval (#2273) by @mo36924
+- Prevent `Space` key default on keydown (#2295) by @atomiks
+- Check for `performance` existence on server (#2316) by @atomiks
+
+### Accordion
+
+- Destructure `render` prop (#2280) by @atomiks
+- Fix keyboard interactions with elements in the panel (#2321) by @mj12albert
+- Fix open transitions in Safari/Firefox (#2327) by @atomiks
+
+### Alert Dialog
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+- Add `forceRender` prop to `Backdrop` part (#2037) by @atomiks
+- Improve outside press behavior with touch input (#2334) by @atomiks
+
+### Checkbox
+
+- Fix focusing form controls with `inputRef` (#2252) by @mj12albert
+
+### Collapsible
+
+- Destructure render prop (#2323) by @atomiks
+- Fix open transitions in Safari/Firefox (#2327) by @atomiks
+
+### Dialog
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+- Add `forceRender` prop to `Backdrop` part (#2037) by @atomiks
+- Improve outside press behavior with touch input (#2334) by @atomiks
+- Use `click` event for outside press dismissal (#2275) by @atomiks
+
+### Field
+
+- Deregister fields from `Form` when unmounting (#2231) by @mj12albert
+
+### Form
+
+- Deregister fields from `Form` when unmounting (#2231) by @mj12albert
+
+### Menu
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+- Avoid double `useRenderElement` passes (#2256) by @atomiks
+- Improve outside press behavior with touch input (#2334) by @atomiks
+- Close submenus when focus is lost by shift-tabbing (#2290) by @michaldudak
+
+### Menubar
+
+- Fix triggers role (#2317) by @atomiks
+
+### Meter
+
+- Fix ARIA attributes and update docs (#2267) by @mj12albert
+
+### Navigation Menu
+
+- **Breaking change:** Support inlined nesting.
+  Ensure the popup's `width` is set to `var(--popup-width)` unconditionally (without the media query) on the `.Popup` class.
+  (#2269) by @atomiks
+- Avoid double `useRenderElement` passes (#2256) by @atomiks
+- Add `useButton` integration to `Trigger` (#2296) by @atomiks
+- Fix popup size transitions on iOS (#2387) by @atomiks
+
+### Number Field
+
+- Remove `invalid` prop (#2315) by @atomiks
+- Fix button disabled state only including root disabled state (#2268) by @mj12albert
+
+### Popover
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+- Remove ancestor nodes from inside elements for outside press detection (#2339) by @atomiks
+- Improve outside press behavior with touch input (#2334) by @atomiks
+- Use `click` event for outside press dismissal (#2275) by @atomiks
+
+### Preview Card
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+
+### Progress
+
+- Fix ARIA attributes and update docs (#2267) by @mj12albert
+
+### Radio Group
+
+- Add aria-required attribute (#2227) by @cgatian
+- Extend state with `FieldRoot.State` (#2251) by @mj12albert
+- Fix focusing form controls with `inputRef` (#2252) by @mj12albert
+- Avoid double `useRenderElement` passes (#2256) by @atomiks
+
+### Scroll Area
+
+- Disable `user-select` on scrollbar and non-main button interactions (#2338) by @atomiks
+
+### Select
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+- Add `value` and `readOnly` to `Select.Trigger` state (#2237) by @atomiks
+- Add `multiple` prop (#2173) by @atomiks
+- Allow typeahead while open for `multiple` mode (#2274) by @atomiks
+- Ensure positionerElement is available in document mouseup (#2276) by @atomiks
+- Fix `alignItemWithTrigger` fallback scroll jump (#2241) by @atomiks
+- Support conditional `multiple` prop in types (#2369) by @atomiks
+- Fix multiple ARIA behavior on touch (#2333) by @atomiks
+- Improve outside press behavior with touch input (#2334) by @atomiks
+
+### Slider
+
+- Fix focusing form controls with `inputRef` (#2252) by @mj12albert
+
+### Toast
+
+- Fix `promise` method timeout option handling (#2294) by @atomiks
+- Make `Toast.Viewport` an announce container (#2246) by @atomiks
+
+### Toggle
+
+- Avoid double `useRenderElement` passes (#2256) by @atomiks
+
+### Toggle Group
+
+- Avoid double `useRenderElement` passes (#2256) by @atomiks
+
+### Toolbar
+
+- Avoid double `useRenderElement` passes (#2256) by @atomiks
+
+### Tooltip
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+- Memoize leftover object in tooltip (#2250) by @sai6855
+- Fix error when combining `defaultOpen` and `disabled` (#2374) by @atomiks
+
+All contributors of this release in alphabetical order: @aelfannir, @atomiks, @brijeshb42, @cgatian, @Janpot, @michaldudak, @mj12albert, @mo36924, @romgrk, @sai6855
+
 ## v1.0.0-beta.1
 
 _Jul 1, 2025_
@@ -604,7 +1041,7 @@ _Mar 20, 2025_
 - [test] Fix flaky browser tests (#1371) @atomiks
 - [test] Update vitest to ^3 (#1453) @michaldudak
 - [test] Skip flaky FieldRoot tests in real browsers (#1446) @michaldudak
-- [useForkRef] Support ref cleanup functions (#1553) @atomiks
+- [useMergedRefs] Support ref cleanup functions (#1553) @atomiks
 - [utils] Change order of args in `mergeReactProps` (#1533) @mnajdova
 
 ## v1.0.0-alpha.6

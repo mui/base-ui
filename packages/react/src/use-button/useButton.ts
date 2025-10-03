@@ -1,7 +1,9 @@
 'use client';
 import * as React from 'react';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { error } from '@base-ui-components/utils/error';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
@@ -15,12 +17,12 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     native: isNativeButton = true,
   } = parameters;
 
-  const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
+  const elementRef = React.useRef<HTMLElement | null>(null);
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
   const isValidLink = useEventCallback(() => {
-    const element = buttonRef.current;
+    const element = elementRef.current;
     return Boolean(element?.tagName === 'A' && (element as HTMLAnchorElement)?.href);
   });
 
@@ -32,13 +34,37 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     isNativeButton,
   });
 
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (!elementRef.current) {
+        return;
+      }
+
+      const isButtonTag = elementRef.current.tagName === 'BUTTON';
+
+      if (isNativeButton) {
+        if (!isButtonTag) {
+          error(
+            'A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
+          );
+        }
+      } else if (isButtonTag) {
+        error(
+          'A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is not a real <button>, or set the `nativeButton` prop on the component to `true`.',
+        );
+      }
+    }, [isNativeButton]);
+  }
+
   // handles a disabled composite button rendering another button, e.g.
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
   // the `disabled` prop needs to pass through 2 `useButton`s then finally
   // delete the `disabled` attribute from DOM
-  useModernLayoutEffect(() => {
-    const element = buttonRef.current;
-    if (!(element instanceof HTMLButtonElement)) {
+  const updateDisabled = React.useCallback(() => {
+    const element = elementRef.current;
+
+    if (!isButtonElement(element)) {
       return;
     }
 
@@ -51,6 +77,8 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       element.disabled = false;
     }
   }, [disabled, focusableWhenDisabledProps.disabled, isCompositeItem]);
+
+  useIsoLayoutEffect(updateDisabled, [updateDisabled]);
 
   const getButtonProps = React.useCallback(
     (externalProps: GenericButtonProps = {}) => {
@@ -147,10 +175,21 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink],
   );
 
+  const buttonRef = useEventCallback((element: HTMLElement | null) => {
+    elementRef.current = element;
+    updateDisabled();
+  });
+
   return {
     getButtonProps,
     buttonRef,
   };
+}
+
+function isButtonElement(
+  elem: HTMLButtonElement | HTMLAnchorElement | HTMLElement | null,
+): elem is HTMLButtonElement {
+  return isHTMLElement(elem) && elem.tagName === 'BUTTON';
 }
 
 interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {
@@ -198,6 +237,6 @@ export namespace useButton {
      * A ref to the button DOM element. This ref should be passed to the rendered element.
      * It is not a part of the props returned by `getButtonProps`.
      */
-    buttonRef: React.RefObject<HTMLElement | null>;
+    buttonRef: React.Ref<HTMLElement>;
   }
 }

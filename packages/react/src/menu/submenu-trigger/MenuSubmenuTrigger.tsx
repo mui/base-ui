@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useFloatingTree } from '../../floating-ui-react';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
 /**
  * A menu item that opens a submenu.
@@ -39,6 +40,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     disabled,
     allowMouseUpTriggerRef,
   } = useMenuRootContext();
+  const menuPositionerContext = useMenuPositionerContext();
 
   if (parent.type !== 'menu') {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
@@ -72,6 +74,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     typingRef,
     nativeButton,
     itemMetadata,
+    nodeId: menuPositionerContext?.floatingContext.nodeId,
   });
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
@@ -82,7 +85,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   return useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, item.ref, itemRef, setTriggerElement],
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
     props: [
       rootTriggerProps,
       itemProps,
@@ -101,7 +104,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 });
 
 export namespace MenuSubmenuTrigger {
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
@@ -112,13 +115,6 @@ export namespace MenuSubmenuTrigger {
      * @ignore
      */
     id?: string;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default false
-     */
-    nativeButton?: boolean;
   }
 
   export interface State {

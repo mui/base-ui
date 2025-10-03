@@ -1,12 +1,12 @@
 import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
-import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { NavigationMenuRoot } from './NavigationMenuRoot';
 
 export interface NavigationMenuRootContext {
   open: boolean;
   value: any;
-  setValue: (value: any, event?: Event, reason?: BaseOpenChangeReason) => void;
+  setValue: (value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void;
   transitionStatus: TransitionStatus;
   mounted: boolean;
   popupElement: HTMLElement | null;
@@ -15,6 +15,8 @@ export interface NavigationMenuRootContext {
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   viewportElement: HTMLElement | null;
   setViewportElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  viewportTargetElement: HTMLElement | null;
+  setViewportTargetElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   activationDirection: 'left' | 'right' | 'up' | 'down' | null;
   setActivationDirection: React.Dispatch<
     React.SetStateAction<'left' | 'right' | 'up' | 'down' | null>
@@ -32,6 +34,8 @@ export interface NavigationMenuRootContext {
   delay: number;
   closeDelay: number;
   orientation: 'horizontal' | 'vertical';
+  viewportInert: boolean;
+  setViewportInert: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const NavigationMenuRootContext = React.createContext<NavigationMenuRootContext | undefined>(

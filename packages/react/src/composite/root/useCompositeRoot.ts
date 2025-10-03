@@ -2,10 +2,7 @@
 import * as React from 'react';
 import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
-import { activeElement } from '../../floating-ui-react/utils';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import {
   ALL_KEYS,
@@ -98,7 +95,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const isGrid = cols > 1;
 
   const rootRef = React.useRef<HTMLElement | null>(null);
-  const mergedRef = useForkRef(rootRef, externalRef);
+  const mergedRef = useMergedRefs(rootRef, externalRef);
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
@@ -111,19 +108,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       scrollIntoViewIfNeeded(rootRef.current, newActiveItem, direction, orientation);
     }
   });
-
-  // Ensure external controlled updates moves focus to the highlighted item
-  // if focus is currently inside the list.
-  // https://github.com/mui/base-ui/issues/2101
-  useModernLayoutEffect(() => {
-    const activeEl = activeElement(ownerDocument(rootRef.current)) as HTMLDivElement | null;
-    if (elementsRef.current.includes(activeEl)) {
-      const focusedItem = elementsRef.current[highlightedIndex];
-      if (focusedItem && focusedItem !== activeEl) {
-        focusedItem.focus();
-      }
-    }
-  }, [highlightedIndex]);
 
   const onMapChange = useEventCallback((map: Map<Element, CompositeMetadata<any>>) => {
     if (map.size === 0 || hasSetDefaultIndexRef.current) {

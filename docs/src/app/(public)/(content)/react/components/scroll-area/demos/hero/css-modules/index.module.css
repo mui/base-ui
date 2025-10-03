@@ -42,12 +42,14 @@
   margin: 0.5rem;
   opacity: 0;
   transition: opacity 150ms 300ms;
+  pointer-events: none;
 
   &[data-hovering],
   &[data-scrolling] {
     opacity: 1;
     transition-duration: 75ms;
     transition-delay: 0ms;
+    pointer-events: auto;
   }
 
   &::before {

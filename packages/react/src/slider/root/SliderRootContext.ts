@@ -11,6 +11,7 @@ export interface SliderRootContext {
    * The index of the active thumb.
    */
   active: number;
+  controlRef: React.RefObject<HTMLElement | null>;
   dragging: boolean;
   disabled: boolean;
   fieldControlValidation: useFieldControlValidation.ReturnValue;
@@ -20,6 +21,8 @@ export interface SliderRootContext {
     index: number,
     event: React.KeyboardEvent | React.ChangeEvent,
   ) => void;
+  indicatorPosition: (number | undefined)[];
+  inset: boolean;
   labelId?: string;
   /**
    * The large step value of the slider when incrementing or decrementing while the shift key is held,
@@ -45,22 +48,27 @@ export interface SliderRootContext {
    * The minimum steps between values in a range slider.
    */
   minStepsBetweenValues: number;
+  name: string | undefined;
   /**
    * Function to be called when drag ends and the pointer is released.
    */
-  onValueCommitted: (newValue: number | readonly number[], event: Event) => void;
+  onValueCommitted: (
+    newValue: number | readonly number[],
+    data: SliderRoot.CommitEventDetails,
+  ) => void;
   /**
    * The component orientation.
    * @default 'horizontal'
    */
   orientation: Orientation;
-  /**
-   * Whether the slider is a range slider.
-   */
-  range: boolean;
+  pressedInputRef: React.RefObject<HTMLInputElement | null>;
+  pressedThumbCenterOffsetRef: React.RefObject<number | null>;
+  pressedThumbIndexRef: React.RefObject<number>;
   registerFieldControlRef: React.RefCallback<Element> | null;
+  renderBeforeHydration: boolean;
   setActive: React.Dispatch<React.SetStateAction<number>>;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
+  setIndicatorPosition: React.Dispatch<React.SetStateAction<(number | undefined)[]>>;
   /**
    * Callback fired when dragging and invokes onValueChange.
    */
@@ -72,7 +80,6 @@ export interface SliderRootContext {
    * @default 1
    */
   step: number;
-  tabIndex: number | null;
   thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
   thumbRefs: React.RefObject<(HTMLElement | null)[]>;
   /**

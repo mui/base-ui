@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
 import { SelectPortalContext } from './SelectPortalContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -16,8 +16,8 @@ export function SelectPortal(props: SelectPortal.Props) {
   const { children, container } = props;
 
   const { store } = useSelectRootContext();
-  const mounted = useSelector(store, selectors.mounted);
-  const forceMount = useSelector(store, selectors.forceMount);
+  const mounted = useStore(store, selectors.mounted);
+  const forceMount = useStore(store, selectors.forceMount);
 
   const shouldRender = mounted || forceMount;
   if (!shouldRender) {

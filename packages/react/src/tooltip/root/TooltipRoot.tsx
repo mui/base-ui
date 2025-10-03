@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { TooltipOpenChangeReason, TooltipRootContext } from './TooltipRootContext';
+import { TooltipRootContext } from './TooltipRootContext';
 import {
   useClientPoint,
   useDelayGroup,
@@ -16,9 +16,12 @@ import {
 } from '../../floating-ui-react';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
-import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
+import {
+  type BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups all parts of the tooltip.
@@ -30,8 +33,8 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const {
     disabled = false,
     defaultOpen = false,
-    onOpenChange: onOpenChangeProp,
-    open,
+    onOpenChange,
+    open: openProp,
     delay,
     closeDelay,
     hoverable = true,
@@ -49,47 +52,54 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const popupRef = React.useRef<HTMLElement>(null);
 
-  const [openState, setOpenUnwrapped] = useControlled({
-    controlled: open,
+  const [openState, setOpenState] = useControlled({
+    controlled: openProp,
     default: defaultOpen,
     name: 'Tooltip',
     state: 'open',
   });
 
-  const onOpenChange = useEventCallback(onOpenChangeProp);
+  const open = !disabled && openState;
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: TooltipOpenChangeReason | undefined) => {
-      const isHover = reason === 'trigger-hover';
-      const isFocusOpen = nextOpen && reason === 'trigger-focus';
-      const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
+  function setOpenUnwrapped(nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) {
+    const reason = eventDetails.reason;
 
-      function changeState() {
-        onOpenChange(nextOpen, event, reason);
-        setOpenUnwrapped(nextOpen);
-      }
+    const isHover = reason === 'trigger-hover';
+    const isFocusOpen = nextOpen && reason === 'trigger-focus';
+    const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
 
-      if (isHover) {
-        // If a hover reason is provided, we need to flush the state synchronously. This ensures
-        // `node.getAnimations()` knows about the new state.
-        ReactDOM.flushSync(changeState);
-      } else {
-        changeState();
-      }
+    onOpenChange?.(nextOpen, eventDetails);
 
-      if (isFocusOpen || isDismissClose) {
-        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else if (reason === 'trigger-hover') {
-        setInstantTypeState(undefined);
-      }
-    },
-  );
+    if (eventDetails.isCanceled) {
+      return;
+    }
 
-  if (openState && disabled) {
-    setOpen(false, undefined, 'disabled');
+    function changeState() {
+      setOpenState(nextOpen);
+    }
+
+    if (isHover) {
+      // If a hover reason is provided, we need to flush the state synchronously. This ensures
+      // `node.getAnimations()` knows about the new state.
+      ReactDOM.flushSync(changeState);
+    } else {
+      changeState();
+    }
+
+    if (isFocusOpen || isDismissClose) {
+      setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
+    } else if (reason === 'trigger-hover') {
+      setInstantTypeState(undefined);
+    }
   }
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(openState);
+  const setOpen = useEventCallback(setOpenUnwrapped);
+
+  if (openState && disabled) {
+    setOpenUnwrapped(false, createChangeEventDetails('disabled'));
+  }
+
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -98,10 +108,10 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   useOpenChangeComplete({
     enabled: !actionsRef,
-    open: openState,
+    open,
     ref: popupRef,
     onComplete() {
-      if (!openState) {
+      if (!open) {
         handleUnmount();
       }
     },
@@ -114,10 +124,8 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       reference: triggerElement,
       floating: positionerElement,
     },
-    open: openState,
-    onOpenChange(openValue, eventValue, reasonValue) {
-      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
-    },
+    open,
+    onOpenChange: setOpen,
   });
 
   const providerContext = useTooltipProviderContext();
@@ -176,7 +184,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const tooltipRoot = React.useMemo(
     () => ({
-      open: openState,
+      open,
       setOpen,
       mounted,
       setMounted,
@@ -192,7 +200,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       onOpenChangeComplete,
     }),
     [
-      openState,
+      open,
       setOpen,
       mounted,
       setMounted,
@@ -244,11 +252,7 @@ export namespace TooltipRoot {
     /**
      * Event handler called when the tooltip is opened or closed.
      */
-    onOpenChange?: (
-      open: boolean,
-      event: Event | undefined,
-      reason: OpenChangeReason | undefined,
-    ) => void;
+    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * Event handler called after any animations complete when the tooltip is opened or closed.
      */
@@ -291,5 +295,13 @@ export namespace TooltipRoot {
     unmount: () => void;
   }
 
-  export type OpenChangeReason = TooltipOpenChangeReason;
+  export type ChangeEventReason =
+    | 'trigger-hover'
+    | 'trigger-focus'
+    | 'trigger-press'
+    | 'outside-press'
+    | 'escape-key'
+    | 'disabled'
+    | 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

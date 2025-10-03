@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui-components/utils/warn';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
-import { collapsibleStyleHookMapping } from '../root/styleHooks';
+import { collapsibleStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
@@ -33,7 +33,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on a Collapsible will be ignored when using `hiddenUntilFound` since it requires the Panel to remain mounted even when closed.',
@@ -69,7 +69,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   const hiddenUntilFound = hiddenUntilFoundProp ?? false;
   const keepMounted = keepMountedProp ?? false;
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (idProp) {
       setPanelIdState(idProp);
       return () => {
@@ -79,11 +79,11 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     return undefined;
   }, [idProp, setPanelIdState]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setHiddenUntilFound(hiddenUntilFound);
   }, [setHiddenUntilFound, hiddenUntilFound]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 
@@ -110,7 +110,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   });
 
   useOpenChangeComplete({
-    open,
+    open: open && transitionStatus === 'idle',
     ref: panelRef,
     onComplete() {
       if (!open) {
@@ -144,7 +144,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
       },
       elementProps,
     ],
-    customStyleHookMapping: collapsibleStyleHookMapping,
+    stateAttributesMapping: collapsibleStateAttributesMapping,
   });
 
   const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
@@ -161,7 +161,7 @@ export namespace CollapsiblePanel {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Allows the browser’s built-in page search to find and expand the panel contents.
      *

@@ -1,4 +1,3 @@
-/* eslint-disable testing-library/no-node-access */
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -14,6 +13,8 @@ describe('<Switch.Root />', () => {
 
   describeConformance(<Switch.Root />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render,
   }));
 
@@ -199,11 +200,14 @@ describe('<Switch.Root />', () => {
     expect(thumb).not.to.have.attribute('data-checked');
   });
 
-  it('should set the name attribute on the input', async () => {
+  it('should set the name attribute only on the input', async () => {
     const { getByRole } = await render(<Switch.Root name="switch-name" />);
+
+    const switchElement = screen.getByRole('switch');
     const input = getByRole('checkbox', { hidden: true });
 
     expect(input).to.have.attribute('name', 'switch-name');
+    expect(switchElement).not.to.have.attribute('name');
   });
 
   describe('Form', () => {
@@ -561,7 +565,7 @@ describe('<Switch.Root />', () => {
           const button = screen.getByRole('switch');
 
           await waitFor(() => {
-            expect(label.getAttribute('for')).to.not.equal(null);
+            expect(label.getAttribute('for')).not.to.equal(null);
           });
 
           expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
@@ -586,7 +590,7 @@ describe('<Switch.Root />', () => {
           const button = screen.getByRole('switch');
 
           await waitFor(() => {
-            expect(label.getAttribute('for')).to.not.equal(null);
+            expect(label.getAttribute('for')).not.to.equal(null);
           });
 
           expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));

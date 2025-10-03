@@ -46,19 +46,20 @@ function App(
   const [open, setOpen] = React.useState(true);
   const { refs, context } = useFloating({
     open,
-    onOpenChange(open, _, reason) {
-      setOpen(open);
+    onOpenChange(openArg, data) {
+      setOpen(openArg);
+      const reason = data?.reason;
       if (props.outsidePress) {
         expect(reason).toBe('outside-press');
       } else if (props.escapeKey) {
         expect(reason).toBe('escape-key');
-        if (!open) {
+        if (!openArg) {
           props.onClose?.();
         }
       } else if (props.referencePress) {
-        expect(reason).toBe('reference-press');
+        expect(reason).toBe('trigger-press');
       } else if (props.ancestorScroll) {
-        expect(reason).toBe('ancestor-scroll');
+        expect(reason).toBe('none');
       }
     },
   });
@@ -898,9 +899,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
   });
 
-  describe('outsidePressEvent click', () => {
+  describe('outsidePressEvent: intentional', () => {
     test('dragging outside the floating element does not close', () => {
-      render(<App outsidePressEvent="click" />);
+      render(<App outsidePressEvent="intentional" />);
       const floatingEl = screen.getByRole('tooltip');
       fireEvent.mouseDown(floatingEl);
       fireEvent.mouseUp(document.body);
@@ -909,7 +910,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
 
     test('dragging inside the floating element does not close', () => {
-      render(<App outsidePressEvent="click" />);
+      render(<App outsidePressEvent="intentional" />);
       const floatingEl = screen.getByRole('tooltip');
       fireEvent.mouseDown(document.body);
       fireEvent.mouseUp(floatingEl);
@@ -918,7 +919,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
 
     test('dragging outside the floating element then clicking outside closes', async () => {
-      render(<App outsidePressEvent="click" />);
+      render(<App outsidePressEvent="intentional" />);
       const floatingEl = screen.getByRole('tooltip');
       fireEvent.mouseDown(floatingEl);
       fireEvent.mouseUp(document.body);

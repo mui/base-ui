@@ -5,46 +5,56 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the popover is initially open.\n\nTo render a controlled popover, use the `open` prop instead."
+      "description": "Whether the popover is initially open.\n\nTo render a controlled popover, use the `open` prop instead.",
+      "detailedType": "boolean | undefined"
     },
     "open": {
       "type": "boolean",
-      "description": "Whether the popover is currently open."
+      "description": "Whether the popover is currently open.",
+      "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: Popover.Root.OpenChangeReason | undefined) => void)",
-      "description": "Event handler called when the popover is opened or closed."
+      "type": "((open: boolean, eventDetails: Popover.Root.ChangeEventDetails) => void)",
+      "description": "Event handler called when the popover is opened or closed.",
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Popover.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Popover.Root.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library."
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library.",
+      "detailedType": "React.RefObject<Popover.Root.Actions> | undefined"
     },
     "modal": {
       "type": "boolean | 'trap-focus'",
       "default": "false",
-      "description": "Determines if the popover enters a modal state when open.\n- `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.\n- `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled."
+      "description": "Determines if the popover enters a modal state when open.\n- `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.\n- `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.",
+      "detailedType": "boolean | 'trap-focus' | undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
-      "description": "Event handler called after any animations complete when the popover is opened or closed."
+      "description": "Event handler called after any animations complete when the popover is opened or closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
     },
     "openOnHover": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the popover should also open when the trigger is hovered."
+      "description": "Whether the popover should also open when the trigger is hovered.",
+      "detailedType": "boolean | undefined"
     },
     "delay": {
       "type": "number",
       "default": "300",
-      "description": "How long to wait before the popover may be opened on hover. Specified in milliseconds.\n\nRequires the `openOnHover` prop."
+      "description": "How long to wait before the popover may be opened on hover. Specified in milliseconds.\n\nRequires the `openOnHover` prop.",
+      "detailedType": "number | undefined"
     },
     "closeDelay": {
       "type": "number",
       "default": "0",
-      "description": "How long to wait before closing the popover that was opened on hover.\nSpecified in milliseconds.\n\nRequires the `openOnHover` prop."
+      "description": "How long to wait before closing the popover that was opened on hover.\nSpecified in milliseconds.\n\nRequires the `openOnHover` prop.",
+      "detailedType": "number | undefined"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
     }
   },
   "dataAttributes": {},

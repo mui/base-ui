@@ -3,14 +3,17 @@
   "description": "A container for the menu items.\nRenders a `<div>` element.",
   "props": {
     "finalFocus": {
-      "type": "RefObject<HTMLElement | null>",
-      "description": "Determines the element to focus when the menu is closed.\nBy default, focus returns to the trigger."
+      "type": "boolean | RefObject<HTMLElement | null> | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
+      "description": "Determines the element to focus when the menu is closed.\n\n- `false`: Do not move focus.\n- `true`: Move focus based on the default behavior (trigger or previously focused element).\n- `RefObject`: Move focus to the ref element.\n- `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\n  Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.",
+      "detailedType": "| boolean\n| React.RefObject<HTMLElement | null>\n| ((\n    closeType: InteractionType,\n  ) => boolean | void | HTMLElement | null)\n| undefined"
     },
     "id": {
-      "type": "string"
+      "type": "string",
+      "detailedType": "string | undefined"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Menu.Popup.State) => string)",
@@ -18,7 +21,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.Popup.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.Popup.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

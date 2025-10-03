@@ -671,6 +671,20 @@ describe('<Tooltip.Root />', () => {
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
+
+    it('does not throw error when combined with defaultOpen', async () => {
+      await render(
+        <Root defaultOpen disabled>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
   });
 
   describe('prop: hoverable', () => {
@@ -718,6 +732,70 @@ describe('<Tooltip.Root />', () => {
       await flushMicrotasks();
 
       expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('');
+    });
+  });
+
+  describe('BaseUIChangeEventDetails', () => {
+    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+      await render(
+        <Root
+          delay={0}
+          onOpenChange={(nextOpen, eventDetails) => {
+            if (nextOpen) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Tooltip.Trigger />
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
+
+    it('allowPropagation() prevents stopPropagation on Escape while still closing', async () => {
+      const stopPropagationSpy = spy(Event.prototype as any, 'stopPropagation');
+
+      await render(
+        <Root
+          defaultOpen
+          delay={0}
+          onOpenChange={(nextOpen, eventDetails) => {
+            if (!nextOpen && eventDetails.reason === 'escape-key') {
+              eventDetails.allowPropagation();
+            }
+          }}
+        >
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      expect(screen.getByText('Content')).not.to.equal(null);
+
+      fireEvent.keyDown(document.body, { key: 'Escape' });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Content')).to.equal(null);
+      });
+
+      expect(stopPropagationSpy.called).to.equal(false);
+      stopPropagationSpy.restore();
     });
   });
 });

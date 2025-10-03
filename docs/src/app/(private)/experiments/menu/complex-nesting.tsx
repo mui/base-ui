@@ -9,15 +9,15 @@ export default function MenuComplexNestingExperiment() {
     <div className="space-y-12 p-8">
       <h1 className="text-2xl font-bold">Menu Complex Nesting Experiments</h1>
       <p className="text-gray-600">
-        Testing how independent menus work when nested in React tree through dialogs
-        and other components.
+        Testing how independent menus work when nested in React tree through dialogs and other
+        components.
       </p>
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">1. Menu → Item → Dialog → Menu</h2>
         <p className="text-gray-600">
-          Click the menu button, select "Open Settings", then use the menu inside the
-          dialog. The dialog is opened from within a menu item.
+          Click the menu button, select "Open Settings", then use the menu inside the dialog. The
+          dialog is opened from within a menu item.
         </p>
 
         <Menu.Root>
@@ -65,39 +65,28 @@ export default function MenuComplexNestingExperiment() {
 
                       <div className="space-y-4">
                         <p className="text-gray-600">
-                          This dialog is nested within the menu popup. It contains an
-                          independent menu.
+                          This dialog is nested within the menu popup. It contains an independent
+                          menu.
                         </p>
 
                         {/* Menu nested within Dialog which is nested within Menu */}
                         <div className="rounded-lg border bg-gray-50 p-4">
                           <h3 className="mb-3 font-medium">Theme Settings</h3>
                           <Menu.Root>
-                            <Menu.Trigger className={styles.Button}>
-                              Theme Options
-                            </Menu.Trigger>
+                            <Menu.Trigger className={styles.Button}>Theme Options</Menu.Trigger>
                             <Menu.Portal>
                               <Menu.Positioner className={styles.Positioner}>
                                 <Menu.Popup className={styles.Popup}>
-                                  <Menu.Item className={styles.Item}>
-                                    Light Theme
-                                  </Menu.Item>
-                                  <Menu.Item className={styles.Item}>
-                                    Dark Theme
-                                  </Menu.Item>
+                                  <Menu.Item className={styles.Item}>Light Theme</Menu.Item>
+                                  <Menu.Item className={styles.Item}>Dark Theme</Menu.Item>
 
                                   <Menu.SubmenuRoot>
-                                    <Menu.SubmenuTrigger
-                                      className={styles.SubmenuTrigger}
-                                    >
+                                    <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
                                       Advanced
                                       <ChevronRightIcon />
                                     </Menu.SubmenuTrigger>
                                     <Menu.Portal>
-                                      <Menu.Positioner
-                                        className={styles.Positioner}
-                                        sideOffset={4}
-                                      >
+                                      <Menu.Positioner className={styles.Positioner} sideOffset={4}>
                                         <Menu.Popup className={styles.Popup}>
                                           <Menu.Item className={styles.Item}>
                                             Custom Colors
@@ -105,9 +94,7 @@ export default function MenuComplexNestingExperiment() {
                                           <Menu.Item className={styles.Item}>
                                             Font Settings
                                           </Menu.Item>
-                                          <Menu.Separator
-                                            className={styles.Separator}
-                                          />
+                                          <Menu.Separator className={styles.Separator} />
                                           <Menu.Item className={styles.Item}>
                                             Reset to Default
                                           </Menu.Item>
@@ -117,9 +104,7 @@ export default function MenuComplexNestingExperiment() {
                                   </Menu.SubmenuRoot>
 
                                   <Menu.Separator className={styles.Separator} />
-                                  <Menu.Item className={styles.Item}>
-                                    Auto Theme
-                                  </Menu.Item>
+                                  <Menu.Item className={styles.Item}>Auto Theme</Menu.Item>
                                 </Menu.Popup>
                               </Menu.Positioner>
                             </Menu.Portal>
@@ -130,7 +115,7 @@ export default function MenuComplexNestingExperiment() {
                           <Dialog.Close className="rounded px-4 py-2 text-gray-600 hover:bg-gray-100">
                             Cancel
                           </Dialog.Close>
-                          <Dialog.Close className="bg-blue-600 hover:bg-blue-700 rounded px-4 py-2">
+                          <Dialog.Close className="rounded bg-blue-600 px-4 py-2 hover:bg-blue-700">
                             Save
                           </Dialog.Close>
                         </div>

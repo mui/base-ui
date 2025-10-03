@@ -20,7 +20,7 @@ describe('<Accordion.Root />', () => {
     it('renders correct ARIA attributes', async () => {
       const { getByRole, queryByText, container } = await render(
         <Accordion.Root defaultValue={[0]}>
-          <Accordion.Item>
+          <Accordion.Item value={0}>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
@@ -43,7 +43,7 @@ describe('<Accordion.Root />', () => {
     it('references manual panel id in trigger aria-controls', async () => {
       const { getByRole, queryByText } = await render(
         <Accordion.Root defaultValue={[0]}>
-          <Accordion.Item>
+          <Accordion.Item value={0}>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
@@ -82,7 +82,7 @@ describe('<Accordion.Root />', () => {
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('data-panel-open');
-      expect(queryByText(PANEL_CONTENT_1)).to.not.equal(null);
+      expect(queryByText(PANEL_CONTENT_1)).not.to.equal(null);
       expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
       expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
@@ -93,30 +93,6 @@ describe('<Accordion.Root />', () => {
     });
 
     describe('prop: defaultValue', () => {
-      it('default item value', async () => {
-        const { queryByText } = await render(
-          <Accordion.Root defaultValue={[1]}>
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
-            </Accordion.Item>
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 2</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
-            </Accordion.Item>
-          </Accordion.Root>,
-        );
-
-        expect(queryByText(PANEL_CONTENT_1)).to.equal(null);
-
-        expect(queryByText(PANEL_CONTENT_2)).toBeVisible();
-        expect(queryByText(PANEL_CONTENT_2)).to.have.attribute('data-open');
-      });
-
       it('custom item value', async () => {
         const { queryByText } = await render(
           <Accordion.Root defaultValue={['first']}>
@@ -135,7 +111,7 @@ describe('<Accordion.Root />', () => {
           </Accordion.Root>,
         );
 
-        expect(queryByText(PANEL_CONTENT_1)).to.not.equal(null);
+        expect(queryByText(PANEL_CONTENT_1)).not.to.equal(null);
         expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
         expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
@@ -148,7 +124,7 @@ describe('<Accordion.Root />', () => {
     it.skipIf(isJSDOM)('open state', async () => {
       const { getByRole, queryByText, setProps } = await render(
         <Accordion.Root value={[]}>
-          <Accordion.Item>
+          <Accordion.Item value={0}>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
@@ -166,7 +142,7 @@ describe('<Accordion.Root />', () => {
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('data-panel-open');
-      expect(queryByText(PANEL_CONTENT_1)).to.not.equal(null);
+      expect(queryByText(PANEL_CONTENT_1)).not.to.equal(null);
       expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
       expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
@@ -177,30 +153,6 @@ describe('<Accordion.Root />', () => {
     });
 
     describe('prop: value', () => {
-      it('default item value', async () => {
-        const { queryByText } = await render(
-          <Accordion.Root value={[1]}>
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
-            </Accordion.Item>
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 2</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
-            </Accordion.Item>
-          </Accordion.Root>,
-        );
-
-        expect(queryByText(PANEL_CONTENT_1)).to.equal(null);
-
-        expect(queryByText(PANEL_CONTENT_2)).toBeVisible();
-        expect(queryByText(PANEL_CONTENT_2)).to.have.attribute('data-open');
-      });
-
       it('custom item value', async () => {
         const { queryByText } = await render(
           <Accordion.Root value={['one']}>
@@ -219,7 +171,7 @@ describe('<Accordion.Root />', () => {
           </Accordion.Root>,
         );
 
-        expect(queryByText(PANEL_CONTENT_1)).to.not.equal(null);
+        expect(queryByText(PANEL_CONTENT_1)).not.to.equal(null);
         expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
         expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
@@ -232,13 +184,13 @@ describe('<Accordion.Root />', () => {
     it('can disable the whole accordion', async () => {
       const { getByTestId, getAllByRole, queryByText } = await render(
         <Accordion.Root defaultValue={[0]} disabled>
-          <Accordion.Item data-testid="item1">
+          <Accordion.Item data-testid="item1" value={0}>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
             <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
           </Accordion.Item>
-          <Accordion.Item data-testid="item2">
+          <Accordion.Item data-testid="item2" value={1}>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
@@ -261,13 +213,13 @@ describe('<Accordion.Root />', () => {
     it('can disable one accordion item', async () => {
       const { getAllByRole, getByTestId, queryByText } = await render(
         <Accordion.Root defaultValue={[0]}>
-          <Accordion.Item data-testid="item1" disabled>
+          <Accordion.Item data-testid="item1" value={0} disabled>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
             <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
           </Accordion.Item>
-          <Accordion.Item data-testid="item2">
+          <Accordion.Item data-testid="item2" value={1}>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
@@ -317,7 +269,7 @@ describe('<Accordion.Root />', () => {
 
         expect(trigger).to.have.attribute('aria-expanded', 'true');
         expect(trigger).to.have.attribute('data-panel-open');
-        expect(queryByText(PANEL_CONTENT_1)).to.not.equal(null);
+        expect(queryByText(PANEL_CONTENT_1)).not.to.equal(null);
         expect(queryByText(PANEL_CONTENT_1)).toBeVisible();
         expect(queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
 
@@ -480,6 +432,41 @@ describe('<Accordion.Root />', () => {
       });
     });
 
+    it('does not affect composite keys on interactive elements in the panel', async () => {
+      const { getByRole, user } = await render(
+        <Accordion.Root defaultValue={[0]}>
+          <Accordion.Item value={0}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>
+              <input type="text" defaultValue="abcd" />
+            </Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item value={1}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>2</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const input = getByRole('textbox') as HTMLInputElement;
+
+      await user.keyboard('[Tab]');
+      await user.keyboard('[Tab]');
+      expect(input).toHaveFocus();
+
+      // Firefox doesn't support document.getSelection() in inputs
+      expect(input.selectionStart).to.equal(0);
+      expect(input.selectionEnd).to.equal(4);
+
+      await user.keyboard('[ArrowLeft]');
+      expect(input.selectionStart).to.equal(0);
+      expect(input.selectionEnd).to.equal(0);
+    });
+
     describe('prop: loop', () => {
       it('can disable focus looping between triggers', async () => {
         const { getAllByRole, user } = await render(
@@ -513,7 +500,7 @@ describe('<Accordion.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('prop: openMultiple', () => {
+  describe.skipIf(isJSDOM)('prop: multiple', () => {
     it('multiple items can be open by default', async () => {
       const { getAllByRole, queryByText, user } = await render(
         <Accordion.Root>
@@ -550,7 +537,7 @@ describe('<Accordion.Root />', () => {
 
     it('when false only one item can be open', async () => {
       const { getAllByRole, queryByText, user } = await render(
-        <Accordion.Root openMultiple={false}>
+        <Accordion.Root multiple={false}>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -671,13 +658,13 @@ describe('<Accordion.Root />', () => {
 
       const { getAllByRole, user } = await render(
         <Accordion.Root onValueChange={onValueChange}>
-          <Accordion.Item>
+          <Accordion.Item value={0}>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
             </Accordion.Header>
             <Accordion.Panel>1</Accordion.Panel>
           </Accordion.Item>
-          <Accordion.Item>
+          <Accordion.Item value={1}>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 2</Accordion.Trigger>
             </Accordion.Header>
@@ -693,12 +680,12 @@ describe('<Accordion.Root />', () => {
       await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
 
       expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.args[0][0]).to.deep.equal([0]);
+      expect(onValueChange.lastCall.args[0]).to.deep.equal([0]);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
 
       expect(onValueChange.callCount).to.equal(2);
-      expect(onValueChange.args[1][0]).to.deep.equal([0, 1]);
+      expect(onValueChange.lastCall.args[0]).to.deep.equal([0, 1]);
     });
 
     it('custom item value', async () => {
@@ -736,11 +723,11 @@ describe('<Accordion.Root />', () => {
       expect(onValueChange.args[1][0]).to.deep.equal(['two', 'one']);
     });
 
-    it('openMultiple is false', async () => {
+    it('`multiple` is false', async () => {
       const onValueChange = spy();
 
       const { getAllByRole, user } = await render(
-        <Accordion.Root onValueChange={onValueChange} openMultiple={false}>
+        <Accordion.Root onValueChange={onValueChange} multiple={false}>
           <Accordion.Item value="one">
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>

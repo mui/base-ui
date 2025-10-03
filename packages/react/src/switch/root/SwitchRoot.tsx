@@ -2,21 +2,23 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import { SwitchRootContext } from './SwitchRootContext';
-import { styleHookMapping } from '../styleHooks';
+import { stateAttributesMapping } from '../stateAttributesMapping';
 import { useField } from '../../field/useField';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../types';
 
 /**
  * Represents the switch itself.
@@ -34,6 +36,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     defaultChecked,
     id: idProp,
     inputRef: externalInputRef,
+    name: nameProp,
     nativeButton = true,
     onCheckedChange: onCheckedChangeProp,
     readOnly = false,
@@ -59,7 +62,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
-  const name = fieldName ?? elementProps.name;
+  const name = fieldName ?? nameProp;
 
   const {
     getValidationProps,
@@ -71,13 +74,13 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
+  const handleInputRef = useMergedRefs(inputRef, externalInputRef, inputValidationRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const element = switchRef.current;
     if (!element) {
       return undefined;
@@ -110,7 +113,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     getValue: () => checked,
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (inputRef.current) {
       setFilled(inputRef.current.checked);
     }
@@ -188,12 +191,18 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
             }
 
             const nextChecked = event.target.checked;
+            const eventDetails = createChangeEventDetails('none', event.nativeEvent);
 
+            onCheckedChange?.(nextChecked, eventDetails);
+
+            if (eventDetails.isCanceled) {
+              return;
+            }
+
+            clearErrors(name);
             setDirty(nextChecked !== validityData.initialValue);
             setFilled(nextChecked);
             setCheckedState(nextChecked);
-            onCheckedChange?.(nextChecked, event.nativeEvent);
-            clearErrors(name);
 
             if (validationMode === 'onChange') {
               commitValidation(nextChecked);
@@ -238,15 +247,13 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     state,
     ref: [forwardedRef, switchRef, buttonRef],
     props: [rootProps, getValidationProps, elementProps, getButtonProps],
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping,
   });
 
   return (
     <SwitchRootContext.Provider value={state}>
       {element}
-      {!checked && elementProps.name && (
-        <input type="hidden" name={elementProps.name} value="off" />
-      )}
+      {!checked && nameProp && <input type="hidden" name={nameProp} value="off" />}
       <input {...inputProps} />
     </SwitchRootContext.Provider>
   );
@@ -254,7 +261,8 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
 export namespace SwitchRoot {
   export interface Props
-    extends Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {
+    extends NativeButtonProps,
+      Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {
     /**
      * The id of the switch element.
      */
@@ -286,19 +294,9 @@ export namespace SwitchRoot {
      */
     name?: string;
     /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
-    /**
      * Event handler called when the switch is activated or deactivated.
-     *
-     * @param {boolean} checked The new checked state.
-     * @param {Event} event The corresponding event that initiated the change.
      */
-    onCheckedChange?: (checked: boolean, event: Event) => void;
+    onCheckedChange?: (checked: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * Whether the user should be unable to activate or deactivate the switch.
      * @default false
@@ -329,4 +327,7 @@ export namespace SwitchRoot {
      */
     required: boolean;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

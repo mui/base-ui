@@ -49,6 +49,8 @@ export default defineConfig(
      * their own groups.
      */
     rules: {
+      // @TODO: Remove this once we move away from namespaces
+      '@typescript-eslint/no-namespace': 'off',
       'import/export': 'off', // FIXME: Maximum call stack exceeded
       'no-restricted-imports': [
         'error',
@@ -63,7 +65,7 @@ export default defineConfig(
       'react-hooks/exhaustive-deps': [
         'error',
         {
-          additionalHooks: 'useModernLayoutEffect',
+          additionalHooks: 'useIsoLayoutEffect',
         },
       ],
       // This prevents us from creating components like `<h1 {...props} />`
@@ -80,21 +82,6 @@ export default defineConfig(
       `**/*${EXTENSION_TEST_FILE}`,
     ],
     extends: createTestConfig({ useMocha: false }),
-    rules: {
-      // tests are not driven by assistive technology
-      // add `jsx-a11y` rules once you encounter them in tests
-      'jsx-a11y/click-events-have-key-events': 'off',
-      'jsx-a11y/control-has-associated-label': 'off',
-      'jsx-a11y/iframe-has-title': 'off',
-      'jsx-a11y/label-has-associated-control': 'off',
-      'jsx-a11y/mouse-events-have-key-events': 'off',
-      'jsx-a11y/no-noninteractive-tabindex': 'off',
-      'jsx-a11y/no-static-element-interactions': 'off',
-      'jsx-a11y/tabindex-no-positive': 'off',
-
-      // In tests this is generally intended.
-      'react/button-has-type': 'off',
-    },
   },
   baseSpecRules,
   {
@@ -161,7 +148,7 @@ export default defineConfig(
     files: [`test/**/*.${EXTENSION_TS}`],
     rules: {
       'guard-for-in': 'off',
-      'testing-library/no-dom-import': 'off', // We use `screen` in tests, so we need to import `@testing-library/dom`.
+      'testing-library/prefer-screen-queries': 'off', // Enable usage of playwright queries
       'testing-library/render-result-naming-convention': 'off', // inconsequential in regression tests
     },
   },

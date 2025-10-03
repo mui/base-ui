@@ -2,13 +2,14 @@
 import * as React from 'react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
 } from '../../utils/popupStateMapping';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 
 /**
  * A button that opens the popover.
@@ -43,7 +44,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     native: nativeButton,
   });
 
-  const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(
+  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = React.useMemo(
     () => ({
       open(value) {
         if (value && openReason === 'trigger-press') {
@@ -59,8 +60,13 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, setTriggerElement, forwardedRef],
-    props: [triggerProps, elementProps, getButtonProps],
-    customStyleHookMapping,
+    props: [
+      triggerProps,
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '' },
+      elementProps,
+      getButtonProps,
+    ],
+    stateAttributesMapping,
   });
 
   return element;
@@ -78,13 +84,5 @@ export namespace PopoverTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
-  }
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
 }

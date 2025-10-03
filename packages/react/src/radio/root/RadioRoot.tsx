@@ -1,21 +1,22 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { NOOP } from '../../utils/noop';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { customStyleHookMapping } from '../utils/customStyleHookMapping';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Represents the radio button itself.
@@ -45,7 +46,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     required: requiredRoot,
     checkedValue,
     setCheckedValue,
-    onValueChange,
     touched,
     setTouched,
     fieldControlValidation,
@@ -63,9 +63,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const checked = checkedValue === value;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const ref = useForkRef(inputRefProp, inputRef);
+  const ref = useMergedRefs(inputRefProp, inputRef);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (inputRef.current?.checked) {
       setFilled(true);
     }
@@ -137,18 +137,22 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
           return;
         }
 
+        const details = createChangeEventDetails('none', event.nativeEvent);
+
+        if (details.isCanceled) {
+          return;
+        }
+
         setFieldTouched(true);
         setDirty(value !== validityData.initialValue);
-        setCheckedValue(value);
         setFilled(true);
-        onValueChange?.(value, event.nativeEvent);
+        setCheckedValue(value, details);
       },
     }),
     [
       checked,
       disabled,
       id,
-      onValueChange,
       readOnly,
       ref,
       required,
@@ -189,7 +193,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     state,
     ref: refs,
     props,
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (
@@ -202,7 +206,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
           state={state}
           refs={refs}
           props={props}
-          customStyleHookMapping={customStyleHookMapping}
+          stateAttributesMapping={stateAttributesMapping}
         />
       ) : (
         element
@@ -213,7 +217,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 });
 
 export namespace RadioRoot {
-  export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'value'> {
+  export interface Props
+    extends NativeButtonProps,
+      Omit<BaseUIComponentProps<'button', State>, 'value'> {
     /**
      * The unique identifying value of the radio in a group.
      */
@@ -237,13 +243,6 @@ export namespace RadioRoot {
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 
   export interface State extends FieldRoot.State {

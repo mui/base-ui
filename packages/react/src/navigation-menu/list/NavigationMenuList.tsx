@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 
@@ -25,16 +25,31 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
     [open],
   );
 
+  const defaultProps: HTMLProps = {
+    // `stopEventPropagation` won't stop the propagation if the end of the list is reached,
+    // but we want to block it in this case.
+    onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+      const shouldStop =
+        (orientation === 'horizontal' &&
+          (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) ||
+        (orientation === 'vertical' && (event.key === 'ArrowUp' || event.key === 'ArrowDown'));
+
+      if (shouldStop) {
+        event.stopPropagation();
+      }
+    },
+  };
+
   return (
     <CompositeRoot
       render={render}
       className={className}
       state={state}
       refs={[forwardedRef]}
-      props={[elementProps]}
+      props={[defaultProps, elementProps]}
       loop={false}
       orientation={orientation}
-      stopEventPropagation
+      tag="ul"
     />
   );
 });
@@ -47,5 +62,5 @@ export namespace NavigationMenuList {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'ul', State> {}
 }

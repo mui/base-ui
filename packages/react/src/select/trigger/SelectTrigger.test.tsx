@@ -10,6 +10,7 @@ describe('<Select.Trigger />', () => {
 
   describeConformance(<Select.Trigger />, () => ({
     refInstanceof: window.HTMLDivElement,
+    button: true,
     render(node) {
       return render(<Select.Root open>{node}</Select.Root>);
     },
@@ -38,7 +39,7 @@ describe('<Select.Trigger />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(expect(document.activeElement)).to.not.equal(trigger);
+      expect(expect(document.activeElement)).not.to.equal(trigger);
     });
 
     it('does not toggle the popup when disabled', async () => {

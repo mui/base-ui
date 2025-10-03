@@ -1,24 +1,24 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { FloatingFocusManager } from '../../floating-ui-react';
-import { useDialogPopup } from '../../dialog/popup/useDialogPopup';
-import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { AlertDialogPopupCssVars } from './AlertDialogPopupCssVars';
 import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { COMPOSITE_KEYS } from '../../composite/composite';
 
-const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<AlertDialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
   nestedDialogOpen(value) {
@@ -38,50 +38,41 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 ) {
   const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const {
-    descriptionElementId,
-    floatingRootContext,
-    getPopupProps,
-    mounted,
-    nested,
-    nestedOpenDialogCount,
-    setOpen,
-    open,
-    openMethod,
-    popupRef,
-    setPopupElement,
-    titleElementId,
-    transitionStatus,
-    modal,
-    onOpenChangeComplete,
-    internalBackdropRef,
-  } = useAlertDialogRootContext();
+  const { store } = useDialogRootContext();
+
+  const descriptionElementId = store.useState('descriptionElementId');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const rootPopupProps = store.useState('popupProps');
+  const mounted = store.useState('mounted');
+  const nested = store.useState('nested');
+  const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
+  const open = store.useState('open');
+  const titleElementId = store.useState('titleElementId');
+  const transitionStatus = store.useState('transitionStatus');
 
   useAlertDialogPortalContext();
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.context.openChangeComplete?.(true);
       }
     },
   });
 
-  const mergedRef = useForkRef(forwardedRef, popupRef);
-
-  const { popupProps, resolvedInitialFocus } = useDialogPopup({
-    descriptionElementId,
-    initialFocus,
-    modal: true,
-    mounted,
-    setOpen,
-    openMethod,
-    ref: mergedRef,
-    setPopupElement,
-    titleElementId,
+  // Default initial focus logic:
+  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
+  // (this is required for Android specifically as iOS handles this automatically).
+  const defaultInitialFocus = useEventCallback((interactionType: InteractionType) => {
+    if (interactionType === 'touch') {
+      return store.context.popupRef.current;
+    }
+    return true;
   });
+
+  const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
@@ -98,22 +89,33 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [
-      getPopupProps(),
-      popupProps,
+      rootPopupProps,
       {
+        'aria-labelledby': titleElementId ?? undefined,
+        'aria-describedby': descriptionElementId ?? undefined,
+        role: 'alertdialog',
+        tabIndex: -1,
+        hidden: !mounted,
+        onKeyDown(event: React.KeyboardEvent) {
+          if (COMPOSITE_KEYS.has(event.key)) {
+            event.stopPropagation();
+          }
+        },
         style: {
           [AlertDialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
         } as React.CSSProperties,
-        role: 'alertdialog',
       },
       elementProps,
     ],
-    customStyleHookMapping,
+    ref: [forwardedRef, store.context.popupRef, store.getElementSetter('popupElement')],
+    stateAttributesMapping,
   });
 
   return (
     <React.Fragment>
-      {mounted && modal && <InternalBackdrop ref={internalBackdropRef} inert={inertValue(!open)} />}
+      {mounted && (
+        <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
+      )}
       <FloatingFocusManager
         context={floatingRootContext}
         disabled={!mounted}
@@ -130,16 +132,30 @@ export namespace AlertDialogPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Determines the element to focus when the dialog is opened.
-     * By default, the first focusable element is focused.
+     *
+     * - `false`: Do not move focus.
+     * - `true`: Move focus based on the default behavior (first tabbable element or popup).
+     * - `RefObject`: Move focus to the ref element.
+     * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+     *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
      */
     initialFocus?:
+      | boolean
       | React.RefObject<HTMLElement | null>
-      | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
+      | ((openType: InteractionType) => boolean | HTMLElement | null | void);
     /**
      * Determines the element to focus when the dialog is closed.
-     * By default, focus returns to the trigger.
+     *
+     * - `false`: Do not move focus.
+     * - `true`: Move focus based on the default behavior (trigger or previously focused element).
+     * - `RefObject`: Move focus to the ref element.
+     * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+     *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
      */
-    finalFocus?: React.RefObject<HTMLElement | null>;
+    finalFocus?:
+      | boolean
+      | React.RefObject<HTMLElement | null>
+      | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
   }
 
   export interface State {

@@ -12,7 +12,6 @@ import { Main as EmojiPicker } from '../../../test/floating-ui-tests/EmojiPicker
 import { Main as ListboxFocus } from '../../../test/floating-ui-tests/ListboxFocus';
 import { Main as NestedMenu } from '../../../test/floating-ui-tests/Menu';
 import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation';
-import { Menu, MenuItem } from '../../../test/floating-ui-tests/MenuVirtual';
 
 /* eslint-disable testing-library/no-unnecessary-act */
 
@@ -32,7 +31,7 @@ function App(props: Omit<Partial<UseListNavigationProps>, 'listRef'>) {
       activeIndex,
       onNavigate(index) {
         setActiveIndex(index);
-        props.onNavigate?.(index);
+        props.onNavigate?.(index, undefined);
       },
     }),
   ]);
@@ -492,7 +491,7 @@ describe('useListNavigation', () => {
 
     it('true - onNavigate is called with `null` when escaped', () => {
       const spy = vi.fn();
-      render(<App allowEscape virtual loop onNavigate={spy} />);
+      render(<App allowEscape virtual loop onNavigate={(index) => spy(index)} />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
       expect(spy).toHaveBeenCalledTimes(2);
@@ -543,7 +542,7 @@ describe('useListNavigation', () => {
   describe('focusOnHover', () => {
     it('true - focuses item on hover and syncs the active index', () => {
       const spy = vi.fn();
-      render(<App onNavigate={spy} />);
+      render(<App onNavigate={(index) => spy(index)} />);
       fireEvent.click(screen.getByRole('button'));
       fireEvent.mouseMove(screen.getByTestId('item-1'));
       expect(screen.getByTestId('item-1')).toHaveFocus();
@@ -554,7 +553,9 @@ describe('useListNavigation', () => {
 
     it('false - does not focus item on hover and does not sync the active index', async () => {
       const spy = vi.fn();
-      render(<App onNavigate={spy} focusItemOnOpen={false} focusItemOnHover={false} />);
+      render(
+        <App onNavigate={(index) => spy(index)} focusItemOnOpen={false} focusItemOnHover={false} />,
+      );
       fireEvent.click(screen.getByRole('button'));
       fireEvent.mouseMove(screen.getByTestId('item-1'));
       expect(screen.getByTestId('item-1')).not.toHaveFocus();
@@ -1078,91 +1079,6 @@ describe('useListNavigation', () => {
       expect(screen.getByText('Copy as')).toHaveFocus();
     },
   );
-
-  it('virtual nested Home or End key press', async () => {
-    const ref = { current: null } as any;
-    render(
-      <Menu label="Edit" virtualItemRef={ref}>
-        <MenuItem label="Undo" />
-        <MenuItem label="Redo" />
-        <Menu label="Copy as" virtualItemRef={ref}>
-          <MenuItem label="Text" />
-          <MenuItem label="Video" />
-          <Menu label="Image" virtualItemRef={ref}>
-            <MenuItem label=".png" />
-            <MenuItem label=".jpg" />
-            <MenuItem label=".svg" />
-            <MenuItem label=".gif" />
-          </Menu>
-          <MenuItem label="Audio" />
-        </Menu>
-        <Menu label="Share" virtualItemRef={ref}>
-          <MenuItem label="Mail" />
-          <MenuItem label="Instagram" />
-        </Menu>
-      </Menu>,
-    );
-
-    act(() => {
-      screen.getByRole('combobox').focus();
-    });
-
-    await userEvent.keyboard('{ArrowDown}'); // open menu
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowDown}'); // focus Copy as menu
-    await userEvent.keyboard('{ArrowRight}'); // open Copy as submenu
-    await act(async () => {});
-    await userEvent.keyboard('{End}');
-
-    expect(screen.getByText('Audio')).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByText('Share')).not.toHaveAttribute('aria-selected', 'true');
-  });
-
-  it('domReference trigger in nested virtual menu is set as virtual item', async () => {
-    const ref = { current: null } as any;
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    function App() {
-      return (
-        <Menu label="Edit" virtualItemRef={ref}>
-          <MenuItem label="Undo" />
-          <MenuItem label="Redo" />
-          <Menu label="Copy as" data-testid="copy" virtualItemRef={ref}>
-            <MenuItem label="Text" />
-            <MenuItem label="Video" />
-            <Menu label="Image" virtualItemRef={ref}>
-              <MenuItem label=".png" />
-              <MenuItem label=".jpg" />
-              <MenuItem label=".svg" />
-              <MenuItem label=".gif" />
-            </Menu>
-            <MenuItem label="Audio" />
-          </Menu>
-          <Menu label="Share" virtualItemRef={ref}>
-            <MenuItem label="Mail" />
-            <MenuItem label="Instagram" />
-          </Menu>
-        </Menu>
-      );
-    }
-
-    render(<App />);
-
-    act(() => {
-      screen.getByRole('combobox').focus();
-    });
-
-    await userEvent.keyboard('{ArrowDown}'); // open menu
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowDown}'); // focus Copy as menu
-    await userEvent.keyboard('{ArrowRight}'); // open Copy as submenu
-    await act(async () => {});
-
-    expect(screen.getByText('Text')).toHaveAttribute('aria-selected', 'true');
-
-    await userEvent.keyboard('{ArrowLeft}'); // close Copy as submenu
-
-    expect(ref.current).toBe(screen.getByTestId('copy'));
-  });
 
   it('Home or End key press is ignored for typeable combobox reference', async () => {
     // eslint-disable-next-line @typescript-eslint/no-shadow

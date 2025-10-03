@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';
@@ -26,7 +26,7 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
 
   const { setMessageIds } = useFieldRootContext();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!id) {
       return undefined;
     }
@@ -42,7 +42,7 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
     ref: forwardedRef,
     state,
     props: [{ id }, elementProps],
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   return element;

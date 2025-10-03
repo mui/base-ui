@@ -1,20 +1,18 @@
 import * as React from 'react';
-import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { warn } from '@base-ui-components/utils/warn';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useSelector, Store } from '@base-ui-components/utils/store';
+import { useStore, Store } from '@base-ui-components/utils/store';
 import {
   useClick,
   useDismiss,
   useFloatingRootContext,
   useInteractions,
   useListNavigation,
-  useRole,
   useTypeahead,
   FloatingRootContext,
 } from '../../floating-ui-react';
@@ -24,15 +22,17 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
-import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
-import { type SelectRoot } from './SelectRoot';
+import type { SelectRootConditionalProps, SelectRoot } from './SelectRoot';
+import { EMPTY_ARRAY } from '../../utils/constants';
+import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 
-const EMPTY_ARRAY: never[] = [];
-
-export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
+export function useSelectRoot<Value, Multiple extends boolean | undefined>(
+  params: useSelectRoot.Parameters<Value, Multiple>,
+): useSelectRoot.ReturnValue {
   const {
     id: idProp,
     disabled: disabledProp = false,
@@ -43,6 +43,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     onOpenChangeComplete,
     items,
     multiple = false,
+    itemToStringLabel,
+    itemToStringValue,
+    isItemEqualToValue = defaultItemEquality,
   } = params;
 
   const { clearErrors } = useFormContext();
@@ -62,7 +65,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -86,6 +89,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
+  const scrollArrowsMountedCountRef = React.useRef(0);
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
@@ -95,21 +100,21 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
-    allowSelect: false,
   });
   const hasRegisteredRef = React.useRef(false);
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
-  const highlightTimeout = useTimeout();
-
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const store = useLazyRef(
+  const store = useRefWithInit(
     () =>
       new Store<State>({
         id,
         modal,
         multiple,
+        itemToStringLabel,
+        itemToStringValue,
+        isItemEqualToValue,
         value,
         label: '',
         open,
@@ -124,24 +129,26 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         triggerProps: {},
         triggerElement: null,
         positionerElement: null,
+        listElement: null,
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
+        hasScrollArrows: false,
       }),
   ).current;
 
   const initialValueRef = React.useRef(value);
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
     if (value !== initialValueRef.current) {
       store.set('forceMount', true);
     }
   }, [store, value]);
 
-  const activeIndex = useSelector(store, selectors.activeIndex);
-  const selectedIndex = useSelector(store, selectors.selectedIndex);
+  const activeIndex = useStore(store, selectors.activeIndex);
+  const selectedIndex = useStore(store, selectors.selectedIndex);
 
-  const triggerElement = useSelector(store, selectors.triggerElement);
-  const positionerElement = useSelector(store, selectors.positionerElement);
+  const triggerElement = useStore(store, selectors.triggerElement);
+  const positionerElement = useStore(store, selectors.positionerElement);
 
   const controlRef = useLatestRef(store.state.triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
@@ -157,11 +164,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const prevValueRef = React.useRef(value);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setFilled(value !== null);
   }, [value, setFilled]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (prevValueRef.current === value) {
       return;
     }
@@ -173,13 +180,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
       const labels = currentValue
         .map((v) => {
-          const index = valuesRef.current.indexOf(v);
+          const index = findItemIndex(valuesRef.current, v, isItemEqualToValue);
           return index !== -1 ? (labelsRef.current[index] ?? '') : '';
         })
         .filter(Boolean);
 
       const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = lastValue != null ? valuesRef.current.indexOf(lastValue) : -1;
+      const lastIndex = findItemIndex(valuesRef.current, lastValue, isItemEqualToValue);
 
       // Store the last selected index for later use when closing the popup.
       lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;
@@ -188,7 +195,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         label: labels.join(', '),
       });
     } else {
-      const index = valuesRef.current.indexOf(value);
+      const index = findItemIndex(valuesRef.current, value as Value, isItemEqualToValue);
 
       store.apply({
         selectedIndex: index === -1 ? null : index,
@@ -214,19 +221,21 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     validityData.initialValue,
     setFilled,
     multiple,
+    isItemEqualToValue,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     prevValueRef.current = value;
   }, [value]);
 
   const setOpen = useEventCallback(
-    (
-      nextOpen: boolean,
-      event: Event | undefined,
-      reason: SelectRoot.OpenChangeReason | undefined,
-    ) => {
-      params.onOpenChange?.(nextOpen, event, reason);
+    (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
+      params.onOpenChange?.(nextOpen, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
       setOpenUnwrapped(nextOpen);
 
       // The active index will sync to the last selected index on the next open.
@@ -268,10 +277,17 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const setValue = useEventCallback((nextValue: any, event?: Event) => {
-    params.onValueChange?.(nextValue, event);
-    setValueUnwrapped(nextValue);
-  });
+  const setValue = useEventCallback(
+    (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
+      params.onValueChange?.(nextValue, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      setValueUnwrapped(nextValue);
+    },
+  );
 
   /**
    * Keeps `store.selectedIndex` and `store.label` in sync with the current `value`.
@@ -288,13 +304,16 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
       const labels = currentValue
         .map((v) => {
-          const index = valuesRef.current.indexOf(v);
+          const index = findItemIndex(valuesRef.current, v, isItemEqualToValue);
           return index !== -1 ? (labelsRef.current[index] ?? '') : '';
         })
         .filter(Boolean);
 
       const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = lastValue !== undefined ? valuesRef.current.indexOf(lastValue) : -1;
+      const lastIndex =
+        lastValue !== undefined
+          ? findItemIndex(valuesRef.current, lastValue, isItemEqualToValue)
+          : -1;
 
       // Store the last selected index for later use when closing the popup.
       lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;
@@ -309,7 +328,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         label: labels.join(', '),
       });
     } else {
-      const index = valuesRef.current.indexOf(value);
+      const index = findItemIndex(valuesRef.current, value as Value, isItemEqualToValue);
       const hasIndex = index !== -1;
 
       if (hasIndex || value === null) {
@@ -347,13 +366,30 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   // Keep store in sync whenever `value` changes after registration.
-  useModernLayoutEffect(syncSelectedState, [value, syncSelectedState]);
+  useIsoLayoutEffect(syncSelectedState, [value, syncSelectedState]);
+
+  const handleScrollArrowVisibility = useEventCallback(() => {
+    const scroller = store.state.listElement || popupRef.current;
+    if (!scroller) {
+      return;
+    }
+
+    const viewportTop = scroller.scrollTop;
+    const viewportBottom = scroller.scrollTop + scroller.clientHeight;
+    const shouldShowUp = viewportTop > 1;
+    const shouldShowDown = viewportBottom < scroller.scrollHeight - 1;
+
+    if (store.state.scrollUpArrowVisible !== shouldShowUp) {
+      store.set('scrollUpArrowVisible', shouldShowUp);
+    }
+    if (store.state.scrollDownArrowVisible !== shouldShowDown) {
+      store.set('scrollDownArrowVisible', shouldShowDown);
+    }
+  });
 
   const floatingContext = useFloatingRootContext({
     open,
-    onOpenChange(nextOpen, event, reason) {
-      setOpen(nextOpen, event, translateOpenChangeReason(reason));
-    },
+    onOpenChange: setOpen,
     elements: {
       reference: triggerElement,
       floating: positionerElement,
@@ -367,11 +403,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const dismiss = useDismiss(floatingContext, {
     bubbles: false,
-    outsidePressEvent: 'mousedown',
-  });
-
-  const role = useRole(floatingContext, {
-    role: 'select',
   });
 
   const listNavigation = useListNavigation(floatingContext, {
@@ -379,7 +410,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     listRef,
     activeIndex,
     selectedIndex,
-    disabledIndices: EMPTY_ARRAY,
+    disabledIndices: EMPTY_ARRAY as number[],
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
@@ -402,7 +433,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index]);
+        setValue(valuesRef.current[index], createChangeEventDetails('none'));
       }
     },
     onTypingChange(typing) {
@@ -415,7 +446,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
     click,
     dismiss,
-    role,
     listNavigation,
     typeahead,
   ]);
@@ -429,8 +459,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     });
   });
 
-  // Store values that depend on other hooks
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     store.apply({
       id,
       modal,
@@ -441,6 +470,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       transitionStatus,
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
+      items,
+      itemToStringLabel,
+      itemToStringValue,
+      isItemEqualToValue,
     });
   }, [
     store,
@@ -453,6 +486,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     transitionStatus,
     getFloatingProps,
     getReferenceProps,
+    items,
+    itemToStringLabel,
+    itemToStringValue,
+    isItemEqualToValue,
   ]);
 
   const rootContext: SelectRootContext = React.useMemo(
@@ -463,10 +500,15 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       disabled,
       readOnly,
       multiple,
+      itemToStringLabel,
+      itemToStringValue,
       setValue,
       setOpen,
       listRef,
       popupRef,
+      scrollHandlerRef,
+      handleScrollArrowVisibility,
+      scrollArrowsMountedCountRef,
       getItemProps,
       events: floatingContext.events,
       valueRef,
@@ -480,7 +522,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
-      highlightTimeout,
+      initialValueRef,
     }),
     [
       store,
@@ -489,10 +531,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       disabled,
       readOnly,
       multiple,
+      itemToStringLabel,
+      itemToStringValue,
       setValue,
       setOpen,
       listRef,
       popupRef,
+      scrollHandlerRef,
       getItemProps,
       floatingContext.events,
       valueRef,
@@ -506,7 +551,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
-      highlightTimeout,
+      handleScrollArrowVisibility,
     ],
   );
 
@@ -518,8 +563,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 }
 
 export namespace useSelectRoot {
-  export interface Parameters<Value>
-    extends Omit<SelectRoot.Props<Value>, 'children' | 'inputRef'> {}
+  export interface Parameters<Value, Multiple extends boolean | undefined = false>
+    extends Omit<SelectRootConditionalProps<Value, Multiple>, 'children' | 'inputRef'> {}
 
   export type ReturnValue = {
     rootContext: SelectRootContext;

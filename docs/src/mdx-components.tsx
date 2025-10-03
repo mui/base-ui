@@ -5,7 +5,7 @@ import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
 import { Code } from './components/Code';
-import { PropsReferenceTable } from './components/ReferenceTable/PropsReferenceTable';
+import { PropsReferenceAccordion } from './components/ReferenceTable/PropsReferenceAccordion';
 import { AttributesReferenceTable } from './components/ReferenceTable/AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
 import { getChildrenText } from './utils/getChildrenText';
@@ -20,7 +20,7 @@ interface MDXComponents {
 
 // Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
-  a: (props) => <Link {...props} />,
+  a: Link,
   code: (props) => <Code className="data-[inline]:mx-[0.1em]" {...props} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
@@ -32,7 +32,7 @@ export const mdxComponents: MDXComponents = {
   h2: ({ children, id, ...otherProps }) => {
     return (
       <h2
-        className="mt-10 mb-4 scroll-mt-18 text-xl font-medium text-balance show-side-nav:scroll-mt-6"
+        className="show-side-nav:scroll-mt-6 mt-10 mb-4 scroll-mt-18 text-xl font-medium text-balance"
         id={id}
         {...otherProps}
       >
@@ -43,7 +43,7 @@ export const mdxComponents: MDXComponents = {
   h3: ({ children, id, ...otherProps }) => {
     return (
       <h3
-        className="mt-8 mb-1.5 scroll-mt-18 text-lg font-medium text-balance show-side-nav:scroll-mt-6"
+        className="show-side-nav:scroll-mt-6 mt-8 mb-1.5 scroll-mt-18 text-lg font-medium text-balance"
         id={id}
         {...otherProps}
       >
@@ -62,7 +62,7 @@ export const mdxComponents: MDXComponents = {
   strong: (props) => <strong className="font-medium" {...props} />,
   figure: (props) => {
     if ('data-rehype-pretty-code-figure' in props) {
-      return <CodeBlock.Root className="mt-5 mb-6" {...props} />;
+      return <CodeBlock.Root {...props} />;
     }
 
     return <figure {...props} />;
@@ -110,7 +110,7 @@ export const mdxComponents: MDXComponents = {
   CssVariablesReferenceTable: (props) => (
     <CssVariablesReferenceTable className="mt-5 mb-6" {...props} />
   ),
-  PropsReferenceTable: (props) => <PropsReferenceTable className="mt-5 mb-6" {...props} />,
+  PropsReferenceTable: (props) => <PropsReferenceAccordion className="mt-5 mb-6" {...props} />,
 };
 
 export const inlineMdxComponents: MDXComponents = {

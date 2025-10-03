@@ -1,14 +1,14 @@
 'use client';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
-import { useLazyRef } from './useLazyRef';
+import { useIsoLayoutEffect } from './useIsoLayoutEffect';
+import { useRefWithInit } from './useRefWithInit';
 
 export function useLatestRef<T>(value: T) {
-  const latest = useLazyRef(createLatestRef, value).current;
+  const latest = useRefWithInit(createLatestRef, value).current;
 
   latest.next = value;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useModernLayoutEffect(latest.effect);
+  useIsoLayoutEffect(latest.effect);
 
   return latest;
 }

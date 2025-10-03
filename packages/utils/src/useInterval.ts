@@ -1,5 +1,5 @@
 'use client';
-import { useLazyRef } from './useLazyRef';
+import { useRefWithInit } from './useRefWithInit';
 import { useOnMount } from './useOnMount';
 import { Timeout } from './useTimeout';
 
@@ -34,7 +34,7 @@ export class Interval extends Timeout {
  * A `setInterval` with automatic cleanup and guard.
  */
 export function useInterval() {
-  const timeout = useLazyRef(Interval.create).current;
+  const timeout = useRefWithInit(Interval.create).current;
 
   useOnMount(timeout.disposeEffect);
 

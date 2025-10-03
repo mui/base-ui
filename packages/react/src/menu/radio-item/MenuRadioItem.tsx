@@ -1,16 +1,19 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
-import { itemMapping } from '../utils/styleHookMapping';
+import { itemMapping } from '../utils/stateAttributesMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
+import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
+import type { MenuRoot } from '../root/MenuRoot';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuRadioItem(
@@ -31,6 +34,7 @@ const InnerMenuRadioItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
+      nodeId,
       ...elementProps
     } = componentProps;
 
@@ -44,21 +48,29 @@ const InnerMenuRadioItem = React.memo(
       typingRef,
       nativeButton,
       itemMetadata: REGULAR_ITEM,
+      nodeId,
     });
 
-    const state: MenuRadioItem.State = { disabled, highlighted, checked };
+    const state: MenuRadioItem.State = React.useMemo(
+      () => ({
+        disabled,
+        highlighted,
+        checked,
+      }),
+      [disabled, highlighted, checked],
+    );
 
     return useRenderElement('div', componentProps, {
       state,
-      customStyleHookMapping: itemMapping,
+      stateAttributesMapping: itemMapping,
       ref: [itemRef, forwardedRef],
       props: [
         itemProps,
         {
           role: 'menuitemradio',
           'aria-checked': checked,
-          onClick: (event: React.MouseEvent) => {
-            setChecked(event.nativeEvent);
+          onClick(event: React.MouseEvent) {
+            setChecked(createChangeEventDetails('item-press', event.nativeEvent));
           },
         },
         elementProps,
@@ -90,11 +102,12 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
-  const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
+  const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
 
   const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
-  const id = useBaseUiId(idProp);
+  const menuPositionerContext = useMenuPositionerContext(true);
 
+  const id = useBaseUiId(idProp);
   const highlighted = listItem.index === activeIndex;
   const { events: menuEvents } = useFloatingTree()!;
 
@@ -113,8 +126,8 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const checked = selectedValue === value;
 
   const setChecked = React.useCallback(
-    (event: Event) => {
-      setSelectedValue(value, event);
+    (eventDetails: MenuRoot.ChangeEventDetails) => {
+      setSelectedValue(value, eventDetails);
     },
     [setSelectedValue, value],
   );
@@ -140,6 +153,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
         typingRef={typingRef}
         closeOnClick={closeOnClick}
         nativeButton={nativeButton}
+        nodeId={menuPositionerContext?.floatingContext.nodeId}
       />
     </MenuRadioItemContext.Provider>
   );
@@ -151,10 +165,11 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   menuEvents: FloatingEvents;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   checked: boolean;
-  setChecked: (event: Event) => void;
+  setChecked: (data: MenuRoot.ChangeEventDetails) => void;
   typingRef: React.RefObject<boolean>;
   closeOnClick: boolean;
   nativeButton: boolean;
+  nodeId: string | undefined;
 }
 
 export namespace MenuRadioItem {
@@ -173,7 +188,7 @@ export namespace MenuRadioItem {
     checked: boolean;
   };
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
     /**
      * Value of the radio item.
      * This is the value that will be set in the MenuRadioGroup when the item is selected.
@@ -202,12 +217,5 @@ export namespace MenuRadioItem {
      * @default false
      */
     closeOnClick?: boolean;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default false
-     */
-    nativeButton?: boolean;
   }
 }

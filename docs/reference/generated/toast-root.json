@@ -3,14 +3,16 @@
   "description": "Groups all parts of an individual toast.\nRenders a `<div>` element.",
   "props": {
     "swipeDirection": {
-      "type": "'right' | 'left' | 'up' | 'down' | ('right' | 'left' | 'up' | 'down')[]",
+      "type": "'left' | 'right' | 'up' | 'down' | ('left' | 'right' | 'up' | 'down')[]",
       "default": "['down', 'right']",
-      "description": "Direction(s) in which the toast can be swiped to dismiss."
+      "description": "Direction(s) in which the toast can be swiped to dismiss.",
+      "detailedType": "| 'left'\n| 'right'\n| 'up'\n| 'down'\n| ('left' | 'right' | 'up' | 'down')[]\n| undefined"
     },
     "toast": {
       "type": "Toast.Root.ToastObject<any>",
       "required": true,
-      "description": "The toast to render."
+      "description": "The toast to render.",
+      "detailedType": "id: string\n  ref?: RefObject<HTMLElement | null>\n  title?: string\n  type?: string\n  description?: string\n  timeout?: number\n  priority?: 'high' | 'low'\n  transitionStatus?: 'starting' | 'ending'\n  limited?: boolean\n  height?: number\n  onClose?: () => void\n  onRemove?: () => void\n  actionProps?: Omit<\n    DetailedHTMLProps<\n      ButtonHTMLAttributes<HTMLButtonElement>,\n      HTMLButtonElement\n    >,\n    'ref'\n  >\n  data?: any\n}"
     },
     "className": {
       "type": "string | ((state: Toast.Root.State) => string)",
@@ -18,7 +20,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toast.Root.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toast.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {
@@ -50,6 +53,10 @@
     }
   },
   "cssVariables": {
+    "--toast-height": {
+      "description": "Indicates the measured natural height of the toast in pixels.",
+      "type": "number"
+    },
     "--toast-index": {
       "description": "Indicates the index of the toast in the list.",
       "type": "number"

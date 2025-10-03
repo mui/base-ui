@@ -1,3 +1,4 @@
 export * from './createSelector';
-export * from './useSelector';
+export * from './useStore';
 export * from './Store';
+export * from './ReactStore';

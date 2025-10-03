@@ -2,7 +2,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFile, writeFile } from 'node:fs/promises';
-import glob from 'fast-glob';
+import { globby } from 'globby';
 import * as jsxRuntime from 'react/jsx-runtime';
 import { evaluate } from '@mdx-js/mdx';
 import rehypeExtractToc, { type Toc, type TocEntry } from '@stefanprobst/rehype-extract-toc';
@@ -54,7 +54,7 @@ async function run() {
 }
 
 function findMarkdownPages(rootDirectory: string): Promise<string[]> {
-  return glob('**/*.{md,mdx}', {
+  return globby('**/*.{md,mdx}', {
     cwd: rootDirectory,
     ignore: ['**/node_modules/**', '.next/**', 'build/**', 'export/**'],
   });
@@ -106,10 +106,7 @@ async function getLinksAndAnchors(
 
   let rawLinks: Set<string> = new Set();
 
-  const {
-    tableOfContents,
-    // @ts-ignore https://github.com/mdx-js/mdx/issues/2463
-  } = await evaluate(mdxSource, {
+  const { tableOfContents } = await evaluate(mdxSource, {
     ...jsxRuntime,
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
@@ -131,6 +128,7 @@ async function getLinksAndAnchors(
 
   const links = [...rawLinks]
     .filter((link) => link.startsWith('/') || link.startsWith('#'))
+    .filter((link) => !link.endsWith('.md') && !link.endsWith('.txt'))
     .map((link) => {
       if (link.startsWith('#')) {
         return `${pageUrl}${link}`;

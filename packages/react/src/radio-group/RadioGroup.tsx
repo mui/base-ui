@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
@@ -19,6 +19,7 @@ import type { FieldRoot } from '../field/root/FieldRoot';
 import { mergeProps } from '../merge-props';
 
 import { RadioGroupContext } from './RadioGroupContext';
+import { type BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -63,12 +64,26 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   const name = fieldName ?? nameProp;
   const id = useBaseUiId(idProp);
 
-  const [checkedValue, setCheckedValue] = useControlled({
+  const [checkedValue, setCheckedValueUnwrapped] = useControlled({
     controlled: externalValue,
     default: defaultValue,
     name: 'RadioGroup',
     state: 'value',
   });
+
+  const onValueChange = useEventCallback(onValueChangeProp);
+
+  const setCheckedValue = useEventCallback(
+    (value: unknown, eventDetails: RadioGroup.ChangeEventDetails) => {
+      onValueChange(value, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      setCheckedValueUnwrapped(value);
+    },
+  );
 
   const controlRef = React.useRef<HTMLElement>(null);
   const registerControlRef = useEventCallback((element: HTMLElement | null) => {
@@ -88,7 +103,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
 
   const prevValueRef = React.useRef(checkedValue);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (prevValueRef.current === checkedValue) {
       return;
     }
@@ -102,7 +117,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     }
   }, [name, clearErrors, validationMode, checkedValue, fieldControlValidation]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     prevValueRef.current = checkedValue;
   }, [checkedValue]);
 
@@ -127,8 +142,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     }
   });
 
-  const onValueChange = useEventCallback(onValueChangeProp);
-
   const serializedCheckedValue = React.useMemo(() => {
     if (checkedValue == null) {
       return ''; // avoid uncontrolled -> controlled error
@@ -139,14 +152,14 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     return JSON.stringify(checkedValue);
   }, [checkedValue]);
 
-  const mergedInputRef = useForkRef(fieldControlValidation.inputRef, inputRefProp);
+  const mergedInputRef = useMergedRefs(fieldControlValidation.inputRef, inputRefProp);
 
   const inputProps = mergeProps<'input'>(
     {
       value: serializedCheckedValue,
       ref: mergedInputRef,
       id,
-      name,
+      name: serializedCheckedValue ? name : undefined,
       disabled,
       readOnly,
       required,
@@ -220,10 +233,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
         state={state}
         props={[defaultProps, fieldControlValidation.getValidationProps, elementProps]}
         refs={[forwardedRef]}
-        customStyleHookMapping={fieldValidityMapping}
+        stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
-        stopEventPropagation
       />
       <input {...inputProps} />
     </RadioGroupContext.Provider>
@@ -273,10 +285,13 @@ export namespace RadioGroup {
     /**
      * Callback fired when the value changes.
      */
-    onValueChange?: (value: unknown, event: Event) => void;
+    onValueChange?: (value: unknown, eventDetails: ChangeEventDetails) => void;
     /**
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

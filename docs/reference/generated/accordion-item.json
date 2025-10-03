@@ -3,16 +3,20 @@
   "description": "Groups an accordion header with the corresponding panel.\nRenders a `<div>` element.",
   "props": {
     "value": {
-      "type": "AccordionItemValue"
+      "type": "AccordionItemValue",
+      "description": "A unique value that identifies this accordion item.\nIf no value is provided, a unique ID will be generated automatically.\nUse when controlling the accordion programmatically, or to set an initial\nopen state.",
+      "example": "```tsx\n<Accordion.Root value={['a']}>\n  <Accordion.Item value=\"a\" /> // initially open\n  <Accordion.Item value=\"b\" /> // initially closed\n</Accordion.Root>\n```"
     },
     "onOpenChange": {
-      "type": "((open: boolean) => void)",
-      "description": "Event handler called when the panel is opened or closed."
+      "type": "((open: boolean, eventDetails: Accordion.Item.ChangeEventDetails) => void)",
+      "description": "Event handler called when the panel is opened or closed.",
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Accordion.Item.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "className": {
       "type": "string | ((state: Accordion.Item.State) => string)",
@@ -20,7 +24,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Accordion.Item.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

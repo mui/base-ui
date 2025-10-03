@@ -10,28 +10,18 @@ import {
 interface Settings extends Record<string, boolean> {}
 
 export const settingsMetadata: SettingsMetadata<Settings> = {
-  openMultiple: {
+  multiple: {
     type: 'boolean',
-    label: 'open multiple',
+    label: 'Allow multiple open',
     default: true,
   },
 };
 
 // the `value` prop is set manually on Accordion.Items to ensure animations are
 // cancelled when they are initially open
-function ExampleAccordion({
-  keepMounted,
-  openMultiple,
-}: {
-  keepMounted: boolean;
-  openMultiple: boolean;
-}) {
+function ExampleAccordion({ keepMounted, multiple }: { keepMounted: boolean; multiple: boolean }) {
   return (
-    <Accordion.Root
-      className={styles.Accordion}
-      defaultValue={[0]}
-      openMultiple={openMultiple}
-    >
+    <Accordion.Root className={styles.Accordion} defaultValue={[0]} multiple={multiple}>
       <Accordion.Item className={styles.Item} value={0}>
         <Accordion.Header className={styles.Header}>
           <Accordion.Trigger className={styles.Trigger}>
@@ -41,8 +31,8 @@ function ExampleAccordion({
         </Accordion.Header>
         <Accordion.Panel className={styles.Panel} keepMounted={keepMounted}>
           <div className={styles.Content}>
-            Base UI is a library of high-quality unstyled React components for design
-            systems and web apps.
+            Base UI is a library of high-quality unstyled React components for design systems and
+            web apps.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
@@ -56,8 +46,8 @@ function ExampleAccordion({
         </Accordion.Header>
         <Accordion.Panel className={styles.Panel} keepMounted={keepMounted}>
           <div className={styles.Content}>
-            Head to the “Quick start” guide in the docs. If you’ve used unstyled
-            libraries before, you’ll feel at home.
+            Head to the “Quick start” guide in the docs. If you’ve used unstyled libraries before,
+            you’ll feel at home.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
@@ -70,9 +60,7 @@ function ExampleAccordion({
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className={styles.Panel} keepMounted={keepMounted}>
-          <div className={styles.Content}>
-            Of course! Base UI is free and open source.
-          </div>
+          <div className={styles.Content}>Of course! Base UI is free and open source.</div>
         </Accordion.Panel>
       </Accordion.Item>
     </Accordion.Root>
@@ -81,18 +69,18 @@ function ExampleAccordion({
 
 export default function CssAnimations() {
   const { settings } = useExperimentSettings<Settings>();
-  const openMultiple = settings.openMultiple;
+  const multiple = settings.multiple;
   return (
     <div className={styles.grid}>
       <div className={styles.wrapper}>
         <pre>keepMounted: true</pre>
-        <ExampleAccordion keepMounted openMultiple={openMultiple} />
+        <ExampleAccordion keepMounted multiple={multiple} />
         <small>———</small>
       </div>
 
       <div className={styles.wrapper}>
         <pre>keepMounted: false</pre>
-        <ExampleAccordion keepMounted={false} openMultiple={openMultiple} />
+        <ExampleAccordion keepMounted={false} multiple={multiple} />
         <small>———</small>
       </div>
     </div>

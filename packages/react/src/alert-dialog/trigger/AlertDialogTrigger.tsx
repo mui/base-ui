@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
@@ -24,7 +24,9 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     ...elementProps
   } = componentProps;
 
-  const { open, setTriggerElement, triggerProps } = useAlertDialogRootContext();
+  const { store } = useDialogRootContext();
+  const open = store.useState('open');
+  const triggerProps = store.useState('triggerProps');
 
   const state: AlertDialogTrigger.State = React.useMemo(
     () => ({
@@ -41,22 +43,14 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 
   return useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, setTriggerElement],
-    customStyleHookMapping: triggerOpenStateMapping,
+    ref: [forwardedRef, buttonRef, store.getElementSetter('triggerElement')],
+    stateAttributesMapping: triggerOpenStateMapping,
     props: [triggerProps, elementProps, getButtonProps],
   });
 });
 
 export namespace AlertDialogTrigger {
-  export interface Props extends BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default false
-     */
-    nativeButton?: boolean;
-  }
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
 
   export interface State {
     /**

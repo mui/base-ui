@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
 const InnerMenuItem = React.memo(
   React.forwardRef(function InnerMenuItem(
@@ -26,6 +27,7 @@ const InnerMenuItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
+      nodeId,
       ...elementProps
     } = componentProps;
 
@@ -38,6 +40,7 @@ const InnerMenuItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
+      nodeId,
       itemMetadata: REGULAR_ITEM,
     });
 
@@ -71,9 +74,10 @@ export const MenuItem = React.forwardRef(function MenuItem(
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
-  const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
+  const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
 
   const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
+  const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -94,6 +98,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
       allowMouseUpTriggerRef={allowMouseUpTriggerRef}
       typingRef={typingRef}
       nativeButton={nativeButton}
+      nodeId={menuPositionerContext?.floatingContext.nodeId}
     />
   );
 });
@@ -105,6 +110,7 @@ interface InnerMenuItemProps extends MenuItem.Props {
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   typingRef: React.RefObject<boolean>;
   nativeButton: boolean;
+  nodeId: string | undefined;
 }
 
 export namespace MenuItem {
@@ -119,7 +125,7 @@ export namespace MenuItem {
     highlighted: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
      * The click handler for the menu item.
@@ -144,12 +150,5 @@ export namespace MenuItem {
      * @default true
      */
     closeOnClick?: boolean;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default false
-     */
-    nativeButton?: boolean;
   }
 }

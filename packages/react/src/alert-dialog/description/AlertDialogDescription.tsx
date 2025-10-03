@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
-import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -17,16 +16,11 @@ export const AlertDialogDescription = React.forwardRef(function AlertDialogDescr
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, id: idProp, ...elementProps } = componentProps;
-  const { setDescriptionElementId } = useAlertDialogRootContext();
+  const { store } = useDialogRootContext();
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
-    setDescriptionElementId(id);
-    return () => {
-      setDescriptionElementId(undefined);
-    };
-  }, [id, setDescriptionElementId]);
+  store.useSyncedValueWithCleanup('descriptionElementId', id);
 
   return useRenderElement('p', componentProps, {
     ref: forwardedRef,

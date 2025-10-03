@@ -3,7 +3,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
@@ -13,10 +13,11 @@ import type {
   FloatingContext,
   FloatingRootContext,
   FloatingTreeType,
-  OpenChangeReason,
   SafePolygonOptions,
 } from '../types';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
+import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
 
@@ -145,8 +146,8 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       return undefined;
     }
 
-    function onOpenChangeLocal({ open: newOpen }: { open: boolean }) {
-      if (!newOpen) {
+    function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
+      if (!details.open) {
         timeout.clear();
         restTimeout.clear();
         blockMouseMoveRef.current = true;
@@ -173,7 +174,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
     function onLeave(event: MouseEvent) {
       if (isHoverOpen()) {
-        onOpenChange(false, event, 'hover');
+        onOpenChange(false, createChangeEventDetails('trigger-hover', event));
       }
     }
 
@@ -185,13 +186,15 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
   }, [elements.floating, open, onOpenChange, enabled, handleCloseRef, isHoverOpen]);
 
   const closeWithDelay = React.useCallback(
-    (event: Event, runElseBranch = true, reason: OpenChangeReason = 'hover') => {
+    (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
-        timeout.start(closeDelay, () => onOpenChange(false, event, reason));
+        timeout.start(closeDelay, () =>
+          onOpenChange(false, createChangeEventDetails('trigger-hover', event)),
+        );
       } else if (runElseBranch) {
         timeout.clear();
-        onOpenChange(false, event, reason);
+        onOpenChange(false, createChangeEventDetails('trigger-hover', event));
       }
     },
     [delayRef, onOpenChange, timeout],
@@ -241,11 +244,11 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
-            onOpenChange(true, event, 'hover');
+            onOpenChange(true, createChangeEventDetails('trigger-hover', event));
           }
         });
       } else if (!open) {
-        onOpenChange(true, event, 'hover');
+        onOpenChange(true, createChangeEventDetails('trigger-hover', event));
       }
     }
 
@@ -276,7 +279,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
             clearPointerEvents();
             cleanupMouseMoveHandler();
             if (!isClickLikeOpenEvent()) {
-              closeWithDelay(event, true, 'safe-polygon');
+              closeWithDelay(event, true);
             }
           },
         });
@@ -409,7 +412,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
   // while the floating element is open and has a `handleClose` handler. Also
   // handles nested floating elements.
   // https://github.com/floating-ui/floating-ui/issues/1722
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       return undefined;
     }
@@ -447,7 +450,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     return undefined;
   }, [enabled, open, parentId, elements, tree, handleCloseRef, isHoverOpen]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!open) {
       pointerTypeRef.current = undefined;
       restTimeoutPendingRef.current = false;
@@ -461,16 +464,12 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       cleanupMouseMoveHandler();
       timeout.clear();
       restTimeout.clear();
-      clearPointerEvents();
     };
-  }, [
-    enabled,
-    elements.domReference,
-    cleanupMouseMoveHandler,
-    clearPointerEvents,
-    timeout,
-    restTimeout,
-  ]);
+  }, [enabled, elements.domReference, cleanupMouseMoveHandler, timeout, restTimeout]);
+
+  React.useEffect(() => {
+    return clearPointerEvents;
+  }, [clearPointerEvents]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {
     function setPointerRef(event: React.PointerEvent) {
@@ -485,7 +484,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && !openRef.current) {
-            onOpenChange(true, nativeEvent, 'hover');
+            onOpenChange(true, createChangeEventDetails('trigger-hover', nativeEvent));
           }
         }
 

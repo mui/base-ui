@@ -2,9 +2,10 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useButton } from './useButton';
+import { CompositeRoot } from '../composite/root/CompositeRoot';
 
 describe('useButton', () => {
   const { render, renderToString } = createRenderer();
@@ -13,7 +14,10 @@ describe('useButton', () => {
     it('allows disabled buttons to be focused', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, ...otherProps } = props;
-        const { getButtonProps } = useButton({ disabled, focusableWhenDisabled: true });
+        const { getButtonProps } = useButton({
+          disabled,
+          focusableWhenDisabled: true,
+        });
 
         return <button {...getButtonProps(otherProps)} />;
       }
@@ -21,6 +25,40 @@ describe('useButton', () => {
       const button = getByRole('button');
       await act(() => button.focus());
       expect(button).toHaveFocus();
+    });
+
+    it('force overrides disabled attribute when put in a composite', async () => {
+      function TestButton(props: { buttonKey?: React.Key }) {
+        const { getButtonProps, buttonRef } = useButton({
+          disabled: true,
+          focusableWhenDisabled: true,
+        });
+        return (
+          <button ref={buttonRef} key={props.buttonKey} {...getButtonProps({ disabled: true })} />
+        );
+      }
+
+      const { rerender, getByRole } = await render(
+        <CompositeRoot>
+          <TestButton />
+        </CompositeRoot>,
+      );
+
+      async function verify() {
+        const button = getByRole('button');
+        await act(() => button.focus());
+        expect(button).toHaveFocus();
+      }
+
+      await verify();
+
+      // Ensure it works after ref change
+      await rerender(
+        <CompositeRoot>
+          <TestButton buttonKey="rerender" />
+        </CompositeRoot>,
+      );
+      await verify();
     });
 
     it('prevents interactions except focus and blur', async () => {
@@ -53,7 +91,7 @@ describe('useButton', () => {
       );
 
       const button = getByRole('button');
-      expect(document.activeElement).to.not.equal(button);
+      expect(document.activeElement).not.to.equal(button);
 
       expect(handleFocus.callCount).to.equal(0);
       await user.keyboard('[Tab]');
@@ -76,7 +114,7 @@ describe('useButton', () => {
       expect(handleBlur.callCount).to.equal(0);
       await user.keyboard('[Tab]');
       expect(handleBlur.callCount).to.equal(1);
-      expect(document.activeElement).to.not.equal(button);
+      expect(document.activeElement).not.to.equal(button);
     });
   });
 
@@ -98,7 +136,7 @@ describe('useButton', () => {
       function TestButton() {
         const ref = React.useRef(null);
         const { getButtonProps, buttonRef } = useButton({ native: false });
-        useForkRef(ref, buttonRef);
+        useMergedRefs(ref, buttonRef);
 
         expect(getButtonProps().tabIndex).to.equal(0);
 
@@ -211,6 +249,34 @@ describe('useButton', () => {
 
       const { container } = renderToString(<TestButton disabled>Submit</TestButton>);
       expect(container.querySelector('button')).to.have.property('disabled');
+    });
+  });
+
+  describe('dev warnings', () => {
+    it('errors if nativeButton=true but ref is not a button', async () => {
+      const errorSpy = spy(console, 'error');
+      function TestButton() {
+        const { getButtonProps, buttonRef } = useButton({ native: true });
+        return <span {...getButtonProps()} ref={buttonRef} />;
+      }
+      await render(<TestButton />);
+      expect(errorSpy.firstCall.args[0]).to.equal(
+        'Base UI: A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
+      );
+      errorSpy.restore();
+    });
+
+    it('errors if nativeButton=false but ref is a button', async () => {
+      const errorSpy = spy(console, 'error');
+      function TestButton() {
+        const { getButtonProps, buttonRef } = useButton({ native: false });
+        return <button {...getButtonProps()} ref={buttonRef} />;
+      }
+      await render(<TestButton />);
+      expect(errorSpy.firstCall.args[0]).to.equal(
+        'Base UI: A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is not a real <button>, or set the `nativeButton` prop on the component to `true`.',
+      );
+      errorSpy.restore();
     });
   });
 });

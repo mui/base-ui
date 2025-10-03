@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useDialogClose } from './useDialogClose';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 
 /**
  * A button that closes the dialog.
@@ -22,8 +22,16 @@ export const DialogClose = React.forwardRef(function DialogClose(
     nativeButton = true,
     ...elementProps
   } = componentProps;
-  const { open, setOpen } = useDialogRootContext();
-  const { getRootProps, ref } = useDialogClose({ disabled, open, setOpen, nativeButton });
+
+  const { store } = useDialogRootContext();
+  const open = store.useState('open');
+
+  const { getRootProps, ref } = useDialogClose({
+    disabled,
+    open,
+    setOpen: store.setOpen,
+    nativeButton,
+  });
 
   const state: DialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);
 
@@ -35,15 +43,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
 });
 
 export namespace DialogClose {
-  export interface Props extends BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
-  }
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
 
   export interface State {
     /**

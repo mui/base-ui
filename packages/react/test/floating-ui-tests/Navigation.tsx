@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import {
   flip,
   FloatingFocusManager,
@@ -70,7 +70,7 @@ export const NavigationItem = React.forwardRef<
     }),
   ]);
 
-  const mergedReferenceRef = useForkRef(ref, refs.setReference);
+  const mergedReferenceRef = useMergedRefs(ref, refs.setReference);
 
   return (
     <FloatingNode id={nodeId}>
@@ -78,7 +78,7 @@ export const NavigationItem = React.forwardRef<
         <a
           href={href}
           ref={mergedReferenceRef}
-          className="bg-slate-100 my-1 flex w-48 items-center justify-between rounded p-2"
+          className="my-1 flex w-48 items-center justify-between rounded bg-slate-100 p-2"
           {...getReferenceProps(props)}
         >
           {label}
@@ -86,11 +86,11 @@ export const NavigationItem = React.forwardRef<
       </li>
       <FloatingPortal>
         {open && (
-          <FloatingFocusManager context={context} modal={false} initialFocus={-1}>
+          <FloatingFocusManager context={context} modal={false} initialFocus={false}>
             <div
               data-testid="subnavigation"
               ref={refs.setFloating}
-              className="bg-slate-100 flex flex-col overflow-y-auto rounded px-4 py-2 backdrop-blur-sm outline-none"
+              className="flex flex-col overflow-y-auto rounded bg-slate-100 px-4 py-2 backdrop-blur-sm outline-none"
               style={floatingStyles}
               {...getFloatingProps()}
             >
@@ -124,7 +124,7 @@ export function Main() {
   return (
     <React.Fragment>
       <h1 className="mb-8 text-5xl font-bold">Navigation</h1>
-      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
+      <div className="mb-4 grid h-[20rem] place-items-center rounded border border-slate-400 lg:w-[40rem]">
         <Navigation>
           <NavigationItem label="Home" href="#" />
           <NavigationItem label="Product" href="#">

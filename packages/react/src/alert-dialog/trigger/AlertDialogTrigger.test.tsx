@@ -9,6 +9,8 @@ describe('<AlertDialog.Trigger />', () => {
 
   describeConformance(<AlertDialog.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render: (node) => {
       return render(
         <AlertDialog.Root open>
@@ -41,7 +43,7 @@ describe('<AlertDialog.Trigger />', () => {
       expect(screen.queryByText('title text')).to.equal(null);
 
       await user.keyboard('[Tab]');
-      expect(document.activeElement).to.not.equal(trigger);
+      expect(document.activeElement).not.to.equal(trigger);
     });
 
     it('custom element', async () => {
@@ -66,7 +68,7 @@ describe('<AlertDialog.Trigger />', () => {
       expect(screen.queryByText('title text')).to.equal(null);
 
       await user.keyboard('[Tab]');
-      expect(document.activeElement).to.not.equal(trigger);
+      expect(document.activeElement).not.to.equal(trigger);
     });
   });
 });

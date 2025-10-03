@@ -11,17 +11,19 @@ export function testRenderProp(
   element: React.ReactElement<ConformantComponentProps>,
   getOptions: () => BaseUiConformanceTestsOptions,
 ) {
-  const { render, testRenderPropWith: Element = 'div' } = getOptions();
+  const { render, testRenderPropWith: Element = 'div', button = false } = getOptions();
 
   if (!render) {
     throwMissingPropError('render');
   }
 
+  const nativeButton = Element === 'button';
+
   const Wrapper = React.forwardRef<any, { children?: React.ReactNode }>(
     function Wrapper(props, forwardedRef) {
       return (
         <div data-testid="base-ui-wrapper">
-          {/* @ts-ignore */}
+          {/* @ts-expect-error complex type */}
           <Element ref={forwardedRef} {...props} data-testid="wrapped" />
         </div>
       );
@@ -34,6 +36,7 @@ export function testRenderProp(
       const { queryByTestId } = await render(
         React.cloneElement(element, {
           render: (props: {}) => <Wrapper {...props} data-test-value={testValue} />,
+          ...(button && { nativeButton }),
         }),
       );
 
@@ -47,6 +50,7 @@ export function testRenderProp(
       const { queryByTestId } = await render(
         React.cloneElement(element, {
           render: <Wrapper data-test-value={testValue} />,
+          ...(button && { nativeButton }),
         }),
       );
 
@@ -59,6 +63,7 @@ export function testRenderProp(
       await render(
         React.cloneElement(element, {
           render: <Wrapper />,
+          ...(button && { nativeButton: Element === 'button' }),
         }),
       );
 
@@ -75,6 +80,7 @@ export function testRenderProp(
           },
           render: (props: {}) => <Wrapper {...props} />,
           'data-testid': 'wrapped',
+          ...(button && { nativeButton }),
         });
       }
 
@@ -100,6 +106,7 @@ export function testRenderProp(
             />
           ),
           'data-testid': 'wrapped',
+          ...(button && { nativeButton }),
         });
       }
 
@@ -119,6 +126,7 @@ export function testRenderProp(
           className: 'component-classname',
           render: <Element className="render-prop-classname" />,
           'data-testid': 'test-component',
+          ...(button && { nativeButton }),
         });
       }
 
@@ -135,6 +143,7 @@ export function testRenderProp(
           className: () => 'conditional-component-classname',
           render: <Element className="render-prop-classname" />,
           'data-testid': 'test-component',
+          ...(button && { nativeButton }),
         });
       }
 

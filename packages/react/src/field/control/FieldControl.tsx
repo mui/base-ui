@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';
@@ -11,6 +11,10 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useField } from '../useField';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldControlValidation } from './useFieldControlValidation';
+import {
+  BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 
 /**
  * The form control to label and validate.
@@ -67,14 +71,14 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
     };
   }, [id, setControlId]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const hasExternalValue = valueProp != null;
     if (inputRef.current?.value || (hasExternalValue && valueProp !== '')) {
       setFilled(true);
@@ -90,10 +94,19 @@ export const FieldControl = React.forwardRef(function FieldControl(
     state: 'value',
   });
 
-  const setValue = useEventCallback((nextValue: string, event: Event) => {
-    setValueUnwrapped(nextValue);
-    onValueChange?.(nextValue, event);
-  });
+  const isControlled = valueProp !== undefined;
+
+  const setValue = useEventCallback(
+    (nextValue: string, eventDetails: FieldControl.ChangeEventDetails) => {
+      onValueChange?.(nextValue, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      setValueUnwrapped(nextValue);
+    },
+  );
 
   useField({
     id,
@@ -114,14 +127,12 @@ export const FieldControl = React.forwardRef(function FieldControl(
         name,
         ref: inputRef,
         'aria-labelledby': labelId,
-        value,
+        ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
-          if (value != null) {
-            setValue(event.currentTarget.value, event.nativeEvent);
-          }
-
-          setDirty(event.currentTarget.value !== validityData.initialValue);
-          setFilled(event.currentTarget.value !== '');
+          const inputValue = event.currentTarget.value;
+          setValue(inputValue, createChangeEventDetails('none', event.nativeEvent));
+          setDirty(inputValue !== validityData.initialValue);
+          setFilled(inputValue !== '');
         },
         onFocus() {
           setFocused(true);
@@ -145,7 +156,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
       getInputValidationProps(),
       elementProps,
     ],
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   return element;
@@ -158,7 +169,10 @@ export namespace FieldControl {
     /**
      * Callback fired when the `value` changes. Use when controlled.
      */
-    onValueChange?: (value: string, event: Event) => void;
+    onValueChange?: (value: string, eventDetails: ChangeEventDetails) => void;
     defaultValue?: React.ComponentProps<'input'>['defaultValue'];
   }
+
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

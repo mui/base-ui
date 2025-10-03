@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isNode } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui-components/utils/useId';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
@@ -12,14 +12,13 @@ import {
   getNextTabbable,
   isOutsideEvent,
 } from '../utils';
-
-import type { OpenChangeReason } from '../types';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 
 type FocusManagerState = {
   modal: boolean;
   open: boolean;
-  onOpenChange(open: boolean, event?: Event, reason?: OpenChangeReason): void;
+  onOpenChange(open: boolean, data?: { reason?: string; event?: Event }): void;
   domReference: Element | null;
   closeOnFocusOut: boolean;
 } | null;
@@ -56,7 +55,7 @@ export function useFloatingPortalNode(props: UseFloatingPortalNodeProps = {}) {
 
   const portalNodeRef = React.useRef<HTMLDivElement | null>(null);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     return () => {
       portalNode?.remove();
       // Allow the subsequent layout effects to create a new node on updates.
@@ -68,7 +67,7 @@ export function useFloatingPortalNode(props: UseFloatingPortalNodeProps = {}) {
     };
   }, [portalNode]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     // Wait for the uniqueId to be generated before creating the portal node in
     // React <18 (using `useFloatingId` instead of the native `useId`).
     // https://github.com/floating-ui/floating-ui/issues/2778
@@ -91,7 +90,7 @@ export function useFloatingPortalNode(props: UseFloatingPortalNodeProps = {}) {
     setPortalNode(subRoot);
   }, [id, uniqueId]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     // Wait for the root to exist before creating the portal node. The root must
     // be stored in state, not a ref, for this to work reactively.
     if (root === null) {
@@ -268,7 +267,10 @@ export function FloatingPortal(props: FloatingPortalProps): React.JSX.Element {
               nextTabbable?.focus();
 
               if (focusManagerState?.closeOnFocusOut) {
-                focusManagerState?.onOpenChange(false, event.nativeEvent, 'focus-out');
+                focusManagerState?.onOpenChange(
+                  false,
+                  createChangeEventDetails('focus-out', event.nativeEvent),
+                );
               }
             }
           }}
