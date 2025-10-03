@@ -5,6 +5,7 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useLabelableContext } from '../../field/root/LabelableContext';
 import { fieldValidityMapping } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -55,28 +56,26 @@ export const FieldControl = React.forwardRef(function FieldControl(
     [fieldState, disabled],
   );
 
-  const {
-    setControlId,
-    labelId,
-    setTouched,
-    setDirty,
-    validityData,
-    setFocused,
-    setFilled,
-    validationMode,
-  } = useFieldRootContext();
+  const { setTouched, setDirty, validityData, setFocused, setFilled, validationMode } =
+    useFieldRootContext();
+  const { controlId, setControlId, labelId } = useLabelableContext();
 
-  const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
-    useFieldControlValidation();
+  const { getInputValidationProps, commitValidation, inputRef } = useFieldControlValidation();
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = controlId ?? defaultId;
 
   useIsoLayoutEffect(() => {
-    setControlId(id);
+    if (idProp) {
+      setControlId(idProp);
+    }
+
     return () => {
-      setControlId(undefined);
+      if (idProp) {
+        setControlId(undefined);
+      }
     };
-  }, [id, setControlId]);
+  }, [idProp, setControlId]);
 
   useIsoLayoutEffect(() => {
     const hasExternalValue = valueProp != null;
@@ -152,7 +151,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
           }
         },
       },
-      getValidationProps(),
       getInputValidationProps(),
       elementProps,
     ],

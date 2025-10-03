@@ -5,8 +5,12 @@ import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../../form/FormContext';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
+
+import { useLabelable } from '../root/useLabelable';
+import { LabelableContext } from './LabelableContext';
 
 /**
  * Groups all parts of the field.
@@ -38,9 +42,11 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const disabled = disabledFieldset || disabledProp;
 
-  const [controlId, setControlId] = React.useState<string | null | undefined>(undefined);
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
-  const [messageIds, setMessageIds] = React.useState<string[]>([]);
+  const defaultControlId = useBaseUiId();
+
+  const labelable = useLabelable({
+    initialControlId: defaultControlId,
+  });
 
   const [touched, setTouched] = React.useState(false);
   const [dirty, setDirtyUnwrapped] = React.useState(false);
@@ -85,12 +91,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
       invalid,
-      controlId,
-      setControlId,
-      labelId,
-      setLabelId,
-      messageIds,
-      setMessageIds,
       name,
       validityData,
       setValidityData,
@@ -111,9 +111,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     }),
     [
       invalid,
-      controlId,
-      labelId,
-      messageIds,
       name,
       validityData,
       disabled,
@@ -131,6 +128,11 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     ],
   );
 
+  const labelableContextValue: LabelableContext = React.useMemo(
+    () => ({ ...labelable, getDescriptionProps: (externalProps: HTMLProps) => externalProps }),
+    [labelable],
+  );
+
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     state,
@@ -138,7 +140,11 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     stateAttributesMapping: fieldValidityMapping,
   });
 
-  return <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>;
+  return (
+    <LabelableContext.Provider value={labelableContextValue}>
+      <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>
+    </LabelableContext.Provider>
+  );
 });
 
 export interface FieldValidityData {

@@ -4,11 +4,13 @@ import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../field/root/LabelableContext';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
@@ -30,16 +32,22 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   componentProps: ComboboxInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    id: idProp,
+    ...elementProps
+  } = componentProps;
 
   const {
     state: fieldState,
     disabled: fieldDisabled,
-    labelId,
     setTouched,
     setFocused,
     validationMode,
   } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
   const comboboxChipsContext = useComboboxChipsContext();
   const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
   const store = useComboboxRootContext();
@@ -55,6 +63,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const triggerProps = useStore(store, selectors.triggerProps);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
+
+  const id = useBaseUiId(idProp);
 
   // `inputValue` can't be placed in the store.
   // https://github.com/mui/base-ui/issues/2703
@@ -160,6 +170,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         disabled,
         readOnly,
         ...(selectionMode === 'none' && name && { name }),
+        id,
         onFocus() {
           setFocused(true);
         },
