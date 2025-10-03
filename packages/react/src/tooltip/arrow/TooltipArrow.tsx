@@ -51,7 +51,7 @@ export interface TooltipArrowState {
   uncentered: boolean;
 }
 
-export interface TooltipArrowProps extends BaseUIComponentProps<'div', TooltipArrowState> {}
+export interface TooltipArrowProps extends BaseUIComponentProps<'div', TooltipArrow.State> {}
 
 export namespace TooltipArrow {
   export type State = TooltipArrowState;

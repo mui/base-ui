@@ -579,7 +579,7 @@ export interface ToastRootState {
   /** The direction the toast is being swiped. */
   swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
 }
-export interface ToastRootProps extends BaseUIComponentProps<'div', ToastRootState> {
+export interface ToastRootProps extends BaseUIComponentProps<'div', ToastRoot.State> {
   /**
    * The toast to render.
    */

@@ -198,7 +198,7 @@ function useActivationDirectionDetector(
 
 export interface TabsListState extends TabsRoot.State {}
 
-export interface TabsListProps extends BaseUIComponentProps<'div', TabsListState> {
+export interface TabsListProps extends BaseUIComponentProps<'div', TabsList.State> {
   /**
    * Whether to automatically change the active tab on arrow key focus.
    * Otherwise, tabs will be activated using Enter or Spacebar key press.

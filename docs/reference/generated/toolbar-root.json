@@ -19,7 +19,7 @@
       "detailedType": "boolean | undefined"
     },
     "orientation": {
-      "type": "ToolbarRootOrientation",
+      "type": "Toolbar.Root.Orientation",
       "default": "'horizontal'",
       "description": "The orientation of the toolbar.",
       "detailedType": "'horizontal' | 'vertical' | undefined"

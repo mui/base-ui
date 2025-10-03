@@ -14,14 +14,14 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, eventDetails: AlertDialogRootChangeEventDetails) => void)",
+      "type": "((open: boolean, eventDetails: AlertDialog.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the dialog is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    eventDetails: AlertDialogRootChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: AlertDialog.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<AlertDialogRootActions>",
+      "type": "RefObject<AlertDialog.Root.Actions>",
       "description": "A ref to imperative actions.",
-      "detailedType": "React.RefObject<AlertDialogRootActions> | undefined"
+      "detailedType": "| React.RefObject<AlertDialog.Root.Actions>\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

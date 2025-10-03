@@ -48,7 +48,7 @@ export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 export interface AvatarRootState {
   imageLoadingStatus: ImageLoadingStatus;
 }
-export interface AvatarRootProps extends BaseUIComponentProps<'span', AvatarRootState> {}
+export interface AvatarRootProps extends BaseUIComponentProps<'span', AvatarRoot.State> {}
 
 export namespace AvatarRoot {
   export type State = AvatarRootState;

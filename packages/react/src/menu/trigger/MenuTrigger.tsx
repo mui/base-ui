@@ -186,7 +186,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
 export interface MenuTriggerProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', MenuTriggerState> {
+    BaseUIComponentProps<'button', MenuTrigger.State> {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.

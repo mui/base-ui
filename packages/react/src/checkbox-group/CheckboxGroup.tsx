@@ -144,13 +144,13 @@ export interface CheckboxGroupState extends FieldRoot.State {
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
 }
-export interface CheckboxGroupProps extends BaseUIComponentProps<'div', CheckboxGroupState> {
+export interface CheckboxGroupProps extends BaseUIComponentProps<'div', CheckboxGroup.State> {
   /** Names of the checkboxes in the group that should be ticked. */
   value?: string[];
   /** Names of the checkboxes in the group that should be initially ticked. */
   defaultValue?: string[];
   /** Event handler called when a checkbox in the group is ticked or unticked. */
-  onValueChange?: (value: string[], eventDetails: CheckboxGroupChangeEventDetails) => void;
+  onValueChange?: (value: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => void;
   /** Names of all checkboxes in the group. Use this when creating a parent checkbox. */
   allValues?: string[];
   /** Whether the component should ignore user interaction. */
@@ -158,7 +158,7 @@ export interface CheckboxGroupProps extends BaseUIComponentProps<'div', Checkbox
 }
 export type CheckboxGroupChangeEventReason = 'none';
 export type CheckboxGroupChangeEventDetails =
-  BaseUIChangeEventDetails<CheckboxGroupChangeEventReason>;
+  BaseUIChangeEventDetails<CheckboxGroup.ChangeEventReason>;
 
 export namespace CheckboxGroup {
   export type State = CheckboxGroupState;

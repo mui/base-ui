@@ -133,7 +133,7 @@ export interface ComboboxPopupState {
   empty: boolean;
 }
 
-export interface ComboboxPopupProps extends BaseUIComponentProps<'div', ComboboxPopupState> {
+export interface ComboboxPopupProps extends BaseUIComponentProps<'div', ComboboxPopup.State> {
   /**
    * Determines the element to focus when the popup is opened.
    *

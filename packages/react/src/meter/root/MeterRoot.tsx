@@ -80,7 +80,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
   return <MeterRootContext.Provider value={contextValue}>{element}</MeterRootContext.Provider>;
 });
 export interface MeterRootState {}
-export interface MeterRootProps extends BaseUIComponentProps<'div', MeterRootState> {
+export interface MeterRootProps extends BaseUIComponentProps<'div', MeterRoot.State> {
   /**
    * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
    */

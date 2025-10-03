@@ -128,7 +128,7 @@ export interface PreviewCardPositionerState {
 
 export interface PreviewCardPositionerProps
   extends useAnchorPositioning.SharedParameters,
-    BaseUIComponentProps<'div', PreviewCardPositionerState> {}
+    BaseUIComponentProps<'div', PreviewCardPositioner.State> {}
 
 export namespace PreviewCardPositioner {
   export type State = PreviewCardPositionerState;

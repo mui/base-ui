@@ -312,7 +312,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 export interface NumberFieldScrubAreaState extends NumberFieldRoot.State {}
 
 export interface NumberFieldScrubAreaProps
-  extends BaseUIComponentProps<'span', NumberFieldScrubAreaState> {
+  extends BaseUIComponentProps<'span', NumberFieldScrubArea.State> {
   /**
    * Cursor movement direction in the scrub area.
    * @default 'horizontal'

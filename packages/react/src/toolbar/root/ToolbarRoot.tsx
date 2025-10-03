@@ -76,12 +76,15 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 export interface ToolbarRootItemMetadata {
   focusableWhenDisabled: boolean;
 }
+
 export type ToolbarRootOrientation = BaseOrientation;
+
 export interface ToolbarRootState {
   disabled: boolean;
-  orientation: ToolbarRootOrientation;
+  orientation: ToolbarRoot.Orientation;
 }
-export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRootState> {
+
+export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRoot.State> {
   /**
    * The number of columns. When greater than 1, the toolbar is arranged into
    * a grid.
@@ -93,7 +96,7 @@ export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRoo
    * The orientation of the toolbar.
    * @default 'horizontal'
    */
-  orientation?: ToolbarRootOrientation;
+  orientation?: ToolbarRoot.Orientation;
   /**
    * If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.
    *

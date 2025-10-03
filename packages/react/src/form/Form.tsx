@@ -110,7 +110,7 @@ export const Form = React.forwardRef(function Form(
 
 export interface FormState {}
 
-export interface FormProps extends BaseUIComponentProps<'form', FormState> {
+export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
   /**
    * An object where the keys correspond to the `name` attribute of the form fields,
    * and the values correspond to the error(s) related to that field.

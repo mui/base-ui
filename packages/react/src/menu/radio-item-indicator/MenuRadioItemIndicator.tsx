@@ -60,7 +60,7 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
 });
 
 export interface MenuRadioItemIndicatorProps
-  extends BaseUIComponentProps<'span', MenuRadioItemIndicatorState> {
+  extends BaseUIComponentProps<'span', MenuRadioItemIndicator.State> {
   /**
    * Whether to keep the HTML element in the DOM when the radio item is inactive.
    * @default false

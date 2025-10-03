@@ -118,7 +118,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 export interface ComboboxListState {}
 
 export interface ComboboxListProps
-  extends Omit<BaseUIComponentProps<'div', ComboboxListState>, 'children'> {
+  extends Omit<BaseUIComponentProps<'div', ComboboxList.State>, 'children'> {
   children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
 }
 

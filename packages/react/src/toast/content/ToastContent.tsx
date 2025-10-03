@@ -70,7 +70,7 @@ export interface ToastContentState {
   behind: boolean;
 }
 
-export interface ToastContentProps extends BaseUIComponentProps<'div', ToastContentState> {}
+export interface ToastContentProps extends BaseUIComponentProps<'div', ToastContent.State> {}
 
 export namespace ToastContent {
   export type State = ToastContentState;

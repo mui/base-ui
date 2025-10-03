@@ -170,7 +170,7 @@ export interface FieldRootState {
   filled: boolean;
   focused: boolean;
 }
-export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootState> {
+export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.State> {
   disabled?: boolean;
   name?: string;
   validate?: (

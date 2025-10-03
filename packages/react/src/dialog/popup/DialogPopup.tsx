@@ -135,7 +135,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   );
 });
 
-export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopupState> {
+export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopup.State> {
   /**
    * Determines the element to focus when the dialog is opened.
    *

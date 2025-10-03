@@ -40,7 +40,7 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
 export interface PopoverDescriptionState {}
 
 export interface PopoverDescriptionProps
-  extends BaseUIComponentProps<'p', PopoverDescriptionState> {}
+  extends BaseUIComponentProps<'p', PopoverDescription.State> {}
 
 export namespace PopoverDescription {
   export type State = PopoverDescriptionState;

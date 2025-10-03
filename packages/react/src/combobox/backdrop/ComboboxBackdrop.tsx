@@ -57,7 +57,7 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
   });
 });
 
-export interface ComboboxBackdropProps extends BaseUIComponentProps<'div', ComboboxBackdropState> {}
+export interface ComboboxBackdropProps extends BaseUIComponentProps<'div', ComboboxBackdrop.State> {}
 
 export interface ComboboxBackdropState {
   /**

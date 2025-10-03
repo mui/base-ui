@@ -39,7 +39,7 @@ export interface PreviewCardTriggerState {
 }
 
 export interface PreviewCardTriggerProps
-  extends BaseUIComponentProps<'a', PreviewCardTriggerState> {}
+  extends BaseUIComponentProps<'a', PreviewCardTrigger.State> {}
 
 export namespace PreviewCardTrigger {
   export type State = PreviewCardTriggerState;

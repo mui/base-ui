@@ -46,7 +46,7 @@ export interface PopoverCloseState {}
 
 export interface PopoverCloseProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', PopoverCloseState> {}
+    BaseUIComponentProps<'button', PopoverClose.State> {}
 
 export namespace PopoverClose {
   export type State = PopoverCloseState;

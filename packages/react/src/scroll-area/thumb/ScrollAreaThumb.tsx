@@ -68,7 +68,7 @@ export interface ScrollAreaThumbState {
   orientation?: 'horizontal' | 'vertical';
 }
 
-export interface ScrollAreaThumbProps extends BaseUIComponentProps<'div', ScrollAreaThumbState> {}
+export interface ScrollAreaThumbProps extends BaseUIComponentProps<'div', ScrollAreaThumb.State> {}
 
 export namespace ScrollAreaThumb {
   export type State = ScrollAreaThumbState;

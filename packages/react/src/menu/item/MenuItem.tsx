@@ -126,7 +126,7 @@ export interface MenuItemState {
 
 export interface MenuItemProps
   extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuItemState> {
+    BaseUIComponentProps<'div', MenuItem.State> {
   children?: React.ReactNode;
   /**
    * The click handler for the menu item.

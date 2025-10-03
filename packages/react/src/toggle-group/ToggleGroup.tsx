@@ -139,7 +139,7 @@ export interface ToggleGroupState {
   multiple: boolean;
 }
 
-export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGroupState> {
+export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGroup.State> {
   /**
    * The open state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
@@ -155,7 +155,7 @@ export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGrou
   /**
    * Callback fired when the pressed states of the toggle group changes.
    */
-  onValueChange?: (groupValue: any[], eventDetails: ToggleGroupChangeEventDetails) => void;
+  onValueChange?: (groupValue: any[], eventDetails: ToggleGroup.ChangeEventDetails) => void;
   /**
    * Whether the toggle group should ignore user interaction.
    * @default false
@@ -182,7 +182,7 @@ export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGrou
 
 export type ToggleGroupChangeEventReason = 'none';
 
-export type ToggleGroupChangeEventDetails = BaseUIChangeEventDetails<ToggleGroupChangeEventReason>;
+export type ToggleGroupChangeEventDetails = BaseUIChangeEventDetails<ToggleGroup.ChangeEventReason>;
 
 export namespace ToggleGroup {
   export type State = ToggleGroupState;

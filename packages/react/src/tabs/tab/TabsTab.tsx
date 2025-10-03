@@ -236,12 +236,12 @@ export interface TabsTabState {
 
 export interface TabsTabProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', TabsTabState> {
+    BaseUIComponentProps<'button', TabsTab.State> {
   /**
    * The value of the Tab.
    * When not specified, the value is the child position index.
    */
-  value?: TabsTabValue;
+  value?: TabsTab.Value;
 }
 
 export namespace TabsTab {

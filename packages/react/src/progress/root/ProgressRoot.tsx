@@ -110,7 +110,7 @@ export interface ProgressRootState {
   status: ProgressStatus;
 }
 
-export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressRootState> {
+export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressRoot.State> {
   /**
    * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
    */

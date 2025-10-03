@@ -76,7 +76,7 @@ export interface ToolbarButtonState extends ToolbarRoot.State {
 
 export interface ToolbarButtonProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', ToolbarButtonState> {
+    BaseUIComponentProps<'button', ToolbarButton.State> {
   /**
    * When `true` the item is disabled.
    * @default false

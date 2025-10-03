@@ -57,7 +57,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
 export interface DialogTriggerProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', DialogTriggerState> {}
+    BaseUIComponentProps<'button', DialogTrigger.State> {}
 
 export interface DialogTriggerState {
   /**

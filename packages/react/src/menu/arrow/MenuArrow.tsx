@@ -54,7 +54,7 @@ export interface MenuArrowState {
   uncentered: boolean;
 }
 
-export interface MenuArrowProps extends BaseUIComponentProps<'div', MenuArrowState> {}
+export interface MenuArrowProps extends BaseUIComponentProps<'div', MenuArrow.State> {}
 
 export namespace MenuArrow {
   export type State = MenuArrowState;

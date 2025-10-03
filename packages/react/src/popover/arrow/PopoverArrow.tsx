@@ -52,7 +52,7 @@ export interface PopoverArrowState {
   uncentered: boolean;
 }
 
-export interface PopoverArrowProps extends BaseUIComponentProps<'div', PopoverArrowState> {}
+export interface PopoverArrowProps extends BaseUIComponentProps<'div', PopoverArrow.State> {}
 
 export namespace PopoverArrow {
   export type State = PopoverArrowState;

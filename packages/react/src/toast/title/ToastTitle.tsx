@@ -71,7 +71,7 @@ export interface ToastTitleState {
   type: string | undefined;
 }
 
-export interface ToastTitleProps extends BaseUIComponentProps<'h2', ToastTitleState> {}
+export interface ToastTitleProps extends BaseUIComponentProps<'h2', ToastTitle.State> {}
 
 export namespace ToastTitle {
   export type State = ToastTitleState;

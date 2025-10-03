@@ -11,7 +11,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectGroup = React.forwardRef(function SelectGroup(
-  componentProps: SelectGroupProps,
+  componentProps: SelectGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
@@ -41,7 +41,7 @@ export const SelectGroup = React.forwardRef(function SelectGroup(
 });
 
 export interface SelectGroupState {}
-export interface SelectGroupProps extends BaseUIComponentProps<'div', SelectGroupState> {}
+export interface SelectGroupProps extends BaseUIComponentProps<'div', SelectGroup.State> {}
 
 export namespace SelectGroup {
   export type State = SelectGroupState;

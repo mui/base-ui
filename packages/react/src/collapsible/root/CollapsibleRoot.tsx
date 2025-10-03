@@ -57,7 +57,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   );
 
   const renderElementProps =
-    (componentProps as CollapsibleRootProps).render === null
+    (componentProps as CollapsibleRoot.Props).render === null
       ? { ...(componentProps as any), render: undefined }
       : componentProps;
 
@@ -89,7 +89,7 @@ export interface CollapsibleRootState {
   hidden: boolean;
   transitionStatus: useCollapsibleRoot.ReturnValue['transitionStatus'];
 }
-export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRootState> {
+export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
   /**
    * Whether the collapsible panel is currently open.
    *
@@ -106,17 +106,17 @@ export interface CollapsibleRootProps extends BaseUIComponentProps<'div', Collap
   /**
    * Event handler called when the panel is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: CollapsibleRootChangeEventDetails) => void;
+  onOpenChange?: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
   disabled?: boolean;
-  render?: BaseUIComponentProps<'div', CollapsibleRootState>['render'];
+  render?: BaseUIComponentProps<'div', CollapsibleRoot.State>['render'];
 }
 export type CollapsibleRootChangeEventReason = 'trigger-press' | 'none';
 export type CollapsibleRootChangeEventDetails =
-  BaseUIChangeEventDetails<CollapsibleRootChangeEventReason>;
+  BaseUIChangeEventDetails<CollapsibleRoot.ChangeEventReason>;
 
 export namespace CollapsibleRoot {
   export type State = CollapsibleRootState;

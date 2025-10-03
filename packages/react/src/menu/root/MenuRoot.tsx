@@ -597,7 +597,7 @@ export interface MenuRootProps {
   /**
    * Event handler called when the menu is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: MenuRootChangeEventDetails) => void;
+  onOpenChange?: (open: boolean, eventDetails: MenuRoot.ChangeEventDetails) => void;
   /**
    * Event handler called after any animations complete when the menu is closed.
    */
@@ -611,7 +611,7 @@ export interface MenuRootProps {
    * Controls whether roving focus uses up/down or left/right arrow keys.
    * @default 'vertical'
    */
-  orientation?: MenuRootOrientation;
+  orientation?: MenuRoot.Orientation;
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -648,7 +648,7 @@ export interface MenuRootProps {
    * Instead, the `unmount` function must be called to unmount the menu manually.
    * Useful when the menu's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<MenuRootActions>;
+  actionsRef?: React.RefObject<MenuRoot.Actions>;
 }
 
 export interface MenuRootActions {
@@ -669,7 +669,7 @@ export type MenuRootChangeEventReason =
   | 'cancel-open'
   | 'none';
 
-export type MenuRootChangeEventDetails = BaseUIChangeEventDetails<MenuRootChangeEventReason>;
+export type MenuRootChangeEventDetails = BaseUIChangeEventDetails<MenuRoot.ChangeEventReason>;
 
 export type MenuRootOrientation = 'horizontal' | 'vertical';
 

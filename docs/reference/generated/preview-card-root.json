@@ -13,14 +13,14 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, eventDetails: PreviewCardRootChangeEventDetails) => void)",
+      "type": "((open: boolean, eventDetails: PreviewCard.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the preview card is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    eventDetails: PreviewCardRootChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: PreviewCard.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<PreviewCardRootActions>",
+      "type": "RefObject<PreviewCard.Root.Actions>",
       "description": "A ref to imperative actions.",
-      "detailedType": "React.RefObject<PreviewCardRootActions> | undefined"
+      "detailedType": "| React.RefObject<PreviewCard.Root.Actions>\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

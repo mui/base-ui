@@ -60,7 +60,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
 });
 
 export interface MenuCheckboxItemIndicatorProps
-  extends BaseUIComponentProps<'span', MenuCheckboxItemIndicatorState> {
+  extends BaseUIComponentProps<'span', MenuCheckboxItemIndicator.State> {
   /**
    * Whether to keep the HTML element in the DOM when the checkbox item is not checked.
    * @default false

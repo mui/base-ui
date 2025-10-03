@@ -79,7 +79,7 @@ export interface TooltipPopupState {
   transitionStatus: TransitionStatus;
 }
 
-export interface TooltipPopupProps extends BaseUIComponentProps<'div', TooltipPopupState> {}
+export interface TooltipPopupProps extends BaseUIComponentProps<'div', TooltipPopup.State> {}
 
 export namespace TooltipPopup {
   export type State = TooltipPopupState;

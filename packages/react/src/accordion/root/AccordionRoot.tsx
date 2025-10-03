@@ -173,7 +173,7 @@ export interface AccordionRootState {
   orientation: Orientation;
 }
 
-export interface AccordionRootProps extends BaseUIComponentProps<'div', AccordionRootState> {
+export interface AccordionRootProps extends BaseUIComponentProps<'div', AccordionRoot.State> {
   /**
    * The controlled value of the item(s) that should be expanded.
    *
@@ -215,7 +215,7 @@ export interface AccordionRootProps extends BaseUIComponentProps<'div', Accordio
    * Event handler called when an accordion item is expanded or collapsed.
    * Provides the new value as an argument.
    */
-  onValueChange?: (value: AccordionValue, eventDetails: AccordionRootChangeEventDetails) => void;
+  onValueChange?: (value: AccordionValue, eventDetails: AccordionRoot.ChangeEventDetails) => void;
   /**
    * Whether multiple items can be open at the same time.
    * @default true
@@ -232,7 +232,7 @@ export interface AccordionRootProps extends BaseUIComponentProps<'div', Accordio
 export type AccordionRootChangeEventReason = 'trigger-press' | 'none';
 
 export type AccordionRootChangeEventDetails =
-  BaseUIChangeEventDetails<AccordionRootChangeEventReason>;
+  BaseUIChangeEventDetails<AccordionRoot.ChangeEventReason>;
 
 export namespace AccordionRoot {
   export type State = AccordionRootState;

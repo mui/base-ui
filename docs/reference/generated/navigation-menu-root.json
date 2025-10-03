@@ -3,33 +3,46 @@
   "description": "Groups all parts of the navigation menu.\nRenders a `<nav>` element at the root, or `<div>` element when nested.",
   "props": {
     "defaultValue": {
-      "type": "any"
+      "type": "any",
+      "default": "null",
+      "description": "The uncontrolled value of the item that should be initially selected.\n\nTo render a controlled navigation menu, use the `value` prop instead."
     },
     "value": {
-      "type": "any"
+      "type": "any",
+      "default": "null",
+      "description": "The controlled value of the navigation menu item that should be currently open.\nWhen non-nullish, the menu will be open. When nullish, the menu will be closed.\n\nTo render an uncontrolled navigation menu, use the `defaultValue` prop instead."
     },
     "onValueChange": {
-      "type": "((value: any, eventDetails: NavigationMenuRootChangeEventDetails) => void)",
-      "detailedType": "| ((\n    value: any,\n    eventDetails: NavigationMenuRootChangeEventDetails,\n  ) => void)\n| undefined"
+      "type": "((value: any, eventDetails: NavigationMenu.Root.ChangeEventDetails) => void)",
+      "description": "Callback fired when the value changes.",
+      "detailedType": "| ((\n    value: any,\n    eventDetails: NavigationMenu.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<NavigationMenuRootActions>",
-      "detailedType": "| React.RefObject<NavigationMenuRootActions>\n| undefined"
+      "type": "RefObject<NavigationMenu.Root.Actions>",
+      "description": "A ref to imperative actions.",
+      "detailedType": "| React.RefObject<NavigationMenu.Root.Actions>\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
+      "description": "Event handler called after any animations complete when the navigation menu is closed.",
       "detailedType": "((open: boolean) => void) | undefined"
     },
     "delay": {
       "type": "number",
+      "default": "50",
+      "description": "How long to wait before opening the navigation menu. Specified in milliseconds.",
       "detailedType": "number | undefined"
     },
     "closeDelay": {
       "type": "number",
+      "default": "50",
+      "description": "How long to wait before closing the navigation menu. Specified in milliseconds.",
       "detailedType": "number | undefined"
     },
     "orientation": {
       "type": "'horizontal' | 'vertical'",
+      "default": "'horizontal'",
+      "description": "The orientation of the navigation menu.",
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {

@@ -242,7 +242,7 @@ export interface ScrollAreaScrollbarState extends ScrollAreaRoot.State {
 }
 
 export interface ScrollAreaScrollbarProps
-  extends BaseUIComponentProps<'div', ScrollAreaScrollbarState> {
+  extends BaseUIComponentProps<'div', ScrollAreaScrollbar.State> {
   /**
    * Whether the scrollbar controls vertical or horizontal scroll.
    * @default 'vertical'

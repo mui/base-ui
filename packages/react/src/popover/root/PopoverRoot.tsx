@@ -290,7 +290,7 @@ export interface PopoverRootProps {
   /**
    * Event handler called when the popover is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: PopoverRootChangeEventDetails) => void;
+  onOpenChange?: (open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void;
   /**
    * Event handler called after any animations complete when the popover is opened or closed.
    */
@@ -321,7 +321,7 @@ export interface PopoverRootProps {
    * Instead, the `unmount` function must be called to unmount the popover manually.
    * Useful when the popover's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<PopoverRootActions>;
+  actionsRef?: React.RefObject<PopoverRoot.Actions>;
   /**
    * Determines if the popover enters a modal state when open.
    * - `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.
@@ -346,7 +346,7 @@ export type PopoverRootChangeEventReason =
   | 'close-press'
   | 'focus-out'
   | 'none';
-export type PopoverRootChangeEventDetails = BaseUIChangeEventDetails<PopoverRootChangeEventReason>;
+export type PopoverRootChangeEventDetails = BaseUIChangeEventDetails<PopoverRoot.ChangeEventReason>;
 
 export namespace PopoverRoot {
   export type State = PopoverRootState;

@@ -330,7 +330,7 @@ export interface ToastViewportState {
   expanded: boolean;
 }
 
-export interface ToastViewportProps extends BaseUIComponentProps<'div', ToastViewportState> {}
+export interface ToastViewportProps extends BaseUIComponentProps<'div', ToastViewport.State> {}
 
 export namespace ToastViewport {
   export type State = ToastViewportState;

@@ -65,7 +65,7 @@ export interface PreviewCardBackdropState {
 }
 
 export interface PreviewCardBackdropProps
-  extends BaseUIComponentProps<'div', PreviewCardBackdropState> {}
+  extends BaseUIComponentProps<'div', PreviewCardBackdrop.State> {}
 
 export namespace PreviewCardBackdrop {
   export type State = PreviewCardBackdropState;

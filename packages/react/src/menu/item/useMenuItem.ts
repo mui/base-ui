@@ -153,7 +153,7 @@ export interface useMenuItemParameters {
   /**
    * Additional data specific to the item type.
    */
-  itemMetadata: useMenuItemMetadata;
+  itemMetadata: useMenuItem.Metadata;
   /**
    * The node id of the menu positioner.
    */

@@ -85,7 +85,7 @@ export interface PopoverTriggerState {
 
 export interface PopoverTriggerProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', PopoverTriggerState> {}
+    BaseUIComponentProps<'button', PopoverTrigger.State> {}
 
 export namespace PopoverTrigger {
   export type State = PopoverTriggerState;

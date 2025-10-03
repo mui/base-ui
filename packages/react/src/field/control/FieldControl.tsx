@@ -164,18 +164,18 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
 export type FieldControlState = FieldRoot.State;
 
-export interface FieldControlProps extends BaseUIComponentProps<'input', FieldControlState> {
+export interface FieldControlProps extends BaseUIComponentProps<'input', FieldControl.State> {
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */
-  onValueChange?: (value: string, eventDetails: FieldControlChangeEventDetails) => void;
+  onValueChange?: (value: string, eventDetails: FieldControl.ChangeEventDetails) => void;
   defaultValue?: React.ComponentProps<'input'>['defaultValue'];
 }
 
 export type FieldControlChangeEventReason = 'none';
 
 export type FieldControlChangeEventDetails =
-  BaseUIChangeEventDetails<FieldControlChangeEventReason>;
+  BaseUIChangeEventDetails<FieldControl.ChangeEventReason>;
 
 export namespace FieldControl {
   export type State = FieldControlState;

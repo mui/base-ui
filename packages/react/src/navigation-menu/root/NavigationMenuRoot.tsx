@@ -276,23 +276,66 @@ function TreeContext(props: {
 }
 
 export interface NavigationMenuRootState {
+  /**
+   * If `true`, the popup is open.
+   */
   open: boolean;
+  /**
+   * Whether the navigation menu is nested.
+   */
   nested: boolean;
 }
+
 export interface NavigationMenuRootProps
-  extends BaseUIComponentProps<'nav', NavigationMenuRootState> {
-  actionsRef?: React.RefObject<NavigationMenuRootActions>;
+  extends BaseUIComponentProps<'nav', NavigationMenuRoot.State> {
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef?: React.RefObject<NavigationMenuRoot.Actions>;
+  /**
+   * Event handler called after any animations complete when the navigation menu is closed.
+   */
   onOpenChangeComplete?: (open: boolean) => void;
+  /**
+   * The controlled value of the navigation menu item that should be currently open.
+   * When non-nullish, the menu will be open. When nullish, the menu will be closed.
+   *
+   * To render an uncontrolled navigation menu, use the `defaultValue` prop instead.
+   * @default null
+   */
   value?: any;
+  /**
+   * The uncontrolled value of the item that should be initially selected.
+   *
+   * To render a controlled navigation menu, use the `value` prop instead.
+   * @default null
+   */
   defaultValue?: any;
-  onValueChange?: (value: any, eventDetails: NavigationMenuRootChangeEventDetails) => void;
+  /**
+   * Callback fired when the value changes.
+   */
+  onValueChange?: (value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void;
+  /**
+   * How long to wait before opening the navigation menu. Specified in milliseconds.
+   * @default 50
+   */
   delay?: number;
+  /**
+   * How long to wait before closing the navigation menu. Specified in milliseconds.
+   * @default 50
+   */
   closeDelay?: number;
+  /**
+   * The orientation of the navigation menu.
+   * @default 'horizontal'
+   */
   orientation?: 'horizontal' | 'vertical';
 }
+
 export interface NavigationMenuRootActions {
   unmount: () => void;
 }
+
 export type NavigationMenuRootChangeEventReason =
   | 'trigger-press'
   | 'trigger-hover'
@@ -302,8 +345,9 @@ export type NavigationMenuRootChangeEventReason =
   | 'escape-key'
   | 'link-press'
   | 'none';
+
 export type NavigationMenuRootChangeEventDetails =
-  BaseUIChangeEventDetails<NavigationMenuRootChangeEventReason>;
+  BaseUIChangeEventDetails<NavigationMenuRoot.ChangeEventReason>;
 
 export namespace NavigationMenuRoot {
   export type State = NavigationMenuRootState;

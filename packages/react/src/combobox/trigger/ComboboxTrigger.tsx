@@ -188,7 +188,7 @@ export interface ComboboxTriggerState extends FieldRoot.State {
 
 export interface ComboboxTriggerProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', ComboboxTriggerState> {
+    BaseUIComponentProps<'button', ComboboxTrigger.State> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

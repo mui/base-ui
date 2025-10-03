@@ -338,7 +338,7 @@ export interface ScrollAreaRootState {
   /** Whether the scrollbar corner is hidden. */
   cornerHidden: boolean;
 }
-export interface ScrollAreaRootProps extends BaseUIComponentProps<'div', ScrollAreaRootState> {
+export interface ScrollAreaRootProps extends BaseUIComponentProps<'div', ScrollAreaRoot.State> {
   /**
    * The threshold in pixels that must be passed before the overflow edge attributes are applied.
    * Accepts a single number for all edges or an object to configure them individually.

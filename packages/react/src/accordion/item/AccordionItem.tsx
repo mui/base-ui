@@ -148,7 +148,7 @@ export interface AccordionItemState extends AccordionRoot.State {
 }
 
 export interface AccordionItemProps
-  extends BaseUIComponentProps<'div', AccordionItemState>,
+  extends BaseUIComponentProps<'div', AccordionItem.State>,
     Partial<Pick<useCollapsibleRoot.Parameters, 'disabled'>> {
   /**
    * A unique value that identifies this accordion item.
@@ -167,13 +167,13 @@ export interface AccordionItemProps
   /**
    * Event handler called when the panel is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: AccordionItemChangeEventDetails) => void;
+  onOpenChange?: (open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void;
 }
 
 export type AccordionItemChangeEventReason = 'trigger-press' | 'none';
 
 export type AccordionItemChangeEventDetails =
-  BaseUIChangeEventDetails<AccordionItemChangeEventReason>;
+  BaseUIChangeEventDetails<AccordionItem.ChangeEventReason>;
 
 export namespace AccordionItem {
   export type State = AccordionItemState;

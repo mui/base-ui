@@ -156,7 +156,7 @@ export interface ComboboxClearState {
 
 export interface ComboboxClearProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', ComboboxClearState> {
+    BaseUIComponentProps<'button', ComboboxClear.State> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

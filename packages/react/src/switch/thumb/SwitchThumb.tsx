@@ -32,7 +32,7 @@ export const SwitchThumb = React.forwardRef(function SwitchThumb(
   });
 });
 
-export interface SwitchThumbProps extends BaseUIComponentProps<'span', SwitchThumbState> {}
+export interface SwitchThumbProps extends BaseUIComponentProps<'span', SwitchThumb.State> {}
 
 export interface SwitchThumbState extends SwitchRoot.State {}
 

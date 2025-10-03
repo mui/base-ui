@@ -193,18 +193,18 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
 export type TabsRootOrientation = BaseOrientation;
 export interface TabsRootState {
-  orientation: TabsRootOrientation;
+  orientation: TabsRoot.Orientation;
   tabActivationDirection: TabsTab.ActivationDirection;
 }
-export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState> {
+export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.State> {
   value?: TabsTab.Value;
   defaultValue?: TabsTab.Value;
-  orientation?: TabsRootOrientation;
-  onValueChange?: (value: TabsTab.Value, eventDetails: TabsRootChangeEventDetails) => void;
+  orientation?: TabsRoot.Orientation;
+  onValueChange?: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;
 }
 export type TabsRootChangeEventReason = 'none';
 export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
-  TabsRootChangeEventReason,
+  TabsRoot.ChangeEventReason,
   { activationDirection: TabsTab.ActivationDirection }
 >;
 

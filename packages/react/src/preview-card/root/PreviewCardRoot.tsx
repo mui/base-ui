@@ -183,7 +183,7 @@ export interface PreviewCardRootProps {
   /** Whether the preview card is currently open. */
   open?: boolean;
   /** Event handler called when the preview card is opened or closed. */
-  onOpenChange?: (open: boolean, eventDetails: PreviewCardRootChangeEventDetails) => void;
+  onOpenChange?: (open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void;
   /** Event handler called after any animations complete when the preview card is opened or closed. */
   onOpenChangeComplete?: (open: boolean) => void;
   /** How long to wait before the preview card opens. Specified in milliseconds. */
@@ -191,7 +191,7 @@ export interface PreviewCardRootProps {
   /** How long to wait before closing the preview card. Specified in milliseconds. */
   closeDelay?: number;
   /** A ref to imperative actions. */
-  actionsRef?: React.RefObject<PreviewCardRootActions>;
+  actionsRef?: React.RefObject<PreviewCardRoot.Actions>;
 }
 export interface PreviewCardRootActions {
   unmount: () => void;
@@ -204,7 +204,7 @@ export type PreviewCardRootChangeEventReason =
   | 'escape-key'
   | 'none';
 export type PreviewCardRootChangeEventDetails =
-  BaseUIChangeEventDetails<PreviewCardRootChangeEventReason>;
+  BaseUIChangeEventDetails<PreviewCardRoot.ChangeEventReason>;
 
 export namespace PreviewCardRoot {
   export type State = PreviewCardRootState;

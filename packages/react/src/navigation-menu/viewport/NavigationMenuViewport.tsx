@@ -130,7 +130,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
 export interface NavigationMenuViewportState {}
 
 export interface NavigationMenuViewportProps
-  extends BaseUIComponentProps<'div', NavigationMenuViewportState> {}
+  extends BaseUIComponentProps<'div', NavigationMenuViewport.State> {}
 
 export namespace NavigationMenuViewport {
   export type State = NavigationMenuViewportState;

@@ -91,7 +91,7 @@ export interface NavigationMenuPopupState {
 }
 
 export interface NavigationMenuPopupProps
-  extends BaseUIComponentProps<'nav', NavigationMenuPopupState> {}
+  extends BaseUIComponentProps<'nav', NavigationMenuPopup.State> {}
 
 export namespace NavigationMenuPopup {
   export type State = NavigationMenuPopupState;

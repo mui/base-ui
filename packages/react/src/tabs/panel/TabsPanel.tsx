@@ -97,7 +97,7 @@ export interface TabsPanelState extends TabsRoot.State {
   hidden: boolean;
 }
 
-export interface TabsPanelProps extends BaseUIComponentProps<'div', TabsPanelState> {
+export interface TabsPanelProps extends BaseUIComponentProps<'div', TabsPanel.State> {
   /**
    * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
    * If not provided, it will fall back to the index of the panel.

@@ -14,7 +14,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
-  componentProps: SelectItemIndicatorProps,
+  componentProps: SelectItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const keepMounted = componentProps.keepMounted ?? false;
@@ -35,7 +35,7 @@ export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator
 const Inner = React.memo(
   React.forwardRef(
     (
-      componentProps: SelectItemIndicatorProps,
+      componentProps: SelectItemIndicator.Props,
       forwardedRef: React.ForwardedRef<HTMLSpanElement>,
     ) => {
       const { render, className, keepMounted, ...elementProps } = componentProps;
@@ -46,7 +46,7 @@ const Inner = React.memo(
 
       const { mounted, transitionStatus, setMounted } = useTransitionStatus(selected);
 
-      const state: SelectItemIndicatorState = React.useMemo(
+      const state: SelectItemIndicator.State = React.useMemo(
         () => ({
           selected,
           transitionStatus,
@@ -88,7 +88,7 @@ export interface SelectItemIndicatorState {
   transitionStatus: TransitionStatus;
 }
 export interface SelectItemIndicatorProps
-  extends BaseUIComponentProps<'span', SelectItemIndicatorState> {
+  extends BaseUIComponentProps<'span', SelectItemIndicator.State> {
   children?: React.ReactNode;
   /** Whether to keep the HTML element in the DOM when the item is not selected. */
   keepMounted?: boolean;

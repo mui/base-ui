@@ -14,9 +14,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, eventDetails: CollapsibleRootChangeEventDetails) => void)",
+      "type": "((open: boolean, eventDetails: Collapsible.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the panel is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    eventDetails: CollapsibleRootChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Collapsible.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "disabled": {
       "type": "boolean",

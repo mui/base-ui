@@ -32,7 +32,7 @@ export const MenuGroup = React.forwardRef(function MenuGroup(
   return <MenuGroupContext.Provider value={context}>{element}</MenuGroupContext.Provider>;
 });
 
-export interface MenuGroupProps extends BaseUIComponentProps<'div', MenuGroupState> {
+export interface MenuGroupProps extends BaseUIComponentProps<'div', MenuGroup.State> {
   /**
    * The content of the component.
    */

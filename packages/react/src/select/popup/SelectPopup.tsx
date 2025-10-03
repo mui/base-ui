@@ -421,7 +421,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   );
 });
 
-export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopupState> {
+export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopup.State> {
   children?: React.ReactNode;
 }
 

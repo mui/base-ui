@@ -52,7 +52,7 @@ export interface PreviewCardArrowState {
   uncentered: boolean;
 }
 
-export interface PreviewCardArrowProps extends BaseUIComponentProps<'div', PreviewCardArrowState> {}
+export interface PreviewCardArrowProps extends BaseUIComponentProps<'div', PreviewCardArrow.State> {}
 
 export namespace PreviewCardArrow {
   export type State = PreviewCardArrowState;

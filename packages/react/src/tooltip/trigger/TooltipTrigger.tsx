@@ -38,7 +38,7 @@ export interface TooltipTriggerState {
   open: boolean;
 }
 
-export interface TooltipTriggerProps extends BaseUIComponentProps<'button', TooltipTriggerState> {}
+export interface TooltipTriggerProps extends BaseUIComponentProps<'button', TooltipTrigger.State> {}
 
 export namespace TooltipTrigger {
   export type State = TooltipTriggerState;

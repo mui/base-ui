@@ -64,7 +64,7 @@ export interface PopoverBackdropState {
   transitionStatus: TransitionStatus;
 }
 
-export interface PopoverBackdropProps extends BaseUIComponentProps<'div', PopoverBackdropState> {}
+export interface PopoverBackdropProps extends BaseUIComponentProps<'div', PopoverBackdrop.State> {}
 
 export namespace PopoverBackdrop {
   export type State = PopoverBackdropState;

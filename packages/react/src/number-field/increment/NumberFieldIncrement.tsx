@@ -107,7 +107,7 @@ export interface NumberFieldIncrementState extends NumberFieldRoot.State {}
 
 export interface NumberFieldIncrementProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', NumberFieldIncrementState> {}
+    BaseUIComponentProps<'button', NumberFieldIncrement.State> {}
 
 export namespace NumberFieldIncrement {
   export type State = NumberFieldIncrementState;

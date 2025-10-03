@@ -343,7 +343,7 @@ export interface CheckboxRootState extends FieldRoot.State {
 
 export interface CheckboxRootProps
   extends NativeButtonProps,
-    Omit<BaseUIComponentProps<'button', CheckboxRootState>, 'onChange' | 'value'> {
+    Omit<BaseUIComponentProps<'button', CheckboxRoot.State>, 'onChange' | 'value'> {
   /**
    * The id of the input element.
    */
@@ -375,7 +375,7 @@ export interface CheckboxRootProps
   /**
    * Event handler called when the checkbox is ticked or unticked.
    */
-  onCheckedChange?: (checked: boolean, eventDetails: CheckboxRootChangeEventDetails) => void;
+  onCheckedChange?: (checked: boolean, eventDetails: CheckboxRoot.ChangeEventDetails) => void;
   /**
    * Whether the user should be unable to tick or untick the checkbox.
    * @default false
@@ -410,7 +410,7 @@ export interface CheckboxRootProps
 
 export type CheckboxRootChangeEventReason = 'none';
 export type CheckboxRootChangeEventDetails =
-  BaseUIChangeEventDetails<CheckboxRootChangeEventReason>;
+  BaseUIChangeEventDetails<CheckboxRoot.ChangeEventReason>;
 
 export namespace CheckboxRoot {
   export type State = CheckboxRootState;

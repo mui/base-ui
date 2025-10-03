@@ -54,7 +54,7 @@ export interface NavigationMenuArrowState {
 }
 
 export interface NavigationMenuArrowProps
-  extends BaseUIComponentProps<'div', NavigationMenuArrowState> {}
+  extends BaseUIComponentProps<'div', NavigationMenuArrow.State> {}
 
 export namespace NavigationMenuArrow {
   export type State = NavigationMenuArrowState;

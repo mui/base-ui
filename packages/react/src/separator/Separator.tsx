@@ -26,7 +26,7 @@ export const Separator = React.forwardRef(function SeparatorComponent(
   return element;
 });
 
-export interface SeparatorProps extends BaseUIComponentProps<'div', SeparatorState> {
+export interface SeparatorProps extends BaseUIComponentProps<'div', Separator.State> {
   /**
    * The orientation of the separator.
    * @default 'horizontal'

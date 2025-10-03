@@ -68,7 +68,7 @@ export interface SelectArrowState {
   uncentered: boolean;
 }
 
-export interface SelectArrowProps extends BaseUIComponentProps<'div', SelectArrowState> {}
+export interface SelectArrowProps extends BaseUIComponentProps<'div', SelectArrow.State> {}
 
 export namespace SelectArrow {
   export type State = SelectArrowState;

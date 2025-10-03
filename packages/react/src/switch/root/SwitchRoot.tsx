@@ -279,7 +279,7 @@ export interface SwitchRootState extends FieldRoot.State {
 }
 export interface SwitchRootProps
   extends NativeButtonProps,
-    Omit<BaseUIComponentProps<'button', SwitchRootState>, 'onChange'> {
+    Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {
   /**
    * The id of the switch element.
    */
@@ -313,7 +313,7 @@ export interface SwitchRootProps
   /**
    * Event handler called when the switch is activated or deactivated.
    */
-  onCheckedChange?: (checked: boolean, eventDetails: SwitchRootChangeEventDetails) => void;
+  onCheckedChange?: (checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void;
   /**
    * Whether the user should be unable to activate or deactivate the switch.
    * @default false
@@ -326,7 +326,7 @@ export interface SwitchRootProps
   required?: boolean;
 }
 export type SwitchRootChangeEventReason = 'none';
-export type SwitchRootChangeEventDetails = BaseUIChangeEventDetails<SwitchRootChangeEventReason>;
+export type SwitchRootChangeEventDetails = BaseUIChangeEventDetails<SwitchRoot.ChangeEventReason>;
 
 export namespace SwitchRoot {
   export type State = SwitchRootState;

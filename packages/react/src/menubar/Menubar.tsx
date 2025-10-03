@@ -151,7 +151,7 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
 
 export interface MenubarState {}
 
-export interface MenubarProps extends BaseUIComponentProps<'div', MenubarState> {
+export interface MenubarProps extends BaseUIComponentProps<'div', Menubar.State> {
   /**
    * Whether the menubar is modal.
    * @default true

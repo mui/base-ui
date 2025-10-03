@@ -90,7 +90,7 @@ export interface DialogRootProps {
   /**
    * Event handler called when the dialog is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: DialogRootChangeEventDetails) => void;
+  onOpenChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
   /**
    * Event handler called after any animations complete when the dialog is opened or closed.
    */
@@ -106,7 +106,7 @@ export interface DialogRootProps {
    * Instead, the `unmount` function must be called to unmount the dialog manually.
    * Useful when the dialog's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<DialogRootActions>;
+  actionsRef?: React.RefObject<DialogRoot.Actions>;
 }
 export interface DialogRootActions {
   unmount: () => void;
@@ -118,7 +118,7 @@ export type DialogRootChangeEventReason =
   | 'close-press'
   | 'focus-out'
   | 'none';
-export type DialogRootChangeEventDetails = BaseUIChangeEventDetails<DialogRootChangeEventReason>;
+export type DialogRootChangeEventDetails = BaseUIChangeEventDetails<DialogRoot.ChangeEventReason>;
 
 export namespace DialogRoot {
   export type Props = DialogRootProps;

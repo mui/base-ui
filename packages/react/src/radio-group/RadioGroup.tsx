@@ -250,7 +250,7 @@ export interface RadioGroupState extends FieldRoot.State {
 }
 
 export interface RadioGroupProps
-  extends Omit<BaseUIComponentProps<'div', RadioGroupState>, 'value'> {
+  extends Omit<BaseUIComponentProps<'div', RadioGroup.State>, 'value'> {
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -285,7 +285,7 @@ export interface RadioGroupProps
   /**
    * Callback fired when the value changes.
    */
-  onValueChange?: (value: unknown, eventDetails: RadioGroupChangeEventDetails) => void;
+  onValueChange?: (value: unknown, eventDetails: RadioGroup.ChangeEventDetails) => void;
   /**
    * A ref to access the hidden input element.
    */
@@ -294,7 +294,7 @@ export interface RadioGroupProps
 
 export type RadioGroupChangeEventReason = 'none';
 
-export type RadioGroupChangeEventDetails = BaseUIChangeEventDetails<RadioGroupChangeEventReason>;
+export type RadioGroupChangeEventDetails = BaseUIChangeEventDetails<RadioGroup.ChangeEventReason>;
 
 export namespace RadioGroup {
   export type State = RadioGroupState;

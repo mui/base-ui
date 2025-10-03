@@ -238,13 +238,13 @@ export interface TooltipRootProps {
   children?: React.ReactNode;
   defaultOpen?: boolean;
   open?: boolean;
-  onOpenChange?: (open: boolean, eventDetails: TooltipRootChangeEventDetails) => void;
+  onOpenChange?: (open: boolean, eventDetails: TooltipRoot.ChangeEventDetails) => void;
   onOpenChangeComplete?: (open: boolean) => void;
   hoverable?: boolean;
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
   delay?: number;
   closeDelay?: number;
-  actionsRef?: React.RefObject<TooltipRootActions>;
+  actionsRef?: React.RefObject<TooltipRoot.Actions>;
   disabled?: boolean;
 }
 export interface TooltipRootActions {
@@ -258,7 +258,7 @@ export type TooltipRootChangeEventReason =
   | 'escape-key'
   | 'disabled'
   | 'none';
-export type TooltipRootChangeEventDetails = BaseUIChangeEventDetails<TooltipRootChangeEventReason>;
+export type TooltipRootChangeEventDetails = BaseUIChangeEventDetails<TooltipRoot.ChangeEventReason>;
 
 export namespace TooltipRoot {
   export type State = TooltipRootState;

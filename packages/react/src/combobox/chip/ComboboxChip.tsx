@@ -143,7 +143,7 @@ export interface ComboboxChipState {
   disabled: boolean;
 }
 
-export interface ComboboxChipProps extends BaseUIComponentProps<'div', ComboboxChipState> {}
+export interface ComboboxChipProps extends BaseUIComponentProps<'div', ComboboxChip.State> {}
 
 export namespace ComboboxChip {
   export type State = ComboboxChipState;

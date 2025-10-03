@@ -129,7 +129,7 @@ export interface PopoverPopupState {
   transitionStatus: TransitionStatus;
 }
 
-export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPopupState> {
+export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPopup.State> {
   /**
    * Determines the element to focus when the popover is opened.
    *

@@ -51,7 +51,7 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 
 export interface AlertDialogTriggerProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', AlertDialogTriggerState> {}
+    BaseUIComponentProps<'button', AlertDialogTrigger.State> {}
 
 export interface AlertDialogTriggerState {
   /**

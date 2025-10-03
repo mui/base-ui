@@ -28,7 +28,7 @@ export const DialogTitle = React.forwardRef(function DialogTitle(
   });
 });
 
-export interface DialogTitleProps extends BaseUIComponentProps<'h2', DialogTitleState> {}
+export interface DialogTitleProps extends BaseUIComponentProps<'h2', DialogTitle.State> {}
 
 export interface DialogTitleState {}
 

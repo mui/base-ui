@@ -526,7 +526,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 });
 
 export interface NumberFieldRootProps
-  extends Omit<BaseUIComponentProps<'div', NumberFieldRootState>, 'onChange'> {
+  extends Omit<BaseUIComponentProps<'div', NumberFieldRoot.State>, 'onChange'> {
   /**
    * The id of the input element.
    */
@@ -604,7 +604,7 @@ export interface NumberFieldRootProps
   /**
    * Callback fired when the number value changes.
    */
-  onValueChange?: (value: number | null, eventDetails: NumberFieldRootChangeEventDetails) => void;
+  onValueChange?: (value: number | null, eventDetails: NumberFieldRoot.ChangeEventDetails) => void;
   /**
    * Callback function that is fired when the value is committed.
    * It runs later than `onValueChange`, when:
@@ -617,7 +617,7 @@ export interface NumberFieldRootProps
    */
   onValueCommitted?: (
     value: number | null,
-    eventDetails: NumberFieldRootCommitEventDetails,
+    eventDetails: NumberFieldRoot.CommitEventDetails,
   ) => void;
   /**
    * The locale of the input element.
@@ -657,10 +657,10 @@ export interface NumberFieldRootState extends FieldRoot.State {
 }
 export type NumberFieldRootChangeEventReason = 'none';
 export type NumberFieldRootChangeEventDetails =
-  BaseUIChangeEventDetails<NumberFieldRootChangeEventReason>;
+  BaseUIChangeEventDetails<NumberFieldRoot.ChangeEventReason>;
 export type NumberFieldRootCommitEventReason = 'none';
 export type NumberFieldRootCommitEventDetails =
-  BaseUIGenericEventDetails<NumberFieldRootCommitEventReason>;
+  BaseUIGenericEventDetails<NumberFieldRoot.CommitEventReason>;
 
 function getControlledInputValue(
   value: number | null,

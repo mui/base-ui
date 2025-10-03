@@ -33,7 +33,7 @@ export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
 export interface NavigationMenuItemState {}
 
 export interface NavigationMenuItemProps
-  extends BaseUIComponentProps<'li', NavigationMenuItemState> {
+  extends BaseUIComponentProps<'li', NavigationMenuItem.State> {
   /**
    * A unique value that identifies this navigation menu item.
    * If no value is provided, a unique ID will be generated automatically.

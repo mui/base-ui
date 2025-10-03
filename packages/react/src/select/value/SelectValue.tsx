@@ -8,7 +8,7 @@ import { resolveSelectedLabel, resolveMultipleLabels } from '../../utils/resolve
 import { selectors } from '../store';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
-const stateAttributesMapping: StateAttributesMapping<SelectValueState> = {
+const stateAttributesMapping: StateAttributesMapping<SelectValue.State> = {
   value: () => null,
 };
 
@@ -19,7 +19,7 @@ const stateAttributesMapping: StateAttributesMapping<SelectValueState> = {
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectValue = React.forwardRef(function SelectValue(
-  componentProps: SelectValueProps,
+  componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { className, render, children: childrenProp, ...elementProps } = componentProps;
@@ -30,7 +30,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const items = useStore(store, selectors.items);
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
 
-  const state: SelectValueState = React.useMemo(
+  const state: SelectValue.State = React.useMemo(
     () => ({
       value,
     }),
@@ -59,7 +59,7 @@ export interface SelectValueState {
   value: any;
 }
 export interface SelectValueProps
-  extends Omit<BaseUIComponentProps<'span', SelectValueState>, 'children'> {
+  extends Omit<BaseUIComponentProps<'span', SelectValue.State>, 'children'> {
   /** Accepts a function that returns a `ReactNode` to format the selected value. */
   children?: React.ReactNode | ((value: any) => React.ReactNode);
 }

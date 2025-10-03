@@ -1385,7 +1385,7 @@ export interface ComboboxRootInternalActions {
 export type ComboboxRootInternalHighlightEventReason = 'keyboard' | 'pointer' | 'none';
 
 export type ComboboxRootInternalHighlightEventDetails = BaseUIGenericEventDetails<
-  ComboboxRootInternalHighlightEventReason,
+  ComboboxRootInternal.HighlightEventReason,
   Event,
   { index: number }
 >;
@@ -1404,7 +1404,7 @@ export type ComboboxRootInternalChangeEventReason =
   | 'none';
 
 export type ComboboxRootInternalChangeEventDetails =
-  BaseUIChangeEventDetails<ComboboxRootInternalChangeEventReason>;
+  BaseUIChangeEventDetails<ComboboxRootInternal.ChangeEventReason>;
 
 export namespace ComboboxRootInternal {
   export type Props<Value, Multiple extends SelectionMode = 'none'> = ComboboxRootInternalProps<

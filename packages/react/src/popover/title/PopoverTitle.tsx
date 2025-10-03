@@ -40,7 +40,7 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
 export interface PopoverTitleState {}
 
 export interface PopoverTitleProps
-  extends BaseUIComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', PopoverTitleState> {}
+  extends BaseUIComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', PopoverTitle.State> {}
 
 export namespace PopoverTitle {
   export type State = PopoverTitleState;

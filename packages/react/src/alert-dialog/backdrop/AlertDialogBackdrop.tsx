@@ -59,7 +59,7 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
 });
 
 export interface AlertDialogBackdropProps
-  extends BaseUIComponentProps<'div', AlertDialogBackdropState> {
+  extends BaseUIComponentProps<'div', AlertDialogBackdrop.State> {
   /**
    * Whether the backdrop is forced to render even when nested.
    * @default false

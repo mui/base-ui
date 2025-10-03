@@ -36,7 +36,7 @@ export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
 
 export interface ComboboxEmptyState {}
 
-export interface ComboboxEmptyProps extends BaseUIComponentProps<'div', ComboboxEmptyState> {}
+export interface ComboboxEmptyProps extends BaseUIComponentProps<'div', ComboboxEmpty.State> {}
 
 export namespace ComboboxEmpty {
   export type State = ComboboxEmptyState;

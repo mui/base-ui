@@ -414,7 +414,7 @@ export interface SliderRootState extends FieldRoot.State {
 }
 export interface SliderRootProps<
   Value extends number | readonly number[] = number | readonly number[],
-> extends BaseUIComponentProps<'div', SliderRootState> {
+> extends BaseUIComponentProps<'div', SliderRoot.State> {
   /**
    * The uncontrolled value of the slider when it’s initially rendered.
    *
@@ -492,7 +492,7 @@ export interface SliderRootProps<
    */
   onValueChange?: (
     value: Value extends number ? number : Value,
-    eventDetails: SliderRootChangeEventDetails,
+    eventDetails: SliderRoot.ChangeEventDetails,
   ) => void;
   /**
    * Callback function that is fired when the `pointerup` is triggered.
@@ -500,18 +500,18 @@ export interface SliderRootProps<
    */
   onValueCommitted?: (
     value: Value extends number ? number : Value,
-    eventDetails: SliderRootCommitEventDetails,
+    eventDetails: SliderRoot.CommitEventDetails,
   ) => void;
 }
 
 export type SliderRootChangeEventReason = 'none';
 export type SliderRootChangeEventDetails = BaseUIChangeEventDetails<
-  SliderRootChangeEventReason,
+  SliderRoot.ChangeEventReason,
   { activeThumbIndex: number }
 >;
 
 export type SliderRootCommitEventReason = 'none';
-export type SliderRootCommitEventDetails = BaseUIGenericEventDetails<SliderRootCommitEventReason>;
+export type SliderRootCommitEventDetails = BaseUIGenericEventDetails<SliderRoot.CommitEventReason>;
 
 export namespace SliderRoot {
   export type State = SliderRootState;

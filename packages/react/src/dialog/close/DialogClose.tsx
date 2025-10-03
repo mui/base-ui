@@ -44,7 +44,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
 
 export interface DialogCloseProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', DialogCloseState> {}
+    BaseUIComponentProps<'button', DialogClose.State> {}
 
 export interface DialogCloseState {
   /**

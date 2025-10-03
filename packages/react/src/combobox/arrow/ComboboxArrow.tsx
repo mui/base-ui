@@ -56,7 +56,7 @@ export interface ComboboxArrowState {
   uncentered: boolean;
 }
 
-export interface ComboboxArrowProps extends BaseUIComponentProps<'div', ComboboxArrowState> {}
+export interface ComboboxArrowProps extends BaseUIComponentProps<'div', ComboboxArrow.State> {}
 
 export namespace ComboboxArrow {
   export type State = ComboboxArrowState;

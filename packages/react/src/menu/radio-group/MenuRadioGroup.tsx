@@ -75,7 +75,7 @@ export const MenuRadioGroup = React.memo(
   }),
 );
 
-export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRadioGroupState> {
+export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRadioGroup.State> {
   /**
    * The content of the component.
    */
@@ -95,7 +95,7 @@ export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRad
   /**
    * Function called when the selected value changes.
    */
-  onValueChange?: (value: any, eventDetails: MenuRadioGroupChangeEventDetails) => void;
+  onValueChange?: (value: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => void;
   /**
    * Whether the component should ignore user interaction.
    *

@@ -133,7 +133,7 @@ export interface ComboboxChipRemoveState {
 
 export interface ComboboxChipRemoveProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', ComboboxChipRemoveState> {}
+    BaseUIComponentProps<'button', ComboboxChipRemove.State> {}
 
 export namespace ComboboxChipRemove {
   export type State = ComboboxChipRemoveState;

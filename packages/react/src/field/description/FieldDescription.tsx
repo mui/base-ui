@@ -50,7 +50,7 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
 
 export type FieldDescriptionState = FieldRoot.State;
 
-export interface FieldDescriptionProps extends BaseUIComponentProps<'p', FieldDescriptionState> {}
+export interface FieldDescriptionProps extends BaseUIComponentProps<'p', FieldDescription.State> {}
 
 export namespace FieldDescription {
   export type State = FieldDescriptionState;

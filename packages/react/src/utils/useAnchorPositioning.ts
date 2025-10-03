@@ -653,7 +653,7 @@ export interface useAnchorPositioningSharedParameters {
   collisionAvoidance?: CollisionAvoidance;
 }
 
-export interface useAnchorPositioningParameters extends useAnchorPositioningSharedParameters {
+export interface useAnchorPositioningParameters extends useAnchorPositioning.SharedParameters {
   keepMounted?: boolean;
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
   floatingRootContext?: FloatingRootContext;

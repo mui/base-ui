@@ -82,7 +82,7 @@ export interface CheckboxIndicatorState extends CheckboxRoot.State {
 }
 
 export interface CheckboxIndicatorProps
-  extends BaseUIComponentProps<'span', CheckboxIndicatorState> {
+  extends BaseUIComponentProps<'span', CheckboxIndicator.State> {
   /**
    * Whether to keep the element in the DOM when the checkbox is not checked.
    * @default false

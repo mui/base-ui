@@ -105,7 +105,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
 export interface MenuSubmenuTriggerProps
   extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuSubmenuTriggerState> {
+    BaseUIComponentProps<'div', MenuSubmenuTrigger.State> {
   children?: React.ReactNode;
   onClick?: React.MouseEventHandler<HTMLElement>;
   /**

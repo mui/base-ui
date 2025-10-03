@@ -53,7 +53,7 @@ export const SelectList = React.forwardRef(function SelectList(
   });
 });
 
-export interface SelectListProps extends BaseUIComponentProps<'div', SelectListState> {}
+export interface SelectListProps extends BaseUIComponentProps<'div', SelectList.State> {}
 
 export interface SelectListState {}
 

@@ -11,12 +11,12 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, eventDetails: TooltipRootChangeEventDetails) => void)",
-      "detailedType": "| ((\n    open: boolean,\n    eventDetails: TooltipRootChangeEventDetails,\n  ) => void)\n| undefined"
+      "type": "((open: boolean, eventDetails: Tooltip.Root.ChangeEventDetails) => void)",
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Tooltip.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<TooltipRootActions>",
-      "detailedType": "React.RefObject<TooltipRootActions> | undefined"
+      "type": "RefObject<Tooltip.Root.Actions>",
+      "detailedType": "React.RefObject<Tooltip.Root.Actions> | undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

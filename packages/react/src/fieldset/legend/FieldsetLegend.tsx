@@ -52,7 +52,7 @@ export interface FieldsetLegendState {
   disabled: boolean;
 }
 
-export interface FieldsetLegendProps extends BaseUIComponentProps<'div', FieldsetLegendState> {}
+export interface FieldsetLegendProps extends BaseUIComponentProps<'div', FieldsetLegend.State> {}
 
 export namespace FieldsetLegend {
   export type State = FieldsetLegendState;

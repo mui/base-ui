@@ -29,7 +29,7 @@ export const AlertDialogDescription = React.forwardRef(function AlertDialogDescr
 });
 
 export interface AlertDialogDescriptionProps
-  extends BaseUIComponentProps<'p', AlertDialogDescriptionState> {}
+  extends BaseUIComponentProps<'p', AlertDialogDescription.State> {}
 
 export interface AlertDialogDescriptionState {}
 

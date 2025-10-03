@@ -23,9 +23,9 @@
       "detailedType": "| ((\n    value: number | number[],\n    eventDetails: {\n      reason: 'none'\n      event: ReasonToEvent\n      cancel: () => void\n      allowPropagation: () => void\n      isCanceled: boolean\n      isPropagationAllowed: boolean\n    } & { activeThumbIndex: number },\n  ) => void)\n| undefined"
     },
     "onValueCommitted": {
-      "type": "((value: number | number[], eventDetails: SliderRootCommitEventDetails) => void)",
+      "type": "((value: number | number[], eventDetails: Slider.Root.CommitEventDetails) => void)",
       "description": "Callback function that is fired when the `pointerup` is triggered.\n**Warning**: This is a generic event not a change event.",
-      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: SliderRootCommitEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.CommitEventDetails,\n  ) => void)\n| undefined"
     },
     "locale": {
       "type": "Intl.LocalesArgument",

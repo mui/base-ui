@@ -14,7 +14,7 @@ import { selectors } from '../store';
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectIcon = React.forwardRef(function SelectIcon(
-  componentProps: SelectIconProps,
+  componentProps: SelectIcon.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
@@ -22,7 +22,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
   const { store } = useSelectRootContext();
   const open = useStore(store, selectors.open);
 
-  const state: SelectIconState = React.useMemo(
+  const state: SelectIcon.State = React.useMemo(
     () => ({
       open,
     }),
@@ -40,7 +40,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
 });
 
 export interface SelectIconState {}
-export interface SelectIconProps extends BaseUIComponentProps<'span', SelectIconState> {}
+export interface SelectIconProps extends BaseUIComponentProps<'span', SelectIcon.State> {}
 
 export namespace SelectIcon {
   export type State = SelectIconState;

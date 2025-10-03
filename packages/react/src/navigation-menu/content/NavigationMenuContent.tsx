@@ -148,7 +148,7 @@ export interface NavigationMenuContentState {
 }
 
 export interface NavigationMenuContentProps
-  extends BaseUIComponentProps<'div', NavigationMenuContentState> {}
+  extends BaseUIComponentProps<'div', NavigationMenuContent.State> {}
 
 export namespace NavigationMenuContent {
   export type State = NavigationMenuContentState;

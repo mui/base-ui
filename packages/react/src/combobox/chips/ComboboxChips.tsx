@@ -56,7 +56,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
 
 export interface ComboboxChipsState {}
 
-export interface ComboboxChipsProps extends BaseUIComponentProps<'div', ComboboxChipsState> {}
+export interface ComboboxChipsProps extends BaseUIComponentProps<'div', ComboboxChips.State> {}
 
 export namespace ComboboxChips {
   export type State = ComboboxChipsState;

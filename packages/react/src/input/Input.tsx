@@ -16,7 +16,7 @@ export const Input = React.forwardRef(function Input(
   return <Field.Control ref={forwardedRef} {...props} />;
 });
 
-export interface InputProps extends BaseUIComponentProps<'input', InputState> {
+export interface InputProps extends BaseUIComponentProps<'input', Input.State> {
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */

@@ -82,7 +82,7 @@ export const FieldError = React.forwardRef(function FieldError(
 
 export type FieldErrorState = FieldRoot.State;
 
-export interface FieldErrorProps extends BaseUIComponentProps<'div', FieldErrorState> {
+export interface FieldErrorProps extends BaseUIComponentProps<'div', FieldError.State> {
   /**
    * Determines whether to show the error message according to the field’s
    * [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).

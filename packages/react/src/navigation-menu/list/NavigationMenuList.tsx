@@ -62,7 +62,7 @@ export interface NavigationMenuListState {
 }
 
 export interface NavigationMenuListProps
-  extends BaseUIComponentProps<'ul', NavigationMenuListState> {}
+  extends BaseUIComponentProps<'ul', NavigationMenuList.State> {}
 
 export namespace NavigationMenuList {
   export type State = NavigationMenuListState;

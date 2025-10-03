@@ -39,7 +39,7 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   });
 });
 
-export interface MenuGroupLabelProps extends BaseUIComponentProps<'div', MenuGroupLabelState> {}
+export interface MenuGroupLabelProps extends BaseUIComponentProps<'div', MenuGroupLabel.State> {}
 
 export interface MenuGroupLabelState {}
 
