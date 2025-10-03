@@ -145,8 +145,7 @@ type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicEle
   ? React.JSX.IntrinsicElements[TagName]
   : React.HTMLAttributes<any>;
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export type useRenderElementParameters<
+export type UseRenderElementParameters<
   State,
   RenderedElementType extends Element,
   TagName,
@@ -186,8 +185,7 @@ export type useRenderElementParameters<
   stateAttributesMapping?: StateAttributesMapping<State>;
 };
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export interface useRenderElementComponentProps<State> {
+export interface UseRenderElementComponentProps<State> {
   /**
    * The class name to apply to the rendered element.
    * Can be a string or a function that accepts the state and returns a string.
@@ -208,6 +206,6 @@ export namespace useRenderElement {
     RenderedElementType extends Element,
     TagName,
     Enabled extends boolean | undefined,
-  > = useRenderElementParameters<State, RenderedElementType, TagName, Enabled>;
-  export type ComponentProps<State> = useRenderElementComponentProps<State>;
+  > = UseRenderElementParameters<State, RenderedElementType, TagName, Enabled>;
+  export type ComponentProps<State> = UseRenderElementComponentProps<State>;
 }
