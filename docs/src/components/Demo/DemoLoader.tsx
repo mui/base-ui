@@ -254,6 +254,21 @@ function resolveExtensionlessFile(filePath: string, preferTs: boolean): string {
     ? ['.tsx', '.ts', '.jsx', '.js', '.json']
     : ['.jsx', '.js', '.tsx', '.ts', '.json'];
 
+  if (existsSync(filePath)) {
+    const stats = statSync(filePath);
+    if (stats.isFile()) {
+      return filePath;
+    }
+    if (stats.isDirectory()) {
+      for (const extension of extensions) {
+        const indexPath = join(filePath, `index${extension}`);
+        if (existsSync(indexPath)) {
+          return indexPath;
+        }
+      }
+    }
+  }
+
   for (const extension of extensions) {
     const fullPath = `${filePath}${extension}`;
     if (existsSync(fullPath)) {
