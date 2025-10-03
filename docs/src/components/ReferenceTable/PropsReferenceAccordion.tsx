@@ -176,13 +176,13 @@ export async function PropsReferenceAccordion({
               className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
             >
               <Accordion.Scrollable className="px-3">
-                <TableCode className="text-navy whitespace-nowrap">
+                <TableCode className="whitespace-nowrap text-navy">
                   {name}
                   {prop.required ? <sup className="top-[-0.3em] text-xs text-red-800">*</sup> : ''}
                 </TableCode>
               </Accordion.Scrollable>
               {prop.type && (
-                <Accordion.Scrollable className="max-xs:hidden flex items-baseline px-3 text-sm leading-none break-keep whitespace-nowrap">
+                <Accordion.Scrollable className="flex items-baseline px-3 text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
                   {hasExpandedType || detailedType ? (
                     <ReferenceTableTooltip.Root delay={300} hoverable={false}>
                       <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
@@ -202,7 +202,7 @@ export async function PropsReferenceAccordion({
                   <PropDefault />
                 )}
               </Accordion.Scrollable>
-              <div className="max-xs:ml-auto max-xs:mr-3 flex justify-center">
+              <div className="flex justify-center max-xs:mr-3 max-xs:ml-auto">
                 <svg
                   className="AccordionIcon translate-y-px"
                   width="10"
@@ -218,7 +218,7 @@ export async function PropsReferenceAccordion({
             <Accordion.Panel>
               <Accordion.Content>
                 <DescriptionList.Root
-                  className={clsx('max-xs:py-3 text-gray-600', PANEL_GRID_LAYOUT)}
+                  className={clsx('text-gray-600 max-xs:py-3', PANEL_GRID_LAYOUT)}
                   aria-label="Info"
                 >
                   <DescriptionList.Item>
