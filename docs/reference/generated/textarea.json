@@ -18,7 +18,7 @@
     },
     "minRows": {
       "type": "number",
-      "description": "Enable automatic height resizing by setting the minimum number of rows.\n\nPrefer the CSS property `field-sizing: content` when supported (not\nsupported in Safari and Firefox).",
+      "description": "Enable automatic height resizing by setting the minimum number of rows.",
       "detailedType": "number | undefined"
     },
     "className": {
