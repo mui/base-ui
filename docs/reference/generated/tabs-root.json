@@ -5,7 +5,7 @@
     "defaultValue": {
       "type": "Tabs.Tab.Value",
       "default": "0",
-      "description": "The default value. Use when the component is not controlled.\nWhen the value is `null`, no Tab will be selected."
+      "description": "The default value. Use when the component is not controlled.\nWhen the value is `null`, no Tab will be selected.\nWhen not provided, defaults to 0. The composite system will automatically highlight the first non-disabled tab for keyboard navigation."
     },
     "value": {
       "type": "Tabs.Tab.Value",
