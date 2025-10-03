@@ -48,7 +48,7 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
                 </svg>
               </Accordion.Trigger>
               <Accordion.Panel>
-                <Accordion.Content className="text-md flex flex-col gap-3 p-4 text-pretty">
+                <Accordion.Content className="flex flex-col gap-3 p-4 text-md text-pretty">
                   <AttributeDescription />
                 </Accordion.Content>
               </Accordion.Panel>
@@ -56,18 +56,18 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
           );
         })}
       </Accordion.Root>
-      <Table.Root {...props} className={clsx('xs:block hidden', props.className)}>
+      <Table.Root {...props} className={clsx('hidden xs:block', props.className)}>
         <Table.Head>
           <Table.Row>
             {/* widths must match the props table grid layout */}
-            <Table.ColumnHeader className="xs:w-48 w-full sm:w-56 md:w-[calc(5/16.5*100%)]">
+            <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-[calc(5/16.5*100%)]">
               Attribute
             </Table.ColumnHeader>
             <Table.ColumnHeader className="xs:w-2/3 md:w-[calc(11.5/16.5*100%)]">
-              <div className="xs:not-sr-only xs:contents sr-only">Description</div>
+              <div className="sr-only xs:not-sr-only xs:contents">Description</div>
             </Table.ColumnHeader>
             {/* A cell to maintain a layout consistent with the props table */}
-            <Table.ColumnHeader className="max-xs:hidden w-10" aria-hidden role="presentation" />
+            <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden role="presentation" />
           </Table.Row>
         </Table.Head>
         <Table.Body>

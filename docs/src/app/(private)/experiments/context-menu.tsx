@@ -18,15 +18,15 @@ export default function ContextMenuExperiment() {
         </p>
 
         <ContextMenu.Root>
-          <ContextMenu.Trigger className="rounded-lg border-2 border-blue-300 bg-blue-50 p-8">
+          <ContextMenu.Trigger className="border-blue-300 bg-blue-50 rounded-lg border-2 p-8">
             <div className="text-center">
-              <span className="block font-medium text-blue-700">Outer Context Menu</span>
-              <span className="block text-sm text-blue-600">Right-click me</span>
+              <span className="text-blue-700 block font-medium">Outer Context Menu</span>
+              <span className="text-blue-600 block text-sm">Right-click me</span>
 
               <ContextMenu.Root>
-                <ContextMenu.Trigger className="mt-4 inline-block rounded border-2 border-red-300 bg-red-50 p-4">
-                  <span className="block font-medium text-red-700">Inner Context Menu</span>
-                  <span className="block text-sm text-red-600">Right-click me too!</span>
+                <ContextMenu.Trigger className="border-red-300 bg-red-50 mt-4 inline-block rounded border-2 p-4">
+                  <span className="text-red-700 block font-medium">Inner Context Menu</span>
+                  <span className="text-red-600 block text-sm">Right-click me too!</span>
                 </ContextMenu.Trigger>
                 <ContextMenu.Portal>
                   <ContextMenu.Positioner className="outline-none">
@@ -72,19 +72,19 @@ export default function ContextMenuExperiment() {
         <p className="text-gray-600">Right-click on either box and explore the submenu options.</p>
 
         <ContextMenu.Root>
-          <ContextMenu.Trigger className="rounded-lg border-2 border-green-300 bg-green-50 p-8">
+          <ContextMenu.Trigger className="border-green-300 bg-green-50 rounded-lg border-2 p-8">
             <div className="text-center">
-              <span className="block font-medium text-green-700">
+              <span className="text-green-700 block font-medium">
                 Outer Context Menu with Submenu
               </span>
-              <span className="block text-sm text-green-600">Right-click me</span>
+              <span className="text-green-600 block text-sm">Right-click me</span>
 
               <ContextMenu.Root>
-                <ContextMenu.Trigger className="mt-4 inline-block rounded border-2 border-purple-300 bg-purple-50 p-4">
-                  <span className="block font-medium text-purple-700">
+                <ContextMenu.Trigger className="border-purple-300 bg-purple-50 mt-4 inline-block rounded border-2 p-4">
+                  <span className="text-purple-700 block font-medium">
                     Inner Context Menu with Submenu
                   </span>
-                  <span className="block text-sm text-purple-600">Right-click me too!</span>
+                  <span className="text-purple-600 block text-sm">Right-click me too!</span>
                 </ContextMenu.Trigger>
                 <ContextMenu.Portal>
                   <ContextMenu.Positioner className="outline-none">
@@ -166,10 +166,10 @@ export default function ContextMenuExperiment() {
         </p>
 
         <ContextMenu.Root>
-          <ContextMenu.Trigger className="rounded-lg border-2 border-orange-300 bg-orange-50 p-8">
+          <ContextMenu.Trigger className="border-orange-300 bg-orange-50 rounded-lg border-2 p-8">
             <div className="text-center">
-              <span className="block font-medium text-orange-700">Complex Context Menu</span>
-              <span className="block text-sm text-orange-600">
+              <span className="text-orange-700 block font-medium">Complex Context Menu</span>
+              <span className="text-orange-600 block text-sm">
                 Right-click me, then right-click "Special Item"
               </span>
             </div>
@@ -229,7 +229,7 @@ export default function ContextMenuExperiment() {
                                   Deep Action 2
                                 </Menu.Item>
                                 <Menu.Separator className="my-1 h-px bg-gray-200" />
-                                <Menu.Item className="cursor-default px-3 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                <Menu.Item className="text-red-600 cursor-default px-3 py-2 text-sm hover:bg-gray-100">
                                   Deep Delete
                                 </Menu.Item>
                               </Menu.Popup>
@@ -238,7 +238,7 @@ export default function ContextMenuExperiment() {
                         </Menu.SubmenuRoot>
 
                         <ContextMenu.Separator className="my-1 h-px bg-gray-200" />
-                        <ContextMenu.Item className="cursor-default px-3 py-2 text-sm text-red-600 hover:bg-gray-100">
+                        <ContextMenu.Item className="text-red-600 cursor-default px-3 py-2 text-sm hover:bg-gray-100">
                           Nested Delete
                         </ContextMenu.Item>
                       </ContextMenu.Popup>
@@ -247,7 +247,7 @@ export default function ContextMenuExperiment() {
                 </ContextMenu.Root>
 
                 <ContextMenu.Separator className="my-1 h-px bg-gray-200" />
-                <ContextMenu.Item className="cursor-default px-3 py-2 text-sm text-red-600 hover:bg-gray-100">
+                <ContextMenu.Item className="text-red-600 cursor-default px-3 py-2 text-sm hover:bg-gray-100">
                   Delete
                 </ContextMenu.Item>
               </ContextMenu.Popup>
@@ -268,16 +268,16 @@ export default function ContextMenuExperiment() {
         </p>
 
         <ContextMenu.Root>
-          <ContextMenu.Trigger className="rounded-lg border-2 border-cyan-300 bg-cyan-50 p-8">
+          <ContextMenu.Trigger className="border-cyan-300 bg-cyan-50 rounded-lg border-2 p-8">
             <div className="text-center">
-              <span className="block font-medium text-cyan-700">Outer Context Menu</span>
-              <span className="block text-sm text-cyan-600">Right-click me</span>
+              <span className="text-cyan-700 block font-medium">Outer Context Menu</span>
+              <span className="text-cyan-600 block text-sm">Right-click me</span>
 
               <ContextMenu.Root>
-                <ContextMenu.Trigger className="mt-4 flex flex-col items-center justify-center rounded-lg border-2 border-cyan-300 bg-cyan-50 p-8">
+                <ContextMenu.Trigger className="border-cyan-300 bg-cyan-50 mt-4 flex flex-col items-center justify-center rounded-lg border-2 p-8">
                   <div className="text-center">
-                    <span className="block font-medium text-cyan-700">Inner Context Menu</span>
-                    <span className="block text-sm text-cyan-600">Right-click me</span>
+                    <span className="text-cyan-700 block font-medium">Inner Context Menu</span>
+                    <span className="text-cyan-600 block text-sm">Right-click me</span>
 
                     <Popover.Root>
                       <Popover.Trigger className="mt-2 flex items-center justify-center rounded-md border border-gray-200 bg-gray-50 p-4 text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
@@ -303,11 +303,11 @@ export default function ContextMenuExperiment() {
                               </Menu.Root>
 
                               <ContextMenu.Root>
-                                <ContextMenu.Trigger className="mt-4 inline-block rounded border-2 border-red-300 bg-red-50 p-4">
-                                  <span className="block font-medium text-red-700">
+                                <ContextMenu.Trigger className="border-red-300 bg-red-50 mt-4 inline-block rounded border-2 p-4">
+                                  <span className="text-red-700 block font-medium">
                                     Popover Context Menu
                                   </span>
-                                  <span className="block text-sm text-red-600">
+                                  <span className="text-red-600 block text-sm">
                                     Right-click me!
                                   </span>
                                 </ContextMenu.Trigger>
