@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -113,7 +112,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const isPressingRef = React.useRef(false);
   const isMainButtonRef = React.useRef(false);
 
-  const onClick = useEventCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+  function onClick(event: React.MouseEvent<HTMLButtonElement>) {
     if (selected || disabled) {
       return;
     }
@@ -122,9 +121,9 @@ export const TabsTab = React.forwardRef(function TabsTab(
       tabValue,
       createChangeEventDetails('none', event.nativeEvent, { activationDirection: 'none' }),
     );
-  });
+  }
 
-  const onFocus = useEventCallback((event: React.FocusEvent<HTMLButtonElement>) => {
+  function onFocus(event: React.FocusEvent<HTMLButtonElement>) {
     if (selected) {
       return;
     }
@@ -146,9 +145,9 @@ export const TabsTab = React.forwardRef(function TabsTab(
         createChangeEventDetails('none', event.nativeEvent, { activationDirection: 'none' }),
       );
     }
-  });
+  }
 
-  const onPointerDown = useEventCallback((event: React.PointerEvent<HTMLButtonElement>) => {
+  function onPointerDown(event: React.PointerEvent<HTMLButtonElement>) {
     if (selected || disabled) {
       return;
     }
@@ -166,7 +165,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
       const doc = ownerDocument(event.currentTarget);
       doc.addEventListener('pointerup', handlePointerUp, { once: true });
     }
-  });
+  }
 
   const state: TabsTab.State = React.useMemo(
     () => ({
