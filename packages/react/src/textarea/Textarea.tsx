@@ -284,14 +284,7 @@ export const Textarea = React.forwardRef(function Textarea(
         ref: inputRef,
         rows: minRows || 2,
         'aria-labelledby': labelId,
-        ...(minRows != null || maxRows != null
-          ? {
-              style: {
-                ...(style as React.CSSProperties),
-                resize: 'none',
-              },
-            }
-          : { style }),
+        style,
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
