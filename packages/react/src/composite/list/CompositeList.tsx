@@ -102,6 +102,19 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     onMapChange?.(sortedMap);
   }, [onMapChange, sortedMap, elementsRef, labelsRef, mapTick]);
 
+  const cleanupRefs = useEventCallback(() => {
+    elementsRef.current.length = 0;
+    if (labelsRef) {
+      labelsRef.current.length = 0;
+    }
+  });
+
+  useIsoLayoutEffect(() => {
+    return () => {
+      cleanupRefs();
+    };
+  }, [cleanupRefs]);
+
   const subscribeMapChange = useEventCallback((fn) => {
     listeners.add(fn);
     return () => {

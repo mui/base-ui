@@ -32,7 +32,6 @@ import {
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { CompositeList } from '../../composite/list/CompositeList';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
@@ -316,6 +315,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         items,
         selectionMode,
         listRef,
+        labelsRef,
         popupRef,
         inputRef,
         keyboardActiveRef,
@@ -1150,13 +1150,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
         <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
           <ComboboxInputValueContext.Provider value={inputValue}>
-            {virtualized ? (
-              children
-            ) : (
-              <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
-                {children}
-              </CompositeList>
-            )}
+            {children}
           </ComboboxInputValueContext.Provider>
         </ComboboxDerivedItemsContext.Provider>
       </ComboboxFloatingContext.Provider>
