@@ -188,8 +188,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.1.13)(react@19.1.1)
       '@mui/internal-docs-infra':
-        specifier: ^0.2.3-canary.0
-        version: 0.2.3-canary.0(@types/react@19.1.13)(next@15.5.3(@babel/core@7.28.4)(@playwright/test@1.55.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@ebd494f
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@ebd494f(@types/react@19.1.13)(next@15.5.3(@babel/core@7.28.4)(@playwright/test@1.55.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)
       '@next/mdx':
         specifier: ^15.5.3
         version: 15.5.3(@mdx-js/loader@3.1.1(webpack@5.101.3))(@mdx-js/react@3.1.1(@types/react@19.1.13)(react@19.1.1))
@@ -2154,8 +2154,9 @@ packages:
       prettier: ^3.5.3
       typescript: ^5.0.0
 
-  '@mui/internal-docs-infra@0.2.3-canary.0':
-    resolution: {integrity: sha512-6wobQuOkcO25iCj/mc8pfGpOjWgXVv61WV/uNxIo8/piJc2jbNWezd7VQ9e1wU5AEkO+z57AUaTj5JhQZ8HaJQ==}
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@ebd494f':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@ebd494f}
+    version: 0.2.2
     engines: {node: '>=22.12.0'}
     peerDependencies:
       '@types/react': ^19.1.13
@@ -12528,7 +12529,7 @@ snapshots:
       - stylelint
       - supports-color
 
-  '@mui/internal-docs-infra@0.2.3-canary.0(@types/react@19.1.13)(next@15.5.3(@babel/core@7.28.4)(@playwright/test@1.55.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@ebd494f(@types/react@19.1.13)(next@15.5.3(@babel/core@7.28.4)(@playwright/test@1.55.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@babel/standalone': 7.28.4
