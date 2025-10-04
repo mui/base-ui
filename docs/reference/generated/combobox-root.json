@@ -55,9 +55,9 @@
       "detailedType": "string | number | string[] | undefined"
     },
     "filter": {
-      "type": "((itemValue: Value, query: string, itemToStringLabel: ((itemValue: Value) => string) | undefined) => boolean) | null",
-      "description": "Filter function used to match items vs input query.\nThe `itemToStringLabel` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    itemValue: Value,\n    query: string,\n    itemToStringLabel:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "type": "((itemValue: Value, query: string, itemToString: ((itemValue: Value) => string) | undefined) => boolean) | null",
+      "description": "Filter function used to match items vs input query.",
+      "detailedType": "| ((\n    itemValue: Value,\n    query: string,\n    itemToString:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "grid": {
       "type": "boolean",

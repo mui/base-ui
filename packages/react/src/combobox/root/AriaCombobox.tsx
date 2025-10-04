@@ -1268,14 +1268,13 @@ interface ComboboxRootProps<ItemValue> {
   items?: readonly any[] | readonly Group<any>[];
   /**
    * Filter function used to match items vs input query.
-   * The `itemToStringLabel` function is provided to help convert items to strings for comparison.
    */
   filter?:
     | null
     | ((
         itemValue: ItemValue,
         query: string,
-        itemToStringLabel?: (itemValue: ItemValue) => string,
+        itemToString?: (itemValue: ItemValue) => string,
       ) => boolean);
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
