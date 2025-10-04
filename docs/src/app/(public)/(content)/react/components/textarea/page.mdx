@@ -41,3 +41,17 @@ Setting both `minRows` and `maxRows` will make the textarea automatically resize
 The textarea works seamlessly with the [Form](/react/components/form) component and supports libraries like [Zod](https://zod.dev/) for schema validation.
 
 <Demo path="./demos/form" />
+
+### Field sizing
+
+[MDN: `field-sizing`](https://developer.mozilla.org/docs/Web/CSS/field-sizing) · [Can I Use](https://caniuse.com/?search=field-sizing)
+
+The CSS `field-sizing` property lets form fields size themselves to their content. For example, a `<textarea>` can grow or shrink as you type without JavaScript.
+
+Browser support is about **71 % globally**. Chrome 123+, Edge 123+, and Opera 109+ support it. Safari only recently added it in TP, and many others (Firefox, IE, Opera Mini, UC Browser, KaiOS) don't yet.
+
+Because support is incomplete, the demo may not work in older browsers or Safari `<26`. If the textarea doesn't resize, try a **current Chrome or Edge** build.
+
+> Once support passes ~90 %, we plan to switch the Textarea component to `field-sizing` by default, dropping the JS fallback.
+
+<Demo path="./demos/field-sizing" />
