@@ -15,6 +15,7 @@ import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../utils/createBaseUIEventDetails';
+import { calculateTextareaHeight } from './calculateTextareaHeight';
 
 /**
  * A native textarea element that automatically works with [Field](https://base-ui.com/react/components/field).
@@ -129,129 +130,58 @@ export const Textarea = React.forwardRef(function Textarea(
       return undefined;
     }
 
-    const getStyleValue = (str: string) => parseInt(str, 10) || 0;
-
-    const calculate = () => {
-      const computedStyle = getComputedStyle(el);
-
-      let width = computedStyle.width;
-      if (!width || width === '0px') {
-        const rect = el.getBoundingClientRect();
-        width = rect.width ? `${rect.width}px` : width;
-      }
-
-      if (!width || width === '0px') {
-        return null;
-      }
-
-      const styleToCopy = [
-        'boxSizing',
-        'width',
-        'paddingTop',
-        'paddingBottom',
-        'paddingLeft',
-        'paddingRight',
-        'borderTopWidth',
-        'borderBottomWidth',
-        'fontFamily',
-        'fontSize',
-        'fontWeight',
-        'fontStyle',
-        'letterSpacing',
-        'textTransform',
-        'textIndent',
-        'lineHeight',
-        'whiteSpace',
-      ];
-
-      hidden.style.width = width;
-      for (const propName of styleToCopy) {
-        hidden.style[propName as keyof Omit<CSSStyleDeclaration, 'length' | 'parentRule'>] = (computedStyle as any)[propName];
-      }
-
-      hidden.style.whiteSpace =
-        computedStyle.whiteSpace === 'pre-wrap' || computedStyle.whiteSpace === 'pre-line'
-          ? computedStyle.whiteSpace
-          : 'pre-wrap';
-
-      hidden.value = el.value || placeholder || 'x';
-      if (hidden.value.slice(-1) === '\n') {
-        hidden.value += ' ';
-      }
-
-      const boxSizing = computedStyle.boxSizing;
-      const paddingTop = getStyleValue(computedStyle.paddingTop);
-      const paddingBottom = getStyleValue(computedStyle.paddingBottom);
-      const padding = paddingTop + paddingBottom;
-      const border =
-        getStyleValue(computedStyle.borderBottomWidth) +
-        getStyleValue(computedStyle.borderTopWidth);
-
-      const innerScrollHeight = hidden.scrollHeight;
-
-      hidden.value = 'x';
-      const singleRowScrollHeight = hidden.scrollHeight || 1;
-      const singleRowContentHeight = Math.max(singleRowScrollHeight - padding, 1);
-
-      const currentContentHeight = Math.max(innerScrollHeight - padding, 0);
-
-      let desiredContentHeight = currentContentHeight;
-      if (minRows) {
-        desiredContentHeight = Math.max(
-          Number(minRows) * singleRowContentHeight,
-          desiredContentHeight,
-        );
-      }
-      if (maxRows) {
-        desiredContentHeight = Math.min(
-          Number(maxRows) * singleRowContentHeight,
-          desiredContentHeight,
-        );
-      }
-      desiredContentHeight = Math.max(desiredContentHeight, singleRowContentHeight);
-
-      const outerHeightStyle =
-        boxSizing === 'border-box' ? desiredContentHeight + padding + border : desiredContentHeight;
-
-      const isOverflowing = currentContentHeight > desiredContentHeight + 1;
-
-      const rowsOccupied = currentContentHeight / singleRowContentHeight;
-
-      return {
-        outerHeightStyle,
-        isOverflowing,
-        rowsOccupied,
-      } as { outerHeightStyle: number; isOverflowing: boolean; rowsOccupied: number };
-    };
+    // Track the last applied overflow state so we avoid redundant writes.
+    let lastIsOverflowing: boolean | null = null;
 
     const applyHeight = (target: number | null, isOverflowing: boolean) => {
+      // Only write to the DOM when something actually changed.
       if (target == null) {
-        if (heightRef.current !== null) {
+        const didClearHeight = heightRef.current !== null;
+        const didOverflowChange = lastIsOverflowing !== isOverflowing;
+
+        if (didClearHeight) {
           el.style.height = '';
           heightRef.current = null;
         }
 
-        const overflowValue = isOverflowing ? 'auto' : 'hidden';
-        if (el.style.overflowY !== overflowValue) {
-          el.style.overflowY = overflowValue;
+        if (didOverflowChange) {
+          const overflowValue = isOverflowing ? '' : 'hidden';
+          if (el.style.overflowY !== overflowValue) {
+            el.style.overflowY = overflowValue;
+          }
+          lastIsOverflowing = isOverflowing;
         }
 
         return;
       }
 
-      if (heightRef.current !== target) {
+      const didHeightChange = heightRef.current !== target;
+      const didOverflowChange = lastIsOverflowing !== isOverflowing;
+
+      if (didHeightChange) {
         el.style.height = `${target}px`;
         heightRef.current = target;
       }
 
-      const overflowValue = isOverflowing ? 'auto' : 'hidden';
-      if (el.style.overflowY !== overflowValue) {
-        el.style.overflowY = overflowValue;
+      if (didOverflowChange) {
+        const overflowValue = isOverflowing ? '' : 'hidden';
+        if (el.style.overflowY !== overflowValue) {
+          el.style.overflowY = overflowValue;
+        }
+        lastIsOverflowing = isOverflowing;
       }
     };
 
-    const resize = () => {
-      const styles = calculate();
+    // performResize contains the expensive measurement call. Keep it isolated so
+    // we can schedule/debounce it differently depending on the event source.
+    const performResize = () => {
+      const styles = calculateTextareaHeight(
+        el as unknown as HTMLTextAreaElement,
+        hidden as unknown as HTMLTextAreaElement,
+        placeholder,
+        minRows,
+        maxRows,
+      );
       if (!styles) {
         return;
       }
@@ -271,19 +201,52 @@ export const Textarea = React.forwardRef(function Textarea(
       applyHeight(outerHeightStyle, isOverflowing);
     };
 
-    let rafId = 0 as number;
-    rafId = requestAnimationFrame(resize);
+    // Debounce identifier used for less-frequent triggers (resize, RO).
+    let debounceTimeoutId: ReturnType<typeof setTimeout> | null = null;
+    let rafId = 0;
 
-    el.addEventListener('input', resize);
-    window.addEventListener('resize', resize);
+    const schedulePerformResizeDebounced = () => {
+      // Debounce expensive measurements similar to MUI to avoid doing them too frequently.
+      const DEBOUNCE_MS = 166; // ~6fps; good tradeoff for resize/RO events
+      if (debounceTimeoutId) {
+        clearTimeout(debounceTimeoutId);
+      }
+      debounceTimeoutId = setTimeout(() => {
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+        }
+        rafId = requestAnimationFrame(performResize);
+        debounceTimeoutId = null;
+      }, DEBOUNCE_MS);
+    };
+
+    const schedulePerformResizeImmediate = () => {
+      // For input events we want a more immediate response; schedule via RAF.
+      if (debounceTimeoutId) {
+        clearTimeout(debounceTimeoutId);
+        debounceTimeoutId = null;
+      }
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+      rafId = requestAnimationFrame(performResize);
+    };
+
+    // Initial measurement
+    rafId = requestAnimationFrame(performResize);
+
+    const onInput = () => {
+      schedulePerformResizeImmediate();
+    };
+
+    el.addEventListener('input', onInput);
+    window.addEventListener('resize', schedulePerformResizeDebounced);
 
     let ro: ResizeObserver | null = null;
     if (typeof ResizeObserver !== 'undefined') {
       ro = new ResizeObserver(() => {
-        if (rafId) {
-          cancelAnimationFrame(rafId);
-        }
-        rafId = requestAnimationFrame(resize);
+        // Use the debounced scheduler for ResizeObserver notifications.
+        schedulePerformResizeDebounced();
       });
       try {
         ro.observe(el);
@@ -296,10 +259,13 @@ export const Textarea = React.forwardRef(function Textarea(
     }
 
     return () => {
-      el.removeEventListener('input', resize);
-      window.removeEventListener('resize', resize);
+      el.removeEventListener('input', onInput);
+      window.removeEventListener('resize', schedulePerformResizeDebounced);
       if (rafId) {
         cancelAnimationFrame(rafId);
+      }
+      if (debounceTimeoutId) {
+        clearTimeout(debounceTimeoutId);
       }
       if (ro) {
         ro.disconnect();
@@ -316,13 +282,12 @@ export const Textarea = React.forwardRef(function Textarea(
         disabled,
         name,
         ref: inputRef,
-        ...(minRows != null ? { rows: minRows } : {}),
+        rows: minRows || 2,
         'aria-labelledby': labelId,
-        ...(minRows != null && !(style as any)?.height
+        ...(minRows != null || maxRows != null
           ? {
               style: {
                 ...(style as React.CSSProperties),
-                height: 'auto',
                 resize: 'none',
               },
             }
