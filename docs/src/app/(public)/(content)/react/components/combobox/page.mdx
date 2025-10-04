@@ -117,6 +117,10 @@ Accepts all `Intl.CollatorOptions`, plus the following options:
   }}
 />
 
+## TypeScript inference
+
+Combobox infers the item type from the `defaultValue` or `value` props passed to `Combobox.Root`. When using `itemToStringLabel` or `itemToStringValue`, `Combobox.Item`'s `value` prop must match the type passed to `defaultValue` or `value`. When not specifying value props, the parameter's type must be explicitly specified.
+
 ## Examples
 
 ### Multiple select
