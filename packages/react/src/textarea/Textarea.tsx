@@ -172,8 +172,6 @@ export const Textarea = React.forwardRef(function Textarea(
       }
     };
 
-    // performResize contains the expensive measurement call. Keep it isolated so
-    // we can schedule/debounce it differently depending on the event source.
     const performResize = () => {
       const styles = calculateTextareaHeight(
         el as unknown as HTMLTextAreaElement,
@@ -232,7 +230,6 @@ export const Textarea = React.forwardRef(function Textarea(
       rafId = requestAnimationFrame(performResize);
     };
 
-    // Initial measurement
     rafId = requestAnimationFrame(performResize);
 
     const onInput = () => {
@@ -245,7 +242,6 @@ export const Textarea = React.forwardRef(function Textarea(
     let ro: ResizeObserver | null = null;
     if (typeof ResizeObserver !== 'undefined') {
       ro = new ResizeObserver(() => {
-        // Use the debounced scheduler for ResizeObserver notifications.
         schedulePerformResizeDebounced();
       });
       try {
