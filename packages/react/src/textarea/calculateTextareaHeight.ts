@@ -34,30 +34,32 @@ export function calculateTextareaHeight(
     return null;
   }
 
-  const styleToCopy = [
-    'boxSizing',
-    'width',
-    'paddingTop',
-    'paddingBottom',
-    'paddingLeft',
-    'paddingRight',
-    'borderTopWidth',
-    'borderBottomWidth',
-    'fontFamily',
-    'fontSize',
-    'fontWeight',
-    'fontStyle',
-    'letterSpacing',
-    'textTransform',
-    'textIndent',
-    'lineHeight',
-    'whiteSpace',
-  ];
+  const styleToCopy: string[] = [];
+  for (let i = 0; i < computedStyle.length; i += 1) {
+    const cssName = computedStyle[i];
+    if (!cssName) {
+      continue;
+    }
+
+    if (
+      cssName.includes('box-sizing') ||
+      cssName.includes('width') ||
+      cssName.includes('padding') ||
+      cssName.includes('border') ||
+      cssName.includes('font') ||
+      cssName.includes('letter-spacing') ||
+      cssName.includes('text-transform') ||
+      cssName.includes('text-indent') ||
+      cssName.includes('line-height') ||
+      cssName.includes('white-space')
+    ) {
+      styleToCopy.push(cssName);
+    }
+  }
 
   hidden.style.width = width;
   for (const propName of styleToCopy) {
-    // cast because CSSStyleDeclaration is readonly for some props in TS defs
-    (hidden.style as any)[propName] = (computedStyle as any)[propName];
+    hidden.style.setProperty(propName, computedStyle.getPropertyValue(propName));
   }
 
   hidden.style.whiteSpace =
