@@ -122,7 +122,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const forceRender = useForcedRerendering();
 
   const formatOptionsRef = useLatestRef(format);
-  const onValueChange = useEventCallback(onValueChangeProp);
 
   const hasPendingCommitRef = React.useRef(false);
 
@@ -237,7 +236,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
       if (shouldFireChange) {
         lastChangedValueRef.current = validatedValue;
-        onValueChange?.(validatedValue, details);
+        onValueChangeProp?.(validatedValue, details);
 
         if (details.isCanceled) {
           return;

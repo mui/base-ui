@@ -77,35 +77,32 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     state: 'value',
   });
 
-  const handleValueChange = React.useCallback(
-    (newValue: number | string, nextOpen: boolean) => {
-      const details = createChangeEventDetails('none');
-      if (!multiple) {
-        const nextValue = value[0] === newValue ? [] : [newValue];
-        onValueChange(nextValue, details);
-        if (details.isCanceled) {
-          return;
-        }
-        setValue(nextValue);
-      } else if (nextOpen) {
-        const nextOpenValues = value.slice();
-        nextOpenValues.push(newValue);
-        onValueChange(nextOpenValues, details);
-        if (details.isCanceled) {
-          return;
-        }
-        setValue(nextOpenValues);
-      } else {
-        const nextOpenValues = value.filter((v) => v !== newValue);
-        onValueChange(nextOpenValues, details);
-        if (details.isCanceled) {
-          return;
-        }
-        setValue(nextOpenValues);
+  const handleValueChange = useEventCallback((newValue: number | string, nextOpen: boolean) => {
+    const details = createChangeEventDetails('none');
+    if (!multiple) {
+      const nextValue = value[0] === newValue ? [] : [newValue];
+      onValueChange(nextValue, details);
+      if (details.isCanceled) {
+        return;
       }
-    },
-    [onValueChange, multiple, setValue, value],
-  );
+      setValue(nextValue);
+    } else if (nextOpen) {
+      const nextOpenValues = value.slice();
+      nextOpenValues.push(newValue);
+      onValueChange(nextOpenValues, details);
+      if (details.isCanceled) {
+        return;
+      }
+      setValue(nextOpenValues);
+    } else {
+      const nextOpenValues = value.filter((v) => v !== newValue);
+      onValueChange(nextOpenValues, details);
+      if (details.isCanceled) {
+        return;
+      }
+      setValue(nextOpenValues);
+    }
+  });
 
   const state: AccordionRoot.State = React.useMemo(
     () => ({

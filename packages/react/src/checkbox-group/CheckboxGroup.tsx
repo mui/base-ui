@@ -75,11 +75,12 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const id = useBaseUiId(idProp);
 
   const controlRef = React.useRef<HTMLButtonElement>(null);
-  const registerControlRef = useEventCallback((element: HTMLButtonElement | null) => {
+
+  const registerControlRef = React.useCallback((element: HTMLButtonElement | null) => {
     if (controlRef.current == null && element != null && !element.hasAttribute(PARENT_CHECKBOX)) {
       controlRef.current = element;
     }
-  });
+  }, []);
 
   useField({
     enabled: !!fieldName,

@@ -22,9 +22,9 @@ export function useOpenInteractionType(open: boolean) {
     },
   );
 
-  const reset = useEventCallback(() => {
+  const reset = React.useCallback(() => {
     setOpenMethod(null);
-  });
+  }, []);
 
   const { onClick, onPointerDown } = useEnhancedClickHandler(handleTriggerClick);
 

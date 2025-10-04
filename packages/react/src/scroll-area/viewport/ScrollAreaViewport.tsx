@@ -270,9 +270,9 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     };
   }, [computeThumbPosition, viewportRef]);
 
-  const handleUserInteraction = useEventCallback(() => {
+  function handleUserInteraction() {
     programmaticScrollRef.current = false;
-  });
+  }
 
   const props: React.ComponentProps<'div'> = {
     role: 'presentation',

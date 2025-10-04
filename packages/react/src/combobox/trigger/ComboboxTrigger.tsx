@@ -66,9 +66,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
-  const trackPointerType = useEventCallback((event: React.PointerEvent) => {
+  function trackPointerType(event: React.PointerEvent) {
     currentPointerTypeRef.current = event.pointerType;
-  });
+  }
 
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,
