@@ -69,6 +69,9 @@ export function calculateTextareaHeight(
 
   hidden.value = el.value || placeholder || 'x';
   if (hidden.value.slice(-1) === '\n') {
+    // Certain fonts which overflow the line height will cause the textarea
+    // to report a different scrollHeight depending on whether the last line
+    // is empty. Make it non-empty to avoid this issue.
     hidden.value += ' ';
   }
 
