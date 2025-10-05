@@ -52,7 +52,12 @@ import {
   Group,
   isGroupedItems,
 } from '../../utils/resolveValueLabel';
-import { defaultItemEquality, findItemIndex, itemIncludes } from '../../utils/itemEquality';
+import {
+  defaultItemEquality,
+  findItemIndex,
+  itemIncludes,
+  removeItem,
+} from '../../utils/itemEquality';
 
 /**
  * @internal
@@ -714,9 +719,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
       if (multiple) {
         const currentSelectedValue = Array.isArray(selectedValue) ? selectedValue : [];
-        const isCurrentlySelected = currentSelectedValue.includes(value);
+        const isCurrentlySelected = itemIncludes(
+          currentSelectedValue,
+          value,
+          store.state.isItemEqualToValue,
+        );
         const nextValue = isCurrentlySelected
-          ? currentSelectedValue.filter((v) => v !== value)
+          ? removeItem(currentSelectedValue, value, store.state.isItemEqualToValue)
           : [...currentSelectedValue, value];
 
         setSelectedValue(nextValue, eventDetails);
