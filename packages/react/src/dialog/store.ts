@@ -49,11 +49,15 @@ export type State = {
    */
   transitionStatus: TransitionStatus;
   /**
-   * Resolver for the Trigger element's props.
+   * Active Trigger element's props.
    */
-  triggerProps: HTMLProps;
+  activeTriggerProps: HTMLProps;
   /**
-   * Resolver for the Popup element's props.
+   * Inactive Trigger element's props.
+   */
+  inactiveTriggerProps: HTMLProps;
+  /**
+   * Popup element's props.
    */
   popupProps: HTMLProps;
   /**
@@ -67,8 +71,15 @@ export type State = {
   /**
    * The Trigger DOM element.
    */
-  triggerElement: HTMLElement | null;
+  activeTriggerId: string | null;
+  triggers: TriggerMap;
+  payload: unknown | undefined;
 };
+
+type TriggerMap<Payload = unknown> = Map<
+  string,
+  { element: HTMLElement; getPayload?: (() => Payload) | undefined }
+>;
 
 type Context = {
   popupRef: React.RefObject<HTMLElement | null>;
@@ -92,14 +103,21 @@ const selectors = {
   titleElementId: createSelector((state: State) => state.titleElementId),
   mounted: createSelector((state: State) => state.mounted),
   transitionStatus: createSelector((state: State) => state.transitionStatus),
-  triggerProps: createSelector((state: State) => state.triggerProps),
   popupProps: createSelector((state: State) => state.popupProps),
   floatingRootContext: createSelector((state: State) => state.floatingRootContext),
+  activeTriggerId: createSelector((state: State) => state.activeTriggerId),
+  activeTriggerElement: createSelector((state: State) =>
+    state.mounted && state.activeTriggerId != null
+      ? (state.triggers.get(state.activeTriggerId)?.element ?? null)
+      : null,
+  ),
   popupElement: createSelector((state: State) => state.popupElement),
-  triggerElement: createSelector((state: State) => state.triggerElement),
+  payload: createSelector((state: State) => state.payload),
+  activeTriggerProps: createSelector((state: State) => state.activeTriggerProps),
+  inactiveTriggerProps: createSelector((state: State) => state.inactiveTriggerProps),
 };
 
-export class DialogStore extends ReactStore<State, Context, typeof selectors> {
+export class DialogStore<Payload> extends ReactStore<State, Context, typeof selectors> {
   static create(initialState: State) {
     const context: Context = {
       popupRef: React.createRef<HTMLElement>(),
@@ -128,4 +146,8 @@ export class DialogStore extends ReactStore<State, Context, typeof selectors> {
 
     this.set('open', nextOpen);
   };
+}
+
+export function createDialogHandle<Payload = undefined>(): DialogStore<Payload> {
+  return new DialogStore<Payload>();
 }
