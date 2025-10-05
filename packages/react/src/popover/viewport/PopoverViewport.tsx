@@ -48,10 +48,9 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const [newTriggerOffset, setNewTriggerOffset] = React.useState<Offset | null>(null);
 
   const currentContainerRef = React.useRef<HTMLDivElement>(null);
-  const nextContainerRef = React.useRef<HTMLDivElement>(null);
   const previousContainerRef = React.useRef<HTMLDivElement>(null);
 
-  const onAnimationsFinished = useAnimationsFinished(nextContainerRef, true, false);
+  const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
   const cleanupTimeout = useAnimationFrame();
 
   const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
@@ -70,7 +69,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     // So clicking quickly on T1, T2, T3 will result in the following sequence:
     // 1. T1 -> T2: previousContent = T1, currentContent = T2
     // 2. T2 -> T3: previousContent = T2, currentContent = T3
-    const source = currentContainerRef.current ?? nextContainerRef.current;
+    const source = currentContainerRef.current;
     if (!source) {
       return;
     }
@@ -88,9 +87,6 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     currentContainerRef.current?.style.setProperty('transition', 'none');
 
     previousContainerRef.current?.style.setProperty('display', 'none');
-
-    nextContainerRef.current?.style.setProperty('animation', 'none');
-    nextContainerRef.current?.style.setProperty('transition', 'none');
   });
 
   type MeasureLayoutCompleteData = {
@@ -103,9 +99,6 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     currentContainerRef.current?.style.removeProperty('transition');
 
     previousContainerRef.current?.style.removeProperty('display');
-
-    nextContainerRef.current?.style.removeProperty('animation');
-    nextContainerRef.current?.style.removeProperty('transition');
 
     if (!previousContentDimensions) {
       setPreviousContentDimensions(data.previousDimensions);
@@ -188,7 +181,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
         />
         <div
           data-current
-          ref={nextContainerRef}
+          ref={currentContainerRef}
           key={'current'}
           data-starting-style={showStartingStyleAttribute ? '' : undefined}
         >
