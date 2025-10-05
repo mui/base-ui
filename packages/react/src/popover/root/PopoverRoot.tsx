@@ -76,6 +76,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   useIsoLayoutEffect(() => {
+    store.set('mounted', mounted);
     if (!mounted) {
       store.set('activeTriggerId', null);
     }
@@ -257,7 +258,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([dismiss, role]);
 
   store.useSyncedValues({
-    mounted,
     transitionStatus,
     modal,
     activeTriggerProps: getReferenceProps(),
