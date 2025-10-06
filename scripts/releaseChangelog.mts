@@ -5,8 +5,8 @@ import { Octokit } from '@octokit/rest';
 import chalk from 'chalk';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import _ from 'lodash';
-import packageJson from '../package.json';
+import startCase from 'es-toolkit/compat/startCase';
+import packageJson from '../package.json' with { type: 'json' };
 
 const exec = promisify(childProcess.exec);
 
@@ -304,7 +304,7 @@ function formatHeader(section: string): string {
     return `### General changes\n\n`;
   }
 
-  return `### ${_.startCase(section)}\n\n`;
+  return `### ${startCase(section)}\n\n`;
 }
 
 type CommitDetails = {

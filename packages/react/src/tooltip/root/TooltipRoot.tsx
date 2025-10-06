@@ -18,8 +18,10 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
-import type { BaseUIChangeEventReason } from '../../utils/types';
+import {
+  type BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 
 /**
  * Groups all parts of the tooltip.
@@ -94,7 +96,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const setOpen = useEventCallback(setOpenUnwrapped);
 
   if (openState && disabled) {
-    setOpenUnwrapped(false, createBaseUIEventDetails('disabled'));
+    setOpenUnwrapped(false, createChangeEventDetails('disabled'));
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -293,6 +295,13 @@ export namespace TooltipRoot {
     unmount: () => void;
   }
 
-  export type ChangeEventReason = BaseUIChangeEventReason | 'disabled';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventReason =
+    | 'trigger-hover'
+    | 'trigger-focus'
+    | 'trigger-press'
+    | 'outside-press'
+    | 'escape-key'
+    | 'disabled'
+    | 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

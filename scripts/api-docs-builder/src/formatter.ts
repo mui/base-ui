@@ -1,9 +1,9 @@
 /* eslint-disable no-await-in-loop */
-import sortBy from 'lodash/sortBy';
+import sortBy from 'es-toolkit/compat/sortBy';
 import * as tae from 'typescript-api-extractor';
 import fs from 'fs';
 import path from 'path';
-import _ from 'lodash';
+import uniq from 'es-toolkit/compat/uniq';
 import * as prettier from 'prettier';
 
 export async function formatProperties(
@@ -128,12 +128,12 @@ export function formatDetailedType(
 
   if (type instanceof tae.UnionNode) {
     const memberTypes = type.types.map((t) => formatDetailedType(t, allExports, visited));
-    return _.uniq(memberTypes).join(' | ');
+    return uniq(memberTypes).join(' | ');
   }
 
   if (type instanceof tae.IntersectionNode) {
     const memberTypes = type.types.map((t) => formatDetailedType(t, allExports, visited));
-    return _.uniq(memberTypes).join(' & ');
+    return uniq(memberTypes).join(' & ');
   }
 
   // For objects and everything else, reuse existing formatter with object expansion enabled
@@ -209,7 +209,7 @@ export function formatType(
       return t;
     });
 
-    const formattedMemeberTypes = _.uniq(
+    const formattedMemeberTypes = uniq(
       orderMembers(flattenedMemberTypes).map((t) => formatType(t, removeUndefined)),
     );
 

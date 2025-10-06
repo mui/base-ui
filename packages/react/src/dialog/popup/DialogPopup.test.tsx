@@ -706,6 +706,44 @@ describe('<Dialog.Popup />', () => {
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
     });
+
+    it('increments for nested alert dialog and decrements on close (cross-type)', async () => {
+      const { user } = await render(
+        <Dialog.Root>
+          <Dialog.Trigger>Open Dialog</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="parent-dialog">
+              <AlertDialog.Root>
+                <AlertDialog.Trigger>Open Alert</AlertDialog.Trigger>
+                <AlertDialog.Portal>
+                  <AlertDialog.Popup data-testid="nested-alert">
+                    <AlertDialog.Close>Close Alert</AlertDialog.Close>
+                  </AlertDialog.Popup>
+                </AlertDialog.Portal>
+              </AlertDialog.Root>
+              <Dialog.Close>Close Dialog</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open Dialog' }));
+      await waitFor(() => expect(screen.getByTestId('parent-dialog')).not.to.equal(null));
+
+      const parent = screen.getByTestId('parent-dialog');
+      expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).to.equal('0');
+
+      await user.click(screen.getByRole('button', { name: 'Open Alert' }));
+      await waitFor(() => expect(screen.getByTestId('nested-alert')).not.to.equal(null));
+      await waitFor(() => {
+        expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).to.equal('1');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close Alert' }));
+      await waitFor(() => {
+        expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).to.equal('0');
+      });
+    });
   });
 
   describe('style hooks', () => {

@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 
-const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<AlertDialogBackdrop.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -24,7 +24,12 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, forceRender = false, ...elementProps } = componentProps;
-  const { open, nested, mounted, transitionStatus, backdropRef } = useAlertDialogRootContext();
+  const { store } = useDialogRootContext();
+
+  const open = store.useState('open');
+  const nested = store.useState('nested');
+  const mounted = store.useState('mounted');
+  const transitionStatus = store.useState('transitionStatus');
 
   const state: AlertDialogBackdrop.State = React.useMemo(
     () => ({
@@ -36,7 +41,7 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: [backdropRef, forwardedRef],
+    ref: [store.context.backdropRef, forwardedRef],
     props: [
       {
         role: 'presentation',
@@ -48,7 +53,7 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
       },
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
     enabled: forceRender || !nested,
   });
 });

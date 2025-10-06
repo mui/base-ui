@@ -8,14 +8,14 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import { tabsStyleHookMapping } from '../root/styleHooks';
+import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsListContext } from '../list/TabsListContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
 
-const customStyleHookMapping = {
-  ...tabsStyleHookMapping,
+const stateAttributesMapping = {
+  ...tabsStateAttributesMapping,
   selectedTabPosition: () => null,
   selectedTabSize: () => null,
 };
@@ -164,7 +164,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
         suppressHydrationWarning: true,
       },
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   if (activeTabValue == null) {

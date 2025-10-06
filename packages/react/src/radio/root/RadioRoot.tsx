@@ -12,11 +12,11 @@ import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { customStyleHookMapping } from '../utils/customStyleHookMapping';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Represents the radio button itself.
@@ -137,7 +137,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
           return;
         }
 
-        const details = createBaseUIEventDetails('none', event.nativeEvent);
+        const details = createChangeEventDetails('none', event.nativeEvent);
 
         if (details.isCanceled) {
           return;
@@ -193,7 +193,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     state,
     ref: refs,
     props,
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (
@@ -206,7 +206,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
           state={state}
           refs={refs}
           props={props}
-          customStyleHookMapping={customStyleHookMapping}
+          stateAttributesMapping={stateAttributesMapping}
         />
       ) : (
         element

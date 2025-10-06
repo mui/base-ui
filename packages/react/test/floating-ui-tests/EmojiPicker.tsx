@@ -192,7 +192,7 @@ export function Main() {
   return (
     <React.Fragment>
       <h1 className="mb-8 text-5xl font-bold">Emoji Picker</h1>
-      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
+      <div className="mb-4 grid h-[20rem] place-items-center rounded border border-slate-400 lg:w-[40rem]">
         <div className="text-center">
           <Button
             ref={refs.setReference}
@@ -221,13 +221,13 @@ export function Main() {
               <FloatingFocusManager context={context} modal={false}>
                 <div
                   ref={refs.setFloating}
-                  className="border-slate-900/10 rounded-lg border bg-white/70 bg-clip-padding p-4 shadow-md backdrop-blur-sm"
+                  className="rounded-lg border border-slate-900/10 bg-white/70 bg-clip-padding p-4 shadow-md backdrop-blur-sm"
                   style={floatingStyles}
                   {...getFloatingProps(getListFloatingProps())}
                 >
                   <span className="text-sm uppercase opacity-40">Emoji Picker</span>
                   <input
-                    className="border-slate-300 focus:border-blue-600 my-2 block w-36 rounded border p-1 outline-none"
+                    className="my-2 block w-36 rounded border border-slate-300 p-1 outline-none focus:border-blue-600"
                     placeholder="Search emoji"
                     value={search}
                     aria-controls={filteredEmojis.length === 0 ? noResultsId : undefined}

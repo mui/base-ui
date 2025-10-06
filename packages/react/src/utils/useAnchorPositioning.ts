@@ -113,7 +113,7 @@ export function useAnchorPositioning(
     align = 'center',
     alignOffset = 0,
     collisionBoundary,
-    collisionPadding = 5,
+    collisionPadding: collisionPaddingParam = 5,
     sticky = false,
     arrowPadding = 5,
     trackAnchor = true,
@@ -125,7 +125,14 @@ export function useAnchorPositioning(
     shiftCrossAxis = false,
     nodeId,
     adaptiveOrigin,
+    lazyFlip = false,
   } = params;
+
+  const [mountSide, setMountSide] = React.useState<PhysicalSide | null>(null);
+
+  if (!mounted && mountSide !== null) {
+    setMountSide(null);
+  }
 
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
@@ -139,18 +146,52 @@ export function useAnchorPositioning(
   const direction = useDirection();
   const isRtl = direction === 'rtl';
 
-  const side = (
-    {
-      top: 'top',
-      right: 'right',
-      bottom: 'bottom',
-      left: 'left',
-      'inline-end': isRtl ? 'left' : 'right',
-      'inline-start': isRtl ? 'right' : 'left',
-    } satisfies Record<Side, PhysicalSide>
-  )[sideParam];
+  const side =
+    mountSide ||
+    (
+      {
+        top: 'top',
+        right: 'right',
+        bottom: 'bottom',
+        left: 'left',
+        'inline-end': isRtl ? 'left' : 'right',
+        'inline-start': isRtl ? 'right' : 'left',
+      } satisfies Record<Side, PhysicalSide>
+    )[sideParam];
 
   const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
+
+  let collisionPadding = collisionPaddingParam as {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
+
+  // Create a bias to the preferred side.
+  // On iOS, when the mobile software keyboard opens, the input is exactly centered
+  // in the viewport, but this can cause it to flip to the top undesirably.
+  const bias = 1;
+  const biasTop = sideParam === 'bottom' ? bias : 0;
+  const biasBottom = sideParam === 'top' ? bias : 0;
+  const biasLeft = sideParam === 'right' ? bias : 0;
+  const biasRight = sideParam === 'left' ? bias : 0;
+
+  if (typeof collisionPadding === 'number') {
+    collisionPadding = {
+      top: collisionPadding + biasTop,
+      right: collisionPadding + biasRight,
+      bottom: collisionPadding + biasBottom,
+      left: collisionPadding + biasLeft,
+    };
+  } else if (collisionPadding) {
+    collisionPadding = {
+      top: (collisionPadding.top || 0) + biasTop,
+      right: (collisionPadding.right || 0) + biasRight,
+      bottom: (collisionPadding.bottom || 0) + biasBottom,
+      left: (collisionPadding.left || 0) + biasLeft,
+    };
+  }
 
   const commonCollisionProps = {
     boundary: collisionBoundary === 'clipping-ancestors' ? 'clippingAncestors' : collisionBoundary,
@@ -201,6 +242,14 @@ export function useAnchorPositioning(
       ? null
       : flip({
           ...commonCollisionProps,
+          // Ensure the popup flips if it's been limited by its --available-height and it resizes.
+          // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
+          padding: {
+            top: collisionPadding.top + bias,
+            right: collisionPadding.right + bias,
+            bottom: collisionPadding.bottom + bias,
+            left: collisionPadding.left + bias,
+          },
           mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
           crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
           fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
@@ -227,11 +276,14 @@ export function useAnchorPositioning(
                       return {};
                     }
                     const { width, height } = arrowRef.current.getBoundingClientRect();
-                    const arrowSize = getSideAxis(limitData.placement) === 'y' ? width : height;
+                    const sideAxis = getSideAxis(getSide(limitData.placement));
+                    const arrowSize = sideAxis === 'y' ? width : height;
+                    const offsetAmount =
+                      sideAxis === 'y'
+                        ? collisionPadding.left + collisionPadding.right
+                        : collisionPadding.top + collisionPadding.bottom;
                     return {
-                      offset:
-                        arrowSize / 2 +
-                        (typeof collisionPadding === 'number' ? collisionPadding : 0),
+                      offset: arrowSize / 2 + offsetAmount / 2,
                     };
                   }),
           };
@@ -418,6 +470,17 @@ export function useAnchorPositioning(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
+  /**
+   * Locks the flip (makes it "sticky") so it doesn't prefer a given placement
+   * and flips back lazily, not eagerly. Ideal for filtered lists that change
+   * the size of the popup dynamically to avoid unwanted flipping when typing.
+   */
+  useIsoLayoutEffect(() => {
+    if (lazyFlip && mounted && isPositioned) {
+      setMountSide(renderedSide);
+    }
+  }, [lazyFlip, mounted, isPositioned, renderedSide]);
+
   const arrowStyles = React.useMemo(
     () => ({
       position: 'absolute' as const,
@@ -437,6 +500,7 @@ export function useAnchorPositioning(
       arrowUncentered,
       side: logicalRenderedSide,
       align: renderedAlign,
+      physicalSide: renderedSide,
       anchorHidden,
       refs,
       context,
@@ -450,6 +514,7 @@ export function useAnchorPositioning(
       arrowUncentered,
       logicalRenderedSide,
       renderedAlign,
+      renderedSide,
       anchorHidden,
       refs,
       context,
@@ -599,6 +664,7 @@ export namespace useAnchorPositioning {
     adaptiveOrigin?: Middleware;
     collisionAvoidance: CollisionAvoidance;
     shiftCrossAxis?: boolean;
+    lazyFlip?: boolean;
   }
 
   export interface ReturnValue {
@@ -608,6 +674,7 @@ export namespace useAnchorPositioning {
     arrowUncentered: boolean;
     side: Side;
     align: Align;
+    physicalSide: PhysicalSide;
     anchorHidden: boolean;
     refs: ReturnType<typeof useFloating>['refs'];
     context: FloatingContext;

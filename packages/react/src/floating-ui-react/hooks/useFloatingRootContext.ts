@@ -4,14 +4,14 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useId } from '@base-ui-components/utils/useId';
 
 import type { FloatingRootContext, ReferenceElement, ContextData } from '../types';
-import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
-  onOpenChange?: (open: boolean, eventDetails: BaseUIEventDetails) => void;
+  onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
@@ -47,19 +47,21 @@ export function useFloatingRootContext(
     elementsProp.reference,
   );
 
-  const onOpenChange = useEventCallback((newOpen: boolean, eventDetails: BaseUIEventDetails) => {
-    dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
-    if (!options.noEmit) {
-      const details: FloatingUIOpenChangeDetails = {
-        open: newOpen,
-        reason: eventDetails.reason,
-        nativeEvent: eventDetails.event,
-        nested,
-      };
-      events.emit('openchange', details);
-    }
-    onOpenChangeProp?.(newOpen, eventDetails);
-  });
+  const onOpenChange = useEventCallback(
+    (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
+      dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
+      if (!options.noEmit) {
+        const details: FloatingUIOpenChangeDetails = {
+          open: newOpen,
+          reason: eventDetails.reason,
+          nativeEvent: eventDetails.event,
+          nested,
+        };
+        events.emit('openchange', details);
+      }
+      onOpenChangeProp?.(newOpen, eventDetails);
+    },
+  );
 
   const refs = React.useMemo(
     () => ({
@@ -89,4 +91,26 @@ export function useFloatingRootContext(
     }),
     [open, onOpenChange, elements, events, floatingId, refs],
   );
+}
+
+export function getEmptyContext(): FloatingRootContext {
+  return {
+    open: false,
+    onOpenChange: () => {},
+    dataRef: { current: {} },
+    elements: {
+      floating: null,
+      reference: null,
+      domReference: null,
+    },
+    events: {
+      on: () => {},
+      off: () => {},
+      emit: () => {},
+    },
+    floatingId: '',
+    refs: {
+      setPositionReference: () => {},
+    },
+  };
 }

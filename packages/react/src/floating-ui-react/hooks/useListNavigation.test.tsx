@@ -34,7 +34,7 @@ function App(
       activeIndex,
       onNavigate(index) {
         setActiveIndex(index);
-        props.onNavigate?.(index);
+        props.onNavigate?.(index, undefined);
       },
     }),
   ]);
@@ -525,7 +525,7 @@ describe('useListNavigation', () => {
 
     it('true - onNavigate is called with `null` when escaped', () => {
       const spy = vi.fn();
-      render(<App allowEscape virtual loop onNavigate={spy} />);
+      render(<App allowEscape virtual loop onNavigate={(index) => spy(index)} />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
       expect(spy).toHaveBeenCalledTimes(2);
@@ -576,7 +576,7 @@ describe('useListNavigation', () => {
   describe('focusOnHover', () => {
     it('true - focuses item on hover and syncs the active index', () => {
       const spy = vi.fn();
-      render(<App onNavigate={spy} />);
+      render(<App onNavigate={(index) => spy(index)} />);
       fireEvent.click(screen.getByRole('button'));
       fireEvent.mouseMove(screen.getByTestId('item-1'));
       expect(screen.getByTestId('item-1')).toHaveFocus();
@@ -587,7 +587,9 @@ describe('useListNavigation', () => {
 
     it('false - does not focus item on hover and does not sync the active index', async () => {
       const spy = vi.fn();
-      render(<App onNavigate={spy} focusItemOnOpen={false} focusItemOnHover={false} />);
+      render(
+        <App onNavigate={(index) => spy(index)} focusItemOnOpen={false} focusItemOnHover={false} />,
+      );
       fireEvent.click(screen.getByRole('button'));
       fireEvent.mouseMove(screen.getByTestId('item-1'));
       expect(screen.getByTestId('item-1')).not.toHaveFocus();

@@ -17,11 +17,13 @@ import {
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
 } from './NavigationMenuRootContext';
-import type { BaseUIComponentProps, BaseUIChangeEventReason } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';
-import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+
+const blockedReturnFocusReasons = new Set<string>(['trigger-hover', 'outside-press', 'focus-out']);
 
 /**
  * Groups all parts of the navigation menu.
@@ -114,10 +116,14 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     const doc = ownerDocument(rootRef.current);
     const activeEl = activeElement(doc);
 
+    const isReturnFocusBlocked = closeReasonRef.current
+      ? blockedReturnFocusReasons.has(closeReasonRef.current)
+      : false;
+
     if (
-      closeReasonRef.current !== 'trigger-hover' &&
+      !isReturnFocusBlocked &&
       isHTMLElement(prevTriggerElementRef.current) &&
-      contains(popupElement, activeEl) &&
+      (activeEl === ownerDocument(popupElement).body || contains(popupElement, activeEl)) &&
       popupElement
     ) {
       prevTriggerElementRef.current.focus({ preventScroll: true });
@@ -335,6 +341,14 @@ export namespace NavigationMenuRoot {
     unmount: () => void;
   }
 
-  export type ChangeEventReason = BaseUIChangeEventReason | 'link-press';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventReason =
+    | 'trigger-press'
+    | 'trigger-hover'
+    | 'outside-press'
+    | 'list-navigation'
+    | 'focus-out'
+    | 'escape-key'
+    | 'link-press'
+    | 'none';
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

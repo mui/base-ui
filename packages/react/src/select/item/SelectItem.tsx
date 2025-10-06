@@ -15,10 +15,11 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { compareItemEquality, itemIncludes, removeItem } from '../../utils/itemEquality';
 
 /**
- * An individual option in the select menu.
+ * An individual option in the select popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -64,6 +65,7 @@ export const SelectItem = React.memo(
     const selected = useStore(store, selectors.isSelected, listItem.index, value);
     const rootValue = useStore(store, selectors.value);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
+    const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(listItem.index);
@@ -86,15 +88,24 @@ export const SelectItem = React.memo(
     useIsoLayoutEffect(() => {
       if (hasRegistered) {
         if (multiple) {
-          const isValueSelected = Array.isArray(rootValue) && rootValue.includes(value);
+          const isValueSelected =
+            Array.isArray(rootValue) && itemIncludes(rootValue, value, isItemEqualToValue);
           if (isValueSelected) {
             registerItemIndex(listItem.index);
           }
-        } else if (value === rootValue) {
+        } else if (compareItemEquality(rootValue, value, isItemEqualToValue)) {
           registerItemIndex(listItem.index);
         }
       }
-    }, [hasRegistered, listItem.index, registerItemIndex, value, rootValue, multiple]);
+    }, [
+      hasRegistered,
+      listItem.index,
+      registerItemIndex,
+      value,
+      rootValue,
+      multiple,
+      isItemEqualToValue,
+    ]);
 
     const state: SelectItem.State = React.useMemo(
       () => ({
@@ -125,16 +136,18 @@ export const SelectItem = React.memo(
       if (multiple) {
         const currentValue = Array.isArray(rootValue) ? rootValue : [];
         const nextValue = selected
-          ? currentValue.filter((v) => v !== value)
+          ? removeItem(currentValue, value, isItemEqualToValue)
           : [...currentValue, value];
-        setValue(nextValue, createBaseUIEventDetails('none', event));
+        setValue(nextValue, createChangeEventDetails('item-press', event));
       } else {
-        setValue(value, createBaseUIEventDetails('none', event));
-        setOpen(false, createBaseUIEventDetails('item-press', event));
+        setValue(value, createChangeEventDetails('item-press', event));
+        setOpen(false, createChangeEventDetails('item-press', event));
       }
     }
 
     const defaultProps: HTMLProps = {
+      role: 'option',
+      'aria-selected': selected,
       'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {
