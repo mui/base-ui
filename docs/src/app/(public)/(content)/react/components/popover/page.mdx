@@ -62,7 +62,9 @@ const demoPopover = Popover.createHandle();
 </Popover.Root>
 ```
 
-<Demo path="./demos/detached-triggers-simple" />
+import { DemoPopoverDetachedTriggersSimple } from './demos/detached-triggers-simple';
+
+<DemoPopoverDetachedTriggersSimple />
 
 ### Multiple triggers
 
@@ -137,7 +139,9 @@ When using multiple triggers, you have to manage which trigger is active with th
 Note that there is no separate `onTriggerIdChange` prop.
 Instead, the `onOpenChange` callback receives an additional argument, `eventDetails`, which contains the trigger element that initiated the state change.
 
-<Demo path="./demos/detached-triggers-controlled" />
+import { DemoPopoverDetachedTriggersControlled } from './demos/detached-triggers-controlled';
+
+<DemoPopoverDetachedTriggersControlled />
 
 ### Animating the Popover
 
@@ -160,5 +164,6 @@ Inside the `Viewport`, the content is further wrapped in `div`s with data attrib
 
 You can use these attributes to style the enter and exit animations.
 
-<Demo path="./demos/detached-triggers-full" />
-```
+import { DemoPopoverDetachedTriggersFull } from './demos/detached-triggers-full';
+
+<DemoPopoverDetachedTriggersFull />
