@@ -13,7 +13,8 @@ const EVENTS: EventData[] = [
     endTime: 15.5833,
     dateString: 'October 7, 2025',
     location: 'The Westin Lake Las Vegas Resort & Spa, Main Stage',
-    imageUrl: 'https://images.unsplash.com/photo-1626125345510-4603468eedfb?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&w=1000',
+    imageUrl:
+      'https://images.unsplash.com/photo-1626125345510-4603468eedfb?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&w=1000',
     id: 1,
   },
   {
@@ -23,7 +24,8 @@ const EVENTS: EventData[] = [
     endTime: 17,
     dateString: 'October 8, 2025',
     location: 'The Westin Lake Las Vegas Resort & Spa, MUI booth',
-    imageUrl: 'https://images.unsplash.com/photo-1560439514-4e9645039924?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&w=1000',
+    imageUrl:
+      'https://images.unsplash.com/photo-1560439514-4e9645039924?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&w=1000',
     id: 2,
   },
   {
@@ -149,7 +151,11 @@ function EventDetails() {
                 )}
                 {payload.imageUrl && (
                   <div className={styles.EventImageWrapper}>
-                    <img src={payload.imageUrl} alt={payload.location} className={styles.EventImage} />
+                    <img
+                      src={payload.imageUrl}
+                      alt={payload.location}
+                      className={styles.EventImage}
+                    />
                   </div>
                 )}
               </Popover.Popup>
