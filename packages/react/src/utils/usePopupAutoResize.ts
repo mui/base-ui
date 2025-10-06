@@ -54,7 +54,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     observer.observe(popupElement);
 
     // Measure the rendered size to enable transitions:
-
     popupElement.style.setProperty('--popup-width', 'auto');
     popupElement.style.setProperty('--popup-height', 'auto');
 
