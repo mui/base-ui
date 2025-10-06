@@ -62,7 +62,18 @@
   --color-black: black;
 
   /* Grey colors defined in file://./demo-data/theme/css-modules/theme.css */
+  --color-gray-50: inherit;
   --color-gray-75: oklch(97% 0.325% 264deg); /* Not a Tailwind step, don't use it in the demos */
+  --color-gray-100: inherit;
+  --color-gray-200: inherit;
+  --color-gray-300: inherit;
+  --color-gray-400: inherit;
+  --color-gray-500: inherit;
+  --color-gray-600: inherit;
+  --color-gray-700: inherit;
+  --color-gray-800: inherit;
+  --color-gray-900: inherit;
+  --color-gray-950: inherit;
 
   /* Other colors used in Tailwind demos */
   --color-blue-800: var(--color-blue);
@@ -82,6 +93,8 @@
 
   /* Text colors for the docs */
   /* Color Red and Blue defined in file://./demo-data/theme/css-modules/theme.css */
+  --color-blue: inherit;
+  --color-red: inherit;
   --color-gray: var(--color-gray-600);
   --color-navy: oklch(31% 25% 264deg);
   --color-green: oklch(46% 30% 150deg);
