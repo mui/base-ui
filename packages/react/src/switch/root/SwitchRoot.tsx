@@ -6,7 +6,6 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
@@ -18,7 +17,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useControlId } from '../../labelable-provider/useControlId';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../types';
 
@@ -61,7 +60,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     name: fieldName,
   } = useFieldRootContext();
 
-  const { controlId, labelId } = useLabelableContext();
+  const { labelId } = useLabelableContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -80,10 +79,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
 
-  const defaultId = useBaseUiId(idProp);
-  const id = controlId ?? defaultId;
-
-  useControlId({
+  const id = useLabelableId({
     id: idProp,
     implicit: true,
     controlRef: switchRef,

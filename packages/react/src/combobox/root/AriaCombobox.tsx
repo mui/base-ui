@@ -36,9 +36,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useControlId } from '../../labelable-provider/useControlId';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -117,19 +115,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     name: fieldName,
     disabled: fieldDisabled,
   } = useFieldRootContext();
-  const { controlId } = useLabelableContext();
   const fieldControlValidation = useFieldControlValidation();
-
-  const defaultId = useBaseUiId(idProp);
-  const id = controlId ?? defaultId;
+  const id = useLabelableId({ id: idProp });
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const commitValidation = fieldControlValidation.commitValidation;
-
-  useControlId({ id: idProp });
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
     controlled: selectedValueProp,

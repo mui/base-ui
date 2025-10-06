@@ -16,7 +16,7 @@ import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useControlId } from '../../labelable-provider/useControlId';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
@@ -84,6 +84,12 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     }
   }, [setFilled]);
 
+  const id = useLabelableId({
+    id: idProp,
+    implicit: true,
+    controlRef: radioRef,
+  });
+
   const rootProps: React.ComponentProps<'button'> = {
     role: 'radio',
     'aria-checked': checked,
@@ -91,6 +97,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
+    id: id ?? undefined,
     disabled,
     onKeyDown(event) {
       if (event.key === 'Enter') {
@@ -120,12 +127,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
-  });
-
-  useControlId({
-    id: idProp,
-    implicit: true,
-    controlRef: radioRef,
   });
 
   const inputId = useBaseUiId();

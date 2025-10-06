@@ -5,7 +5,7 @@ import { NOOP } from '../utils/noop';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useLabelableContext } from './LabelableContext';
 
-export function useControlId(params: useControlId.Parameters) {
+export function useLabelableId(params: useLabelableId.Parameters) {
   const { id, implicit = false, controlRef } = params;
   const { controlId, setControlId } = useLabelableContext();
   const defaultId = useBaseUiId(id);
@@ -33,9 +33,11 @@ export function useControlId(params: useControlId.Parameters) {
       }
     };
   }, [id, controlRef, controlId, setControlId, implicit, defaultId]);
+
+  return controlId ?? defaultId;
 }
 
-export namespace useControlId {
+export namespace useLabelableId {
   export interface Parameters {
     id?: string | undefined;
     /**
@@ -48,4 +50,6 @@ export namespace useControlId {
      */
     controlRef?: React.RefObject<HTMLElement | null>;
   }
+
+  export type ReturnValue = string;
 }

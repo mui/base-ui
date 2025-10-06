@@ -27,7 +27,7 @@ import {
   useLabelableContext,
   type LabelableContext,
 } from '../../labelable-provider/LabelableContext';
-import { useControlId } from '../../labelable-provider/useControlId';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
@@ -157,7 +157,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const thumbInputId = idProp ? inputId : (controlId ?? undefined);
 
-  useControlId({ id: idProp ? inputId : undefined });
+  useLabelableId({ id: idProp ? inputId : undefined });
 
   const thumbMetadata = React.useMemo(
     () => ({

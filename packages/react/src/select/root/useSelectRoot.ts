@@ -18,9 +18,7 @@ import {
 } from '../../floating-ui-react';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useControlId } from '../../labelable-provider/useControlId';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
@@ -50,7 +48,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     isItemEqualToValue = defaultItemEquality,
   } = params;
 
-  const { controlId } = useLabelableContext();
   const { clearErrors } = useFormContext();
   const {
     setDirty,
@@ -62,13 +59,10 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
-  const defaultId = useBaseUiId(idProp);
-  const id = controlId ?? defaultId;
-
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  useControlId({ id: idProp });
+  const id = useLabelableId({ id: idProp });
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: params.value,

@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { NOOP } from '../../utils/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -25,7 +27,6 @@ import {
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 
-const EMPTY = {};
 export const PARENT_CHECKBOX = 'data-parent';
 
 /**
@@ -127,9 +128,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     state: 'checked',
   });
 
+  // can't use useLabelableId because of optional groupContext and/or parent
   useIsoLayoutEffect(() => {
     const element = controlRef?.current;
-    if (!element) {
+    if (!element || setControlId === NOOP) {
       return undefined;
     }
 
@@ -267,7 +269,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     // To avoid this, we only set the value if it's defined
     valueProp !== undefined
       ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
-      : EMPTY,
+      : EMPTY_OBJECT,
     getDescriptionProps,
     groupContext
       ? fieldControlValidation.getValidationProps
