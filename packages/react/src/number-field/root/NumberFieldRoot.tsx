@@ -13,6 +13,7 @@ import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useControlId } from '../../labelable-provider/useControlId';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -83,7 +84,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     name: fieldName,
     state: fieldState,
   } = useFieldRootContext();
-  const { controlId, setControlId } = useLabelableContext();
+  const { controlId } = useLabelableContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -100,17 +101,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const defaultId = useBaseUiId(idProp);
   const id = controlId ?? defaultId;
 
-  useIsoLayoutEffect(() => {
-    if (idProp) {
-      setControlId(idProp);
-    }
-
-    return () => {
-      if (idProp) {
-        setControlId(undefined);
-      }
-    };
-  }, [idProp, setControlId]);
+  useControlId(idProp);
 
   const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
     controlled: valueProp,

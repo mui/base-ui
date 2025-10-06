@@ -6,7 +6,7 @@ import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../../form/FormContext';
 import { LabelableProvider } from '../../labelable-provider';
-import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 

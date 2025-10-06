@@ -19,6 +19,7 @@ import {
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useControlId } from '../../labelable-provider/useControlId';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
@@ -49,6 +50,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     isItemEqualToValue = defaultItemEquality,
   } = params;
 
+  const { controlId } = useLabelableContext();
   const { clearErrors } = useFormContext();
   const {
     setDirty,
@@ -58,25 +60,15 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     name: fieldName,
     disabled: fieldDisabled,
   } = useFieldRootContext();
-  const { setControlId } = useLabelableContext();
   const fieldControlValidation = useFieldControlValidation();
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = controlId ?? defaultId;
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  useIsoLayoutEffect(() => {
-    if (idProp) {
-      setControlId(idProp);
-    }
-
-    return () => {
-      if (idProp) {
-        setControlId(undefined);
-      }
-    };
-  }, [idProp, setControlId]);
+  useControlId(idProp);
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: params.value,

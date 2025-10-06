@@ -37,6 +37,7 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useControlId } from '../../labelable-provider/useControlId';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
@@ -116,7 +117,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     name: fieldName,
     disabled: fieldDisabled,
   } = useFieldRootContext();
-  const { controlId, setControlId } = useLabelableContext();
+  const { controlId } = useLabelableContext();
   const fieldControlValidation = useFieldControlValidation();
 
   const defaultId = useBaseUiId(idProp);
@@ -128,17 +129,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const commitValidation = fieldControlValidation.commitValidation;
 
-  useIsoLayoutEffect(() => {
-    if (idProp) {
-      setControlId(idProp);
-    }
-
-    return () => {
-      if (idProp) {
-        setControlId(undefined);
-      }
-    };
-  }, [idProp, setControlId]);
+  useControlId(idProp);
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
     controlled: selectedValueProp,

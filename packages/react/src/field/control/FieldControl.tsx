@@ -6,6 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useControlId } from '../../labelable-provider/useControlId';
 import { fieldValidityMapping } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -58,24 +59,14 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const { setTouched, setDirty, validityData, setFocused, setFilled, validationMode } =
     useFieldRootContext();
-  const { controlId, setControlId, labelId } = useLabelableContext();
+  const { controlId, labelId } = useLabelableContext();
 
   const { getInputValidationProps, commitValidation, inputRef } = useFieldControlValidation();
 
   const defaultId = useBaseUiId(idProp);
   const id = controlId ?? defaultId;
 
-  useIsoLayoutEffect(() => {
-    if (idProp) {
-      setControlId(idProp);
-    }
-
-    return () => {
-      if (idProp) {
-        setControlId(undefined);
-      }
-    };
-  }, [idProp, setControlId]);
+  useControlId(idProp);
 
   useIsoLayoutEffect(() => {
     const hasExternalValue = valueProp != null;
