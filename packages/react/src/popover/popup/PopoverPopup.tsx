@@ -182,8 +182,8 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       returnFocus={finalFocus}
       restoreFocus="popup"
       previousFocusableElement={activeTriggerElement}
-      nextFocusableElement={store.state.triggerFocusTargetRef}
-      beforeContentFocusGuardRef={store.state.beforeContentFocusGuardRef}
+      nextFocusableElement={store.context.triggerFocusTargetRef}
+      beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >
       {element}
     </FloatingFocusManager>

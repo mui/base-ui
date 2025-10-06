@@ -4,32 +4,26 @@ import { type InteractionType } from '@base-ui-components/utils/useEnhancedClick
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { type FloatingRootContext } from '../floating-ui-react';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
-import { type HTMLProps } from '../utils/types';
+import { type PopupTriggerMap, type HTMLProps } from '../utils/types';
 import { getEmptyContext } from '../floating-ui-react/hooks/useFloatingRootContext';
 import { PopoverRoot } from './root/PopoverRoot';
 
-type TriggerMap<Payload = unknown> = Map<
-  string,
-  { element: HTMLElement; getPayload?: (() => Payload) | undefined }
->;
-
 export type State = {
-  modal: boolean | 'trap-focus';
-
   open: boolean;
   mounted: boolean;
-  activeTriggerId: string | null;
-  positionerElement: HTMLElement | null;
-  popupElement: HTMLElement | null;
-  triggers: TriggerMap;
-
   instantType: 'dismiss' | 'click' | undefined;
+  modal: boolean | 'trap-focus';
   transitionStatus: TransitionStatus;
   openMethod: InteractionType | null;
   openReason: PopoverRoot.ChangeEventReason | null;
+  stickIfOpen: boolean;
 
   titleId: string | undefined;
   descriptionId: string | undefined;
+  activeTriggerId: string | null;
+  positionerElement: HTMLElement | null;
+  popupElement: HTMLElement | null;
+  triggers: PopupTriggerMap;
 
   floatingRootContext: FloatingRootContext;
 
@@ -38,17 +32,16 @@ export type State = {
   activeTriggerProps: HTMLProps;
   inactiveTriggerProps: HTMLProps;
   popupProps: HTMLProps;
-  stickIfOpen: boolean;
-
-  triggerFocusTargetRef: React.RefObject<HTMLSpanElement | null>;
-  beforeContentFocusGuardRef: React.RefObject<HTMLSpanElement | null>;
 };
 
 type Context = {
   popupRef: React.RefObject<HTMLElement | null>;
   backdropRef: React.RefObject<HTMLDivElement | null>;
   internalBackdropRef: React.RefObject<HTMLDivElement | null>;
+  onOpenChange: ((open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void) | undefined;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
+  beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
 
 function createInitialState<Payload>(): State {
@@ -72,8 +65,6 @@ function createInitialState<Payload>(): State {
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
     stickIfOpen: true,
-    triggerFocusTargetRef: React.createRef<HTMLSpanElement>(),
-    beforeContentFocusGuardRef: React.createRef<HTMLSpanElement>(),
   };
 }
 
@@ -118,7 +109,10 @@ export class PopoverStore<Payload = undefined> extends ReactStore<State, Context
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
         internalBackdropRef: React.createRef<HTMLDivElement>(),
+        onOpenChange: undefined,
         onOpenChangeComplete: undefined,
+        triggerFocusTargetRef: React.createRef<HTMLElement>(),
+        beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
       },
       selectors,
     );

@@ -208,7 +208,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const handleFocusTargetFocus = useEventCallback((event: React.FocusEvent) => {
     if (positionerElement && isOutsideEvent(event, positionerElement)) {
-      store.state.beforeContentFocusGuardRef.current?.focus();
+      store.context.beforeContentFocusGuardRef.current?.focus();
     } else {
       ReactDOM.flushSync(() => {
         store.setOpen(
@@ -239,7 +239,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       <React.Fragment>
         <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
         {element}
-        <FocusGuard ref={store.state.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
+        <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
     );
   }
