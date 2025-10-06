@@ -60,8 +60,9 @@ const groupItemsReadonly = [
   items={objectItems}
   defaultValue="a"
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error - possibly null
     value.startsWith('a');
+    value?.startsWith('a');
   }}
 />;
 
@@ -69,8 +70,9 @@ const groupItemsReadonly = [
   items={objectItemsReadonly}
   defaultValue="a"
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error - possibly null
     value.startsWith('a');
+    value?.startsWith('a');
   }}
 />;
 
