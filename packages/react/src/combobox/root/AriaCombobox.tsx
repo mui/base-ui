@@ -129,7 +129,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const commitValidation = fieldControlValidation.commitValidation;
 
-  useControlId(idProp);
+  useControlId({ id: idProp });
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
     controlled: selectedValueProp,

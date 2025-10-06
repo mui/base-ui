@@ -101,7 +101,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const defaultId = useBaseUiId(idProp);
   const id = controlId ?? defaultId;
 
-  useControlId(idProp);
+  useControlId({ id: idProp });
 
   const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
     controlled: valueProp,

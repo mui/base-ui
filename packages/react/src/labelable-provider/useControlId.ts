@@ -1,12 +1,29 @@
 'use client';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { isElement } from '@floating-ui/utils/dom';
+import { NOOP } from '../utils/noop';
+import { useBaseUiId } from '../utils/useBaseUiId';
 import { useLabelableContext } from './LabelableContext';
 
-export function useControlId(id: string | undefined) {
+export function useControlId(params: useControlId.Parameters) {
+  const { id, implicit = false, controlRef } = params;
   const { controlId, setControlId } = useLabelableContext();
+  const defaultId = useBaseUiId(id);
 
   useIsoLayoutEffect(() => {
-    if (id && id !== controlId) {
+    if ((!implicit && !id) || setControlId === NOOP) {
+      return undefined;
+    }
+
+    if (implicit) {
+      const elem = controlRef?.current;
+
+      if (isElement(elem) && elem.closest('label') != null) {
+        setControlId(id ?? null);
+      } else {
+        setControlId(controlId ?? defaultId);
+      }
+    } else if (id) {
       setControlId(id);
     }
 
@@ -15,5 +32,20 @@ export function useControlId(id: string | undefined) {
         setControlId(undefined);
       }
     };
-  }, [id, controlId, setControlId]);
+  }, [id, controlRef, controlId, setControlId, implicit, defaultId]);
+}
+
+export namespace useControlId {
+  export interface Parameters {
+    id?: string | undefined;
+    /**
+     * Whether implicit labelling is supported.
+     * @default false
+     */
+    implicit?: boolean;
+    /**
+     * A ref to an element that can be implicitly labelled.
+     */
+    controlRef?: React.RefObject<HTMLElement | null>;
+  }
 }

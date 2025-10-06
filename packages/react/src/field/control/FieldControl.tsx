@@ -66,7 +66,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const defaultId = useBaseUiId(idProp);
   const id = controlId ?? defaultId;
 
-  useControlId(idProp);
+  useControlId({ id: idProp });
 
   useIsoLayoutEffect(() => {
     const hasExternalValue = valueProp != null;

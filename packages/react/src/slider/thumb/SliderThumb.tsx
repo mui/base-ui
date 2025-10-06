@@ -157,7 +157,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const thumbInputId = idProp ? inputId : (controlId ?? undefined);
 
-  useControlId(idProp ? inputId : undefined);
+  useControlId({ id: idProp ? inputId : undefined });
 
   const thumbMetadata = React.useMemo(
     () => ({

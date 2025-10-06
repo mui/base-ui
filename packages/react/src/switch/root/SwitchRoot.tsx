@@ -18,6 +18,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useControlId } from '../../labelable-provider/useControlId';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../types';
 
@@ -60,7 +61,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     name: fieldName,
   } = useFieldRootContext();
 
-  const { controlId, labelId, setControlId } = useLabelableContext();
+  const { controlId, labelId } = useLabelableContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -82,22 +83,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const defaultId = useBaseUiId(idProp);
   const id = controlId ?? defaultId;
 
-  useIsoLayoutEffect(() => {
-    const element = switchRef.current;
-    if (!element) {
-      return undefined;
-    }
-
-    if (element.closest('label') != null) {
-      setControlId(idProp ?? null);
-    } else {
-      setControlId(id);
-    }
-
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, idProp, setControlId]);
+  useControlId({
+    id: idProp,
+    implicit: true,
+    controlRef: switchRef,
+  });
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,

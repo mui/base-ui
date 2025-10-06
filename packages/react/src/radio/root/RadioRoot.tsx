@@ -16,6 +16,7 @@ import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useControlId } from '../../labelable-provider/useControlId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
@@ -65,7 +66,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     disabled: fieldDisabled,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const labelableContext = useLabelableContext();
+  const { getDescriptionProps } = useLabelableContext();
 
   const disabled = fieldDisabled || fieldItemContext.disabled || disabledGroup || disabledProp;
   const readOnly = readOnlyGroup || readOnlyProp;
@@ -82,8 +83,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
       setFilled(true);
     }
   }, [setFilled]);
-
-  const radioId = idProp ?? labelableContext.controlId;
 
   const rootProps: React.ComponentProps<'button'> = {
     role: 'radio',
@@ -123,25 +122,11 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     native: nativeButton,
   });
 
-  useIsoLayoutEffect(() => {
-    const element = radioRef?.current;
-
-    if (!element || labelableContext.setControlId === NOOP) {
-      return undefined;
-    }
-
-    const implicit = element.closest('label') != null;
-
-    if (implicit) {
-      labelableContext.setControlId(idProp ?? null);
-    } else {
-      labelableContext.setControlId(radioId);
-    }
-
-    return () => {
-      labelableContext.setControlId(undefined);
-    };
-  }, [labelableContext, idProp, radioId]);
+  useControlId({
+    id: idProp,
+    implicit: true,
+    controlRef: radioRef,
+  });
 
   const inputId = useBaseUiId();
 
@@ -214,7 +199,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const refs = [forwardedRef, registerControlRef, radioRef, buttonRef];
   const props = [
     rootProps,
-    labelableContext.getDescriptionProps,
+    getDescriptionProps,
     fieldControlValidation?.getValidationProps ?? EMPTY_OBJECT,
     elementProps,
     getButtonProps,

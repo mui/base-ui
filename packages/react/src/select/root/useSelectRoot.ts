@@ -68,7 +68,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  useControlId(idProp);
+  useControlId({ id: idProp });
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: params.value,
