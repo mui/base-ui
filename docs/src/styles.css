@@ -52,7 +52,7 @@
 /* Handy link to the default Tailwind theme:
 /* https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/theme.css */
 
-/* We defined greys, red, and blue in the theme used for demos. */
+/* We defined grays, red, and blue in the theme used for demos. */
 /* Uses gray scale that is roughly compatible with Tailwind's grays */
 @import './demo-data/theme/css-modules/theme.css' layer(theme);
 
@@ -61,7 +61,7 @@
   --color-white: white;
   --color-black: black;
 
-  /* Grey colors defined in file://./demo-data/theme/css-modules/theme.css */
+  /* Gray colors defined in file://./demo-data/theme/css-modules/theme.css */
   --color-gray-50: inherit;
   --color-gray-75: oklch(97% 0.325% 264deg); /* Not a Tailwind step, don't use it in the demos */
   --color-gray-100: inherit;
@@ -156,7 +156,7 @@
 
 :root {
   @media (prefers-color-scheme: dark) {
-    /* Grey colors defined in file://./demo-data/theme/css-modules/theme.css */
+    /* Gray colors defined in file://./demo-data/theme/css-modules/theme.css */
     --color-gray-75: oklch(19% 0.5% 264deg); /* Not a Tailwind step, don't use it in the demos */
 
     /* Functional colors */
