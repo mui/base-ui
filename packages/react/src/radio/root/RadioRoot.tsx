@@ -3,9 +3,12 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { NOOP } from '../../utils/noop';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { EMPTY_OBJECT } from '../../utils/constants';
+import { NOOP } from '../../utils/noop';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
@@ -13,14 +16,10 @@ import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
-import { stateAttributesMapping } from '../utils/stateAttributesMapping';
-
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
-import { EMPTY_OBJECT } from '../../utils/constants';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Represents the radio button itself.

@@ -7,7 +7,6 @@ import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext'
 import { useFormContext } from '../../form/FormContext';
 import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -39,8 +38,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   const validate = useEventCallback(validateProp || (() => null));
 
   const disabled = disabledFieldset || disabledProp;
-
-  const defaultControlId = useBaseUiId();
 
   const [touched, setTouched] = React.useState(false);
   const [dirty, setDirtyUnwrapped] = React.useState(false);
@@ -130,7 +127,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   });
 
   return (
-    <LabelableProvider initialControlId={defaultControlId}>
+    <LabelableProvider>
       <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>
     </LabelableProvider>
   );

@@ -4,7 +4,6 @@ import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { FieldItemContext } from './FieldItemContext';
 import { LabelableProvider } from '../../labelable-provider';
@@ -32,9 +31,7 @@ export const FieldItem = React.forwardRef(function FieldItem(
   // this a more reliable check
   const hasParentCheckbox = checkboxGroupContext?.allValues !== undefined;
 
-  const defaultControlId = useBaseUiId();
-
-  const initialControlId = hasParentCheckbox ? parentId : defaultControlId;
+  const initialControlId = hasParentCheckbox ? parentId : undefined;
 
   const fieldItemContext: FieldItemContext = React.useMemo(() => ({ disabled }), [disabled]);
 

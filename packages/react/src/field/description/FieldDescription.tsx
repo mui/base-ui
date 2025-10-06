@@ -23,7 +23,7 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
 
   const id = useBaseUiId(idProp);
 
-  const fieldRootContext = useFieldRootContext();
+  const fieldRootContext = useFieldRootContext(false);
   const { setMessageIds } = useLabelableContext();
 
   useIsoLayoutEffect(() => {

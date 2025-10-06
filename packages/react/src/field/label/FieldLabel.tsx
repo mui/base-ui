@@ -22,7 +22,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 ) {
   const { render, className, id: idProp, ...elementProps } = componentProps;
 
-  const fieldRootContext = useFieldRootContext();
+  const fieldRootContext = useFieldRootContext(false);
   const { controlId, setLabelId, labelId } = useLabelableContext();
 
   const id = useBaseUiId(idProp);
