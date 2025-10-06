@@ -115,7 +115,7 @@ export default function MenuComplexNestingExperiment() {
                           <Dialog.Close className="rounded px-4 py-2 text-gray-600 hover:bg-gray-100">
                             Cancel
                           </Dialog.Close>
-                          <Dialog.Close className="rounded bg-blue-600 px-4 py-2 hover:bg-blue-700">
+                          <Dialog.Close className="bg-blue-600 hover:bg-blue-700 rounded px-4 py-2">
                             Save
                           </Dialog.Close>
                         </div>
