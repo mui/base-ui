@@ -154,9 +154,9 @@
     margin-bottom: 0.75rem;
   }
 
-  .EventMapWrapper {
+  .EventImageWrapper {
     width: 500px;
-    height: 250px;
+    height: 333px;
   }
 
   .EventActions {
@@ -178,7 +178,7 @@
 
   .EventDescription,
   .EventLocation,
-  .EventMapWrapper {
+  .EventImageWrapper {
     &:last-child {
       margin-bottom: 0;
     }

@@ -8,7 +8,7 @@ export interface EventData {
   dateString: string;
   description?: string;
   location?: string;
-  mapId?: string;
+  imageUrl?: string;
   startTime: number;
   endTime: number;
   id: number;
