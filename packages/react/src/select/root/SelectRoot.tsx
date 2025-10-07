@@ -18,6 +18,12 @@ import { stringifyAsValue } from '../../utils/resolveValueLabel';
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
+  props: SelectRootControlledProps<Value, Multiple>,
+): React.JSX.Element;
+export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
+  props: SelectRootUncontrolledProps<Value, Multiple>,
+): React.JSX.Element;
+export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   props: SelectRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
   const {
@@ -198,11 +204,11 @@ interface SelectRootProps<Value> {
    */
   multiple?: boolean;
   /**
-   * The value of the select.
+   * The value of the select. Use when controlled.
    */
   value?: Value;
   /**
-   * Callback fired when the value of the select changes. Use when controlled.
+   * Event handler called when the value of the select changes.
    */
   onValueChange?: (value: Value, eventDetails: SelectRoot.ChangeEventDetails) => void;
   /**
@@ -281,7 +287,7 @@ type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple ext
   ? Value[]
   : Value;
 
-export type SelectRootConditionalProps<Value, Multiple extends boolean | undefined = false> = Omit<
+type SelectRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
   SelectRootProps<Value>,
   'multiple' | 'value' | 'defaultValue' | 'onValueChange'
 > & {
@@ -291,24 +297,51 @@ export type SelectRootConditionalProps<Value, Multiple extends boolean | undefin
    */
   multiple?: Multiple;
   /**
-   * The value of the select.
-   */
-  value?: SelectValueType<Value, Multiple>;
-  /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
    * To render a controlled select, use the `value` prop instead.
    * @default null
    */
   defaultValue?: SelectValueType<Value, Multiple> | null;
+};
+
+type SelectRootControlledProps<Value, Multiple extends boolean | undefined> = SelectRootBaseProps<
+  Value,
+  Multiple
+> & {
   /**
-   * Callback fired when the value of the select changes. Use when controlled.
+   * The value of the select. Use when controlled.
+   */
+  value: SelectValueType<Value, Multiple>;
+  /**
+   * Event handler called when the value of the select changes.
    */
   onValueChange?: (
     value: SelectValueType<Value, Multiple>,
     eventDetails: SelectRoot.ChangeEventDetails,
   ) => void;
 };
+
+type SelectRootUncontrolledProps<Value, Multiple extends boolean | undefined> = SelectRootBaseProps<
+  Value,
+  Multiple
+> & {
+  /**
+   * The value of the select. Use when controlled.
+   */
+  value?: undefined;
+  /**
+   * Event handler called when the value of the select changes.
+   */
+  onValueChange?: (
+    value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
+    eventDetails: SelectRoot.ChangeEventDetails,
+  ) => void;
+};
+
+export type SelectRootConditionalProps<Value, Multiple extends boolean | undefined = false> =
+  | SelectRootControlledProps<Value, Multiple>
+  | SelectRootUncontrolledProps<Value, Multiple>;
 
 export namespace SelectRoot {
   export type Props<
