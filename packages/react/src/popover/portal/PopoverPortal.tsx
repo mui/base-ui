@@ -17,7 +17,8 @@ export const PopoverPortal = React.forwardRef(function PopoverPortal(
 ) {
   const { keepMounted = false, ...portalProps } = props;
 
-  const { mounted } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
+  const mounted = store.useState('mounted');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
@@ -26,7 +27,7 @@ export const PopoverPortal = React.forwardRef(function PopoverPortal(
 
   return (
     <PopoverPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps} />
+      <FloatingPortal ref={forwardedRef} {...portalProps} renderGuards={false} />
     </PopoverPortalContext.Provider>
   );
 });

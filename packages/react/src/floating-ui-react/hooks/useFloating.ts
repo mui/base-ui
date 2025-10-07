@@ -111,8 +111,9 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
     () => ({
       ...position.elements,
       domReference,
+      triggers: computedElements?.triggers,
     }),
-    [position.elements, domReference],
+    [position.elements, domReference, computedElements?.triggers],
   );
 
   const context = React.useMemo<FloatingContext<RT>>(
