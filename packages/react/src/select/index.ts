@@ -1,10 +1,6 @@
 export * as Select from './index.parts';
 
-// export type { SelectRootProps } from './root/SelectRoot';
-// export type { SelectRootState } from './root/SelectRoot';
-// export type { SelectRootActions } from './root/SelectRoot';
-// export type { SelectRootChangeEventReason } from './root/SelectRoot';
-// export type { SelectRootChangeEventDetails } from './root/SelectRoot';
+export type * from './root/SelectRoot';
 export type * from './trigger/SelectTrigger';
 export type * from './value/SelectValue';
 export type * from './icon/SelectIcon';

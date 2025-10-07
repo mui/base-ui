@@ -2,6 +2,10 @@ import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { Toast } from '@base-ui-components/react/toast';
 import type { CheckboxProps } from './checkbox';
+import type { SimpleAutocompleteProps } from './autocomplete';
+import { AutocompleteHarness } from './autocomplete';
+import type { SimpleComboboxProps } from './combobox';
+import { ComboboxHarness } from './combobox';
 import type {
   MenuRootActions,
   MenuRootChangeEventDetails,
@@ -20,6 +24,18 @@ import type {
 export const MyCheckbox = React.forwardRef<HTMLDivElement, CheckboxProps>(() => {
   return <div />;
 });
+
+export const SimpleCombobox = React.forwardRef<HTMLInputElement, SimpleComboboxProps>(
+  function SimpleCombobox(props, ref) {
+    return <ComboboxHarness ref={ref} {...props} />;
+  },
+);
+
+export const SimpleAutocomplete = React.forwardRef<HTMLInputElement, SimpleAutocompleteProps>(
+  function SimpleAutocomplete(props, ref) {
+    return <AutocompleteHarness ref={ref} {...props} />;
+  },
+);
 
 export const SimpleMenu = React.forwardRef<HTMLDivElement, SimpleMenuProps>(function SimpleMenu(
   { label = 'Menu', ...rest },
