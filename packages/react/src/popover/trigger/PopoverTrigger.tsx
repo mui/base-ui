@@ -310,5 +310,5 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
 
 export namespace PopoverTrigger {
   export type State = PopoverTriggerState;
-  export type Props = PopoverTriggerProps;
+  export type Props<Payload = unknown> = PopoverTriggerProps<Payload>;
 }

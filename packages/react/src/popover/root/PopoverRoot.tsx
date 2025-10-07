@@ -346,7 +346,7 @@ export interface PopoverRootProps<Payload = unknown> {
    * Instead, the `unmount` function must be called to unmount the popover manually.
    * Useful when the popover's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<PopoverRoot.Actions>;
+  actionsRef?: React.RefObject<PopoverRoot.Actions | null>;
   /**
    * Determines if the popover enters a modal state when open.
    * - `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.
@@ -355,6 +355,17 @@ export interface PopoverRootProps<Payload = unknown> {
    * @default false
    */
   modal?: boolean | 'trap-focus';
+  /**
+   * ID of the trigger that the popover is associated with.
+   * This is useful in conjuntion with the `open` prop to create a controlled popover.
+   * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
+   */
+  triggerId?: string | null;
+  /**
+   * ID of the trigger that the popover is associated with.
+   * This is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.
+   */
+  defaultTriggerId?: string | null;
   /**
    * A handle to associate the popover with a trigger.
    * If specified, allows external triggers to control the popover's open state.
