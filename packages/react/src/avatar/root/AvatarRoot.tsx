@@ -45,9 +45,11 @@ export const AvatarRoot = React.forwardRef(function AvatarRoot(
 });
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
+
 export interface AvatarRootState {
   imageLoadingStatus: ImageLoadingStatus;
 }
+
 export interface AvatarRootProps extends BaseUIComponentProps<'span', AvatarRoot.State> {}
 
 export namespace AvatarRoot {

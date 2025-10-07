@@ -108,9 +108,11 @@ export interface DialogRootProps {
    */
   actionsRef?: React.RefObject<DialogRoot.Actions>;
 }
+
 export interface DialogRootActions {
   unmount: () => void;
 }
+
 export type DialogRootChangeEventReason =
   | 'trigger-press'
   | 'outside-press'

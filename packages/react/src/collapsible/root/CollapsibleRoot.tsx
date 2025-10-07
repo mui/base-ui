@@ -89,6 +89,7 @@ export interface CollapsibleRootState {
   hidden: boolean;
   transitionStatus: useCollapsibleRoot.ReturnValue['transitionStatus'];
 }
+
 export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
   /**
    * Whether the collapsible panel is currently open.
@@ -114,6 +115,7 @@ export interface CollapsibleRootProps extends BaseUIComponentProps<'div', Collap
   disabled?: boolean;
   render?: BaseUIComponentProps<'div', CollapsibleRoot.State>['render'];
 }
+
 export type CollapsibleRootChangeEventReason = 'trigger-press' | 'none';
 export type CollapsibleRootChangeEventDetails =
   BaseUIChangeEventDetails<CollapsibleRoot.ChangeEventReason>;
