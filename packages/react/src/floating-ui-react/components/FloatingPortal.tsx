@@ -150,7 +150,7 @@ export function useFloatingPortalNode(
  * @internal
  */
 export const FloatingPortal = React.forwardRef(function FloatingPortal(
-  componentProps: FloatingPortal.Props<any>,
+  componentProps: FloatingPortal.Props<any> & { renderGuards?: boolean },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { children, container, className, render, renderGuards, ...elementProps } = componentProps;
@@ -172,9 +172,10 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   const modal = focusManagerState?.modal;
   const open = focusManagerState?.open;
 
-  typeof renderGuards === 'boolean'
-    ? renderGuards
-    : !!focusManagerState && !focusManagerState.modal && focusManagerState.open && !!portalNode;
+  const shouldRenderGuards =
+    typeof renderGuards === 'boolean'
+      ? renderGuards
+      : !!focusManagerState && !focusManagerState.modal && focusManagerState.open && !!portalNode;
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
