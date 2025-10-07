@@ -38,7 +38,7 @@ export interface ToastObject<Data extends object> {
   /**
    * The title of the toast.
    */
-  title?: string;
+  title?: React.ReactNode;
   /**
    * The type of the toast. Used to conditionally style the toast,
    * including conditionally rendering elements based on the type.
@@ -47,7 +47,7 @@ export interface ToastObject<Data extends object> {
   /**
    * The description of the toast.
    */
-  description?: string;
+  description?: React.ReactNode;
   /**
    * The amount of time (in ms) before the toast is auto dismissed.
    * A value of `0` will prevent the toast from being dismissed automatically.
