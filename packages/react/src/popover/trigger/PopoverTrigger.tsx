@@ -282,7 +282,7 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
      */
     payload?: Payload;
     /**
-     * Id of the trigger. In addition to being forwarded to the rendered element,
+     * ID of the trigger. In addition to being forwarded to the rendered element,
      * it is also used to specify the active trigger for the popover in controlled mode (with the PopoverRoot `triggerId` prop).
      */
     id?: string;

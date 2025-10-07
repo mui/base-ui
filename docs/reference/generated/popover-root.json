@@ -4,7 +4,8 @@
   "props": {
     "defaultOpen": {
       "type": "boolean",
-      "description": "Whether the popover is initially open.\nTo render a controlled popover, use the `open` prop instead.",
+      "default": "false",
+      "description": "Whether the popover is initially open.\n\nTo render a controlled popover, use the `open` prop instead.",
       "detailedType": "boolean | undefined"
     },
     "open": {
@@ -49,7 +50,7 @@
       "detailedType": "string | null | undefined"
     },
     "children": {
-      "type": "ReactNode | Popover.Root.ChildRenderFunction<Payload>",
+      "type": "ReactNode | ChildRenderFunction<Payload>",
       "description": "The content of the popover.\nThis can be a regular React node or a render function that receives the `payload` of the active trigger.",
       "detailedType": "| React.ReactNode\n| ((arg: { payload: Payload | undefined }) => ReactNode)"
     }

@@ -321,26 +321,6 @@ export interface PopoverRootProps<Payload = unknown> {
    */
   onOpenChangeComplete?: (open: boolean) => void;
   /**
-   * Whether the popover should also open when the trigger is hovered.
-   * @default false
-   */
-  openOnHover?: boolean;
-  /**
-   * How long to wait before the popover may be opened on hover. Specified in milliseconds.
-   *
-   * Requires the `openOnHover` prop.
-   * @default 300
-   */
-  delay?: number;
-  /**
-   * How long to wait before closing the popover that was opened on hover.
-   * Specified in milliseconds.
-   *
-   * Requires the `openOnHover` prop.
-   * @default 0
-   */
-  closeDelay?: number;
-  /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the popover will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the popover manually.
