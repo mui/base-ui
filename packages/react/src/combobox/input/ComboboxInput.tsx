@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { isFirefox } from '@base-ui-components/utils/detectBrowser';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -297,19 +298,21 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           store.state.keyboardActiveRef.current = true;
           const input = event.currentTarget;
           const scrollAmount = input.scrollWidth - input.clientWidth;
+          const isRTL = direction === 'rtl';
 
           if (event.key === 'Home') {
             stopEvent(event);
-            input.setSelectionRange(0, 0);
+            const cursor = isFirefox && isRTL ? input.value.length : 0;
+            input.setSelectionRange(cursor, cursor);
             input.scrollLeft = 0;
             return;
           }
 
           if (event.key === 'End') {
             stopEvent(event);
-            const length = input.value.length;
-            input.setSelectionRange(length, length);
-            input.scrollLeft = direction === 'rtl' ? -scrollAmount : scrollAmount;
+            const cursor = isFirefox && isRTL ? 0 : input.value.length;
+            input.setSelectionRange(cursor, cursor);
+            input.scrollLeft = isRTL ? -scrollAmount : scrollAmount;
             return;
           }
 
