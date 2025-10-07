@@ -85,6 +85,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     return stringifyAsValue(value, itemToStringValue);
   }, [isMultiple, value, itemToStringValue]);
 
+  const hasMultipleSelection = isMultiple && Array.isArray(value) && value.length > 0;
+
   const hiddenInputs = React.useMemo(() => {
     if (!isMultiple || !Array.isArray(value) || !rootContext.name) {
       return null;
@@ -155,7 +157,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             name: isMultiple ? undefined : rootContext.name,
             value: serializedValue,
             disabled: rootContext.disabled,
-            required: rootContext.required,
+            required: rootContext.required && !hasMultipleSelection,
             readOnly: rootContext.readOnly,
             ref,
             style: visuallyHidden,

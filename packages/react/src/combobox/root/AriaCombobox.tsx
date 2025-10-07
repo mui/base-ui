@@ -1047,6 +1047,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return stringifyAsValue(formValue, itemToStringValue);
   }, [formValue, itemToStringValue]);
 
+  const hasMultipleSelection = multiple && Array.isArray(selectedValue) && selectedValue.length > 0;
+
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(selectedValue) || !name) {
       return null;
@@ -1132,7 +1134,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           id,
           name: multiple || selectionMode === 'none' ? undefined : name,
           disabled,
-          required,
+          required: required && !hasMultipleSelection,
           readOnly,
           value: serializedValue,
           ref: hiddenInputRef,

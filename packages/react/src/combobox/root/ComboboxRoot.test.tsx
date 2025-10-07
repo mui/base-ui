@@ -1031,6 +1031,32 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  describe('prop: required', () => {
+    it('does not mark the hidden input as required when selection exists in multiple mode', async () => {
+      const { container } = await render(
+        <Combobox.Root multiple required name="languages" value={['a']}>
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      const hiddenInput = container.querySelector<HTMLInputElement>('input[aria-hidden="true"]');
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput).not.to.have.attribute('required');
+    });
+
+    it('keeps the hidden input required when no selection exists in multiple mode', async () => {
+      const { container } = await render(
+        <Combobox.Root multiple required name="languages" value={[]}>
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      const hiddenInput = container.querySelector<HTMLInputElement>('input[aria-hidden="true"]');
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput).to.have.attribute('required');
+    });
+  });
+
   describe('prop: readOnly', () => {
     it('should render readOnly state on all interactive components', async () => {
       const { user } = await render(
