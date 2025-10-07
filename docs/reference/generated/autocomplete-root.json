@@ -30,7 +30,7 @@
     },
     "open": {
       "type": "boolean",
-      "description": "Whether the popup is currently open.",
+      "description": "Whether the popup is currently open. Use when controlled.",
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {

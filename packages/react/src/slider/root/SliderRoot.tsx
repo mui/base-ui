@@ -71,6 +71,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
     step = 1,
+    thumbAlignment = 'center',
     value: valueProp,
     ...elementProps
   } = componentProps;
@@ -139,6 +140,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
 
+  const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
+    undefined,
+    undefined,
+  ]);
+
   useField({
     id,
     commitValidation: fieldControlValidation.commitValidation,
@@ -183,7 +189,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       lastChangedValueRef.current = newValue;
 
-      const details = createChangeEventDetails('none', clonedEvent, {
+      const details = createChangeEventDetails('none', clonedEvent, undefined, {
         activeThumbIndex: thumbIndex,
       });
 
@@ -278,6 +284,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
+      indicatorPosition,
+      inset: thumbAlignment !== 'center',
       labelId: ariaLabelledby,
       largeStep,
       lastChangedValueRef,
@@ -292,8 +300,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
       registerFieldControlRef,
+      renderBeforeHydration: thumbAlignment === 'edge',
       setActive,
       setDragging,
+      setIndicatorPosition,
       setValue,
       state,
       step,
@@ -310,6 +320,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
+      indicatorPosition,
       largeStep,
       lastChangedValueRef,
       locale,
@@ -325,9 +336,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       registerFieldControlRef,
       setActive,
       setDragging,
+      setIndicatorPosition,
       setValue,
       state,
       step,
+      thumbAlignment,
       thumbMap,
       thumbRefs,
       values,
@@ -461,6 +474,14 @@ export namespace SliderRoot {
      * @default 10
      */
     largeStep?: number;
+    /**
+     * How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`:
+     * - `center`: The center of the thumb is aligned with the control edge
+     * - `edge`: The thumb is inset within the control such that its edge is aligned with the control edge
+     * - `edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return
+     * @default 'center'
+     */
+    thumbAlignment?: 'center' | 'edge' | 'edge-client-only';
     /**
      * The value of the slider.
      * For ranged sliders, provide an array with two values.
