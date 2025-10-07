@@ -186,7 +186,7 @@ importers:
         version: 3.1.1(@types/react@19.1.13)(react@19.1.1)
       '@mui/internal-docs-infra':
         specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@e0b3427
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@e0b3427(@types/react@19.1.13)(next@15.5.3(@babel/core@7.28.4)(@playwright/test@1.55.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)(typescript@5.9.2)
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@e0b3427(@types/react@19.1.13)(next@15.5.4(@babel/core@7.28.4)(@playwright/test@1.55.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)(typescript@5.9.2)
       '@next/mdx':
         specifier: ^15.5.4
         version: 15.5.4(@mdx-js/loader@3.1.1(webpack@5.101.3))(@mdx-js/react@3.1.1(@types/react@19.1.13)(react@19.1.1))
@@ -12471,7 +12471,7 @@ snapshots:
       - stylelint
       - supports-color
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@e0b3427(@types/react@19.1.13)(next@15.5.3(@babel/core@7.28.4)(@playwright/test@1.55.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)(typescript@5.9.2)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@e0b3427(@types/react@19.1.13)(next@15.5.4(@babel/core@7.28.4)(@playwright/test@1.55.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)(typescript@5.9.2)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@babel/standalone': 7.28.4
@@ -12485,7 +12485,7 @@ snapshots:
       jsondiffpatch: 0.7.3
       kebab-case: 2.0.2
       lz-string: 1.5.0
-      next: 15.5.3(@babel/core@7.28.4)(@playwright/test@1.55.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      next: 15.5.4(@babel/core@7.28.4)(@playwright/test@1.55.1)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       path-module: 0.1.2
       prettier: 3.6.2
       react: 19.1.1
