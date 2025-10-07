@@ -21,7 +21,7 @@ export function Popup({ children, ...props }: Tooltip.Popup.Props) {
         collisionPadding={16}
       >
         <Tooltip.Popup
-          render={<BasePopup className="text-md overflow-visible px-3 py-2" />}
+          render={<BasePopup className="px-3 py-2 text-md overflow-visible" />}
           {...props}
         >
           <div className="flex max-w-120 flex-col gap-3 text-pretty">{children}</div>

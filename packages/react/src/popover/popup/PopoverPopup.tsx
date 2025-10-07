@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { FloatingFocusManager } from '../../floating-ui-react';
+import { Dimensions, FloatingFocusManager } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
@@ -12,7 +12,9 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 
@@ -33,29 +35,35 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 ) {
   const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const {
-    open,
-    instantType,
-    transitionStatus,
-    popupProps,
-    titleId,
-    descriptionId,
-    popupRef,
-    mounted,
-    openReason,
-    onOpenChangeComplete,
-    modal,
-    openMethod,
-  } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
+
   const positioner = usePopoverPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
+  const direction = useDirection();
+
+  const open = store.useState('open');
+  const openMethod = store.useState('openMethod');
+  const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
+  const popupProps = store.useState('popupProps');
+  const titleId = store.useState('titleId');
+  const descriptionId = store.useState('descriptionId');
+  const modal = store.useState('modal');
+  const mounted = store.useState('mounted');
+  const openReason = store.useState('openReason');
+  const popupElement = store.useState('popupElement');
+  const triggers = store.useState('triggers');
+  const payload = store.useState('payload');
+  const positionerElement = store.useState('positionerElement');
+  const activeTriggerElement = store.useState('activeTriggerElement');
+  const floatingContext = store.useState('floatingRootContext');
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
@@ -65,7 +73,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   // (this is required for Android specifically as iOS handles this automatically).
   function defaultInitialFocus(interactionType: InteractionType) {
     if (interactionType === 'touch') {
-      return popupRef.current;
+      return store.context.popupRef.current;
     }
     return true;
   }
@@ -83,14 +91,75 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     [open, positioner.side, positioner.align, instantType, transitionStatus],
   );
 
+  const setPopupElement = React.useCallback(
+    (element: HTMLElement | null) => {
+      store.set('popupElement', element);
+    },
+    [store],
+  );
+
+  function handleMeasureLayout() {
+    floatingContext.events.emit('measure-layout');
+  }
+
+  function handleMeasureLayoutComplete(
+    previousDimensions: Dimensions | null,
+    nextDimensions: Dimensions,
+  ) {
+    floatingContext.events.emit('measure-layout-complete', {
+      previousDimensions,
+      nextDimensions,
+    });
+  }
+
+  // If there's just one trigger, we can skip the auto-resize logic as
+  // the popover will always be anchored to the same position.
+  const autoresizeEnabled = triggers.size > 1;
+
+  usePopupAutoResize({
+    popupElement,
+    positionerElement,
+    mounted,
+    content: payload,
+    enabled: autoresizeEnabled,
+    onMeasureLayout: handleMeasureLayout,
+    onMeasureLayoutComplete: handleMeasureLayoutComplete,
+  });
+
+  const anchoringStyles: React.CSSProperties = React.useMemo(() => {
+    if (!autoresizeEnabled) {
+      return EMPTY_OBJECT;
+    }
+
+    // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
+    let isOriginSide = positioner.side === 'top';
+    let isPhysicalLeft = positioner.side === 'left';
+    if (direction === 'rtl') {
+      isOriginSide = isOriginSide || positioner.side === 'inline-end';
+      isPhysicalLeft = isPhysicalLeft || positioner.side === 'inline-end';
+    } else {
+      isOriginSide = isOriginSide || positioner.side === 'inline-start';
+      isPhysicalLeft = isPhysicalLeft || positioner.side === 'inline-start';
+    }
+
+    return isOriginSide
+      ? {
+          position: 'absolute',
+          [positioner.side === 'top' ? 'bottom' : 'top']: '0',
+          [isPhysicalLeft ? 'right' : 'left']: '0',
+        }
+      : EMPTY_OBJECT;
+  }, [positioner.side, direction, autoresizeEnabled]);
+
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, popupRef],
+    ref: [forwardedRef, store.context.popupRef, setPopupElement],
     props: [
       popupProps,
       {
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
+        style: anchoringStyles,
         onKeyDown(event) {
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
@@ -112,6 +181,9 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       restoreFocus="popup"
+      previousFocusableElement={activeTriggerElement}
+      nextFocusableElement={store.context.triggerFocusTargetRef}
+      beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >
       {element}
     </FloatingFocusManager>
