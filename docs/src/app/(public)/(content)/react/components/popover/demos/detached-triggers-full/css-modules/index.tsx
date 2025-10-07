@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { Avatar } from '@base-ui-components/react/avatar';
-import styles from './index.module.css';
+import styles from './styles.module.css';
 
 const demoPopover = Popover.createHandle<React.ComponentType>();
 
