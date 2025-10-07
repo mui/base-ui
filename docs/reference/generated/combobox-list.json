@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.List",
+  "name": "ComboboxList",
   "description": "A list container for the items.\nRenders a `<div>` element.",
   "props": {
     "children": {

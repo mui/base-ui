@@ -1,5 +1,5 @@
 {
-  "name": "Progress.Value",
+  "name": "ProgressValue",
   "description": "A text label displaying the current value.\nRenders a `<span>` element.",
   "props": {
     "children": {

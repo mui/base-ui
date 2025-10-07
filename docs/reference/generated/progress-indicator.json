@@ -1,5 +1,5 @@
 {
-  "name": "Progress.Indicator",
+  "name": "ProgressIndicator",
   "description": "Visualizes the completion status of the task.\nRenders a `<div>` element.",
   "props": {
     "className": {

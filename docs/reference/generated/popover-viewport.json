@@ -1,5 +1,5 @@
 {
-  "name": "Popover.Viewport",
+  "name": "PopoverViewport",
   "description": "A viewport for displaying content transitions.\nThis component is only required if one popup can be opened by multiple triggers, its content change based on the trigger\nand switching between them is animated.\nRenders a `<div>` element.",
   "props": {
     "children": {

@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.ItemIndicator",
+  "name": "ComboboxItemIndicator",
   "description": "Indicates whether the item is selected.\nRenders a `<span>` element.",
   "props": {
     "children": {

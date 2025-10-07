@@ -1,5 +1,5 @@
 {
-  "name": "AlertDialog.Root",
+  "name": "AlertDialogRoot",
   "description": "Groups all parts of the alert dialog.\nDoesn’t render its own HTML element.",
   "props": {
     "defaultOpen": {

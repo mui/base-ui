@@ -1,5 +1,5 @@
 {
-  "name": "Slider.Indicator",
+  "name": "SliderIndicator",
   "description": "Visualizes the current value of the slider.\nRenders a `<div>` element.",
   "props": {
     "className": {

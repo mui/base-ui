@@ -1,5 +1,5 @@
 {
-  "name": "AlertDialog.Trigger",
+  "name": "AlertDialogTrigger",
   "description": "A button that opens the alert dialog.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {

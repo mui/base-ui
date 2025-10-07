@@ -1,5 +1,5 @@
 {
-  "name": "Progress.Root",
+  "name": "ProgressRoot",
   "description": "Groups all parts of the progress bar and provides the task completion status to screen readers.\nRenders a `<div>` element.",
   "props": {
     "value": {

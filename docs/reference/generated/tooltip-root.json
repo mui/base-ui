@@ -1,5 +1,5 @@
 {
-  "name": "Tooltip.Root",
+  "name": "TooltipRoot",
   "description": "Groups all parts of the tooltip.\nDoesn’t render its own HTML element.",
   "props": {
     "defaultOpen": {

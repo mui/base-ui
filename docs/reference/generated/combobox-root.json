@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.Root",
+  "name": "ComboboxRoot",
   "description": "Groups all parts of the combobox.\nDoesn't render its own HTML element.",
   "props": {
     "name": {

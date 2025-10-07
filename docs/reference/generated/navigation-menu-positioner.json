@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenu.Positioner",
+  "name": "NavigationMenuPositioner",
   "description": "Positions the navigation menu against the currently active trigger.\nRenders a `<div>` element.",
   "props": {
     "collisionAvoidance": {

@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenu.Arrow",
+  "name": "NavigationMenuArrow",
   "description": "Displays an element pointing toward the navigation menu's current anchor.\nRenders a `<div>` element.",
   "props": {
     "className": {

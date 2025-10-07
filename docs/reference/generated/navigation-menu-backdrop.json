@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenu.Backdrop",
+  "name": "NavigationMenuBackdrop",
   "description": "A backdrop for the navigation menu popup.\nRenders a `<div>` element.",
   "props": {
     "className": {

@@ -1,5 +1,5 @@
 {
-  "name": "Switch.Root",
+  "name": "SwitchRoot",
   "description": "Represents the switch itself.\nRenders a `<button>` element and a hidden `<input>` beside.",
   "props": {
     "name": {

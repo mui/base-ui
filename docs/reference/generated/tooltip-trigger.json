@@ -1,5 +1,5 @@
 {
-  "name": "Tooltip.Trigger",
+  "name": "TooltipTrigger",
   "description": "An element to attach the tooltip to.\nRenders a `<button>` element.",
   "props": {
     "className": {

@@ -1,5 +1,5 @@
 {
-  "name": "NumberField.Decrement",
+  "name": "NumberFieldDecrement",
   "description": "A stepper button that decreases the field value when clicked.\nRenders an `<button>` element.",
   "props": {
     "nativeButton": {

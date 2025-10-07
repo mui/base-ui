@@ -1,5 +1,5 @@
 {
-  "name": "Toast.Action",
+  "name": "ToastAction",
   "description": "Performs an action when clicked.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {

@@ -1,5 +1,5 @@
 {
-  "name": "Menu.Root",
+  "name": "MenuRoot",
   "description": "Groups all parts of the menu.\nDoesn’t render its own HTML element.",
   "props": {
     "defaultOpen": {

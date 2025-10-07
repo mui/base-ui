@@ -1,5 +1,5 @@
 {
-  "name": "NumberField.Input",
+  "name": "NumberFieldInput",
   "description": "The native input control in the number field.\nRenders an `<input>` element.",
   "props": {
     "aria-roledescription": {

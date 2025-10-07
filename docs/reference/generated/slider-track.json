@@ -1,5 +1,5 @@
 {
-  "name": "Slider.Track",
+  "name": "SliderTrack",
   "description": "Contains the slider indicator and represents the entire range of the slider.\nRenders a `<div>` element.",
   "props": {
     "className": {

@@ -1,5 +1,5 @@
 {
-  "name": "Collapsible.Trigger",
+  "name": "CollapsibleTrigger",
   "description": "A button that opens and closes the collapsible panel.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {

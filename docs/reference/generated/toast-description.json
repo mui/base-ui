@@ -1,5 +1,5 @@
 {
-  "name": "Toast.Description",
+  "name": "ToastDescription",
   "description": "A description that describes the toast.\nCan be used as the default message for the toast when no title is provided.\nRenders a `<p>` element.",
   "props": {
     "className": {

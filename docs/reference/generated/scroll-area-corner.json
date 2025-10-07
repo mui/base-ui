@@ -1,5 +1,5 @@
 {
-  "name": "ScrollArea.Corner",
+  "name": "ScrollAreaCorner",
   "description": "A small rectangular area that appears at the intersection of horizontal and vertical scrollbars.\nRenders a `<div>` element.",
   "props": {
     "className": {

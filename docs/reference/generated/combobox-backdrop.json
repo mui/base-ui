@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.Backdrop",
+  "name": "ComboboxBackdrop",
   "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
   "props": {
     "className": {

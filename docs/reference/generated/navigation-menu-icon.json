@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenu.Icon",
+  "name": "NavigationMenuIcon",
   "description": "An icon that indicates that the trigger button opens a menu.",
   "props": {
     "className": {

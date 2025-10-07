@@ -1,5 +1,5 @@
 {
-  "name": "Radio.Indicator",
+  "name": "RadioIndicator",
   "description": "Indicates whether the radio button is selected.\nRenders a `<span>` element.",
   "props": {
     "className": {

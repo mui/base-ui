@@ -1,5 +1,5 @@
 {
-  "name": "Tabs.Tab",
+  "name": "TabsTab",
   "description": "An individual interactive tab button that toggles the corresponding panel.\nRenders a `<button>` element.",
   "props": {
     "value": {

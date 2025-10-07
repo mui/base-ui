@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.Status",
+  "name": "ComboboxStatus",
   "description": "Displays a status message whose content changes are announced politely to screen readers.\nUseful for conveying the status of an asynchronously loaded list.\nRenders a `<div>` element.",
   "props": {
     "className": {

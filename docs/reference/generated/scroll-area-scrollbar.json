@@ -1,5 +1,5 @@
 {
-  "name": "ScrollArea.Scrollbar",
+  "name": "ScrollAreaScrollbar",
   "description": "A vertical or horizontal scrollbar for the scroll area.\nRenders a `<div>` element.",
   "props": {
     "orientation": {

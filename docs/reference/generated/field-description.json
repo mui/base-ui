@@ -1,5 +1,5 @@
 {
-  "name": "Field.Description",
+  "name": "FieldDescription",
   "description": "A paragraph with additional information about the field.\nRenders a `<p>` element.",
   "props": {
     "className": {

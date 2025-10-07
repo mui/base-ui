@@ -1,5 +1,5 @@
 {
-  "name": "Menu.Trigger",
+  "name": "MenuTrigger",
   "description": "A button that opens the menu.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {

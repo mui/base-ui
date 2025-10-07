@@ -1,5 +1,5 @@
 {
-  "name": "Progress.Track",
+  "name": "ProgressTrack",
   "description": "Contains the progress bar indicator.\nRenders a `<div>` element.",
   "props": {
     "className": {

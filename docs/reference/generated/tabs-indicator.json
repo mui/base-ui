@@ -1,5 +1,5 @@
 {
-  "name": "Tabs.Indicator",
+  "name": "TabsIndicator",
   "description": "A visual indicator that can be styled to match the position of the currently active tab.\nRenders a `<span>` element.",
   "props": {
     "renderBeforeHydration": {

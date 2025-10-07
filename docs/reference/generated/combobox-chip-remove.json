@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.ChipRemove",
+  "name": "ComboboxChipRemove",
   "description": "A button to remove a chip.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {

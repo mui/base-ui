@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.Positioner",
+  "name": "ComboboxPositioner",
   "description": "Positions the popup against the trigger.\nRenders a `<div>` element.",
   "props": {
     "collisionAvoidance": {

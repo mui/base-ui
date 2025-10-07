@@ -305,6 +305,12 @@ jobs:
           name: Build packages
           command: pnpm release:build
       - run:
+          name: Validate type declarations
+          command: pnpm validate-declarations
+      - run:
+          name: Check public types
+          command: pnpm -F ./test/public-types release:test
+      - run:
           name: Test Node.js module resolution
           command: pnpm -F @base-ui/test-node-resolution test
       - run:

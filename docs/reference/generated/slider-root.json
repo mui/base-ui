@@ -1,5 +1,5 @@
 {
-  "name": "Slider.Root",
+  "name": "SliderRoot",
   "description": "Groups all parts of the slider.\nRenders a `<div>` element.",
   "props": {
     "name": {

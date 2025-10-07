@@ -1,5 +1,5 @@
 {
-  "name": "Toolbar.Root",
+  "name": "ToolbarRoot",
   "description": "A container for grouping a set of controls, such as buttons, toggle groups, or menus.\nRenders a `<div>` element.",
   "props": {
     "cols": {

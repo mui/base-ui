@@ -1,5 +1,5 @@
 {
-  "name": "Meter.Label",
+  "name": "MeterLabel",
   "description": "An accessible label for the meter.\nRenders a `<span>` element.",
   "props": {
     "className": {

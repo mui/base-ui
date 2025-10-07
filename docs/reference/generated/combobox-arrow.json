@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.Arrow",
+  "name": "ComboboxArrow",
   "description": "Displays an element positioned against the anchor.\nRenders a `<div>` element.",
   "props": {
     "className": {

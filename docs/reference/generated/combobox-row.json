@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.Row",
+  "name": "ComboboxRow",
   "description": "Displays a single row of items in a grid list.\nEnable `grid` on the root component to turn the listbox into a grid.\nRenders a `<div>` element.",
   "props": {
     "className": {

@@ -1,5 +1,5 @@
 {
-  "name": "Menu.CheckboxItemIndicator",
+  "name": "MenuCheckboxItemIndicator",
   "description": "Indicates whether the checkbox item is ticked.\nRenders a `<div>` element.",
   "props": {
     "className": {

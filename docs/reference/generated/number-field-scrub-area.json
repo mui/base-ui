@@ -1,5 +1,5 @@
 {
-  "name": "NumberField.ScrubArea",
+  "name": "NumberFieldScrubArea",
   "description": "An interactive area where the user can click and drag to change the field value.\nRenders a `<span>` element.",
   "props": {
     "direction": {

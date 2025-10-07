@@ -1,5 +1,5 @@
 {
-  "name": "Menu.Positioner",
+  "name": "MenuPositioner",
   "description": "Positions the menu popup against the trigger.\nRenders a `<div>` element.",
   "props": {
     "collisionAvoidance": {

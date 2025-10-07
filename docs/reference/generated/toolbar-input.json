@@ -1,5 +1,5 @@
 {
-  "name": "Toolbar.Input",
+  "name": "ToolbarInput",
   "description": "A native input element that integrates with Toolbar keyboard navigation.\nRenders an `<input>` element.",
   "props": {
     "defaultValue": {

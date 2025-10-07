@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenu.Trigger",
+  "name": "NavigationMenuTrigger",
   "description": "Opens the navigation menu popup when hovered or clicked, revealing the\nassociated content.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {

@@ -1,5 +1,5 @@
 {
-  "name": "Dialog.Description",
+  "name": "DialogDescription",
   "description": "A paragraph with additional information about the dialog.\nRenders a `<p>` element.",
   "props": {
     "className": {

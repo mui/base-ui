@@ -1,5 +1,5 @@
 {
-  "name": "Tooltip.Popup",
+  "name": "TooltipPopup",
   "description": "A container for the tooltip contents.\nRenders a `<div>` element.",
   "props": {
     "className": {

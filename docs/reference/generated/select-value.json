@@ -1,10 +1,11 @@
 {
-  "name": "Select.Value",
+  "name": "SelectValue",
   "description": "A text label of the currently selected item.\nRenders a `<span>` element.",
   "props": {
     "children": {
       "type": "ReactNode | ((value: any) => ReactNode)",
       "description": "Accepts a function that returns a `ReactNode` to format the selected value.",
+      "example": "```tsx\n<Select.Value>\n  {(value: string | null) => value ? labels[value] : 'No value'}\n</Select.Value>\n```",
       "detailedType": "React.ReactNode | ((value: any) => ReactNode)"
     },
     "className": {

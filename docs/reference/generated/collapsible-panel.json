@@ -1,5 +1,5 @@
 {
-  "name": "Collapsible.Panel",
+  "name": "CollapsiblePanel",
   "description": "A panel with the collapsible contents.\nRenders a `<div>` element.",
   "props": {
     "hiddenUntilFound": {

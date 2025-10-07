@@ -1,5 +1,5 @@
 {
-  "name": "ScrollArea.Viewport",
+  "name": "ScrollAreaViewport",
   "description": "The actual scrollable container of the scroll area.\nRenders a `<div>` element.",
   "props": {
     "className": {

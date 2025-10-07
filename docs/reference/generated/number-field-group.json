@@ -1,5 +1,5 @@
 {
-  "name": "NumberField.Group",
+  "name": "NumberFieldGroup",
   "description": "Groups the input with the increment and decrement buttons.\nRenders a `<div>` element.",
   "props": {
     "className": {

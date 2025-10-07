@@ -12,13 +12,13 @@
       "detailedType": "| ((\n    value: string,\n    eventDetails: Field.Control.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: InputState) => string)",
+      "type": "string | ((state: Input.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: InputState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Input.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((props: HTMLProps, state: InputState) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((props: HTMLProps, state: Input.State) => ReactElement)"
     }
   },
   "dataAttributes": {

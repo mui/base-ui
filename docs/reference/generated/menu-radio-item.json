@@ -1,5 +1,5 @@
 {
-  "name": "Menu.RadioItem",
+  "name": "MenuRadioItem",
   "description": "A menu item that works like a radio button in a given group.\nRenders a `<div>` element.",
   "props": {
     "label": {

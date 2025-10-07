@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenu.List",
+  "name": "NavigationMenuList",
   "description": "Contains a list of navigation menu items.\nRenders a `<div>` element.",
   "props": {
     "className": {

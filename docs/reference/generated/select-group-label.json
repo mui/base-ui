@@ -1,5 +1,5 @@
 {
-  "name": "Select.GroupLabel",
+  "name": "SelectGroupLabel",
   "description": "An accessible label that is automatically associated with its parent group.\nRenders a `<div>` element.",
   "props": {
     "className": {

@@ -1,5 +1,5 @@
 {
-  "name": "Popover.Description",
+  "name": "PopoverDescription",
   "description": "A paragraph with additional information about the popover.\nRenders a `<p>` element.",
   "props": {
     "className": {

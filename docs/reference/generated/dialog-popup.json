@@ -1,5 +1,5 @@
 {
-  "name": "Dialog.Popup",
+  "name": "DialogPopup",
   "description": "A container for the dialog contents.\nRenders a `<div>` element.",
   "props": {
     "initialFocus": {

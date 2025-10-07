@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.Clear",
+  "name": "ComboboxClear",
   "description": "Clears the value when clicked.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {

@@ -1,5 +1,5 @@
 {
-  "name": "Select.Positioner",
+  "name": "SelectPositioner",
   "description": "Positions the select popup.\nRenders a `<div>` element.",
   "props": {
     "alignItemWithTrigger": {

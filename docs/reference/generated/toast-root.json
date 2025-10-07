@@ -1,5 +1,5 @@
 {
-  "name": "Toast.Root",
+  "name": "ToastRoot",
   "description": "Groups all parts of an individual toast.\nRenders a `<div>` element.",
   "props": {
     "swipeDirection": {

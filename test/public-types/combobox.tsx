@@ -18,64 +18,45 @@ export interface SimpleComboboxProps extends Omit<Combobox.Root.Props<string, fa
 function useComboboxFilter(
   options?: Parameters<typeof Combobox.useFilter>[0],
 ): ReturnType<typeof Combobox.useFilter> {
-  const filter = Combobox.useFilter(options);
-
-  React.useEffect(() => {
-    filter.contains('value', 'val');
-    filter.startsWith('value', 'v');
-    filter.endsWith('value', 'ue');
-  }, [filter]);
-
-  return filter;
+  return Combobox.useFilter(options);
 }
 
 export const ComboboxHarness = React.forwardRef<HTMLInputElement, SimpleComboboxProps>(
-  function ComboboxHarness({ items, ...props }, ref) {
+  function ComboboxHarness(props, ref) {
     const actionsRef = React.useRef<ComboboxActions>({ unmount() {} });
     const filter = useComboboxFilter({ value: props.value, multiple: false });
 
-    React.useMemo(() => filter.contains(items[0] ?? '', ''), [filter, items]);
-
-    const {
-      onValueChange: onValueChangeProp,
-      onItemHighlighted: onItemHighlightedProp,
-      actionsRef: actionsRefProp,
-      ...otherProps
-    } = props;
-
-    const handleValueChange = React.useCallback<
-      NonNullable<ComboboxProps<string, false>['onValueChange']>
-    >((value, details) => {
+    function handleValueChange(value: string | null, details: ComboboxChangeEventDetails) {
       const reason: ComboboxChangeEventReason = details.reason;
       if (reason === 'item-press') {
         details.cancel();
       }
       void value;
-    }, []);
+    }
 
-    const handleItemHighlighted = React.useCallback<
-      NonNullable<ComboboxProps<string, false>['onItemHighlighted']>
-    >((_value, details) => {
+    function handleItemHighlighted(
+      value: string | undefined,
+      details: ComboboxHighlightEventDetails,
+    ) {
+      void value;
       const reason: ComboboxHighlightEventReason = details.reason;
       if (reason === 'keyboard') {
         void 0;
       }
-    }, []);
-
-    const rootProps = otherProps as ComboboxProps<string, false>;
+    }
 
     return (
       <Combobox.Root
-        {...rootProps}
         actionsRef={actionsRef}
         onValueChange={handleValueChange}
         onItemHighlighted={handleItemHighlighted}
+        filter={filter.contains}
       >
         <Combobox.Input ref={ref} />
         <Combobox.Trigger />
         <Combobox.Positioner>
           <Combobox.Popup>
-            {items.map((item) => (
+            {props.items.map((item) => (
               <Combobox.Item key={item} value={item}>
                 {item}
               </Combobox.Item>

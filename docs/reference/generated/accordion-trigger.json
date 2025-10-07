@@ -1,5 +1,5 @@
 {
-  "name": "Accordion.Trigger",
+  "name": "AccordionTrigger",
   "description": "A button that opens and closes the corresponding panel.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {

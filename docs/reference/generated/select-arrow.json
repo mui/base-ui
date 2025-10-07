@@ -1,5 +1,5 @@
 {
-  "name": "Select.Arrow",
+  "name": "SelectArrow",
   "description": "Displays an element positioned against the select popup anchor.\nRenders a `<div>` element.",
   "props": {
     "className": {

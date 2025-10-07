@@ -1,5 +1,5 @@
 {
-  "name": "Popover.Arrow",
+  "name": "PopoverArrow",
   "description": "Displays an element positioned against the popover anchor.\nRenders a `<div>` element.",
   "props": {
     "className": {

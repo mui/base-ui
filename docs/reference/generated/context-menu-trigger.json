@@ -1,5 +1,5 @@
 {
-  "name": "ContextMenu.Trigger",
+  "name": "ContextMenuTrigger",
   "description": "An area that opens the menu on right click or long press.\nRenders a `<div>` element.",
   "props": {
     "className": {

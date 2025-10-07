@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenu.Viewport",
+  "name": "NavigationMenuViewport",
   "description": "The clipping viewport of the navigation menu's current content.\nRenders a `<div>` element.",
   "props": {
     "className": {

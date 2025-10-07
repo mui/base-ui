@@ -1,5 +1,5 @@
 {
-  "name": "Tooltip.Positioner",
+  "name": "TooltipPositioner",
   "description": "Positions the tooltip against the trigger.\nRenders a `<div>` element.",
   "props": {
     "collisionAvoidance": {

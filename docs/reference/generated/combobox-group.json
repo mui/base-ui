@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.Group",
+  "name": "ComboboxGroup",
   "description": "Groups related items with the corresponding label.\nRenders a `<div>` element.",
   "props": {
     "items": {

@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.Icon",
+  "name": "ComboboxIcon",
   "description": "An icon that indicates that the trigger button opens the popup.\nRenders a `<span>` element.",
   "props": {
     "className": {

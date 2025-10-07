@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenu.Content",
+  "name": "NavigationMenuContent",
   "description": "A container for the content of the navigation menu item that is moved into the popup\nwhen the item is active.\nRenders a `<div>` element.",
   "props": {
     "className": {

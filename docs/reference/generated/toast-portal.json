@@ -1,5 +1,5 @@
 {
-  "name": "Toast.Portal",
+  "name": "ToastPortal",
   "description": "A portal element that moves the viewport to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.",
   "props": {
     "container": {

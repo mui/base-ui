@@ -1,5 +1,5 @@
 {
-  "name": "Popover.Close",
+  "name": "PopoverClose",
   "description": "A button that closes the popover.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {

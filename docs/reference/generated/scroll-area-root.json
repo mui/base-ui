@@ -1,5 +1,5 @@
 {
-  "name": "ScrollArea.Root",
+  "name": "ScrollAreaRoot",
   "description": "Groups all parts of the scroll area.\nRenders a `<div>` element.",
   "props": {
     "overflowEdgeThreshold": {

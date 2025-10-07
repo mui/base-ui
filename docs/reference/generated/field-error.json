@@ -1,5 +1,5 @@
 {
-  "name": "Field.Error",
+  "name": "FieldError",
   "description": "An error message displayed if the field control fails validation.\nRenders a `<div>` element.",
   "props": {
     "match": {

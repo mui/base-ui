@@ -1,5 +1,5 @@
 {
-  "name": "Toast.Content",
+  "name": "ToastContent",
   "description": "A container for the contents of a toast.\nRenders a `<div>` element.",
   "props": {
     "className": {

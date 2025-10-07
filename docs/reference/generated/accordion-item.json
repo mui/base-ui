@@ -1,5 +1,5 @@
 {
-  "name": "Accordion.Item",
+  "name": "AccordionItem",
   "description": "Groups an accordion header with the corresponding panel.\nRenders a `<div>` element.",
   "props": {
     "value": {

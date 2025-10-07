@@ -1,5 +1,5 @@
 {
-  "name": "Menu.Backdrop",
+  "name": "MenuBackdrop",
   "description": "An overlay displayed beneath the menu popup.\nRenders a `<div>` element.",
   "props": {
     "className": {

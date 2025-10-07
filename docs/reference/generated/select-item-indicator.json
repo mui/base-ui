@@ -1,5 +1,5 @@
 {
-  "name": "Select.ItemIndicator",
+  "name": "SelectItemIndicator",
   "description": "Indicates whether the select item is selected.\nRenders a `<span>` element.",
   "props": {
     "children": {

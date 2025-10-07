@@ -1,5 +1,5 @@
 {
-  "name": "Toolbar.Group",
+  "name": "ToolbarGroup",
   "description": "Groups several toolbar items or toggles.\nRenders a `<div>` element.",
   "props": {
     "disabled": {

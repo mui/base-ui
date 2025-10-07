@@ -141,20 +141,38 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 });
 
 export interface CheckboxGroupState extends FieldRoot.State {
-  /** Whether the component should ignore user interaction. */
+  /**
+   * Whether the component should ignore user interaction.
+   */
   disabled: boolean;
 }
 
 export interface CheckboxGroupProps extends BaseUIComponentProps<'div', CheckboxGroup.State> {
-  /** Names of the checkboxes in the group that should be ticked. */
+  /**
+   * Names of the checkboxes in the group that should be ticked.
+   *
+   * To render an uncontrolled checkbox group, use the `defaultValue` prop instead.
+   */
   value?: string[];
-  /** Names of the checkboxes in the group that should be initially ticked. */
+  /**
+   * Names of the checkboxes in the group that should be initially ticked.
+   *
+   * To render a controlled checkbox group, use the `value` prop instead.
+   */
   defaultValue?: string[];
-  /** Event handler called when a checkbox in the group is ticked or unticked. */
+  /**
+   * Event handler called when a checkbox in the group is ticked or unticked.
+   * Provides the new value as an argument.
+   */
   onValueChange?: (value: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => void;
-  /** Names of all checkboxes in the group. Use this when creating a parent checkbox. */
+  /**
+   * Names of all checkboxes in the group. Use this when creating a parent checkbox.
+   */
   allValues?: string[];
-  /** Whether the component should ignore user interaction. */
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
   disabled?: boolean;
 }
 

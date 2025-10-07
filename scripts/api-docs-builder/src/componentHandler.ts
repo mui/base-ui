@@ -46,7 +46,9 @@ export async function formatComponentData(component: tae.ExportNode, allExports:
 
   // Post-process type strings to align naming across re-exports and hide internal suffixes.
   const componentGroup = extractComponentGroup(component.name);
-  return rewriteTypeStringsDeep(raw, componentGroup);
+  const formatted = rewriteTypeStringsDeep(raw, componentGroup) as typeof raw;
+  formatted.name = component.name;
+  return formatted;
 }
 
 export function isPublicComponent(exportNode: tae.ExportNode) {
@@ -111,6 +113,7 @@ function rewriteTypeValue(value: string, componentGroup: string): string {
   }
 
   next = applyNamespaceAliases(next, componentGroup);
+  next = applyComponentNamespaceShorthand(next, componentGroup);
 
   return dedupeUnionMembers(next);
 }
@@ -148,6 +151,18 @@ function applyNamespaceAliases(value: string, componentGroup: string): string {
   }
 
   return result;
+}
+
+function applyComponentNamespaceShorthand(value: string, componentGroup: string): string {
+  if (!componentGroup) {
+    return value;
+  }
+
+  const escapedGroup = escapeForRegex(componentGroup);
+  return value.replace(
+    new RegExp(`\\b${escapedGroup}(Props|State)\\b`, 'g'),
+    `${componentGroup}.$1`,
+  );
 }
 
 function escapeForRegex(value: string): string {

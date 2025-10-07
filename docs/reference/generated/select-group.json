@@ -1,5 +1,5 @@
 {
-  "name": "Select.Group",
+  "name": "SelectGroup",
   "description": "Groups related select items with the corresponding label.\nRenders a `<div>` element.",
   "props": {
     "className": {

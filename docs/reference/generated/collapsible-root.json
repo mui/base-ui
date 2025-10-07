@@ -1,5 +1,5 @@
 {
-  "name": "Collapsible.Root",
+  "name": "CollapsibleRoot",
   "description": "Groups all parts of the collapsible.\nRenders a `<div>` element.",
   "props": {
     "defaultOpen": {

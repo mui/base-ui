@@ -192,16 +192,35 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 });
 
 export type TabsRootOrientation = BaseOrientation;
+
 export interface TabsRootState {
   orientation: TabsRoot.Orientation;
   tabActivationDirection: TabsTab.ActivationDirection;
 }
+
 export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.State> {
+  /**
+   * The value of the currently selected `Tab`. Use when the component is controlled.
+   * When the value is `null`, no Tab will be selected.
+   */
   value?: TabsTab.Value;
+  /**
+   * The default value. Use when the component is not controlled.
+   * When the value is `null`, no Tab will be selected.
+   * @default 0
+   */
   defaultValue?: TabsTab.Value;
+  /**
+   * The component orientation (layout flow direction).
+   * @default 'horizontal'
+   */
   orientation?: TabsRoot.Orientation;
+  /**
+   * Callback invoked when new value is being set.
+   */
   onValueChange?: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;
 }
+
 export type TabsRootChangeEventReason = 'none';
 export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
   TabsRoot.ChangeEventReason,

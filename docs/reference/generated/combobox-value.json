@@ -1,5 +1,5 @@
 {
-  "name": "Combobox.Value",
+  "name": "ComboboxValue",
   "description": "The current value of the combobox.\nDoesn't render its own HTML element.",
   "props": {
     "children": {

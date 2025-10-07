@@ -1,5 +1,5 @@
 {
-  "name": "NavigationMenu.Popup",
+  "name": "NavigationMenuPopup",
   "description": "A container for the navigation menu contents.\nRenders a `<nav>` element.",
   "props": {
     "className": {

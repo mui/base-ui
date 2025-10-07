@@ -1,5 +1,5 @@
 {
-  "name": "AlertDialog.Title",
+  "name": "AlertDialogTitle",
   "description": "A heading that labels the dialog.\nRenders an `<h2>` element.",
   "props": {
     "className": {

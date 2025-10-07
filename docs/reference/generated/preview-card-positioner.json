@@ -1,5 +1,5 @@
 {
-  "name": "PreviewCard.Positioner",
+  "name": "PreviewCardPositioner",
   "description": "Positions the popup against the trigger.\nRenders a `<div>` element.",
   "props": {
     "collisionAvoidance": {

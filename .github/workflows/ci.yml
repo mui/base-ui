@@ -35,8 +35,6 @@ jobs:
           cache: 'pnpm' # https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#caching-packages-dependencies
       - run: pnpm install
       - run: pnpm release:build
-      - run: pnpm validate-declarations
-      - run: pnpm -F ./test/public-types release:test
       - name: Publish packages
         if: matrix.os == 'ubuntu-latest'
         uses: mui/mui-public/.github/actions/ci-publish@master

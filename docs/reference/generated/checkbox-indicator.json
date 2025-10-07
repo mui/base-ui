@@ -1,5 +1,5 @@
 {
-  "name": "Checkbox.Indicator",
+  "name": "CheckboxIndicator",
   "description": "Indicates whether the checkbox is ticked.\nRenders a `<span>` element.",
   "props": {
     "className": {

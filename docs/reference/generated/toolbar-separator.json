@@ -1,5 +1,5 @@
 {
-  "name": "Toolbar.Separator",
+  "name": "ToolbarSeparator",
   "description": "A separator element accessible to screen readers.\nRenders a `<div>` element.",
   "props": {
     "orientation": {

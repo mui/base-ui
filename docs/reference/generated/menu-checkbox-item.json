@@ -1,5 +1,5 @@
 {
-  "name": "Menu.CheckboxItem",
+  "name": "MenuCheckboxItem",
   "description": "A menu item that toggles a setting on or off.\nRenders a `<div>` element.",
   "props": {
     "label": {

@@ -1,5 +1,5 @@
 {
-  "name": "Select.Icon",
+  "name": "SelectIcon",
   "description": "An icon that indicates that the trigger button opens a select popup.\nRenders a `<span>` element.",
   "props": {
     "className": {

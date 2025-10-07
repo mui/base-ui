@@ -1,5 +1,5 @@
 {
-  "name": "Select.Trigger",
+  "name": "SelectTrigger",
   "description": "A button that opens the select popup.\nRenders a `<div>` element.",
   "props": {
     "nativeButton": {

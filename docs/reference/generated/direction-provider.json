@@ -1,5 +1,5 @@
 {
-  "name": "DirectionProvider.Provider",
+  "name": "DirectionProvider",
   "description": "Enables RTL behavior for Base UI components.",
   "props": {
     "direction": {

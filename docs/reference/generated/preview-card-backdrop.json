@@ -1,5 +1,5 @@
 {
-  "name": "PreviewCard.Backdrop",
+  "name": "PreviewCardBackdrop",
   "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
   "props": {
     "className": {

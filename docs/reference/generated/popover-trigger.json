@@ -1,5 +1,5 @@
 {
-  "name": "Popover.Trigger",
+  "name": "PopoverTrigger",
   "description": "A button that opens the popover.\nRenders a `<button>` element.",
   "props": {
     "handle": {

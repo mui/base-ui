@@ -1,5 +1,5 @@
 {
-  "name": "Toolbar.Button",
+  "name": "ToolbarButton",
   "description": "A button that can be used as-is or as a trigger for other components.\nRenders a `<button>` element.",
   "props": {
     "focusableWhenDisabled": {

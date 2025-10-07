@@ -1,5 +1,5 @@
 {
-  "name": "Select.Item",
+  "name": "SelectItem",
   "description": "An individual option in the select popup.\nRenders a `<div>` element.",
   "props": {
     "label": {

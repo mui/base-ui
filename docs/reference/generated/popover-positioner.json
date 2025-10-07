@@ -1,5 +1,5 @@
 {
-  "name": "Popover.Positioner",
+  "name": "PopoverPositioner",
   "description": "Positions the popover against the trigger.\nRenders a `<div>` element.",
   "props": {
     "collisionAvoidance": {

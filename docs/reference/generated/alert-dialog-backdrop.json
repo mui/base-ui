@@ -1,5 +1,5 @@
 {
-  "name": "AlertDialog.Backdrop",
+  "name": "AlertDialogBackdrop",
   "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
   "props": {
     "forceRender": {

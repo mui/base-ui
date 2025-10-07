@@ -1,5 +1,5 @@
 {
-  "name": "Menu.SubmenuTrigger",
+  "name": "MenuSubmenuTrigger",
   "description": "A menu item that opens a submenu.\nRenders a `<div>` element.",
   "props": {
     "label": {

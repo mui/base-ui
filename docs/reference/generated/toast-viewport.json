@@ -1,5 +1,5 @@
 {
-  "name": "Toast.Viewport",
+  "name": "ToastViewport",
   "description": "A container viewport for toasts.\nRenders a `<div>` element.",
   "props": {
     "className": {

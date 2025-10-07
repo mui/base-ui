@@ -1,5 +1,5 @@
 {
-  "name": "NumberField.Root",
+  "name": "NumberFieldRoot",
   "description": "Groups all parts of the number field and manages its state.\nRenders a `<div>` element.",
   "props": {
     "name": {

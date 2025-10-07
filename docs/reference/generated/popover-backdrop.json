@@ -1,5 +1,5 @@
 {
-  "name": "Popover.Backdrop",
+  "name": "PopoverBackdrop",
   "description": "An overlay displayed beneath the popover.\nRenders a `<div>` element.",
   "props": {
     "className": {

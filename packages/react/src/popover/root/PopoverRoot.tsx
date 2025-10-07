@@ -355,7 +355,7 @@ export interface PopoverRootProps<Payload = unknown> {
    * The content of the popover.
    * This can be a regular React node or a render function that receives the `payload` of the active trigger.
    */
-  children?: React.ReactNode | ChildRenderFunction<Payload>;
+  children?: React.ReactNode | PopoverRoot.ChildRenderFunction<Payload>;
 }
 
 export interface PopoverRootActions {
@@ -363,7 +363,7 @@ export interface PopoverRootActions {
   close: () => void;
 }
 
-export type ChildRenderFunction<Payload> = (arg: {
+export type PopoverRootChildRenderFunction<Payload> = (arg: {
   payload: Payload | undefined;
 }) => React.ReactNode;
 
@@ -388,4 +388,5 @@ export namespace PopoverRoot {
   export type Actions = PopoverRootActions;
   export type ChangeEventReason = PopoverRootChangeEventReason;
   export type ChangeEventDetails = PopoverRootChangeEventDetails;
+  export type ChildRenderFunction<Payload> = PopoverRootChildRenderFunction<Payload>;
 }

@@ -1,5 +1,5 @@
 {
-  "name": "Select.Popup",
+  "name": "SelectPopup",
   "description": "A container for the select list.\nRenders a `<div>` element.",
   "props": {
     "children": {

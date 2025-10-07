@@ -1,5 +1,5 @@
 {
-  "name": "Popover.Popup",
+  "name": "PopoverPopup",
   "description": "A container for the popover contents.\nRenders a `<div>` element.",
   "props": {
     "initialFocus": {

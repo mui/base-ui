@@ -1,5 +1,5 @@
 {
-  "name": "Fieldset.Root",
+  "name": "FieldsetRoot",
   "description": "Groups the fieldset legend and the associated fields.\nRenders a `<fieldset>` element.",
   "props": {
     "className": {

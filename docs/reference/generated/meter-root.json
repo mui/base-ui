@@ -1,5 +1,5 @@
 {
-  "name": "Meter.Root",
+  "name": "MeterRoot",
   "description": "Groups all parts of the meter and provides the value for screen readers.\nRenders a `<div>` element.",
   "props": {
     "value": {

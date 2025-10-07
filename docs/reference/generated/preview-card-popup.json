@@ -1,5 +1,5 @@
 {
-  "name": "PreviewCard.Popup",
+  "name": "PreviewCardPopup",
   "description": "A container for the preview card contents.\nRenders a `<div>` element.",
   "props": {
     "className": {

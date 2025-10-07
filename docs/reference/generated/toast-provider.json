@@ -1,5 +1,5 @@
 {
-  "name": "Toast.Provider",
+  "name": "ToastProvider",
   "description": "Provides a context for creating and managing toasts.",
   "props": {
     "limit": {

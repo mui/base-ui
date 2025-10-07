@@ -1,5 +1,5 @@
 {
-  "name": "Avatar.Fallback",
+  "name": "AvatarFallback",
   "description": "Rendered when the image fails to load or when no image is provided.\nRenders a `<span>` element.",
   "props": {
     "delay": {

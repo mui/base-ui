@@ -56,11 +56,23 @@ export const SelectValue = React.forwardRef(function SelectValue(
 });
 
 export interface SelectValueState {
+  /**
+   * The value of the currently selected item.
+   */
   value: any;
 }
+
 export interface SelectValueProps
   extends Omit<BaseUIComponentProps<'span', SelectValue.State>, 'children'> {
-  /** Accepts a function that returns a `ReactNode` to format the selected value. */
+  /**
+   * Accepts a function that returns a `ReactNode` to format the selected value.
+   * @example
+   * ```tsx
+   * <Select.Value>
+   *   {(value: string | null) => value ? labels[value] : 'No value'}
+   * </Select.Value>
+   * ```
+   */
   children?: React.ReactNode | ((value: any) => React.ReactNode);
 }
 

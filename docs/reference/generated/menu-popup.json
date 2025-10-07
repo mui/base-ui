@@ -1,5 +1,5 @@
 {
-  "name": "Menu.Popup",
+  "name": "MenuPopup",
   "description": "A container for the menu items.\nRenders a `<div>` element.",
   "props": {
     "finalFocus": {

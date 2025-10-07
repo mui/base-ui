@@ -1,5 +1,5 @@
 {
-  "name": "Slider.Control",
+  "name": "SliderControl",
   "description": "The clickable, interactive part of the slider.\nRenders a `<div>` element.",
   "props": {
     "className": {

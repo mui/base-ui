@@ -1,5 +1,5 @@
 {
-  "name": "Accordion.Header",
+  "name": "AccordionHeader",
   "description": "A heading that labels the corresponding panel.\nRenders an `<h3>` element.",
   "props": {
     "className": {
