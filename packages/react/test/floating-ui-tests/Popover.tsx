@@ -26,7 +26,7 @@ export function Main() {
   return (
     <React.Fragment>
       <h1 className="mb-8 text-5xl font-bold">Popover</h1>
-      <div className="mb-4 grid h-[20rem] place-items-center rounded border border-slate-400 lg:w-[40rem]">
+      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
         <Popover
           modal
           bubbles
@@ -148,7 +148,7 @@ function PopoverComponent({
         {open && (
           <FloatingFocusManager context={context} modal={modal}>
             <div
-              className="rounded border border-slate-900/10 bg-white bg-clip-padding px-4 py-6 shadow-md"
+              className="border-slate-900/10 rounded border bg-white bg-clip-padding px-4 py-6 shadow-md"
               ref={refs.setFloating}
               style={floatingStyles}
               aria-labelledby={labelId}

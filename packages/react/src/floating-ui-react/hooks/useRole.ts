@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useId } from '@base-ui-components/utils/useId';
 import { getFloatingFocusElement } from '../utils';
-
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import type { ElementProps, FloatingRootContext } from '../types';
 import type { ExtendedUserProps } from './useInteractions';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
 type AriaRole = 'tooltip' | 'dialog' | 'alertdialog' | 'menu' | 'listbox' | 'grid' | 'tree';
 type ComponentRole = 'select' | 'label' | 'combobox';
@@ -50,6 +50,21 @@ export function useRole(context: FloatingRootContext, props: UseRoleProps = {}):
   const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
 
+  const trigger: ElementProps['trigger'] = React.useMemo(() => {
+    if (ariaRole === 'tooltip' || role === 'label') {
+      return EMPTY_OBJECT;
+    }
+
+    return {
+      'aria-haspopup': ariaRole === 'alertdialog' ? 'dialog' : ariaRole,
+      'aria-expanded': 'false',
+      ...(ariaRole === 'listbox' && { role: 'combobox' }),
+      ...(ariaRole === 'menu' && isNested && { role: 'menuitem' }),
+      ...(role === 'select' && { 'aria-autocomplete': 'none' }),
+      ...(role === 'combobox' && { 'aria-autocomplete': 'list' }),
+    };
+  }, [ariaRole, isNested, role]);
+
   const reference: ElementProps['reference'] = React.useMemo(() => {
     if (ariaRole === 'tooltip' || role === 'label') {
       return {
@@ -57,17 +72,14 @@ export function useRole(context: FloatingRootContext, props: UseRoleProps = {}):
       };
     }
 
+    const triggerProps = trigger;
     return {
+      ...triggerProps,
       'aria-expanded': open ? 'true' : 'false',
-      'aria-haspopup': ariaRole === 'alertdialog' ? 'dialog' : ariaRole,
       'aria-controls': open ? floatingId : undefined,
-      ...(ariaRole === 'listbox' && { role: 'combobox' }),
       ...(ariaRole === 'menu' && { id: referenceId }),
-      ...(ariaRole === 'menu' && isNested && { role: 'menuitem' }),
-      ...(role === 'select' && { 'aria-autocomplete': 'none' }),
-      ...(role === 'combobox' && { 'aria-autocomplete': 'list' }),
     };
-  }, [ariaRole, floatingId, isNested, open, referenceId, role]);
+  }, [ariaRole, floatingId, open, referenceId, role, trigger]);
 
   const floating: ElementProps['floating'] = React.useMemo(() => {
     const floatingProps = {
@@ -112,7 +124,7 @@ export function useRole(context: FloatingRootContext, props: UseRoleProps = {}):
   );
 
   return React.useMemo(
-    () => (enabled ? { reference, floating, item } : {}),
-    [enabled, reference, floating, item],
+    () => (enabled ? { reference, floating, item, trigger } : {}),
+    [enabled, reference, floating, trigger, item],
   );
 }

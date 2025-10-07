@@ -40,7 +40,12 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
 });
 
 export namespace SelectIcon {
-  export interface State {}
+  export interface State {
+    /**
+     * Whether the select popup is currently open.
+     */
+    open: boolean;
+  }
 
   export interface Props extends BaseUIComponentProps<'span', State> {}
 }
