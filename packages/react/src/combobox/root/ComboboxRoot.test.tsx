@@ -1011,7 +1011,7 @@ describe('<Combobox.Root />', () => {
     });
 
     it('should set disabled attribute on hidden input', async () => {
-       await render(
+      await render(
         <Combobox.Root disabled name="test">
           <Combobox.Input />
           <Combobox.Portal>
@@ -1033,7 +1033,7 @@ describe('<Combobox.Root />', () => {
 
   describe('prop: required', () => {
     it('does not mark the hidden input as required when selection exists in multiple mode', async () => {
-       await render(
+      await render(
         <Combobox.Root multiple required name="languages" value={['a']}>
           <Combobox.Input />
         </Combobox.Root>,
@@ -1045,7 +1045,7 @@ describe('<Combobox.Root />', () => {
     });
 
     it('keeps the hidden input required when no selection exists in multiple mode', async () => {
-     await render(
+      await render(
         <Combobox.Root multiple required name="languages" value={[]}>
           <Combobox.Input />
         </Combobox.Root>,

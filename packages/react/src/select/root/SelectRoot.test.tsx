@@ -2276,7 +2276,7 @@ describe('<Select.Root />', () => {
     });
 
     it('keeps the hidden input required when no selection exists', async () => {
-       await render(
+      await render(
         <Select.Root multiple required name="select" value={[]}>
           <Select.Trigger>
             <Select.Value />
