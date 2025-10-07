@@ -4,6 +4,7 @@ import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import type { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import type { ComboboxRootInternal } from './root/ComboboxRootInternal';
+import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../utils/itemEquality';
 
 export type State = {
@@ -37,6 +38,7 @@ export type State = {
   listElement: HTMLElement | null;
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
+  popupSide: Side;
 
   openMethod: InteractionType | null;
 
@@ -130,6 +132,7 @@ export const selectors = {
   listElement: createSelector((state: State) => state.listElement),
   triggerElement: createSelector((state: State) => state.triggerElement),
   inputElement: createSelector((state: State) => state.inputElement),
+  popupSide: createSelector((state: State) => state.popupSide),
 
   openMethod: createSelector((state: State) => state.openMethod),
 

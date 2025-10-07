@@ -5,7 +5,11 @@ import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxDerivedItemsContext,
+  useComboboxInputValueContext,
+  useComboboxRootContext,
+} from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -16,10 +20,13 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { Side } from '../../utils/useAnchorPositioning';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
+  popupSide: (side) => (side ? { 'data-popup-side': side } : null),
+  listEmpty: (empty) => (empty ? { 'data-list-empty': '' } : null),
 };
 
 /**
@@ -41,8 +48,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     validationMode,
   } = useFieldRootContext();
   const comboboxChipsContext = useComboboxChipsContext();
-  const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
+  const positioning = useComboboxPositionerContext(true);
+  const hasPositionerParent = Boolean(positioning);
   const store = useComboboxRootContext();
+  const { filteredItems } = useComboboxDerivedItemsContext();
 
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
@@ -54,7 +63,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const inputProps = useStore(store, selectors.inputProps);
   const triggerProps = useStore(store, selectors.triggerProps);
   const open = useStore(store, selectors.open);
+  const mounted = useStore(store, selectors.mounted);
   const selectedValue = useStore(store, selectors.selectedValue);
+  const popupSideValue = useStore(store, selectors.popupSide);
+
+  const popupSide = mounted ? popupSideValue : '';
 
   // `inputValue` can't be placed in the store.
   // https://github.com/mui/base-ui/issues/2703
@@ -77,14 +90,18 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     });
   });
 
+  const listEmpty = filteredItems.length === 0;
+
   const state: ComboboxInput.State = React.useMemo(
     () => ({
       ...fieldState,
       open,
       disabled,
       readOnly,
+      popupSide,
+      listEmpty,
     }),
-    [fieldState, open, disabled, readOnly],
+    [fieldState, open, disabled, readOnly, popupSide, listEmpty],
   );
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -417,6 +434,18 @@ export namespace ComboboxInput {
      * Whether the popup is open.
      */
     open: boolean;
+    /**
+     * Indicates which side the popup is positioned relative to the input.
+     */
+    popupSide: Side | '';
+    /**
+     * Present when the filtered items list is empty.
+     */
+    listEmpty: boolean;
+    /**
+     * Whether the component should ignore user edits.
+     */
+    readOnly: boolean;
   }
 
   export interface Props extends BaseUIComponentProps<'input', State> {

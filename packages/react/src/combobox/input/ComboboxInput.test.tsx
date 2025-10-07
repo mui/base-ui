@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Field } from '@base-ui-components/react/field';
@@ -478,6 +478,64 @@ describe('<Combobox.Input />', () => {
         expect(button).toHaveFocus();
       });
       expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+  });
+
+  describe('data state attributes', () => {
+    it.skipIf(isJSDOM)('sets data-popup-side to the current popup side', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple']}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner side="right">
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      expect(input).not.to.have.attribute('data-popup-side');
+
+      await user.click(input);
+
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.to.equal(null));
+      expect(input).to.have.attribute('data-popup-side', 'right');
+
+      await user.click(document.body);
+
+      await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
+      expect(input).not.to.have.attribute('data-popup-side');
+    });
+
+    it('toggles data-empty when the filtered list is empty', async () => {
+      const { user } = await render(
+        <Combobox.Root items={[]}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+
+      await user.click(input);
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      expect(input).to.have.attribute('data-list-empty');
     });
   });
 });

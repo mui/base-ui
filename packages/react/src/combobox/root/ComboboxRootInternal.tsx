@@ -353,6 +353,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         listElement: null,
         triggerElement: null,
         inputElement: null,
+        popupSide: 'bottom',
         openMethod: null,
         inputInsidePopup: true,
         onOpenChangeComplete: onOpenChangeCompleteProp || NOOP,
