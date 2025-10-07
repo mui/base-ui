@@ -29,8 +29,8 @@ importers:
         specifier: workspace:*
         version: link:test
       '@mui/internal-code-infra':
-        specifier: ^0.0.3-canary.17
-        version: 0.0.3-canary.17(eslint@9.36.0(jiti@2.5.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.24.0(typescript@5.9.2))(typescript@5.9.2)
+        specifier: ^0.0.3-canary.19
+        version: 0.0.3-canary.19(eslint@9.36.0(jiti@2.5.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.24.0(typescript@5.9.2))(typescript@5.9.2)
       '@mui/internal-test-utils':
         specifier: ^2.0.10
         version: 2.0.13(@babel/core@7.28.4)(@playwright/test@1.55.1)(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(chai@5.3.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -109,9 +109,6 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
-      prettier-plugin-tailwindcss:
-        specifier: ^0.6.14
-        version: 0.6.14(prettier@3.6.2)
       pretty-quick:
         specifier: ^4.2.2
         version: 4.2.2(prettier@3.6.2)
@@ -229,6 +226,9 @@ importers:
       hast-util-to-string:
         specifier: ^3.0.1
         version: 3.0.1
+      lucide-react:
+        specifier: ^0.544.0
+        version: 0.544.0(react@19.1.1)
       lz-string:
         specifier: ^1.5.0
         version: 1.5.0
@@ -2142,8 +2142,8 @@ packages:
     resolution: {integrity: sha512-9hqDvOezGxIztw/9FdWmg+M+jzM8fspsR/MqssBUHYUvLxYUy3P0MO3iTy/GJHkZvvL53hJTI3XD6NjSuaeIgw==}
     hasBin: true
 
-  '@mui/internal-code-infra@0.0.3-canary.17':
-    resolution: {integrity: sha512-+9R21uphQTbFQIVmjMz+SqioYjGs6N7fgLaLgCdUykmqUFsLp/MeJuv+91l94MFAt7TYUrOD/3OzK4mCq4BcaQ==}
+  '@mui/internal-code-infra@0.0.3-canary.19':
+    resolution: {integrity: sha512-LMQAy+0XWTaXTbMtacB2QaQPqFhKwJnfIZ0k0yUBXdHizfKKAobJyifBS+YBErGNrkoW9GOMrJcuLM3h92gPcA==}
     hasBin: true
     peerDependencies:
       eslint: ^9.0.0
@@ -7363,6 +7363,11 @@ packages:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
 
+  lucide-react@0.544.0:
+    resolution: {integrity: sha512-t5tS44bqd825zAW45UQxpG2CvcC4urOwn2TrwSH8u+MjeE+1NnWl6QqeQ/6NdjMqdOygyiT9p3Ev0p1NJykxjw==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   luxon@3.7.1:
     resolution: {integrity: sha512-RkRWjA926cTvz5rAb1BqyWkKbbjzCGchDUIKMCUvNi17j6f6j8uHGDV82Aqcqtzd+icoYpELmG3ksgGiFNNcNg==}
     engines: {node: '>=12'}
@@ -8469,67 +8474,6 @@ packages:
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
-
-  prettier-plugin-tailwindcss@0.6.14:
-    resolution: {integrity: sha512-pi2e/+ZygeIqntN+vC573BcW5Cve8zUB0SSAGxqpB4f96boZF4M3phPVoOFCeypwkpRYdi7+jQ5YJJUwrkGUAg==}
-    engines: {node: '>=14.21.3'}
-    peerDependencies:
-      '@ianvs/prettier-plugin-sort-imports': '*'
-      '@prettier/plugin-hermes': '*'
-      '@prettier/plugin-oxc': '*'
-      '@prettier/plugin-pug': '*'
-      '@shopify/prettier-plugin-liquid': '*'
-      '@trivago/prettier-plugin-sort-imports': '*'
-      '@zackad/prettier-plugin-twig': '*'
-      prettier: ^3.0
-      prettier-plugin-astro: '*'
-      prettier-plugin-css-order: '*'
-      prettier-plugin-import-sort: '*'
-      prettier-plugin-jsdoc: '*'
-      prettier-plugin-marko: '*'
-      prettier-plugin-multiline-arrays: '*'
-      prettier-plugin-organize-attributes: '*'
-      prettier-plugin-organize-imports: '*'
-      prettier-plugin-sort-imports: '*'
-      prettier-plugin-style-order: '*'
-      prettier-plugin-svelte: '*'
-    peerDependenciesMeta:
-      '@ianvs/prettier-plugin-sort-imports':
-        optional: true
-      '@prettier/plugin-hermes':
-        optional: true
-      '@prettier/plugin-oxc':
-        optional: true
-      '@prettier/plugin-pug':
-        optional: true
-      '@shopify/prettier-plugin-liquid':
-        optional: true
-      '@trivago/prettier-plugin-sort-imports':
-        optional: true
-      '@zackad/prettier-plugin-twig':
-        optional: true
-      prettier-plugin-astro:
-        optional: true
-      prettier-plugin-css-order:
-        optional: true
-      prettier-plugin-import-sort:
-        optional: true
-      prettier-plugin-jsdoc:
-        optional: true
-      prettier-plugin-marko:
-        optional: true
-      prettier-plugin-multiline-arrays:
-        optional: true
-      prettier-plugin-organize-attributes:
-        optional: true
-      prettier-plugin-organize-imports:
-        optional: true
-      prettier-plugin-sort-imports:
-        optional: true
-      prettier-plugin-style-order:
-        optional: true
-      prettier-plugin-svelte:
-        optional: true
 
   prettier@3.6.2:
     resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
@@ -12419,7 +12363,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.0.3-canary.17(eslint@9.36.0(jiti@2.5.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.24.0(typescript@5.9.2))(typescript@5.9.2)':
+  '@mui/internal-code-infra@0.0.3-canary.19(eslint@9.36.0(jiti@2.5.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.24.0(typescript@5.9.2))(typescript@5.9.2)':
     dependencies:
       '@argos-ci/core': 4.1.5
       '@babel/cli': 7.28.3(@babel/core@7.28.4)
@@ -18517,6 +18461,10 @@ snapshots:
     dependencies:
       yallist: 4.0.0
 
+  lucide-react@0.544.0(react@19.1.1):
+    dependencies:
+      react: 19.1.1
+
   luxon@3.7.1: {}
 
   lz-string@1.5.0: {}
@@ -20055,10 +20003,6 @@ snapshots:
       - supports-color
 
   prelude-ls@1.2.1: {}
-
-  prettier-plugin-tailwindcss@0.6.14(prettier@3.6.2):
-    dependencies:
-      prettier: 3.6.2
 
   prettier@3.6.2: {}
 

@@ -45,6 +45,7 @@ export type State = {
   selectionMode: 'single' | 'multiple' | 'none';
 
   listRef: React.RefObject<Array<HTMLElement | null>>;
+  labelsRef: React.RefObject<Array<string | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
@@ -136,6 +137,7 @@ export const selectors = {
 
   selectionMode: createSelector((state: State) => state.selectionMode),
   listRef: createSelector((state: State) => state.listRef),
+  labelsRef: createSelector((state: State) => state.labelsRef),
   popupRef: createSelector((state: State) => state.popupRef),
   inputRef: createSelector((state: State) => state.inputRef),
   keyboardActiveRef: createSelector((state: State) => state.keyboardActiveRef),

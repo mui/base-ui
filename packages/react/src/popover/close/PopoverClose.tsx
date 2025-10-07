@@ -24,14 +24,17 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
     native: nativeButton,
   });
 
-  const { setOpen } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
 
   const element = useRenderElement('button', props, {
     ref: [forwardedRef, buttonRef],
     props: [
       {
         onClick(event) {
-          setOpen(false, createChangeEventDetails('close-press', event.nativeEvent));
+          store.setOpen(
+            false,
+            createChangeEventDetails('close-press', event.nativeEvent, event.currentTarget),
+          );
         },
       },
       elementProps,

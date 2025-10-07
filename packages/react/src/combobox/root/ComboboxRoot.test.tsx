@@ -7,6 +7,8 @@ import { Combobox } from '@base-ui-components/react/combobox';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
+import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 describe('<Combobox.Root />', () => {
   beforeEach(() => {
@@ -3536,6 +3538,30 @@ describe('<Combobox.Root />', () => {
       compare.getCalls().forEach((call) => {
         expect(call.args[1]).not.to.equal(null);
       });
+    });
+  });
+
+  describe('within Composite', () => {
+    it('should navigate between combobox and composite items', async () => {
+      const { user } = await render(
+        <CompositeRoot orientation="horizontal">
+          <CompositeItem tag="button">Item 1</CompositeItem>
+          <CompositeItem tag="button">Item 2</CompositeItem>
+          <Combobox.Root>
+            <Combobox.Input render={(props) => <CompositeItem tag="input" props={[props]} />} />
+          </Combobox.Root>
+        </CompositeRoot>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+
+      await user.keyboard('{ArrowLeft}');
+      const button2 = screen.getByRole('button', { name: 'Item 2' });
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('{ArrowRight}');
+      expect(input).toHaveFocus();
     });
   });
 });

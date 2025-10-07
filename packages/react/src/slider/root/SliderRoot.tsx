@@ -189,7 +189,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       lastChangedValueRef.current = newValue;
 
-      const details = createChangeEventDetails('none', clonedEvent, {
+      const details = createChangeEventDetails('none', clonedEvent, undefined, {
         activeThumbIndex: thumbIndex,
       });
 
