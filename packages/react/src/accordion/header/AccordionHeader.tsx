@@ -5,6 +5,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
+import './AccordionHeaderDataAttributes';
 
 /**
  * A heading that labels the corresponding panel.

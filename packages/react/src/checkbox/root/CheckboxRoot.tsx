@@ -22,6 +22,7 @@ import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import './CheckboxRootDataAttributes';
 
 const EMPTY = {};
 export const PARENT_CHECKBOX = 'data-parent';

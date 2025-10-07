@@ -13,6 +13,7 @@ import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import './AccordionRootDataAttributes';
 
 const rootStateAttributesMapping = {
   value: () => null,

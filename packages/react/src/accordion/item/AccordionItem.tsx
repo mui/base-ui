@@ -14,6 +14,7 @@ import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStateAttributesMapping } from './stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import './AccordionItemDataAttributes';
 
 /**
  * Groups an accordion header with the corresponding panel.
