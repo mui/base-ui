@@ -2262,7 +2262,7 @@ describe('<Select.Root />', () => {
     });
 
     it('does not mark the hidden input as required when selection exists', async () => {
-      const { container } = await render(
+      await render(
         <Select.Root multiple required name="select" value={['a']}>
           <Select.Trigger>
             <Select.Value />
@@ -2270,13 +2270,13 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
-      const hiddenInput = container.querySelector<HTMLInputElement>('input[aria-hidden="true"]');
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
       expect(hiddenInput).not.to.equal(null);
       expect(hiddenInput).not.to.have.attribute('required');
     });
 
     it('keeps the hidden input required when no selection exists', async () => {
-      const { container } = await render(
+       await render(
         <Select.Root multiple required name="select" value={[]}>
           <Select.Trigger>
             <Select.Value />
@@ -2284,7 +2284,7 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
-      const hiddenInput = container.querySelector<HTMLInputElement>('input[aria-hidden="true"]');
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
       expect(hiddenInput).not.to.equal(null);
       expect(hiddenInput).to.have.attribute('required');
     });
