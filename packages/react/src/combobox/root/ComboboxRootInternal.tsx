@@ -544,7 +544,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       selectedIndex?: number | null;
       type?: 'none' | 'keyboard' | 'pointer';
     }) => {
-      store.apply(options);
+      store.update(options);
       const type: ComboboxRootInternal.HighlightEventReason = options.type || 'none';
 
       if (options.activeIndex === undefined) {
@@ -946,7 +946,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   ]);
 
   useOnFirstRender(() => {
-    store.apply({
+    store.update({
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
@@ -963,7 +963,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   });
 
   useIsoLayoutEffect(() => {
-    store.apply({
+    store.update({
       id,
       selectedValue,
       inputValue,
