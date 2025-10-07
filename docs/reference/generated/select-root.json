@@ -20,7 +20,7 @@
     },
     "onValueChange": {
       "type": "((value: Value[] | Value, eventDetails: Select.Root.ChangeEventDetails) => void) | ((value: Value[] | Value | any | null, eventDetails: Select.Root.ChangeEventDetails) => void)",
-      "description": "Callback fired when the value of the select changes.",
+      "description": "Event handler called when the value of the select changes.",
       "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {

@@ -121,7 +121,7 @@ type ComboboxRootControlledProps<
    */
   value: ComboboxValueType<Value, Multiple>;
   /**
-   * Callback fired when the selected value of the combobox changes.
+   * Event handler called when the selected value of the combobox changes.
    */
   onValueChange?: (
     value: ComboboxValueType<Value, Multiple>,
@@ -138,8 +138,7 @@ type ComboboxRootUncontrolledProps<
    */
   value?: undefined;
   /**
-   * Callback fired when the selected value of the combobox changes.
-   * Receives `null` when the selection is cleared.
+   * Event handler called when the selected value of the combobox changes.
    */
   onValueChange?: (
     value: ComboboxValueType<Value, Multiple> | (Multiple extends true ? never : null),

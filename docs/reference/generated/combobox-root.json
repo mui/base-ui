@@ -19,7 +19,7 @@
     },
     "onValueChange": {
       "type": "((value: Value[] | Value, eventDetails: Combobox.Root.ChangeEventDetails) => void) | ((value: Value[] | Value | any | null, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
-      "description": "Callback fired when the selected value of the combobox changes.",
+      "description": "Event handler called when the selected value of the combobox changes.",
       "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {

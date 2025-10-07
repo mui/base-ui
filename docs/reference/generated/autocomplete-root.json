@@ -19,7 +19,7 @@
     },
     "onValueChange": {
       "type": "((value: string, eventDetails: Autocomplete.Root.ChangeEventDetails) => void)",
-      "description": "Callback fired when the input value of the autocomplete changes.",
+      "description": "Event handler called when the input value of the autocomplete changes.",
       "detailedType": "| ((\n    value: string,\n    eventDetails: Autocomplete.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {

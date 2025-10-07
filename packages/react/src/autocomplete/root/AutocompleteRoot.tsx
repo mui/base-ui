@@ -182,7 +182,7 @@ export namespace AutocompleteRoot {
      */
     value?: AriaCombobox.Props<React.ComponentProps<'input'>['value'], 'none'>['inputValue'];
     /**
-     * Callback fired when the input value of the autocomplete changes.
+     * Event handler called when the input value of the autocomplete changes.
      */
     onValueChange?: (value: string, eventDetails: ChangeEventDetails) => void;
     /**

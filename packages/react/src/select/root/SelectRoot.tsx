@@ -204,11 +204,11 @@ interface SelectRootProps<Value> {
    */
   multiple?: boolean;
   /**
-   * The value of the select.
+   * The value of the select. Use when controlled.
    */
   value?: Value;
   /**
-   * Callback fired when the value of the select changes. Use when controlled.
+   * Event handler called when the value of the select changes.
    */
   onValueChange?: (value: Value, eventDetails: SelectRoot.ChangeEventDetails) => void;
   /**
@@ -314,7 +314,7 @@ type SelectRootControlledProps<Value, Multiple extends boolean | undefined> = Se
    */
   value: SelectValueType<Value, Multiple>;
   /**
-   * Callback fired when the value of the select changes.
+   * Event handler called when the value of the select changes.
    */
   onValueChange?: (
     value: SelectValueType<Value, Multiple>,
@@ -331,7 +331,7 @@ type SelectRootUncontrolledProps<Value, Multiple extends boolean | undefined> = 
    */
   value?: undefined;
   /**
-   * Callback fired when the value of the select changes.
+   * Event handler called when the value of the select changes.
    */
   onValueChange?: (
     value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
