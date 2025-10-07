@@ -50,13 +50,13 @@ import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
 
 ### Nested submenus
 
-A `NavigationMenu.Root` component can be nested within a higher-level `NavigationMenu.Content` part to create a multi-level navigation menu.
+`<NavigationMenu.Root>` component can be nested within a higher-level `<NavigationMenu.Content>` part to create a multi-level navigation menu.
 
 <Demo path="./demos/nested" compact />
 
 ### Custom links
 
-The `NavigationMenu.Link` part can be customized to render the link from your framework using the `render` prop to enable client-side routing.
+The `<NavigationMenu.Link>` part can be customized to render the link from your framework using the `render` prop to enable client-side routing.
 
 ```jsx title="Next.js example" {1,7}
 import NextLink from 'next/link';
@@ -78,7 +78,8 @@ When you have large menu content that doesn't fit in the viewport in some cases,
 
 1. Compress the navigation menu content
 
-You can change the layout of the navigation menu to render less content or be more compact by reducing the space it takes up. If your content is flexible, you can use the `max-height` property on `Popup` to limit the height of the navigation menu to let it compress itself while preventing overflow.
+You can change the layout of the navigation menu to render less content or be more compact by reducing the space it takes up.
+If your content is flexible, you can use the `max-height` property on `.Popup` to limit the height of the navigation menu to let it compress itself while preventing overflow.
 
 ```css title="Compact layout"
 .Content,

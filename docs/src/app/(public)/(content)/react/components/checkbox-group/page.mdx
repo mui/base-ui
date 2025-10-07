@@ -29,11 +29,11 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 
 ### Parent checkbox
 
-A checkbox that controls other checkboxes within a `CheckboxGroup` can be created:
+A checkbox that controls other checkboxes within a `<CheckboxGroup>` can be created:
 
-1. Make `CheckboxGroup` a controlled component
-2. Pass an array of all the child checkbox `value`s to the `CheckboxGroup`'s `allValues` prop
-3. Add the `parent` boolean prop to the parent `Checkbox`
+1. Make `<CheckboxGroup>` a controlled component
+2. Pass an array of all the child checkbox `value`s to the `<CheckboxGroup>`'s `allValues` prop
+3. Add the `parent` boolean prop to the parent `<Checkbox>`
 
 <Demo path="./demos/parent" />
 
@@ -45,9 +45,9 @@ A checkbox that controls other checkboxes within a `CheckboxGroup` can be create
 
 To use checkbox group in a form:
 
-1. Pass the group's `name` to a `Field`
-2. Use `Field.Label` to label each checkbox
-3. Use the `render` prop to render the field as a `Fieldset` in order to label the group
+1. Pass the group's `name` to a `<Field>`
+2. Use `<Field.Label>` to label each checkbox
+3. Use the `render` prop to render the field as a `<Fieldset>` in order to label the group
 
 ```tsx title="Using CheckboxGroup in a form"
 <Form>
@@ -62,7 +62,7 @@ To use checkbox group in a form:
         <Checkbox.Root value="olives" />
         Olives
       </Field.Label>
-    <CheckboxGroup>
+    </CheckboxGroup>
   </Field.Root>
 </Form>
 ```
