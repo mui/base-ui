@@ -15,6 +15,7 @@
     },
     "onOpenChange": {
       "type": "((open: boolean, eventDetails: ContextMenu.Root.ChangeEventDetails) => void)",
+      "description": "Event handler called when the menu is opened or closed.",
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: ContextMenu.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
