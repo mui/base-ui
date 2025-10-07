@@ -15,6 +15,7 @@ export interface UseFloatingRootContextOptions {
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
+    triggers?: Element[];
   };
   /**
    * Whether to prevent the auto-emitted `openchange` event.
@@ -56,9 +57,11 @@ export function useFloatingRootContext(
           reason: eventDetails.reason,
           nativeEvent: eventDetails.event,
           nested,
+          triggerElement: eventDetails.trigger,
         };
         events.emit('openchange', details);
       }
+
       onOpenChangeProp?.(newOpen, eventDetails);
     },
   );
@@ -75,8 +78,9 @@ export function useFloatingRootContext(
       reference: positionReference || elementsProp.reference || null,
       floating: elementsProp.floating || null,
       domReference: elementsProp.reference as Element | null,
+      triggers: elementsProp.triggers ?? [],
     }),
-    [positionReference, elementsProp.reference, elementsProp.floating],
+    [positionReference, elementsProp.reference, elementsProp.floating, elementsProp.triggers],
   );
 
   return React.useMemo<FloatingRootContext>(

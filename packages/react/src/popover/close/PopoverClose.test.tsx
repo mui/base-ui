@@ -15,6 +15,7 @@ describe('<Popover.Close />', () => {
     render(node) {
       return render(
         <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>{node}</Popover.Popup>
@@ -28,6 +29,7 @@ describe('<Popover.Close />', () => {
   it('should close popover when clicked', async () => {
     await render(
       <Popover.Root defaultOpen>
+        <Popover.Trigger>Trigger</Popover.Trigger>
         <Popover.Portal>
           <Popover.Positioner>
             <Popover.Popup>

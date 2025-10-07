@@ -139,6 +139,7 @@ export interface FloatingRootContext<RT extends ReferenceType = ReferenceType> {
     domReference: Element | null;
     reference: RT | null;
     floating: HTMLElement | null;
+    triggers?: Element[];
   };
   events: FloatingEvents;
   floatingId: string | undefined;
@@ -180,6 +181,7 @@ export interface ElementProps {
   item?:
     | React.HTMLProps<HTMLElement>
     | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>);
+  trigger?: React.HTMLProps<Element>;
 }
 
 export type ReferenceType = Element | VirtualElement;
