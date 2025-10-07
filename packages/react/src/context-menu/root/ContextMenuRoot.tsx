@@ -51,10 +51,15 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
 }
 
 export interface ContextMenuRootState {}
+
 export interface ContextMenuRootProps
   extends Omit<Menu.Root.Props, 'modal' | 'openOnHover' | 'delay' | 'closeDelay' | 'onOpenChange'> {
+  /**
+   * Event handler called when the menu is opened or closed.
+   */
   onOpenChange?: (open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void;
 }
+
 export type ContextMenuRootChangeEventReason = MenuRoot.ChangeEventReason;
 export type ContextMenuRootChangeEventDetails =
   BaseUIChangeEventDetails<ContextMenuRoot.ChangeEventReason>;
