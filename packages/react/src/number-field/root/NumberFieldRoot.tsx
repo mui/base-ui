@@ -655,9 +655,11 @@ export interface NumberFieldRootState extends FieldRoot.State {
    */
   scrubbing: boolean;
 }
+
 export type NumberFieldRootChangeEventReason = 'none';
 export type NumberFieldRootChangeEventDetails =
   BaseUIChangeEventDetails<NumberFieldRoot.ChangeEventReason>;
+
 export type NumberFieldRootCommitEventReason = 'none';
 export type NumberFieldRootCommitEventDetails =
   BaseUIGenericEventDetails<NumberFieldRoot.CommitEventReason>;

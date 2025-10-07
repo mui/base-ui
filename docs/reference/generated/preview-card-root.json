@@ -4,7 +4,8 @@
   "props": {
     "defaultOpen": {
       "type": "boolean",
-      "description": "Whether the preview card is initially open.",
+      "default": "false",
+      "description": "Whether the preview card is initially open.\n\nTo render a controlled preview card, use the `open` prop instead.",
       "detailedType": "boolean | undefined"
     },
     "open": {
@@ -19,7 +20,7 @@
     },
     "actionsRef": {
       "type": "RefObject<PreviewCard.Root.Actions>",
-      "description": "A ref to imperative actions.",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the preview card will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the preview card manually.\nUseful when the preview card's animation is controlled by an external library.",
       "detailedType": "| React.RefObject<PreviewCard.Root.Actions>\n| undefined"
     },
     "onOpenChangeComplete": {
@@ -29,11 +30,13 @@
     },
     "delay": {
       "type": "number",
+      "default": "600",
       "description": "How long to wait before the preview card opens. Specified in milliseconds.",
       "detailedType": "number | undefined"
     },
     "closeDelay": {
       "type": "number",
+      "default": "300",
       "description": "How long to wait before closing the preview card. Specified in milliseconds.",
       "detailedType": "number | undefined"
     },
