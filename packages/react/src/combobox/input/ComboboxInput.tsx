@@ -16,6 +16,7 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { useDirection } from '../../direction-provider/DirectionContext';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
   ...pressableTriggerOpenStateMapping,
@@ -43,6 +44,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const comboboxChipsContext = useComboboxChipsContext();
   const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
   const store = useComboboxRootContext();
+
+  const direction = useDirection();
 
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
@@ -292,17 +295,21 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           store.state.keyboardActiveRef.current = true;
+          const input = event.currentTarget;
+          const scrollAmount = input.scrollWidth - input.clientWidth;
 
           if (event.key === 'Home') {
             stopEvent(event);
-            event.currentTarget.setSelectionRange(0, 0);
+            input.setSelectionRange(0, 0);
+            input.scrollLeft = 0;
             return;
           }
 
           if (event.key === 'End') {
             stopEvent(event);
-            const length = event.currentTarget.value.length;
-            event.currentTarget.setSelectionRange(length, length);
+            const length = input.value.length;
+            input.setSelectionRange(length, length);
+            input.scrollLeft = direction === 'rtl' ? -scrollAmount : scrollAmount;
             return;
           }
 
@@ -328,7 +335,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (
             comboboxChipsContext &&
             event.key === 'Backspace' &&
-            event.currentTarget.value === '' &&
+            input.value === '' &&
             comboboxChipsContext.highlightedChipIndex === undefined &&
             Array.isArray(selectedValue) &&
             selectedValue.length > 0
