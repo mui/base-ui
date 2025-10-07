@@ -341,7 +341,7 @@ type SelectRootUncontrolledProps<Value, Multiple extends boolean | undefined> = 
   ) => void;
 };
 
-type SelectRootConditionalProps<Value, Multiple extends boolean | undefined = false> =
+export type SelectRootConditionalProps<Value, Multiple extends boolean | undefined = false> =
   | SelectRootControlledProps<Value, Multiple>
   | SelectRootUncontrolledProps<Value, Multiple>;
 
@@ -370,10 +370,10 @@ export type SelectRootChangeEventReason =
 export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
 
 export namespace SelectRoot {
-  export type Props<
+  export type Props<Value, Multiple extends boolean | undefined = false> = SelectRootProps<
     Value,
-    Multiple extends boolean | undefined = false,
-  > = SelectRootProps<Value, Multiple>;
+    Multiple
+  >;
   export type State = SelectRootState;
   export type Actions = SelectRootActions;
   export type ChangeEventReason = SelectRootChangeEventReason;

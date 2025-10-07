@@ -166,10 +166,10 @@ export type ComboboxRootHighlightEventReason = AriaCombobox.HighlightEventReason
 export type ComboboxRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
 
 export namespace ComboboxRoot {
-  export type Props<
+  export type Props<Value, Multiple extends boolean | undefined = false> = ComboboxRootProps<
     Value,
-    Multiple extends boolean | undefined = false,
-  > = ComboboxRootProps<Value, Multiple>;
+    Multiple
+  >;
   export type State = ComboboxRootState;
   export type Actions = ComboboxRootActions;
   export type ChangeEventReason = ComboboxRootChangeEventReason;

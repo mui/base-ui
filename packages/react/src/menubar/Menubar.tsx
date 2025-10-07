@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import {

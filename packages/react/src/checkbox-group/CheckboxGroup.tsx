@@ -144,6 +144,7 @@ export interface CheckboxGroupState extends FieldRoot.State {
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
 }
+
 export interface CheckboxGroupProps extends BaseUIComponentProps<'div', CheckboxGroup.State> {
   /** Names of the checkboxes in the group that should be ticked. */
   value?: string[];
@@ -156,6 +157,7 @@ export interface CheckboxGroupProps extends BaseUIComponentProps<'div', Checkbox
   /** Whether the component should ignore user interaction. */
   disabled?: boolean;
 }
+
 export type CheckboxGroupChangeEventReason = 'none';
 export type CheckboxGroupChangeEventDetails =
   BaseUIChangeEventDetails<CheckboxGroup.ChangeEventReason>;

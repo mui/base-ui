@@ -1,7 +1,5 @@
 import * as React from 'react';
-import {
-  Autocomplete,
-} from '@base-ui-components/react/autocomplete';
+import { Autocomplete } from '@base-ui-components/react/autocomplete';
 
 export type AutocompleteProps<Value = string> = Autocomplete.Root.Props<Value>;
 export type AutocompleteActions = Autocomplete.Root.Actions;
@@ -10,8 +8,7 @@ export type AutocompleteChangeEventReason = Autocomplete.Root.ChangeEventReason;
 export type AutocompleteHighlightEventDetails = Autocomplete.Root.HighlightEventDetails;
 export type AutocompleteHighlightEventReason = Autocomplete.Root.HighlightEventReason;
 
-export interface SimpleAutocompleteProps
-  extends Omit<Autocomplete.Root.Props<string>, 'children'> {
+export interface SimpleAutocompleteProps extends Omit<Autocomplete.Root.Props<string>, 'children'> {
   items: readonly string[];
 }
 

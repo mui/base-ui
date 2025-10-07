@@ -1,16 +1,17 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 
-export type ComboboxProps<Value = string, Multiple extends boolean | undefined = false> =
-  Combobox.Root.Props<Value, Multiple>;
+export type ComboboxProps<
+  Value = string,
+  Multiple extends boolean | undefined = false,
+> = Combobox.Root.Props<Value, Multiple>;
 export type ComboboxActions = Combobox.Root.Actions;
 export type ComboboxChangeEventDetails = Combobox.Root.ChangeEventDetails;
 export type ComboboxChangeEventReason = Combobox.Root.ChangeEventReason;
 export type ComboboxHighlightEventDetails = Combobox.Root.HighlightEventDetails;
 export type ComboboxHighlightEventReason = Combobox.Root.HighlightEventReason;
 
-export interface SimpleComboboxProps
-  extends Omit<Combobox.Root.Props<string, false>, 'children'> {
+export interface SimpleComboboxProps extends Omit<Combobox.Root.Props<string, false>, 'children'> {
   items: readonly string[];
 }
 
@@ -35,28 +36,31 @@ export const ComboboxHarness = React.forwardRef<HTMLInputElement, SimpleCombobox
 
     React.useMemo(() => filter.contains(items[0] ?? '', ''), [filter, items]);
 
-    const { onValueChange: onValueChangeProp, onItemHighlighted: onItemHighlightedProp, actionsRef: actionsRefProp, ...otherProps } = props;
+    const {
+      onValueChange: onValueChangeProp,
+      onItemHighlighted: onItemHighlightedProp,
+      actionsRef: actionsRefProp,
+      ...otherProps
+    } = props;
 
-    const handleValueChange = React.useCallback<NonNullable<ComboboxProps<string, false>['onValueChange']>>(
-      (value, details) => {
-        const reason: ComboboxChangeEventReason = details.reason;
-        if (reason === 'item-press') {
-          details.cancel();
-        }
-        void value;
-      },
-      [],
-    );
+    const handleValueChange = React.useCallback<
+      NonNullable<ComboboxProps<string, false>['onValueChange']>
+    >((value, details) => {
+      const reason: ComboboxChangeEventReason = details.reason;
+      if (reason === 'item-press') {
+        details.cancel();
+      }
+      void value;
+    }, []);
 
-    const handleItemHighlighted = React.useCallback<NonNullable<ComboboxProps<string, false>['onItemHighlighted']>>(
-      (_value, details) => {
-        const reason: ComboboxHighlightEventReason = details.reason;
-        if (reason === 'keyboard') {
-          void 0;
-        }
-      },
-      [],
-    );
+    const handleItemHighlighted = React.useCallback<
+      NonNullable<ComboboxProps<string, false>['onItemHighlighted']>
+    >((_value, details) => {
+      const reason: ComboboxHighlightEventReason = details.reason;
+      if (reason === 'keyboard') {
+        void 0;
+      }
+    }, []);
 
     const rootProps = otherProps as ComboboxProps<string, false>;
 

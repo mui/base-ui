@@ -38,9 +38,7 @@ export type {
   ComboboxBackdropProps as AutocompleteBackdropProps,
   ComboboxBackdropState as AutocompleteBackdropState,
 } from '../combobox/backdrop/ComboboxBackdrop';
-export type {
-  ComboboxPortalProps as AutocompletePortalProps,
-} from '../combobox/portal/ComboboxPortal';
+export type { ComboboxPortalProps as AutocompletePortalProps } from '../combobox/portal/ComboboxPortal';
 export type {
   ComboboxGroupProps as AutocompleteGroupProps,
   ComboboxGroupState as AutocompleteGroupState,
@@ -57,6 +55,4 @@ export type {
   ComboboxStatusProps as AutocompleteStatusProps,
   ComboboxStatusState as AutocompleteStatusState,
 } from '../combobox/status/ComboboxStatus';
-export type {
-  ComboboxCollectionProps as AutocompleteCollectionProps,
-} from '../combobox/collection/ComboboxCollection';
+export type { ComboboxCollectionProps as AutocompleteCollectionProps } from '../combobox/collection/ComboboxCollection';
