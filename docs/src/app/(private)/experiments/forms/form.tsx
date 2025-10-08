@@ -244,30 +244,30 @@ export default function Page() {
               <Select.Positioner className={styles.Positioner} sideOffset={8}>
                 <Select.ScrollUpArrow className={styles.ScrollArrow} />
                 <Select.Popup className={styles.Popup}>
-                  <Select.Item className={styles.SelectItem} value="sans">
-                    <Select.ItemIndicator className={styles.SelectItemIndicator}>
-                      <CheckIcon className={styles.SelectItemIndicatorIcon} />
+                  <Select.Item className={styles.Item} value="sans">
+                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
 
                     <Select.ItemText className={styles.ItemText}>Sans-serif</Select.ItemText>
                   </Select.Item>
-                  <Select.Item className={styles.SelectItem} value="serif">
-                    <Select.ItemIndicator className={styles.SelectItemIndicator}>
-                      <CheckIcon className={styles.SelectItemIndicatorIcon} />
+                  <Select.Item className={styles.Item} value="serif">
+                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
 
                     <Select.ItemText className={styles.ItemText}>Serif</Select.ItemText>
                   </Select.Item>
-                  <Select.Item className={styles.SelectItem} value="mono">
-                    <Select.ItemIndicator className={styles.SelectItemIndicator}>
-                      <CheckIcon className={styles.SelectItemIndicatorIcon} />
+                  <Select.Item className={styles.Item} value="mono">
+                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
 
                     <Select.ItemText className={styles.ItemText}>Monospace</Select.ItemText>
                   </Select.Item>
-                  <Select.Item className={styles.SelectItem} value="cursive">
-                    <Select.ItemIndicator className={styles.SelectItemIndicator}>
-                      <CheckIcon className={styles.SelectItemIndicatorIcon} />
+                  <Select.Item className={styles.Item} value="cursive">
+                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
 
                     <Select.ItemText className={styles.ItemText}>Cursive</Select.ItemText>

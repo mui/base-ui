@@ -242,7 +242,7 @@
   }
 }
 
-.SelectItem {
+.Item {
   box-sizing: border-box;
   outline: 0;
   font-size: 0.875rem;
@@ -250,7 +250,7 @@
   padding-block: 0.5rem;
   padding-left: 0.625rem;
   padding-right: 1rem;
-  display: grid;
+  display: flex;
   gap: 0.5rem;
   align-items: center;
   grid-template-columns: 0.75rem 1fr;
@@ -281,17 +281,17 @@
   }
 }
 
-.SelectItemIndicator {
+.ItemIndicator {
   grid-column-start: 1;
 }
 
-.SelectItemIndicatorIcon {
+.ItemIndicatorIcon {
   display: block;
   width: 0.75rem;
   height: 0.75rem;
 }
 
-.SelectItemText {
+.ItemText {
   grid-column-start: 2;
 }
 
@@ -394,12 +394,6 @@
 
 .Caption {
   font-weight: 500;
-}
-
-.Item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .CheckboxGroup:has([data-parent]) .FieldItem:not(:has([data-parent])) {
