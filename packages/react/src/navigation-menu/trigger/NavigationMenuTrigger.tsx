@@ -476,13 +476,18 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   );
 });
 
-export namespace NavigationMenuTrigger {
-  export interface State {
-    /**
-     * If `true`, the popup is open and the item is active.
-     */
-    open: boolean;
-  }
+export interface NavigationMenuTriggerState {
+  /**
+   * If `true`, the popup is open and the item is active.
+   */
+  open: boolean;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface NavigationMenuTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
+
+export namespace NavigationMenuTrigger {
+  export type State = NavigationMenuTriggerState;
+  export type Props = NavigationMenuTriggerProps;
 }

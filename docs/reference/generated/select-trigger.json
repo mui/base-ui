@@ -10,7 +10,6 @@
     },
     "disabled": {
       "type": "boolean",
-      "default": "false",
       "description": "Whether the component should ignore user interaction.",
       "detailedType": "boolean | undefined"
     },

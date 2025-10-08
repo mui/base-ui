@@ -681,6 +681,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react/build
 
+  test/public-types:
+    dependencies:
+      '@base-ui-components/react':
+        specifier: workspace:*
+        version: link:../../packages/react/build
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
+
 packages:
 
   '@adobe/css-tools@4.4.4':
@@ -8871,6 +8880,10 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  react@19.1.0:
+    resolution: {integrity: sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==}
+    engines: {node: '>=0.10.0'}
 
   react@19.1.1:
     resolution: {integrity: sha512-w8nqGImo45dmMIfljjMwOGtbmC/mk4CMYhWIicdSflH91J9TyCyczcPFXJzrZ/ZXcgGRFeP6BU0BEJTw6tZdfQ==}
@@ -20641,6 +20654,8 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.1.13
+
+  react@19.1.0: {}
 
   react@19.1.1: {}
 

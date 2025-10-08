@@ -166,19 +166,21 @@ function sortByDocumentPosition(a: Element, b: Element) {
 
 function disableEslintWarning(_: any) {}
 
+export interface CompositeListProps<Metadata> {
+  children: React.ReactNode;
+  /**
+   * A ref to the list of HTML elements, ordered by their index.
+   * `useListNavigation`'s `listRef` prop.
+   */
+  elementsRef: React.RefObject<Array<HTMLElement | null>>;
+  /**
+   * A ref to the list of element labels, ordered by their index.
+   * `useTypeahead`'s `listRef` prop.
+   */
+  labelsRef?: React.RefObject<Array<string | null>>;
+  onMapChange?: (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void;
+}
+
 export namespace CompositeList {
-  export interface Props<Metadata> {
-    children: React.ReactNode;
-    /**
-     * A ref to the list of HTML elements, ordered by their index.
-     * `useListNavigation`'s `listRef` prop.
-     */
-    elementsRef: React.RefObject<Array<HTMLElement | null>>;
-    /**
-     * A ref to the list of element labels, ordered by their index.
-     * `useTypeahead`'s `listRef` prop.
-     */
-    labelsRef?: React.RefObject<Array<string | null>>;
-    onMapChange?: (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void;
-  }
+  export type Props<Metadata> = CompositeListProps<Metadata>;
 }

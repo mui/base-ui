@@ -4,8 +4,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import type { BaseUIComponentProps } from '../utils/types';
 import { FormContext } from './FormContext';
 import { useRenderElement } from '../utils/useRenderElement';
-
-const EMPTY = {};
+import { EMPTY_OBJECT } from '../utils/constants';
 
 /**
  * A native form element with consolidated error handling.
@@ -48,7 +47,6 @@ export const Form = React.forwardRef(function Form(
   }, [errors, focusControl]);
 
   const element = useRenderElement('form', componentProps, {
-    state: EMPTY,
     ref: forwardedRef,
     props: [
       {
@@ -79,7 +77,7 @@ export const Form = React.forwardRef(function Form(
   });
 
   const clearErrors = useEventCallback((name: string | undefined) => {
-    if (name && errors && EMPTY.hasOwnProperty.call(errors, name)) {
+    if (name && errors && EMPTY_OBJECT.hasOwnProperty.call(errors, name)) {
       const nextErrors = { ...errors };
       delete nextErrors[name];
       onClearErrors?.(nextErrors);
@@ -98,17 +96,21 @@ export const Form = React.forwardRef(function Form(
   return <FormContext.Provider value={contextValue}>{element}</FormContext.Provider>;
 });
 
+export interface FormState {}
+
+export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
+  /**
+   * An object where the keys correspond to the `name` attribute of the form fields,
+   * and the values correspond to the error(s) related to that field.
+   */
+  errors?: FormContext['errors'];
+  /**
+   * Event handler called when the `errors` object is cleared.
+   */
+  onClearErrors?: (errors: FormContext['errors']) => void;
+}
+
 export namespace Form {
-  export interface Props extends BaseUIComponentProps<'form', State> {
-    /**
-     * An object where the keys correspond to the `name` attribute of the form fields,
-     * and the values correspond to the error(s) related to that field.
-     */
-    errors?: FormContext['errors'];
-    /**
-     * Event handler called when the `errors` object is cleared.
-     */
-    onClearErrors?: (errors: FormContext['errors']) => void;
-  }
-  export interface State {}
+  export type Props = FormProps;
+  export type State = FormState;
 }
