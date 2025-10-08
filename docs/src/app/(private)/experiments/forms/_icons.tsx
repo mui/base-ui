@@ -52,3 +52,88 @@ export function HorizontalRuleIcon(props: React.ComponentProps<'svg'>) {
     </svg>
   );
 }
+
+export function ClearIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M18 6L6 18" />
+      <path d="M6 6l12 12" />
+    </svg>
+  );
+}
+
+export function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
+export function CursorGrowIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="26"
+      height="14"
+      viewBox="0 0 24 14"
+      fill="black"
+      stroke="white"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path d="M19.5 5.5L6.49737 5.51844V2L1 6.9999L6.5 12L6.49737 8.5L19.5 8.5V12L25 6.9999L19.5 2V5.5Z" />
+    </svg>
+  );
+}
+
+export function PlusIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      stroke="currentcolor"
+      strokeWidth="1.6"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path d="M0 5H5M10 5H5M5 5V0M5 5V10" />
+    </svg>
+  );
+}
+
+export function MinusIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      stroke="currentcolor"
+      strokeWidth="1.6"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path d="M0 5H10" />
+    </svg>
+  );
+}
