@@ -12,9 +12,10 @@ import { Select } from '@base-ui-components/react/select';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
 import { Radio } from '@base-ui-components/react/radio';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Combobox } from '@base-ui-components/react/combobox';
 
 import styles from './form.module.css';
-import { CheckIcon, ChevronUpDownIcon, HorizontalRuleIcon } from './_icons';
+import { CheckIcon, ChevronUpDownIcon, HorizontalRuleIcon, XIcon } from './_icons';
 
 import {
   SettingsMetadata,
@@ -32,7 +33,8 @@ interface FormValues {
   switch: boolean;
   slider: number;
   numberField: number;
-  selectCountry: string;
+  country: string;
+  states: State[];
   radioGroup: string;
   checkboxGroup: string[];
 }
@@ -49,23 +51,36 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
 export default function ExampleForm() {
   const { settings } = useExperimentSettings<Settings>();
 
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+
   const [errors, setErrors] = React.useState({});
   const [loading, setLoading] = React.useState(false);
 
-  const { handleSubmit, control, reset, setError, setFocus } = useForm<FormValues>({
-    defaultValues: {
-      username: '',
-      checkbox: true,
-      requiredCheckbox: false,
-      switch: false,
-      slider: 45,
-      numberField: 5,
-      selectCountry: '',
-      radioGroup: 'auto',
-      checkboxGroup: [],
-    },
-    mode: settings.validationMode,
-  });
+  const { handleSubmit, control, reset, resetField, setError, setFocus, watch } =
+    useForm<FormValues>({
+      defaultValues: {
+        username: '',
+        checkbox: true,
+        requiredCheckbox: false,
+        switch: false,
+        slider: 45,
+        numberField: 5,
+        country: '',
+        states: [],
+        radioGroup: 'auto',
+        checkboxGroup: [],
+      },
+      mode: settings.validationMode,
+    });
+
+  const watchedCountry = watch('country');
+  const states = React.useMemo(() => {
+    if (!watchedCountry) {
+      return [];
+    }
+    const country = COUNTRIES.find((c) => c.iso2 === watchedCountry);
+    return country?.states ?? [];
+  }, [watchedCountry]);
 
   async function submitForm(data: FormValues) {
     setLoading(true);
@@ -284,18 +299,26 @@ export default function ExampleForm() {
         />
 
         <Controller
-          name="selectCountry"
+          name="country"
           control={control}
           rules={{
             required: 'You must select a country',
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                className={styles.Field}
+                id="CountryField"
+              >
                 <Field.Label className={styles.Label}>Country</Field.Label>
                 <Select.Root
                   value={field.value}
-                  onValueChange={field.onChange}
+                  onValueChange={(...args) => {
+                    resetField('states');
+                    field.onChange(...args);
+                  }}
                   inputRef={field.ref}
                 >
                   <Select.Trigger onBlur={field.onBlur} className={styles.Select}>
@@ -337,6 +360,113 @@ export default function ExampleForm() {
                     </Select.Positioner>
                   </Select.Portal>
                 </Select.Root>
+                <Field.Error className={styles.Error} match={!!fieldState.error}>
+                  {fieldState.error?.message ?? ''}
+                </Field.Error>
+              </Field.Root>
+            );
+          }}
+        />
+
+        <Controller
+          name="states"
+          control={control}
+          rules={{
+            validate: (value) => {
+              if (value.length > 3) {
+                return 'Max 3 choices';
+              }
+              return true;
+            },
+          }}
+          render={({ field, fieldState }) => {
+            return (
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                className={styles.Field}
+                id="StateField"
+              >
+                <Combobox.Root
+                  multiple
+                  items={states}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  itemToStringLabel={(itemValue) => itemValue.name}
+                >
+                  <div className="flex max-w-[28rem] flex-col gap-1">
+                    <Field.Label className="text-sm leading-5 font-medium text-gray-900">
+                      States
+                    </Field.Label>
+                    <Field.Description className={styles.Description}>
+                      {watchedCountry ? 'You may select multiple states' : 'Select a country first'}
+                    </Field.Description>
+                    <Combobox.Chips
+                      className="flex w-64 flex-wrap items-center gap-0.5 rounded-md border border-gray-200 px-1.5 py-1 focus-within:outline focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]"
+                      ref={containerRef}
+                    >
+                      <Combobox.Value>
+                        {(value: string[]) => (
+                          <React.Fragment>
+                            {value.map((v) => {
+                              const state = states.find((s) => s.code === v);
+                              const name = state?.name ?? '';
+                              return (
+                                <Combobox.Chip
+                                  key={v}
+                                  className="flex cursor-default items-center gap-1 rounded-md bg-gray-100 px-1.5 py-[0.2rem] text-sm text-gray-900 outline-none focus-within:bg-blue-800 focus-within:text-gray-50 [@media(hover:hover)]:[&[data-highlighted]]:bg-blue-800 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50"
+                                  aria-label={name}
+                                >
+                                  {name}
+                                  <Combobox.ChipRemove
+                                    className="rounded-md p-1 text-inherit hover:bg-gray-200"
+                                    aria-label="Remove"
+                                  >
+                                    <XIcon />
+                                  </Combobox.ChipRemove>
+                                </Combobox.Chip>
+                              );
+                            })}
+                            <Combobox.Input
+                              placeholder={value.length > 0 ? '' : 'e.g. Central'}
+                              className="h-8 min-w-12 flex-1 rounded-md border-0 bg-transparent pl-2 text-base text-gray-900 outline-none"
+                              ref={field.ref}
+                              onBlur={field.onBlur}
+                            />
+                          </React.Fragment>
+                        )}
+                      </Combobox.Value>
+                    </Combobox.Chips>
+                  </div>
+
+                  <Combobox.Portal>
+                    <Combobox.Positioner
+                      className="z-50 outline-none"
+                      sideOffset={4}
+                      anchor={containerRef}
+                    >
+                      <Combobox.Popup className="max-h-[min(var(--available-height),23rem)] w-[var(--anchor-width)] max-w-[var(--available-width)] origin-[var(--transform-origin)] scroll-pt-2 scroll-pb-2 overflow-y-auto overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+                        <Combobox.Empty className={styles.Empty}>
+                          {!watchedCountry ? 'Select a country first' : 'No matches'}
+                        </Combobox.Empty>
+                        <Combobox.List>
+                          {(state: State) => (
+                            <Combobox.Item
+                              key={state.code}
+                              className={styles.Item}
+                              value={state.code}
+                            >
+                              <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                                <CheckIcon className={styles.ItemIndicatorIcon} />
+                              </Combobox.ItemIndicator>
+                              <div className={styles.ItemText}>{state.name}</div>
+                            </Combobox.Item>
+                          )}
+                        </Combobox.List>
+                      </Combobox.Popup>
+                    </Combobox.Positioner>
+                  </Combobox.Portal>
+                </Combobox.Root>
                 <Field.Error className={styles.Error} match={!!fieldState.error}>
                   {fieldState.error?.message ?? ''}
                 </Field.Error>
@@ -521,8 +651,24 @@ export default function ExampleForm() {
   );
 }
 
+interface State {
+  code: string;
+  name: string;
+  subdivision: string | null;
+}
+
+interface Country {
+  iso2: string;
+  iso3: string;
+  name: string;
+  capital: string;
+  region: string;
+  subregion: string;
+  states: State[];
+}
+
 const ALL_CHECKBOX_GROUP_VALUES = ['ads', 'annoyances', 'comments', 'trackers'];
-const COUNTRIES = [
+const COUNTRIES: Country[] = [
   {
     iso2: 'BR',
     iso3: 'BRA',
