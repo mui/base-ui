@@ -10,7 +10,6 @@ import { type TransitionStatus, useTransitionStatus } from '../../utils/useTrans
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
-import './CheckboxIndicatorDataAttributes';
 
 /**
  * Indicates whether the checkbox is ticked.

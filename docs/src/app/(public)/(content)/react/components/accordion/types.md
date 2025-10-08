@@ -117,3 +117,10 @@ Renders a `<div>` element.
 | data-index          | `number` | Indicates the index of the accordion item.   |
 | data-starting-style | -        | Present when the panel is animating in.      |
 | data-ending-style   | -        | Present when the panel is animating out.     |
+
+**Panel CSS Variables:**
+
+| Variable                   | Type     | Description                   |
+| :------------------------- | :------- | :---------------------------- |
+| `--accordion-panel-height` | `number` | The accordion panel's height. |
+| `--accordion-panel-width`  | `number` | The accordion panel's width.  |

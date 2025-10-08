@@ -19,7 +19,6 @@ import { useAccordionRootContext } from '../root/AccordionRootContext';
 import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import './AccordionTriggerDataAttributes';
 
 const SUPPORTED_KEYS = new Set([ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END]);
 

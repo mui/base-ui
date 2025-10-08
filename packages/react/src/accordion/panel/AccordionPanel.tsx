@@ -14,7 +14,6 @@ import { AccordionPanelCssVars } from './AccordionPanelCssVars';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import './AccordionPanelDataAttributes';
 
 /**
  * A collapsible panel with the accordion item contents.
