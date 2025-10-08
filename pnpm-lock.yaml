@@ -318,8 +318,8 @@ importers:
         specifier: 4.1.13
         version: 4.1.13
       '@types/chai':
-        specifier: ^4.3.20
-        version: 4.3.20
+        specifier: ^5.2.2
+        version: 5.2.2
       '@types/gtag.js':
         specifier: ^0.0.20
         version: 0.0.20
@@ -464,8 +464,8 @@ importers:
         specifier: ^14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
       '@types/chai':
-        specifier: ^4.3.20
-        version: 4.3.20
+        specifier: ^5.2.2
+        version: 5.2.2
       '@types/chai-dom':
         specifier: ^1.11.3
         version: 1.11.3
@@ -535,8 +535,8 @@ importers:
         specifier: ^14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
       '@types/chai':
-        specifier: ^4.3.20
-        version: 4.3.20
+        specifier: ^5.2.2
+        version: 5.2.2
       '@types/chai-dom':
         specifier: ^1.11.3
         version: 1.11.3
@@ -608,8 +608,8 @@ importers:
         specifier: ^6.6.4
         version: 6.8.0
       '@types/chai':
-        specifier: ^4.3.20
-        version: 4.3.20
+        specifier: ^5.2.2
+        version: 5.2.2
       '@types/chai-dom':
         specifier: ^1.11.3
         version: 1.11.3
@@ -4017,9 +4017,6 @@ packages:
 
   '@types/chai-dom@1.11.3':
     resolution: {integrity: sha512-EUEZI7uID4ewzxnU7DJXtyvykhQuwe+etJ1wwOiJyQRTH/ifMWKX+ghiXkxCUvNJ6IQDodf0JXhuP6zZcy2qXQ==}
-
-  '@types/chai@4.3.20':
-    resolution: {integrity: sha512-/pC9HAB5I/xMlc5FP77qjCnI16ChlJfW0tGa0IUcFn38VJrTV6DeZ60NU5KZBtaOZqjdpwTWohz5HU1RrhiYxQ==}
 
   '@types/chai@5.2.2':
     resolution: {integrity: sha512-8kB30R7Hwqf40JPiKhVzodJs2Qc1ZJ5zuT3uzw5Hq/dhNCl3G3l83jfpdI1e20BP348+fV7VIL/+FxaXkqBmWg==}
@@ -14560,9 +14557,7 @@ snapshots:
 
   '@types/chai-dom@1.11.3':
     dependencies:
-      '@types/chai': 4.3.20
-
-  '@types/chai@4.3.20': {}
+      '@types/chai': 5.2.2
 
   '@types/chai@5.2.2':
     dependencies:

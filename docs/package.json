@@ -67,7 +67,7 @@
     "@mui/internal-scripts": "^2.0.10",
     "@mui/internal-test-utils": "^2.0.10",
     "@tailwindcss/postcss": "4.1.13",
-    "@types/chai": "^4.3.20",
+    "@types/chai": "^5.2.2",
     "@types/gtag.js": "^0.0.20",
     "@types/hast": "^3.0.4",
     "@types/node": "^22.18.8",
