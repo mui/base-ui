@@ -47,6 +47,7 @@ export type State = {
   listRef: React.RefObject<Array<HTMLElement | null>>;
   labelsRef: React.RefObject<Array<string | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
+  emptyRef: React.RefObject<HTMLDivElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   chipsContainerRef: React.RefObject<HTMLDivElement | null>;
@@ -139,6 +140,7 @@ export const selectors = {
   listRef: createSelector((state: State) => state.listRef),
   labelsRef: createSelector((state: State) => state.labelsRef),
   popupRef: createSelector((state: State) => state.popupRef),
+  emptyRef: createSelector((state: State) => state.emptyRef),
   inputRef: createSelector((state: State) => state.inputRef),
   keyboardActiveRef: createSelector((state: State) => state.keyboardActiveRef),
   chipsContainerRef: createSelector((state: State) => state.chipsContainerRef),
