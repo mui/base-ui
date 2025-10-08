@@ -26,6 +26,7 @@ const objectItemsReadonly = [
     return item;
   }}
   onValueChange={(value) => {
+    // @ts-expect-error
     value.startsWith('a');
   }}
 />;
@@ -42,6 +43,7 @@ const objectItemsReadonly = [
     return item;
   }}
   onValueChange={(value) => {
+    // @ts-expect-error
     value.startsWith('a');
   }}
 />;
@@ -74,6 +76,7 @@ const objectValueItems: Array<{ value: Obj; label: string }> = [
   itemToStringLabel={(item) => item.code}
   itemToStringValue={(item) => item.code}
   onValueChange={(value) => {
+    // @ts-expect-error
     value.code;
   }}
 />;
@@ -105,7 +108,7 @@ const objectValueItems: Array<{ value: Obj; label: string }> = [
     expectType<(typeof objectValueItems)[number], typeof item>(item);
     expectType<(typeof objectValueItems)[number], typeof value>(value);
     item.value.code;
-    value?.value.code;
+    value.value.code;
     return value != null && item.value.code === value.value.code;
   }}
 />;
@@ -168,6 +171,7 @@ function App() {
 <Select.Root
   defaultValue="test"
   onValueChange={(value) => {
+    // @ts-expect-error
     value.length;
   }}
 />;

@@ -395,6 +395,41 @@ describe('<Combobox.Input />', () => {
       expect(input.selectionEnd).to.equal(input.value.length);
     });
 
+    it.skipIf(isJSDOM)(
+      'scrolls to the start and end when pressing Home/End on overflowing input',
+      async () => {
+        const { user } = await render(
+          <Combobox.Root>
+            <Combobox.Input style={{ width: 64, fontSize: 20 }} />
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        input.focus();
+
+        await user.type(input, 'this is a very long combobox value');
+
+        expect(input.scrollWidth).to.be.greaterThan(input.clientWidth);
+
+        const expectedScroll = input.scrollWidth - input.clientWidth;
+
+        expect(expectedScroll).to.be.greaterThan(0);
+
+        input.scrollLeft = expectedScroll;
+        input.setSelectionRange(input.value.length, input.value.length);
+
+        await user.keyboard('{Home}');
+        expect(input.selectionStart).to.equal(0);
+        expect(input.selectionEnd).to.equal(0);
+        expect(input.scrollLeft).to.equal(0);
+
+        await user.keyboard('{End}');
+        expect(input.selectionStart).to.equal(input.value.length);
+        expect(input.selectionEnd).to.equal(input.value.length);
+        expect(input.scrollLeft).to.be.closeTo(expectedScroll, 2);
+      },
+    );
+
     it('preserves caret position when controlled and inserting in the middle', async () => {
       function Controlled() {
         const [value, setValue] = React.useState('');

@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { isFirefox } from '@base-ui-components/utils/detectBrowser';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
@@ -21,6 +22,7 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { Side } from '../../utils/useAnchorPositioning';
+import { useDirection } from '../../direction-provider/DirectionContext';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
   ...pressableTriggerOpenStateMapping,
@@ -52,6 +54,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const hasPositionerParent = Boolean(positioning);
   const store = useComboboxRootContext();
   const { filteredItems } = useComboboxDerivedItemsContext();
+
+  const direction = useDirection();
 
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
@@ -309,17 +313,23 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           store.state.keyboardActiveRef.current = true;
+          const input = event.currentTarget;
+          const scrollAmount = input.scrollWidth - input.clientWidth;
+          const isRTL = direction === 'rtl';
 
           if (event.key === 'Home') {
             stopEvent(event);
-            event.currentTarget.setSelectionRange(0, 0);
+            const cursor = isFirefox && isRTL ? input.value.length : 0;
+            input.setSelectionRange(cursor, cursor);
+            input.scrollLeft = 0;
             return;
           }
 
           if (event.key === 'End') {
             stopEvent(event);
-            const length = event.currentTarget.value.length;
-            event.currentTarget.setSelectionRange(length, length);
+            const cursor = isFirefox && isRTL ? 0 : input.value.length;
+            input.setSelectionRange(cursor, cursor);
+            input.scrollLeft = isRTL ? -scrollAmount : scrollAmount;
             return;
           }
 
@@ -345,7 +355,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (
             comboboxChipsContext &&
             event.key === 'Backspace' &&
-            event.currentTarget.value === '' &&
+            input.value === '' &&
             comboboxChipsContext.highlightedChipIndex === undefined &&
             Array.isArray(selectedValue) &&
             selectedValue.length > 0
