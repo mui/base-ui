@@ -35,8 +35,12 @@ export const ComboboxGroupLabel = React.forwardRef(function ComboboxGroupLabel(
   return element;
 });
 
-export namespace ComboboxGroupLabel {
-  export interface State {}
+export interface ComboboxGroupLabelState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ComboboxGroupLabelProps
+  extends BaseUIComponentProps<'div', ComboboxGroupLabel.State> {}
+
+export namespace ComboboxGroupLabel {
+  export type State = ComboboxGroupLabelState;
+  export type Props = ComboboxGroupLabelProps;
 }

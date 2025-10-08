@@ -353,8 +353,12 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   );
 });
 
-export namespace ScrollAreaViewport {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ScrollAreaViewportProps
+  extends BaseUIComponentProps<'div', ScrollAreaViewport.State> {}
 
-  export interface State extends ScrollAreaRoot.State {}
+export interface ScrollAreaViewportState extends ScrollAreaRoot.State {}
+
+export namespace ScrollAreaViewport {
+  export type Props = ScrollAreaViewportProps;
+  export type State = ScrollAreaViewportState;
 }

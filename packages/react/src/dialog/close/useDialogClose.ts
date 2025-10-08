@@ -29,34 +29,37 @@ export function useDialogClose(params: useDialogClose.Parameters): useDialogClos
   };
 }
 
-export namespace useDialogClose {
-  export interface Parameters {
-    /**
-     * Whether the button is currently disabled.
-     */
-    disabled: boolean;
-    /**
-     * Whether the dialog is currently open.
-     */
-    open: boolean;
-    /**
-     * Event handler called when the dialog is opened or closed.
-     */
-    setOpen: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton: boolean;
-  }
+export interface UseDialogCloseParameters {
+  /**
+   * Whether the button is currently disabled.
+   */
+  disabled: boolean;
+  /**
+   * Whether the dialog is currently open.
+   */
+  open: boolean;
+  /**
+   * Event handler called when the dialog is opened or closed.
+   */
+  setOpen: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
+  /**
+   * Whether the component renders a native `<button>` element when replacing it
+   * via the `render` prop.
+   * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+   * @default true
+   */
+  nativeButton: boolean;
+}
 
-  export interface ReturnValue {
-    /**
-     * Resolver for the root element props.
-     */
-    getRootProps: (externalProps: React.HTMLAttributes<any>) => React.HTMLAttributes<any>;
-    ref: React.Ref<HTMLElement>;
-  }
+export interface UseDialogCloseReturnValue {
+  /**
+   * Resolver for the root element props.
+   */
+  getRootProps: (externalProps: React.HTMLAttributes<any>) => React.HTMLAttributes<any>;
+  ref: React.Ref<HTMLElement>;
+}
+
+export namespace useDialogClose {
+  export type Parameters = UseDialogCloseParameters;
+  export type ReturnValue = UseDialogCloseReturnValue;
 }

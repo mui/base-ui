@@ -13,8 +13,9 @@ describe('@base-ui-components/react', () => {
   });
 
   it('should not have undefined exports', () => {
-    (Object.keys(BaseUI) as (keyof typeof BaseUI)[]).forEach((exportKey) => {
-      expect(Boolean(BaseUI[exportKey])).to.equal(true);
+    Object.keys(BaseUI).forEach((exportKey) => {
+      const value = (BaseUI as Record<string, unknown>)[exportKey];
+      expect(Boolean(value)).to.equal(true);
     });
   });
 
