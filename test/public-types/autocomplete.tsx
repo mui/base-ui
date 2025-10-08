@@ -8,6 +8,8 @@ export type AutocompleteChangeEventReason = Autocomplete.Root.ChangeEventReason;
 export type AutocompleteHighlightEventDetails = Autocomplete.Root.HighlightEventDetails;
 export type AutocompleteHighlightEventReason = Autocomplete.Root.HighlightEventReason;
 
+export const { useFilter } = Autocomplete;
+
 export interface SimpleAutocompleteProps extends Omit<Autocomplete.Root.Props<string>, 'children'> {
   items: readonly string[];
 }
