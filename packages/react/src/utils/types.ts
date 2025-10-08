@@ -9,6 +9,7 @@ export interface FloatingUIOpenChangeDetails {
   reason: string;
   nativeEvent: Event;
   nested: boolean;
+  triggerElement?: Element | undefined;
 }
 
 export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
@@ -106,3 +107,8 @@ export type RequiredExcept<T, K extends keyof T> = Required<Omit<T, K>> & Pick<T
  */
 
 export type Orientation = 'horizontal' | 'vertical';
+
+export type PopupTriggerMap<Payload = unknown> = Map<
+  string,
+  { element: HTMLElement; getPayload?: (() => Payload) | undefined }
+>;

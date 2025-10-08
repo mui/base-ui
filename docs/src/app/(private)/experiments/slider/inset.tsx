@@ -53,7 +53,7 @@ function DemoSlider(props: Slider.Root.Props & { wide?: boolean }) {
     <Slider.Root
       thumbAlignment="edge"
       {...rest}
-      className="[--base-color:var(--color-blue)] [--dragging-color:color-mix(in_srgb,var(--base-color)_85%,white_15%)] [--indicator-bg:var(--base-color)] [--thumb-bg:var(--base-color)] [--thumb-radius:0.625rem] [--track-bg:var(--color-gray-200)] [--track-border-color:var(--color-gray-400)] [--track-height:0.625rem] [--track-width:6.25rem]"
+      className="[--base-color:var(--color-blue)] [--dragging-color:color-mix(in_srgb,var(--base-color)_85%,white_15%)] [--indicator-bg:var(--base-color)] [--thumb-bg:var(--base-color)] [--thumb-radius:0.625rem] [--track-bg:var(--color-gray-200)] [--track-height:0.625rem] [--track-border-color:var(--color-gray-400)] [--track-width:6.25rem]"
       style={
         {
           ['--base-color']:
@@ -64,7 +64,7 @@ function DemoSlider(props: Slider.Root.Props & { wide?: boolean }) {
       }
     >
       <Slider.Control className="relative box-border w-[var(--track-width)] touch-none select-none">
-        <Slider.Track className="h-[var(--track-height)] w-[var(--track-width)] rounded-full bg-[var(--track-bg)] select-none">
+        <Slider.Track className="h-[var(--track-height)] w-[var(--track-width)] bg-[var(--track-bg)] rounded-full select-none">
           <Slider.Indicator
             className={clsx(
               'bg-[var(--indicator-bg)] select-none data-[dragging]:bg-[var(--dragging-color)]',
@@ -97,12 +97,12 @@ function RadixSlider(props: Slider.Root.Props) {
     <Slider.Root
       thumbAlignment="edge"
       {...props}
-      className="relative flex touch-none select-none data-[orientation=horizontal]:h-[20px] data-[orientation=horizontal]:w-[240px] data-[orientation=horizontal]:items-center data-[orientation=vertical]:h-[240px] data-[orientation=vertical]:w-[20px] data-[orientation=vertical]:justify-center"
+      className="relative flex select-none touch-none data-[orientation=horizontal]:items-center data-[orientation=horizontal]:w-[240px] data-[orientation=horizontal]:h-[20px] data-[orientation=vertical]:justify-center data-[orientation=vertical]:h-[240px] data-[orientation=vertical]:w-[20px]"
     >
-      <Slider.Control className="flex h-[inherit] w-[inherit] items-center justify-center">
+      <Slider.Control className="h-[inherit] w-[inherit] flex justify-center items-center">
         <Slider.Track className="rounded-full bg-[var(--black-a10)] data-[orientation=horizontal]:h-[3px] data-[orientation=horizontal]:w-[inherit] data-[orientation=vertical]:h-[inherit] data-[orientation=vertical]:w-[3px]">
-          <Slider.Indicator className="bg-white data-[orientation=horizontal]:h-full data-[orientation=horizontal]:rounded-[9999px_0_0_9999px] data-[orientation=vertical]:w-[inherit] data-[orientation=vertical]:rounded-[0_0_9999px_9999px]" />
-          <Slider.Thumb className="h-[20px] w-[20px] rounded-[10px] bg-white shadow-[0_2px_10px_var(--black-a7)] hover:bg-[var(--violet-3)] has-[:focus-visible]:shadow-[0_0_0_5px_var(--black-a8)] has-[:focus-visible]:outline-none data-[dragging]:bg-[var(--violet-3)]" />
+          <Slider.Indicator className=" bg-white data-[orientation=horizontal]:h-full data-[orientation=horizontal]:rounded-[9999px_0_0_9999px] data-[orientation=vertical]:w-[inherit] data-[orientation=vertical]:rounded-[0_0_9999px_9999px]" />
+          <Slider.Thumb className="w-[20px] h-[20px] rounded-[10px] bg-white shadow-[0_2px_10px_var(--black-a7)] hover:bg-[var(--violet-3)] data-[dragging]:bg-[var(--violet-3)] has-[:focus-visible]:outline-none has-[:focus-visible]:shadow-[0_0_0_5px_var(--black-a8)]" />
         </Slider.Track>
       </Slider.Control>
     </Slider.Root>
@@ -123,7 +123,7 @@ export default function App() {
             '--violet-3': 'color(display-p3 0.154 0.123 0.256)',
           } as React.CSSProperties
         }
-        className="mb-8 flex h-[400px] flex-nowrap items-center justify-center gap-[4rem] self-start bg-[linear-gradient(330deg,var(--purple-9)_0,var(--indigo-9)_100%)] px-8"
+        className="bg-[linear-gradient(330deg,var(--purple-9)_0,var(--indigo-9)_100%)] h-[400px] flex flex-nowrap items-center justify-center gap-[4rem] mb-8 px-8 self-start"
       >
         <RadixSlider defaultValue={40} />
 

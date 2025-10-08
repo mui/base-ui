@@ -54,7 +54,7 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
 
   const disabled = disabledProp || contextDisabled;
 
-  const { props } = useNumberFieldButton({
+  const props = useNumberFieldButton({
     isIncrement: true,
     inputRef,
     startAutoChange,

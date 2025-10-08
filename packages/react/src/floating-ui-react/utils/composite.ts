@@ -16,14 +16,14 @@ export function isIndexOutOfListBounds(list: Array<HTMLElement | null>, index: n
 
 export function getMinListIndex(
   listRef: React.RefObject<Array<HTMLElement | null>>,
-  disabledIndices: DisabledIndices | undefined,
+  disabledIndices?: DisabledIndices | undefined,
 ) {
   return findNonDisabledListIndex(listRef.current, { disabledIndices });
 }
 
 export function getMaxListIndex(
   listRef: React.RefObject<Array<HTMLElement | null>>,
-  disabledIndices: DisabledIndices | undefined,
+  disabledIndices?: DisabledIndices | undefined,
 ) {
   return findNonDisabledListIndex(listRef.current, {
     decrement: true,

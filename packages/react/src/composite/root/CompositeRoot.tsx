@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
@@ -68,13 +67,6 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     modifierKeys,
   });
 
-  const onMapChange = useEventCallback(
-    (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => {
-      onMapChangeProp?.(newMap);
-      onMapChangeUnwrapped(newMap);
-    },
-  );
-
   const element = useRenderElement(tag, componentProps, {
     state,
     ref: refs,
@@ -89,7 +81,13 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
 
   return (
     <CompositeRootContext.Provider value={contextValue}>
-      <CompositeList<Metadata> elementsRef={elementsRef} onMapChange={onMapChange}>
+      <CompositeList<Metadata>
+        elementsRef={elementsRef}
+        onMapChange={(newMap) => {
+          onMapChangeProp?.(newMap);
+          onMapChangeUnwrapped(newMap);
+        }}
+      >
         {element}
       </CompositeList>
     </CompositeRootContext.Provider>

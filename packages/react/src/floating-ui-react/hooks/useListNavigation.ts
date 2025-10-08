@@ -431,12 +431,13 @@ export function useListNavigation(
             }
             runs += 1;
           } else {
+            // initially focus the first non-disabled item
             indexRef.current =
               keyRef.current == null ||
               isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
               nested
-                ? getMinListIndex(listRef, disabledIndicesRef.current)
-                : getMaxListIndex(listRef, disabledIndicesRef.current);
+                ? getMinListIndex(listRef)
+                : getMaxListIndex(listRef);
             keyRef.current = null;
             onNavigate();
           }
@@ -524,7 +525,11 @@ export function useListNavigation(
         }
       },
       onPointerLeave(event) {
-        if (!isPointerModalityRef.current || event.pointerType === 'touch') {
+        if (
+          !latestOpenRef.current ||
+          !isPointerModalityRef.current ||
+          event.pointerType === 'touch'
+        ) {
           return;
         }
 
