@@ -119,45 +119,48 @@ function StickersRadioGroup() {
 
 function DmSpamRadioGroup() {
   return (
-    <Field.Root className={styles.Field} name="dmSpam" validationMode="onChange">
-      <Fieldset.Root render={<RadioGroup required />} className={styles.RadioGroup}>
-        <Fieldset.Legend className={styles.Legend}>Direct Message spam</Fieldset.Legend>
-        <Field.Item className={styles.FieldItem}>
-          <Radio.Root value="all" className={styles.Radio}>
-            <Radio.Indicator className={styles.Indicator} />
-          </Radio.Root>
-          <div className={styles.FieldItemName}>
-            <Field.Label className={styles.Label}>Filter all</Field.Label>
-            <Field.Description className={styles.Description}>
-              All DMs will be filtered for spam
-            </Field.Description>
-          </div>
-        </Field.Item>
+    <Field.Root
+      className={styles.Field}
+      name="dmSpam"
+      validationMode="onChange"
+      render={<Fieldset.Root render={<RadioGroup required />} className={styles.RadioGroup} />}
+    >
+      <Fieldset.Legend className={styles.Legend}>Direct Message spam</Fieldset.Legend>
+      <Field.Item className={styles.FieldItem}>
+        <Radio.Root value="all" className={styles.Radio}>
+          <Radio.Indicator className={styles.Indicator} />
+        </Radio.Root>
+        <div className={styles.FieldItemName}>
+          <Field.Label className={styles.Label}>Filter all</Field.Label>
+          <Field.Description className={styles.Description}>
+            All DMs will be filtered for spam
+          </Field.Description>
+        </div>
+      </Field.Item>
 
-        <Field.Item className={styles.FieldItem}>
-          <Radio.Root value="non-friends" className={styles.Radio}>
-            <Radio.Indicator className={styles.Indicator} />
-          </Radio.Root>
-          <div className={styles.FieldItemName}>
-            <Field.Label className={styles.Label}>Filter from non-friends</Field.Label>
-            <Field.Description className={styles.Description}>
-              DMs from non-friends will be filtered for spam
-            </Field.Description>
-          </div>
-        </Field.Item>
+      <Field.Item className={styles.FieldItem}>
+        <Radio.Root value="non-friends" className={styles.Radio}>
+          <Radio.Indicator className={styles.Indicator} />
+        </Radio.Root>
+        <div className={styles.FieldItemName}>
+          <Field.Label className={styles.Label}>Filter from non-friends</Field.Label>
+          <Field.Description className={styles.Description}>
+            DMs from non-friends will be filtered for spam
+          </Field.Description>
+        </div>
+      </Field.Item>
 
-        <Field.Item className={styles.FieldItem}>
-          <Radio.Root value="none" className={styles.Radio}>
-            <Radio.Indicator className={styles.Indicator} />
-          </Radio.Root>
-          <div className={styles.FieldItemName}>
-            <Field.Label className={styles.Label}>Do not filter</Field.Label>
-            <Field.Description className={styles.Description}>
-              DMs will not be filtered for spam
-            </Field.Description>
-          </div>
-        </Field.Item>
-      </Fieldset.Root>
+      <Field.Item className={styles.FieldItem}>
+        <Radio.Root value="none" className={styles.Radio}>
+          <Radio.Indicator className={styles.Indicator} />
+        </Radio.Root>
+        <div className={styles.FieldItemName}>
+          <Field.Label className={styles.Label}>Do not filter</Field.Label>
+          <Field.Description className={styles.Description}>
+            DMs will not be filtered for spam
+          </Field.Description>
+        </div>
+      </Field.Item>
 
       <Field.Error className={styles.Error} />
     </Field.Root>

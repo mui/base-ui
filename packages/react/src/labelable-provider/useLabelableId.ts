@@ -5,7 +5,7 @@ import { NOOP } from '../utils/noop';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useLabelableContext } from './LabelableContext';
 
-export function useLabelableId(params: useLabelableId.Parameters) {
+export function useLabelableId(params: useLabelableId.Parameters = {}) {
   const { id, implicit = false, controlRef } = params;
   const { controlId, setControlId } = useLabelableContext();
   const defaultId = useBaseUiId(id);

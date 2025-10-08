@@ -182,20 +182,23 @@ export default function Page() {
           <Field.Error className={styles.Error} />
         </Field.Root>
 
-        <Field.Root name="range-slider" render={<Fieldset.Root />} className={styles.Field}>
-          <Slider.Root
-            defaultValue={[500, 1200]}
-            min={100}
-            max={2000}
-            step={1}
-            minStepsBetweenValues={1}
-            className={styles.Slider}
-            format={{
-              style: 'currency',
-              currency: 'EUR',
-            }}
-            locale="nl-NL"
-            role={undefined}
+        <Field.Root name="range-slider" className={styles.Field}>
+          <Fieldset.Root
+            render={
+              <Slider.Root
+                defaultValue={[500, 1200]}
+                min={100}
+                max={2000}
+                step={1}
+                minStepsBetweenValues={1}
+                className={styles.Slider}
+                format={{
+                  style: 'currency',
+                  currency: 'EUR',
+                }}
+                locale="nl-NL"
+              />
+            }
           >
             <Fieldset.Legend className={styles.Label}>Price range</Fieldset.Legend>
             <Slider.Value className={styles.SliderValue} />
@@ -206,7 +209,7 @@ export default function Page() {
                 <Slider.Thumb index={1} className={styles.SliderThumb} />
               </Slider.Track>
             </Slider.Control>
-          </Slider.Root>
+          </Fieldset.Root>
           <Field.Error className={styles.Error} />
         </Field.Root>
 
@@ -277,9 +280,10 @@ export default function Page() {
           <Field.Error className={styles.Error} />
         </Field.Root>
 
-        <Field.Root name="radio-group" render={<Fieldset.Root />} className={styles.Field}>
-          <Fieldset.Legend className={styles.Legend}>Show scroll bars</Fieldset.Legend>
-          <RadioGroup required={native} className={styles.RadioGroup}>
+        <Field.Root name="radio-group" className={styles.Field}>
+          <Fieldset.Root render={<RadioGroup required={native} className={styles.RadioGroup} />}>
+            <Fieldset.Legend className={styles.Legend}>Show scroll bars</Fieldset.Legend>
+
             <Field.Item className={styles.FieldItem}>
               <Field.Label className={styles.Label}>
                 <Radio.Root value="auto" className={styles.Radio}>
@@ -306,7 +310,7 @@ export default function Page() {
                 Always
               </Field.Label>
             </Field.Item>
-          </RadioGroup>
+          </Fieldset.Root>
           <Field.Error className={styles.Error} />
         </Field.Root>
 
