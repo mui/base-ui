@@ -84,7 +84,7 @@
     "es-toolkit": "^1.39.10",
     "eslint": "^9.36.0",
     "execa": "^9.6.0",
-    "globby": "^14.1.0",
+    "globby": "^15.0.0",
     "lerna": "^8.2.4",
     "markdownlint-cli2": "^0.18.1",
     "nx": "^21.6.3",
