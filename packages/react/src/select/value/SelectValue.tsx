@@ -45,7 +45,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
           ? resolveMultipleLabels(value, itemToStringLabel)
           : resolveSelectedLabel(value, items, itemToStringLabel)));
 
-  const element = useRenderElement('span', componentProps as any, {
+  const element = useRenderElement('span', componentProps, {
     state,
     ref: [forwardedRef, valueRef],
     props: [{ children }, elementProps],

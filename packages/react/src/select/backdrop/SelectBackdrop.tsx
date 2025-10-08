@@ -41,7 +41,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     [open, transitionStatus],
   );
 
-  const element = useRenderElement('div', componentProps as any, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -65,6 +65,7 @@ export interface SelectBackdropState {
   open: boolean;
   transitionStatus: TransitionStatus;
 }
+
 export interface SelectBackdropProps extends BaseUIComponentProps<'div', SelectBackdrop.State> {}
 
 export namespace SelectBackdrop {

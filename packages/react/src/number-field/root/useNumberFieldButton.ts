@@ -11,6 +11,7 @@ import { parseNumber } from '../utils/parse';
 import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { EventWithOptionalKeyState } from '../utils/types';
 import type { NumberFieldRoot } from './NumberFieldRoot';
+import type { HTMLProps } from '../../utils/types';
 
 export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
   const {

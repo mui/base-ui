@@ -54,7 +54,7 @@ const Inner = React.memo(
         [selected, transitionStatus],
       );
 
-      const element = useRenderElement('span', componentProps as any, {
+      const element = useRenderElement('span', componentProps, {
         ref: [forwardedRef, indicatorRef],
         state,
         props: [
@@ -87,6 +87,7 @@ export interface SelectItemIndicatorState {
   selected: boolean;
   transitionStatus: TransitionStatus;
 }
+
 export interface SelectItemIndicatorProps
   extends BaseUIComponentProps<'span', SelectItemIndicator.State> {
   children?: React.ReactNode;

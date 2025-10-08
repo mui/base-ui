@@ -58,7 +58,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
 
   const renderElementProps =
     (componentProps as CollapsibleRoot.Props).render === null
-      ? { ...(componentProps as any), render: undefined }
+      ? { ...componentProps, render: undefined }
       : componentProps;
 
   const element = useRenderElement('div', renderElementProps, {

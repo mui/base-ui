@@ -38,7 +38,7 @@ export const SelectItemText = React.memo(
       [selectedItemTextRef, indexRef, selectedByFocus],
     );
 
-    const element = useRenderElement('div', componentProps as any, {
+    const element = useRenderElement('div', componentProps, {
       ref: [localRef, forwardedRef, textRef],
       props: elementProps,
     });
@@ -48,6 +48,7 @@ export const SelectItemText = React.memo(
 );
 
 export interface SelectItemTextState {}
+
 export interface SelectItemTextProps extends BaseUIComponentProps<'div', SelectItemText.State> {}
 
 export namespace SelectItemText {
