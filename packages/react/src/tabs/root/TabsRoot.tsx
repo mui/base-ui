@@ -25,7 +25,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 ) {
   const {
     className,
-    defaultValue = 0,
+    defaultValue,
     onValueChange: onValueChangeProp,
     orientation = 'horizontal',
     render,
@@ -208,6 +208,7 @@ export namespace TabsRoot {
     /**
      * The default value. Use when the component is not controlled.
      * When the value is `null`, no Tab will be selected.
+     * When not provided, defaults to 0. The composite system will automatically highlight the first non-disabled tab for keyboard navigation.
      * @default 0
      */
     defaultValue?: TabsTab.Value;
