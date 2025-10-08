@@ -13,7 +13,9 @@ export type CompositeMetadata<CustomMetadata> = { index?: number | null } & Cust
  * @internal
  */
 export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
-  const { children, elementsRef, labelsRef, onMapChange } = props;
+  const { children, elementsRef, labelsRef, onMapChange: onMapChangeProp } = props;
+
+  const onMapChange = useEventCallback(onMapChangeProp);
 
   const nextIndexRef = React.useRef(0);
   const listeners = useRefWithInit(createListeners).current;
@@ -99,7 +101,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
       nextIndexRef.current = sortedMap.size;
     }
 
-    onMapChange?.(sortedMap);
+    onMapChange(sortedMap);
   }, [onMapChange, sortedMap, elementsRef, labelsRef, mapTick]);
 
   useIsoLayoutEffect(() => {
