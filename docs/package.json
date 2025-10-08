@@ -21,7 +21,7 @@
     "@emotion/styled": "^11.14.1",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@mui/internal-docs-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@64d18fc",
+    "@mui/internal-docs-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@bdd223d",
     "@next/mdx": "^15.5.4",
     "@react-spring/web": "^10.0.3",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",
