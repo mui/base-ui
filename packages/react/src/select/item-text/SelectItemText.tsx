@@ -47,8 +47,11 @@ export const SelectItemText = React.memo(
   }),
 );
 
-export namespace SelectItemText {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface SelectItemTextState {}
 
-  export interface State {}
+export interface SelectItemTextProps extends BaseUIComponentProps<'div', SelectItemText.State> {}
+
+export namespace SelectItemText {
+  export type State = SelectItemTextState;
+  export type Props = SelectItemTextProps;
 }

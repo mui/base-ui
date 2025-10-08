@@ -10,7 +10,7 @@
     "value": {
       "type": "any",
       "required": true,
-      "description": "Value of the radio item.\nThis is the value that will be set in the MenuRadioGroup when the item is selected."
+      "description": "Value of the radio item.\nThis is the value that will be set in the Menu.RadioGroup when the item is selected."
     },
     "onClick": {
       "type": "MouseEventHandler<HTMLElement>",
