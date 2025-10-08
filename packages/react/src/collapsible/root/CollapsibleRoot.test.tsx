@@ -166,7 +166,7 @@ describe('<Collapsible.Root />', () => {
   describe('prop: render', () => {
     it('does not render a root element when `null`', async () => {
       const { getByRole, container } = await render(
-        <Collapsible.Root defaultOpen render={null as any}>
+        <Collapsible.Root defaultOpen render={null}>
           <Collapsible.Trigger />
           <Collapsible.Panel>This is panel content</Collapsible.Panel>
         </Collapsible.Root>,

@@ -212,7 +212,7 @@ export interface AccordionRootProps extends BaseUIComponentProps<'div', Accordio
    * Event handler called when an accordion item is expanded or collapsed.
    * Provides the new value as an argument.
    */
-  onValueChange?: (value: AccordionValue, eventDetails: AccordionRoot.ChangeEventDetails) => void;
+  onValueChange?: (value: AccordionValue, eventDetails: AccordionRootChangeEventDetails) => void;
   /**
    * Whether multiple items can be open at the same time.
    * @default true

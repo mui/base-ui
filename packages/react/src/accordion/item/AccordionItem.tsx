@@ -97,7 +97,6 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
       ...collapsible,
       onOpenChange,
       state: collapsibleState,
-      transitionStatus: collapsible.transitionStatus,
     }),
     [collapsible, collapsibleState, onOpenChange],
   );

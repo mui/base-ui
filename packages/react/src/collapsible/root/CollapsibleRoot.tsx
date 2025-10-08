@@ -41,10 +41,9 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
-      hidden: !collapsible.mounted,
       transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.open, collapsible.disabled, collapsible.mounted, collapsible.transitionStatus],
+    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
   );
 
   const contextValue: CollapsibleRootContext = React.useMemo(
@@ -56,12 +55,8 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     [collapsible, onOpenChange, state],
   );
 
-  const renderElementProps =
-    (componentProps as CollapsibleRoot.Props).render === null
-      ? { ...componentProps, render: undefined }
-      : componentProps;
-
-  const element = useRenderElement('div', renderElementProps, {
+  // @ts-expect-error Collapsible accepts `render={null}`
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: elementProps,
@@ -83,14 +78,11 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   );
 });
 
-export interface CollapsibleRootState {
-  open: boolean;
-  disabled: boolean;
-  hidden: boolean;
-  transitionStatus: useCollapsibleRoot.ReturnValue['transitionStatus'];
-}
+export interface CollapsibleRootState
+  extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled'> {}
 
-export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
+export interface CollapsibleRootProps
+  extends Omit<BaseUIComponentProps<'div', CollapsibleRoot.State>, 'render'> {
   /**
    * Whether the collapsible panel is currently open.
    *
@@ -107,18 +99,18 @@ export interface CollapsibleRootProps extends BaseUIComponentProps<'div', Collap
   /**
    * Event handler called when the panel is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
+  onOpenChange?: (open: boolean, eventDetails: CollapsibleRootChangeEventDetails) => void;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
   disabled?: boolean;
-  render?: BaseUIComponentProps<'div', CollapsibleRoot.State>['render'];
+  render?: BaseUIComponentProps<'div', CollapsibleRootState>['render'] | null;
 }
 
 export type CollapsibleRootChangeEventReason = 'trigger-press' | 'none';
 export type CollapsibleRootChangeEventDetails =
-  BaseUIChangeEventDetails<CollapsibleRoot.ChangeEventReason>;
+  BaseUIChangeEventDetails<CollapsibleRootChangeEventReason>;
 
 export namespace CollapsibleRoot {
   export type State = CollapsibleRootState;

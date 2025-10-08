@@ -165,7 +165,7 @@ export interface CheckboxGroupProps extends BaseUIComponentProps<'div', Checkbox
    * Event handler called when a checkbox in the group is ticked or unticked.
    * Provides the new value as an argument.
    */
-  onValueChange?: (value: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => void;
+  onValueChange?: (value: string[], eventDetails: CheckboxGroupChangeEventDetails) => void;
   /**
    * Names of all checkboxes in the group. Use this when creating a parent checkbox.
    */

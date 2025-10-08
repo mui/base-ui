@@ -1,7 +1,8 @@
 export * as Autocomplete from './index.parts';
 
 export type * from './root/AutocompleteRoot';
-export type { AutocompleteValueProps } from './value/AutocompleteValue';
+export type * from './value/AutocompleteValue';
+
 export type {
   ComboboxTriggerProps as AutocompleteTriggerProps,
   ComboboxTriggerState as AutocompleteTriggerState,
@@ -26,10 +27,6 @@ export type {
   ComboboxItemProps as AutocompleteItemProps,
   ComboboxItemState as AutocompleteItemState,
 } from '../combobox/item/ComboboxItem';
-export type {
-  ComboboxValueProps as AutocompleteComboboxValueProps,
-  ComboboxValueState as AutocompleteComboboxValueState,
-} from '../combobox/value/ComboboxValue';
 export type {
   ComboboxArrowProps as AutocompleteArrowProps,
   ComboboxArrowState as AutocompleteArrowState,

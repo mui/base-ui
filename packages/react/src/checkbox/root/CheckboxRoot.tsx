@@ -377,7 +377,7 @@ export interface CheckboxRootProps
   /**
    * Event handler called when the checkbox is ticked or unticked.
    */
-  onCheckedChange?: (checked: boolean, eventDetails: CheckboxRoot.ChangeEventDetails) => void;
+  onCheckedChange?: (checked: boolean, eventDetails: CheckboxRootChangeEventDetails) => void;
   /**
    * Whether the user should be unable to tick or untick the checkbox.
    * @default false

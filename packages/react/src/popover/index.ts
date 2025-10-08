@@ -10,3 +10,4 @@ export type * from './backdrop/PopoverBackdrop';
 export type * from './title/PopoverTitle';
 export type * from './description/PopoverDescription';
 export type * from './close/PopoverClose';
+export type * from './viewport/PopoverViewport';
