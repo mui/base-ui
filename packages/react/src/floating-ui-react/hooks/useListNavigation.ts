@@ -525,7 +525,11 @@ export function useListNavigation(
         }
       },
       onPointerLeave(event) {
-        if (!isPointerModalityRef.current || event.pointerType === 'touch') {
+        if (
+          !latestOpenRef.current ||
+          !isPointerModalityRef.current ||
+          event.pointerType === 'touch'
+        ) {
           return;
         }
 
