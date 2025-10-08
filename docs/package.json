@@ -74,7 +74,7 @@
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@types/unist": "^3.0.3",
-    "chai": "^5.3.3",
+    "chai": "^6.2.0",
     "mdast-util-mdx-jsx": "^3.2.0",
     "motion": "^12.23.22",
     "prettier": "^3.6.2",

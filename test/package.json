@@ -15,7 +15,7 @@
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@types/sinon": "^17.0.4",
-    "chai": "^5.3.3",
+    "chai": "^6.2.0",
     "docs": "workspace:^",
     "es-toolkit": "^1.39.10",
     "is-wsl": "^3.1.0",
