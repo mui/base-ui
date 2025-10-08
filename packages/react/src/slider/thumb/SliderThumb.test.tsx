@@ -56,6 +56,7 @@ describe('<Slider.Thumb />', () => {
         );
         expect(document.body).toHaveFocus();
         const input = screen.getByRole('slider');
+        // eslint-disable-next-line testing-library/no-container
         expect(input).to.equal(container.querySelector<HTMLInputElement>('input[type="range"]'));
 
         await user.keyboard('[Tab]');
@@ -86,6 +87,7 @@ describe('<Slider.Thumb />', () => {
         expect(document.body).toHaveFocus();
         const [slider1, slider2] = screen.getAllByRole('slider');
         const [input1, input2] = Array.from(
+          // eslint-disable-next-line testing-library/no-container
           container.querySelectorAll<HTMLInputElement>('input[type="range"]'),
         );
         expect(slider1).to.equal(input1);
@@ -291,7 +293,7 @@ describe('<Slider.Thumb />', () => {
   describe.skipIf(isJSDOM || isWebKit || typeof Touch === 'undefined')('positioning styles', () => {
     describe('positions the thumb when dragged', () => {
       it('single thumb', async () => {
-        const { getByTestId } = await render(
+        await render(
           <Slider.Root
             style={{
               width: '1000px',
@@ -306,9 +308,9 @@ describe('<Slider.Thumb />', () => {
           </Slider.Root>,
         );
 
-        const sliderControl = getByTestId('control');
+        const sliderControl = screen.getByTestId('control');
 
-        const thumbStyles = getComputedStyle(getByTestId('thumb'));
+        const thumbStyles = getComputedStyle(screen.getByTestId('thumb'));
 
         stub(sliderControl, 'getBoundingClientRect').callsFake(() => getHorizontalSliderRect(1000));
 
@@ -339,7 +341,7 @@ describe('<Slider.Thumb />', () => {
       });
 
       it('multiple thumbs', async () => {
-        const { getByTestId, getAllByTestId } = await render(
+        await render(
           <Slider.Root
             defaultValue={[20, 40]}
             style={{
@@ -356,11 +358,11 @@ describe('<Slider.Thumb />', () => {
           </Slider.Root>,
         );
 
-        const sliderControl = getByTestId('control');
+        const sliderControl = screen.getByTestId('control');
 
         const computedStyles = {
-          thumb1: getComputedStyle(getAllByTestId('thumb')[0]),
-          thumb2: getComputedStyle(getAllByTestId('thumb')[1]),
+          thumb1: getComputedStyle(screen.getAllByTestId('thumb')[0]),
+          thumb2: getComputedStyle(screen.getAllByTestId('thumb')[1]),
         };
 
         stub(sliderControl, 'getBoundingClientRect').callsFake(() => getHorizontalSliderRect(1000));
@@ -393,7 +395,7 @@ describe('<Slider.Thumb />', () => {
       });
 
       it('thumbs cannot be dragged past each other', async () => {
-        const { getByTestId } = await render(
+        await render(
           <Slider.Root
             defaultValue={[20, 40]}
             style={{
@@ -410,9 +412,9 @@ describe('<Slider.Thumb />', () => {
           </Slider.Root>,
         );
 
-        const sliderControl = getByTestId('control');
+        const sliderControl = screen.getByTestId('control');
 
-        const computedStyles = getComputedStyle(getByTestId('thumb1'));
+        const computedStyles = getComputedStyle(screen.getByTestId('thumb1'));
 
         stub(sliderControl, 'getBoundingClientRect').callsFake(() => getHorizontalSliderRect(1000));
 
@@ -453,12 +455,12 @@ describe('<Slider.Thumb />', () => {
             </React.Fragment>
           );
         }
-        const { getByTestId, getByRole } = await render(<App />);
+        await render(<App />);
 
-        const thumbStyles = getComputedStyle(getByTestId('thumb'));
+        const thumbStyles = getComputedStyle(screen.getByTestId('thumb'));
         expect(thumbStyles.getPropertyValue('left')).to.equal('20px');
 
-        fireEvent.click(getByRole('button'));
+        fireEvent.click(screen.getByRole('button'));
         expect(thumbStyles.getPropertyValue('left')).to.equal('55px');
       });
 
@@ -486,17 +488,17 @@ describe('<Slider.Thumb />', () => {
             </React.Fragment>
           );
         }
-        const { getAllByTestId, getByRole } = await render(<App />);
+        await render(<App />);
 
         const computedStyles = {
-          thumb1: getComputedStyle(getAllByTestId('thumb')[0]),
-          thumb2: getComputedStyle(getAllByTestId('thumb')[1]),
+          thumb1: getComputedStyle(screen.getAllByTestId('thumb')[0]),
+          thumb2: getComputedStyle(screen.getAllByTestId('thumb')[1]),
         };
 
         expect(computedStyles.thumb1.getPropertyValue('left')).to.equal('20px');
         expect(computedStyles.thumb2.getPropertyValue('left')).to.equal('50px');
 
-        fireEvent.click(getByRole('button'));
+        fireEvent.click(screen.getByRole('button'));
         expect(computedStyles.thumb1.getPropertyValue('left')).to.equal('33px');
         expect(computedStyles.thumb2.getPropertyValue('left')).to.equal('72px');
       });
@@ -564,7 +566,7 @@ describe('<Slider.Thumb />', () => {
     });
 
     it('multiple thumbs', async () => {
-      const { container } = await renderToString(
+      renderToString(
         <Slider.Root
           defaultValue={[30, 40]}
           style={{
@@ -581,7 +583,7 @@ describe('<Slider.Thumb />', () => {
         </Slider.Root>,
       );
 
-      const [thumb0, thumb1] = Array.from(container.querySelectorAll('[data-testid="thumb"]'));
+      const [thumb0, thumb1] = Array.from(await screen.findAllByTestId('thumb'));
 
       expect(getComputedStyle(thumb0).getPropertyValue('left')).to.equal('30px');
       expect(getComputedStyle(thumb1).getPropertyValue('left')).to.equal('40px');

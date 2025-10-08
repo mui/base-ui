@@ -34,6 +34,7 @@ describe('<Checkbox.Indicator />', () => {
     },
   }));
 
+  /* eslint-disable testing-library/no-container */
   it('should not render indicator by default', async () => {
     const { container } = await render(
       <Checkbox.Root>
@@ -95,6 +96,7 @@ describe('<Checkbox.Indicator />', () => {
       expect(indicator).not.to.equal(null);
     });
   });
+  /* eslint-enable testing-library/no-container */
 
   it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
     if (isJSDOM) {

@@ -335,6 +335,7 @@ describe('<CheckboxGroup />', () => {
         </Field.Root>,
       );
 
+      // eslint-disable-next-line testing-library/no-container
       const labels = container.querySelectorAll('label');
       expect(labels.length).to.equal(3);
       labels.forEach((label) => {
@@ -382,7 +383,7 @@ describe('<CheckboxGroup />', () => {
 
   describe.skipIf(isJSDOM)('Form', () => {
     it('includes the checkbox group value in form submission', async () => {
-      const { getByRole } = await render(
+      await render(
         <Form
           onSubmit={(event) => {
             event.preventDefault();
@@ -401,13 +402,14 @@ describe('<CheckboxGroup />', () => {
         </Form>,
       );
 
-      const submit = getByRole('button');
+      const submit = screen.getByRole('button');
       fireEvent.click(submit);
     });
 
     it('is validated as a group upon form submission', async () => {
       const validateSpy = spy();
-      const { getByRole } = await render(
+
+      await render(
         <Form
           onSubmit={(event) => {
             event.preventDefault();
@@ -424,7 +426,7 @@ describe('<CheckboxGroup />', () => {
         </Form>,
       );
 
-      const submit = getByRole('button');
+      const submit = screen.getByRole('button');
       fireEvent.click(submit);
       expect(validateSpy.callCount).to.equal(1);
       expect(validateSpy.args[0][0]).to.deep.equal(['fuji-apple', 'gala-apple']);

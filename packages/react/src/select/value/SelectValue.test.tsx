@@ -386,6 +386,7 @@ describe('<Select.Value />', () => {
       );
 
       expect(screen.getByTestId('value')).to.have.text('Canada');
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
       const hiddenInput = container.querySelector('input[name="country"]');
       expect(hiddenInput).to.have.value('CA');
     });

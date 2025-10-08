@@ -34,6 +34,7 @@ describe('<Autocomplete.Root />', () => {
 
     // Hidden inputs are rendered without a name for selectionMode='none', but Field provides the form input.
     // Simulate browser autofill by changing the hidden field control input for this Field.
+    // eslint-disable-next-line testing-library/no-container
     const hidden = container.querySelector('input[aria-hidden="true"]');
     fireEvent.change(hidden!, { target: { value: 'beta' } });
     await flushMicrotasks();

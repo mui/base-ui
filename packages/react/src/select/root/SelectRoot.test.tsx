@@ -224,6 +224,7 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
       const hiddenInput = container.querySelector('input[name="country"]');
       expect(hiddenInput).to.have.value('US');
     });
@@ -260,6 +261,7 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
       const hiddenInputs = container.querySelectorAll('input[name="countries"]');
       expect(hiddenInputs).to.have.length(2);
       expect(hiddenInputs[0]).to.have.value('US');
@@ -552,6 +554,7 @@ describe('<Select.Root />', () => {
 
     const trigger = screen.getByTestId('trigger');
 
+    // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
     fireEvent.change(container.querySelector('[name="select"]')!, { target: { value: 'b' } });
     await flushMicrotasks();
 
@@ -593,6 +596,7 @@ describe('<Select.Root />', () => {
 
     const trigger = screen.getByTestId('trigger');
 
+    // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
     fireEvent.change(container.querySelector('[name="country"]')!, { target: { value: 'CA' } });
     await flushMicrotasks();
 
@@ -1077,6 +1081,7 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
       const input = container.querySelector('input');
       expect(input).to.have.attribute('id', 'test-id');
     });
@@ -1624,6 +1629,7 @@ describe('<Select.Root />', () => {
 
       const label = screen.getByTestId<HTMLLabelElement>('label');
       const trigger = screen.getByTestId('trigger');
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
       const hiddenInput = container.querySelector('input[type="text"]');
 
       expect(label).to.have.attribute('for', hiddenInput?.id);
@@ -2225,6 +2231,7 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
       const hiddenInputs = container.querySelectorAll(
         '[name="select"]',
       ) as NodeListOf<HTMLInputElement>;
@@ -2252,10 +2259,12 @@ describe('<Select.Root />', () => {
       );
 
       // In multiple mode with empty array, no hidden inputs with name should exist
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
       const namedHiddenInputs = container.querySelectorAll('[name="select"]');
       expect(namedHiddenInputs).to.have.length(0);
 
       // But the main input should have the serialized empty value for Field validation purposes
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
       const mainInput = container.querySelector<HTMLInputElement>('input[aria-hidden="true"]');
       expect(mainInput).not.to.equal(null);
       expect(mainInput?.value).to.equal('');

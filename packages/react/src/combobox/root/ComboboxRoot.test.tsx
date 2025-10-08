@@ -351,6 +351,7 @@ describe('<Combobox.Root />', () => {
 
         expect(screen.getByRole('listbox')).not.to.equal(null);
 
+        // eslint-disable-next-line testing-library/no-container
         const hiddenInput = container.querySelector('[name="test"]');
         fireEvent.change(hiddenInput!, { target: { value: 'apple' } });
 
@@ -405,6 +406,7 @@ describe('<Combobox.Root />', () => {
           </Combobox.Root>,
         );
 
+        // eslint-disable-next-line testing-library/no-container
         const hiddenInputs = container.querySelectorAll('input[type="hidden"][name="languages"]');
         expect(hiddenInputs).to.have.length(2);
         expect(hiddenInputs[0]).to.have.attribute('value', 'a');
@@ -846,6 +848,7 @@ describe('<Combobox.Root />', () => {
 
     const input = screen.getByRole('combobox');
 
+    // eslint-disable-next-line testing-library/no-container
     fireEvent.change(container.querySelector('[name="test"]')!, { target: { value: 'b' } });
     await flushMicrotasks();
 
@@ -889,6 +892,7 @@ describe('<Combobox.Root />', () => {
 
     const input = screen.getByRole('combobox');
 
+    // eslint-disable-next-line testing-library/no-container
     fireEvent.change(container.querySelector('[name="country"]')!, { target: { value: 'CA' } });
     await flushMicrotasks();
 
@@ -920,6 +924,7 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
+      // eslint-disable-next-line testing-library/no-container
       const hiddenInput = container.querySelector('input[aria-hidden="true"]');
       expect(hiddenInput).to.have.attribute('id', 'test-id');
     });
@@ -1159,6 +1164,7 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
+      // eslint-disable-next-line testing-library/no-container
       const hiddenInput = container.querySelector('input[aria-hidden="true"]');
       expect(hiddenInput).to.have.attribute('readonly');
     });
@@ -1263,6 +1269,7 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
+      // eslint-disable-next-line testing-library/no-container
       const hiddenInput = container.querySelector('input[name="country"]');
       expect(hiddenInput).to.have.value('US');
     });
@@ -1294,6 +1301,7 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
+      // eslint-disable-next-line testing-library/no-container
       const hiddenInputs = container.querySelectorAll('input[name="countries"]');
       expect(hiddenInputs).to.have.length(2);
       expect(hiddenInputs[0]).to.have.value('US');
@@ -2727,6 +2735,7 @@ describe('<Combobox.Root />', () => {
           </Combobox.Root>,
         );
 
+        // eslint-disable-next-line testing-library/no-container
         const hiddenInput = container.querySelector('input[name="country"]');
         expect(hiddenInput).to.have.value('CA');
       });
@@ -2757,6 +2766,7 @@ describe('<Combobox.Root />', () => {
           </Combobox.Root>,
         );
 
+        // eslint-disable-next-line testing-library/no-container
         const hiddenInputs = container.querySelectorAll('input[name="countries"]');
         expect(hiddenInputs).to.have.length(2);
         expect(hiddenInputs[0]).to.have.value('US');
@@ -2795,6 +2805,7 @@ describe('<Combobox.Root />', () => {
           </Combobox.Root>,
         );
 
+        // eslint-disable-next-line testing-library/no-container
         const hiddenInput = container.querySelector('input[name="country"]');
         expect(hiddenInput).to.have.value('US');
       });
