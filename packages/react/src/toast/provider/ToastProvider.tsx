@@ -53,7 +53,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const hoveringRef = useLatestRef(hovering);
   const focusedRef = useLatestRef(focused);
 
-  const handleFocusManagement = useEventCallback((toastId: string) => {
+  function handleFocusManagement(toastId: string) {
     const activeEl = activeElement(ownerDocument(viewportRef.current));
     if (
       !viewportRef.current ||
@@ -93,7 +93,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     } else {
       prevFocusElement?.focus({ preventScroll: true });
     }
-  });
+  }
 
   const pauseTimers = useEventCallback(() => {
     if (isPausedRef.current) {

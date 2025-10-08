@@ -124,51 +124,37 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     native: nativeButton,
   });
 
-  const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
-    () => ({
-      id,
-      role: 'switch',
-      disabled,
-      'aria-checked': checked,
-      'aria-readonly': readOnly || undefined,
-      'aria-labelledby': labelId,
-      onFocus() {
-        setFocused(true);
-      },
-      onBlur() {
-        const element = inputRef.current;
-        if (!element) {
-          return;
-        }
+  const rootProps: React.ComponentPropsWithRef<'button'> = {
+    id,
+    role: 'switch',
+    disabled,
+    'aria-checked': checked,
+    'aria-readonly': readOnly || undefined,
+    'aria-labelledby': labelId,
+    onFocus() {
+      setFocused(true);
+    },
+    onBlur() {
+      const element = inputRef.current;
+      if (!element) {
+        return;
+      }
 
-        setTouched(true);
-        setFocused(false);
+      setTouched(true);
+      setFocused(false);
 
-        if (validationMode === 'onBlur') {
-          commitValidation(element.checked);
-        }
-      },
-      onClick(event) {
-        if (event.defaultPrevented || readOnly) {
-          return;
-        }
+      if (validationMode === 'onBlur') {
+        commitValidation(element.checked);
+      }
+    },
+    onClick(event) {
+      if (event.defaultPrevented || readOnly) {
+        return;
+      }
 
-        inputRef?.current?.click();
-      },
-    }),
-    [
-      id,
-      disabled,
-      checked,
-      readOnly,
-      labelId,
-      setFocused,
-      setTouched,
-      commitValidation,
-      validationMode,
-      inputRef,
-    ],
-  );
+      inputRef?.current?.click();
+    },
+  };
 
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
     () =>

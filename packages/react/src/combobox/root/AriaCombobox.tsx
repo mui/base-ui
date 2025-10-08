@@ -412,10 +412,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [forceMount, selectedValue, initialSelectedValueRef]);
 
-  const updateValue = useEventCallback((nextValue: any) => {
+  function updateValue(nextValue: any) {
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
-  });
+  }
 
   const formValue = selectionMode === 'none' ? inputValue : selectedValue;
 

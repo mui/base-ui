@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useButton } from '../../use-button/useButton';
 import { mergeProps } from '../../merge-props';
 import type { HTMLProps } from '../../utils/types';
@@ -10,11 +9,11 @@ import type { DialogRoot } from '../root/DialogRoot';
 export function useDialogClose(params: useDialogClose.Parameters): useDialogClose.ReturnValue {
   const { open, setOpen, disabled, nativeButton } = params;
 
-  const handleClick = useEventCallback((event: React.MouseEvent) => {
+  function handleClick(event: React.MouseEvent) {
     if (open) {
       setOpen(false, createChangeEventDetails('close-press', event.nativeEvent));
     }
-  });
+  }
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,

@@ -160,9 +160,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }, [checked, groupIndeterminate, setFilled]);
 
-  const onFocus = useEventCallback(() => setFocused(true));
+  function onFocus() {
+    setFocused(true);
+  }
 
-  const onBlur = useEventCallback(() => {
+  function onBlur() {
     const element = inputRef.current;
     if (!element) {
       return;
@@ -174,9 +176,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     if (validationMode === 'onBlur') {
       fieldControlValidation.commitValidation(groupContext ? groupValue : element.checked);
     }
-  });
+  }
 
-  const onClick = useEventCallback((event) => {
+  function onClick(event: React.MouseEvent) {
     if (event.defaultPrevented || readOnly) {
       return;
     }
@@ -184,7 +186,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     event.preventDefault();
 
     inputRef.current?.click();
-  });
+  }
 
   const inputProps = mergeProps<'input'>(
     {

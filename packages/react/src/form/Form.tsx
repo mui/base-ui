@@ -16,22 +16,12 @@ export const Form = React.forwardRef(function Form(
   componentProps: Form.Props,
   forwardedRef: React.ForwardedRef<HTMLFormElement>,
 ) {
-  const {
-    render,
-    className,
-    errors,
-    onClearErrors: onClearErrorsProp,
-    onSubmit: onSubmitProp,
-    ...elementProps
-  } = componentProps;
+  const { render, className, errors, onClearErrors, onSubmit, ...elementProps } = componentProps;
 
   const formRef = React.useRef<FormContext['formRef']['current']>({
     fields: new Map(),
   });
   const submittedRef = React.useRef(false);
-
-  const onSubmit = useEventCallback(onSubmitProp);
-  const onClearErrors = useEventCallback(onClearErrorsProp);
 
   const focusControl = useEventCallback((control: HTMLElement) => {
     control.focus();
@@ -78,7 +68,7 @@ export const Form = React.forwardRef(function Form(
             focusControl(invalidFields[0].controlRef.current);
           } else {
             submittedRef.current = true;
-            onSubmit(event as any);
+            onSubmit?.(event as any);
           }
         },
       },
@@ -90,7 +80,7 @@ export const Form = React.forwardRef(function Form(
     if (name && errors && EMPTY_OBJECT.hasOwnProperty.call(errors, name)) {
       const nextErrors = { ...errors };
       delete nextErrors[name];
-      onClearErrors(nextErrors);
+      onClearErrors?.(nextErrors);
     }
   });
 

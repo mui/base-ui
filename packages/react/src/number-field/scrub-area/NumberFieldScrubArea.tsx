@@ -71,52 +71,49 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     return subscribeToVisualViewportResize(scrubAreaCursorRef.current, visualScaleRef);
   }, [isScrubbing]);
 
-  const updateCursorTransform = useEventCallback((x: number, y: number) => {
+  function updateCursorTransform(x: number, y: number) {
     if (scrubAreaCursorRef.current) {
       scrubAreaCursorRef.current.style.transform = `translate3d(${x}px,${y}px,0) scale(${1 / visualScaleRef.current})`;
     }
+  }
+
+  const onScrub = useEventCallback(({ movementX, movementY }: PointerEvent) => {
+    const virtualCursor = scrubAreaCursorRef.current;
+    const scrubAreaEl = scrubAreaRef.current;
+
+    if (!virtualCursor || !scrubAreaEl) {
+      return;
+    }
+
+    const rect = getViewportRect(teleportDistance, scrubAreaEl);
+
+    const coords = virtualCursorCoords.current;
+    const newCoords = {
+      x: Math.round(coords.x + movementX),
+      y: Math.round(coords.y + movementY),
+    };
+
+    const cursorWidth = virtualCursor.offsetWidth;
+    const cursorHeight = virtualCursor.offsetHeight;
+
+    if (newCoords.x + cursorWidth / 2 < rect.x) {
+      newCoords.x = rect.width - cursorWidth / 2;
+    } else if (newCoords.x + cursorWidth / 2 > rect.width) {
+      newCoords.x = rect.x - cursorWidth / 2;
+    }
+
+    if (newCoords.y + cursorHeight / 2 < rect.y) {
+      newCoords.y = rect.height - cursorHeight / 2;
+    } else if (newCoords.y + cursorHeight / 2 > rect.height) {
+      newCoords.y = rect.y - cursorHeight / 2;
+    }
+
+    virtualCursorCoords.current = newCoords;
+
+    updateCursorTransform(newCoords.x, newCoords.y);
   });
 
-  const onScrub = React.useCallback(
-    ({ movementX, movementY }: PointerEvent) => {
-      const virtualCursor = scrubAreaCursorRef.current;
-      const scrubAreaEl = scrubAreaRef.current;
-
-      if (!virtualCursor || !scrubAreaEl) {
-        return;
-      }
-
-      const rect = getViewportRect(teleportDistance, scrubAreaEl);
-
-      const coords = virtualCursorCoords.current;
-      const newCoords = {
-        x: Math.round(coords.x + movementX),
-        y: Math.round(coords.y + movementY),
-      };
-
-      const cursorWidth = virtualCursor.offsetWidth;
-      const cursorHeight = virtualCursor.offsetHeight;
-
-      if (newCoords.x + cursorWidth / 2 < rect.x) {
-        newCoords.x = rect.width - cursorWidth / 2;
-      } else if (newCoords.x + cursorWidth / 2 > rect.width) {
-        newCoords.x = rect.x - cursorWidth / 2;
-      }
-
-      if (newCoords.y + cursorHeight / 2 < rect.y) {
-        newCoords.y = rect.height - cursorHeight / 2;
-      } else if (newCoords.y + cursorHeight / 2 > rect.height) {
-        newCoords.y = rect.y - cursorHeight / 2;
-      }
-
-      virtualCursorCoords.current = newCoords;
-
-      updateCursorTransform(newCoords.x, newCoords.y);
-    },
-    [teleportDistance, updateCursorTransform],
-  );
-
-  const onScrubbingChange = React.useCallback(
+  const onScrubbingChange = useEventCallback(
     (scrubbingValue: boolean, { clientX, clientY }: PointerEvent) => {
       ReactDOM.flushSync(() => {
         setIsScrubbing(scrubbingValue);
@@ -136,7 +133,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
       updateCursorTransform(initialCoords.x, initialCoords.y);
     },
-    [setIsScrubbing, updateCursorTransform],
   );
 
   React.useEffect(

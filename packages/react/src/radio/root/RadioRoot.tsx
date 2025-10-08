@@ -71,41 +71,38 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     }
   }, [setFilled]);
 
-  const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
-    () => ({
-      role: 'radio',
-      'aria-checked': checked,
-      'aria-required': required || undefined,
-      'aria-disabled': disabled || undefined,
-      'aria-readonly': readOnly || undefined,
-      [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
-      disabled,
-      onKeyDown(event) {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-        }
-      },
-      onClick(event) {
-        if (event.defaultPrevented || disabled || readOnly) {
-          return;
-        }
-
+  const rootProps: React.ComponentProps<'button'> = {
+    role: 'radio',
+    'aria-checked': checked,
+    'aria-required': required || undefined,
+    'aria-disabled': disabled || undefined,
+    'aria-readonly': readOnly || undefined,
+    [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
+    disabled,
+    onKeyDown(event) {
+      if (event.key === 'Enter') {
         event.preventDefault();
+      }
+    },
+    onClick(event) {
+      if (event.defaultPrevented || disabled || readOnly) {
+        return;
+      }
 
-        inputRef.current?.click();
-      },
-      onFocus(event) {
-        if (event.defaultPrevented || disabled || readOnly || !touched) {
-          return;
-        }
+      event.preventDefault();
 
-        inputRef.current?.click();
+      inputRef.current?.click();
+    },
+    onFocus(event) {
+      if (event.defaultPrevented || disabled || readOnly || !touched) {
+        return;
+      }
 
-        setTouched(false);
-      },
-    }),
-    [checked, required, disabled, readOnly, touched, setTouched],
-  );
+      inputRef.current?.click();
+
+      setTouched(false);
+    },
+  };
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
