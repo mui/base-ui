@@ -224,6 +224,17 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const startEdge = vertical ? 'bottom' : 'insetInlineStart';
     const crossOffsetProperty = vertical ? 'left' : 'top';
 
+    let zIndex: number | undefined;
+    if (range) {
+      if (activeIndex === index) {
+        zIndex = 2;
+      } else if (safeLastUsedThumbIndex === index) {
+        zIndex = 1;
+      }
+    } else if (activeIndex === index) {
+      zIndex = 1;
+    }
+
     if (!inset) {
       if (!Number.isFinite(thumbValuePercent)) {
         return visuallyHidden;
@@ -234,20 +245,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         [startEdge]: `${thumbValuePercent}%`,
         [crossOffsetProperty]: '50%',
         translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
-        zIndex: activeIndex === index ? 1 : undefined,
+        zIndex,
       } satisfies React.CSSProperties;
-    }
-
-    let zIndex: number | undefined;
-
-    if (range) {
-      if (activeIndex === index) {
-        zIndex = 2;
-      } else if (safeLastUsedThumbIndex === index) {
-        zIndex = 1;
-      }
-    } else if (activeIndex === index) {
-      zIndex = 1;
     }
 
     return {
