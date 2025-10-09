@@ -7,24 +7,26 @@ export default function ExampleCombobox() {
     <Combobox.Root items={fruits}>
       <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
         <label htmlFor={id}>Choose a fruit</label>
-        <Combobox.Input
-          placeholder="e.g. Apple"
-          id={id}
-          className="h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
-        />
-        <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
-          <Combobox.Clear
-            className="flex h-10 w-6 items-center justify-center rounded bg-transparent p-0"
-            aria-label="Clear selection"
-          >
-            <ClearIcon className="size-4" />
-          </Combobox.Clear>
-          <Combobox.Trigger
-            className="flex h-10 w-6 items-center justify-center rounded bg-transparent p-0"
-            aria-label="Open popup"
-          >
-            <ChevronDownIcon className="size-4" />
-          </Combobox.Trigger>
+        <div className="relative [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
+          <Combobox.Input
+            placeholder="e.g. Apple"
+            id={id}
+            className="h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          />
+          <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
+            <Combobox.Clear
+              className="combobox-clear flex h-10 w-6 items-center justify-center rounded bg-transparent p-0"
+              aria-label="Clear selection"
+            >
+              <ClearIcon className="size-4" />
+            </Combobox.Clear>
+            <Combobox.Trigger
+              className="flex h-10 w-6 items-center justify-center rounded bg-transparent p-0"
+              aria-label="Open popup"
+            >
+              <ChevronDownIcon className="size-4" />
+            </Combobox.Trigger>
+          </div>
         </div>
       </div>
 
