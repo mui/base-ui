@@ -44,6 +44,50 @@ export default function App() {
     onSubmit: async ({ value }) => {
       console.log('submit', value);
     },
+    validators: {
+      onSubmit: ({ value: formValues }) => {
+        console.log('validate on submit', formValues);
+        const fields: Record<string, string | undefined> = {};
+
+        if (!formValues.serverName) {
+          fields.serverName = 'Required';
+        }
+
+        if (!formValues.staticIpAddress) {
+          fields.staticIpAddress = 'Required';
+        } else if (!IPV4_PATTERN.test(formValues.staticIpAddress)) {
+          fields.staticIpAddress = 'Invalid ipv4 address';
+        }
+
+        if (!formValues.region) {
+          fields.region = 'Required';
+        }
+
+        if (!formValues.image) {
+          fields.image = 'Required';
+        } else if (!CONTAINER_URL_PATTERN.test(formValues.image)) {
+          fields.image = 'Invalid ipv4 address';
+        }
+
+        if (!formValues.instanceType) {
+          fields.instanceType = 'Required';
+        }
+
+        if (formValues.numOfInstances == null) {
+          fields.numOfInstances = 'Required';
+        }
+
+        if (!formValues.storageType) {
+          fields.storageType = 'Required';
+        }
+
+        if (formValues.backupSchedule.length === 0) {
+          fields.backupSchedule = 'Required';
+        }
+
+        return { fields };
+      },
+    },
   });
   return (
     <div className="font-sans w-80">
@@ -53,6 +97,9 @@ export default function App() {
           handleSubmit();
         }}
       >
+        <h2 className="border-b border-gray-200 pb-3 text-lg font-medium text-gray-900">
+          Configure VPS
+        </h2>
         <FormField
           name="serverName"
           validators={{
@@ -107,6 +154,7 @@ export default function App() {
                   onValueChange={field.handleChange}
                   onBlur={field.handleBlur}
                   placeholder="e.g. 10.2.3.45"
+                  className="!w-40"
                 />
 
                 <FieldError match={!field.state.meta.isValid}>
@@ -263,7 +311,7 @@ export default function App() {
                   value={field.state.value || null}
                   onValueChange={field.handleChange}
                 >
-                  <SelectTrigger onBlur={field.handleBlur}>
+                  <SelectTrigger className="w-48" onBlur={field.handleBlur}>
                     <SelectValue />
                     <SelectIcon>
                       <ChevronUpDownIcon />
@@ -426,14 +474,9 @@ export default function App() {
 
         <FormField
           name="storageType"
-          validators={{
-            onSubmit: ({ value }) => {
-              return value ? undefined : 'Required';
-            },
-          }}
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+              <FieldRoot name={field.name} invalid={!field.state.meta.isValid} className="mt-3">
                 <FieldsetRoot
                   render={
                     <RadioGroup
@@ -474,13 +517,10 @@ export default function App() {
               }
               return undefined;
             },
-            onSubmit: ({ value }) => {
-              return value.length > 0 ? undefined : 'Required';
-            },
           }}
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+              <FieldRoot name={field.name} invalid={!field.state.meta.isValid} className="mt-2">
                 <FieldsetRoot
                   render={
                     <CheckboxGroup value={field.state.value} onValueChange={field.handleChange} />
@@ -510,7 +550,9 @@ export default function App() {
           }}
         />
 
-        <Button type="submit">Submit</Button>
+        <Button type="submit" className="mt-4">
+          Save
+        </Button>
       </Form>
     </div>
   );
@@ -1029,7 +1071,7 @@ const REGIONS = cartesian(['us', 'eu'], ['central', 'east', 'west'], ['1', '2', 
 );
 
 const INSTANCE_TYPES = [
-  { label: 'Select instance type', value: null },
+  { label: 'Pick instance type', value: null },
   ...cartesian(['t', 'm'], ['1', '2'], ['small', 'medium', 'large'])
     .map((val1) => val1.join('.').replace('.', ''))
     .map((val2) => ({
