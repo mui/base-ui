@@ -7,22 +7,25 @@ import { Field as BField } from '@base-ui-components/react/field';
 import { Form as BForm } from '@base-ui-components/react/form';
 import { Combobox as BCombobox } from '@base-ui-components/react/combobox';
 import { Autocomplete as BAutocomplete } from '@base-ui-components/react/autocomplete';
-import { ClearIcon, CheckIcon, ChevronDownIcon } from './_icons';
+import { Select as BSelect } from '@base-ui-components/react/select';
+import { ClearIcon, CheckIcon, ChevronDownIcon, ChevronUpDownIcon } from './_icons';
 
 export default function App() {
   const { Field: FormField, handleSubmit } = useForm({
     defaultValues: {
+      // null defaultValue doesn't work, TSF throws a type error
       serverName: '',
       staticIpAddress: '',
-      region: '', // this cannot be null or `FormField` will throw a type error
+      region: '',
       image: '',
+      instanceType: '',
     },
     onSubmit: async ({ value }) => {
       console.log('submit', value);
     },
   });
   return (
-    <div className="w-80">
+    <div className="font-sans w-80">
       <Form
         onSubmit={(event) => {
           event.preventDefault();
@@ -220,10 +223,170 @@ export default function App() {
           }}
         />
 
+        <FormField
+          name="instanceType"
+          validators={{
+            onChange: ({ value, fieldApi }) => {
+              if (fieldApi.state.meta.isDirty && fieldApi.state.meta.isBlurred) {
+                return !value ? 'Required' : undefined;
+              }
+              return undefined;
+            },
+          }}
+          children={(field) => {
+            return (
+              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+                <FieldLabel>Instance type</FieldLabel>
+                <SelectRoot
+                  items={INSTANCE_TYPES}
+                  value={field.state.value || null}
+                  onValueChange={field.handleChange}
+                >
+                  <SelectTrigger onBlur={field.handleBlur}>
+                    <SelectValue />
+                    <SelectIcon>
+                      <ChevronUpDownIcon />
+                    </SelectIcon>
+                  </SelectTrigger>
+                  <SelectPortal>
+                    <SelectPositioner>
+                      <SelectPopup>
+                        <SelectScrollUpArrow />
+                        <SelectList>
+                          {INSTANCE_TYPES.map(({ label, value }) => {
+                            return (
+                              <SelectItem key={value} value={value}>
+                                <SelectItemIndicator>
+                                  <CheckIcon className="size-3" />
+                                </SelectItemIndicator>
+                                <SelectItemText>{label}</SelectItemText>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectList>
+                        <SelectScrollDownArrow />
+                      </SelectPopup>
+                    </SelectPositioner>
+                  </SelectPortal>
+                </SelectRoot>
+                <FieldError match={!field.state.meta.isValid}>
+                  {field.state.meta.errors.join(',')}
+                </FieldError>
+              </FieldRoot>
+            );
+          }}
+        />
+
         <Button type="submit">Submit</Button>
       </Form>
     </div>
   );
+}
+
+function SelectRoot(props: BSelect.Root.Props<any>) {
+  return <BSelect.Root {...props} />;
+}
+
+function SelectTrigger({ className, ...props }: BSelect.Trigger.Props) {
+  return (
+    <BSelect.Trigger
+      className={clsx(
+        'flex h-10 min-w-36 items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline  focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default not-[[data-filled]]:text-gray-600 bg-[canvas]',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function SelectValue({ className, ...props }: BSelect.Value.Props) {
+  return <BSelect.Value className={clsx('', className)} {...props} />;
+}
+
+function SelectIcon({ className, ...props }: BSelect.Icon.Props) {
+  return <BSelect.Icon className={clsx('flex', className)} {...props} />;
+}
+
+function SelectPortal(props: BSelect.Portal.Props) {
+  return <BSelect.Portal {...props} />;
+}
+
+function SelectPositioner({ className, ...props }: BSelect.Positioner.Props) {
+  return (
+    <BSelect.Positioner
+      className={clsx('outline-none select-none z-10', className)}
+      sideOffset={8}
+      {...props}
+    />
+  );
+}
+
+function SelectPopup({ className, ...props }: BSelect.Popup.Props) {
+  return (
+    <BSelect.Popup
+      className={clsx(
+        'group origin-[var(--transform-origin)] bg-clip-padding rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[side=none]:data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none dark:shadow-none dark:outline-gray-300',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function SelectScrollUpArrow({ className, ...props }: BSelect.ScrollUpArrow.Props) {
+  return (
+    <BSelect.ScrollUpArrow
+      className={clsx(
+        "top-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute data-[side=none]:before:top-[-100%] before:left-0 before:h-full before:w-full before:content-['']",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function SelectScrollDownArrow({ className, ...props }: BSelect.ScrollDownArrow.Props) {
+  return (
+    <BSelect.ScrollDownArrow
+      className={clsx(
+        "bottom-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute before:left-0 before:h-full before:w-full before:content-[''] data-[side=none]:before:bottom-[-100%]",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function SelectList({ className, ...props }: BSelect.List.Props) {
+  return (
+    <BSelect.List
+      className={clsx(
+        'relative py-1 scroll-py-6 overflow-y-auto max-h-[var(--available-height)]',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function SelectItem({ className, ...props }: BSelect.Item.Props) {
+  return (
+    <BSelect.Item
+      className={clsx(
+        'grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-none select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-base group-data-[side=none]:leading-4 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function SelectItemIndicator({ className, ...props }: BSelect.ItemIndicator.Props) {
+  return <BSelect.ItemIndicator className={clsx('col-start-1', className)} {...props} />;
+}
+
+function SelectItemText({ className, ...props }: BSelect.ItemText.Props) {
+  return <BSelect.ItemText className={clsx('col-start-2', className)} {...props} />;
 }
 
 function AutocompleteRoot(props: BAutocomplete.Root.Props<any>) {
@@ -408,7 +571,7 @@ function FieldControl({ className, ...props }: BField.Control.Props) {
   return (
     <BField.Control
       className={clsx(
-        'h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:-outline-offset-1 focus:outline-blue-800',
+        'h-10 w-full rounded-md bg-[canvas] border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:-outline-offset-1 focus:outline-blue-800',
         className,
       )}
       {...props}
@@ -436,12 +599,6 @@ function Button({ className, ...props }: React.ComponentPropsWithoutRef<'button'
 const IPV4_PATTERN =
   /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
-const REGIONS = ['us', 'eu'].flatMap((val1) => {
-  return ['central', 'east', 'west'].flatMap((val2) => {
-    return ['1', '2', '3', '4'].map((val3) => `${val1}-${val2}-${val3}`);
-  });
-});
-
 interface Image {
   url: string;
   name: string;
@@ -456,3 +613,24 @@ const IMAGES: Image[] = [
 ];
 
 const CONTAINER_URL_PATTERN = /^(?:https?:\/\/)?[\w.-]+(?:\/[\w.-]+)+(?::[\w.-]+)?$/;
+
+function cartesian<T extends string[][]>(...arrays: T): string[][] {
+  return arrays.reduce<string[][]>(
+    (acc, curr) => acc.flatMap((a) => curr.map((b) => [...a, b])),
+    [[]],
+  );
+}
+
+const REGIONS = cartesian(['us', 'eu'], ['central', 'east', 'west'], ['1', '2', '3', '4']).map(
+  (v) => v.join('-'),
+);
+
+const INSTANCE_TYPES = [
+  { label: 'Select instance type', value: null },
+  ...cartesian(['t', 'm'], ['1', '2'], ['small', 'medium', 'large'])
+    .map((val1) => val1.join('.').replace('.', ''))
+    .map((val2) => ({
+      label: val2,
+      value: val2,
+    })),
+];
