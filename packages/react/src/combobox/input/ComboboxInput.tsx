@@ -440,15 +440,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
 export interface ComboboxInputState extends FieldRoot.State {
   /**
-   * Whether the popup is open.
+   * Whether the corresponding popup is open.
    */
   open: boolean;
   /**
-   * Indicates which side the popup is positioned relative to the input.
+   * Indicates which side the corresponding popup is positioned relative to the input.
    */
   popupSide: Side | '';
   /**
-   * Present when the filtered items list is empty.
+   * Present when the corresponding items list is empty.
    */
   listEmpty: boolean;
   /**
