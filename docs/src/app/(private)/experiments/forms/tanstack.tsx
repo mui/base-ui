@@ -4,10 +4,12 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { useForm } from '@tanstack/react-form';
 import { Field as BField } from '@base-ui-components/react/field';
+import { Fieldset as BFieldset } from '@base-ui-components/react/fieldset';
 import { Form as BForm } from '@base-ui-components/react/form';
 import { Combobox as BCombobox } from '@base-ui-components/react/combobox';
 import { Autocomplete as BAutocomplete } from '@base-ui-components/react/autocomplete';
 import { Select as BSelect } from '@base-ui-components/react/select';
+import { Slider as BSlider } from '@base-ui-components/react/slider';
 import { ClearIcon, CheckIcon, ChevronDownIcon, ChevronUpDownIcon } from './_icons';
 
 export default function App() {
@@ -19,6 +21,8 @@ export default function App() {
       region: '',
       image: '',
       instanceType: '',
+      cpuCores: 1,
+      cpuUtilization: [0.3, 0.8],
     },
     onSubmit: async ({ value }) => {
       console.log('submit', value);
@@ -277,9 +281,136 @@ export default function App() {
           }}
         />
 
+        <FormField
+          name="cpuCores"
+          validators={{
+            onChange: ({ value }) => {
+              return value > 16 ? 'Pro plan required for over 16 cores' : undefined;
+            },
+          }}
+          children={(field) => {
+            return (
+              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+                <SliderRoot
+                  value={field.state.value}
+                  onValueChange={field.handleChange}
+                  onValueCommitted={(newValue) => field.handleChange(Math.min(newValue, 16))}
+                  thumbAlignment="edge"
+                  min={1}
+                  max={32}
+                  className="w-72 gap-y-2"
+                >
+                  <FieldLabel>vCPU Cores</FieldLabel>
+                  <SliderValue className="col-start-2 text-end" />
+                  <SliderControl>
+                    <SliderTrack>
+                      <SliderIndicator />
+                      <SliderThumb onBlur={field.handleBlur} />
+                    </SliderTrack>
+                  </SliderControl>
+                </SliderRoot>
+                <FieldError match={!field.state.meta.isValid}>
+                  {field.state.meta.errors.join(',')}
+                </FieldError>
+              </FieldRoot>
+            );
+          }}
+        />
+
+        <FormField
+          name="cpuUtilization"
+          children={(field) => {
+            return (
+              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+                <FieldsetRoot
+                  render={
+                    <SliderRoot
+                      value={field.state.value}
+                      onValueChange={field.handleChange}
+                      onValueCommitted={(newValue) => field.handleChange(newValue)}
+                      thumbAlignment="edge"
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      format={{
+                        style: 'percent',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }}
+                      className="w-72 gap-y-2"
+                    />
+                  }
+                >
+                  <FieldsetLegend>CPU utilization range</FieldsetLegend>
+                  <SliderValue className="col-start-2 text-end" />
+                  <SliderControl>
+                    <SliderTrack>
+                      <SliderIndicator />
+                      <SliderThumb index={0} onBlur={field.handleBlur} />
+                      <SliderThumb index={1} onBlur={field.handleBlur} />
+                    </SliderTrack>
+                  </SliderControl>
+                </FieldsetRoot>
+                <FieldError match={!field.state.meta.isValid}>
+                  {field.state.meta.errors.join(',')}
+                </FieldError>
+              </FieldRoot>
+            );
+          }}
+        />
+
         <Button type="submit">Submit</Button>
       </Form>
     </div>
+  );
+}
+
+function SliderRoot({ className, ...props }: BSlider.Root.Props<any>) {
+  return <BSlider.Root className={clsx('grid grid-cols-2', className)} {...props} />;
+}
+
+function SliderValue({ className, ...props }: BSlider.Value.Props) {
+  return (
+    <BSlider.Value className={clsx('text-sm font-medium text-gray-900', className)} {...props} />
+  );
+}
+
+function SliderControl({ className, ...props }: BSlider.Control.Props) {
+  return (
+    <BSlider.Control
+      className={clsx('flex col-span-2 touch-none items-center py-3 select-none', className)}
+      {...props}
+    />
+  );
+}
+
+function SliderTrack({ className, ...props }: BSlider.Track.Props) {
+  return (
+    <BSlider.Track
+      className={clsx(
+        'h-1 w-full rounded bg-gray-200 shadow-[inset_0_0_0_1px] shadow-gray-200 select-none',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function SliderIndicator({ className, ...props }: BSlider.Indicator.Props) {
+  return (
+    <BSlider.Indicator className={clsx('rounded bg-gray-700 select-none', className)} {...props} />
+  );
+}
+
+function SliderThumb({ className, ...props }: BSlider.Thumb.Props) {
+  return (
+    <BSlider.Thumb
+      className={clsx(
+        'size-4 rounded-full bg-white outline outline-gray-300 select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-blue-800',
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
@@ -544,7 +675,7 @@ function ComboboxItemIndicator({ className, ...props }: BCombobox.ItemIndicator.
 }
 
 function Form({ className, ...props }: BForm.Props) {
-  return <BForm className={clsx('flex w-full flex-col gap-4', className)} {...props} />;
+  return <BForm className={clsx('flex w-full flex-col gap-5', className)} {...props} />;
 }
 
 function FieldRoot({ className, ...props }: BField.Root.Props) {
@@ -581,6 +712,16 @@ function FieldControl({ className, ...props }: BField.Control.Props) {
 
 function FieldError({ className, ...props }: BField.Error.Props) {
   return <BField.Error className={clsx('text-sm text-red-800', className)} {...props} />;
+}
+
+function FieldsetRoot(props: BFieldset.Root.Props) {
+  return <BFieldset.Root {...props} />;
+}
+
+function FieldsetLegend({ className, ...props }: BFieldset.Legend.Props) {
+  return (
+    <BFieldset.Legend className={clsx('text-sm font-medium text-gray-900', className)} {...props} />
+  );
 }
 
 function Button({ className, ...props }: React.ComponentPropsWithoutRef<'button'>) {
