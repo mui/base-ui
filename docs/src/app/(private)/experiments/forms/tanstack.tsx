@@ -10,7 +10,15 @@ import { Combobox as BCombobox } from '@base-ui-components/react/combobox';
 import { Autocomplete as BAutocomplete } from '@base-ui-components/react/autocomplete';
 import { Select as BSelect } from '@base-ui-components/react/select';
 import { Slider as BSlider } from '@base-ui-components/react/slider';
-import { ClearIcon, CheckIcon, ChevronDownIcon, ChevronUpDownIcon } from './_icons';
+import { NumberField as BNumberField } from '@base-ui-components/react/number-field';
+import {
+  ClearIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpDownIcon,
+  MinusIcon,
+  PlusIcon,
+} from './_icons';
 
 export default function App() {
   const { Field: FormField, handleSubmit } = useForm({
@@ -23,6 +31,9 @@ export default function App() {
       instanceType: '',
       cpuCores: 1,
       cpuUtilization: [0.3, 0.8],
+      // with casting `number | null` the bound field.handleChange throws
+      // a type error because it doesn't know that the numberfield is clearable
+      numOfInstances: 1 as number | null,
     },
     onSubmit: async ({ value }) => {
       console.log('submit', value);
@@ -359,9 +370,103 @@ export default function App() {
           }}
         />
 
+        <FormField
+          name="numOfInstances"
+          validators={{
+            onBlur: ({ value, fieldApi }) => {
+              if (!fieldApi.state.meta.isDirty) {
+                return undefined;
+              }
+              if (!value) {
+                return 'Required';
+              }
+              return value > 32 ? 'Pro plan required' : undefined;
+            },
+            onChange: ({ value, fieldApi }) => {
+              // revalidate on change
+              if (fieldApi.state.meta.isDirty && fieldApi.state.meta.isBlurred && value) {
+                fieldApi.setErrorMap({ onBlur: value > 32 ? 'Pro plan required' : undefined });
+              }
+              return undefined;
+            },
+          }}
+          children={(field) => {
+            return (
+              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+                <NumberFieldRoot
+                  value={field.state.value}
+                  onValueChange={field.handleChange}
+                  min={1}
+                  max={64}
+                >
+                  <FieldLabel>No. of instances</FieldLabel>
+                  <NumberFieldGroup>
+                    <NumberFieldDecrement>
+                      <MinusIcon />
+                    </NumberFieldDecrement>
+                    <NumberFieldInput className="!w-16" onBlur={field.handleBlur} />
+                    <NumberFieldIncrement>
+                      <PlusIcon />
+                    </NumberFieldIncrement>
+                  </NumberFieldGroup>
+                </NumberFieldRoot>
+                <FieldError match={!field.state.meta.isValid}>
+                  {field.state.meta.errors.join(',')}
+                </FieldError>
+              </FieldRoot>
+            );
+          }}
+        />
+
         <Button type="submit">Submit</Button>
       </Form>
     </div>
+  );
+}
+
+function NumberFieldRoot({ className, ...props }: BNumberField.Root.Props) {
+  return (
+    <BNumberField.Root className={clsx('flex flex-col items-start gap-1', className)} {...props} />
+  );
+}
+
+function NumberFieldGroup({ className, ...props }: BNumberField.Group.Props) {
+  return <BNumberField.Group className={clsx('flex', className)} {...props} />;
+}
+
+function NumberFieldDecrement({ className, ...props }: BNumberField.Decrement.Props) {
+  return (
+    <BNumberField.Decrement
+      className={clsx(
+        'flex size-10 items-center justify-center rounded-tl-md rounded-bl-md border border-gray-200 bg-gray-50 bg-clip-padding text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function NumberFieldInput({ className, ...props }: BNumberField.Input.Props) {
+  return (
+    <BNumberField.Input
+      className={clsx(
+        'h-10 w-24 border-t border-b border-gray-200 text-center text-base text-gray-900 tabular-nums focus:z-1 focus:outline focus:-outline-offset-1 focus:outline-blue-800',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function NumberFieldIncrement({ className, ...props }: BNumberField.Increment.Props) {
+  return (
+    <BNumberField.Increment
+      className={clsx(
+        'flex size-10 items-center justify-center rounded-tr-md rounded-br-md border border-gray-200 bg-gray-50 bg-clip-padding text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100',
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
