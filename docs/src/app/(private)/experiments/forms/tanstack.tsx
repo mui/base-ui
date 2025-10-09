@@ -6,6 +6,7 @@ import { useForm } from '@tanstack/react-form';
 import { Field as BField } from '@base-ui-components/react/field';
 import { Form as BForm } from '@base-ui-components/react/form';
 import { Combobox as BCombobox } from '@base-ui-components/react/combobox';
+import { Autocomplete as BAutocomplete } from '@base-ui-components/react/autocomplete';
 import { ClearIcon, CheckIcon, ChevronDownIcon } from './_icons';
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
       serverName: '',
       staticIpAddress: '',
       region: '', // this cannot be null or `FormField` will throw a type error
+      image: '',
     },
     onSubmit: async ({ value }) => {
       console.log('submit', value);
@@ -43,7 +45,7 @@ export default function App() {
           children={(field) => {
             return (
               <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
-                <FieldLabel>Name</FieldLabel>
+                <FieldLabel>Server name</FieldLabel>
                 <FieldControl
                   value={field.state.value}
                   onValueChange={field.handleChange}
@@ -74,7 +76,8 @@ export default function App() {
           children={(field) => {
             return (
               <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
-                <FieldLabel>Static IPv4 Address</FieldLabel>
+                <FieldLabel>Static IP</FieldLabel>
+                <FieldDescription>Only IPv4 addresses are supported</FieldDescription>
                 <FieldControl
                   value={field.state.value}
                   onValueChange={field.handleChange}
@@ -159,9 +162,125 @@ export default function App() {
           }}
         />
 
+        <FormField
+          name="image"
+          validators={{
+            onBlur: ({ value, fieldApi }) => {
+              if (!fieldApi.state.meta.isDirty) {
+                return undefined;
+              }
+              if (!value) {
+                return 'Required';
+              }
+              return CONTAINER_URL_PATTERN.test(value)
+                ? undefined
+                : 'Please enter a valid container URL';
+            },
+          }}
+          children={(field) => {
+            return (
+              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+                <AutocompleteRoot
+                  items={IMAGES}
+                  mode="both"
+                  value={field.state.value}
+                  onValueChange={field.handleChange}
+                  itemToStringValue={(itemValue: Image) => itemValue.url}
+                >
+                  <FieldLabel>
+                    Container image
+                    <AutocompleteInput
+                      placeholder="e.g. docker.io/library/node:latest"
+                      onBlur={field.handleBlur}
+                    />
+                  </FieldLabel>
+
+                  <AutocompletePortal>
+                    <AutocompletePositioner>
+                      <AutocompletePopup>
+                        <AutocompleteList>
+                          {(image: Image) => {
+                            return (
+                              <AutocompleteItem key={image.url} value={image}>
+                                {image.name} ({image.url})
+                              </AutocompleteItem>
+                            );
+                          }}
+                        </AutocompleteList>
+                      </AutocompletePopup>
+                    </AutocompletePositioner>
+                  </AutocompletePortal>
+                </AutocompleteRoot>
+
+                <FieldError match={!field.state.meta.isValid}>
+                  {field.state.meta.errors.join(',')}
+                </FieldError>
+              </FieldRoot>
+            );
+          }}
+        />
+
         <Button type="submit">Submit</Button>
       </Form>
     </div>
+  );
+}
+
+function AutocompleteRoot(props: BAutocomplete.Root.Props<any>) {
+  return <BAutocomplete.Root {...props} />;
+}
+
+function AutocompleteInput({ className, ...props }: BAutocomplete.Input.Props) {
+  return (
+    <BAutocomplete.Input
+      className={clsx(
+        'bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:-outline-offset-1 focus:outline-blue-800',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function AutocompletePortal(props: BAutocomplete.Portal.Props) {
+  return <BAutocomplete.Portal {...props} />;
+}
+
+function AutocompletePositioner({ className, ...props }: BAutocomplete.Positioner.Props) {
+  return (
+    <BAutocomplete.Positioner
+      className={clsx('outline-none data-[empty]:hidden', className)}
+      sideOffset={4}
+      {...props}
+    />
+  );
+}
+
+function AutocompletePopup({ className, ...props }: BAutocomplete.Popup.Props) {
+  return (
+    <BAutocomplete.Popup
+      className={clsx(
+        'w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function AutocompleteList(props: BAutocomplete.List.Props) {
+  return <BAutocomplete.List {...props} />;
+}
+
+function AutocompleteItem({ className, ...props }: BAutocomplete.Item.Props) {
+  return (
+    <BAutocomplete.Item
+      className={clsx(
+        'flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded data-[highlighted]:before:bg-gray-900',
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
@@ -281,6 +400,10 @@ function FieldLabel({ className, ...props }: BField.Label.Props) {
   );
 }
 
+function FieldDescription({ className, ...props }: BField.Description.Props) {
+  return <BField.Description className={clsx('text-sm text-gray-600', className)} {...props} />;
+}
+
 function FieldControl({ className, ...props }: BField.Control.Props) {
   return (
     <BField.Control
@@ -318,3 +441,18 @@ const REGIONS = ['us', 'eu'].flatMap((val1) => {
     return ['1', '2', '3', '4'].map((val3) => `${val1}-${val2}-${val3}`);
   });
 });
+
+interface Image {
+  url: string;
+  name: string;
+}
+
+const IMAGES: Image[] = [
+  { url: 'docker.io/library/nginx:1.29-alpine', name: 'nginx:1.29-alpine' },
+  { url: 'docker.io/library/node:22-slim', name: 'node:22-slim' },
+  { url: 'docker.io/library/postgres:18', name: 'postgres:18' },
+  { url: 'docker.io/library/redis:8.2.2-alpine', name: 'redis:8.2.2-alpine' },
+  { url: 'docker.io/library/rabbitmq:4.1.4-alpine', name: 'rabbitmq:4.1.4-alpine' },
+];
+
+const CONTAINER_URL_PATTERN = /^(?:https?:\/\/)?[\w.-]+(?:\/[\w.-]+)+(?::[\w.-]+)?$/;
