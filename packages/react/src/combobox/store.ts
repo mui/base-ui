@@ -38,7 +38,7 @@ export type State = {
   listElement: HTMLElement | null;
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
-  popupSide: Side;
+  popupSide: Side | '';
 
   openMethod: InteractionType | null;
 
