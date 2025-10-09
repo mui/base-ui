@@ -105,7 +105,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
   describe('ARIA attributes', () => {
     it('it has the correct aria attributes', async () => {
-      const { container } = await render(
+      await render(
         <Slider.Root defaultValue={30} aria-labelledby="labelId" data-testid="root">
           <Slider.Value />
           <Slider.Control>
@@ -119,10 +119,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
       const root = screen.getByTestId('root');
       const slider = screen.getByRole('slider');
-      // eslint-disable-next-line testing-library/no-container -- Needed here to test that the input is correctly linked to the thumb
-      const input = container.querySelector('input');
 
-      expect(slider).to.equal(input);
+      expect(slider.tagName).to.equal('INPUT');
 
       expect(root).to.have.attribute('aria-labelledby', 'labelId');
 

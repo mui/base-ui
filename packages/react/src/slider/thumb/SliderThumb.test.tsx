@@ -47,7 +47,7 @@ describe('<Slider.Thumb />', () => {
     describe.skipIf(isJSDOM)('focus and blur', () => {
       it('single thumb', async () => {
         const focusAndBlurSpy = spy((event) => event.target);
-        const { container, user } = await render(
+        const { user } = await render(
           <Slider.Root defaultValue={50}>
             <Slider.Control>
               <Slider.Thumb onFocus={focusAndBlurSpy} onBlur={focusAndBlurSpy} />
@@ -56,8 +56,8 @@ describe('<Slider.Thumb />', () => {
         );
         expect(document.body).toHaveFocus();
         const input = screen.getByRole('slider');
-        // eslint-disable-next-line testing-library/no-container
-        expect(input).to.equal(container.querySelector<HTMLInputElement>('input[type="range"]'));
+        expect(input.tagName).to.equal('INPUT');
+        expect(input).to.have.attribute('type', 'range');
 
         await user.keyboard('[Tab]');
         // We assert above that the tabbable elements of the slider are
@@ -76,7 +76,7 @@ describe('<Slider.Thumb />', () => {
       it('multiple thumbs', async () => {
         const focusSpy = spy((event) => event.target);
         const blurSpy = spy((event) => event.target);
-        const { container, user } = await render(
+        const { user } = await render(
           <Slider.Root defaultValue={[50, 70]}>
             <Slider.Control>
               <Slider.Thumb onFocus={focusSpy} onBlur={blurSpy} />
@@ -86,28 +86,26 @@ describe('<Slider.Thumb />', () => {
         );
         expect(document.body).toHaveFocus();
         const [slider1, slider2] = screen.getAllByRole('slider');
-        const [input1, input2] = Array.from(
-          // eslint-disable-next-line testing-library/no-container
-          container.querySelectorAll<HTMLInputElement>('input[type="range"]'),
-        );
-        expect(slider1).to.equal(input1);
-        expect(slider2).to.equal(input2);
+        expect(slider1).to.have.property('tagName', 'INPUT');
+        expect(slider1).to.have.attribute('type', 'range');
+        expect(slider2).to.have.property('tagName', 'INPUT');
+        expect(slider2).to.have.attribute('type', 'range');
 
         await user.keyboard('[Tab]');
-        expect(input1).toHaveFocus();
+        expect(slider1).toHaveFocus();
         expect(focusSpy.callCount).to.equal(1);
-        expect(focusSpy.lastCall.returnValue).to.equal(input1);
+        expect(focusSpy.lastCall.returnValue).to.equal(slider1);
 
         await user.keyboard('[Tab]');
         expect(blurSpy.callCount).to.equal(1);
-        expect(blurSpy.lastCall.returnValue).to.equal(input1);
-        expect(input2).toHaveFocus();
+        expect(blurSpy.lastCall.returnValue).to.equal(slider1);
+        expect(slider2).toHaveFocus();
         expect(focusSpy.callCount).to.equal(2);
-        expect(focusSpy.lastCall.returnValue).to.equal(input2);
+        expect(focusSpy.lastCall.returnValue).to.equal(slider2);
 
         await user.keyboard('[Tab]');
         expect(blurSpy.callCount).to.equal(2);
-        expect(blurSpy.lastCall.returnValue).to.equal(input2);
+        expect(blurSpy.lastCall.returnValue).to.equal(slider2);
         expect(document.body).toHaveFocus();
       });
     });

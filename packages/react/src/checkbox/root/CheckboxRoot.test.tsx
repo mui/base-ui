@@ -37,10 +37,13 @@ describe('<Checkbox.Root />', () => {
   });
 
   it('should change its state when clicked', async () => {
-    const { container } = await render(<Checkbox.Root />);
+    await render(<Checkbox.Root />);
     const [checkbox] = screen.getAllByRole('checkbox');
-    // eslint-disable-next-line testing-library/no-container
-    const input = container.querySelector('input[type=checkbox]') as HTMLInputElement;
+    // querying it separately since hidden true returns both button and input.
+    // without hidden it only returns the button (in the above query)
+    const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+      hidden: true,
+    });
 
     expect(checkbox).to.have.attribute('aria-checked', 'false');
     expect(input.checked).to.equal(false);
@@ -183,10 +186,11 @@ describe('<Checkbox.Root />', () => {
   });
 
   it('should update its state if the underlying input is toggled', async () => {
-    const { container } = await render(<Checkbox.Root />);
+    await render(<Checkbox.Root />);
     const [checkbox] = screen.getAllByRole('checkbox');
-    // eslint-disable-next-line testing-library/no-container
-    const input = container.querySelector('input[type=checkbox]') as HTMLInputElement;
+    const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+      hidden: true,
+    });
 
     await act(async () => {
       input.click();
@@ -227,10 +231,11 @@ describe('<Checkbox.Root />', () => {
   });
 
   it('should set the name attribute only on the input', async () => {
-    const { container } = await render(<Checkbox.Root name="checkbox-name" />);
+    await render(<Checkbox.Root name="checkbox-name" />);
 
-    // eslint-disable-next-line testing-library/no-container
-    const input = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
+    const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+      hidden: true,
+    });
     expect(input).to.have.attribute('name', 'checkbox-name');
     expect(screen.getByRole('checkbox')).not.to.have.attribute('name');
   });
@@ -417,14 +422,15 @@ describe('<Checkbox.Root />', () => {
     });
 
     it('should receive name prop from Field.Root', async () => {
-      const { container } = await render(
+      await render(
         <Field.Root name="field-checkbox">
           <Checkbox.Root />
         </Field.Root>,
       );
 
-      // eslint-disable-next-line testing-library/no-container
-      const input = container.querySelector('input[type="checkbox"]');
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
       expect(input).to.have.attribute('name', 'field-checkbox');
     });
 

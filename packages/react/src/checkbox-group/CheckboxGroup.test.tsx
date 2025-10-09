@@ -316,18 +316,18 @@ describe('<CheckboxGroup />', () => {
   describe('Field.Label', () => {
     it('implicit association', async () => {
       const changeSpy = spy();
-      const { container } = await render(
+      render(
         <Field.Root name="apple">
           <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
-            <Field.Label>
+            <Field.Label data-testid="label">
               <Checkbox.Root value="fuji-apple" />
               Fuji
             </Field.Label>
-            <Field.Label>
+            <Field.Label data-testid="label">
               <Checkbox.Root value="gala-apple" />
               Gala
             </Field.Label>
-            <Field.Label>
+            <Field.Label data-testid="label">
               <Checkbox.Root value="granny-smith-apple" onCheckedChange={changeSpy} />
               Granny Smith
             </Field.Label>
@@ -335,10 +335,10 @@ describe('<CheckboxGroup />', () => {
         </Field.Root>,
       );
 
-      // eslint-disable-next-line testing-library/no-container
-      const labels = container.querySelectorAll('label');
+      const labels = screen.getAllByTestId('label');
       expect(labels.length).to.equal(3);
       labels.forEach((label) => {
+        expect(label.tagName).to.equal('LABEL');
         expect(label).to.not.have.attribute('for');
       });
 
@@ -353,7 +353,7 @@ describe('<CheckboxGroup />', () => {
 
     it('explicit association', async () => {
       const changeSpy = spy();
-      await render(
+      render(
         <Field.Root name="apple">
           <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
             <Field.Label id="Label1" htmlFor="Checkbox1">
@@ -383,7 +383,7 @@ describe('<CheckboxGroup />', () => {
 
   describe.skipIf(isJSDOM)('Form', () => {
     it('includes the checkbox group value in form submission', async () => {
-      await render(
+      render(
         <Form
           onSubmit={(event) => {
             event.preventDefault();
@@ -409,7 +409,7 @@ describe('<CheckboxGroup />', () => {
     it('is validated as a group upon form submission', async () => {
       const validateSpy = spy();
 
-      await render(
+      render(
         <Form
           onSubmit={(event) => {
             event.preventDefault();
@@ -456,7 +456,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = await render(<App />);
+      const { user } = render(<App />);
       expect(screen.queryByTestId('error')).to.equal(null);
       const submit = screen.getByText('Submit');
       await user.click(submit);
@@ -497,7 +497,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = await render(<App />);
+      const { user } = render(<App />);
 
       const [parentCheckbox, , , checkbox3] = screen.getAllByRole('checkbox');
 
