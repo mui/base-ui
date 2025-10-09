@@ -19,7 +19,7 @@ import { contains, getFloatingFocusElement } from '../../floating-ui-react/utils
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import type { FieldRoot } from '../../field/root/FieldRoot';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -141,7 +141,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         setFocused(true);
         // The popup element shouldn't obscure the focused trigger.
         if (open && alignItemWithTriggerActiveRef.current) {
-          setOpen(false, createBaseUIEventDetails('focus-out', event.nativeEvent));
+          setOpen(false, createChangeEventDetails('focus-out', event.nativeEvent));
         }
 
         // Saves a re-render on initial click: `forceMount === true` mounts
@@ -205,7 +205,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          setOpen(false, createBaseUIEventDetails('cancel-open', mouseEvent));
+          setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
         }
 
         // Firefox can fire this upon mousedown
@@ -242,28 +242,23 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   });
 });
 
-export namespace SelectTrigger {
-  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface SelectTriggerState extends FieldRoot.State {
+  /** Whether the select popup is currently open. */
+  open: boolean;
+  /** Whether the select popup is readonly. */
+  readOnly: boolean;
+  /** The value of the currently selected item. */
+  value: any;
+}
+export interface SelectTriggerProps
+  extends NonNativeButtonProps,
+    BaseUIComponentProps<'div', SelectTrigger.State> {
+  children?: React.ReactNode;
+  /** Whether the component should ignore user interaction. */
+  disabled?: boolean;
+}
 
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the select popup is currently open.
-     */
-    open: boolean;
-    /**
-     * Whether the select popup is readonly.
-     */
-    readOnly: boolean;
-    /**
-     * The value of the currently selected item.
-     */
-    value: any;
-  }
+export namespace SelectTrigger {
+  export type State = SelectTriggerState;
+  export type Props = SelectTriggerProps;
 }

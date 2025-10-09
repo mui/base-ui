@@ -9,6 +9,7 @@ import { useComboboxFloatingContext, useComboboxRootContext } from '../root/Comb
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
+import { CompositeList } from '../../composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
 
 /**
@@ -25,12 +26,16 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
 
+  const items = useStore(store, selectors.items);
+  const labelsRef = useStore(store, selectors.labelsRef);
+  const listRef = useStore(store, selectors.listRef);
   const selectionMode = useStore(store, selectors.selectionMode);
   const grid = useStore(store, selectors.grid);
   const popupRef = useStore(store, selectors.popupRef);
   const popupProps = useStore(store, selectors.popupProps);
   const disabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
+  const virtualized = useStore(store, selectors.virtualized);
 
   const multiple = selectionMode === 'multiple';
 
@@ -65,7 +70,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     return children;
   }, [children]);
 
-  return useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement, hasPositionerContext ? null : setPositionerElement],
     props: [
       popupProps,
@@ -113,12 +118,26 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
       elementProps,
     ],
   });
+
+  if (virtualized) {
+    return element;
+  }
+
+  return (
+    <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
+      {element}
+    </CompositeList>
+  );
 });
 
-export namespace ComboboxList {
-  export interface State {}
+export interface ComboboxListState {}
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'children'> {
-    children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
-  }
+export interface ComboboxListProps
+  extends Omit<BaseUIComponentProps<'div', ComboboxList.State>, 'children'> {
+  children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
+}
+
+export namespace ComboboxList {
+  export type State = ComboboxListState;
+  export type Props = ComboboxListProps;
 }

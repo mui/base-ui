@@ -13,7 +13,8 @@ import { PopoverPortalContext } from './PopoverPortalContext';
 export function PopoverPortal(props: PopoverPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
-  const { mounted } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
+  const mounted = store.useState('mounted');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
@@ -22,22 +23,26 @@ export function PopoverPortal(props: PopoverPortal.Props) {
 
   return (
     <PopoverPortalContext.Provider value={keepMounted}>
-      <FloatingPortal root={container}>{children}</FloatingPortal>
+      <FloatingPortal root={container} renderGuards={false}>
+        {children}
+      </FloatingPortal>
     </PopoverPortalContext.Provider>
   );
 }
 
+export interface PopoverPortalProps {
+  children?: React.ReactNode;
+  /**
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?: FloatingPortalProps['root'];
+}
+
 export namespace PopoverPortal {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the portal mounted in the DOM while the popup is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: FloatingPortalProps['root'];
-  }
+  export type Props = PopoverPortalProps;
 }

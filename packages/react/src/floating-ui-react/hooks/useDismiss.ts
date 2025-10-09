@@ -24,7 +24,7 @@ import {
 
 import { useFloatingTree } from '../components/FloatingTree';
 import type { ElementProps, FloatingRootContext } from '../types';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 
 type PressType = 'intentional' | 'sloppy';
@@ -215,7 +215,7 @@ export function useDismiss(
       }
 
       const native = isReactEvent(event) ? event.nativeEvent : event;
-      const eventDetails = createBaseUIEventDetails('escape-key', native);
+      const eventDetails = createChangeEventDetails('escape-key', native);
 
       onOpenChange(false, eventDetails);
 
@@ -267,6 +267,11 @@ export function useDismiss(
       const target = getTarget(event);
       const inertSelector = `[${createAttribute('inert')}]`;
       const markers = getDocument(elements.floating).querySelectorAll(inertSelector);
+
+      // If another trigger is clicked, don't close the floating element.
+      if (target && elements.triggers?.some((trigger) => contains(trigger, target as Element))) {
+        return;
+      }
 
       let targetRootAncestor = isElement(target) ? target : null;
       while (targetRootAncestor && !isLastTraversableNode(targetRootAncestor)) {
@@ -357,7 +362,7 @@ export function useDismiss(
         }
       }
 
-      onOpenChange(false, createBaseUIEventDetails('outside-press', event));
+      onOpenChange(false, createChangeEventDetails('outside-press', event));
     },
   );
 
@@ -482,7 +487,7 @@ export function useDismiss(
     const compositionTimeout = new Timeout();
 
     function onScroll(event: Event) {
-      onOpenChange(false, createBaseUIEventDetails('none', event));
+      onOpenChange(false, createChangeEventDetails('none', event));
     }
 
     function handleCompositionStart() {
@@ -628,11 +633,11 @@ export function useDismiss(
       onKeyDown: closeOnEscapeKeyDown,
       ...(referencePress && {
         [bubbleHandlerKeys[referencePressEvent]]: (event: React.SyntheticEvent) => {
-          onOpenChange(false, createBaseUIEventDetails('trigger-press', event.nativeEvent as any));
+          onOpenChange(false, createChangeEventDetails('trigger-press', event.nativeEvent as any));
         },
         ...(referencePressEvent !== 'intentional' && {
           onClick(event) {
-            onOpenChange(false, createBaseUIEventDetails('trigger-press', event.nativeEvent));
+            onOpenChange(false, createChangeEventDetails('trigger-press', event.nativeEvent));
           },
         }),
       }),
@@ -669,7 +674,7 @@ export function useDismiss(
   );
 
   return React.useMemo(
-    () => (enabled ? { reference, floating } : {}),
+    () => (enabled ? { reference, floating, trigger: reference } : {}),
     [enabled, reference, floating],
   );
 }

@@ -42,3 +42,11 @@ To create a range slider:
 Thumbs can be configured to behave differently when they collide during pointer interactions using the `thumbCollisionBehavior` prop on `Slider.Root`.
 
 <Demo compact path="./demos/range-slider" />
+
+### Thumb alignment
+
+Set `thumbAlignment="edge"` to inset the thumb such that its edge aligns with the edge of the control when the value is at `min` or `max`, without overflowing the control like the default `"center"` alignment.
+
+A client-only alternative `thumbAlignment="edge-client-only"` can be used to reduce bundle size but only renders after React hydration.
+
+<Demo compact path="./demos/edge-alignment" />

@@ -25,7 +25,9 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     ...elementProps
   } = componentProps;
 
-  const { open, setTriggerElement, triggerProps } = useDialogRootContext();
+  const { store } = useDialogRootContext();
+  const open = store.useState('open');
+  const triggerProps = store.useState('triggerProps');
 
   const state: DialogTrigger.State = React.useMemo(
     () => ({
@@ -42,7 +44,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   return useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, setTriggerElement],
+    ref: [buttonRef, forwardedRef, store.getElementSetter('triggerElement')],
     props: [
       triggerProps,
       { [CLICK_TRIGGER_IDENTIFIER as string]: '' },
@@ -53,17 +55,22 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   });
 });
 
-export namespace DialogTrigger {
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface DialogTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', DialogTrigger.State> {}
 
-  export interface State {
-    /**
-     * Whether the dialog is currently disabled.
-     */
-    disabled: boolean;
-    /**
-     * Whether the dialog is currently open.
-     */
-    open: boolean;
-  }
+export interface DialogTriggerState {
+  /**
+   * Whether the dialog is currently disabled.
+   */
+  disabled: boolean;
+  /**
+   * Whether the dialog is currently open.
+   */
+  open: boolean;
+}
+
+export namespace DialogTrigger {
+  export type Props = DialogTriggerProps;
+  export type State = DialogTriggerState;
 }

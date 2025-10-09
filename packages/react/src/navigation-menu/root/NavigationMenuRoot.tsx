@@ -21,7 +21,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';
-import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const blockedReturnFocusReasons = new Set<string>(['trigger-hover', 'outside-press', 'focus-out']);
 
@@ -275,80 +275,84 @@ function TreeContext(props: {
   );
 }
 
+export interface NavigationMenuRootState {
+  /**
+   * If `true`, the popup is open.
+   */
+  open: boolean;
+  /**
+   * Whether the navigation menu is nested.
+   */
+  nested: boolean;
+}
+
+export interface NavigationMenuRootProps
+  extends BaseUIComponentProps<'nav', NavigationMenuRoot.State> {
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef?: React.RefObject<NavigationMenuRoot.Actions>;
+  /**
+   * Event handler called after any animations complete when the navigation menu is closed.
+   */
+  onOpenChangeComplete?: (open: boolean) => void;
+  /**
+   * The controlled value of the navigation menu item that should be currently open.
+   * When non-nullish, the menu will be open. When nullish, the menu will be closed.
+   *
+   * To render an uncontrolled navigation menu, use the `defaultValue` prop instead.
+   * @default null
+   */
+  value?: any;
+  /**
+   * The uncontrolled value of the item that should be initially selected.
+   *
+   * To render a controlled navigation menu, use the `value` prop instead.
+   * @default null
+   */
+  defaultValue?: any;
+  /**
+   * Callback fired when the value changes.
+   */
+  onValueChange?: (value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void;
+  /**
+   * How long to wait before opening the navigation menu. Specified in milliseconds.
+   * @default 50
+   */
+  delay?: number;
+  /**
+   * How long to wait before closing the navigation menu. Specified in milliseconds.
+   * @default 50
+   */
+  closeDelay?: number;
+  /**
+   * The orientation of the navigation menu.
+   * @default 'horizontal'
+   */
+  orientation?: 'horizontal' | 'vertical';
+}
+
+export interface NavigationMenuRootActions {
+  unmount: () => void;
+}
+
+export type NavigationMenuRootChangeEventReason =
+  | 'trigger-press'
+  | 'trigger-hover'
+  | 'outside-press'
+  | 'list-navigation'
+  | 'focus-out'
+  | 'escape-key'
+  | 'link-press'
+  | 'none';
+
+export type NavigationMenuRootChangeEventDetails =
+  BaseUIChangeEventDetails<NavigationMenuRoot.ChangeEventReason>;
+
 export namespace NavigationMenuRoot {
-  export interface State {
-    /**
-     * If `true`, the popup is open.
-     */
-    open: boolean;
-    /**
-     * Whether the navigation menu is nested.
-     */
-    nested: boolean;
-  }
-
-  export interface Props extends BaseUIComponentProps<'nav', State> {
-    /**
-     * A ref to imperative actions.
-     */
-    actionsRef?: React.RefObject<Actions>;
-    /**
-     * Event handler called after any animations complete when the navigation menu is closed.
-     */
-    onOpenChangeComplete?: (open: boolean) => void;
-    /**
-     * The controlled value of the navigation menu item that should be currently open.
-     * When non-nullish, the menu will be open. When nullish, the menu will be closed.
-     *
-     * To render an uncontrolled navigation menu, use the `defaultValue` prop instead.
-     * @default null
-     */
-    value?: any;
-    /**
-     * The uncontrolled value of the item that should be initially selected.
-     *
-     * To render a controlled navigation menu, use the `value` prop instead.
-     * @default null
-     */
-    defaultValue?: any;
-    /**
-     * Callback fired when the value changes.
-     */
-    onValueChange?: (value: any, eventDetails: ChangeEventDetails) => void;
-    /**
-     * How long to wait before opening the navigation menu. Specified in milliseconds.
-     * @default 50
-     */
-    delay?: number;
-    /**
-     * How long to wait before closing the navigation menu. Specified in milliseconds.
-     * @default 50
-     */
-    closeDelay?: number;
-    /**
-     * The orientation of the navigation menu.
-     * @default 'horizontal'
-     */
-    orientation?: 'horizontal' | 'vertical';
-  }
-
-  export interface Actions {
-    /**
-     * When specified, the navigation menu will not be unmounted when closed.
-     * Instead, the `unmount` function must be called to unmount the navigation menu manually.
-     * Useful when the navigation menu's animation is controlled by an external library.
-     */
-    unmount: () => void;
-  }
-
-  export type ChangeEventReason =
-    | 'trigger-press'
-    | 'trigger-hover'
-    | 'outside-press'
-    | 'list-navigation'
-    | 'focus-out'
-    | 'escape-key'
-    | 'link-press'
-    | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type State = NavigationMenuRootState;
+  export type Props = NavigationMenuRootProps;
+  export type Actions = NavigationMenuRootActions;
+  export type ChangeEventReason = NavigationMenuRootChangeEventReason;
+  export type ChangeEventDetails = NavigationMenuRootChangeEventDetails;
 }

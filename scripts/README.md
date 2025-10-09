@@ -32,13 +32,18 @@ A typical release goes like this:
 
 ### Release the packages
 
-1. Checkout the last version of the release branch.
-2. `pnpm install && pnpm release:build` (make sure you have the latest dependencies installed, and build the packages).
-3. `pnpm release:publish` (release the versions on npm, you need your 2FA device).
-4. `pnpm release:tag` (push the newly created tag).
+1. Go to the [publish action](https://github.com/mui/base-ui/actions/workflows/publish.yml).
+2. Choose "Run workflow" dropdown
 
-> Tip: You can use `release:publish:dry-run` to test the release process without actually publishing the packages.
-> Make sure to have [verdaccio](https://verdaccio.org/) (local npm registry) installed before doing it.
+   > - **Branch:** master
+   > - **Commit SHA to release from:** the commit that contains the merged release on master. This commit is linked to the GitHub release.
+   > - **Run in dry-run mode:** Used for debugging.
+   > - **Create GitHub release:** Keep selected if you want a GitHub release to be automatically created from the changelog.
+   > - **npm dist tag to publish to** Use to publish legacy or canary versions.
+
+3. Click "Run workflow"
+4. Refresh the page to see the newly created workflow, and click it.
+5. The next screen shows "@username requested your review to deploy to npm-publish", click "Review deployments" and authorize your workflow run. **Never approve workflow runs you didn't initiaite.**
 
 ### Publish the documentation
 
@@ -55,6 +60,5 @@ Once deployed, it will be accessible at https://base-ui.netlify.app/ for the `do
 
 ### GitHub release
 
-Create a GitHub release on https://github.com/mui/base-ui/releases/new.
-Its description should be the same as our CHANGELOG file entry.
+After the documentation deployment is done, review, and then publish the release that was created in draft mode during the release step [GitHub releases page](https://github.com/mui/base-ui/releases)
 Make sure to check the **Set as a pre-release** checkbox if publishing an unstable version.

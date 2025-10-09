@@ -15,13 +15,13 @@
     },
     "value": {
       "type": "Value[] | Value",
-      "description": "The value of the select.",
+      "description": "The value of the select. Use when controlled.",
       "detailedType": "Value[] | Value | undefined"
     },
     "onValueChange": {
-      "type": "((value: Value[] | Value, eventDetails: Select.Root.ChangeEventDetails) => void)",
-      "description": "Callback fired when the value of the select changes. Use when controlled.",
-      "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "type": "((value: Value[] | Value, eventDetails: Select.Root.ChangeEventDetails) => void) | ((value: Value[] | Value | any | null, eventDetails: Select.Root.ChangeEventDetails) => void)",
+      "description": "Event handler called when the value of the select changes.",
+      "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {
       "type": "boolean",
@@ -75,7 +75,7 @@
       "type": "boolean | undefined",
       "default": "false",
       "description": "Whether multiple items can be selected.",
-      "detailedType": "boolean | undefined | undefined"
+      "detailedType": "boolean | undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

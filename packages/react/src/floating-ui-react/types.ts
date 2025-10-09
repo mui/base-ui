@@ -4,7 +4,7 @@ import type {
   VirtualElement,
 } from '@floating-ui/react-dom';
 import type * as React from 'react';
-import type { BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 
 import type { ExtendedUserProps } from './hooks/useInteractions';
 
@@ -134,11 +134,12 @@ export interface ContextData {
 export interface FloatingRootContext<RT extends ReferenceType = ReferenceType> {
   dataRef: React.MutableRefObject<ContextData>;
   open: boolean;
-  onOpenChange: (open: boolean, eventDetails: BaseUIEventDetails<string>) => void;
+  onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void;
   elements: {
     domReference: Element | null;
     reference: RT | null;
     floating: HTMLElement | null;
+    triggers?: Element[];
   };
   events: FloatingEvents;
   floatingId: string | undefined;
@@ -152,7 +153,7 @@ export type FloatingContext<RT extends ReferenceType = ReferenceType> = Omit<
   'refs' | 'elements'
 > & {
   open: boolean;
-  onOpenChange(open: boolean, eventDetails: BaseUIEventDetails<string>): void;
+  onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   events: FloatingEvents;
   dataRef: React.MutableRefObject<ContextData>;
   nodeId: string | undefined;
@@ -180,6 +181,7 @@ export interface ElementProps {
   item?:
     | React.HTMLProps<HTMLElement>
     | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>);
+  trigger?: React.HTMLProps<Element>;
 }
 
 export type ReferenceType = Element | VirtualElement;
@@ -220,7 +222,7 @@ export interface UseFloatingOptions<RT extends ReferenceType = ReferenceType>
    * An event callback that is invoked when the floating element is opened or
    * closed.
    */
-  onOpenChange?(open: boolean, eventDetails: BaseUIEventDetails<string>): void;
+  onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   /**
    * Unique node id when using `FloatingTree`.
    */

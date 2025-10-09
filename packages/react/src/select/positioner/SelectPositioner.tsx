@@ -16,7 +16,7 @@ import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { useScrollLock } from '../../utils/useScrollLock';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
@@ -179,7 +179,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       return;
     }
 
-    const eventDetails = createBaseUIEventDetails('none');
+    const eventDetails = createChangeEventDetails('none');
 
     if (prevSize !== 0 && !store.state.multiple && value !== null) {
       const valueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
@@ -236,21 +236,24 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   );
 });
 
-export namespace SelectPositioner {
-  export interface State {
-    open: boolean;
-    side: Side | 'none';
-    align: Align;
-    anchorHidden: boolean;
-  }
+export interface SelectPositionerState {
+  open: boolean;
+  side: Side | 'none';
+  align: Align;
+  anchorHidden: boolean;
+}
 
-  export interface Props
-    extends useAnchorPositioning.SharedParameters,
-      BaseUIComponentProps<'div', State> {
-    /**
-     * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
-     * @default true
-     */
-    alignItemWithTrigger?: boolean;
-  }
+export interface SelectPositionerProps
+  extends useAnchorPositioning.SharedParameters,
+    BaseUIComponentProps<'div', SelectPositioner.State> {
+  /**
+   * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
+   * @default true
+   */
+  alignItemWithTrigger?: boolean;
+}
+
+export namespace SelectPositioner {
+  export type State = SelectPositionerState;
+  export type Props = SelectPositionerProps;
 }

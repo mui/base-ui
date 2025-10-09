@@ -16,7 +16,7 @@ import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Represents the radio button itself.
@@ -71,41 +71,38 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     }
   }, [setFilled]);
 
-  const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
-    () => ({
-      role: 'radio',
-      'aria-checked': checked,
-      'aria-required': required || undefined,
-      'aria-disabled': disabled || undefined,
-      'aria-readonly': readOnly || undefined,
-      [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
-      disabled,
-      onKeyDown(event) {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-        }
-      },
-      onClick(event) {
-        if (event.defaultPrevented || disabled || readOnly) {
-          return;
-        }
-
+  const rootProps: React.ComponentProps<'button'> = {
+    role: 'radio',
+    'aria-checked': checked,
+    'aria-required': required || undefined,
+    'aria-disabled': disabled || undefined,
+    'aria-readonly': readOnly || undefined,
+    [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
+    disabled,
+    onKeyDown(event) {
+      if (event.key === 'Enter') {
         event.preventDefault();
+      }
+    },
+    onClick(event) {
+      if (event.defaultPrevented || disabled || readOnly) {
+        return;
+      }
 
-        inputRef.current?.click();
-      },
-      onFocus(event) {
-        if (event.defaultPrevented || disabled || readOnly || !touched) {
-          return;
-        }
+      event.preventDefault();
 
-        inputRef.current?.click();
+      inputRef.current?.click();
+    },
+    onFocus(event) {
+      if (event.defaultPrevented || disabled || readOnly || !touched) {
+        return;
+      }
 
-        setTouched(false);
-      },
-    }),
-    [checked, required, disabled, readOnly, touched, setTouched],
-  );
+      inputRef.current?.click();
+
+      setTouched(false);
+    },
+  };
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -137,7 +134,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
           return;
         }
 
-        const details = createBaseUIEventDetails('none', event.nativeEvent);
+        const details = createChangeEventDetails('none', event.nativeEvent);
 
         if (details.isCanceled) {
           return;
@@ -216,51 +213,32 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   );
 });
 
-export namespace RadioRoot {
-  export interface Props
-    extends NativeButtonProps,
-      Omit<BaseUIComponentProps<'button', State>, 'value'> {
-    /**
-     * The unique identifying value of the radio in a group.
-     */
-    value: any;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Whether the user must choose a value before submitting a form.
-     * @default false
-     */
-    required?: boolean;
-    /**
-     * Whether the user should be unable to select the radio button.
-     * @default false
-     */
-    readOnly?: boolean;
-    /**
-     * A ref to access the hidden input element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
-  }
+export interface RadioRootState extends FieldRoot.State {
+  /** Whether the radio button is currently selected. */
+  checked: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the user should be unable to select the radio button. */
+  readOnly: boolean;
+  /** Whether the user must choose a value before submitting a form. */
+  required: boolean;
+}
+export interface RadioRootProps
+  extends NativeButtonProps,
+    Omit<BaseUIComponentProps<'button', RadioRoot.State>, 'value'> {
+  /** The unique identifying value of the radio in a group. */
+  value: any;
+  /** Whether the component should ignore user interaction. */
+  disabled?: boolean;
+  /** Whether the user must choose a value before submitting a form. */
+  required?: boolean;
+  /** Whether the user should be unable to select the radio button. */
+  readOnly?: boolean;
+  /** A ref to access the hidden input element. */
+  inputRef?: React.Ref<HTMLInputElement>;
+}
 
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the radio button is currently selected.
-     */
-    checked: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the user should be unable to select the radio button.
-     */
-    readOnly: boolean;
-    /**
-     * Whether the user must choose a value before submitting a form.
-     */
-    required: boolean;
-  }
+export namespace RadioRoot {
+  export type State = RadioRootState;
+  export type Props = RadioRootProps;
 }

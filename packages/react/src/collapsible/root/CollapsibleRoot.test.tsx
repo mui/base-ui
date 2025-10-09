@@ -63,7 +63,7 @@ describe('<Collapsible.Root />', () => {
     });
   });
 
-  describe('BaseUIEventDetails', () => {
+  describe('BaseUIChangeEventDetails', () => {
     it('calls onOpenChange with eventDetails', async () => {
       const handleOpenChange = spy();
 

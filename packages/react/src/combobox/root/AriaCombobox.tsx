@@ -19,8 +19,10 @@ import {
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
-  createBaseUIEventDetails,
-  type BaseUIEventDetails,
+  createChangeEventDetails,
+  createGenericEventDetails,
+  type BaseUIChangeEventDetails,
+  type BaseUIGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import {
   ComboboxFloatingContext,
@@ -30,7 +32,6 @@ import {
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { CompositeList } from '../../composite/list/CompositeList';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
@@ -50,22 +51,27 @@ import {
   Group,
   isGroupedItems,
 } from '../../utils/resolveValueLabel';
-import { defaultItemEquality, findItemIndex, itemIncludes } from '../../utils/itemEquality';
+import {
+  defaultItemEquality,
+  findItemIndex,
+  itemIncludes,
+  removeItem,
+} from '../../utils/itemEquality';
 
 /**
  * @internal
  */
-export function ComboboxRootInternal<Value, Mode extends SelectionMode = 'none'>(
+export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
   props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
-    items: readonly Group<Value>[];
+    items: readonly Group<any>[];
   },
 ): React.JSX.Element;
-export function ComboboxRootInternal<Value, Mode extends SelectionMode = 'none'>(
+export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
   props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
-    items?: readonly Value[];
+    items?: readonly any[];
   },
 ): React.JSX.Element;
-export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = 'none'>(
+export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   props: ComboboxRootConditionalProps<Value, Mode>,
 ): React.JSX.Element {
   const {
@@ -309,6 +315,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         items,
         selectionMode,
         listRef,
+        labelsRef,
         popupRef,
         inputRef,
         keyboardActiveRef,
@@ -405,10 +412,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     }
   }, [forceMount, selectedValue, initialSelectedValueRef]);
 
-  const updateValue = useEventCallback((nextValue: any) => {
+  function updateValue(nextValue: any) {
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
-  });
+  }
 
   const formValue = selectionMode === 'none' ? inputValue : selectedValue;
 
@@ -538,26 +545,28 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       type?: 'none' | 'keyboard' | 'pointer';
     }) => {
       store.apply(options);
-      const type = options.type || 'none';
+      const type: AriaCombobox.HighlightEventReason = options.type || 'none';
 
       if (options.activeIndex === undefined) {
         return;
       }
 
       if (options.activeIndex === null) {
-        onItemHighlighted(undefined, { type, index: -1 });
+        onItemHighlighted(undefined, createGenericEventDetails(type, undefined, { index: -1 }));
       } else {
         const activeValue = valuesRef.current[options.activeIndex];
-        onItemHighlighted(activeValue, {
-          type,
-          index: options.activeIndex,
-        });
+        onItemHighlighted(
+          activeValue,
+          createGenericEventDetails(type, undefined, {
+            index: options.activeIndex,
+          }),
+        );
       }
     },
   );
 
   const setInputValue = useEventCallback(
-    (next: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
+    (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
       hadInputClearRef.current = eventDetails.reason === 'input-clear';
 
       props.onInputValueChange?.(next, eventDetails);
@@ -591,7 +600,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   );
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
+    (nextOpen: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => {
       if (open === nextOpen) {
         return;
       }
@@ -610,10 +619,15 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
             setQueryChangedAfterOpen(false);
           }
         } else if (selectionMode === 'multiple') {
-          // Freeze the current query so filtering remains stable while exiting.
-          // For multiple selection, clear the input immediately on close while retaining filtering via closeQuery.
-          setCloseQuery(query);
-          setInputValue('', createBaseUIEventDetails('input-clear', eventDetails.event));
+          if (inline || inputInsidePopup) {
+            setIndices({ activeIndex: null });
+          } else {
+            // Freeze the current query so filtering remains stable while exiting.
+            setCloseQuery(query);
+          }
+          // Clear the input immediately on close while retaining filtering via closeQuery for exit animations
+          // if the input is outside the popup.
+          setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
         }
       }
 
@@ -622,7 +636,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
   );
 
   const setSelectedValue = useEventCallback(
-    (nextValue: Value | Value[], eventDetails: ComboboxRootInternal.ChangeEventDetails) => {
+    (nextValue: Value | Value[], eventDetails: AriaCombobox.ChangeEventDetails) => {
       // Cast to `any` due to conditional value type (single vs. multiple).
       // The runtime implementation already ensures the correct value shape.
       onSelectedValueChange?.(nextValue as any, eventDetails);
@@ -640,7 +654,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       if (shouldFillInput) {
         setInputValue(
           stringifyAsLabel(nextValue, itemToStringLabel),
-          createBaseUIEventDetails(eventDetails.reason, eventDetails.event),
+          createChangeEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
 
@@ -692,7 +706,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       const targetEl = getTarget(event) as HTMLElement | null;
       const overrideEvent = selectionEventRef.current ?? event;
       selectionEventRef.current = null;
-      const eventDetails = createBaseUIEventDetails('item-press', overrideEvent);
+      const eventDetails = createChangeEventDetails('item-press', overrideEvent);
 
       // Let the link handle the click.
       const href = targetEl?.closest('a')?.getAttribute('href');
@@ -705,9 +719,13 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
 
       if (multiple) {
         const currentSelectedValue = Array.isArray(selectedValue) ? selectedValue : [];
-        const isCurrentlySelected = currentSelectedValue.includes(value);
+        const isCurrentlySelected = itemIncludes(
+          currentSelectedValue,
+          value,
+          store.state.isItemEqualToValue,
+        );
         const nextValue = isCurrentlySelected
-          ? currentSelectedValue.filter((v) => v !== value)
+          ? removeItem(currentSelectedValue, value, store.state.isItemEqualToValue)
           : [...currentSelectedValue, value];
 
         setSelectedValue(nextValue, eventDetails);
@@ -718,7 +736,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
         }
 
         if (store.state.inputInsidePopup) {
-          setInputValue('', createBaseUIEventDetails('input-clear', eventDetails.event));
+          setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
         } else {
           setOpen(false, eventDetails);
         }
@@ -751,7 +769,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       inputRef.current.value !== '' &&
       !hadInputClearRef.current
     ) {
-      setInputValue('', createBaseUIEventDetails('input-clear'));
+      setInputValue('', createChangeEventDetails('input-clear'));
     }
 
     // Single selection mode:
@@ -760,14 +778,14 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     if (selectionMode === 'single') {
       if (store.state.inputInsidePopup) {
         if (inputRef.current && inputRef.current.value !== '') {
-          setInputValue('', createBaseUIEventDetails('input-clear'));
+          setInputValue('', createChangeEventDetails('input-clear'));
         }
       } else {
         const stringVal = stringifyAsLabel(selectedValue, itemToStringLabel);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
           const reason = stringVal === '' ? 'input-clear' : 'none';
-          setInputValue(stringVal, createBaseUIEventDetails(reason));
+          setInputValue(stringVal, createChangeEventDetails(reason));
         }
       }
     }
@@ -887,8 +905,10 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       ? (index) => index < 0 || index >= flatFilteredItems.length
       : (EMPTY_ARRAY as number[]),
     onNavigate(nextActiveIndex, event) {
+      const isClosing = !open || transitionStatus === 'ending';
+
       // Retain the highlight only while actually transitioning out or closed.
-      if (nextActiveIndex === null && (!open || transitionStatus === 'ending')) {
+      if (nextActiveIndex === null && !inline && isClosing) {
         return;
       }
 
@@ -913,7 +933,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     onMatch(index) {
       const nextSelectedValue = valuesRef.current[index];
       if (nextSelectedValue !== undefined) {
-        setSelectedValue(nextSelectedValue, createBaseUIEventDetails('none'));
+        setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
       }
     },
   });
@@ -1027,6 +1047,8 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
     return stringifyAsValue(formValue, itemToStringValue);
   }, [formValue, itemToStringValue]);
 
+  const hasMultipleSelection = multiple && Array.isArray(selectedValue) && selectedValue.length > 0;
+
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(selectedValue) || !name) {
       return null;
@@ -1066,7 +1088,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
             }
 
             const nextValue = event.target.value;
-            const details = createBaseUIEventDetails('input-change', event.nativeEvent);
+            const details = createChangeEventDetails('input-change', event.nativeEvent);
 
             function handleChange() {
               // Browser autofill only writes a single scalar value.
@@ -1112,7 +1134,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
           id,
           name: multiple || selectionMode === 'none' ? undefined : name,
           disabled,
-          required,
+          required: required && !hasMultipleSelection,
           readOnly,
           value: serializedValue,
           ref: hiddenInputRef,
@@ -1130,13 +1152,7 @@ export function ComboboxRootInternal<Value = any, Mode extends SelectionMode = '
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
         <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
           <ComboboxInputValueContext.Provider value={inputValue}>
-            {virtualized ? (
-              children
-            ) : (
-              <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
-                {children}
-              </CompositeList>
-            )}
+            {children}
           </ComboboxInputValueContext.Provider>
         </ComboboxDerivedItemsContext.Provider>
       </ComboboxFloatingContext.Provider>
@@ -1183,13 +1199,13 @@ interface ComboboxRootProps<ItemValue> {
    */
   defaultOpen?: boolean;
   /**
-   * Whether the popup is currently open.
+   * Whether the popup is currently open. Use when controlled.
    */
   open?: boolean;
   /**
    * Event handler called when the popup is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
+  onOpenChange?: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   /**
    * Event handler called after any animations complete when the popup is opened or closed.
    */
@@ -1205,18 +1221,17 @@ interface ComboboxRootProps<ItemValue> {
    */
   autoHighlight?: boolean;
   /**
-   * The input value of the combobox.
+   * The input value of the combobox. Use when controlled.
    */
   inputValue?: React.ComponentProps<'input'>['value'];
   /**
    * Callback fired when the input value of the combobox changes.
    */
-  onInputValueChange?: (
-    value: string,
-    eventDetails: ComboboxRootInternal.ChangeEventDetails,
-  ) => void;
+  onInputValueChange?: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   /**
    * The uncontrolled input value when initially rendered.
+   *
+   * To render a controlled input, use the `inputValue` prop instead.
    */
   defaultInputValue?: React.ComponentProps<'input'>['defaultValue'];
   /**
@@ -1225,20 +1240,18 @@ interface ComboboxRootProps<ItemValue> {
    * Instead, the `unmount` function must be called to unmount the combobox manually.
    * Useful when the combobox's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<ComboboxRootInternal.Actions>;
+  actionsRef?: React.RefObject<AriaCombobox.Actions>;
   /**
-   * Callback fired when the user navigates the list and highlights an item.
-   * Passes the item and the type of navigation or `undefined` when no item is highlighted.
-   * - `keyboard`: The item was highlighted via keyboard navigation.
-   * - `pointer`: The item was highlighted via pointer navigation.
-   * - `none`: The item was highlighted via programmatic navigation.
+   * Callback fired when an item is highlighted or unhighlighted.
+   * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
+   * The `reason` can be:
+   * - `'keyboard'`: the highlight changed due to keyboard navigation.
+   * - `'pointer'`: the highlight changed due to pointer hovering.
+   * - `'none'`: the highlight changed programmatically.
    */
   onItemHighlighted?: (
     itemValue: ItemValue | undefined,
-    data: {
-      type: 'keyboard' | 'pointer' | 'none';
-      index: number;
-    },
+    eventDetails: AriaCombobox.HighlightEventDetails,
   ) => void;
   /**
    * A ref to the hidden input element.
@@ -1254,17 +1267,16 @@ interface ComboboxRootProps<ItemValue> {
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: readonly ItemValue[] | readonly Group<ItemValue>[];
+  items?: readonly any[] | readonly Group<any>[];
   /**
    * Filter function used to match items vs input query.
-   * The `itemToStringLabel` function is provided to help convert items to strings for comparison.
    */
   filter?:
     | null
     | ((
         itemValue: ItemValue,
         query: string,
-        itemToStringLabel?: (itemValue: ItemValue) => string,
+        itemToString?: (itemValue: ItemValue) => string,
       ) => boolean);
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
@@ -1351,11 +1363,11 @@ export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'no
    */
   onSelectedValueChange?: (
     value: ComboboxItemValueType<Value, Mode>,
-    eventDetails: ComboboxRootInternal.ChangeEventDetails,
+    eventDetails: AriaCombobox.ChangeEventDetails,
   ) => void;
 };
 
-export namespace ComboboxRootInternal {
+export namespace AriaCombobox {
   export type Props<Value, Mode extends SelectionMode = 'none'> = ComboboxRootConditionalProps<
     Value,
     Mode
@@ -1366,6 +1378,13 @@ export namespace ComboboxRootInternal {
   export interface Actions {
     unmount: () => void;
   }
+
+  export type HighlightEventReason = 'keyboard' | 'pointer' | 'none';
+  export type HighlightEventDetails = BaseUIGenericEventDetails<
+    HighlightEventReason,
+    Event,
+    { index: number }
+  >;
 
   export type ChangeEventReason =
     | 'trigger-press'
@@ -1379,5 +1398,5 @@ export namespace ComboboxRootInternal {
     | 'clear-press'
     | 'chip-remove-press'
     | 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

@@ -1,13 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 
 const LONG_PRESS_DELAY = 500;
@@ -40,31 +39,29 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
 
-  const handleLongPress = useEventCallback(
-    (x: number, y: number, event: MouseEvent | TouchEvent) => {
-      const isTouchEvent = event.type.startsWith('touch');
+  function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
+    const isTouchEvent = event.type.startsWith('touch');
 
-      setAnchor({
-        getBoundingClientRect() {
-          return DOMRect.fromRect({
-            width: isTouchEvent ? 10 : 0,
-            height: isTouchEvent ? 10 : 0,
-            x,
-            y,
-          });
-        },
-      });
+    setAnchor({
+      getBoundingClientRect() {
+        return DOMRect.fromRect({
+          width: isTouchEvent ? 10 : 0,
+          height: isTouchEvent ? 10 : 0,
+          x,
+          y,
+        });
+      },
+    });
 
-      allowMouseUpRef.current = false;
-      actionsRef.current?.setOpen(true, createBaseUIEventDetails('trigger-press', event));
+    allowMouseUpRef.current = false;
+    actionsRef.current?.setOpen(true, createChangeEventDetails('trigger-press', event));
 
-      allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
-        allowMouseUpRef.current = true;
-      });
-    },
-  );
+    allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
+      allowMouseUpRef.current = true;
+    });
+  }
 
-  const handleContextMenu = useEventCallback((event: React.MouseEvent) => {
+  function handleContextMenu(event: React.MouseEvent) {
     allowMouseUpTriggerRef.current = true;
     stopEvent(event);
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
@@ -92,13 +89,13 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
           return;
         }
 
-        actionsRef.current?.setOpen(false, createBaseUIEventDetails('cancel-open', mouseEvent));
+        actionsRef.current?.setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
       },
       { once: true },
     );
-  });
+  }
 
-  const handleTouchStart = useEventCallback((event: React.TouchEvent) => {
+  function handleTouchStart(event: React.TouchEvent) {
     allowMouseUpTriggerRef.current = false;
     if (event.touches.length === 1) {
       event.stopPropagation();
@@ -114,9 +111,9 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
         }
       });
     }
-  });
+  }
 
-  const handleTouchMove = useEventCallback((event: React.TouchEvent) => {
+  function handleTouchMove(event: React.TouchEvent) {
     if (longPressTimeout.isStarted() && touchPositionRef.current && event.touches.length === 1) {
       const touch = event.touches[0];
       const moveThreshold = 10;
@@ -128,12 +125,12 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
         longPressTimeout.clear();
       }
     }
-  });
+  }
 
-  const handleTouchEnd = useEventCallback(() => {
+  function handleTouchEnd() {
     longPressTimeout.clear();
     touchPositionRef.current = null;
-  });
+  }
 
   React.useEffect(() => {
     function handleDocumentContextMenu(event: MouseEvent) {
@@ -175,8 +172,12 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   return element;
 });
 
-export namespace ContextMenuTrigger {
-  export interface State {}
+export interface ContextMenuTriggerState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ContextMenuTriggerProps
+  extends BaseUIComponentProps<'div', ContextMenuTrigger.State> {}
+
+export namespace ContextMenuTrigger {
+  export type State = ContextMenuTriggerState;
+  export type Props = ContextMenuTriggerProps;
 }

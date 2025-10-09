@@ -15,7 +15,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { compareItemEquality, itemIncludes, removeItem } from '../../utils/itemEquality';
 
 /**
@@ -138,10 +138,10 @@ export const SelectItem = React.memo(
         const nextValue = selected
           ? removeItem(currentValue, value, isItemEqualToValue)
           : [...currentValue, value];
-        setValue(nextValue, createBaseUIEventDetails('item-press', event));
+        setValue(nextValue, createChangeEventDetails('item-press', event));
       } else {
-        setValue(value, createBaseUIEventDetails('item-press', event));
-        setOpen(false, createBaseUIEventDetails('item-press', event));
+        setValue(value, createChangeEventDetails('item-press', event));
+        setOpen(false, createChangeEventDetails('item-press', event));
       }
     }
 
@@ -253,41 +253,44 @@ export const SelectItem = React.memo(
   }),
 );
 
-export namespace SelectItem {
-  export interface State {
-    /**
-     * Whether the item should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the item is selected.
-     */
-    selected: boolean;
-    /**
-     * Whether the item is highlighted.
-     */
-    highlighted: boolean;
-  }
+export interface SelectItemState {
+  /**
+   * Whether the item should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the item is selected.
+   */
+  selected: boolean;
+  /**
+   * Whether the item is highlighted.
+   */
+  highlighted: boolean;
+}
 
-  export interface Props
-    extends NonNativeButtonProps,
-      Omit<BaseUIComponentProps<'div', State>, 'id'> {
-    children?: React.ReactNode;
-    /**
-     * A unique value that identifies this select item.
-     * @default null
-     */
-    value?: any;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Specifies the text label to use when the item is matched during keyboard text navigation.
-     *
-     * Defaults to the item text content if not provided.
-     */
-    label?: string;
-  }
+export interface SelectItemProps
+  extends NonNativeButtonProps,
+    Omit<BaseUIComponentProps<'div', SelectItem.State>, 'id'> {
+  children?: React.ReactNode;
+  /**
+   * A unique value that identifies this select item.
+   * @default null
+   */
+  value?: any;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Specifies the text label to use when the item is matched during keyboard text navigation.
+   *
+   * Defaults to the item text content if not provided.
+   */
+  label?: string;
+}
+
+export namespace SelectItem {
+  export type State = SelectItemState;
+  export type Props = SelectItemProps;
 }

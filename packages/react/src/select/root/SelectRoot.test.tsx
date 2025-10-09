@@ -502,7 +502,7 @@ describe('<Select.Root />', () => {
     });
   });
 
-  describe('BaseUIEventDetails', () => {
+  describe('BaseUIChangeEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       await render(
         <Select.Root
@@ -2259,6 +2259,34 @@ describe('<Select.Root />', () => {
       const mainInput = container.querySelector<HTMLInputElement>('input[aria-hidden="true"]');
       expect(mainInput).not.to.equal(null);
       expect(mainInput?.value).to.equal('');
+    });
+
+    it('does not mark the hidden input as required when selection exists', async () => {
+      await render(
+        <Select.Root multiple required name="select" value={['a']}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput).not.to.have.attribute('required');
+    });
+
+    it('keeps the hidden input required when no selection exists', async () => {
+      await render(
+        <Select.Root multiple required name="select" value={[]}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput).to.have.attribute('required');
     });
 
     it('should not close popup when selecting items in multiple mode', async () => {

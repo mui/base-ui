@@ -18,7 +18,10 @@ import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 
 const EMPTY = {};
 export const PARENT_CHECKBOX = 'data-parent';
@@ -157,9 +160,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }, [checked, groupIndeterminate, setFilled]);
 
-  const onFocus = useEventCallback(() => setFocused(true));
+  function onFocus() {
+    setFocused(true);
+  }
 
-  const onBlur = useEventCallback(() => {
+  function onBlur() {
     const element = inputRef.current;
     if (!element) {
       return;
@@ -171,9 +176,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     if (validationMode === 'onBlur') {
       fieldControlValidation.commitValidation(groupContext ? groupValue : element.checked);
     }
-  });
+  }
 
-  const onClick = useEventCallback((event) => {
+  function onClick(event: React.MouseEvent) {
     if (event.defaultPrevented || readOnly) {
       return;
     }
@@ -181,7 +186,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     event.preventDefault();
 
     inputRef.current?.click();
-  });
+  }
 
   const inputProps = mergeProps<'input'>(
     {
@@ -204,7 +209,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         }
 
         const nextChecked = event.target.checked;
-        const details = createBaseUIEventDetails('none', event.nativeEvent);
+        const details = createChangeEventDetails('none', event.nativeEvent);
 
         groupOnChange?.(nextChecked, details);
         onCheckedChange(nextChecked, details);
@@ -315,100 +320,103 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   );
 });
 
+export interface CheckboxRootState extends FieldRoot.State {
+  /**
+   * Whether the checkbox is currently ticked.
+   */
+  checked: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the user should be unable to tick or untick the checkbox.
+   */
+  readOnly: boolean;
+  /**
+   * Whether the user must tick the checkbox before submitting a form.
+   */
+  required: boolean;
+  /**
+   * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
+   */
+  indeterminate: boolean;
+}
+
+export interface CheckboxRootProps
+  extends NativeButtonProps,
+    Omit<BaseUIComponentProps<'button', CheckboxRoot.State>, 'onChange' | 'value'> {
+  /**
+   * The id of the input element.
+   */
+  id?: string;
+  /**
+   * Identifies the field when a form is submitted.
+   * @default undefined
+   */
+  name?: string;
+  /**
+   * Whether the checkbox is currently ticked.
+   *
+   * To render an uncontrolled checkbox, use the `defaultChecked` prop instead.
+   * @default undefined
+   */
+  checked?: boolean;
+  /**
+   * Whether the checkbox is initially ticked.
+   *
+   * To render a controlled checkbox, use the `checked` prop instead.
+   * @default false
+   */
+  defaultChecked?: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Event handler called when the checkbox is ticked or unticked.
+   */
+  onCheckedChange?: (checked: boolean, eventDetails: CheckboxRootChangeEventDetails) => void;
+  /**
+   * Whether the user should be unable to tick or untick the checkbox.
+   * @default false
+   */
+  readOnly?: boolean;
+  /**
+   * Whether the user must tick the checkbox before submitting a form.
+   * @default false
+   */
+  required?: boolean;
+  /**
+   * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
+   * @default false
+   */
+  indeterminate?: boolean;
+  /**
+   * A ref to access the hidden `<input>` element.
+   */
+  inputRef?: React.Ref<HTMLInputElement>;
+  /**
+   * Whether the checkbox controls a group of child checkboxes.
+   *
+   * Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).
+   * @default false
+   */
+  parent?: boolean;
+  /**
+   * The value of the selected checkbox.
+   */
+  value?: string;
+}
+
+export type CheckboxRootChangeEventReason = 'none';
+export type CheckboxRootChangeEventDetails =
+  BaseUIChangeEventDetails<CheckboxRoot.ChangeEventReason>;
+
 export namespace CheckboxRoot {
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the checkbox is currently ticked.
-     */
-    checked: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the user should be unable to tick or untick the checkbox.
-     */
-    readOnly: boolean;
-    /**
-     * Whether the user must tick the checkbox before submitting a form.
-     */
-    required: boolean;
-    /**
-     * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
-     */
-    indeterminate: boolean;
-  }
-
-  export interface Props
-    extends NativeButtonProps,
-      Omit<BaseUIComponentProps<'button', State>, 'onChange' | 'value'> {
-    /**
-     * The id of the input element.
-     */
-    id?: string;
-    /**
-     * Identifies the field when a form is submitted.
-     * @default undefined
-     */
-    name?: string;
-    /**
-     * Whether the checkbox is currently ticked.
-     *
-     * To render an uncontrolled checkbox, use the `defaultChecked` prop instead.
-     * @default undefined
-     */
-    checked?: boolean;
-    /**
-     * Whether the checkbox is initially ticked.
-     *
-     * To render a controlled checkbox, use the `checked` prop instead.
-     * @default false
-     */
-    defaultChecked?: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Event handler called when the checkbox is ticked or unticked.
-     *
-     * @param {boolean} checked The new checked state.
-     * @param {Event} event The corresponding event that initiated the change.
-     */
-    onCheckedChange?: (checked: boolean, eventDetails: ChangeEventDetails) => void;
-    /**
-     * Whether the user should be unable to tick or untick the checkbox.
-     * @default false
-     */
-    readOnly?: boolean;
-    /**
-     * Whether the user must tick the checkbox before submitting a form.
-     * @default false
-     */
-    required?: boolean;
-    /**
-     * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
-     * @default false
-     */
-    indeterminate?: boolean;
-    /**
-     * A ref to access the hidden `<input>` element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
-    /**
-     * Whether the checkbox controls a group of child checkboxes.
-     *
-     * Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).
-     * @default false
-     */
-    parent?: boolean;
-    /**
-     * The value of the selected checkbox.
-     */
-    value?: string;
-  }
-
-  export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type State = CheckboxRootState;
+  export type Props = CheckboxRootProps;
+  export type ChangeEventReason = CheckboxRootChangeEventReason;
+  export type ChangeEventDetails = CheckboxRootChangeEventDetails;
 }

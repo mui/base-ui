@@ -24,7 +24,9 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { clearStyles, LIST_FUNCTIONAL_STYLES } from './utils';
 import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
+import { COMPOSITE_KEYS } from '../../composite/composite';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -64,6 +66,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     scrollDownArrowRef,
     scrollUpArrowRef,
   } = useSelectPositionerContext();
+  const insideToolbar = useToolbarRootContext(true) != null;
 
   const highlightTimeout = useTimeout();
 
@@ -339,7 +342,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const win = ownerWindow(positionerElement);
 
     function handleResize(event: Event) {
-      setOpen(false, createBaseUIEventDetails('window-resize', event));
+      setOpen(false, createChangeEventDetails('window-resize', event));
     }
 
     win.addEventListener('resize', handleResize);
@@ -360,8 +363,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           'aria-multiselectable': multiple || undefined,
           id: `${id}-list`,
         }),
-    onKeyDown() {
+    onKeyDown(event) {
       keyboardActiveRef.current = true;
+      if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
+        event.stopPropagation();
+      }
     },
     onMouseMove() {
       keyboardActiveRef.current = false;
@@ -415,15 +421,18 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   );
 });
 
-export namespace SelectPopup {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    children?: React.ReactNode;
-  }
+export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopup.State> {
+  children?: React.ReactNode;
+}
 
-  export interface State {
-    side: Side | 'none';
-    align: Align;
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface SelectPopupState {
+  side: Side | 'none';
+  align: Align;
+  open: boolean;
+  transitionStatus: TransitionStatus;
+}
+
+export namespace SelectPopup {
+  export type Props = SelectPopupProps;
+  export type State = SelectPopupState;
 }

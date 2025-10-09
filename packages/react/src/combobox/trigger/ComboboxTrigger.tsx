@@ -12,7 +12,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { stopEvent } from '../../floating-ui-react/utils';
 import type { FieldRoot } from '../../field/root/FieldRoot';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
@@ -66,9 +66,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
-  const trackPointerType = useEventCallback((event: React.PointerEvent) => {
+  function trackPointerType(event: React.PointerEvent) {
     currentPointerTypeRef.current = event.pointerType;
-  });
+  }
 
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,
@@ -142,7 +142,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           const nextOpen = !open;
           store.state.setOpen(
             nextOpen,
-            createBaseUIEventDetails('trigger-press', event.nativeEvent),
+            createChangeEventDetails('trigger-press', event.nativeEvent),
           );
 
           if (nextOpen && currentPointerTypeRef.current !== 'touch') {
@@ -158,7 +158,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             stopEvent(event);
             store.state.setOpen(
               true,
-              createBaseUIEventDetails('list-navigation', event.nativeEvent),
+              createChangeEventDetails('list-navigation', event.nativeEvent),
             );
             store.state.inputRef.current?.focus();
           }
@@ -175,23 +175,28 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   return element;
 });
 
-export namespace ComboboxTrigger {
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the popup is open.
-     */
-    open: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-  }
+export interface ComboboxTriggerState extends FieldRoot.State {
+  /**
+   * Whether the popup is open.
+   */
+  open: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface ComboboxTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ComboboxTrigger.State> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+export namespace ComboboxTrigger {
+  export type State = ComboboxTriggerState;
+  export type Props = ComboboxTriggerProps;
 }

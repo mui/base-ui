@@ -12,7 +12,7 @@ import {
   getNextTabbable,
   isOutsideEvent,
 } from '../utils';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 
 type FocusManagerState = {
@@ -148,6 +148,10 @@ export interface FloatingPortalProps {
    * DOM tree.
    */
   preserveTabOrder?: boolean;
+  /**
+   * Forces the focus guards to be rendered or omitted.
+   */
+  renderGuards?: boolean;
 }
 
 /**
@@ -160,7 +164,7 @@ export interface FloatingPortalProps {
  * @internal
  */
 export function FloatingPortal(props: FloatingPortalProps): React.JSX.Element {
-  const { children, id, root, preserveTabOrder = true } = props;
+  const { children, id, root, preserveTabOrder = true, renderGuards } = props;
 
   const portalNode = useFloatingPortalNode({ id, root });
   const [focusManagerState, setFocusManagerState] = React.useState<FocusManagerState>(null);
@@ -174,15 +178,17 @@ export function FloatingPortal(props: FloatingPortalProps): React.JSX.Element {
   const open = focusManagerState?.open;
 
   const shouldRenderGuards =
-    // The FocusManager and therefore floating element are currently open/
-    // rendered.
-    !!focusManagerState &&
-    // Guards are only for non-modal focus management.
-    !focusManagerState.modal &&
-    // Don't render if unmount is transitioning.
-    focusManagerState.open &&
-    preserveTabOrder &&
-    !!(root || portalNode);
+    typeof renderGuards === 'boolean'
+      ? renderGuards
+      : // The FocusManager and therefore floating element are currently open/
+        // rendered.
+        !!focusManagerState &&
+        // Guards are only for non-modal focus management.
+        !focusManagerState.modal &&
+        // Don't render if unmount is transitioning.
+        focusManagerState.open &&
+        preserveTabOrder &&
+        !!(root || portalNode);
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
@@ -269,7 +275,7 @@ export function FloatingPortal(props: FloatingPortalProps): React.JSX.Element {
               if (focusManagerState?.closeOnFocusOut) {
                 focusManagerState?.onOpenChange(
                   false,
-                  createBaseUIEventDetails('focus-out', event.nativeEvent),
+                  createChangeEventDetails('focus-out', event.nativeEvent),
                 );
               }
             }
