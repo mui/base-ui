@@ -14,7 +14,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
 
   const type = types && types[0];
   if (type?.type !== 'component') {
-    return null;
+    return <p>No type information provided.</p>;
   }
 
   const data = type.data;

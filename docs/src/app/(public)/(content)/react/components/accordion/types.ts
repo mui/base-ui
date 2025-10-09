@@ -1,7 +1,10 @@
 import { Accordion } from '@base-ui-components/react/accordion';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, Accordion);
+const types = createMultipleTypes(import.meta.url, Accordion, {
+  watchSourceDirectly: true,
+  globalTypes: ['node', 'react'],
+});
 
 export const TypesAccordionHeader = types.Header;
 export const TypesAccordionItem = types.Item;
