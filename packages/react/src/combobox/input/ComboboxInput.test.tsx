@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Field } from '@base-ui-components/react/field';
-import { spy } from 'sinon';
 
 describe('<Combobox.Input />', () => {
   const { render } = createRenderer();
@@ -233,40 +232,6 @@ describe('<Combobox.Input />', () => {
       await user.type(input, 'a');
 
       expect(screen.getByRole('listbox')).not.to.equal(null);
-    });
-
-    it('filters while composing input text', async () => {
-      const handleInputValueChange = spy();
-      const { user } = await render(
-        <Combobox.Root items={['apple', 'blueberry']} onInputValueChange={handleInputValueChange}>
-          <Combobox.Input />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  {(item: string) => (
-                    <Combobox.Item key={item} value={item}>
-                      {item}
-                    </Combobox.Item>
-                  )}
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      const input = screen.getByRole('combobox');
-      await user.click(input);
-
-      fireEvent.compositionStart(input);
-      fireEvent.change(input, { target: { value: 'a' } });
-
-      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
-      expect(screen.getAllByRole('option')).to.have.length(1);
-      expect(handleInputValueChange.calledWith('a')).to.equal(true);
-
-      fireEvent.compositionEnd(input);
     });
 
     it('should handle multiple selection with chips when disabled', async () => {

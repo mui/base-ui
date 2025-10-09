@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { isFirefox } from '@base-ui-components/utils/detectBrowser';
+import { isAndroid, isFirefox } from '@base-ui-components/utils/detectBrowser';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -65,6 +65,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const inputValue = useComboboxInputValueContext();
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
+
+  const [composingValue, setComposingValue] = React.useState<string | null>(null);
+  const isComposingRef = React.useRef(false);
 
   const setInputElement = useEventCallback((element) => {
     // The search filter for the input-inside-popup pattern should be empty initially.
@@ -155,7 +158,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       triggerProps,
       {
         type: 'text',
-        value: componentProps.value ?? inputValue,
+        value: componentProps.value ?? composingValue ?? inputValue,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
         disabled,
@@ -173,7 +176,72 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             fieldControlValidation?.commitValidation(valueToValidate);
           }
         },
+        onCompositionStart(event) {
+          if (isAndroid) {
+            return;
+          }
+          isComposingRef.current = true;
+          setComposingValue(event.currentTarget.value);
+        },
+        onCompositionEnd(event) {
+          isComposingRef.current = false;
+          const next = event.currentTarget.value;
+          setComposingValue(null);
+          store.state.setInputValue(
+            next,
+            createChangeEventDetails('input-change', event.nativeEvent),
+          );
+        },
         onChange(event: React.ChangeEvent<HTMLInputElement>) {
+          // During IME composition, avoid propagating controlled updates to prevent
+          // filtering the options prematurely so `Empty` won't show incorrectly.
+          // We can't rely on this check for Android due to how it handles composition
+          // events with some keyboards (e.g. Samsung keyboard with predictive text on
+          // treats all text as always-composing).
+          // https://github.com/mui/base-ui/issues/2942
+          if (isComposingRef.current) {
+            const nextVal = event.currentTarget.value;
+            setComposingValue(nextVal);
+
+            if (nextVal === '' && !openOnInputClick && !hasPositionerParent) {
+              store.state.setOpen(
+                false,
+                createChangeEventDetails('input-clear', event.nativeEvent),
+              );
+            }
+
+            if (!readOnly && !disabled) {
+              const trimmed = nextVal.trim();
+              if (trimmed !== '') {
+                store.state.setOpen(
+                  true,
+                  createChangeEventDetails('input-change', event.nativeEvent),
+                );
+                if (!autoHighlight) {
+                  store.state.setIndices({
+                    activeIndex: null,
+                    selectedIndex: null,
+                    type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
+                  });
+                }
+              }
+            }
+
+            if (
+              open &&
+              store.state.activeIndex !== null &&
+              !(autoHighlight && nextVal.trim() !== '')
+            ) {
+              store.state.setIndices({
+                activeIndex: null,
+                selectedIndex: null,
+                type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
+              });
+            }
+
+            return;
+          }
+
           store.state.setInputValue(
             event.currentTarget.value,
             createChangeEventDetails('input-change', event.nativeEvent),
