@@ -691,7 +691,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (!open) {
       syncSelectedIndex();
     }
-  }, [open, selectedValue, syncSelectedIndex]);
+  }, [open, selectedValue, syncSelectedIndex, flatItems]);
 
   const handleSelection = useEventCallback(
     (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
