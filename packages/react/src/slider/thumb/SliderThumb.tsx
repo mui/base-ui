@@ -268,8 +268,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     inset,
     isMounted,
     positionPercent,
+    range,
     renderBeforeHydration,
     rtl,
+    safeLastUsedThumbIndex,
     thumbValuePercent,
     vertical,
   ]);

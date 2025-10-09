@@ -1,10 +1,10 @@
 import { clamp } from '../../utils/clamp';
-import type { SliderRoot } from '../root/SliderRoot';
 import { replaceArrayItemAtIndex } from './replaceArrayItemAtIndex';
 import { getPushedThumbValues } from './getPushedThumbValues';
+import { SliderRootContext } from '../root/SliderRootContext';
 
 export interface ResolveThumbCollisionParams {
-  behavior: SliderRoot.ThumbCollisionBehavior;
+  behavior: SliderRootContext['thumbCollisionBehavior'];
   values: readonly number[];
   pressedIndex: number;
   nextValue: number;
