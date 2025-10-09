@@ -11,6 +11,10 @@ import { Autocomplete as BAutocomplete } from '@base-ui-components/react/autocom
 import { Select as BSelect } from '@base-ui-components/react/select';
 import { Slider as BSlider } from '@base-ui-components/react/slider';
 import { NumberField as BNumberField } from '@base-ui-components/react/number-field';
+import { Radio as BRadio } from '@base-ui-components/react/radio';
+import { RadioGroup as BRadioGroup } from '@base-ui-components/react/radio-group';
+import { Checkbox as BCheckbox } from '@base-ui-components/react/checkbox';
+import { CheckboxGroup as BCheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import {
   ClearIcon,
   CheckIcon,
@@ -34,6 +38,8 @@ export default function App() {
       // with casting `number | null` the bound field.handleChange throws
       // a type error because it doesn't know that the numberfield is clearable
       numOfInstances: 1 as number | null,
+      storageType: '',
+      backupSchedule: [] as string[],
     },
     onSubmit: async ({ value }) => {
       console.log('submit', value);
@@ -418,9 +424,160 @@ export default function App() {
           }}
         />
 
+        <FormField
+          name="storageType"
+          validators={{
+            onSubmit: ({ value }) => {
+              return value ? undefined : 'Required';
+            },
+          }}
+          children={(field) => {
+            return (
+              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+                <FieldsetRoot
+                  render={
+                    <RadioGroup
+                      value={field.state.value}
+                      onValueChange={(newValue) => field.handleChange(newValue as string)}
+                      className="gap-4"
+                    />
+                  }
+                >
+                  <FieldsetLegend className="-mt-px">Storage type</FieldsetLegend>
+                  <FieldLabel>
+                    <Radio value="ssd">
+                      <RadioIndicator />
+                    </Radio>
+                    SSD
+                  </FieldLabel>
+                  <FieldLabel>
+                    <Radio value="hdd">
+                      <RadioIndicator />
+                    </Radio>
+                    HDD
+                  </FieldLabel>
+                </FieldsetRoot>
+                <FieldError match={!field.state.meta.isValid}>
+                  {field.state.meta.errors.join(',')}
+                </FieldError>
+              </FieldRoot>
+            );
+          }}
+        />
+
+        <FormField
+          name="backupSchedule"
+          validators={{
+            onBlur: ({ value, fieldApi }) => {
+              if (fieldApi.state.meta.isDirty && fieldApi.state.meta.isBlurred) {
+                return value.length > 0 ? undefined : 'Required';
+              }
+              return undefined;
+            },
+            onSubmit: ({ value }) => {
+              return value.length > 0 ? undefined : 'Required';
+            },
+          }}
+          children={(field) => {
+            return (
+              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+                <FieldsetRoot
+                  render={
+                    <CheckboxGroup value={field.state.value} onValueChange={field.handleChange} />
+                  }
+                >
+                  <FieldsetLegend className="mb-2">Backup schedule</FieldsetLegend>
+                  <div className="flex gap-4">
+                    {['daily', 'weekly', 'monthly'].map((val) => {
+                      return (
+                        <FieldLabel key={val} className="capitalize">
+                          <Checkbox value={val} onBlur={field.handleBlur}>
+                            <CheckboxIndicator>
+                              <CheckIcon className="size-3" />
+                            </CheckboxIndicator>
+                          </Checkbox>
+                          {val}
+                        </FieldLabel>
+                      );
+                    })}
+                  </div>
+                </FieldsetRoot>
+                <FieldError match={!field.state.meta.isValid}>
+                  {field.state.meta.errors.join(',')}
+                </FieldError>
+              </FieldRoot>
+            );
+          }}
+        />
+
         <Button type="submit">Submit</Button>
       </Form>
     </div>
+  );
+}
+
+function CheckboxGroup({ className, ...props }: BCheckboxGroup.Props) {
+  return (
+    <BCheckboxGroup
+      className={clsx('flex flex-col items-start gap-1 text-gray-900', className)}
+      {...props}
+    />
+  );
+}
+
+function Checkbox({ className, ...props }: BCheckbox.Root.Props) {
+  return (
+    <BCheckbox.Root
+      className={clsx(
+        'Checkbox',
+        'flex size-5 items-center justify-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function CheckboxIndicator({ className, ...props }: BCheckbox.Indicator.Props) {
+  return (
+    <BCheckbox.Indicator
+      className={clsx('flex text-gray-50 data-[unchecked]:hidden', className)}
+      {...props}
+    />
+  );
+}
+
+function RadioGroup({ className, ...props }: BRadioGroup.Props) {
+  return (
+    <BRadioGroup
+      className={clsx('w-full flex flex-row items-start gap-1 text-gray-900', className)}
+      {...props}
+    />
+  );
+}
+
+function Radio({ className, ...props }: BRadio.Root.Props) {
+  return (
+    <BRadio.Root
+      className={clsx(
+        'Radio',
+        'flex size-5 items-center justify-center rounded-full focus-visible:outline  focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function RadioIndicator({ className, ...props }: BRadio.Indicator.Props) {
+  return (
+    <BRadio.Indicator
+      className={clsx(
+        'flex before:size-2 before:rounded-full before:bg-gray-50 data-[unchecked]:hidden',
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
