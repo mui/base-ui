@@ -124,51 +124,37 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     native: nativeButton,
   });
 
-  const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
-    () => ({
-      id,
-      role: 'switch',
-      disabled,
-      'aria-checked': checked,
-      'aria-readonly': readOnly || undefined,
-      'aria-labelledby': labelId,
-      onFocus() {
-        setFocused(true);
-      },
-      onBlur() {
-        const element = inputRef.current;
-        if (!element) {
-          return;
-        }
+  const rootProps: React.ComponentPropsWithRef<'button'> = {
+    id,
+    role: 'switch',
+    disabled,
+    'aria-checked': checked,
+    'aria-readonly': readOnly || undefined,
+    'aria-labelledby': labelId,
+    onFocus() {
+      setFocused(true);
+    },
+    onBlur() {
+      const element = inputRef.current;
+      if (!element) {
+        return;
+      }
 
-        setTouched(true);
-        setFocused(false);
+      setTouched(true);
+      setFocused(false);
 
-        if (validationMode === 'onBlur') {
-          commitValidation(element.checked);
-        }
-      },
-      onClick(event) {
-        if (event.defaultPrevented || readOnly) {
-          return;
-        }
+      if (validationMode === 'onBlur') {
+        commitValidation(element.checked);
+      }
+    },
+    onClick(event) {
+      if (event.defaultPrevented || readOnly) {
+        return;
+      }
 
-        inputRef?.current?.click();
-      },
-    }),
-    [
-      id,
-      disabled,
-      checked,
-      readOnly,
-      labelId,
-      setFocused,
-      setTouched,
-      commitValidation,
-      validationMode,
-      inputRef,
-    ],
-  );
+      inputRef?.current?.click();
+    },
+  };
 
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
     () =>
@@ -259,75 +245,78 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   );
 });
 
+export interface SwitchRootState extends FieldRoot.State {
+  /**
+   * Whether the switch is currently active.
+   */
+  checked: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the user should be unable to activate or deactivate the switch.
+   */
+  readOnly: boolean;
+  /**
+   * Whether the user must activate the switch before submitting a form.
+   */
+  required: boolean;
+}
+export interface SwitchRootProps
+  extends NativeButtonProps,
+    Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {
+  /**
+   * The id of the switch element.
+   */
+  id?: string;
+  /**
+   * Whether the switch is currently active.
+   *
+   * To render an uncontrolled switch, use the `defaultChecked` prop instead.
+   */
+  checked?: boolean;
+  /**
+   * Whether the switch is initially active.
+   *
+   * To render a controlled switch, use the `checked` prop instead.
+   * @default false
+   */
+  defaultChecked?: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * A ref to access the hidden `<input>` element.
+   */
+  inputRef?: React.Ref<HTMLInputElement>;
+  /**
+   * Identifies the field when a form is submitted.
+   */
+  name?: string;
+  /**
+   * Event handler called when the switch is activated or deactivated.
+   */
+  onCheckedChange?: (checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void;
+  /**
+   * Whether the user should be unable to activate or deactivate the switch.
+   * @default false
+   */
+  readOnly?: boolean;
+  /**
+   * Whether the user must activate the switch before submitting a form.
+   * @default false
+   */
+  required?: boolean;
+}
+export type SwitchRootChangeEventReason = 'none';
+export type SwitchRootChangeEventDetails = BaseUIChangeEventDetails<SwitchRoot.ChangeEventReason>;
+
 export namespace SwitchRoot {
-  export interface Props
-    extends NativeButtonProps,
-      Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {
-    /**
-     * The id of the switch element.
-     */
-    id?: string;
-    /**
-     * Whether the switch is currently active.
-     *
-     * To render an uncontrolled switch, use the `defaultChecked` prop instead.
-     */
-    checked?: boolean;
-    /**
-     * Whether the switch is initially active.
-     *
-     * To render a controlled switch, use the `checked` prop instead.
-     * @default false
-     */
-    defaultChecked?: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * A ref to access the hidden `<input>` element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
-    /**
-     * Identifies the field when a form is submitted.
-     */
-    name?: string;
-    /**
-     * Event handler called when the switch is activated or deactivated.
-     */
-    onCheckedChange?: (checked: boolean, eventDetails: ChangeEventDetails) => void;
-    /**
-     * Whether the user should be unable to activate or deactivate the switch.
-     * @default false
-     */
-    readOnly?: boolean;
-    /**
-     * Whether the user must activate the switch before submitting a form.
-     * @default false
-     */
-    required?: boolean;
-  }
-
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the switch is currently active.
-     */
-    checked: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the user should be unable to activate or deactivate the switch.
-     */
-    readOnly: boolean;
-    /**
-     * Whether the user must activate the switch before submitting a form.
-     */
-    required: boolean;
-  }
-
-  export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type State = SwitchRootState;
+  export type Props = SwitchRootProps;
+  export type ChangeEventReason = SwitchRootChangeEventReason;
+  export type ChangeEventDetails = SwitchRootChangeEventDetails;
 }

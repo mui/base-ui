@@ -174,22 +174,25 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   );
 });
 
-export namespace PopoverPositioner {
-  export interface State {
-    /**
-     * Whether the popover is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-    /**
-     * Whether CSS transitions should be disabled.
-     */
-    instant: string | undefined;
-  }
+export interface PopoverPositionerState {
+  /**
+   * Whether the popover is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+  /**
+   * Whether CSS transitions should be disabled.
+   */
+  instant: string | undefined;
+}
 
-  export interface Props
-    extends useAnchorPositioning.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+export interface PopoverPositionerProps
+  extends useAnchorPositioning.SharedParameters,
+    BaseUIComponentProps<'div', PopoverPositioner.State> {}
+
+export namespace PopoverPositioner {
+  export type State = PopoverPositionerState;
+  export type Props = PopoverPositionerProps;
 }

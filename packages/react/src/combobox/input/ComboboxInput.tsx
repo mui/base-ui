@@ -438,31 +438,34 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   return element;
 });
 
-export namespace ComboboxInput {
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the popup is open.
-     */
-    open: boolean;
-    /**
-     * Indicates which side the popup is positioned relative to the input.
-     */
-    popupSide: Side | '';
-    /**
-     * Present when the filtered items list is empty.
-     */
-    listEmpty: boolean;
-    /**
-     * Whether the component should ignore user edits.
-     */
-    readOnly: boolean;
-  }
+export interface ComboboxInputState extends FieldRoot.State {
+  /**
+   * Whether the popup is open.
+   */
+  open: boolean;
+  /**
+   * Indicates which side the popup is positioned relative to the input.
+   */
+  popupSide: Side | '';
+  /**
+   * Present when the filtered items list is empty.
+   */
+  listEmpty: boolean;
+  /**
+   * Whether the component should ignore user edits.
+   */
+  readOnly: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'input', State> {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface ComboboxInputProps extends BaseUIComponentProps<'input', ComboboxInput.State> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+export namespace ComboboxInput {
+  export type State = ComboboxInputState;
+  export type Props = ComboboxInputProps;
 }

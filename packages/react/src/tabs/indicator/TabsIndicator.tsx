@@ -185,19 +185,22 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   );
 });
 
-export namespace TabsIndicator {
-  export interface State extends TabsRoot.State {
-    selectedTabPosition: TabsTab.Position | null;
-    selectedTabSize: TabsTab.Size | null;
-    orientation: TabsRoot.Orientation;
-  }
+export interface TabsIndicatorState extends TabsRoot.State {
+  selectedTabPosition: TabsTab.Position | null;
+  selectedTabSize: TabsTab.Size | null;
+  orientation: TabsRoot.Orientation;
+}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    /**
-     * Whether to render itself before React hydrates.
-     * This minimizes the time that the indicator isn’t visible after server-side rendering.
-     * @default false
-     */
-    renderBeforeHydration?: boolean;
-  }
+export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsIndicator.State> {
+  /**
+   * Whether to render itself before React hydrates.
+   * This minimizes the time that the indicator isn’t visible after server-side rendering.
+   * @default false
+   */
+  renderBeforeHydration?: boolean;
+}
+
+export namespace TabsIndicator {
+  export type State = TabsIndicatorState;
+  export type Props = TabsIndicatorProps;
 }

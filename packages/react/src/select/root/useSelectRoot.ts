@@ -562,13 +562,19 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   };
 }
 
-export namespace useSelectRoot {
-  export interface Parameters<Value, Multiple extends boolean | undefined = false>
-    extends Omit<SelectRootConditionalProps<Value, Multiple>, 'children' | 'inputRef'> {}
+export interface UseSelectRootParameters<Value, Multiple extends boolean | undefined = false>
+  extends Omit<SelectRootConditionalProps<Value, Multiple>, 'children' | 'inputRef'> {}
 
-  export type ReturnValue = {
-    rootContext: SelectRootContext;
-    floatingContext: FloatingRootContext;
-    value: any;
-  };
+export type UseSelectRootReturnValue = {
+  rootContext: SelectRootContext;
+  floatingContext: FloatingRootContext;
+  value: any;
+};
+
+export namespace useSelectRoot {
+  export type Parameters<
+    Value,
+    Multiple extends boolean | undefined = false,
+  > = UseSelectRootParameters<Value, Multiple>;
+  export type ReturnValue = UseSelectRootReturnValue;
 }

@@ -63,11 +63,13 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   return element;
 });
 
+export interface AvatarImageProps extends BaseUIComponentProps<'img', AvatarRoot.State> {
+  /**
+   * Callback fired when the loading status changes.
+   */
+  onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
+}
+
 export namespace AvatarImage {
-  export interface Props extends BaseUIComponentProps<'img', AvatarRoot.State> {
-    /**
-     * Callback fired when the loading status changes.
-     */
-    onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
-  }
+  export type Props = AvatarImageProps;
 }
