@@ -3,7 +3,7 @@ import type { InteractionType } from '@base-ui-components/utils/useEnhancedClick
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import type { useFieldControlValidation } from '../field/control/useFieldControlValidation';
-import type { ComboboxRootInternal } from './root/ComboboxRootInternal';
+import type { AriaCombobox } from './root/AriaCombobox';
 import { compareItemEquality } from '../utils/itemEquality';
 
 export type State = {
@@ -55,15 +55,15 @@ export type State = {
   allValuesRef: React.RefObject<Array<any>>;
   selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
 
-  setOpen: (open: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
-  setInputValue: (value: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
-  setSelectedValue: (value: any, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
+  setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setIndices: (indices: {
     activeIndex?: number | null;
     selectedIndex?: number | null;
     type?: 'keyboard' | 'pointer' | 'none';
   }) => void;
-  onItemHighlighted: (item: any, eventDetails: ComboboxRootInternal.HighlightEventDetails) => void;
+  onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
   getItemProps: (

@@ -242,28 +242,23 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   });
 });
 
-export namespace SelectTrigger {
-  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface SelectTriggerState extends FieldRoot.State {
+  /** Whether the select popup is currently open. */
+  open: boolean;
+  /** Whether the select popup is readonly. */
+  readOnly: boolean;
+  /** The value of the currently selected item. */
+  value: any;
+}
+export interface SelectTriggerProps
+  extends NonNativeButtonProps,
+    BaseUIComponentProps<'div', SelectTrigger.State> {
+  children?: React.ReactNode;
+  /** Whether the component should ignore user interaction. */
+  disabled?: boolean;
+}
 
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the select popup is currently open.
-     */
-    open: boolean;
-    /**
-     * Whether the select popup is readonly.
-     */
-    readOnly: boolean;
-    /**
-     * The value of the currently selected item.
-     */
-    value: any;
-  }
+export namespace SelectTrigger {
+  export type State = SelectTriggerState;
+  export type Props = SelectTriggerProps;
 }

@@ -144,15 +144,19 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   );
 });
 
-export namespace ComboboxList {
-  export interface State {
-    /**
-     * Whether the list is empty.
-     */
-    empty: boolean;
-  }
+export interface ComboboxListState {
+  /**
+   * Whether the list is empty.
+   */
+  empty: boolean;
+}
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'children'> {
-    children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
-  }
+export interface ComboboxListProps
+  extends Omit<BaseUIComponentProps<'div', ComboboxList.State>, 'children'> {
+  children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
+}
+
+export namespace ComboboxList {
+  export type State = ComboboxListState;
+  export type Props = ComboboxListProps;
 }

@@ -866,8 +866,8 @@ describe('<Combobox.Root />', () => {
       <Combobox.Root
         name="country"
         items={items}
-        itemToStringLabel={(item) => item.country}
-        itemToStringValue={(item) => item.code}
+        itemToStringLabel={(item: (typeof items)[number]) => item.country}
+        itemToStringValue={(item: (typeof items)[number]) => item.code}
         defaultOpen
       >
         <Combobox.Input />
@@ -1011,7 +1011,7 @@ describe('<Combobox.Root />', () => {
     });
 
     it('should set disabled attribute on hidden input', async () => {
-      const { container } = await render(
+      await render(
         <Combobox.Root disabled name="test">
           <Combobox.Input />
           <Combobox.Portal>
@@ -1026,8 +1026,34 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const hiddenInput = container.querySelector('input[aria-hidden="true"]');
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
       expect(hiddenInput).to.have.attribute('disabled');
+    });
+  });
+
+  describe('prop: required', () => {
+    it('does not mark the hidden input as required when selection exists in multiple mode', async () => {
+      await render(
+        <Combobox.Root multiple required name="languages" value={['a']}>
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput).not.to.have.attribute('required');
+    });
+
+    it('keeps the hidden input required when no selection exists in multiple mode', async () => {
+      await render(
+        <Combobox.Root multiple required name="languages" value={[]}>
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput).to.have.attribute('required');
     });
   });
 
@@ -1177,8 +1203,8 @@ describe('<Combobox.Root />', () => {
       const { user } = await render(
         <Combobox.Root
           items={items}
-          itemToStringLabel={(item) => item.country}
-          itemToStringValue={(item) => item.code}
+          itemToStringLabel={(item: (typeof items)[number]) => item.country}
+          itemToStringValue={(item: (typeof items)[number]) => item.code}
           defaultOpen
         >
           <Combobox.Input />

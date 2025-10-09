@@ -239,7 +239,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     // Cancel move in case some other element consumed a pointerup event and it was not fired.
     if (nativeEvent.type === 'pointermove' && (nativeEvent as PointerEvent).buttons === 0) {
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       handleTouchEnd(nativeEvent);
       return;
     }
@@ -259,7 +258,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
   });
 
-  const handleTouchEnd = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
+  function handleTouchEnd(nativeEvent: TouchEvent | PointerEvent) {
     setActive(-1);
     setDragging(false);
 
@@ -295,7 +294,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     touchIdRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
-  });
+  }
 
   const handleTouchStart = useEventCallback((nativeEvent: TouchEvent) => {
     if (disabled) {
@@ -439,6 +438,8 @@ interface FingerState {
   thumbIndex: number;
 }
 
+export interface SliderControlProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+
 export namespace SliderControl {
-  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
+  export type Props = SliderControlProps;
 }
