@@ -69,6 +69,7 @@ export interface SliderRootContext {
   pressedThumbCenterOffsetRef: React.RefObject<number | null>;
   pressedThumbIndexRef: React.RefObject<number>;
   pressedValuesRef: React.RefObject<readonly number[] | null>;
+  renderBeforeHydration: boolean;
   registerFieldControlRef: React.RefCallback<Element> | null;
   setActive: (index: number) => void;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
@@ -84,7 +85,7 @@ export interface SliderRootContext {
    * @default 1
    */
   step: number;
-  thumbCollisionBehavior: SliderRoot.ThumbCollisionBehavior;
+  thumbCollisionBehavior: 'push' | 'push-sticky' | 'swap' | 'none';
   thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
   thumbRefs: React.RefObject<(HTMLElement | null)[]>;
   /**

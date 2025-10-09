@@ -147,7 +147,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     undefined,
     undefined,
   ]);
-  
+
   const setActive = useEventCallback((value: number) => {
     setActiveState(value);
 
@@ -509,7 +509,7 @@ export interface SliderRootProps<
    *
    * @default 'push-sticky'
    */
-  thumbCollisionBehavior?: ThumbCollisionBehavior;
+  thumbCollisionBehavior?: 'push' | 'push-sticky' | 'swap' | 'none';
   /**
    * The value of the slider.
    * For ranged sliders, provide an array with two values.

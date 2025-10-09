@@ -316,7 +316,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
       onValueCommitted(
         lastChangedValueRef.current ?? finger.value,
-        createBaseUIEventDetails('none', nativeEvent),
+        createGenericEventDetails('none', nativeEvent),
       );
     }
 
@@ -488,5 +488,6 @@ interface FingerState {
 export interface SliderControlProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
 
 export namespace SliderControl {
+  export type State = SliderRoot.State;
   export type Props = SliderControlProps;
 }
