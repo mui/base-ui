@@ -49,15 +49,16 @@ export const FieldItem = React.forwardRef(function FieldItem(
   );
 });
 
+export interface FieldItemProps extends BaseUIComponentProps<'div', FieldItem.State> {
+  /**
+   * Whether the wrapped control should ignore user interaction.
+   * The `disabled` prop on `<Field.Root>` takes precedence over this.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
 export namespace FieldItem {
   export type State = FieldRoot.State;
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether the wrapped control should ignore user interaction.
-     * The `disabled` prop on `<Field.Root>` takes precedence over this.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+  export type Props = FieldItemProps;
 }

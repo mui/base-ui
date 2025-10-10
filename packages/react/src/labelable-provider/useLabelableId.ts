@@ -37,19 +37,22 @@ export function useLabelableId(params: useLabelableId.Parameters = {}) {
   return controlId ?? defaultId;
 }
 
-export namespace useLabelableId {
-  export interface Parameters {
-    id?: string | undefined;
-    /**
-     * Whether implicit labelling is supported.
-     * @default false
-     */
-    implicit?: boolean;
-    /**
-     * A ref to an element that can be implicitly labelled.
-     */
-    controlRef?: React.RefObject<HTMLElement | null>;
-  }
+export interface UseLabelableIdParameters {
+  id?: string | undefined;
+  /**
+   * Whether implicit labelling is supported.
+   * @default false
+   */
+  implicit?: boolean;
+  /**
+   * A ref to an element that can be implicitly labelled.
+   */
+  controlRef?: React.RefObject<HTMLElement | null>;
+}
 
-  export type ReturnValue = string;
+export type UseLabelableIdReturnValue = string;
+
+export namespace useLabelableId {
+  export type Parameters = UseLabelableIdParameters;
+  export type ReturnValue = UseLabelableIdReturnValue;
 }
