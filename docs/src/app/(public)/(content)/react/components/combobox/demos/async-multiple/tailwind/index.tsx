@@ -1,28 +1,42 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 
-export default function ExampleAsyncCombobox() {
+export default function ExampleAsyncMultipleCombobox() {
   const id = React.useId();
 
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const openRef = React.useRef(false);
+
   const [searchResults, setSearchResults] = React.useState<DirectoryUser[]>([]);
-  const [selectedValue, setSelectedValue] = React.useState<DirectoryUser | null>(null);
+  const [selectedValues, setSelectedValues] = React.useState<DirectoryUser[]>([]);
   const [searchValue, setSearchValue] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
+  const [blockStartStatus, setBlockStartStatus] = React.useState(false);
+
   const [isPending, startTransition] = React.useTransition();
 
-  const abortControllerRef = React.useRef<AbortController | null>(null);
-
   const { contains } = Combobox.useFilter();
+
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+  const selectedValuesRef = React.useRef<DirectoryUser[]>([]);
 
   const trimmedSearchValue = searchValue.trim();
 
   const items = React.useMemo(() => {
-    if (!selectedValue || searchResults.some((user) => user.id === selectedValue.id)) {
+    if (selectedValues.length === 0) {
       return searchResults;
     }
 
-    return [selectedValue, ...searchResults];
-  }, [searchResults, selectedValue]);
+    const merged = [...searchResults];
+
+    selectedValues.forEach((user) => {
+      if (!searchResults.some((result) => result.id === user.id)) {
+        merged.push(user);
+      }
+    });
+
+    return merged;
+  }, [searchResults, selectedValues]);
 
   function getStatus() {
     if (isPending) {
@@ -30,7 +44,7 @@ export default function ExampleAsyncCombobox() {
         <React.Fragment>
           <span
             aria-hidden="true"
-            className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent rtl:border-r-current rtl:border-l-transparent"
+            className="inline-block size-3 animate-[spin_0.75s_linear_infinite] rounded-full border border-current border-r-transparent rtl:border-r-current rtl:border-l-transparent"
           />
           Searching...
         </React.Fragment>
@@ -41,11 +55,11 @@ export default function ExampleAsyncCombobox() {
       return error;
     }
 
-    if (trimmedSearchValue === '') {
-      return selectedValue ? null : 'Start typing to search people...';
+    if (trimmedSearchValue === '' && !blockStartStatus) {
+      return selectedValues.length > 0 ? null : 'Start typing to search people...';
     }
 
-    if (searchResults.length === 0) {
+    if (searchResults.length === 0 && !blockStartStatus) {
       return `No matches for "${trimmedSearchValue}".`;
     }
 
@@ -56,6 +70,7 @@ export default function ExampleAsyncCombobox() {
     if (trimmedSearchValue === '' || isPending || searchResults.length > 0 || error) {
       return null;
     }
+
     return 'Try a different search term.';
   }
 
@@ -63,33 +78,47 @@ export default function ExampleAsyncCombobox() {
     <Combobox.Root
       items={items}
       itemToStringLabel={(user: DirectoryUser) => user.name}
+      multiple
       filter={null}
+      onOpenChange={(open) => {
+        openRef.current = open;
+      }}
       onOpenChangeComplete={(open) => {
-        if (!open && selectedValue) {
-          setSearchResults([selectedValue]);
+        if (!open) {
+          setSearchResults(selectedValuesRef.current);
+          setBlockStartStatus(false);
         }
       }}
-      onValueChange={(nextSelectedValue) => {
-        setSelectedValue(nextSelectedValue);
+      onValueChange={(nextSelectedValues) => {
+        selectedValuesRef.current = nextSelectedValues;
+        setSelectedValues(nextSelectedValues);
         setSearchValue('');
         setError(null);
+
+        if (nextSelectedValues.length === 0) {
+          setSearchResults([]);
+          setBlockStartStatus(false);
+        } else {
+          setBlockStartStatus(true);
+        }
       }}
       onInputValueChange={(nextSearchValue, { reason }) => {
         setSearchValue(nextSearchValue);
 
+        const controller = new AbortController();
+        abortControllerRef.current?.abort();
+        abortControllerRef.current = controller;
+
         if (nextSearchValue === '') {
-          setSearchResults([]);
+          setSearchResults(selectedValuesRef.current);
           setError(null);
+          setBlockStartStatus(false);
           return;
         }
 
         if (reason === 'item-press') {
           return;
         }
-
-        abortControllerRef.current?.abort();
-        const controller = new AbortController();
-        abortControllerRef.current = controller;
 
         startTransition(async () => {
           setError(null);
@@ -108,40 +137,52 @@ export default function ExampleAsyncCombobox() {
       }}
     >
       <div className="flex flex-col gap-1 text-sm font-medium text-gray-900">
-        <label htmlFor={id}>Assign reviewer</label>
-        <div className="relative w-max">
-          <Combobox.Input
-            id={id}
-            placeholder="e.g. Michael"
-            className="box-border h-10 w-80 rounded-md border border-gray-200 bg-[canvas] pl-3.5 pr-16 text-base font-normal text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
-          />
-          <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center justify-center gap-1 text-gray-600">
-            <Combobox.Clear
-              className="pointer-events-auto flex h-10 w-6 items-center justify-center rounded border-0 bg-transparent p-0"
-              aria-label="Clear selection"
-            >
-              <ClearIcon className="size-4" />
-            </Combobox.Clear>
-            <Combobox.Trigger
-              className="pointer-events-auto flex h-10 w-6 items-center justify-center rounded border-0 bg-transparent p-0"
-              aria-label="Open popup"
-            >
-              <ChevronDownIcon className="size-4" />
-            </Combobox.Trigger>
-          </div>
-        </div>
+        <label className="inline-flex text-inherit" htmlFor={id}>
+          Assign reviewers
+        </label>
+        <Combobox.Chips
+          className="relative flex min-h-10 w-80 flex-wrap items-center gap-1 rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800"
+          ref={containerRef}
+        >
+          <Combobox.Value>
+            {(value: DirectoryUser[]) => (
+              <React.Fragment>
+                {value.map((user) => (
+                  <Combobox.Chip
+                    key={user.id}
+                    className="flex cursor-default items-center gap-1 rounded-md bg-gray-100 py-1 pl-2 pr-1 text-sm text-gray-900 outline-none focus-within:bg-blue-800 focus-within:text-gray-50 [@media(hover:hover)]:[&[data-highlighted]]:bg-blue-800 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50"
+                    aria-label={user.name}
+                  >
+                    {user.name}
+                    <Combobox.ChipRemove
+                      className="inline-flex items-center justify-center rounded-md border-none bg-transparent p-[0.2rem] text-inherit hover:bg-gray-200"
+                      aria-label="Remove"
+                    >
+                      <XIcon />
+                    </Combobox.ChipRemove>
+                  </Combobox.Chip>
+                ))}
+                <Combobox.Input
+                  id={id}
+                  placeholder={value.length > 0 ? '' : 'e.g. Michael'}
+                  className="h-8 min-w-24 flex-1 rounded-md border-0 bg-transparent pl-2 text-base font-normal text-gray-900 outline-none placeholder:font-normal"
+                />
+              </React.Fragment>
+            )}
+          </Combobox.Value>
+        </Combobox.Chips>
       </div>
 
       <Combobox.Portal>
-        <Combobox.Positioner className="outline-none" sideOffset={4}>
+        <Combobox.Positioner className="outline-none" anchor={containerRef} sideOffset={4}>
           <Combobox.Popup
-            className="box-border w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pb-2 scroll-pt-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-[0_10px_15px_-3px_var(--color-gray-200),0_4px_6px_-4px_var(--color-gray-200)] outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:-outline-offset-1 dark:shadow-none dark:outline-gray-300"
+            className="box-border w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pb-2 scroll-pt-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-[0_10px_15px_-3px_var(--color-gray-200),0_4px_6px_-4px_var(--color-gray-200)] outline outline-1 outline-gray-200 transition-[opacity,transform,scale] duration-100 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[ending-style]:transition-none data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:-outline-offset-1 dark:shadow-none dark:outline-gray-300"
             aria-busy={isPending || undefined}
           >
             <Combobox.Status className="flex items-center gap-2 py-1 pl-4 pr-5 text-sm text-gray-600 empty:hidden">
               {getStatus()}
             </Combobox.Status>
-            <Combobox.Empty className="px-4 py-2 text-[0.875rem] leading-4 text-gray-600 empty:hidden">
+            <Combobox.Empty className="box-border px-4 py-2 text-sm leading-4 text-gray-600 empty:hidden">
               {getEmptyMessage()}
             </Combobox.Empty>
             <Combobox.List>
@@ -156,11 +197,11 @@ export default function ExampleAsyncCombobox() {
                   </Combobox.ItemIndicator>
                   <div className="col-start-2 flex flex-col gap-1">
                     <div className="text-[0.95rem] font-medium">{user.name}</div>
-                    <div className="flex flex-wrap gap-3 text-[0.8125rem] text-gray-600">
+                    <div className="flex flex-wrap gap-2 text-[0.8125rem] text-gray-600">
                       <span className="opacity-80">@{user.username}</span>
                       <span>{user.title}</span>
                     </div>
-                    <div className="text-xs opacity-80">{user.email}</div>
+                    <div className="text-xs text-gray-500">{user.email}</div>
                   </div>
                 </Combobox.Item>
               )}
@@ -180,37 +221,23 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-function ClearIcon(props: React.ComponentProps<'svg'>) {
+function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
+      width={16}
+      height={16}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden
       {...props}
     >
-      <path d="M18 6L6 18" />
-      <path d="M6 6l12 12" />
-    </svg>
-  );
-}
-
-function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M6 9l6 6 6-6" />
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
     </svg>
   );
 }

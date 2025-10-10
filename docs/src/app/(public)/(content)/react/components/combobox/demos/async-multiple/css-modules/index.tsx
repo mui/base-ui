@@ -2,30 +2,44 @@ import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
 
-export default function ExampleAsyncCombobox() {
+export default function ExampleAsyncMultipleCombobox() {
   const id = React.useId();
 
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const openRef = React.useRef(false);
+
   const [searchResults, setSearchResults] = React.useState<DirectoryUser[]>([]);
-  const [selectedValue, setSelectedValue] = React.useState<DirectoryUser | null>(null);
+  const [selectedValues, setSelectedValues] = React.useState<DirectoryUser[]>([]);
   const [searchValue, setSearchValue] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
+  const [blockStartStatus, setBlockStartStatus] = React.useState(false);
+
   const [isPending, startTransition] = React.useTransition();
 
   const { contains } = Combobox.useFilter();
 
   const abortControllerRef = React.useRef<AbortController | null>(null);
+  const selectedValuesRef = React.useRef<DirectoryUser[]>([]);
+
+  const trimmedSearchValue = searchValue.trim();
 
   const items = React.useMemo(() => {
-    if (!selectedValue || searchResults.some((user) => user.id === selectedValue.id)) {
+    if (selectedValues.length === 0) {
       return searchResults;
     }
 
-    return [selectedValue, ...searchResults];
-  }, [searchResults, selectedValue]);
+    const merged = [...searchResults];
+
+    selectedValues.forEach((user) => {
+      if (!searchResults.some((result) => result.id === user.id)) {
+        merged.push(user);
+      }
+    });
+
+    return merged;
+  }, [searchResults, selectedValues]);
 
   function getStatus() {
-    const trimmedSearchValue = searchValue.trim();
-
     if (isPending) {
       return (
         <React.Fragment>
@@ -39,11 +53,11 @@ export default function ExampleAsyncCombobox() {
       return error;
     }
 
-    if (trimmedSearchValue === '') {
-      return selectedValue ? null : 'Start typing to search people...';
+    if (trimmedSearchValue === '' && !blockStartStatus) {
+      return selectedValues.length > 0 ? null : 'Start typing to search people...';
     }
 
-    if (searchResults.length === 0) {
+    if (searchResults.length === 0 && !blockStartStatus) {
       return `No matches for "${trimmedSearchValue}".`;
     }
 
@@ -51,8 +65,6 @@ export default function ExampleAsyncCombobox() {
   }
 
   function getEmptyMessage() {
-    const trimmedSearchValue = searchValue.trim();
-
     if (trimmedSearchValue === '' || isPending || searchResults.length > 0 || error) {
       return null;
     }
@@ -64,27 +76,41 @@ export default function ExampleAsyncCombobox() {
     <Combobox.Root
       items={items}
       itemToStringLabel={(user: DirectoryUser) => user.name}
+      multiple
       filter={null}
+      onOpenChange={(open) => {
+        openRef.current = open;
+      }}
       onOpenChangeComplete={(open) => {
-        if (!open && selectedValue) {
-          setSearchResults([selectedValue]);
+        if (!open) {
+          setSearchResults(selectedValuesRef.current);
+          setBlockStartStatus(false);
         }
       }}
-      onValueChange={(nextSelectedValue) => {
-        setSelectedValue(nextSelectedValue);
+      onValueChange={(nextSelectedValues) => {
+        selectedValuesRef.current = nextSelectedValues;
+        setSelectedValues(nextSelectedValues);
         setSearchValue('');
         setError(null);
+
+        if (nextSelectedValues.length === 0) {
+          setSearchResults([]);
+          setBlockStartStatus(false);
+        } else {
+          setBlockStartStatus(true);
+        }
       }}
       onInputValueChange={(nextSearchValue, { reason }) => {
         setSearchValue(nextSearchValue);
 
-        abortControllerRef.current?.abort();
         const controller = new AbortController();
+        abortControllerRef.current?.abort();
         abortControllerRef.current = controller;
 
         if (nextSearchValue === '') {
-          setSearchResults([]);
+          setSearchResults(selectedValuesRef.current);
           setError(null);
+          setBlockStartStatus(false);
           return;
         }
 
@@ -108,23 +134,35 @@ export default function ExampleAsyncCombobox() {
         });
       }}
     >
-      <div className={styles.Label}>
-        <label htmlFor={id}>Assign reviewer</label>
-        <div className={styles.InputWrapper}>
-          <Combobox.Input id={id} placeholder="e.g. Michael" className={styles.Input} />
-          <div className={styles.ActionButtons}>
-            <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
-              <ClearIcon className={styles.ClearIcon} />
-            </Combobox.Clear>
-            <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
-              <ChevronDownIcon className={styles.TriggerIcon} />
-            </Combobox.Trigger>
-          </div>
-        </div>
+      <div className={styles.Container}>
+        <label className={styles.Label} htmlFor={id}>
+          Assign reviewers
+        </label>
+        <Combobox.Chips className={styles.Chips} ref={containerRef}>
+          <Combobox.Value>
+            {(value: DirectoryUser[]) => (
+              <React.Fragment>
+                {value.map((user) => (
+                  <Combobox.Chip key={user.id} className={styles.Chip} aria-label={user.name}>
+                    {user.name}
+                    <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                      <XIcon />
+                    </Combobox.ChipRemove>
+                  </Combobox.Chip>
+                ))}
+                <Combobox.Input
+                  id={id}
+                  placeholder={value.length > 0 ? '' : 'e.g. Michael'}
+                  className={styles.Input}
+                />
+              </React.Fragment>
+            )}
+          </Combobox.Value>
+        </Combobox.Chips>
       </div>
 
       <Combobox.Portal>
-        <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
+        <Combobox.Positioner className={styles.Positioner} anchor={containerRef} sideOffset={4}>
           <Combobox.Popup className={styles.Popup} aria-busy={isPending || undefined}>
             <Combobox.Status className={styles.Status}>{getStatus()}</Combobox.Status>
             <Combobox.Empty className={styles.Empty}>{getEmptyMessage()}</Combobox.Empty>
@@ -160,37 +198,23 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-function ClearIcon(props: React.ComponentProps<'svg'>) {
+function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
+      width={16}
+      height={16}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden
       {...props}
     >
-      <path d="M18 6L6 18" />
-      <path d="M6 6l12 12" />
-    </svg>
-  );
-}
-
-function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M6 9l6 6 6-6" />
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
     </svg>
   );
 }

@@ -137,9 +137,15 @@ The combobox can allow multiple selections by adding the `multiple` prop to `Com
 
 ### Async search
 
-Load items from a remote source by fetching on input changes. Keep the selected item in the `items` list so it remains available while new results stream in.
+Load items from a remote source by fetching on input changes. Keep the selected item in the `items` list so it remains available while new results stream in. This pattern avoids needing to load items upfront.
 
 <Demo path="./demos/async" compact />
+
+### Async multiple
+
+Load items from a remote source by fetching on input changes while supporting multiple selections. Selected people remain available in the list while new matches stream in. This pattern avoids needing to load items upfront.
+
+<Demo path="./demos/async-multiple" compact />
 
 ### Creatable
 
