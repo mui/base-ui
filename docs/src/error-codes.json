@@ -70,5 +70,9 @@
   "69": "Base UI: ToolbarRootContext is missing. Toolbar parts must be placed within <Toolbar.Root>.",
   "70": "Base UI: <Tooltip.Portal> is missing.",
   "71": "Base UI: TooltipPositionerContext is missing. TooltipPositioner parts must be placed within <Tooltip.Positioner>.",
-  "72": "Base UI: TooltipRootContext is missing. Tooltip parts must be placed within <Tooltip.Root>."
+  "72": "Base UI: TooltipRootContext is missing. Tooltip parts must be placed within <Tooltip.Root>.",
+  "73": "Base UI: useToastManager must be used within <Toast.Provider>.",
+  "74": "Base UI: PopoverTrigger must be either used within a PopoverRoot component or have the `handle` prop set.",
+  "75": "Base UI: PopoverTrigger must have an `id` prop specified.",
+  "76": "Base UI: selectors are required to call useState."
 }
