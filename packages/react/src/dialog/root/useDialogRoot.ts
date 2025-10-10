@@ -49,6 +49,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   );
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
+  const [viewportElement, setViewportElement] = React.useState<HTMLElement | null>(null);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -209,10 +210,12 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       getPopupProps: getFloatingProps,
       setTriggerElement,
       setPopupElement,
+      setViewportElement,
       popupRef,
       backdropRef,
       internalBackdropRef,
       floatingRootContext: context,
+      viewportElement,
     } satisfies useDialogRoot.ReturnValue;
   }, [
     modal,
@@ -229,6 +232,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     dialogTriggerProps,
     getFloatingProps,
     context,
+    viewportElement,
   ]);
 }
 
@@ -360,6 +364,10 @@ export namespace useDialogRoot {
      */
     setPopupElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     /**
+     * Callback to register the Viewport element DOM node.
+     */
+    setViewportElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+    /**
      * The ref to the Popup element.
      */
     popupRef: React.RefObject<HTMLElement | null>;
@@ -375,5 +383,9 @@ export namespace useDialogRoot {
      * The Floating UI root context.
      */
     floatingRootContext: FloatingRootContext;
+    /**
+     * The Viewport element DOM node.
+     */
+    viewportElement: HTMLElement | null;
   }
 }
