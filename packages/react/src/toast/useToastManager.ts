@@ -9,7 +9,7 @@ export function useToastManager(): useToastManager.ReturnValue {
   const context = React.useContext(ToastContext);
 
   if (!context) {
-    throw new Error('Base UI: useToast must be used within <Toast.Provider>.');
+    throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');
   }
 
   const { toasts, add, close, update, promise } = context;

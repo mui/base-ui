@@ -23,3 +23,8 @@ export type * from './chip-remove/ComboboxChipRemove';
 export type * from './clear/ComboboxClear';
 export type * from './status/ComboboxStatus';
 export type * from './collection/ComboboxCollection';
+
+export type {
+  Filter as ComboboxFilter,
+  UseComboboxFilterOptions as ComboboxFilterOptions,
+} from '../combobox/root/utils/useFilter';

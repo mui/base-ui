@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, createRenderer, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
+import { act, createRenderer, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
@@ -25,11 +25,11 @@ describe('Composite', () => {
         );
       }
 
-      const { getByTestId } = render(<App />);
+      render(<App />);
 
-      const item1 = getByTestId('1');
-      const item2 = getByTestId('2');
-      const item3 = getByTestId('3');
+      const item1 = screen.getByTestId('1');
+      const item2 = screen.getByTestId('2');
+      const item3 = screen.getByTestId('3');
 
       act(() => item1.focus());
 
@@ -61,7 +61,7 @@ describe('Composite', () => {
     });
 
     it('uncontrolled mode', async () => {
-      const { getByTestId } = render(
+      render(
         <CompositeRoot>
           <CompositeItem data-testid="1">1</CompositeItem>
           <CompositeItem data-testid="2">2</CompositeItem>
@@ -69,9 +69,9 @@ describe('Composite', () => {
         </CompositeRoot>,
       );
 
-      const item1 = getByTestId('1');
-      const item2 = getByTestId('2');
-      const item3 = getByTestId('3');
+      const item1 = screen.getByTestId('1');
+      const item2 = screen.getByTestId('2');
+      const item3 = screen.getByTestId('3');
 
       act(() => item1.focus());
 
@@ -112,11 +112,11 @@ describe('Composite', () => {
           </CompositeRoot>
         );
       }
-      const { getByTestId, user, rerender } = render(<App items={['1', '2', '3']} />);
+      const { user, rerender } = render(<App items={['1', '2', '3']} />);
       rerender(<App items={['1', '3', '2']} />);
 
-      const item1 = getByTestId('1');
-      const item3 = getByTestId('3');
+      const item1 = screen.getByTestId('1');
+      const item3 = screen.getByTestId('3');
 
       act(() => item1.focus());
       await user.keyboard('{ArrowDown}');
@@ -125,7 +125,7 @@ describe('Composite', () => {
 
     describe('Home and End keys', () => {
       it('Home key moves focus to the first item', async () => {
-        const { getByTestId } = render(
+        render(
           <CompositeRoot enableHomeAndEndKeys>
             <CompositeItem data-testid="1">1</CompositeItem>
             <CompositeItem data-testid="2">2</CompositeItem>
@@ -133,8 +133,8 @@ describe('Composite', () => {
           </CompositeRoot>,
         );
 
-        const item1 = getByTestId('1');
-        const item3 = getByTestId('3');
+        const item1 = screen.getByTestId('1');
+        const item3 = screen.getByTestId('3');
 
         act(() => item3.focus());
 
@@ -146,7 +146,7 @@ describe('Composite', () => {
       });
 
       it('End key moves focus to the last item', async () => {
-        const { getByTestId } = render(
+        render(
           <CompositeRoot enableHomeAndEndKeys>
             <CompositeItem data-testid="1">1</CompositeItem>
             <CompositeItem data-testid="2">2</CompositeItem>
@@ -154,8 +154,8 @@ describe('Composite', () => {
           </CompositeRoot>,
         );
 
-        const item1 = getByTestId('1');
-        const item3 = getByTestId('3');
+        const item1 = screen.getByTestId('1');
+        const item3 = screen.getByTestId('3');
 
         act(() => item1.focus());
 
@@ -169,7 +169,7 @@ describe('Composite', () => {
 
     describe.skipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
-        const { getByTestId } = render(
+        render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot orientation="horizontal">
@@ -181,9 +181,9 @@ describe('Composite', () => {
           </div>,
         );
 
-        const item1 = getByTestId('1');
-        const item2 = getByTestId('2');
-        const item3 = getByTestId('3');
+        const item1 = screen.getByTestId('1');
+        const item2 = screen.getByTestId('2');
+        const item3 = screen.getByTestId('3');
 
         act(() => item1.focus());
 
@@ -223,7 +223,7 @@ describe('Composite', () => {
       });
 
       it('both horizontal and vertical orientation', async () => {
-        const { getByTestId } = render(
+        render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot orientation="both">
@@ -235,9 +235,9 @@ describe('Composite', () => {
           </div>,
         );
 
-        const item1 = getByTestId('1');
-        const item2 = getByTestId('2');
-        const item3 = getByTestId('3');
+        const item1 = screen.getByTestId('1');
+        const item2 = screen.getByTestId('2');
+        const item3 = screen.getByTestId('3');
 
         act(() => item1.focus());
 
@@ -295,59 +295,59 @@ describe('Composite', () => {
         );
       }
 
-      const { getByTestId } = await render(<App />);
+      await render(<App />);
 
-      act(() => getByTestId('1').focus());
+      act(() => screen.getByTestId('1').focus());
 
-      fireEvent.keyDown(getByTestId('1'), { key: 'ArrowDown' });
+      fireEvent.keyDown(screen.getByTestId('1'), { key: 'ArrowDown' });
       await flushMicrotasks();
 
-      expect(getByTestId('4')).to.have.attribute('tabindex', '0');
-      expect(getByTestId('4')).toHaveFocus();
+      expect(screen.getByTestId('4')).to.have.attribute('tabindex', '0');
+      expect(screen.getByTestId('4')).toHaveFocus();
 
-      fireEvent.keyDown(getByTestId('4'), { key: 'ArrowRight' });
+      fireEvent.keyDown(screen.getByTestId('4'), { key: 'ArrowRight' });
       await flushMicrotasks();
 
-      expect(getByTestId('5')).to.have.attribute('tabindex', '0');
-      expect(getByTestId('5')).toHaveFocus();
+      expect(screen.getByTestId('5')).to.have.attribute('tabindex', '0');
+      expect(screen.getByTestId('5')).toHaveFocus();
 
-      fireEvent.keyDown(getByTestId('5'), { key: 'ArrowDown' });
+      fireEvent.keyDown(screen.getByTestId('5'), { key: 'ArrowDown' });
       await flushMicrotasks();
 
-      expect(getByTestId('8')).to.have.attribute('tabindex', '0');
-      expect(getByTestId('8')).toHaveFocus();
+      expect(screen.getByTestId('8')).to.have.attribute('tabindex', '0');
+      expect(screen.getByTestId('8')).toHaveFocus();
 
-      fireEvent.keyDown(getByTestId('8'), { key: 'ArrowLeft' });
+      fireEvent.keyDown(screen.getByTestId('8'), { key: 'ArrowLeft' });
       await flushMicrotasks();
 
-      expect(getByTestId('7')).to.have.attribute('tabindex', '0');
-      expect(getByTestId('7')).toHaveFocus();
+      expect(screen.getByTestId('7')).to.have.attribute('tabindex', '0');
+      expect(screen.getByTestId('7')).toHaveFocus();
 
-      fireEvent.keyDown(getByTestId('7'), { key: 'ArrowUp' });
+      fireEvent.keyDown(screen.getByTestId('7'), { key: 'ArrowUp' });
       await flushMicrotasks();
 
-      expect(getByTestId('4')).to.have.attribute('tabindex', '0');
-      expect(getByTestId('4')).toHaveFocus();
+      expect(screen.getByTestId('4')).to.have.attribute('tabindex', '0');
+      expect(screen.getByTestId('4')).toHaveFocus();
 
-      act(() => getByTestId('9').focus());
+      act(() => screen.getByTestId('9').focus());
       await flushMicrotasks();
 
-      expect(getByTestId('9')).to.have.attribute('tabindex', '0');
+      expect(screen.getByTestId('9')).to.have.attribute('tabindex', '0');
 
-      fireEvent.keyDown(getByTestId('9'), { key: 'Home' });
+      fireEvent.keyDown(screen.getByTestId('9'), { key: 'Home' });
       await flushMicrotasks();
 
-      expect(getByTestId('1')).to.have.attribute('tabindex', '0');
+      expect(screen.getByTestId('1')).to.have.attribute('tabindex', '0');
 
-      fireEvent.keyDown(getByTestId('1'), { key: 'End' });
+      fireEvent.keyDown(screen.getByTestId('1'), { key: 'End' });
       await flushMicrotasks();
 
-      expect(getByTestId('9')).to.have.attribute('tabindex', '0');
+      expect(screen.getByTestId('9')).to.have.attribute('tabindex', '0');
     });
 
     describe.skipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
-        const { getByTestId } = render(
+        render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot cols={3} orientation="horizontal" enableHomeAndEndKeys>
@@ -361,45 +361,45 @@ describe('Composite', () => {
           </div>,
         );
 
-        act(() => getByTestId('1').focus());
+        act(() => screen.getByTestId('1').focus());
 
-        fireEvent.keyDown(getByTestId('1'), { key: 'ArrowLeft' });
+        fireEvent.keyDown(screen.getByTestId('1'), { key: 'ArrowLeft' });
         await flushMicrotasks();
 
-        expect(getByTestId('2')).to.have.attribute('tabindex', '0');
-        expect(getByTestId('2')).toHaveFocus();
+        expect(screen.getByTestId('2')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('2')).toHaveFocus();
 
-        fireEvent.keyDown(getByTestId('2'), { key: 'ArrowLeft' });
+        fireEvent.keyDown(screen.getByTestId('2'), { key: 'ArrowLeft' });
         await flushMicrotasks();
 
-        expect(getByTestId('3')).to.have.attribute('tabindex', '0');
-        expect(getByTestId('3')).toHaveFocus();
+        expect(screen.getByTestId('3')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('3')).toHaveFocus();
 
-        fireEvent.keyDown(getByTestId('3'), { key: 'ArrowLeft' });
+        fireEvent.keyDown(screen.getByTestId('3'), { key: 'ArrowLeft' });
         await flushMicrotasks();
 
-        expect(getByTestId('4')).to.have.attribute('tabindex', '0');
-        expect(getByTestId('4')).toHaveFocus();
+        expect(screen.getByTestId('4')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('4')).toHaveFocus();
 
-        fireEvent.keyDown(getByTestId('4'), { key: 'ArrowLeft' });
+        fireEvent.keyDown(screen.getByTestId('4'), { key: 'ArrowLeft' });
         await flushMicrotasks();
 
-        expect(getByTestId('5')).to.have.attribute('tabindex', '0');
-        expect(getByTestId('5')).toHaveFocus();
+        expect(screen.getByTestId('5')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('5')).toHaveFocus();
 
-        fireEvent.keyDown(getByTestId('5'), { key: 'Home' });
+        fireEvent.keyDown(screen.getByTestId('5'), { key: 'Home' });
         await flushMicrotasks();
 
-        expect(getByTestId('1')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('1')).to.have.attribute('tabindex', '0');
 
-        fireEvent.keyDown(getByTestId('1'), { key: 'End' });
+        fireEvent.keyDown(screen.getByTestId('1'), { key: 'End' });
         await flushMicrotasks();
 
-        expect(getByTestId('9')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('9')).to.have.attribute('tabindex', '0');
       });
 
       it('both horizontal and vertical orientation', async () => {
-        const { getByTestId } = await render(
+        await render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot cols={3} orientation="both" enableHomeAndEndKeys>
@@ -413,47 +413,47 @@ describe('Composite', () => {
           </div>,
         );
 
-        act(() => getByTestId('1').focus());
+        act(() => screen.getByTestId('1').focus());
 
-        fireEvent.keyDown(getByTestId('1'), { key: 'ArrowDown' });
+        fireEvent.keyDown(screen.getByTestId('1'), { key: 'ArrowDown' });
         await flushMicrotasks();
 
-        expect(getByTestId('4')).to.have.attribute('tabindex', '0');
-        expect(getByTestId('4')).toHaveFocus();
+        expect(screen.getByTestId('4')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('4')).toHaveFocus();
 
-        fireEvent.keyDown(getByTestId('4'), { key: 'ArrowLeft' });
+        fireEvent.keyDown(screen.getByTestId('4'), { key: 'ArrowLeft' });
         await flushMicrotasks();
 
-        expect(getByTestId('5')).to.have.attribute('tabindex', '0');
-        expect(getByTestId('5')).toHaveFocus();
+        expect(screen.getByTestId('5')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('5')).toHaveFocus();
 
-        fireEvent.keyDown(getByTestId('5'), { key: 'ArrowDown' });
+        fireEvent.keyDown(screen.getByTestId('5'), { key: 'ArrowDown' });
         await flushMicrotasks();
 
-        expect(getByTestId('8')).to.have.attribute('tabindex', '0');
-        expect(getByTestId('8')).toHaveFocus();
+        expect(screen.getByTestId('8')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('8')).toHaveFocus();
 
-        fireEvent.keyDown(getByTestId('8'), { key: 'ArrowRight' });
+        fireEvent.keyDown(screen.getByTestId('8'), { key: 'ArrowRight' });
         await flushMicrotasks();
 
-        expect(getByTestId('7')).to.have.attribute('tabindex', '0');
-        expect(getByTestId('7')).toHaveFocus();
+        expect(screen.getByTestId('7')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('7')).toHaveFocus();
 
-        fireEvent.keyDown(getByTestId('7'), { key: 'ArrowUp' });
+        fireEvent.keyDown(screen.getByTestId('7'), { key: 'ArrowUp' });
         await flushMicrotasks();
 
-        expect(getByTestId('4')).to.have.attribute('tabindex', '0');
-        expect(getByTestId('4')).toHaveFocus();
+        expect(screen.getByTestId('4')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('4')).toHaveFocus();
 
-        fireEvent.keyDown(getByTestId('4'), { key: 'End' });
+        fireEvent.keyDown(screen.getByTestId('4'), { key: 'End' });
         await flushMicrotasks();
 
-        expect(getByTestId('9')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('9')).to.have.attribute('tabindex', '0');
 
-        fireEvent.keyDown(getByTestId('9'), { key: 'Home' });
+        fireEvent.keyDown(screen.getByTestId('9'), { key: 'Home' });
         await flushMicrotasks();
 
-        expect(getByTestId('1')).to.have.attribute('tabindex', '0');
+        expect(screen.getByTestId('1')).to.have.attribute('tabindex', '0');
       });
     });
 
@@ -474,10 +474,10 @@ describe('Composite', () => {
           );
         }
 
-        const { getByTestId } = render(<App />);
+        render(<App />);
 
-        const item1 = getByTestId('1');
-        const item3 = getByTestId('3');
+        const item1 = screen.getByTestId('1');
+        const item3 = screen.getByTestId('3');
 
         act(() => item1.focus());
 
@@ -524,11 +524,11 @@ describe('Composite', () => {
           );
         }
 
-        const { getByTestId } = await render(<App />);
+        await render(<App />);
 
-        const item1 = getByTestId('1');
-        const item2 = getByTestId('2');
-        const item3 = getByTestId('3');
+        const item1 = screen.getByTestId('1');
+        const item2 = screen.getByTestId('2');
+        const item3 = screen.getByTestId('3');
 
         act(() => item1.focus());
 
@@ -576,10 +576,10 @@ describe('Composite', () => {
         );
       }
 
-      const { getByTestId } = render(<App />);
+      render(<App />);
 
-      const item1 = getByTestId('1');
-      const item3 = getByTestId('3');
+      const item1 = screen.getByTestId('1');
+      const item3 = screen.getByTestId('3');
 
       act(() => item1.focus());
 
@@ -626,11 +626,11 @@ describe('Composite', () => {
         );
       }
 
-      const { getByTestId } = await render(<App />);
+      await render(<App />);
 
-      const item1 = getByTestId('1');
-      const item2 = getByTestId('2');
-      const item3 = getByTestId('3');
+      const item1 = screen.getByTestId('1');
+      const item2 = screen.getByTestId('2');
+      const item3 = screen.getByTestId('3');
 
       act(() => item1.focus());
 
@@ -662,14 +662,14 @@ describe('Composite', () => {
 
   describe('prop: modifierKeys', () => {
     it('prevents arrow key navigation when any modifier key is pressed by default', async () => {
-      const { getByTestId } = render(
+      render(
         <CompositeRoot>
           <CompositeItem data-testid="1">1</CompositeItem>
           <CompositeItem data-testid="2">2</CompositeItem>
         </CompositeRoot>,
       );
 
-      const item1 = getByTestId('1');
+      const item1 = screen.getByTestId('1');
 
       act(() => item1.focus());
 
@@ -693,7 +693,7 @@ describe('Composite', () => {
     });
 
     it('specifies allowed modifier keys that do not prevent arrow key navigation when pressed', async () => {
-      const { getByTestId } = render(
+      render(
         <CompositeRoot modifierKeys={['Alt', 'Meta']}>
           <CompositeItem data-testid="1">1</CompositeItem>
           <CompositeItem data-testid="2">2</CompositeItem>
@@ -701,9 +701,9 @@ describe('Composite', () => {
         </CompositeRoot>,
       );
 
-      const item1 = getByTestId('1');
-      const item2 = getByTestId('2');
-      const item3 = getByTestId('3');
+      const item1 = screen.getByTestId('1');
+      const item2 = screen.getByTestId('2');
+      const item3 = screen.getByTestId('3');
 
       act(() => item1.focus());
 

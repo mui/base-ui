@@ -11,6 +11,8 @@ export type ComboboxChangeEventReason = Combobox.Root.ChangeEventReason;
 export type ComboboxHighlightEventDetails = Combobox.Root.HighlightEventDetails;
 export type ComboboxHighlightEventReason = Combobox.Root.HighlightEventReason;
 
+export const { useFilter } = Combobox;
+
 export interface SimpleComboboxProps extends Omit<Combobox.Root.Props<string, false>, 'children'> {
   items: readonly string[];
 }

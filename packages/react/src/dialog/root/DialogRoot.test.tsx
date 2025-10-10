@@ -29,7 +29,7 @@ describe('<Dialog.Root />', () => {
   });
 
   it('ARIA attributes', async () => {
-    const { queryByRole, getByText } = await render(
+    await render(
       <Dialog.Root modal={false} open>
         <Dialog.Trigger />
         <Dialog.Portal>
@@ -42,13 +42,13 @@ describe('<Dialog.Root />', () => {
       </Dialog.Root>,
     );
 
-    const popup = queryByRole('dialog');
+    const popup = screen.queryByRole('dialog');
     expect(popup).not.to.equal(null);
 
-    expect(getByText('title text').getAttribute('id')).to.equal(
+    expect(screen.getByText('title text').getAttribute('id')).to.equal(
       popup?.getAttribute('aria-labelledby'),
     );
-    expect(getByText('description text').getAttribute('id')).to.equal(
+    expect(screen.getByText('description text').getAttribute('id')).to.equal(
       popup?.getAttribute('aria-describedby'),
     );
   });
@@ -258,7 +258,7 @@ describe('<Dialog.Root />', () => {
       it(`${expectDismissed ? 'closes' : 'does not close'} the dialog when clicking outside if dismissible=${dismissible}`, async () => {
         const handleOpenChange = spy();
 
-        const { getByTestId, queryByRole } = await render(
+        await render(
           <div data-testid="outside">
             <Dialog.Root
               defaultOpen
@@ -273,16 +273,16 @@ describe('<Dialog.Root />', () => {
           </div>,
         );
 
-        const outside = getByTestId('outside');
+        const outside = screen.getByTestId('outside');
 
         fireEvent.mouseDown(outside);
         fireEvent.click(outside);
         expect(handleOpenChange.calledOnce).to.equal(expectDismissed);
 
         if (expectDismissed) {
-          expect(queryByRole('dialog')).to.equal(null);
+          expect(screen.queryByRole('dialog')).to.equal(null);
         } else {
-          expect(queryByRole('dialog')).not.to.equal(null);
+          expect(screen.queryByRole('dialog')).not.to.equal(null);
         }
       });
     });
@@ -292,7 +292,7 @@ describe('<Dialog.Root />', () => {
     it('uses intentional outside press with user backdrop (mouse): closes on click, not on mousedown', async () => {
       const handleOpenChange = spy();
 
-      const { queryByRole } = await render(
+      await render(
         <Dialog.Root defaultOpen onOpenChange={handleOpenChange} modal={false}>
           <Dialog.Portal>
             <Dialog.Backdrop data-testid="backdrop" />
@@ -304,12 +304,12 @@ describe('<Dialog.Root />', () => {
       const backdrop = screen.getByTestId('backdrop');
 
       fireEvent.mouseDown(backdrop);
-      expect(queryByRole('dialog')).not.to.equal(null);
+      expect(screen.queryByRole('dialog')).not.to.equal(null);
       expect(handleOpenChange.callCount).to.equal(0);
 
       fireEvent.click(backdrop);
       await waitFor(() => {
-        expect(queryByRole('dialog')).to.equal(null);
+        expect(screen.queryByRole('dialog')).to.equal(null);
       });
       expect(handleOpenChange.callCount).to.equal(1);
     });
@@ -317,7 +317,7 @@ describe('<Dialog.Root />', () => {
     it('uses intentional outside press with internal backdrop (modal=true): closes on click, not on mousedown', async () => {
       const handleOpenChange = spy();
 
-      const { queryByRole } = await render(
+      await render(
         <Dialog.Root defaultOpen onOpenChange={handleOpenChange} modal>
           <Dialog.Portal>
             <Dialog.Popup />
@@ -328,12 +328,12 @@ describe('<Dialog.Root />', () => {
       const internalBackdrop = screen.getByRole('presentation', { hidden: true });
 
       fireEvent.mouseDown(internalBackdrop);
-      expect(queryByRole('dialog')).not.to.equal(null);
+      expect(screen.queryByRole('dialog')).not.to.equal(null);
       expect(handleOpenChange.callCount).to.equal(0);
 
       fireEvent.click(internalBackdrop);
       await waitFor(() => {
-        expect(queryByRole('dialog')).to.equal(null);
+        expect(screen.queryByRole('dialog')).to.equal(null);
       });
       expect(handleOpenChange.callCount).to.equal(1);
     });
@@ -358,7 +358,7 @@ describe('<Dialog.Root />', () => {
 
     const notifyTransitionEnd = spy();
 
-    const { setProps, queryByRole } = await render(
+    const { setProps } = await render(
       <Dialog.Root open modal={false}>
         {/* eslint-disable-next-line react/no-danger */}
         <style dangerouslySetInnerHTML={{ __html: css }} />
@@ -369,10 +369,10 @@ describe('<Dialog.Root />', () => {
     );
 
     await setProps({ open: false });
-    expect(queryByRole('dialog')).not.to.equal(null);
+    expect(screen.queryByRole('dialog')).not.to.equal(null);
 
     await waitFor(() => {
-      expect(queryByRole('dialog')).to.equal(null);
+      expect(screen.queryByRole('dialog')).to.equal(null);
     });
 
     expect(notifyTransitionEnd.callCount).to.equal(1);

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act } from '@mui/internal-test-utils';
+import { act, screen } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
@@ -19,9 +19,9 @@ describe('<ToggleGroup />', () => {
   }));
 
   it('renders a `group`', async () => {
-    const { queryByRole } = await render(<ToggleGroup aria-label="My Toggle Group" />);
+    await render(<ToggleGroup aria-label="My Toggle Group" />);
 
-    expect(queryByRole('group', { name: 'My Toggle Group' })).not.to.equal(null);
+    expect(screen.queryByRole('group', { name: 'My Toggle Group' })).not.to.equal(null);
   });
 
   describe('uncontrolled', () => {
@@ -30,14 +30,14 @@ describe('<ToggleGroup />', () => {
         skip();
       }
 
-      const { getAllByRole, user } = await render(
+      const { user } = await render(
         <ToggleGroup>
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
       );
 
-      const [button1, button2] = getAllByRole('button');
+      const [button1, button2] = screen.getAllByRole('button');
 
       expect(button1).to.have.attribute('aria-pressed', 'false');
       expect(button2).to.have.attribute('aria-pressed', 'false');
@@ -56,14 +56,14 @@ describe('<ToggleGroup />', () => {
     });
 
     it('prop: defaultValue', async () => {
-      const { getAllByRole, user } = await render(
+      const { user } = await render(
         <ToggleGroup defaultValue={['two']}>
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
       );
 
-      const [button1, button2] = getAllByRole('button');
+      const [button1, button2] = screen.getAllByRole('button');
 
       expect(button2).to.have.attribute('aria-pressed', 'true');
       expect(button2).to.have.attribute('data-pressed');
@@ -79,14 +79,14 @@ describe('<ToggleGroup />', () => {
 
   describe('controlled', () => {
     it('pressed state', async () => {
-      const { getAllByRole, setProps } = await render(
+      const { setProps } = await render(
         <ToggleGroup value={['two']}>
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
       );
 
-      const [button1, button2] = getAllByRole('button');
+      const [button1, button2] = screen.getAllByRole('button');
 
       expect(button1).to.have.attribute('aria-pressed', 'false');
       expect(button2).to.have.attribute('aria-pressed', 'true');
@@ -106,14 +106,14 @@ describe('<ToggleGroup />', () => {
     });
 
     it('prop: value', async () => {
-      const { getAllByRole, setProps } = await render(
+      const { setProps } = await render(
         <ToggleGroup value={['two']}>
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
       );
 
-      const [button1, button2] = getAllByRole('button');
+      const [button1, button2] = screen.getAllByRole('button');
 
       expect(button2).to.have.attribute('aria-pressed', 'true');
       expect(button2).to.have.attribute('data-pressed');
@@ -129,14 +129,14 @@ describe('<ToggleGroup />', () => {
 
   describe('prop: disabled', () => {
     it('can disable the whole group', async () => {
-      const { getAllByRole } = await render(
+      await render(
         <ToggleGroup disabled>
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
       );
 
-      const [button1, button2] = getAllByRole('button');
+      const [button1, button2] = screen.getAllByRole('button');
 
       expect(button1).to.have.attribute('aria-disabled', 'true');
       expect(button1).to.have.attribute('data-disabled');
@@ -145,14 +145,14 @@ describe('<ToggleGroup />', () => {
     });
 
     it('can disable individual items', async () => {
-      const { getAllByRole } = await render(
+      await render(
         <ToggleGroup>
           <Toggle value="one" />
           <Toggle value="two" disabled />
         </ToggleGroup>,
       );
 
-      const [button1, button2] = getAllByRole('button');
+      const [button1, button2] = screen.getAllByRole('button');
 
       expect(button1).to.have.attribute('aria-disabled', 'false');
       expect(button1).to.not.have.attribute('data-disabled');
@@ -163,28 +163,28 @@ describe('<ToggleGroup />', () => {
 
   describe('prop: orientation', () => {
     it('vertical', async () => {
-      const { queryByRole } = await render(
+      await render(
         <ToggleGroup orientation="vertical">
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
       );
 
-      const group = queryByRole('group');
+      const group = screen.queryByRole('group');
       expect(group).to.have.attribute('data-orientation', 'vertical');
     });
   });
 
   describe('prop: multiple', () => {
     it('multiple items can be pressed when true', async () => {
-      const { getAllByRole, user } = await render(
+      const { user } = await render(
         <ToggleGroup multiple defaultValue={['one']}>
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
       );
 
-      const [button1, button2] = getAllByRole('button');
+      const [button1, button2] = screen.getAllByRole('button');
 
       expect(button1).to.have.attribute('aria-pressed', 'true');
       expect(button2).to.have.attribute('aria-pressed', 'false');
@@ -196,14 +196,14 @@ describe('<ToggleGroup />', () => {
     });
 
     it('only one item can be pressed when false', async () => {
-      const { getAllByRole, user } = await render(
+      const { user } = await render(
         <ToggleGroup multiple={false} defaultValue={['one']}>
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
       );
 
-      const [button1, button2] = getAllByRole('button');
+      const [button1, button2] = screen.getAllByRole('button');
 
       expect(button1).to.have.attribute('aria-pressed', 'true');
       expect(button2).to.have.attribute('aria-pressed', 'false');
@@ -224,7 +224,7 @@ describe('<ToggleGroup />', () => {
         entry;
 
       it(direction, async () => {
-        const { getAllByRole, user } = await render(
+        const { user } = await render(
           <DirectionProvider direction={direction as TextDirection}>
             <ToggleGroup>
               <Toggle value="one" />
@@ -234,7 +234,7 @@ describe('<ToggleGroup />', () => {
           </DirectionProvider>,
         );
 
-        const [button1, button2, button3] = getAllByRole('button');
+        const [button1, button2, button3] = screen.getAllByRole('button');
 
         await user.keyboard('[Tab]');
 
@@ -275,14 +275,14 @@ describe('<ToggleGroup />', () => {
 
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} toggles the pressed state`, async () => {
-        const { getAllByRole, user } = await render(
+        const { user } = await render(
           <ToggleGroup>
             <Toggle value="one" />
             <Toggle value="two" />
           </ToggleGroup>,
         );
 
-        const [button1] = getAllByRole('button');
+        const [button1] = screen.getAllByRole('button');
 
         expect(button1).to.have.attribute('aria-pressed', 'false');
 
@@ -305,14 +305,14 @@ describe('<ToggleGroup />', () => {
     it('fires when an Item is clicked', async () => {
       const onValueChange = spy();
 
-      const { getAllByRole, user } = await render(
+      const { user } = await render(
         <ToggleGroup onValueChange={onValueChange}>
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
       );
 
-      const [button1, button2] = getAllByRole('button');
+      const [button1, button2] = screen.getAllByRole('button');
 
       expect(onValueChange.callCount).to.equal(0);
 
@@ -335,14 +335,14 @@ describe('<ToggleGroup />', () => {
 
         const onValueChange = spy();
 
-        const { getAllByRole, user } = await render(
+        const { user } = await render(
           <ToggleGroup onValueChange={onValueChange}>
             <Toggle value="one" />
             <Toggle value="two" />
           </ToggleGroup>,
         );
 
-        const [button1, button2] = getAllByRole('button');
+        const [button1, button2] = screen.getAllByRole('button');
 
         expect(onValueChange.callCount).to.equal(0);
 

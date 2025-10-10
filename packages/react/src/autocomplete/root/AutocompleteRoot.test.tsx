@@ -14,7 +14,7 @@ describe('<Autocomplete.Root />', () => {
   const { render } = createRenderer();
 
   it('should handle browser autofill', async () => {
-    const { container } = await render(
+    await render(
       <Field.Root name="auto">
         <Autocomplete.Root defaultValue="">
           <Autocomplete.Input data-testid="input" />
@@ -34,7 +34,9 @@ describe('<Autocomplete.Root />', () => {
 
     // Hidden inputs are rendered without a name for selectionMode='none', but Field provides the form input.
     // Simulate browser autofill by changing the hidden field control input for this Field.
-    const hidden = container.querySelector('input[aria-hidden="true"]');
+    const hidden = screen.getByRole('textbox', {
+      hidden: true,
+    });
     fireEvent.change(hidden!, { target: { value: 'beta' } });
     await flushMicrotasks();
 

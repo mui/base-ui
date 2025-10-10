@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
-import { act, waitFor } from '@mui/internal-test-utils';
+import { act, waitFor, screen } from '@mui/internal-test-utils';
 
 describe('<Menu.Popup />', () => {
   const { render } = createRenderer();
@@ -22,7 +22,7 @@ describe('<Menu.Popup />', () => {
 
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {
-      const { getByText } = await render(
+      await render(
         <div>
           <input />
           <Menu.Root>
@@ -39,12 +39,12 @@ describe('<Menu.Popup />', () => {
         </div>,
       );
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
-      const closeButton = getByText('Close');
+      const closeButton = screen.getByText('Close');
       await act(async () => {
         closeButton.click();
       });
@@ -77,15 +77,15 @@ describe('<Menu.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, findByText, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
 
-      const closeButton = await findByText('Close');
+      const closeButton = await screen.findByText('Close');
       await user.click(closeButton);
 
-      const inputToFocus = getByTestId('input-to-focus');
+      const inputToFocus = screen.getByTestId('input-to-focus');
 
       await waitFor(() => {
         expect(inputToFocus).toHaveFocus();
@@ -113,16 +113,16 @@ describe('<Menu.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, findByText, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
 
-      const closeButton = await findByText('Close');
+      const closeButton = await screen.findByText('Close');
       await user.click(closeButton);
 
       await waitFor(() => {
-        expect(getByTestId('input-to-focus')).toHaveFocus();
+        expect(screen.getByTestId('input-to-focus')).toHaveFocus();
       });
     });
 
@@ -144,11 +144,11 @@ describe('<Menu.Popup />', () => {
         );
       }
 
-      const { getByText, user, findByText } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
 
       await user.click(trigger);
-      await user.click(await findByText('Close'));
+      await user.click(await screen.findByText('Close'));
 
       await waitFor(() => {
         expect(trigger).not.toHaveFocus();
@@ -173,11 +173,11 @@ describe('<Menu.Popup />', () => {
         );
       }
 
-      const { getByText, user, findByText } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
 
       await user.click(trigger);
-      await user.click(await findByText('Close'));
+      await user.click(await screen.findByText('Close'));
 
       await waitFor(() => {
         expect(trigger).toHaveFocus();
@@ -202,10 +202,10 @@ describe('<Menu.Popup />', () => {
         );
       }
 
-      const { getByText, user, findByText } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(await findByText('Close'));
+      await user.click(await screen.findByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });

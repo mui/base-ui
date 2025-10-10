@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Menu } from '@base-ui-components/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -22,7 +23,7 @@ describe('<Menu.GroupLabel />', () => {
 
   describe('a11y attributes', () => {
     it('should have the role `presentation`', async () => {
-      const { getByText } = await render(
+      await render(
         <Menu.Root open>
           <Menu.Portal>
             <Menu.Positioner>
@@ -36,12 +37,12 @@ describe('<Menu.GroupLabel />', () => {
         </Menu.Root>,
       );
 
-      const groupLabel = getByText('Test group');
+      const groupLabel = screen.getByText('Test group');
       expect(groupLabel).to.have.attribute('role', 'presentation');
     });
 
     it("should reference the generated id in Group's `aria-labelledby`", async () => {
-      const { getByText, getByRole } = await render(
+      await render(
         <Menu.Root open>
           <Menu.Portal>
             <Menu.Positioner>
@@ -55,14 +56,14 @@ describe('<Menu.GroupLabel />', () => {
         </Menu.Root>,
       );
 
-      const group = getByRole('group');
-      const groupLabel = getByText('Test group');
+      const group = screen.getByRole('group');
+      const groupLabel = screen.getByText('Test group');
 
       expect(group).to.have.attribute('aria-labelledby', groupLabel.id);
     });
 
     it("should reference the provided id in Group's `aria-labelledby`", async () => {
-      const { getByRole } = await render(
+      await render(
         <Menu.Root open>
           <Menu.Portal>
             <Menu.Positioner>
@@ -76,7 +77,7 @@ describe('<Menu.GroupLabel />', () => {
         </Menu.Root>,
       );
 
-      const group = getByRole('group');
+      const group = screen.getByRole('group');
       expect(group).to.have.attribute('aria-labelledby', 'test-group');
     });
   });

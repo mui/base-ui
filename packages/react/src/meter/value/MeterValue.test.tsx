@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Meter } from '@base-ui-components/react/meter';
@@ -16,12 +17,13 @@ describe('<Meter.Value />', () => {
 
   describe('prop: children', () => {
     it('renders the value when children is not provided', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Meter.Root value={30}>
           <Meter.Value data-testid="value" />
         </Meter.Root>,
       );
-      const value = getByTestId('value');
+
+      const value = screen.getByTestId('value');
       expect(value).to.have.text((0.3).toLocaleString(undefined, { style: 'percent' }));
     });
 
@@ -33,12 +35,14 @@ describe('<Meter.Value />', () => {
       function formatValue(v: number) {
         return new Intl.NumberFormat(undefined, format).format(v);
       }
-      const { getByTestId } = await render(
+
+      await render(
         <Meter.Root value={30} format={format}>
           <Meter.Value data-testid="value" />
         </Meter.Root>,
       );
-      const value = getByTestId('value');
+
+      const value = screen.getByTestId('value');
       expect(value).to.have.text(formatValue(30));
     });
 

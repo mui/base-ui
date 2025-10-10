@@ -46,7 +46,7 @@ describe('<RadioGroup />', () => {
 
   describe('prop: disabled', () => {
     it('should have the `aria-disabled` attribute', async () => {
-      const { container } = await render(
+      render(
         <RadioGroup disabled>
           <Radio.Root value="a" />
         </RadioGroup>,
@@ -54,7 +54,11 @@ describe('<RadioGroup />', () => {
       expect(screen.getByRole('radiogroup')).to.have.attribute('aria-disabled', 'true');
       expect(screen.getByRole('radio')).to.have.attribute('aria-disabled', 'true');
       expect(screen.getByRole('radio')).to.have.attribute('data-disabled');
-      expect(container.querySelector('input')).to.have.attribute('disabled');
+      expect(
+        screen.getByRole('textbox', {
+          hidden: true,
+        }),
+      ).to.have.attribute('disabled');
     });
 
     it('should not have the aria attribute when `disabled` is not set', async () => {
@@ -519,7 +523,7 @@ describe('<RadioGroup />', () => {
       describe('Field.Label', () => {
         it('associates implicitly', async () => {
           const changeSpy = spy();
-          const { container } = await render(
+          render(
             <Field.Root name="options">
               <RadioGroup onValueChange={changeSpy}>
                 <Field.Label>
@@ -534,8 +538,9 @@ describe('<RadioGroup />', () => {
             </Field.Root>,
           );
 
-          const labels = container.querySelectorAll('label');
+          const labels = screen.getAllByRole('radio').map((el) => el.parentElement!);
           expect(labels.length).to.equal(2);
+          expect(labels[0].tagName).to.equal('LABEL');
           labels.forEach((label) => {
             expect(label).to.not.have.attribute('for');
           });

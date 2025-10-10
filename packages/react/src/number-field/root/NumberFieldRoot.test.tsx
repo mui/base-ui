@@ -431,8 +431,10 @@ describe('<NumberField />', () => {
 
   describe('prop: name', () => {
     it('should set the name attribute on the hidden input', async () => {
-      const { container } = await render(<NumberField name="test" />);
-      const hiddenInput = container.querySelector('input[type=hidden]');
+      await render(<NumberField name="test" />);
+      const hiddenInput = screen.getByText('', {
+        selector: 'input[type=hidden]',
+      });
       expect(hiddenInput).to.have.attribute('name', 'test');
     });
   });

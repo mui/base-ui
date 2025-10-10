@@ -1,11 +1,6 @@
 import { generateId } from '@base-ui-components/utils/generateId';
 import { type ToastObject, useToastManager } from './useToastManager';
 
-export interface ToastManagerEvent {
-  action: 'add' | 'close' | 'update' | 'promise';
-  options: any;
-}
-
 /**
  * Creates a new toast manager.
  */
@@ -84,7 +79,7 @@ export function createToastManager(): createToastManager.ToastManager {
   };
 }
 
-export interface CreateToastManagerToastManager {
+export interface CreateToastManager {
   ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
   add: <Data extends object>(options: useToastManager.AddOptions<Data>) => string;
   close: (id: string) => void;
@@ -96,5 +91,10 @@ export interface CreateToastManagerToastManager {
 }
 
 export namespace createToastManager {
-  export type ToastManager = CreateToastManagerToastManager;
+  export type ToastManager = CreateToastManager;
+}
+
+export interface ToastManagerEvent {
+  action: 'add' | 'close' | 'update' | 'promise';
+  options: any;
 }

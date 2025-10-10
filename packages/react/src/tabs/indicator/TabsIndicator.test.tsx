@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { Tabs } from '@base-ui-components/react/tabs';
-import { waitFor } from '@mui/internal-test-utils';
+import { waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Tabs.Indicator />', () => {
@@ -24,7 +24,7 @@ describe('<Tabs.Indicator />', () => {
 
   describe.skipIf(isJSDOM)('rendering', () => {
     it('should not render when no tab is selected', async () => {
-      const { queryByTestId } = await render(
+      await render(
         <Tabs.Root value={null}>
           <Tabs.List>
             <Tabs.Indicator data-testid="bubble" />
@@ -32,7 +32,7 @@ describe('<Tabs.Indicator />', () => {
         </Tabs.Root>,
       );
 
-      expect(queryByTestId('bubble')).to.equal(null);
+      expect(screen.queryByTestId('bubble')).to.equal(null);
     });
 
     function assertSize(actual: string, expected: number) {
@@ -72,7 +72,7 @@ describe('<Tabs.Indicator />', () => {
     }
 
     it('should set CSS variables corresponding to the active tab', async () => {
-      const { getByTestId, getByRole, getAllByRole } = await render(
+      await render(
         <Tabs.Root value={2}>
           <Tabs.List>
             <Tabs.Tab value={1}>One</Tabs.Tab>
@@ -83,10 +83,10 @@ describe('<Tabs.Indicator />', () => {
         </Tabs.Root>,
       );
 
-      const bubble = getByTestId('bubble');
-      const tabs = getAllByRole('tab');
+      const bubble = screen.getByTestId('bubble');
+      const tabs = screen.getAllByRole('tab');
       const activeTab = tabs[1];
-      const tabList = getByRole('tablist');
+      const tabList = screen.getByRole('tablist');
 
       await waitFor(() => {
         assertBubblePositionVariables(bubble, tabList, activeTab);
@@ -94,7 +94,7 @@ describe('<Tabs.Indicator />', () => {
     });
 
     it('should update the position and movement variables when the active tab changes', async () => {
-      const { getByTestId, getByRole, getAllByRole, setProps } = await render(
+      const { setProps } = await render(
         <Tabs.Root value={2}>
           <Tabs.List>
             <Tabs.Tab value={1}>One</Tabs.Tab>
@@ -107,10 +107,10 @@ describe('<Tabs.Indicator />', () => {
 
       await setProps({ value: 3 });
 
-      const bubble = getByTestId('bubble');
-      const tabs = getAllByRole('tab');
+      const bubble = screen.getByTestId('bubble');
+      const tabs = screen.getAllByRole('tab');
       let activeTab = tabs[2];
-      const tabList = getByRole('tablist');
+      const tabList = screen.getByRole('tablist');
 
       assertBubblePositionVariables(bubble, tabList, activeTab);
 
@@ -122,7 +122,7 @@ describe('<Tabs.Indicator />', () => {
     });
 
     it('should update the position variables when the tab list is resized', async () => {
-      const { getByTestId, getByRole, getAllByRole, setProps } = await render(
+      const { setProps } = await render(
         <Tabs.Root value={1} style={{ width: '400px' }}>
           <Tabs.List style={{ display: 'flex' }}>
             <Tabs.Tab value={1} style={{ flex: '1 1 auto' }}>
@@ -136,10 +136,10 @@ describe('<Tabs.Indicator />', () => {
         </Tabs.Root>,
       );
 
-      const bubble = getByTestId('bubble');
-      const tabs = getAllByRole('tab');
+      const bubble = screen.getByTestId('bubble');
+      const tabs = screen.getAllByRole('tab');
       const activeTab = tabs[0];
-      const tabList = getByRole('tablist');
+      const tabList = screen.getByRole('tablist');
 
       assertBubblePositionVariables(bubble, tabList, activeTab);
 

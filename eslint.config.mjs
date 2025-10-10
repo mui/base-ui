@@ -85,14 +85,6 @@ export default defineConfig(
   },
   baseSpecRules,
   {
-    files: [`packages/**/*.test.${EXTENSION_TS}`],
-    rules: {
-      'testing-library/prefer-screen-queries': 'off', // TODO: enable and fix
-      'testing-library/no-container': 'off', // TODO: enable and fix
-      'testing-library/render-result-naming-convention': 'off', // False positives
-    },
-  },
-  {
     name: 'MUI ESLint config for docs',
     files: [`docs/**/*.${EXTENSION_TS}`],
     extends: createDocsConfig(),

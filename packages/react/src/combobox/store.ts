@@ -16,7 +16,6 @@ export type State = {
   items: readonly any[] | undefined;
 
   selectedValue: any;
-  inputValue: React.ComponentProps<'input'>['value'];
 
   open: boolean;
   mounted: boolean;
@@ -98,7 +97,6 @@ export const selectors = {
   items: createSelector((state: State) => state.items),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
-  inputValue: createSelector((state: State) => state.inputValue),
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),

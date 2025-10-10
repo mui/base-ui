@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Meter } from '@base-ui-components/react/meter';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -15,7 +16,7 @@ describe('<Meter.Indicator />', () => {
 
   describe.skipIf(isJSDOM)('internal styles', () => {
     it('sets positioning styles', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Meter.Root value={33} style={{ width: '100px' }}>
           <Meter.Track>
             <Meter.Indicator data-testid="indicator" />
@@ -23,7 +24,7 @@ describe('<Meter.Indicator />', () => {
         </Meter.Root>,
       );
 
-      const indicator = getByTestId('indicator');
+      const indicator = screen.getByTestId('indicator');
 
       expect(indicator).toHaveComputedStyle({
         left: '0px',
@@ -32,7 +33,7 @@ describe('<Meter.Indicator />', () => {
     });
 
     it('sets zero width when value is 0', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Meter.Root value={0} style={{ width: '100px' }}>
           <Meter.Track>
             <Meter.Indicator data-testid="indicator" />
@@ -40,7 +41,7 @@ describe('<Meter.Indicator />', () => {
         </Meter.Root>,
       );
 
-      const indicator = getByTestId('indicator');
+      const indicator = screen.getByTestId('indicator');
 
       expect(indicator).toHaveComputedStyle({
         insetInlineStart: '0px',
