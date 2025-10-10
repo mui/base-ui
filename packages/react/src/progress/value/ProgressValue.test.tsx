@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Progress } from '@base-ui-components/react/progress';
@@ -16,12 +17,13 @@ describe('<Progress.Value />', () => {
 
   describe('prop: children', () => {
     it('renders the value when children is not provided', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Progress.Root value={30}>
           <Progress.Value data-testid="value" />
         </Progress.Root>,
       );
-      const value = getByTestId('value');
+
+      const value = screen.getByTestId('value');
       expect(value).to.have.text((0.3).toLocaleString(undefined, { style: 'percent' }));
     });
 
@@ -33,12 +35,14 @@ describe('<Progress.Value />', () => {
       function formatValue(v: number) {
         return new Intl.NumberFormat(undefined, format).format(v);
       }
-      const { getByTestId } = await render(
+
+      await render(
         <Progress.Root value={30} format={format}>
           <Progress.Value data-testid="value" />
         </Progress.Root>,
       );
-      const value = getByTestId('value');
+
+      const value = screen.getByTestId('value');
       expect(value).to.have.text(formatValue(30));
     });
 

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act } from '@mui/internal-test-utils';
+import { act, screen } from '@mui/internal-test-utils';
 import { Toggle } from '@base-ui-components/react/toggle';
 import { createRenderer, describeConformance } from '#test-utils';
 import { ToggleGroup } from '../toggle-group/ToggleGroup';
@@ -28,9 +28,9 @@ describe('<Toggle />', () => {
         );
       }
 
-      const { getByRole } = await render(<App />);
-      const checkbox = getByRole('checkbox');
-      const button = getByRole('button');
+      await render(<App />);
+      const checkbox = screen.getByRole('checkbox');
+      const button = screen.getByRole('button');
 
       expect(button).to.have.attribute('aria-pressed', 'false');
       await act(async () => {
@@ -47,9 +47,9 @@ describe('<Toggle />', () => {
     });
 
     it('uncontrolled', async () => {
-      const { getByRole } = await render(<Toggle defaultPressed={false} />);
+      await render(<Toggle defaultPressed={false} />);
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
 
       expect(button).to.have.attribute('aria-pressed', 'false');
       await act(async () => {
@@ -69,11 +69,10 @@ describe('<Toggle />', () => {
   describe('prop: onPressedChange', () => {
     it('is called when the pressed state changes', async () => {
       const handlePressed = spy();
-      const { getByRole } = await render(
-        <Toggle defaultPressed={false} onPressedChange={handlePressed} />,
-      );
 
-      const button = getByRole('button');
+      await render(<Toggle defaultPressed={false} onPressedChange={handlePressed} />);
+
+      const button = screen.getByRole('button');
 
       await act(async () => {
         button.click();
@@ -87,9 +86,9 @@ describe('<Toggle />', () => {
   describe('prop: disabled', () => {
     it('disables the component', async () => {
       const handlePressed = spy();
-      const { getByRole } = await render(<Toggle disabled onPressedChange={handlePressed} />);
+      await render(<Toggle disabled onPressedChange={handlePressed} />);
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
 
       expect(button).to.have.attribute('disabled');
       expect(button).to.have.attribute('data-disabled');
