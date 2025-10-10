@@ -61,7 +61,7 @@
     "@arethetypeswrong/cli": "^0.18.2",
     "@babel/plugin-transform-react-constant-elements": "^7.27.1",
     "@base-ui-components/monorepo-tests": "workspace:*",
-    "@mui/internal-code-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@c1ed03d",
+    "@mui/internal-code-infra": "^0.0.3-canary.26",
     "@mui/internal-test-utils": "^2.0.10",
     "@mui/monorepo": "github:mui/material-ui#v7.3.2",
     "@octokit/rest": "^22.0.0",
