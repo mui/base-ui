@@ -29,8 +29,8 @@ importers:
         specifier: workspace:*
         version: link:test
       '@mui/internal-code-infra':
-        specifier: ^0.0.3-canary.24
-        version: 0.0.3-canary.24(@types/node@22.18.8)(eslint@9.36.0(jiti@2.5.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)
+        specifier: ^0.0.3-canary.25
+        version: 0.0.3-canary.25(@types/node@22.18.8)(eslint@9.36.0(jiti@2.5.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)
       '@mui/internal-test-utils':
         specifier: ^2.0.10
         version: 2.0.13(@babel/core@7.28.4)(@playwright/test@1.55.1)(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(chai@5.3.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -2271,8 +2271,8 @@ packages:
     resolution: {integrity: sha512-9hqDvOezGxIztw/9FdWmg+M+jzM8fspsR/MqssBUHYUvLxYUy3P0MO3iTy/GJHkZvvL53hJTI3XD6NjSuaeIgw==}
     hasBin: true
 
-  '@mui/internal-code-infra@0.0.3-canary.24':
-    resolution: {integrity: sha512-1jW7BASC6U5taARaHnGNzGRo0RAB2tf0nMv2d458YTgCYVuFXGIiuvSPv5FYgGJtEGtDPHn0d0YcO0McGQu3Sw==}
+  '@mui/internal-code-infra@0.0.3-canary.25':
+    resolution: {integrity: sha512-gWW7zE2ji8BcHngcdyCSObv+eGXYLqx2X2Q9/nhSF6J6K8M7CAzGG51l6wHUGA+DYxGe85x1jh2OMcOxL7pVEw==}
     hasBin: true
     peerDependencies:
       eslint: ^9.0.0
@@ -12695,7 +12695,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.0.3-canary.24(@types/node@22.18.8)(eslint@9.36.0(jiti@2.5.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)':
+  '@mui/internal-code-infra@0.0.3-canary.25(@types/node@22.18.8)(eslint@9.36.0(jiti@2.5.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
       '@argos-ci/core': 4.2.0
       '@babel/cli': 7.28.3(@babel/core@7.28.4)
