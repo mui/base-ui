@@ -1,7 +1,6 @@
 import { visit } from 'unist-util-visit';
 import { join, dirname } from 'path';
-import camelCase from 'es-toolkit/compat/camelCase';
-import upperFirst from 'es-toolkit/compat/upperFirst';
+import { camelCase, upperFirst } from 'es-toolkit/string';
 
 /**
  * Enhances `<Demo>` components in MDX:

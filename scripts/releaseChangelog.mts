@@ -8,7 +8,7 @@ import chalk from 'chalk';
 import readline from 'node:readline/promises';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import startCase from 'es-toolkit/compat/startCase';
+import { startCase } from 'es-toolkit/string';
 import packageJson from '../package.json' with { type: 'json' };
 
 const GENERAL_CHANGES_HEADER = 'general changes';
