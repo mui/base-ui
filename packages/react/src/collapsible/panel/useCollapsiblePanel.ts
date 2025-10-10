@@ -7,7 +7,7 @@ import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { warn } from '@base-ui-components/utils/warn';
 import { HTMLProps } from '../../utils/types';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
@@ -38,7 +38,6 @@ export function useCollapsiblePanel(
     width,
   } = parameters;
 
-  const computedStylesRef = React.useRef<CSSStyleDeclaration>(null);
   const isBeforeMatchRef = React.useRef(false);
   const latestAnimationNameRef = React.useRef<string>(null);
   const shouldCancelInitialOpenAnimationRef = React.useRef(open);
@@ -70,7 +69,6 @@ export function useCollapsiblePanel(
     }
     if (animationTypeRef.current == null || transitionDimensionRef.current == null) {
       const panelStyles = getComputedStyle(element);
-      computedStylesRef.current = panelStyles;
 
       const hasAnimation = panelStyles.animationName !== 'none' && panelStyles.animationName !== '';
       const hasTransition =
@@ -121,11 +119,7 @@ export function useCollapsiblePanel(
      * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
      * https://github.com/tailwindlabs/tailwindcss/blob/cd154a4f471e7a63cc27cad15dada650de89d52b/packages/tailwindcss/preflight.css#L320-L326
      */
-    element.style.setProperty(
-      'display',
-      computedStylesRef.current?.display ?? 'block',
-      'important',
-    );
+    element.style.setProperty('display', getComputedStyle(element).display || 'block', 'important');
 
     if (height === undefined || width === undefined) {
       setDimensions({ height: element.scrollHeight, width: element.scrollWidth });
@@ -181,12 +175,18 @@ export function useCollapsiblePanel(
     }
 
     if (open) {
+      const originalLayoutStyles = {
+        'justify-content': panel.style.justifyContent,
+        'align-items': panel.style.alignItems,
+        'align-content': panel.style.alignContent,
+        'justify-items': panel.style.justifyItems,
+      };
+
       /* opening */
-      panel.style.setProperty(
-        'display',
-        computedStylesRef.current?.display ?? 'block',
-        'important',
-      );
+      panel.style.setProperty('display', getComputedStyle(panel).display || 'block', 'important');
+      Object.keys(originalLayoutStyles).forEach((key) => {
+        panel.style.setProperty(key, 'initial', 'important');
+      });
 
       /**
        * When `keepMounted={false}` and the panel is initially closed, the very
@@ -203,6 +203,13 @@ export function useCollapsiblePanel(
 
       resizeFrame = AnimationFrame.request(() => {
         panel.style.removeProperty('display');
+        Object.entries(originalLayoutStyles).forEach(([key, value]) => {
+          if (value === '') {
+            panel.style.removeProperty(key);
+          } else {
+            panel.style.setProperty(key, value);
+          }
+        });
       });
     } else {
       /* closing */
@@ -366,7 +373,7 @@ export function useCollapsiblePanel(
       function handleBeforeMatch(event: Event) {
         isBeforeMatchRef.current = true;
         setOpen(true);
-        onOpenChange(true, createBaseUIEventDetails('none', event));
+        onOpenChange(true, createChangeEventDetails('none', event));
       }
 
       panel.addEventListener('beforematch', handleBeforeMatch);
@@ -390,59 +397,62 @@ export function useCollapsiblePanel(
   );
 }
 
-export namespace useCollapsiblePanel {
-  export interface Parameters {
-    abortControllerRef: React.RefObject<AbortController | null>;
-    animationTypeRef: React.RefObject<AnimationType>;
-    externalRef: React.ForwardedRef<HTMLDivElement>;
-    /**
-     * The height of the panel.
-     */
-    height: number | undefined;
-    /**
-     * Allows the browser’s built-in page search to find and expand the panel contents.
-     *
-     * Overrides the `keepMounted` prop and uses `hidden="until-found"`
-     * to hide the element without removing it from the DOM.
-     */
-    hiddenUntilFound: boolean;
-    /**
-     * The `id` attribute of the panel.
-     */
-    id: React.HTMLAttributes<Element>['id'];
-    /**
-     * Whether to keep the element in the DOM while the panel is closed.
-     * This prop is ignored when `hiddenUntilFound` is used.
-     */
-    keepMounted: boolean;
-    /**
-     * Whether the collapsible panel is currently mounted.
-     */
-    mounted: boolean;
-    onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
-    /**
-     * Whether the collapsible panel is currently open.
-     */
-    open: boolean;
-    panelRef: React.RefObject<HTMLElement | null>;
-    runOnceAnimationsFinish: (fnToExecute: () => void, signal?: AbortSignal | null) => void;
-    setDimensions: React.Dispatch<React.SetStateAction<Dimensions>>;
-    setMounted: (nextMounted: boolean) => void;
-    setOpen: (nextOpen: boolean) => void;
-    setVisible: React.Dispatch<React.SetStateAction<boolean>>;
-    transitionDimensionRef: React.RefObject<'height' | 'width' | null>;
-    /**
-     * The visible state of the panel used to determine the `[hidden]` attribute
-     * only when CSS keyframe animations are used.
-     */
-    visible: boolean;
-    /**
-     * The width of the panel.
-     */
-    width: number | undefined;
-  }
+export interface UseCollapsiblePanelParameters {
+  abortControllerRef: React.RefObject<AbortController | null>;
+  animationTypeRef: React.RefObject<AnimationType>;
+  externalRef: React.ForwardedRef<HTMLDivElement>;
+  /**
+   * The height of the panel.
+   */
+  height: number | undefined;
+  /**
+   * Allows the browser’s built-in page search to find and expand the panel contents.
+   *
+   * Overrides the `keepMounted` prop and uses `hidden="until-found"`
+   * to hide the element without removing it from the DOM.
+   */
+  hiddenUntilFound: boolean;
+  /**
+   * The `id` attribute of the panel.
+   */
+  id: React.HTMLAttributes<Element>['id'];
+  /**
+   * Whether to keep the element in the DOM while the panel is closed.
+   * This prop is ignored when `hiddenUntilFound` is used.
+   */
+  keepMounted: boolean;
+  /**
+   * Whether the collapsible panel is currently mounted.
+   */
+  mounted: boolean;
+  onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
+  /**
+   * Whether the collapsible panel is currently open.
+   */
+  open: boolean;
+  panelRef: React.RefObject<HTMLElement | null>;
+  runOnceAnimationsFinish: (fnToExecute: () => void, signal?: AbortSignal | null) => void;
+  setDimensions: React.Dispatch<React.SetStateAction<Dimensions>>;
+  setMounted: (nextMounted: boolean) => void;
+  setOpen: (nextOpen: boolean) => void;
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  transitionDimensionRef: React.RefObject<'height' | 'width' | null>;
+  /**
+   * The visible state of the panel used to determine the `[hidden]` attribute
+   * only when CSS keyframe animations are used.
+   */
+  visible: boolean;
+  /**
+   * The width of the panel.
+   */
+  width: number | undefined;
+}
 
-  export interface ReturnValue {
-    props: HTMLProps;
-  }
+export interface UseCollapsiblePanelReturnValue {
+  props: HTMLProps;
+}
+
+export namespace useCollapsiblePanel {
+  export type Parameters = UseCollapsiblePanelParameters;
+  export type ReturnValue = UseCollapsiblePanelReturnValue;
 }

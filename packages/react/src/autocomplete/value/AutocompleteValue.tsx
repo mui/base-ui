@@ -24,8 +24,13 @@ export function AutocompleteValue(props: AutocompleteValue.Props) {
   return inputValue;
 }
 
+export interface AutocompleteValueState {}
+
+export interface AutocompleteValueProps {
+  children?: React.ReactNode | ((value: string) => React.ReactNode);
+}
+
 export namespace AutocompleteValue {
-  export interface Props {
-    children?: React.ReactNode | ((value: string) => React.ReactNode);
-  }
+  export type State = AutocompleteValueState;
+  export type Props = AutocompleteValueProps;
 }

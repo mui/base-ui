@@ -8,8 +8,10 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import {
-  createBaseUIEventDetails,
-  type BaseUIEventDetails,
+  createChangeEventDetails,
+  createGenericEventDetails,
+  type BaseUIChangeEventDetails,
+  type BaseUIGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -69,6 +71,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
     step = 1,
+    thumbAlignment = 'center',
     value: valueProp,
     ...elementProps
   } = componentProps;
@@ -77,14 +80,13 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const onValueChange = useEventCallback(
     onValueChangeProp as (
       value: number | number[],
-      data: BaseUIEventDetails<'none'>,
-      activeThumbIndex: number,
+      eventDetails: SliderRoot.ChangeEventDetails,
     ) => void,
   );
   const onValueCommitted = useEventCallback(
     onValueCommittedProp as (
       value: number | readonly number[],
-      data: BaseUIEventDetails<'none'>,
+      eventDetails: SliderRoot.CommitEventDetails,
     ) => void,
   );
 
@@ -104,7 +106,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const ariaLabelledby = ariaLabelledByProp ?? labelId;
   const disabled = fieldDisabled || disabledProp;
-  const name = fieldName || nameProp;
+  const name = fieldName ?? nameProp;
 
   // The internal value is potentially unsorted, e.g. to support frozen arrays
   // https://github.com/mui/material-ui/pull/28472
@@ -137,6 +139,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
+
+  const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
+    undefined,
+    undefined,
+  ]);
 
   useField({
     id,
@@ -182,9 +189,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       lastChangedValueRef.current = newValue;
 
-      const details = createBaseUIEventDetails('none', clonedEvent);
+      const details = createChangeEventDetails('none', clonedEvent, undefined, {
+        activeThumbIndex: thumbIndex,
+      });
 
-      onValueChange(newValue, details, thumbIndex);
+      onValueChange(newValue, details);
 
       if (details.isCanceled) {
         return;
@@ -207,7 +216,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         setTouched(true);
 
         const nextValue = lastChangedValueRef.current ?? newValue;
-        onValueCommitted(nextValue, createBaseUIEventDetails('none', event.nativeEvent));
+        onValueCommitted(nextValue, createGenericEventDetails('none', event.nativeEvent));
         clearErrors(name);
 
         if (validationMode === 'onChange') {
@@ -275,6 +284,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
+      indicatorPosition,
+      inset: thumbAlignment !== 'center',
       labelId: ariaLabelledby,
       largeStep,
       lastChangedValueRef,
@@ -289,8 +300,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
       registerFieldControlRef,
+      renderBeforeHydration: thumbAlignment === 'edge',
       setActive,
       setDragging,
+      setIndicatorPosition,
       setValue,
       state,
       step,
@@ -307,6 +320,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
+      indicatorPosition,
       largeStep,
       lastChangedValueRef,
       locale,
@@ -322,9 +336,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       registerFieldControlRef,
       setActive,
       setDragging,
+      setIndicatorPosition,
       setValue,
       state,
       step,
+      thumbAlignment,
       thumbMap,
       thumbRefs,
       values,
@@ -361,134 +377,148 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   ): React.JSX.Element;
 };
 
+export interface SliderRootState extends FieldRoot.State {
+  /**
+   * The index of the active thumb.
+   */
+  activeThumbIndex: number;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the thumb is currently being dragged.
+   */
+  dragging: boolean;
+  max: number;
+  min: number;
+  /**
+   * The minimum steps between values in a range slider.
+   * @default 0
+   */
+  minStepsBetweenValues: number;
+  /**
+   * The component orientation.
+   */
+  orientation: Orientation;
+  /**
+   * The step increment of the slider when incrementing or decrementing. It will snap
+   * to multiples of this value. Decimal values are supported.
+   * @default 1
+   */
+  step: number;
+  /**
+   * The raw number value of the slider.
+   */
+  values: readonly number[];
+}
+export interface SliderRootProps<
+  Value extends number | readonly number[] = number | readonly number[],
+> extends BaseUIComponentProps<'div', SliderRoot.State> {
+  /**
+   * The uncontrolled value of the slider when it’s initially rendered.
+   *
+   * To render a controlled slider, use the `value` prop instead.
+   */
+  defaultValue?: Value;
+  /**
+   * Whether the slider should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Options to format the input value.
+   */
+  format?: Intl.NumberFormatOptions;
+  /**
+   * The locale used by `Intl.NumberFormat` when formatting the value.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+  /**
+   * The maximum allowed value of the slider.
+   * Should not be equal to min.
+   * @default 100
+   */
+  max?: number;
+  /**
+   * The minimum allowed value of the slider.
+   * Should not be equal to max.
+   * @default 0
+   */
+  min?: number;
+  /**
+   * The minimum steps between values in a range slider.
+   * @default 0
+   */
+  minStepsBetweenValues?: number;
+  /**
+   * Identifies the field when a form is submitted.
+   */
+  name?: string;
+  /**
+   * The component orientation.
+   * @default 'horizontal'
+   */
+  orientation?: Orientation;
+  /**
+   * The granularity with which the slider can step through values. (A "discrete" slider.)
+   * The `min` prop serves as the origin for the valid values.
+   * We recommend (max - min) to be evenly divisible by the step.
+   * @default 1
+   */
+  step?: number;
+  /**
+   * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
+   * @default 10
+   */
+  largeStep?: number;
+  /**
+   * How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`:
+   * - `center`: The center of the thumb is aligned with the control edge
+   * - `edge`: The thumb is inset within the control such that its edge is aligned with the control edge
+   * - `edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return
+   * @default 'center'
+   */
+  thumbAlignment?: 'center' | 'edge' | 'edge-client-only';
+  /**
+   * The value of the slider.
+   * For ranged sliders, provide an array with two values.
+   */
+  value?: Value;
+  /**
+   * Callback function that is fired when the slider's value changed.
+   * You can pull out the new value by accessing `event.target.value` (any).
+   */
+  onValueChange?: (
+    value: Value extends number ? number : Value,
+    eventDetails: SliderRoot.ChangeEventDetails,
+  ) => void;
+  /**
+   * Callback function that is fired when the `pointerup` is triggered.
+   * **Warning**: This is a generic event not a change event.
+   */
+  onValueCommitted?: (
+    value: Value extends number ? number : Value,
+    eventDetails: SliderRoot.CommitEventDetails,
+  ) => void;
+}
+
+export type SliderRootChangeEventReason = 'none';
+export type SliderRootChangeEventDetails = BaseUIChangeEventDetails<
+  SliderRoot.ChangeEventReason,
+  { activeThumbIndex: number }
+>;
+
+export type SliderRootCommitEventReason = 'none';
+export type SliderRootCommitEventDetails = BaseUIGenericEventDetails<SliderRoot.CommitEventReason>;
+
 export namespace SliderRoot {
-  export interface State extends FieldRoot.State {
-    /**
-     * The index of the active thumb.
-     */
-    activeThumbIndex: number;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the thumb is currently being dragged.
-     */
-    dragging: boolean;
-    max: number;
-    min: number;
-    /**
-     * The minimum steps between values in a range slider.
-     * @default 0
-     */
-    minStepsBetweenValues: number;
-    /**
-     * The component orientation.
-     */
-    orientation: Orientation;
-    /**
-     * The step increment of the slider when incrementing or decrementing. It will snap
-     * to multiples of this value. Decimal values are supported.
-     * @default 1
-     */
-    step: number;
-    /**
-     * The raw number value of the slider.
-     */
-    values: readonly number[];
-  }
-
-  export interface Props<Value extends number | readonly number[] = number | readonly number[]>
-    extends BaseUIComponentProps<'div', State> {
-    /**
-     * The uncontrolled value of the slider when it’s initially rendered.
-     *
-     * To render a controlled slider, use the `value` prop instead.
-     */
-    defaultValue?: Value;
-    /**
-     * Whether the slider should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Options to format the input value.
-     */
-    format?: Intl.NumberFormatOptions;
-    /**
-     * The locale used by `Intl.NumberFormat` when formatting the value.
-     * Defaults to the user's runtime locale.
-     */
-    locale?: Intl.LocalesArgument;
-    /**
-     * The maximum allowed value of the slider.
-     * Should not be equal to min.
-     * @default 100
-     */
-    max?: number;
-    /**
-     * The minimum allowed value of the slider.
-     * Should not be equal to max.
-     * @default 0
-     */
-    min?: number;
-    /**
-     * The minimum steps between values in a range slider.
-     * @default 0
-     */
-    minStepsBetweenValues?: number;
-    /**
-     * Identifies the field when a form is submitted.
-     */
-    name?: string;
-    /**
-     * The component orientation.
-     * @default 'horizontal'
-     */
-    orientation?: Orientation;
-    /**
-     * The granularity with which the slider can step through values. (A "discrete" slider.)
-     * The `min` prop serves as the origin for the valid values.
-     * We recommend (max - min) to be evenly divisible by the step.
-     * @default 1
-     */
-    step?: number;
-    /**
-     * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
-     * @default 10
-     */
-    largeStep?: number;
-    /**
-     * The value of the slider.
-     * For ranged sliders, provide an array with two values.
-     */
-    value?: Value;
-    /**
-     * Callback function that is fired when the slider's value changed.
-     *
-     * @param {number | number[]} value The new value.
-     * @param {Event} event The corresponding event that initiated the change.
-     * You can pull out the new value by accessing `event.target.value` (any).
-     * @param {number} activeThumbIndex Index of the currently moved thumb.
-     */
-    onValueChange?: (
-      value: Value extends number ? number : Value,
-      eventDetails: ChangeEventDetails,
-      activeThumbIndex: number,
-    ) => void;
-    /**
-     * Callback function that is fired when the `pointerup` is triggered.
-     *
-     * @param {number | number[]} value The new value.
-     * @param {Event} event The corresponding event that initiated the change.
-     * **Warning**: This is a generic event not a change event.
-     */
-    onValueCommitted?: (
-      value: Value extends number ? number : Value,
-      eventDetails: ChangeEventDetails,
-    ) => void;
-  }
-
-  export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type State = SliderRootState;
+  export type Props<Value extends number | readonly number[] = number | readonly number[]> =
+    SliderRootProps<Value>;
+  export type ChangeEventReason = SliderRootChangeEventReason;
+  export type ChangeEventDetails = SliderRootChangeEventDetails;
+  export type CommitEventReason = SliderRootCommitEventReason;
+  export type CommitEventDetails = SliderRootCommitEventDetails;
 }

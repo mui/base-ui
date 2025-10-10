@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-ui/utils/dom';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
@@ -15,6 +14,7 @@ import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../composite/item/CompositeItem';
+import { findRootOwnerId } from '../utils/findRootOwnerId';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -184,32 +184,25 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   return element;
 });
 
-export namespace MenuTrigger {
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
-
-  export type State = {
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-  };
+export interface MenuTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', MenuTrigger.State> {
+  children?: React.ReactNode;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
 }
 
-function findRootOwnerId(node: Node): string | undefined {
-  if (isHTMLElement(node) && node.hasAttribute('data-rootownerid')) {
-    return node.getAttribute('data-rootownerid') ?? undefined;
-  }
+export type MenuTriggerState = {
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+};
 
-  if (isLastTraversableNode(node)) {
-    return undefined;
-  }
-
-  return findRootOwnerId(getParentNode(node));
+export namespace MenuTrigger {
+  export type Props = MenuTriggerProps;
+  export type State = MenuTriggerState;
 }

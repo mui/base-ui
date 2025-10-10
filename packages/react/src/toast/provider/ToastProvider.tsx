@@ -43,13 +43,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     }
   }
 
-  // It's not possible to stack a smaller height toast onto a larger height toast, but
-  // the reverse is possible. For simplicity, we'll enforce the expanded state if the
-  // toasts aren't all the same height.
-  const hasDifferingHeights = React.useMemo(() => {
-    const heights = toasts.map((t) => t.height).filter((h) => h !== 0);
-    return heights.length > 0 && new Set(heights).size > 1;
-  }, [toasts]);
+  const expanded = hovering || focused;
 
   const timersRef = React.useRef(new Map<string, TimerInfo>());
   const viewportRef = React.useRef<HTMLElement | null>(null);
@@ -59,7 +53,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const hoveringRef = useLatestRef(hovering);
   const focusedRef = useLatestRef(focused);
 
-  const handleFocusManagement = useEventCallback((toastId: string) => {
+  function handleFocusManagement(toastId: string) {
     const activeEl = activeElement(ownerDocument(viewportRef.current));
     if (
       !viewportRef.current ||
@@ -99,7 +93,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     } else {
       prevFocusElement?.focus({ preventScroll: true });
     }
-  });
+  }
 
   const pauseTimers = useEventCallback(() => {
     if (isPausedRef.current) {
@@ -336,6 +330,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
       setHovering,
       focused,
       setFocused,
+      expanded,
       add,
       close,
       remove,
@@ -348,13 +343,13 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
       viewportRef,
       scheduleTimer,
       windowFocusedRef,
-      hasDifferingHeights,
     }),
     [
       add,
       close,
       focused,
       hovering,
+      expanded,
       pauseTimers,
       prevFocusElement,
       promise,
@@ -363,31 +358,32 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
       scheduleTimer,
       toasts,
       update,
-      hasDifferingHeights,
     ],
   ) as ToastContext<any>;
 
   return <ToastContext.Provider value={contextValue}>{children}</ToastContext.Provider>;
 };
 
+export interface ToastProviderProps {
+  children?: React.ReactNode;
+  /**
+   * The default amount of time (in ms) before a toast is auto dismissed.
+   * A value of `0` will prevent the toast from being dismissed automatically.
+   * @default 5000
+   */
+  timeout?: number;
+  /**
+   * The maximum number of toasts that can be displayed at once.
+   * When the limit is reached, the oldest toast will be removed to make room for the new one.
+   * @default 3
+   */
+  limit?: number;
+  /**
+   * A global manager for toasts to use outside of a React component.
+   */
+  toastManager?: createToastManager.ToastManager;
+}
+
 export namespace ToastProvider {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * The default amount of time (in ms) before a toast is auto dismissed.
-     * A value of `0` will prevent the toast from being dismissed automatically.
-     * @default 5000
-     */
-    timeout?: number;
-    /**
-     * The maximum number of toasts that can be displayed at once.
-     * When the limit is reached, the oldest toast will be removed to make room for the new one.
-     * @default 3
-     */
-    limit?: number;
-    /**
-     * A global manager for toasts to use outside of a React component.
-     */
-    toastManager?: createToastManager.ToastManager;
-  }
+  export type Props = ToastProviderProps;
 }

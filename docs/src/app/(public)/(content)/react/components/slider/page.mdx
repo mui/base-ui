@@ -40,3 +40,11 @@ To create a range slider:
 2. Additionally for server-side rendering, specify a numeric `index` for each thumb that corresponds to the index of its value in the value array
 
 <Demo compact path="./demos/range-slider" />
+
+### Thumb alignment
+
+Set `thumbAlignment="edge"` to inset the thumb such that its edge aligns with the edge of the control when the value is at `min` or `max`, without overflowing the control like the default `"center"` alignment.
+
+A client-only alternative `thumbAlignment="edge-client-only"` can be used to reduce bundle size but only renders after React hydration.
+
+<Demo compact path="./demos/edge-alignment" />

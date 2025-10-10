@@ -19,6 +19,7 @@ describe('<Popover.Positioner />', () => {
     render(node) {
       return render(
         <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
           <Popover.Portal>{node}</Popover.Portal>
         </Popover.Root>,
       );
@@ -48,9 +49,10 @@ describe('<Popover.Positioner />', () => {
         </Popover.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
-        `translate(${baselineX}px, ${baselineY + sideOffset}px)`,
-      );
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+        x: baselineX,
+        y: baselineY + sideOffset,
+      });
     });
 
     it('offsets the side when a function is specified', async () => {
@@ -68,9 +70,10 @@ describe('<Popover.Positioner />', () => {
         </Popover.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
-        `translate(${baselineX}px, ${baselineY + popupWidth + anchorWidth}px)`,
-      );
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+        x: baselineX,
+        y: baselineY + popupWidth + anchorWidth,
+      });
     });
 
     it('can read the latest side inside sideOffset', async () => {
@@ -161,9 +164,10 @@ describe('<Popover.Positioner />', () => {
         </Popover.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
-        `translate(${baselineX + alignOffset}px, ${baselineY}px)`,
-      );
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+        x: baselineX + alignOffset,
+        y: baselineY,
+      });
     });
 
     it('offsets the align when a function is specified', async () => {
@@ -181,9 +185,10 @@ describe('<Popover.Positioner />', () => {
         </Popover.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
-        `translate(${baselineX + popupWidth}px, ${baselineY}px)`,
-      );
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+        x: baselineX + popupWidth,
+        y: baselineY,
+      });
     });
 
     it('can read the latest side inside alignOffset', async () => {
@@ -277,18 +282,18 @@ describe('<Popover.Positioner />', () => {
     const { setProps } = await render(<App top={0} />);
     const positioner = screen.getByTestId('positioner');
 
-    const initial = 'translate(5px, 100px)';
-    const final = 'translate(5px, 200px)';
+    const initial = { x: 5, y: 100 };
+    const final = { x: 5, y: 200 };
 
-    expect(positioner.style.transform).to.equal(initial);
+    expect(positioner.getBoundingClientRect()).to.include(initial);
 
     setProps({ top: 100 });
 
     await waitFor(() => {
-      expect(screen.getByTestId('positioner').style.transform).not.to.equal(initial);
+      expect(positioner.getBoundingClientRect()).not.to.include(initial);
     });
 
-    expect(screen.getByTestId('positioner').style.transform).to.equal(final);
+    expect(positioner.getBoundingClientRect()).to.include(final);
   });
 
   it.skipIf(isJSDOM)('remains anchored if keepMounted=true', async () => {
@@ -308,17 +313,17 @@ describe('<Popover.Positioner />', () => {
     const { setProps } = await render(<App top={0} />);
     const positioner = screen.getByTestId('positioner');
 
-    const initial = 'translate(5px, 100px)';
-    const final = 'translate(5px, 200px)';
+    const initial = { x: 5, y: 100 };
+    const final = { x: 5, y: 200 };
 
-    expect(positioner.style.transform).to.equal(initial);
+    expect(positioner.getBoundingClientRect()).to.include(initial);
 
     setProps({ top: 100 });
 
     await waitFor(() => {
-      expect(screen.getByTestId('positioner').style.transform).not.to.equal(initial);
+      expect(positioner.getBoundingClientRect()).not.to.include(initial);
     });
 
-    expect(screen.getByTestId('positioner').style.transform).to.equal(final);
+    expect(positioner.getBoundingClientRect()).to.include(final);
   });
 });

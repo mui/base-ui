@@ -3,11 +3,10 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@types/lodash": "^4.17.20",
     "@types/yargs": "^17.0.33",
-    "lodash": "^4.17.21",
+    "es-toolkit": "^1.39.10",
     "rimraf": "^6.0.1",
-    "tsx": "^4.20.5",
+    "tsx": "^4.20.6",
     "typescript-api-extractor": "1.0.0-alpha.8",
     "yargs": "^18.0.0"
   },

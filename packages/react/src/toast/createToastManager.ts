@@ -1,11 +1,6 @@
 import { generateId } from '@base-ui-components/utils/generateId';
 import { type ToastObject, useToastManager } from './useToastManager';
 
-export interface ToastManagerEvent {
-  action: 'add' | 'close' | 'update' | 'promise';
-  options: any;
-}
-
 /**
  * Creates a new toast manager.
  */
@@ -84,15 +79,22 @@ export function createToastManager(): createToastManager.ToastManager {
   };
 }
 
+export interface CreateToastManager {
+  ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
+  add: <Data extends object>(options: useToastManager.AddOptions<Data>) => string;
+  close: (id: string) => void;
+  update: <Data extends object>(id: string, updates: useToastManager.UpdateOptions<Data>) => void;
+  promise: <Value, Data extends object>(
+    promiseValue: Promise<Value>,
+    options: useToastManager.PromiseOptions<Value, Data>,
+  ) => Promise<Value>;
+}
+
 export namespace createToastManager {
-  export interface ToastManager {
-    ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
-    add: <Data extends object>(options: useToastManager.AddOptions<Data>) => string;
-    close: (id: string) => void;
-    update: <Data extends object>(id: string, updates: useToastManager.UpdateOptions<Data>) => void;
-    promise: <Value, Data extends object>(
-      promiseValue: Promise<Value>,
-      options: useToastManager.PromiseOptions<Value, Data>,
-    ) => Promise<Value>;
-  }
+  export type ToastManager = CreateToastManager;
+}
+
+export interface ToastManagerEvent {
+  action: 'add' | 'close' | 'update' | 'promise';
+  options: any;
 }

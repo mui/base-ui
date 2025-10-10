@@ -31,7 +31,7 @@ import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -108,14 +108,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     animationAbortControllerRef.current?.abort();
   }, [isActiveItem]);
 
-  const setAutoSizes = useEventCallback(() => {
+  function setAutoSizes() {
     if (!popupElement) {
       return;
     }
 
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, 'auto');
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, 'auto');
-  });
+  }
 
   const handleValueChange = useEventCallback((currentWidth: number, currentHeight: number) => {
     if (!popupElement || !positionerElement) {
@@ -204,7 +204,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     return () => {
       mutationObserver.disconnect();
     };
-  }, [popupElement, positionerElement, isActiveItem, handleValueChange, setAutoSizes]);
+  }, [popupElement, positionerElement, isActiveItem, handleValueChange]);
 
   React.useEffect(() => {
     if (isActiveItem && open && popupElement && allowFocusRef.current) {
@@ -338,7 +338,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       if (value != null) {
         setValue(
           itemValue,
-          createBaseUIEventDetails(
+          createChangeEventDetails(
             event.type === 'mouseenter' ? 'trigger-hover' : 'trigger-press',
             event.nativeEvent,
           ),
@@ -396,7 +396,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
 
       if (openHorizontal || openVertical) {
-        setValue(itemValue, createBaseUIEventDetails('list-navigation', event.nativeEvent));
+        setValue(itemValue, createChangeEventDetails('list-navigation', event.nativeEvent));
         handleOpenEvent(event);
         stopEvent(event);
       }
@@ -413,7 +413,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           { popupElement, rootRef, tree, nodeId },
         )
       ) {
-        setValue(null, createBaseUIEventDetails('focus-out', event.nativeEvent));
+        setValue(null, createChangeEventDetails('focus-out', event.nativeEvent));
       }
     },
   };
@@ -465,7 +465,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
                 nextTabbable?.focus();
 
                 if (!contains(rootRef.current, nextTabbable)) {
-                  setValue(null, createBaseUIEventDetails('focus-out', event.nativeEvent));
+                  setValue(null, createChangeEventDetails('focus-out', event.nativeEvent));
                 }
               }
             }}
@@ -476,13 +476,18 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   );
 });
 
-export namespace NavigationMenuTrigger {
-  export interface State {
-    /**
-     * If `true`, the popup is open and the item is active.
-     */
-    open: boolean;
-  }
+export interface NavigationMenuTriggerState {
+  /**
+   * If `true`, the popup is open and the item is active.
+   */
+  open: boolean;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface NavigationMenuTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
+
+export namespace NavigationMenuTrigger {
+  export type State = NavigationMenuTriggerState;
+  export type Props = NavigationMenuTriggerProps;
 }

@@ -48,5 +48,12 @@
       "description": "Present when the popup is animating out."
     }
   },
-  "cssVariables": {}
+  "cssVariables": {
+    "--popup-height": {
+      "description": "The height of the popup."
+    },
+    "--popup-width": {
+      "description": "The width of the popup."
+    }
+  }
 }

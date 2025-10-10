@@ -15,7 +15,9 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 export function DialogPortal(props: DialogPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
-  const { mounted, internalBackdropRef, modal } = useDialogRootContext();
+  const { store } = useDialogRootContext();
+  const mounted = store.useState('mounted');
+  const modal = store.useState('modal');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
@@ -24,27 +26,27 @@ export function DialogPortal(props: DialogPortal.Props) {
 
   return (
     <DialogPortalContext.Provider value={keepMounted}>
-      <FloatingPortal root={container}>
-        {mounted && modal === true && (
-          <InternalBackdrop ref={internalBackdropRef} inert={inertValue(!open)} />
-        )}
-        {children}
-      </FloatingPortal>
+      {mounted && modal === true && (
+        <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
+      )}
+      <FloatingPortal root={container}>{children}</FloatingPortal>
     </DialogPortalContext.Provider>
   );
 }
 
+export interface DialogPortalProps {
+  children?: React.ReactNode;
+  /**
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?: FloatingPortalProps['root'];
+}
+
 export namespace DialogPortal {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the portal mounted in the DOM while the popup is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: FloatingPortalProps['root'];
-  }
+  export type Props = DialogPortalProps;
 }

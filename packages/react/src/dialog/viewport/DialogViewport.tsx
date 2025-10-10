@@ -31,19 +31,16 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   componentProps: DialogViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render: renderProp, className: classNameProp, children, ...elementProps } = componentProps;
-  void renderProp;
-  void classNameProp;
+  const { className, render, children, ...elementProps } = componentProps;
 
   const keepMounted = useDialogPortalContext();
-  const {
-    mounted,
-    open,
-    nested,
-    transitionStatus,
-    nestedOpenDialogCount,
-    setViewportElement,
-  } = useDialogRootContext();
+  const { store } = useDialogRootContext();
+
+  const open = store.useState('open');
+  const nested = store.useState('nested');
+  const transitionStatus = store.useState('transitionStatus');
+  const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
+  const mounted = store.useState('mounted');
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
@@ -62,10 +59,11 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   return useRenderElement('div', componentProps, {
     enabled: shouldRender,
     state,
-    ref: [forwardedRef, setViewportElement],
+    ref: [forwardedRef, store.getElementSetter('viewportElement')],
     stateAttributesMapping,
     props: [
       {
+        hidden: !mounted,
         children,
       },
       elementProps,

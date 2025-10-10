@@ -106,46 +106,46 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
 
 export type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 
-export namespace ProgressRoot {
-  export type State = {
-    status: ProgressStatus;
-  };
+export interface ProgressRootState {
+  status: ProgressStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
-     */
-    'aria-valuetext'?: React.AriaAttributes['aria-valuetext'];
-    /**
-     * Options to format the value.
-     */
-    format?: Intl.NumberFormatOptions;
-    /**
-     * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar.
-     * @param {string} formattedValue The component's formatted value.
-     * @param {number | null} value The component's numerical value.
-     * @returns {string}
-     */
-    getAriaValueText?: (formattedValue: string | null, value: number | null) => string;
-    /**
-     * The locale used by `Intl.NumberFormat` when formatting the value.
-     * Defaults to the user's runtime locale.
-     */
-    locale?: Intl.LocalesArgument;
-    /**
-     * The maximum value.
-     * @default 100
-     */
-    max?: number;
-    /**
-     * The minimum value.
-     * @default 0
-     */
-    min?: number;
-    /**
-     * The current value. The component is indeterminate when value is `null`.
-     * @default null
-     */
-    value: number | null;
-  }
+export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressRoot.State> {
+  /**
+   * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
+   */
+  'aria-valuetext'?: React.AriaAttributes['aria-valuetext'];
+  /**
+   * Options to format the value.
+   */
+  format?: Intl.NumberFormatOptions;
+  /**
+   * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar.
+   */
+  getAriaValueText?: (formattedValue: string | null, value: number | null) => string;
+  /**
+   * The locale used by `Intl.NumberFormat` when formatting the value.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+  /**
+   * The maximum value.
+   * @default 100
+   */
+  max?: number;
+  /**
+   * The minimum value.
+   * @default 0
+   */
+  min?: number;
+  /**
+   * The current value. The component is indeterminate when value is `null`.
+   * @default null
+   */
+  value: number | null;
+}
+
+export namespace ProgressRoot {
+  export type State = ProgressRootState;
+  export type Props = ProgressRootProps;
 }

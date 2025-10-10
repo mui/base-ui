@@ -126,28 +126,31 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
         refs={[forwardedRef, ref, handleCurrentContentRef]}
         props={[defaultProps, elementProps]}
         stateAttributesMapping={stateAttributesMapping}
-        stopEventPropagation
       />
     </FloatingNode>,
     portalContainer,
   );
 });
 
-export namespace NavigationMenuContent {
-  export interface State {
-    /**
-     * If `true`, the component is open.
-     */
-    open: boolean;
-    /**
-     * The transition status of the component.
-     */
-    transitionStatus: TransitionStatus;
-    /**
-     * The direction of the activation.
-     */
-    activationDirection: 'left' | 'right' | 'up' | 'down' | null;
-  }
+export interface NavigationMenuContentState {
+  /**
+   * If `true`, the component is open.
+   */
+  open: boolean;
+  /**
+   * The transition status of the component.
+   */
+  transitionStatus: TransitionStatus;
+  /**
+   * The direction of the activation.
+   */
+  activationDirection: 'left' | 'right' | 'up' | 'down' | null;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface NavigationMenuContentProps
+  extends BaseUIComponentProps<'div', NavigationMenuContent.State> {}
+
+export namespace NavigationMenuContent {
+  export type State = NavigationMenuContentState;
+  export type Props = NavigationMenuContentProps;
 }

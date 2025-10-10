@@ -26,7 +26,7 @@ describe('<Dialog.Popup />', () => {
       [undefined, false],
     ].forEach(([keepMounted, expectedIsMounted]) => {
       it(`should ${!expectedIsMounted ? 'not ' : ''}keep the dialog mounted when keepMounted=${keepMounted}`, async () => {
-        const { queryByRole } = await render(
+        await render(
           <Dialog.Root open={false} modal={false}>
             <Dialog.Portal keepMounted={keepMounted}>
               <Dialog.Popup />
@@ -34,7 +34,7 @@ describe('<Dialog.Popup />', () => {
           </Dialog.Root>,
         );
 
-        const dialog = queryByRole('dialog', { hidden: true });
+        const dialog = screen.queryByRole('dialog', { hidden: true });
         if (expectedIsMounted) {
           expect(dialog).not.to.equal(null);
           expect(dialog).toBeInaccessible();
@@ -47,7 +47,7 @@ describe('<Dialog.Popup />', () => {
 
   describe('prop: initialFocus', () => {
     it('should focus the first focusable element within the popup', async () => {
-      const { getByText, getByTestId } = await render(
+      await render(
         <div>
           <input />
           <Dialog.Root modal={false}>
@@ -63,13 +63,13 @@ describe('<Dialog.Popup />', () => {
         </div>,
       );
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
       await waitFor(() => {
-        const dialogInput = getByTestId('dialog-input');
+        const dialogInput = screen.getByTestId('dialog-input');
         expect(dialogInput).to.toHaveFocus();
       });
     });
@@ -96,15 +96,15 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
       await waitFor(() => {
-        const input2 = getByTestId('input-2');
+        const input2 = screen.getByTestId('input-2');
         expect(input2).to.toHaveFocus();
       });
     });
@@ -134,15 +134,15 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
       await waitFor(() => {
-        const input2 = getByTestId('input-2');
+        const input2 = screen.getByTestId('input-2');
         expect(input2).to.toHaveFocus();
       });
     });
@@ -172,9 +172,9 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByTestId, getByText, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
 
       await waitFor(() => {
@@ -185,7 +185,7 @@ describe('<Dialog.Popup />', () => {
       await user.keyboard('{Enter}');
 
       await waitFor(() => {
-        expect(getByTestId('input-2')).toHaveFocus();
+        expect(screen.getByTestId('input-2')).toHaveFocus();
       });
     });
 
@@ -205,8 +205,8 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
       await waitFor(() => {
         expect(trigger).toHaveFocus();
@@ -229,10 +229,10 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
-      await user.click(getByText('Open'));
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByText('Open'));
       await waitFor(() => {
-        expect(getByTestId('input-1')).toHaveFocus();
+        expect(screen.getByTestId('input-1')).toHaveFocus();
       });
     });
 
@@ -252,17 +252,17 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
-      await user.click(getByText('Open'));
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByText('Open'));
       await waitFor(() => {
-        expect(getByTestId('input-1')).toHaveFocus();
+        expect(screen.getByTestId('input-1')).toHaveFocus();
       });
     });
   });
 
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {
-      const { getByText, user } = await render(
+      const { user } = await render(
         <div>
           <input />
           <Dialog.Root>
@@ -278,10 +278,10 @@ describe('<Dialog.Popup />', () => {
         </div>,
       );
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
 
-      const closeButton = getByText('Close');
+      const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       await waitFor(() => {
@@ -311,15 +311,15 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
 
-      const closeButton = getByText('Close');
+      const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
-      const inputToFocus = getByTestId('input-to-focus');
+      const inputToFocus = screen.getByTestId('input-to-focus');
 
       await waitFor(() => {
         expect(inputToFocus).toHaveFocus();
@@ -346,11 +346,11 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
-      await user.click(getByText('Open'));
-      await user.click(getByText('Close'));
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByText('Open'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
-        expect(getByTestId('input-to-focus')).toHaveFocus();
+        expect(screen.getByTestId('input-to-focus')).toHaveFocus();
       });
     });
 
@@ -371,10 +371,10 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).not.toHaveFocus();
       });
@@ -397,10 +397,10 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
@@ -432,13 +432,13 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
 
       // Close via pointer: true => default, should move focus to trigger
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
@@ -447,7 +447,7 @@ describe('<Dialog.Popup />', () => {
       await user.click(trigger);
       await user.keyboard('{Escape}');
       await waitFor(() => {
-        expect(getByTestId('final-input')).toHaveFocus();
+        expect(screen.getByTestId('final-input')).toHaveFocus();
       });
     });
 
@@ -472,18 +472,18 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      await user.click(getByText('Open'));
+      await user.click(screen.getByText('Open'));
 
       await waitFor(() => {
-        expect(getByTestId('initial-outside')).toHaveFocus();
+        expect(screen.getByTestId('initial-outside')).toHaveFocus();
       });
 
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
 
       await waitFor(() => {
-        expect(getByTestId('final-outside')).toHaveFocus();
+        expect(screen.getByTestId('final-outside')).toHaveFocus();
       });
     });
 
@@ -508,18 +508,18 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      await user.click(getByText('Open'));
+      await user.click(screen.getByText('Open'));
 
       await waitFor(() => {
-        expect(getByTestId('initial-outside')).toHaveFocus();
+        expect(screen.getByTestId('initial-outside')).toHaveFocus();
       });
 
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
 
       await waitFor(() => {
-        expect(getByTestId('final-outside')).not.toHaveFocus();
+        expect(screen.getByTestId('final-outside')).not.toHaveFocus();
       });
     });
 
@@ -540,10 +540,10 @@ describe('<Dialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
@@ -705,6 +705,44 @@ describe('<Dialog.Popup />', () => {
       await user.click(screen.getByRole('button', { name: 'toggle' }));
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+    });
+
+    it('increments for nested alert dialog and decrements on close (cross-type)', async () => {
+      const { user } = await render(
+        <Dialog.Root>
+          <Dialog.Trigger>Open Dialog</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="parent-dialog">
+              <AlertDialog.Root>
+                <AlertDialog.Trigger>Open Alert</AlertDialog.Trigger>
+                <AlertDialog.Portal>
+                  <AlertDialog.Popup data-testid="nested-alert">
+                    <AlertDialog.Close>Close Alert</AlertDialog.Close>
+                  </AlertDialog.Popup>
+                </AlertDialog.Portal>
+              </AlertDialog.Root>
+              <Dialog.Close>Close Dialog</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open Dialog' }));
+      await waitFor(() => expect(screen.getByTestId('parent-dialog')).not.to.equal(null));
+
+      const parent = screen.getByTestId('parent-dialog');
+      expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).to.equal('0');
+
+      await user.click(screen.getByRole('button', { name: 'Open Alert' }));
+      await waitFor(() => expect(screen.getByTestId('nested-alert')).not.to.equal(null));
+      await waitFor(() => {
+        expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).to.equal('1');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close Alert' }));
+      await waitFor(() => {
+        expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).to.equal('0');
+      });
     });
   });
 

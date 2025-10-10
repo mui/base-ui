@@ -7,11 +7,72 @@ const objectItems = [
   { value: 'c', label: 'cherry' },
 ];
 
+const objectItemsReadonly = [
+  { value: 'a', label: 'apple' },
+  { value: 'b', label: 'banana' },
+  { value: 'c', label: 'cherry' },
+] as const;
+
+const groupItemsReadonly = [
+  {
+    value: 'fruits',
+    items: [
+      { value: 'a', label: 'apple' },
+      { value: 'b', label: 'banana' },
+      { value: 'c', label: 'cherry' },
+    ],
+  },
+  {
+    value: 'vegetables',
+    items: [
+      { value: 'd', label: 'daikon' },
+      { value: 'e', label: 'endive' },
+      { value: 'f', label: 'fennel' },
+    ],
+  },
+] as const;
+
+<Combobox.Root
+  items={objectItems}
+  itemToStringValue={(item) => {
+    // @ts-expect-error - inference always comes from `value`/`defaultValue`
+    return item.value;
+  }}
+/>;
+
+<Combobox.Root
+  items={groupItemsReadonly}
+  itemToStringValue={(item) => {
+    // @ts-expect-error - inference always comes from `value`/`defaultValue`
+    return item.value;
+  }}
+/>;
+
+<Combobox.Root
+  items={groupItemsReadonly}
+  defaultValue={groupItemsReadonly[0].items[0]}
+  itemToStringValue={(item) => {
+    return item.label;
+  }}
+/>;
+
 <Combobox.Root
   items={objectItems}
   defaultValue="a"
   onValueChange={(value) => {
+    // @ts-expect-error - possibly null
     value.startsWith('a');
+    value?.startsWith('a');
+  }}
+/>;
+
+<Combobox.Root
+  items={objectItemsReadonly}
+  defaultValue="a"
+  onValueChange={(value) => {
+    // @ts-expect-error - possibly null
+    value.startsWith('a');
+    value?.startsWith('a');
   }}
 />;
 
@@ -39,6 +100,41 @@ const objectItems = [
   }}
   itemToStringValue={(item) => {
     return item.value;
+  }}
+/>;
+
+<Combobox.Root
+  items={objectItems}
+  defaultValue={objectItems[0]}
+  itemToStringLabel={(item) => {
+    // @ts-expect-error
+    item.x;
+    return item.label;
+  }}
+  itemToStringValue={(item) => {
+    // @ts-expect-error
+    item.x;
+    return item.value;
+  }}
+  isItemEqualToValue={(a, b) => {
+    // @ts-expect-error
+    a.x === b.x;
+    return a.value === b.value;
+  }}
+/>;
+
+<Combobox.Root
+  defaultValue="a"
+  itemToStringLabel={(item) => {
+    return item;
+  }}
+  itemToStringValue={(item) => {
+    return item;
+  }}
+  isItemEqualToValue={(a, b) => {
+    // @ts-expect-error
+    a.x === b.x;
+    return a === b;
   }}
 />;
 
@@ -98,8 +194,18 @@ function App() {
 }
 
 <Combobox.Root
+  items={['a', 'b', 'c']}
+  onValueChange={(value) => {
+    // @ts-expect-error
+    value.length;
+  }}
+/>;
+
+<Combobox.Root
+  items={['a', 'b', 'c']}
   defaultValue="test"
   onValueChange={(value) => {
+    // @ts-expect-error
     value.length;
   }}
 />;

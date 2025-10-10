@@ -3,7 +3,8 @@ import type { InteractionType } from '@base-ui-components/utils/useEnhancedClick
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import type { useFieldControlValidation } from '../field/control/useFieldControlValidation';
-import type { ComboboxRootInternal } from './root/ComboboxRootInternal';
+import type { AriaCombobox } from './root/AriaCombobox';
+import { compareItemEquality } from '../utils/itemEquality';
 
 export type State = {
   id: string | undefined;
@@ -12,10 +13,9 @@ export type State = {
 
   filter: (item: any, query: string) => boolean;
 
-  items: any[] | undefined;
+  items: readonly any[] | undefined;
 
   selectedValue: any;
-  inputValue: React.ComponentProps<'input'>['value'];
 
   open: boolean;
   mounted: boolean;
@@ -44,6 +44,7 @@ export type State = {
   selectionMode: 'single' | 'multiple' | 'none';
 
   listRef: React.RefObject<Array<HTMLElement | null>>;
+  labelsRef: React.RefObject<Array<string | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
@@ -51,19 +52,17 @@ export type State = {
   clearRef: React.RefObject<HTMLButtonElement | null>;
   valuesRef: React.RefObject<Array<any>>;
   allValuesRef: React.RefObject<Array<any>>;
+  selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
 
-  setOpen: (open: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
-  setInputValue: (value: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
-  setSelectedValue: (value: any, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
+  setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setIndices: (indices: {
     activeIndex?: number | null;
     selectedIndex?: number | null;
     type?: 'keyboard' | 'pointer' | 'none';
   }) => void;
-  onItemHighlighted: (
-    item: any,
-    info: { type: 'keyboard' | 'pointer' | 'none'; index: number },
-  ) => void;
+  onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
   getItemProps: (
@@ -75,12 +74,13 @@ export type State = {
   readOnly: boolean;
   required: boolean;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
-  cols: number;
+  grid: boolean;
   isGrouped: boolean;
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToStringLabel?: (item: any) => string;
+  isItemEqualToValue: (item: any, value: any) => boolean;
   modal: boolean;
   autoHighlight: boolean;
   alwaysSubmitOnEnter: boolean;
@@ -97,7 +97,6 @@ export const selectors = {
   items: createSelector((state: State) => state.items),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
-  inputValue: createSelector((state: State) => state.inputValue),
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
@@ -108,11 +107,13 @@ export const selectors = {
   activeIndex: createSelector((state: State) => state.activeIndex),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
-  isSelected: createSelector((state: State, selectedValue: any) => {
-    if (Array.isArray(state.selectedValue)) {
-      return state.selectedValue.includes(selectedValue);
+  isSelected: createSelector((state: State, candidate: any) => {
+    const comparer = state.isItemEqualToValue;
+    const selectedValue = state.selectedValue;
+    if (Array.isArray(selectedValue)) {
+      return selectedValue.some((value) => compareItemEquality(value, candidate, comparer));
     }
-    return state.selectedValue === selectedValue;
+    return compareItemEquality(selectedValue, candidate, comparer);
   }),
 
   transitionStatus: createSelector((state: State) => state.transitionStatus),
@@ -134,6 +135,7 @@ export const selectors = {
 
   selectionMode: createSelector((state: State) => state.selectionMode),
   listRef: createSelector((state: State) => state.listRef),
+  labelsRef: createSelector((state: State) => state.labelsRef),
   popupRef: createSelector((state: State) => state.popupRef),
   inputRef: createSelector((state: State) => state.inputRef),
   keyboardActiveRef: createSelector((state: State) => state.keyboardActiveRef),
@@ -147,12 +149,13 @@ export const selectors = {
   readOnly: createSelector((state: State) => state.readOnly),
   required: createSelector((state: State) => state.required),
   fieldControlValidation: createSelector((state: State) => state.fieldControlValidation),
-  cols: createSelector((state: State) => state.cols),
+  grid: createSelector((state: State) => state.grid),
   isGrouped: createSelector((state: State) => state.isGrouped),
   virtualized: createSelector((state: State) => state.virtualized),
   onOpenChangeComplete: createSelector((state: State) => state.onOpenChangeComplete),
   openOnInputClick: createSelector((state: State) => state.openOnInputClick),
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
+  isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
   alwaysSubmitOnEnter: createSelector((state: State) => state.alwaysSubmitOnEnter),

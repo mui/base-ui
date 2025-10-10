@@ -25,7 +25,10 @@ import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 
 const stateAttributesMapping = {
@@ -185,7 +188,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         if (validationMode === 'onBlur') {
           commitValidation(null);
         }
-        onValueCommitted(null, createBaseUIEventDetails('none', event.nativeEvent));
+        onValueCommitted(null, createGenericEventDetails('none', event.nativeEvent));
         return;
       }
 
@@ -208,7 +211,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           ? Number(parsedValue.toFixed(maxFrac))
           : parsedValue;
 
-      const nextEventDetails = createBaseUIEventDetails('none', event.nativeEvent);
+      const nextEventDetails = createGenericEventDetails('none', event.nativeEvent);
       const shouldUpdateValue = value !== committed;
       const shouldCommit = hadManualInput || shouldUpdateValue || hadPendingProgrammaticChange;
 
@@ -384,7 +387,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Prevent insertion of text or caret from moving.
       stopEvent(event);
 
-      const details = createBaseUIEventDetails('none', nativeEvent);
+      const details = createChangeEventDetails('none', nativeEvent);
 
       if (event.key === 'ArrowUp') {
         incrementValue(amount, 1, parsedValue, nativeEvent);
@@ -430,14 +433,18 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   return element;
 });
 
-export namespace NumberFieldInput {
-  export interface State extends NumberFieldRoot.State {}
+export interface NumberFieldInputState extends NumberFieldRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'input', State> {
-    /**
-     * A string value that provides a user-friendly name for the role of the input.
-     * @default 'Number field'
-     */
-    'aria-roledescription'?: React.AriaAttributes['aria-roledescription'] | undefined;
-  }
+export interface NumberFieldInputProps
+  extends BaseUIComponentProps<'input', NumberFieldInput.State> {
+  /**
+   * A string value that provides a user-friendly name for the role of the input.
+   * @default 'Number field'
+   */
+  'aria-roledescription'?: React.AriaAttributes['aria-roledescription'] | undefined;
+}
+
+export namespace NumberFieldInput {
+  export type State = NumberFieldInputState;
+  export type Props = NumberFieldInputProps;
 }

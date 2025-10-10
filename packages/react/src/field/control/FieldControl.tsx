@@ -11,7 +11,10 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useField } from '../useField';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldControlValidation } from './useFieldControlValidation';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 
 /**
  * The form control to label and validate.
@@ -127,7 +130,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
-          setValue(inputValue, createBaseUIEventDetails('none', event.nativeEvent));
+          setValue(inputValue, createChangeEventDetails('none', event.nativeEvent));
           setDirty(inputValue !== validityData.initialValue);
           setFilled(inputValue !== '');
         },
@@ -159,17 +162,24 @@ export const FieldControl = React.forwardRef(function FieldControl(
   return element;
 });
 
+export type FieldControlState = FieldRoot.State;
+
+export interface FieldControlProps extends BaseUIComponentProps<'input', FieldControl.State> {
+  /**
+   * Callback fired when the `value` changes. Use when controlled.
+   */
+  onValueChange?: (value: string, eventDetails: FieldControl.ChangeEventDetails) => void;
+  defaultValue?: React.ComponentProps<'input'>['defaultValue'];
+}
+
+export type FieldControlChangeEventReason = 'none';
+
+export type FieldControlChangeEventDetails =
+  BaseUIChangeEventDetails<FieldControl.ChangeEventReason>;
+
 export namespace FieldControl {
-  export type State = FieldRoot.State;
-
-  export interface Props extends BaseUIComponentProps<'input', State> {
-    /**
-     * Callback fired when the `value` changes. Use when controlled.
-     */
-    onValueChange?: (value: string, eventDetails: ChangeEventDetails) => void;
-    defaultValue?: React.ComponentProps<'input'>['defaultValue'];
-  }
-
-  export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type State = FieldControlState;
+  export type Props = FieldControlProps;
+  export type ChangeEventReason = FieldControlChangeEventReason;
+  export type ChangeEventDetails = FieldControlChangeEventDetails;
 }

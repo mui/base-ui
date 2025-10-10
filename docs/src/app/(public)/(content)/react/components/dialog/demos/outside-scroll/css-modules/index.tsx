@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Dialog } from '@base-ui-components/react/dialog';
+import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import styles from './index.module.css';
 
 export default function OutsideScrollDialog() {
@@ -9,30 +10,39 @@ export default function OutsideScrollDialog() {
 
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
-        <div className={styles.Viewport}>
-          <Dialog.Popup className={styles.Popup}>
-            <div className={styles.PopupHeader}>
-              <Dialog.Title className={styles.Title}>Dialog</Dialog.Title>
-              <Dialog.Close className={styles.Close} aria-label="Close">
-                <XIcon className={styles.CloseIcon} />
-              </Dialog.Close>
-            </div>
+        <Dialog.Viewport className={styles.Viewport}>
+          <ScrollArea.Root style={{ position: undefined }} className={styles.ScrollViewport}>
+            <ScrollArea.Viewport className={styles.ScrollViewport}>
+              <ScrollArea.Content className={styles.ScrollContent}>
+                <Dialog.Popup className={styles.Popup}>
+                  <div className={styles.PopupHeader}>
+                    <Dialog.Title className={styles.Title}>Dialog</Dialog.Title>
+                    <Dialog.Close className={styles.Close} aria-label="Close">
+                      <XIcon className={styles.CloseIcon} />
+                    </Dialog.Close>
+                  </div>
 
-            <Dialog.Description className={styles.Description}>
-              This layout keeps an outer container scrollable while the dialog can extend past the
-              bottom edge.
-            </Dialog.Description>
+                  <Dialog.Description className={styles.Description}>
+                    This layout keeps an outer container scrollable while the dialog can extend past
+                    the bottom edge.
+                  </Dialog.Description>
 
-            <div className={styles.Body}>
-              {CONTENT_SECTIONS.map((item) => (
-                <section key={item.title}>
-                  <h3 className={styles.SectionTitle}>{item.title}</h3>
-                  <p className={styles.SectionBody}>{item.body}</p>
-                </section>
-              ))}
-            </div>
-          </Dialog.Popup>
-        </div>
+                  <div className={styles.Body}>
+                    {CONTENT_SECTIONS.map((item) => (
+                      <section key={item.title}>
+                        <h3 className={styles.SectionTitle}>{item.title}</h3>
+                        <p className={styles.SectionBody}>{item.body}</p>
+                      </section>
+                    ))}
+                  </div>
+                </Dialog.Popup>
+              </ScrollArea.Content>
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar className={styles.Scrollbar}>
+              <ScrollArea.Thumb className={styles.ScrollbarThumb} />
+            </ScrollArea.Scrollbar>
+          </ScrollArea.Root>
+        </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
   );
