@@ -3,8 +3,7 @@ import * as React from 'react';
 import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import {
   autoUpdate,
   flip,
@@ -139,9 +138,9 @@ export function useAnchorPositioning(
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
-  const anchorFnCallback = useEventCallback(anchorFn);
+  const anchorFnCallback = useUntracked(anchorFn);
   const anchorDep = anchorFn ? anchorFnCallback : anchor;
-  const anchorValueRef = useLatestRef(anchor);
+  const getAnchor = useUntracked(() => anchor);
 
   const direction = useDirection();
   const isRtl = direction === 'rtl';
@@ -204,8 +203,8 @@ export function useAnchorPositioning(
   const arrowRef = React.useRef<Element | null>(null);
 
   // Keep these reactive if they're not functions
-  const sideOffsetRef = useLatestRef(sideOffset);
-  const alignOffsetRef = useLatestRef(alignOffset);
+  const getSideOffset = useUntracked(() => sideOffset);
+  const getAlignOffset = useUntracked(() => alignOffset);
   const sideOffsetDep = typeof sideOffset !== 'function' ? sideOffset : 0;
   const alignOffsetDep = typeof alignOffset !== 'function' ? alignOffset : 0;
 
@@ -214,14 +213,13 @@ export function useAnchorPositioning(
       (state) => {
         const data = getOffsetData(state, sideParam, isRtl);
 
+        const latestSideOffset = getSideOffset();
+        const latestAlignOffset = getAlignOffset();
+
         const sideAxis =
-          typeof sideOffsetRef.current === 'function'
-            ? sideOffsetRef.current(data)
-            : sideOffsetRef.current;
+          typeof latestSideOffset === 'function' ? latestSideOffset(data) : latestSideOffset;
         const alignAxis =
-          typeof alignOffsetRef.current === 'function'
-            ? alignOffsetRef.current(data)
-            : alignOffsetRef.current;
+          typeof latestAlignOffset === 'function' ? latestAlignOffset(data) : latestAlignOffset;
 
         return {
           mainAxis: sideAxis,
@@ -427,7 +425,7 @@ export function useAnchorPositioning(
       return;
     }
 
-    const anchorValue = anchorValueRef.current;
+    const anchorValue = getAnchor();
     const resolvedAnchor = typeof anchorValue === 'function' ? anchorValue() : anchorValue;
     const unwrappedElement =
       (isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor) || null;
@@ -437,14 +435,14 @@ export function useAnchorPositioning(
       refs.setPositionReference(finalAnchor);
       registeredPositionReferenceRef.current = finalAnchor;
     }
-  }, [mounted, refs, anchorDep, anchorValueRef]);
+  }, [mounted, refs, anchorDep, getAnchor]);
 
   React.useEffect(() => {
     if (!mounted) {
       return;
     }
 
-    const anchorValue = anchorValueRef.current;
+    const anchorValue = getAnchor();
 
     // Refs from parent components are set after useLayoutEffect runs and are available in useEffect.
     // Therefore, if the anchor is a ref, we need to update the position reference in useEffect.
@@ -456,7 +454,7 @@ export function useAnchorPositioning(
       refs.setPositionReference(anchorValue.current);
       registeredPositionReferenceRef.current = anchorValue.current;
     }
-  }, [mounted, refs, anchorDep, anchorValueRef]);
+  }, [mounted, refs, anchorDep, getAnchor]);
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {

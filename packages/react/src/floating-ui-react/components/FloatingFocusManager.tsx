@@ -2,8 +2,7 @@ import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
@@ -99,10 +98,10 @@ function getFirstTabbableElement(container: Element | null) {
 
 function handleTabIndex(
   floatingFocusElement: HTMLElement,
-  orderRef: React.RefObject<Array<'reference' | 'floating' | 'content'>>,
+  order: Array<'reference' | 'floating' | 'content'>,
 ) {
   if (
-    !orderRef.current.includes('floating') &&
+    !order.includes('floating') &&
     !floatingFocusElement.getAttribute('role')?.includes('dialog')
   ) {
     return;
@@ -119,7 +118,7 @@ function handleTabIndex(
   });
   const tabIndex = floatingFocusElement.getAttribute('tabindex');
 
-  if (orderRef.current.includes('floating') || tabbableContent.length === 0) {
+  if (order.includes('floating') || tabbableContent.length === 0) {
     if (tabIndex !== '0') {
       floatingFocusElement.setAttribute('tabindex', '0');
     }
@@ -241,10 +240,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     context,
     children,
     disabled = false,
-    order = ['content'],
-    initialFocus = true,
-    returnFocus = true,
-    restoreFocus = false,
+    order: orderProp = ['content'],
+    initialFocus: initialFocusProp = true,
+    returnFocus: returnFocusProp = true,
+    restoreFocus: restoreFocusProp = false,
     modal = true,
     closeOnFocusOut = true,
     openInteractionType = '',
@@ -261,10 +260,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     elements: { domReference, floating, triggers },
   } = context;
 
-  const getNodeId = useEventCallback(() => dataRef.current.floatingContext?.nodeId);
-  const getInsideElements = useEventCallback(getInsideElementsProp);
+  const getNodeId = useUntracked(() => dataRef.current.floatingContext?.nodeId);
+  const getInsideElements = useUntracked(getInsideElementsProp);
 
-  const ignoreInitialFocus = initialFocus === false;
+  const ignoreInitialFocus = initialFocusProp === false;
   // If the reference is a combobox and is typeable (e.g. input/textarea),
   // there are different focus semantics. The guards should not be rendered, but
   // aria-hidden should be applied to all nodes still. Further, the visually
@@ -272,10 +271,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   // start.
   const isUntrappedTypeableCombobox = isTypeableCombobox(domReference) && ignoreInitialFocus;
 
-  const orderRef = useLatestRef(order);
-  const initialFocusRef = useLatestRef(initialFocus);
-  const returnFocusRef = useLatestRef(returnFocus);
-  const openInteractionTypeRef = useLatestRef(openInteractionType);
+  const getOrder = useUntracked(() => orderProp);
+  const getInitialFocus = useUntracked(() => initialFocusProp);
+  const getReturnFocus = useUntracked(() => returnFocusProp);
+  const getOpenInteractionType = useUntracked(() => openInteractionType);
 
   const tree = useFloatingTree();
   const portalContext = usePortalContext();
@@ -295,16 +294,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const isInsidePortal = portalContext != null;
   const floatingFocusElement = getFloatingFocusElement(floating);
 
-  const getTabbableContent = useEventCallback(
-    (container: Element | null = floatingFocusElement) => {
-      return container ? tabbable(container, getTabbableOptions()) : [];
-    },
-  );
+  const getTabbableContent = useUntracked((container: Element | null = floatingFocusElement) => {
+    return container ? tabbable(container, getTabbableOptions()) : [];
+  });
 
-  const getTabbableElements = useEventCallback((container?: Element) => {
+  const getTabbableElements = useUntracked((container?: Element) => {
     const content = getTabbableContent(container);
 
-    return orderRef.current
+    return getOrder()
       .map(() => content)
       .filter(Boolean)
       .flat() as Array<FocusableElement>;
@@ -341,7 +338,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     domReference,
     floatingFocusElement,
     modal,
-    orderRef,
+    getOrder,
     isUntrappedTypeableCombobox,
     getTabbableContent,
     getTabbableElements,
@@ -443,13 +440,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         );
 
         if (currentTarget === domReference && floatingFocusElement) {
-          handleTabIndex(floatingFocusElement, orderRef);
+          handleTabIndex(floatingFocusElement, getOrder());
         }
 
         // Restore focus to the previous tabbable element index to prevent
         // focus from being lost outside the floating tree.
         if (
-          restoreFocus &&
+          restoreFocusProp &&
           currentTarget !== domReference &&
           !target?.isConnected &&
           activeElement(getDocument(floatingFocusElement)) ===
@@ -461,7 +458,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             floatingFocusElement.focus();
             // If explicitly requested to restore focus to the popup container, do not search
             // for the next/previous tabbable element.
-            if (restoreFocus === 'popup') {
+            if (restoreFocusProp === 'popup') {
               // If the element is removed on pointerdown, focus tries to move it,
               // but since it's removed at the same time, focus gets lost as it
               // happens after the .focus() call above.
@@ -549,16 +546,16 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     portalContext,
     onOpenChange,
     closeOnFocusOut,
-    restoreFocus,
     getTabbableContent,
     isUntrappedTypeableCombobox,
     getNodeId,
-    orderRef,
     dataRef,
     blurTimeout,
     pointerDownTimeout,
     restoreFocusFrame,
     triggers,
+    restoreFocusProp,
+    getOrder,
   ]);
 
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
@@ -613,7 +610,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     domReference,
     floating,
     modal,
-    orderRef,
+    getOrder,
     portalContext,
     isUntrappedTypeableCombobox,
     tree,
@@ -634,10 +631,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     // Wait for any layout effect state setters to execute to set `tabIndex`.
     queueMicrotask(() => {
       const focusableElements = getTabbableElements(floatingFocusElement);
-      const initialFocusValueOrFn = initialFocusRef.current;
+      const initialFocusValueOrFn = getInitialFocus();
       const resolvedInitialFocus =
         typeof initialFocusValueOrFn === 'function'
-          ? initialFocusValueOrFn(openInteractionTypeRef.current || '')
+          ? initialFocusValueOrFn(getOpenInteractionType() || '')
           : initialFocusValueOrFn;
 
       // `null` should fallback to default behavior in case of an empty ref.
@@ -667,8 +664,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floatingFocusElement,
     ignoreInitialFocus,
     getTabbableElements,
-    initialFocusRef,
-    openInteractionTypeRef,
+    getInitialFocus,
+    getOpenInteractionType,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -732,7 +729,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     function getReturnElement() {
-      const returnFocusValueOrFn = returnFocusRef.current;
+      const returnFocusValueOrFn = getReturnFocus();
       let resolvedReturnFocusValue =
         typeof returnFocusValueOrFn === 'function'
           ? returnFocusValueOrFn(closeTypeRef.current)
@@ -773,11 +770,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       queueMicrotask(() => {
         // This is `returnElement`, if it's tabbable, or its first tabbable child.
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
-        const hasExplicitReturnFocus = typeof returnFocusRef.current !== 'boolean';
+        const hasExplicitReturnFocus = typeof getReturnFocus() !== 'boolean';
 
         if (
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-          returnFocusRef.current &&
+          getReturnFocus() &&
           !preventReturnFocusRef.current &&
           isHTMLElement(tabbableReturnElement) &&
           // If the focus moved somewhere else after mount, avoid returning focus
@@ -797,7 +793,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     disabled,
     floating,
     floatingFocusElement,
-    returnFocusRef,
+    getReturnFocus,
     dataRef,
     events,
     tree,
@@ -860,11 +856,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     if (disabled || !floatingFocusElement) {
       return undefined;
     }
-    handleTabIndex(floatingFocusElement, orderRef);
+    handleTabIndex(floatingFocusElement, getOrder());
     return () => {
       queueMicrotask(clearDisconnectedPreviouslyFocusedElements);
     };
-  }, [disabled, floatingFocusElement, orderRef]);
+  }, [disabled, floatingFocusElement, getOrder]);
 
   const shouldRenderGuards =
     !disabled && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);

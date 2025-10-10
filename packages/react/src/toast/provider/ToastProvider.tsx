@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { generateId } from '@base-ui-components/utils/generateId';
 import { Timeout } from '@base-ui-components/utils/useTimeout';
 import { activeElement, contains } from '../../floating-ui-react/utils';
@@ -50,9 +49,6 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const windowFocusedRef = React.useRef(true);
   const isPausedRef = React.useRef(false);
 
-  const hoveringRef = useLatestRef(hovering);
-  const focusedRef = useLatestRef(focused);
-
   function handleFocusManagement(toastId: string) {
     const activeEl = activeElement(ownerDocument(viewportRef.current));
     if (
@@ -95,7 +91,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     }
   }
 
-  const pauseTimers = useEventCallback(() => {
+  const pauseTimers = useUntracked(() => {
     if (isPausedRef.current) {
       return;
     }
@@ -110,7 +106,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     });
   });
 
-  const resumeTimers = useEventCallback(() => {
+  const resumeTimers = useUntracked(() => {
     if (!isPausedRef.current) {
       return;
     }
@@ -126,7 +122,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     });
   });
 
-  const close = useEventCallback((toastId: string) => {
+  const close = useUntracked((toastId: string) => {
     setToasts((prevToasts) => {
       const toastsWithEnding = prevToasts.map((toast) =>
         toast.id === toastId ? { ...toast, transitionStatus: 'ending' as const, height: 0 } : toast,
@@ -155,22 +151,21 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     handleFocusManagement(toastId);
 
     if (toasts.length === 1) {
-      hoveringRef.current = false;
-      focusedRef.current = false;
+      setHovering(false);
+      setFocused(false);
     }
   });
 
-  const remove = useEventCallback((toastId: string) => {
+  const remove = useUntracked((toastId: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== toastId));
     const toast = toasts.find((t) => t.id === toastId);
     toast?.onRemove?.();
   });
 
-  const scheduleTimer = useEventCallback((id: string, delay: number, callback: () => void) => {
+  const scheduleTimer = useUntracked((id: string, delay: number, callback: () => void) => {
     const start = Date.now();
 
-    const shouldStartActive =
-      windowFocusedRef.current && !hoveringRef.current && !focusedRef.current;
+    const shouldStartActive = windowFocusedRef.current && !hovering && !focused;
 
     const currentTimeout = shouldStartActive ? Timeout.create() : undefined;
 
@@ -188,7 +183,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     });
   });
 
-  const add = useEventCallback(
+  const add = useUntracked(
     <Data extends object>(toast: useToastManager.AddOptions<Data>): string => {
       const id = toast.id || generateId('toast');
       const toastToAdd: ToastObject<Data> = {
@@ -221,7 +216,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
         scheduleTimer(id, duration, () => close(id));
       }
 
-      if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
+      if (hovering || focused || !windowFocusedRef.current) {
         pauseTimers();
       }
 
@@ -229,7 +224,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     },
   );
 
-  const update = useEventCallback(
+  const update = useUntracked(
     <Data extends object>(id: string, updates: useToastManager.UpdateOptions<Data>) => {
       setToasts((prev) =>
         prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
@@ -237,7 +232,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     },
   );
 
-  const promise = useEventCallback(
+  const promise = useUntracked(
     <Value, Data extends object>(
       promiseValue: Promise<Value>,
       options: useToastManager.PromiseOptions<Value, Data>,
@@ -262,7 +257,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
             scheduleTimer(id, successTimeout, () => close(id));
           }
 
-          if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
+          if (hovering || focused || !windowFocusedRef.current) {
             pauseTimers();
           }
 
@@ -280,7 +275,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
             scheduleTimer(id, errorTimeout, () => close(id));
           }
 
-          if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
+          if (hovering || focused || !windowFocusedRef.current) {
             pauseTimers();
           }
 

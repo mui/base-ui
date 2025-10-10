@@ -2,9 +2,8 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
@@ -67,7 +66,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
 
-  const positionerRef = useLatestRef(positionerElement);
+  const getPositionerElement = useUntracked(() => positionerElement);
 
   const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
 
@@ -80,7 +79,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     native: nativeButton,
   });
 
-  const setTriggerElement = useEventCallback((element) => {
+  const setTriggerElement = useUntracked((element) => {
     store.set('triggerElement', element);
   });
 
@@ -188,7 +187,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           // Early return if clicked on trigger element or its children
           if (
             contains(triggerRef.current, mouseUpTarget) ||
-            contains(positionerRef.current, mouseUpTarget) ||
+            contains(getPositionerElement(), mouseUpTarget) ||
             mouseUpTarget === triggerRef.current
           ) {
             return;

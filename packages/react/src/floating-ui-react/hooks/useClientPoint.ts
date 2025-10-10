@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { getWindow } from '@floating-ui/utils/dom';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { contains, getTarget, isMouseLikePointerType } from '../utils';
 
@@ -133,7 +133,7 @@ export function useClientPoint(
   const [pointerType, setPointerType] = React.useState<string | undefined>();
   const [reactive, setReactive] = React.useState([]);
 
-  const setReference = useEventCallback((newX: number | null, newY: number | null) => {
+  const setReference = useUntracked((newX: number | null, newY: number | null) => {
     if (initialRef.current) {
       return;
     }
@@ -156,7 +156,7 @@ export function useClientPoint(
     );
   });
 
-  const handleReferenceEnterOrMove = useEventCallback((event: React.MouseEvent<Element>) => {
+  const handleReferenceEnterOrMove = useUntracked((event: React.MouseEvent<Element>) => {
     if (x != null || y != null) {
       return;
     }

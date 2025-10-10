@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
@@ -53,7 +53,7 @@ export function useFieldControlValidation() {
   const timeout = useTimeout();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
-  const commitValidation = useEventCallback(async (value: unknown, revalidate = false) => {
+  const commitValidation = useUntracked(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;
     if (!element) {
       return;
@@ -158,8 +158,8 @@ export function useFieldControlValidation() {
     } else {
       const formValues = Array.from(formRef.current.fields.values()).reduce(
         (acc, field) => {
-          if (field.name && field.getValueRef) {
-            acc[field.name] = field.getValueRef.current?.();
+          if (field.name && field.getValue) {
+            acc[field.name] = field.getValue();
           }
           return acc;
         },

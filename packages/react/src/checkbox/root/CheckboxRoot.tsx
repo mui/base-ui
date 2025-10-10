@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
@@ -87,7 +87,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }
 
-  const onCheckedChange = useEventCallback(onCheckedChangeProp);
+  const onCheckedChange = useUntracked(onCheckedChangeProp);
 
   const {
     checked: groupChecked = checkedProp,

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStore } from '@base-ui-components/utils/store';
@@ -68,7 +68,8 @@ export const SelectItem = React.memo(
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useLatestRef(listItem.index);
+    const index = listItem.index;
+    const getIndex = useUntracked(() => index);
 
     const hasRegistered = listItem.index !== -1;
 
@@ -151,15 +152,15 @@ export const SelectItem = React.memo(
       'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {
-        store.set('activeIndex', indexRef.current);
+        store.set('activeIndex', index);
       },
       onMouseEnter() {
         if (!keyboardActiveRef.current && store.state.selectedIndex === null) {
-          store.set('activeIndex', indexRef.current);
+          store.set('activeIndex', index);
         }
       },
       onMouseMove() {
-        store.set('activeIndex', indexRef.current);
+        store.set('activeIndex', index);
       },
       onMouseLeave(event) {
         if (keyboardActiveRef.current || isMouseWithinBounds(event)) {
@@ -167,7 +168,7 @@ export const SelectItem = React.memo(
         }
 
         highlightTimeout.start(0, () => {
-          if (store.state.activeIndex === indexRef.current) {
+          if (store.state.activeIndex === index) {
             store.set('activeIndex', null);
           }
         });
@@ -180,7 +181,7 @@ export const SelectItem = React.memo(
       },
       onKeyDown(event) {
         lastKeyRef.current = event.key;
-        store.set('activeIndex', indexRef.current);
+        store.set('activeIndex', listItem.index);
       },
       onClick(event) {
         didPointerDownRef.current = false;
@@ -242,11 +243,11 @@ export const SelectItem = React.memo(
     const contextValue: SelectItemContext = React.useMemo(
       () => ({
         selected,
-        indexRef,
+        getIndex,
         textRef,
         selectedByFocus,
       }),
-      [selected, indexRef, textRef, selectedByFocus],
+      [selected, getIndex, textRef, selectedByFocus],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;

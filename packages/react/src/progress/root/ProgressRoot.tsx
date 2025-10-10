@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { formatNumber } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
@@ -55,13 +54,11 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 
-  const formatOptionsRef = useLatestRef(format);
-
   let status: ProgressStatus = 'indeterminate';
   if (Number.isFinite(value)) {
     status = value === max ? 'complete' : 'progressing';
   }
-  const formattedValue = formatValue(value, locale, formatOptionsRef.current);
+  const formattedValue = formatValue(value, locale, format);
 
   const state: ProgressRoot.State = React.useMemo(
     () => ({

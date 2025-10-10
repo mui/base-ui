@@ -2,8 +2,7 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
@@ -77,13 +76,13 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   } = componentProps;
 
   const id = useBaseUiId(idProp);
-  const onValueChange = useEventCallback(
+  const onValueChange = useUntracked(
     onValueChangeProp as (
       value: number | number[],
       eventDetails: SliderRoot.ChangeEventDetails,
     ) => void,
   );
-  const onValueCommitted = useEventCallback(
+  const onValueCommitted = useUntracked(
     onValueCommittedProp as (
       value: number | readonly number[],
       eventDetails: SliderRoot.CommitEventDetails,
@@ -129,8 +128,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const pressedThumbIndexRef = React.useRef(-1);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
 
-  const formatOptionsRef = useLatestRef(format);
-
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
   // - The active state isn't transferred when inversing a range slider.
@@ -154,7 +151,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     getValue: () => valueUnwrapped,
   });
 
-  const registerFieldControlRef = useEventCallback((element: HTMLElement | null) => {
+  const registerFieldControlRef = useUntracked((element: HTMLElement | null) => {
     if (element) {
       controlRef.current = element;
     }
@@ -169,44 +166,42 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     return valueUnwrapped.slice().sort(asc);
   }, [max, min, range, valueUnwrapped]);
 
-  const setValue = useEventCallback(
-    (newValue: number | number[], thumbIndex: number, event: Event) => {
-      if (Number.isNaN(newValue) || areValuesEqual(newValue, valueUnwrapped)) {
-        return;
-      }
+  const setValue = useUntracked((newValue: number | number[], thumbIndex: number, event: Event) => {
+    if (Number.isNaN(newValue) || areValuesEqual(newValue, valueUnwrapped)) {
+      return;
+    }
 
-      // Redefine target to allow name and value to be read.
-      // This allows seamless integration with the most popular form libraries.
-      // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
-      // Clone the event to not override `target` of the original event.
-      // @ts-expect-error The nativeEvent is function, not object
-      const clonedEvent = new event.constructor(event.type, event);
+    // Redefine target to allow name and value to be read.
+    // This allows seamless integration with the most popular form libraries.
+    // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
+    // Clone the event to not override `target` of the original event.
+    // @ts-expect-error The nativeEvent is function, not object
+    const clonedEvent = new event.constructor(event.type, event);
 
-      Object.defineProperty(clonedEvent, 'target', {
-        writable: true,
-        value: { value: newValue, name },
-      });
+    Object.defineProperty(clonedEvent, 'target', {
+      writable: true,
+      value: { value: newValue, name },
+    });
 
-      lastChangedValueRef.current = newValue;
+    lastChangedValueRef.current = newValue;
 
-      const details = createChangeEventDetails('none', clonedEvent, undefined, {
-        activeThumbIndex: thumbIndex,
-      });
+    const details = createChangeEventDetails('none', clonedEvent, undefined, {
+      activeThumbIndex: thumbIndex,
+    });
 
-      onValueChange(newValue, details);
+    onValueChange(newValue, details);
 
-      if (details.isCanceled) {
-        return;
-      }
+    if (details.isCanceled) {
+      return;
+    }
 
-      setValueUnwrapped(newValue as Value);
-      clearErrors(name);
-      fieldControlValidation.commitValidation(newValue, true);
-    },
-  );
+    setValueUnwrapped(newValue as Value);
+    clearErrors(name);
+    fieldControlValidation.commitValidation(newValue, true);
+  });
 
   // for keypresses only
-  const handleInputChange = useEventCallback(
+  const handleInputChange = useUntracked(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
       const newValue = getSliderValue(valueInput, index, min, max, range, values);
 
@@ -282,7 +277,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       disabled,
       dragging,
       fieldControlValidation,
-      formatOptionsRef,
+      format,
       handleInputChange,
       indicatorPosition,
       inset: thumbAlignment !== 'center',
@@ -318,7 +313,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       disabled,
       dragging,
       fieldControlValidation,
-      formatOptionsRef,
+      format,
       handleInputChange,
       indicatorPosition,
       largeStep,

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
@@ -28,7 +28,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     ...elementProps
   } = componentProps;
 
-  const onOpenChange = useEventCallback(onOpenChangeProp);
+  const onOpenChange = useUntracked(onOpenChangeProp);
 
   const collapsible = useCollapsibleRoot({
     open,

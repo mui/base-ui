@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
@@ -63,7 +63,7 @@ export function useCollapsiblePanel(
    * time it opens. If the panel is in the middle of a close transition that is
    * interrupted and re-opens, this won't run as the panel was not unmounted.
    */
-  const handlePanelRef = useEventCallback((element: HTMLElement) => {
+  const handlePanelRef = useUntracked((element: HTMLElement) => {
     if (!element) {
       return undefined;
     }

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -34,7 +34,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     crossOrigin,
   });
 
-  const handleLoadingStatusChange = useEventCallback((status: ImageLoadingStatus) => {
+  const handleLoadingStatusChange = useUntracked((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
     context.setImageLoadingStatus(status);
   });

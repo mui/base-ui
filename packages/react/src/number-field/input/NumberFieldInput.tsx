@@ -61,7 +61,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const {
     allowInputSyncRef,
     disabled,
-    formatOptionsRef,
+    getFormatOptions,
     getAllowedNonNumericKeys,
     getStepAmount,
     id,
@@ -82,7 +82,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     onValueCommitted,
     lastChangedValueRef,
     hasPendingCommitRef,
-    valueRef,
+    getValue,
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
@@ -192,7 +192,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      const formatOptions = formatOptionsRef.current;
+      const formatOptions = getFormatOptions();
       const parsedValue = parseNumber(inputValue, locale, formatOptions);
       if (parsedValue === null) {
         return;
@@ -278,14 +278,14 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       if (event.isTrusted) {
         setInputValue(targetValue);
-        const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
+        const parsedValue = parseNumber(targetValue, locale, getFormatOptions());
         if (parsedValue !== null) {
           setValue(parsedValue, event.nativeEvent);
         }
         return;
       }
 
-      const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
+      const parsedValue = parseNumber(targetValue, locale, getFormatOptions());
 
       if (parsedValue !== null) {
         setInputValue(targetValue);
@@ -305,10 +305,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       let isAllowedNonNumericKey = allowedNonNumericKeys.has(event.key);
 
-      const { decimal, currency, percentSign } = getNumberLocaleDetails(
-        locale,
-        formatOptionsRef.current,
-      );
+      const { decimal, currency, percentSign } = getNumberLocaleDetails(locale, getFormatOptions());
 
       const selectionStart = event.currentTarget.selectionStart;
       const selectionEnd = event.currentTarget.selectionEnd;
@@ -380,7 +377,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       }
 
       // We need to commit the number at this point if the input hasn't been blurred.
-      const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+      const parsedValue = parseNumber(inputValue, locale, getFormatOptions());
 
       const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
@@ -391,16 +388,16 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       if (event.key === 'ArrowUp') {
         incrementValue(amount, 1, parsedValue, nativeEvent);
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
+        onValueCommitted(lastChangedValueRef.current ?? getValue(), details);
       } else if (event.key === 'ArrowDown') {
         incrementValue(amount, -1, parsedValue, nativeEvent);
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
+        onValueCommitted(lastChangedValueRef.current ?? getValue(), details);
       } else if (event.key === 'Home' && min != null) {
         setValue(min, nativeEvent);
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
+        onValueCommitted(lastChangedValueRef.current ?? getValue(), details);
       } else if (event.key === 'End' && max != null) {
         setValue(max, nativeEvent);
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
+        onValueCommitted(lastChangedValueRef.current ?? getValue(), details);
       }
     },
     onPaste(event) {
@@ -413,7 +410,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const clipboardData = event.clipboardData || window.Clipboard;
       const pastedData = clipboardData.getData('text/plain');
-      const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
+      const parsedValue = parseNumber(pastedData, locale, getFormatOptions());
 
       if (parsedValue !== null) {
         allowInputSyncRef.current = false;

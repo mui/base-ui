@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { resolveRef } from './resolveRef';
 
 /**
@@ -20,7 +20,7 @@ export function useAnimationsFinished(
 ) {
   const frame = useAnimationFrame();
 
-  return useEventCallback(
+  return useUntracked(
     (
       /**
        * A function to execute once all animations have finished.

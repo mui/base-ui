@@ -29,7 +29,7 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
   const {
     allowInputSyncRef,
     disabled: contextDisabled,
-    formatOptionsRef,
+    getFormatOptions,
     getStepAmount,
     id,
     incrementValue,
@@ -70,12 +70,12 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     getStepAmount,
     incrementValue,
     allowInputSyncRef,
-    formatOptionsRef,
-    valueRef,
+    getFormatOptions,
     isPressedRef,
     intentionalTouchCheckTimeout,
     movesAfterTouchRef,
     locale,
+    valueRef,
     lastChangedValueRef,
     onValueCommitted,
   });

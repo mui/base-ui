@@ -17,7 +17,7 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
   const {
     allowInputSyncRef,
     disabled,
-    formatOptionsRef,
+    getFormatOptions,
     getStepAmount,
     id,
     incrementValue,
@@ -52,7 +52,7 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
     allowInputSyncRef.current = true;
 
     // The input may be dirty but not yet blurred, so the value won't have been committed.
-    const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+    const parsedValue = parseNumber(inputValue, locale, getFormatOptions());
 
     if (parsedValue !== null) {
       // The increment value function needs to know the current input value to increment it
@@ -208,7 +208,7 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
 export interface UseNumberFieldButtonParameters {
   allowInputSyncRef: React.RefObject<boolean | null>;
   disabled: boolean;
-  formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
+  getFormatOptions: () => Intl.NumberFormatOptions | undefined;
   getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
   id: string | undefined;
   incrementValue: (

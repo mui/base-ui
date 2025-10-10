@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { TooltipRootContext } from './TooltipRootContext';
 import {
   useClientPoint,
@@ -93,7 +93,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     }
   }
 
-  const setOpen = useEventCallback(setOpenUnwrapped);
+  const setOpen = useUntracked(setOpenUnwrapped);
 
   if (openState && disabled) {
     setOpenUnwrapped(false, createChangeEventDetails('disabled'));
@@ -101,7 +101,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const handleUnmount = useEventCallback(() => {
+  const handleUnmount = useUntracked(() => {
     setMounted(false);
     onOpenChangeComplete?.(false);
   });

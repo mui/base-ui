@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useId } from '@base-ui-components/utils/useId';
 import {
@@ -207,7 +207,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     setHoverEnabled(true);
   }
 
-  const handleUnmount = useEventCallback(() => {
+  const handleUnmount = useUntracked(() => {
     setMounted(false);
     setStickIfOpen(true);
     setAllowMouseEnter(false);
@@ -229,106 +229,104 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const allowTouchToCloseRef = React.useRef(true);
   const allowTouchToCloseTimeout = useTimeout();
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) => {
-      const reason = eventDetails.reason;
+  const setOpen = useUntracked((nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) => {
+    const reason = eventDetails.reason;
 
-      if (open === nextOpen) {
-        return;
-      }
+    if (open === nextOpen) {
+      return;
+    }
 
-      onOpenChange?.(nextOpen, eventDetails);
+    onOpenChange?.(nextOpen, eventDetails);
 
-      if (eventDetails.isCanceled) {
-        return;
-      }
+    if (eventDetails.isCanceled) {
+      return;
+    }
 
-      const details: FloatingUIOpenChangeDetails = {
-        open: nextOpen,
-        nativeEvent: eventDetails.event,
-        reason: eventDetails.reason,
-        nested,
-      };
+    const details: FloatingUIOpenChangeDetails = {
+      open: nextOpen,
+      nativeEvent: eventDetails.event,
+      reason: eventDetails.reason,
+      nested,
+    };
 
-      floatingEvents?.emit('openchange', details);
+    floatingEvents?.emit('openchange', details);
 
-      const nativeEvent = eventDetails.event as Event;
-      if (
-        nextOpen === false &&
-        nativeEvent?.type === 'click' &&
-        (nativeEvent as PointerEvent).pointerType === 'touch' &&
-        !allowTouchToCloseRef.current
-      ) {
-        return;
-      }
+    const nativeEvent = eventDetails.event as Event;
+    if (
+      nextOpen === false &&
+      nativeEvent?.type === 'click' &&
+      (nativeEvent as PointerEvent).pointerType === 'touch' &&
+      !allowTouchToCloseRef.current
+    ) {
+      return;
+    }
 
-      // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
-      // option upon close when tabbing out due to `keepMounted=true`:
-      // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
-      // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
-      // when tabbing outside.
-      if (!nextOpen && activeIndex !== null) {
-        const activeOption = itemDomElements.current[activeIndex];
-        // Wait for Floating UI's focus effect to have fired
-        queueMicrotask(() => {
-          activeOption?.setAttribute('tabindex', '-1');
-        });
-      }
+    // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
+    // option upon close when tabbing out due to `keepMounted=true`:
+    // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
+    // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
+    // when tabbing outside.
+    if (!nextOpen && activeIndex !== null) {
+      const activeOption = itemDomElements.current[activeIndex];
+      // Wait for Floating UI's focus effect to have fired
+      queueMicrotask(() => {
+        activeOption?.setAttribute('tabindex', '-1');
+      });
+    }
 
-      // Prevent the menu from closing on mobile devices that have a delayed click event.
-      // In some cases the menu, when tapped, will fire the focus event first and then the click event.
-      // Without this guard, the menu will close immediately after opening.
-      if (nextOpen && reason === 'trigger-focus') {
-        allowTouchToCloseRef.current = false;
-        allowTouchToCloseTimeout.start(300, () => {
-          allowTouchToCloseRef.current = true;
-        });
-      } else {
+    // Prevent the menu from closing on mobile devices that have a delayed click event.
+    // In some cases the menu, when tapped, will fire the focus event first and then the click event.
+    // Without this guard, the menu will close immediately after opening.
+    if (nextOpen && reason === 'trigger-focus') {
+      allowTouchToCloseRef.current = false;
+      allowTouchToCloseTimeout.start(300, () => {
         allowTouchToCloseRef.current = true;
-        allowTouchToCloseTimeout.clear();
-      }
+      });
+    } else {
+      allowTouchToCloseRef.current = true;
+      allowTouchToCloseTimeout.clear();
+    }
 
-      const isKeyboardClick =
-        (reason === 'trigger-press' || reason === 'item-press') &&
-        (nativeEvent as MouseEvent).detail === 0 &&
-        nativeEvent?.isTrusted;
-      const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
+    const isKeyboardClick =
+      (reason === 'trigger-press' || reason === 'item-press') &&
+      (nativeEvent as MouseEvent).detail === 0 &&
+      nativeEvent?.isTrusted;
+    const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
-      function changeState() {
-        setOpenUnwrapped(nextOpen);
-        setLastOpenChangeReason(reason ?? null);
-        openEventRef.current = eventDetails.event ?? null;
-      }
+    function changeState() {
+      setOpenUnwrapped(nextOpen);
+      setLastOpenChangeReason(reason ?? null);
+      openEventRef.current = eventDetails.event ?? null;
+    }
 
-      if (reason === 'trigger-hover') {
-        // Only allow "patient" clicks to close the menu if it's open.
-        // If they clicked within 500ms of the menu opening, keep it open.
-        setStickIfOpen(true);
-        stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
-          setStickIfOpen(false);
-        });
+    if (reason === 'trigger-hover') {
+      // Only allow "patient" clicks to close the menu if it's open.
+      // If they clicked within 500ms of the menu opening, keep it open.
+      setStickIfOpen(true);
+      stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+        setStickIfOpen(false);
+      });
 
-        ReactDOM.flushSync(changeState);
-      } else {
-        changeState();
-      }
+      ReactDOM.flushSync(changeState);
+    } else {
+      changeState();
+    }
 
-      if (
-        parent.type === 'menubar' &&
-        (reason === 'trigger-focus' ||
-          reason === 'focus-out' ||
-          reason === 'trigger-hover' ||
-          reason === 'list-navigation' ||
-          reason === 'sibling-open')
-      ) {
-        setInstantType('group');
-      } else if (isKeyboardClick || isDismissClose) {
-        setInstantType(isKeyboardClick ? 'click' : 'dismiss');
-      } else {
-        setInstantType(undefined);
-      }
-    },
-  );
+    if (
+      parent.type === 'menubar' &&
+      (reason === 'trigger-focus' ||
+        reason === 'focus-out' ||
+        reason === 'trigger-hover' ||
+        reason === 'list-navigation' ||
+        reason === 'sibling-open')
+    ) {
+      setInstantType('group');
+    } else if (isKeyboardClick || isDismissClose) {
+      setInstantType(isKeyboardClick ? 'click' : 'dismiss');
+    } else {
+      setInstantType(undefined);
+    }
+  });
 
   React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { AriaCombobox } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
@@ -67,7 +67,7 @@ export function AutocompleteRoot<ItemValue>(
     resolvedInputValue = internalValue;
   }
 
-  const handleValueChange = useEventCallback(
+  const handleValueChange = useUntracked(
     (nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) => {
       setInlineInputValue('');
       if (!isControlled) {
@@ -100,7 +100,7 @@ export function AutocompleteRoot<ItemValue>(
     };
   }, [baseFilter, mode, other.filter, resolvedQuery, staticItems]);
 
-  const handleItemHighlighted = useEventCallback(
+  const handleItemHighlighted = useUntracked(
     (highlightedValue: any, eventDetails: AriaCombobox.HighlightEventDetails) => {
       props.onItemHighlighted?.(highlightedValue, eventDetails);
 

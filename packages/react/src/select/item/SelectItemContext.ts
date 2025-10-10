@@ -2,7 +2,7 @@ import * as React from 'react';
 
 export interface SelectItemContext {
   selected: boolean;
-  indexRef: React.RefObject<number>;
+  getIndex: () => number;
   textRef: React.RefObject<HTMLElement | null>;
   selectedByFocus: boolean;
 }

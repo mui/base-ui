@@ -1,6 +1,6 @@
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form/FormContext';
 import { useFieldRootContext } from './root/FieldRootContext';
@@ -10,7 +10,7 @@ export function useField(params: useField.Parameters) {
   const { invalid, markedDirtyRef, validityData, setValidityData } = useFieldRootContext();
   const { enabled = true, value, id, name, controlRef, commitValidation } = params;
 
-  const getValueRef = useLatestRef(params.getValue);
+  const getValue = useUntracked(params.getValue);
 
   useIsoLayoutEffect(() => {
     if (!enabled) {
@@ -19,13 +19,13 @@ export function useField(params: useField.Parameters) {
 
     let initialValue = value;
     if (initialValue === undefined) {
-      initialValue = getValueRef.current?.();
+      initialValue = getValue();
     }
 
     if (validityData.initialValue === null && initialValue !== validityData.initialValue) {
       setValidityData((prev) => ({ ...prev, initialValue }));
     }
-  }, [enabled, setValidityData, value, validityData.initialValue, getValueRef]);
+  }, [enabled, setValidityData, value, validityData.initialValue, getValue]);
 
   useIsoLayoutEffect(() => {
     if (!enabled) {
@@ -39,14 +39,14 @@ export function useField(params: useField.Parameters) {
         validate() {
           let nextValue = value;
           if (nextValue === undefined) {
-            nextValue = getValueRef.current?.();
+            nextValue = getValue();
           }
 
           markedDirtyRef.current = true;
           // Synchronously update the validity state so the submit event can be prevented.
           ReactDOM.flushSync(() => commitValidation(nextValue));
         },
-        getValueRef,
+        getValue,
         name,
       });
     }
@@ -55,7 +55,7 @@ export function useField(params: useField.Parameters) {
     controlRef,
     enabled,
     formRef,
-    getValueRef,
+    getValue,
     id,
     invalid,
     markedDirtyRef,

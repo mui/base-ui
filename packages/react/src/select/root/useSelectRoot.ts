@@ -3,9 +3,8 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { warn } from '@base-ui-components/utils/warn';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useStore, Store } from '@base-ui-components/utils/store';
 import {
   useClick,
@@ -150,14 +149,13 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
 
-  const controlRef = useLatestRef(store.state.triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
 
   useField({
     id,
     commitValidation,
     value,
-    controlRef,
+    controlRef: { current: store.state.triggerElement },
     name,
     getValue: () => value,
   });
@@ -228,37 +226,35 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     prevValueRef.current = value;
   }, [value]);
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
-      params.onOpenChange?.(nextOpen, eventDetails);
+  const setOpen = useUntracked((nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
+    params.onOpenChange?.(nextOpen, eventDetails);
 
-      if (eventDetails.isCanceled) {
-        return;
-      }
+    if (eventDetails.isCanceled) {
+      return;
+    }
 
-      setOpenUnwrapped(nextOpen);
+    setOpenUnwrapped(nextOpen);
 
-      // The active index will sync to the last selected index on the next open.
-      if (!nextOpen && multiple) {
-        store.set('selectedIndex', lastSelectedIndexRef.current);
-      }
+    // The active index will sync to the last selected index on the next open.
+    if (!nextOpen && multiple) {
+      store.set('selectedIndex', lastSelectedIndexRef.current);
+    }
 
-      // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
-      // option upon close when tabbing out due to `keepMounted=true`:
-      // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
-      // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
-      // when tabbing outside.
-      if (!nextOpen && store.state.activeIndex !== null) {
-        const activeOption = listRef.current[store.state.activeIndex];
-        // Wait for Floating UI's focus effect to have fired
-        queueMicrotask(() => {
-          activeOption?.setAttribute('tabindex', '-1');
-        });
-      }
-    },
-  );
+    // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
+    // option upon close when tabbing out due to `keepMounted=true`:
+    // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
+    // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
+    // when tabbing outside.
+    if (!nextOpen && store.state.activeIndex !== null) {
+      const activeOption = listRef.current[store.state.activeIndex];
+      // Wait for Floating UI's focus effect to have fired
+      queueMicrotask(() => {
+        activeOption?.setAttribute('tabindex', '-1');
+      });
+    }
+  });
 
-  const handleUnmount = useEventCallback(() => {
+  const handleUnmount = useUntracked(() => {
     setMounted(false);
     store.set('activeIndex', null);
     onOpenChangeComplete?.(false);
@@ -277,24 +273,22 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const setValue = useEventCallback(
-    (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
-      params.onValueChange?.(nextValue, eventDetails);
+  const setValue = useUntracked((nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
+    params.onValueChange?.(nextValue, eventDetails);
 
-      if (eventDetails.isCanceled) {
-        return;
-      }
+    if (eventDetails.isCanceled) {
+      return;
+    }
 
-      setValueUnwrapped(nextValue);
-    },
-  );
+    setValueUnwrapped(nextValue);
+  });
 
   /**
    * Keeps `store.selectedIndex` and `store.label` in sync with the current `value`.
    * Does nothing until at least one item has reported its index (so that
    * `valuesRef`/`labelsRef` are populated).
    */
-  const syncSelectedState = useEventCallback(() => {
+  const syncSelectedState = useUntracked(() => {
     if (!hasRegisteredRef.current) {
       return;
     }
@@ -353,7 +347,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
    * Called by each <Select.Item> once it knows its stable index. After the first
    * call, the root is able to resolve labels and selected indices.
    */
-  const registerItemIndex = useEventCallback((index: number) => {
+  const registerItemIndex = useUntracked((index: number) => {
     hasRegisteredRef.current = true;
 
     if (multiple) {
@@ -368,7 +362,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   // Keep store in sync whenever `value` changes after registration.
   useIsoLayoutEffect(syncSelectedState, [value, syncSelectedState]);
 
-  const handleScrollArrowVisibility = useEventCallback(() => {
+  const handleScrollArrowVisibility = useUntracked(() => {
     const scroller = store.state.listElement || popupRef.current;
     if (!scroller) {
       return;

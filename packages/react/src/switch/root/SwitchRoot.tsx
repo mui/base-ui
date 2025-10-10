@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
@@ -71,7 +71,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     commitValidation,
   } = useFieldControlValidation();
 
-  const onCheckedChange = useEventCallback(onCheckedChangeProp);
+  const onCheckedChange = useUntracked(onCheckedChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const handleInputRef = useMergedRefs(inputRef, externalInputRef, inputValidationRef);

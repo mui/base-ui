@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
@@ -34,7 +34,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const { errors } = useFormContext();
 
-  const validate = useEventCallback(validateProp || (() => null));
+  const validate = useUntracked(validateProp || (() => null));
 
   const disabled = disabledFieldset || disabledProp;
 

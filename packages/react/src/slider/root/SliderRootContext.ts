@@ -15,7 +15,7 @@ export interface SliderRootContext {
   dragging: boolean;
   disabled: boolean;
   fieldControlValidation: useFieldControlValidation.ReturnValue;
-  formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
+  format: Intl.NumberFormatOptions | undefined;
   handleInputChange: (
     valueInput: number,
     index: number,

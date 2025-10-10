@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   activeElement,
@@ -11,7 +10,7 @@ import {
   isVirtualClick,
   isVirtualPointerEvent,
   stopEvent,
-  getFloatingFocusElement,
+  getFloatingFocusElement as resolveFloatingFocusElement,
   isIndexOutOfListBounds,
   getMinListIndex,
   getMaxListIndex,
@@ -279,8 +278,12 @@ export function useListNavigation(
     }
   }
 
-  const floatingFocusElement = getFloatingFocusElement(elements.floating);
-  const floatingFocusElementRef = useLatestRef(floatingFocusElement);
+  const floatingFocusElement = resolveFloatingFocusElement(elements.floating);
+  const getFloatingFocusElement = useUntracked(() => floatingFocusElement);
+  const getDisabledIndices = useUntracked(() => disabledIndices);
+  const getOpen = useUntracked(() => open);
+  const getScrollItemIntoView = useUntracked(() => scrollItemIntoView);
+  const getSelectedIndex = useUntracked(() => selectedIndex);
 
   const parentId = useFloatingParentNodeId();
   const tree = useFloatingTree();
@@ -296,7 +299,7 @@ export function useListNavigation(
   const keyRef = React.useRef<null | string>(null);
   const isPointerModalityRef = React.useRef(true);
 
-  const onNavigate = useEventCallback((event?: React.SyntheticEvent) => {
+  const onNavigate = useUntracked((event?: React.SyntheticEvent) => {
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
@@ -306,12 +309,7 @@ export function useListNavigation(
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
 
-  const disabledIndicesRef = useLatestRef(disabledIndices);
-  const latestOpenRef = useLatestRef(open);
-  const scrollItemIntoViewRef = useLatestRef(scrollItemIntoView);
-  const selectedIndexRef = useLatestRef(selectedIndex);
-
-  const focusItem = useEventCallback(() => {
+  const focusItem = useUntracked(() => {
     function runFocus(item: HTMLElement) {
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
@@ -343,7 +341,7 @@ export function useListNavigation(
         runFocus(waitedItem);
       }
 
-      const scrollIntoViewOptions = scrollItemIntoViewRef.current;
+      const scrollIntoViewOptions = getScrollItemIntoView();
       const shouldScrollIntoView =
         scrollIntoViewOptions &&
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -403,7 +401,7 @@ export function useListNavigation(
     if (activeIndex == null) {
       forceSyncFocusRef.current = false;
 
-      if (selectedIndexRef.current != null) {
+      if (getSelectedIndex() != null) {
         return;
       }
 
@@ -455,14 +453,13 @@ export function useListNavigation(
     open,
     elements.floating,
     activeIndex,
-    selectedIndexRef,
+    getSelectedIndex,
     nested,
     listRef,
     orientation,
     rtl,
     onNavigate,
     focusItem,
-    disabledIndicesRef,
   ]);
 
   // Ensure the parent floating element has focus when a nested child closes
@@ -501,7 +498,7 @@ export function useListNavigation(
 
   const item = React.useMemo(() => {
     function syncCurrentTarget(event: React.SyntheticEvent<any>) {
-      if (!latestOpenRef.current) {
+      if (!getOpen()) {
         return;
       }
       const index = listRef.current.indexOf(event.currentTarget);
@@ -525,11 +522,7 @@ export function useListNavigation(
         }
       },
       onPointerLeave(event) {
-        if (
-          !latestOpenRef.current ||
-          !isPointerModalityRef.current ||
-          event.pointerType === 'touch'
-        ) {
+        if (!getOpen() || !isPointerModalityRef.current || event.pointerType === 'touch') {
           return;
         }
 
@@ -545,13 +538,13 @@ export function useListNavigation(
         onNavigate(event);
 
         if (!virtual) {
-          floatingFocusElementRef.current?.focus({ preventScroll: true });
+          getFloatingFocusElement()?.focus({ preventScroll: true });
         }
       },
     };
 
     return itemProps;
-  }, [latestOpenRef, floatingFocusElementRef, focusItemOnHover, listRef, onNavigate, virtual]);
+  }, [getOpen, getFloatingFocusElement, focusItemOnHover, listRef, onNavigate, virtual]);
 
   const getParentOrientation = React.useCallback(() => {
     return (
@@ -561,7 +554,7 @@ export function useListNavigation(
     );
   }, [parentId, tree, parentOrientation]);
 
-  const commonOnKeyDown = useEventCallback((event: React.KeyboardEvent) => {
+  const commonOnKeyDown = useUntracked((event: React.KeyboardEvent) => {
     isPointerModalityRef.current = false;
     forceSyncFocusRef.current = true;
 
@@ -576,7 +569,7 @@ export function useListNavigation(
     // If the floating element is animating out, ignore navigation. Otherwise,
     // the `activeIndex` gets set to 0 despite not being open so the next time
     // the user ArrowDowns, the first item won't be focused.
-    if (!latestOpenRef.current && event.currentTarget === floatingFocusElementRef.current) {
+    if (!open && event.currentTarget === floatingFocusElement) {
       return;
     }
 
@@ -873,7 +866,7 @@ export function useListNavigation(
             stopEvent(event);
 
             if (open) {
-              indexRef.current = getMinListIndex(listRef, disabledIndicesRef.current);
+              indexRef.current = getMinListIndex(listRef, getDisabledIndices());
               onNavigate(event);
             } else {
               onOpenChange(true, createChangeEventDetails('list-navigation', event.nativeEvent));
@@ -917,7 +910,7 @@ export function useListNavigation(
   }, [
     ariaActiveDescendantProp,
     commonOnKeyDown,
-    disabledIndicesRef,
+    getDisabledIndices,
     focusItemOnOpen,
     listRef,
     nested,

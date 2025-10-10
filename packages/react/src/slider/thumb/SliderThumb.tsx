@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
@@ -115,7 +115,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     controlRef,
     disabled: contextDisabled,
     fieldControlValidation,
-    formatOptionsRef,
+    format,
     handleInputChange,
     inset,
     labelId,
@@ -178,7 +178,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   useOnMount(() => setIsMounted(true));
 
-  const getInsetPosition = useEventCallback(() => {
+  const getInsetPosition = useUntracked(() => {
     const control = controlRef.current;
     const thumb = thumbRef.current;
     if (!control || !thumb) {
@@ -274,16 +274,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       'aria-valuetext':
         typeof getAriaValueTextProp === 'function'
           ? getAriaValueTextProp(
-              formatNumber(thumbValue, locale, formatOptionsRef.current ?? undefined),
+              formatNumber(thumbValue, locale, format ?? undefined),
               thumbValue,
               index,
             )
-          : getDefaultAriaValueText(
-              sliderValues,
-              index,
-              formatOptionsRef.current ?? undefined,
-              locale,
-            ),
+          : getDefaultAriaValueText(sliderValues, index, format ?? undefined, locale),
       disabled,
       id: inputId,
       max,

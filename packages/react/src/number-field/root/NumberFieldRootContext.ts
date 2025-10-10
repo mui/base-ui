@@ -26,7 +26,8 @@ export interface NumberFieldRootContext {
   ) => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
   allowInputSyncRef: React.RefObject<boolean | null>;
-  formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
+  getFormatOptions: () => Intl.NumberFormatOptions | undefined;
+  getValue: () => number | null;
   valueRef: React.RefObject<number | null>;
   lastChangedValueRef: React.RefObject<number | null>;
   hasPendingCommitRef: React.RefObject<boolean>;

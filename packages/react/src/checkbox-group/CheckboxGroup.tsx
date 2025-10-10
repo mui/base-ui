@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useRenderElement } from '../utils/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
@@ -54,17 +54,15 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     state: 'value',
   });
 
-  const setValue = useEventCallback(
-    (v: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => {
-      onValueChange?.(v, eventDetails);
+  const setValue = useUntracked((v: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => {
+    onValueChange?.(v, eventDetails);
 
-      if (eventDetails.isCanceled) {
-        return;
-      }
+    if (eventDetails.isCanceled) {
+      return;
+    }
 
-      setValueUnwrapped(v);
-    },
-  );
+    setValueUnwrapped(v);
+  });
 
   const parent = useCheckboxGroupParent({
     allValues,

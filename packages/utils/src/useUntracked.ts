@@ -25,7 +25,7 @@ type Stable<T extends Callback> = {
   effect: () => void;
 };
 
-export function useEventCallback<T extends Callback>(callback: T | undefined): T {
+export function useUntracked<T extends Callback>(callback: T | undefined): T {
   const stable = useRefWithInit(createStableCallback).current;
   stable.next = callback;
   useSafeInsertionEffect(stable.effect);

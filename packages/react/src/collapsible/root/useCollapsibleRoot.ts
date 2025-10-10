@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -51,7 +51,7 @@ export function useCollapsibleRoot(
 
   const runOnceAnimationsFinish = useAnimationsFinished(panelRef, false);
 
-  const handleTrigger = useEventCallback((event: React.MouseEvent | React.KeyboardEvent) => {
+  const handleTrigger = useUntracked((event: React.MouseEvent | React.KeyboardEvent) => {
     const nextOpen = !open;
     const eventDetails = createChangeEventDetails('trigger-press', event.nativeEvent);
 

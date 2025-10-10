@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
-import { getDelay } from '../hooks/useHover';
+import { resolveDelay } from '../hooks/useHover';
 import type { FloatingRootContext, Delay } from '../types';
 import {
   BaseUIChangeEventDetails,
@@ -191,7 +191,7 @@ export function useDelayGroup(
     currentIdRef.current = floatingId;
     delayRef.current = {
       open: 0,
-      close: getDelay(initialDelayRef.current, 'close'),
+      close: resolveDelay(initialDelayRef.current, 'close'),
     };
 
     if (prevId !== null && prevId !== floatingId) {

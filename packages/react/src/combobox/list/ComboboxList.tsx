@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -45,11 +45,11 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const multiple = selectionMode === 'multiple';
   const empty = filteredItems.length === 0;
 
-  const setPositionerElement = useEventCallback((element) => {
+  const setPositionerElement = useUntracked((element) => {
     store.set('positionerElement', element);
   });
 
-  const setListElement = useEventCallback((element) => {
+  const setListElement = useUntracked((element) => {
     store.set('listElement', element);
   });
 

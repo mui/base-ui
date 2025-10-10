@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useAnimationsFinished } from './useAnimationsFinished';
 
 /**
@@ -10,8 +9,8 @@ import { useAnimationsFinished } from './useAnimationsFinished';
 export function useOpenChangeComplete(parameters: useOpenChangeComplete.Parameters) {
   const { enabled = true, open, ref, onComplete: onCompleteParam } = parameters;
 
-  const openRef = useLatestRef(open);
-  const onComplete = useEventCallback(onCompleteParam);
+  const getOpen = useUntracked(() => open);
+  const onComplete = useUntracked(onCompleteParam);
   const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
 
   React.useEffect(() => {
@@ -20,11 +19,11 @@ export function useOpenChangeComplete(parameters: useOpenChangeComplete.Paramete
     }
 
     runOnceAnimationsFinish(() => {
-      if (open === openRef.current) {
+      if (open === getOpen()) {
         onComplete();
       }
     });
-  }, [enabled, open, onComplete, runOnceAnimationsFinish, openRef]);
+  }, [enabled, open, onComplete, runOnceAnimationsFinish, getOpen]);
 }
 
 export interface UseOpenChangeCompleteParameters {

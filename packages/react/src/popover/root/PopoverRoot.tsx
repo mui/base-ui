@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
@@ -121,7 +121,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     return details;
   }
 
-  const setOpen = useEventCallback(function setOpen(
+  const setOpen = useUntracked(function setOpen(
     nextOpen: boolean,
     eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) {
@@ -188,7 +188,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     }
   });
 
-  const handleUnmount = useEventCallback(() => {
+  const handleUnmount = useUntracked(() => {
     setMounted(false);
     store.apply({ stickIfOpen: true, openReason: null, activeTriggerId: null, mounted: false });
     onOpenChangeComplete?.(false);

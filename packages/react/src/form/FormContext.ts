@@ -16,7 +16,7 @@ export interface FormContext {
         validate: () => void;
         validityData: FieldValidityData;
         controlRef: React.RefObject<HTMLElement>;
-        getValueRef: React.RefObject<(() => unknown) | undefined>;
+        getValue: (() => unknown) | undefined;
       }
     >;
   }>;

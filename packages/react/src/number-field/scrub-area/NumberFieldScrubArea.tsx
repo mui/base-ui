@@ -3,8 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerWindow, ownerDocument } from '@base-ui-components/utils/owner';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
@@ -42,7 +41,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     setIsScrubbing,
     disabled,
     readOnly,
-    value,
     inputRef,
     incrementValue,
     getStepAmount,
@@ -50,8 +48,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     lastChangedValueRef,
     valueRef,
   } = useNumberFieldRootContext();
-
-  const latestValueRef = useLatestRef(value);
 
   const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
 
@@ -77,7 +73,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     }
   }
 
-  const onScrub = useEventCallback(({ movementX, movementY }: PointerEvent) => {
+  const onScrub = useUntracked(({ movementX, movementY }: PointerEvent) => {
     const virtualCursor = scrubAreaCursorRef.current;
     const scrubAreaEl = scrubAreaRef.current;
 
@@ -113,7 +109,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     updateCursorTransform(newCoords.x, newCoords.y);
   });
 
-  const onScrubbingChange = useEventCallback(
+  const onScrubbingChange = useUntracked(
     (scrubbingValue: boolean, { clientX, clientY }: PointerEvent) => {
       ReactDOM.flushSync(() => {
         setIsScrubbing(scrubbingValue);
@@ -196,7 +192,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       readOnly,
       isScrubbing,
       incrementValue,
-      latestValueRef,
       getStepAmount,
       inputRef,
       onScrubbingChange,

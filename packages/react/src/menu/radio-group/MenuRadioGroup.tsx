@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -34,9 +34,9 @@ export const MenuRadioGroup = React.memo(
       name: 'MenuRadioGroup',
     });
 
-    const onValueChange = useEventCallback(onValueChangeProp);
+    const onValueChange = useUntracked(onValueChangeProp);
 
-    const setValue = useEventCallback(
+    const setValue = useUntracked(
       (newValue: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => {
         onValueChange?.(newValue, eventDetails);
 

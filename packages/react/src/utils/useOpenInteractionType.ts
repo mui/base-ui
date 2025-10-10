@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import {
   InteractionType,
   useEnhancedClickHandler,
@@ -14,7 +14,7 @@ import {
 export function useOpenInteractionType(open: boolean) {
   const [openMethod, setOpenMethod] = React.useState<InteractionType | null>(null);
 
-  const handleTriggerClick = useEventCallback(
+  const handleTriggerClick = useUntracked(
     (_: React.MouseEvent, interactionType: InteractionType) => {
       if (!open) {
         setOpenMethod(interactionType);

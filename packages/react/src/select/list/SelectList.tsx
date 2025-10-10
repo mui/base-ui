@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntracked } from '@base-ui-components/utils/useUntracked';
 import { useStore } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -43,7 +43,7 @@ export const SelectList = React.forwardRef(function SelectList(
     className: hasScrollArrows && !touchModality ? styleDisableScrollbar.className : undefined,
   };
 
-  const setListElement = useEventCallback((element: HTMLElement | null) => {
+  const setListElement = useUntracked((element: HTMLElement | null) => {
     store.set('listElement', element);
   });
 
