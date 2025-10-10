@@ -433,14 +433,18 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   return element;
 });
 
-export namespace NumberFieldInput {
-  export interface State extends NumberFieldRoot.State {}
+export interface NumberFieldInputState extends NumberFieldRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'input', State> {
-    /**
-     * A string value that provides a user-friendly name for the role of the input.
-     * @default 'Number field'
-     */
-    'aria-roledescription'?: React.AriaAttributes['aria-roledescription'] | undefined;
-  }
+export interface NumberFieldInputProps
+  extends BaseUIComponentProps<'input', NumberFieldInput.State> {
+  /**
+   * A string value that provides a user-friendly name for the role of the input.
+   * @default 'Number field'
+   */
+  'aria-roledescription'?: React.AriaAttributes['aria-roledescription'] | undefined;
+}
+
+export namespace NumberFieldInput {
+  export type State = NumberFieldInputState;
+  export type Props = NumberFieldInputProps;
 }

@@ -35,6 +35,10 @@ export const SelectPortal = React.forwardRef(function SelectPortal(
 
 export namespace SelectPortal {
   export interface State {}
+}
 
-  export type Props = FloatingPortal.Props<State>;
+export interface SelectPortalProps extends FloatingPortal.Props<SelectPortal.State> {}
+
+export namespace SelectPortal {
+  export type Props = SelectPortalProps;
 }

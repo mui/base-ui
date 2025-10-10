@@ -12,6 +12,10 @@ export const ToastPortal = FloatingPortalLite;
 
 export namespace ToastPortal {
   export interface State {}
+}
 
-  export type Props = FloatingPortalLite.Props<State>;
+export interface ToastPortalProps extends FloatingPortalLite.Props<ToastPortal.State> {}
+
+export namespace ToastPortal {
+  export type Props = ToastPortalProps;
 }

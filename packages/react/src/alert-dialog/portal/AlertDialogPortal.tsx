@@ -34,16 +34,20 @@ export const AlertDialogPortal = React.forwardRef(function AlertDialogPortal(
 
 export namespace AlertDialogPortal {
   export interface State {}
+}
 
-  export interface Props extends FloatingPortal.Props<State> {
-    /**
-     * Whether to keep the portal mounted in the DOM while the popup is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: FloatingPortal.Props<State>['container'];
-  }
+export interface AlertDialogPortalProps extends FloatingPortal.Props<AlertDialogPortal.State> {
+  /**
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?: FloatingPortal.Props<AlertDialogPortal.State>['container'];
+}
+
+export namespace AlertDialogPortal {
+  export type Props = AlertDialogPortalProps;
 }

@@ -161,56 +161,57 @@ export interface FieldValidityData {
   initialValue: unknown;
 }
 
-export namespace FieldRoot {
-  export interface State {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    touched: boolean;
-    dirty: boolean;
-    valid: boolean | null;
-    filled: boolean;
-    focused: boolean;
-  }
+export interface FieldRootState {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  touched: boolean;
+  dirty: boolean;
+  valid: boolean | null;
+  filled: boolean;
+  focused: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether the component should ignore user interaction.
-     * Takes precedence over the `disabled` prop on the `<Field.Control>` component.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Identifies the field when a form is submitted.
-     * Takes precedence over the `name` prop on the `<Field.Control>` component.
-     */
-    name?: string;
-    /**
-     * A function for custom validation. Return a string or an array of strings with
-     * the error message(s) if the value is invalid, or `null` if the value is valid.
-     */
-    validate?: (
-      value: unknown,
-      formValues: Record<string, unknown>,
-    ) => string | string[] | null | Promise<string | string[] | null>;
-    /**
-     * Determines when the field should be validated.
-     *
-     * - **onBlur** triggers validation when the control loses focus
-     * - **onChange** triggers validation on every change to the control value
-     * @default 'onBlur'
-     */
-    validationMode?: 'onBlur' | 'onChange';
-    /**
-     * How long to wait between `validate` callbacks if
-     * `validationMode="onChange"` is used. Specified in milliseconds.
-     * @default 0
-     */
-    validationDebounceTime?: number;
-    /**
-     * Whether the field is forcefully marked as invalid.
-     */
-    invalid?: boolean;
-  }
+export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.State> {
+  /**
+   * Whether the component should ignore user interaction.
+   * Takes precedence over the `disabled` prop on the `<Field.Control>` component.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Identifies the field when a form is submitted.
+   * Takes precedence over the `name` prop on the `<Field.Control>` component.
+   */
+  name?: string;
+  /**
+   * A function for custom validation. Return a string or an array of strings with
+   * the error message(s) if the value is invalid, or `null` if the value is valid.
+   */
+  validate?: (
+    value: unknown,
+    formValues: Record<string, unknown>,
+  ) => string | string[] | null | Promise<string | string[] | null>;
+  /**
+   * Determines when the field should be validated.
+   *
+   * - **onBlur** triggers validation when the control loses focus
+   * - **onChange** triggers validation on every change to the control value
+   * @default 'onBlur'
+   */
+  validationMode?: 'onBlur' | 'onChange';
+  /**
+   * How long to wait between `validate` callbacks if
+   * `validationMode="onChange"` is used. Specified in milliseconds.
+   * @default 0
+   */
+  validationDebounceTime?: number;
+  /**
+   * Whether the field is forcefully marked as invalid.
+   */
+  invalid?: boolean;
+}
+
+export namespace FieldRoot {
+  export type State = FieldRootState;
+  export type Props = FieldRootProps;
 }

@@ -33,6 +33,8 @@ export const FloatingPortalLite = React.forwardRef(function FloatingPortalLite(
   );
 });
 
+export interface FloatingPortalLiteProps<State> extends FloatingPortal.Props<State> {}
+
 export namespace FloatingPortalLite {
-  export type Props<State> = FloatingPortal.Props<State>;
+  export type Props<State> = FloatingPortalLiteProps<State>;
 }

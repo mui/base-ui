@@ -33,12 +33,16 @@ export const PreviewCardPortal = React.forwardRef(function PreviewCardPortal(
 
 export namespace PreviewCardPortal {
   export interface State {}
+}
 
-  export interface Props extends FloatingPortalLite.Props<State> {
-    /**
-     * Whether to keep the portal mounted in the DOM while the popup is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface PreviewCardPortalProps extends FloatingPortalLite.Props<PreviewCardPortal.State> {
+  /**
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
+
+export namespace PreviewCardPortal {
+  export type Props = PreviewCardPortalProps;
 }
