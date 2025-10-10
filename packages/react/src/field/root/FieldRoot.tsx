@@ -54,29 +54,23 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const markedDirtyRef = React.useRef(false);
 
-  const setDirty: typeof setDirtyUnwrapped = React.useCallback(
-    (value) => {
-      if (dirtyProp !== undefined) {
-        return;
-      }
+  const setDirty: typeof setDirtyUnwrapped = useEventCallback((value) => {
+    if (dirtyProp !== undefined) {
+      return;
+    }
 
-      if (value) {
-        markedDirtyRef.current = true;
-      }
-      setDirtyUnwrapped(value);
-    },
-    [dirtyProp],
-  );
+    if (value) {
+      markedDirtyRef.current = true;
+    }
+    setDirtyUnwrapped(value);
+  });
 
-  const setTouched: typeof setTouchedUnwrapped = React.useCallback(
-    (value) => {
-      if (touchedProp !== undefined) {
-        return;
-      }
-      setTouchedUnwrapped(value);
-    },
-    [touchedProp],
-  );
+  const setTouched: typeof setTouchedUnwrapped = useEventCallback((value) => {
+    if (touchedProp !== undefined) {
+      return;
+    }
+    setTouchedUnwrapped(value);
+  });
 
   const invalid = Boolean(
     invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
