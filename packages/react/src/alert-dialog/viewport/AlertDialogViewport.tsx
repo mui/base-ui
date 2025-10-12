@@ -6,18 +6,18 @@ import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useDialogRootContext } from '../root/DialogRootContext';
-import { useDialogPortalContext } from '../portal/DialogPortalContext';
-import { DialogViewportDataAttributes } from './DialogViewportDataAttributes';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
+import { AlertDialogViewportDataAttributes } from './AlertDialogViewportDataAttributes';
 
-const stateAttributesMapping: StateAttributesMapping<DialogViewport.State> = {
+const stateAttributesMapping: StateAttributesMapping<AlertDialogViewport.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
   nested(value) {
-    return value ? { [DialogViewportDataAttributes.nested]: '' } : null;
+    return value ? { [AlertDialogViewportDataAttributes.nested]: '' } : null;
   },
   nestedDialogOpen(value) {
-    return value ? { [DialogViewportDataAttributes.nestedDialogOpen]: '' } : null;
+    return value ? { [AlertDialogViewportDataAttributes.nestedDialogOpen]: '' } : null;
   },
 };
 
@@ -25,15 +25,15 @@ const stateAttributesMapping: StateAttributesMapping<DialogViewport.State> = {
  * A scrollable container for the dialog popup.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
+ * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-export const DialogViewport = React.forwardRef(function DialogViewport(
-  componentProps: DialogViewport.Props,
+export const AlertDialogViewport = React.forwardRef(function AlertDialogViewport(
+  componentProps: AlertDialogViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, children, ...elementProps } = componentProps;
 
-  const keepMounted = useDialogPortalContext();
+  const keepMounted = useAlertDialogPortalContext();
   const { store } = useDialogRootContext();
 
   const open = store.useState('open');
@@ -44,7 +44,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
-  const state: DialogViewport.State = React.useMemo(
+  const state: AlertDialogViewport.State = React.useMemo(
     () => ({
       open,
       nested,
@@ -71,7 +71,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   });
 });
 
-export interface DialogViewportState {
+export interface AlertDialogViewportState {
   /**
    * Whether the dialog is currently open.
    */
@@ -87,9 +87,10 @@ export interface DialogViewportState {
   nestedDialogOpen: boolean;
 }
 
-export interface DialogViewportProps extends BaseUIComponentProps<'div', DialogViewportState> {}
+export interface AlertDialogViewportProps
+  extends BaseUIComponentProps<'div', AlertDialogViewportState> {}
 
-export namespace DialogViewport {
-  export type State = DialogViewportState;
-  export type Props = DialogViewportProps;
+export namespace AlertDialogViewport {
+  export type State = AlertDialogViewportState;
+  export type Props = AlertDialogViewportProps;
 }

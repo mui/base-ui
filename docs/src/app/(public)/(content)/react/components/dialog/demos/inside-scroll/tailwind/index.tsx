@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Dialog } from '@base-ui-components/react/dialog';
+import { ScrollArea } from '@base-ui-components/react/scroll-area';
 
 export default function InsideScrollDialog() {
   return (
@@ -12,21 +13,25 @@ export default function InsideScrollDialog() {
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-150 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 dark:opacity-70" />
         <div className="fixed inset-0 flex items-center justify-center overflow-hidden pt-8 pb-12">
           <Dialog.Popup className="box-border relative flex w-[min(40rem,calc(100vw-2rem))] max-h-full max-w-full min-h-0 flex-col overflow-hidden rounded-lg bg-gray-50 p-8 text-gray-900 shadow-lg outline outline-1 outline-gray-200 transition duration-150 data-[starting-style]:-translate-y-4 data-[starting-style]:opacity-0 data-[ending-style]:-translate-y-4 data-[ending-style]:opacity-0 dark:outline-gray-300">
-            <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="mb-2 flex items-start justify-between gap-3">
               <Dialog.Title className="m-0 text-xl font-semibold leading-7">Dialog</Dialog.Title>
             </div>
-            <Dialog.Description className="m-0 mb-6 text-base leading-[1.6rem] text-gray-600">
+            <Dialog.Description className="m-0 mb-4 text-base leading-[1.6rem] text-gray-600">
               This layout keeps the popup fully on screen while allowing its content to scroll.
             </Dialog.Description>
-            <div className="flex flex-1 min-h-0 flex-col gap-6 overflow-y-auto overscroll-contain border-y border-gray-200 pr-4 py-6">
-              {CONTENT_SECTIONS.map((item) => (
-                <section key={item.title}>
-                  <h3 className="mb-[0.4rem] text-base font-semibold leading-6">{item.title}</h3>
-                  <p className="m-0 text-[0.95rem] leading-[1.55rem] text-gray-700">{item.body}</p>
-                </section>
-              ))}
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
+            <ScrollArea.Root className="relative flex flex-1 min-h-0 overflow-hidden border-y border-gray-200">
+              <ScrollArea.Viewport className="box-border flex-1 min-h-0 overflow-y-auto overscroll-contain py-6 pr-4">
+                <ScrollArea.Content className="flex flex-col gap-6">
+                  {CONTENT_SECTIONS.map((item) => (
+                    <section key={item.title}>
+                      <h3 className="mb-[0.4rem] text-base font-semibold leading-6">{item.title}</h3>
+                      <p className="m-0 text-[0.95rem] leading-[1.55rem] text-gray-700">{item.body}</p>
+                    </section>
+                  ))}
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+            </ScrollArea.Root>
+            <div className="mt-4 flex justify-end gap-3">
               <Dialog.Close className="flex h-10 select-none items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 transition-colors hover:bg-gray-100 active:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
                 Close
               </Dialog.Close>

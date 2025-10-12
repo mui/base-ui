@@ -124,7 +124,7 @@
   outline: 1px solid var(--color-gray-200);
   background-color: var(--color-gray-50);
   color: var(--color-gray-900);
-  box-shadow: 0 24px 45px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 24px 45px rgb(15, 23, 42 / 0.18);
   transition: transform 150ms ease;
 
   @media (prefers-color-scheme: dark) {
