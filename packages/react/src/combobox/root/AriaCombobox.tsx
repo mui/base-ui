@@ -8,6 +8,7 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui-components/utils/store';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import {
   ElementProps,
   useDismiss,
@@ -384,6 +385,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const queryRef = React.useRef(query);
   const selectedValueRef = React.useRef(selectedValue);
   const inputValueRef = React.useRef(inputValue);
+  const triggerRef = useLatestRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const {
@@ -422,7 +424,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     id,
     commitValidation,
     value: formValue,
-    controlRef: inputRef,
+    controlRef: inputInsidePopup ? triggerRef : inputRef,
     name,
     getValue: () => formValue,
   });
