@@ -15,6 +15,7 @@ const INITIAL_STATE = {
   nested: false,
   popupElement: null,
   triggerElement: null,
+  viewportElement: null,
   modal: true,
   descriptionElementId: undefined,
   titleElementId: undefined,

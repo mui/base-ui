@@ -26,10 +26,12 @@ export function DialogPortal(props: DialogPortal.Props) {
 
   return (
     <DialogPortalContext.Provider value={keepMounted}>
-      {mounted && modal === true && (
-        <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
-      )}
-      <FloatingPortal root={container}>{children}</FloatingPortal>
+      <FloatingPortal root={container}>
+        {mounted && modal === true && (
+          <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
+        )}
+        {children}
+      </FloatingPortal>
     </DialogPortalContext.Provider>
   );
 }
