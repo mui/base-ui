@@ -24,7 +24,7 @@
       "detailedType": "| React.RefObject<AlertDialog.Root.Actions>\n| undefined"
     },
     "handle": {
-      "type": "DialogStore<unknown>",
+      "type": "DialogStore<Payload>",
       "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.",
       "detailedType": "{} | undefined"
     },
@@ -34,8 +34,9 @@
       "detailedType": "((open: boolean) => void) | undefined"
     },
     "children": {
-      "type": "ReactNode",
-      "detailedType": "React.ReactNode"
+      "type": "ReactNode | PayloadChildRenderFunction<Payload>",
+      "description": "The content of the dialog.\nThis can be a regular React node or a render function that receives the `payload` of the active trigger.",
+      "detailedType": "| React.ReactNode\n| ((arg: { payload: Payload | undefined }) => ReactNode)"
     }
   },
   "dataAttributes": {},
