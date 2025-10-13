@@ -18,7 +18,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
-import { PopoverStore } from '../store';
+import { PopoverStore } from '../PopoverStore';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { PopoverStore } from '../store';
+import type { PopoverStore } from '../PopoverStore';
 
 export interface PopoverRootContext {
   store: PopoverStore<unknown>;

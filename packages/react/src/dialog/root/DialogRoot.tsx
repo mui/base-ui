@@ -4,7 +4,7 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { DialogStore } from '../store';
+import { DialogStore } from '../DialogStore';
 import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
 

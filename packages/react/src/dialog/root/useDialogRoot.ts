@@ -14,7 +14,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { type DialogRoot } from './DialogRoot';
-import { DialogStore } from '../store';
+import { DialogStore } from '../DialogStore';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const { store, parentContext } = params;

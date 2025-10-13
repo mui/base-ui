@@ -17,7 +17,7 @@ import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { PopoverStore } from '../store';
+import { PopoverStore } from '../PopoverStore';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {

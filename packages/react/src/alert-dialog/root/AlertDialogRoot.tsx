@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
-import { DialogStore } from '../../dialog/store';
+import { DialogStore } from '../../dialog/DialogStore';
 import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';

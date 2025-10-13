@@ -27,7 +27,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const { store } = useDialogRootContext();
   const open = store.useState('open');
-  const triggerProps = store.useState('triggerProps');
+  const triggerProps = store.useState('activeTriggerProps');
 
   const state: DialogTrigger.State = React.useMemo(
     () => ({
@@ -44,7 +44,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   return useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, store.getElementSetter('triggerElement')],
+    ref: [buttonRef, forwardedRef, store.getElementSetter('activeTriggerElement')],
     props: [
       triggerProps,
       { [CLICK_TRIGGER_IDENTIFIER as string]: '' },
