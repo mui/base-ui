@@ -175,59 +175,67 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
   );
 }
 
+export interface PreviewCardRootState {}
+
+export interface PreviewCardRootProps {
+  children?: React.ReactNode;
+  /**
+   * Whether the preview card is initially open.
+   *
+   * To render a controlled preview card, use the `open` prop instead.
+   * @default false
+   */
+  defaultOpen?: boolean;
+  /**
+   * Whether the preview card is currently open.
+   */
+  open?: boolean;
+  /**
+   * Event handler called when the preview card is opened or closed.
+   */
+  onOpenChange?: (open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void;
+  /**
+   * Event handler called after any animations complete when the preview card is opened or closed.
+   */
+  onOpenChangeComplete?: (open: boolean) => void;
+  /**
+   * How long to wait before the preview card opens. Specified in milliseconds.
+   * @default 600
+   */
+  delay?: number;
+  /**
+   * How long to wait before closing the preview card. Specified in milliseconds.
+   * @default 300
+   */
+  closeDelay?: number;
+  /**
+   * A ref to imperative actions.
+   * - `unmount`: When specified, the preview card will not be unmounted when closed.
+   * Instead, the `unmount` function must be called to unmount the preview card manually.
+   * Useful when the preview card's animation is controlled by an external library.
+   */
+  actionsRef?: React.RefObject<PreviewCardRoot.Actions>;
+}
+
+export interface PreviewCardRootActions {
+  unmount: () => void;
+}
+
+export type PreviewCardRootChangeEventReason =
+  | 'trigger-hover'
+  | 'trigger-focus'
+  | 'trigger-press'
+  | 'outside-press'
+  | 'escape-key'
+  | 'none';
+
+export type PreviewCardRootChangeEventDetails =
+  BaseUIChangeEventDetails<PreviewCardRoot.ChangeEventReason>;
+
 export namespace PreviewCardRoot {
-  export interface State {}
-
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * Whether the preview card is initially open.
-     *
-     * To render a controlled preview card, use the `open` prop instead.
-     * @default false
-     */
-    defaultOpen?: boolean;
-    /**
-     * Whether the preview card is currently open.
-     */
-    open?: boolean;
-    /**
-     * Event handler called when the preview card is opened or closed.
-     */
-    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
-    /**
-     * Event handler called after any animations complete when the preview card is opened or closed.
-     */
-    onOpenChangeComplete?: (open: boolean) => void;
-    /**
-     * How long to wait before the preview card opens. Specified in milliseconds.
-     * @default 600
-     */
-    delay?: number;
-    /**
-     * How long to wait before closing the preview card. Specified in milliseconds.
-     * @default 300
-     */
-    closeDelay?: number;
-    /**
-     * A ref to imperative actions.
-     * - `unmount`: When specified, the preview card will not be unmounted when closed.
-     * Instead, the `unmount` function must be called to unmount the preview card manually.
-     * Useful when the preview card's animation is controlled by an external library.
-     */
-    actionsRef?: React.RefObject<Actions>;
-  }
-
-  export interface Actions {
-    unmount: () => void;
-  }
-
-  export type ChangeEventReason =
-    | 'trigger-hover'
-    | 'trigger-focus'
-    | 'trigger-press'
-    | 'outside-press'
-    | 'escape-key'
-    | 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type State = PreviewCardRootState;
+  export type Props = PreviewCardRootProps;
+  export type Actions = PreviewCardRootActions;
+  export type ChangeEventReason = PreviewCardRootChangeEventReason;
+  export type ChangeEventDetails = PreviewCardRootChangeEventDetails;
 }

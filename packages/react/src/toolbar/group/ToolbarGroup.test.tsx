@@ -37,19 +37,19 @@ describe('<Toolbar.Group />', () => {
 
   describe('ARIA attributes', () => {
     it('renders a group', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Toolbar.Root>
           <Toolbar.Group data-testid="group" />
         </Toolbar.Root>,
       );
 
-      expect(getByTestId('group')).to.equal(screen.getByRole('group'));
+      expect(screen.getByTestId('group')).to.equal(screen.getByRole('group'));
     });
   });
 
   describe('prop: disabled', () => {
     it('disables all toolbar items except links in the group', async () => {
-      const { getByRole, getByText } = await render(
+      await render(
         <Toolbar.Root>
           <Toolbar.Group disabled>
             <Toolbar.Button />
@@ -59,13 +59,13 @@ describe('<Toolbar.Group />', () => {
         </Toolbar.Root>,
       );
 
-      [getByRole('button'), getByRole('textbox')].forEach((toolbarItem) => {
+      [screen.getByRole('button'), screen.getByRole('textbox')].forEach((toolbarItem) => {
         expect(toolbarItem).to.have.attribute('aria-disabled', 'true');
         expect(toolbarItem).to.have.attribute('data-disabled');
       });
 
-      expect(getByText('Link')).to.not.have.attribute('data-disabled');
-      expect(getByText('Link')).to.not.have.attribute('aria-disabled');
+      expect(screen.getByText('Link')).to.not.have.attribute('data-disabled');
+      expect(screen.getByText('Link')).to.not.have.attribute('aria-disabled');
     });
   });
 });

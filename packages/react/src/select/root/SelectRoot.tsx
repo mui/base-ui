@@ -171,7 +171,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 }
 
-interface SelectRootProps<Value> {
+interface SelectRootCommonProps<Value> {
   children?: React.ReactNode;
   /**
    * A ref to access the hidden input element.
@@ -212,7 +212,7 @@ interface SelectRootProps<Value> {
   /**
    * Event handler called when the value of the select changes.
    */
-  onValueChange?: (value: Value, eventDetails: SelectRoot.ChangeEventDetails) => void;
+  onValueChange?: (value: Value, eventDetails: SelectRootChangeEventDetails) => void;
   /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
@@ -230,7 +230,7 @@ interface SelectRootProps<Value> {
   /**
    * Event handler called when the select popup is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
+  onOpenChange?: (open: boolean, eventDetails: SelectRootChangeEventDetails) => void;
   /**
    * Event handler called after any animations complete when the select popup is opened or closed.
    */
@@ -252,7 +252,7 @@ interface SelectRootProps<Value> {
    * Instead, the `unmount` function must be called to unmount the select manually.
    * Useful when the select's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<SelectRoot.Actions>;
+  actionsRef?: React.RefObject<SelectRootActions>;
   /**
    * Data structure of the items rendered in the select popup.
    * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.
@@ -290,7 +290,7 @@ type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple ext
   : Value;
 
 type SelectRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
-  SelectRootProps<Value>,
+  SelectRootCommonProps<Value>,
   'multiple' | 'value' | 'defaultValue' | 'onValueChange'
 > & {
   /**
@@ -320,7 +320,7 @@ type SelectRootControlledProps<Value, Multiple extends boolean | undefined> = Se
    */
   onValueChange?: (
     value: SelectValueType<Value, Multiple>,
-    eventDetails: SelectRoot.ChangeEventDetails,
+    eventDetails: SelectRootChangeEventDetails,
   ) => void;
 };
 
@@ -337,7 +337,7 @@ type SelectRootUncontrolledProps<Value, Multiple extends boolean | undefined> = 
    */
   onValueChange?: (
     value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
-    eventDetails: SelectRoot.ChangeEventDetails,
+    eventDetails: SelectRootChangeEventDetails,
   ) => void;
 };
 
@@ -345,27 +345,37 @@ export type SelectRootConditionalProps<Value, Multiple extends boolean | undefin
   | SelectRootControlledProps<Value, Multiple>
   | SelectRootUncontrolledProps<Value, Multiple>;
 
+export type SelectRootProps<
+  Value,
+  Multiple extends boolean | undefined = false,
+> = SelectRootConditionalProps<Value, Multiple>;
+
+export interface SelectRootState {}
+
+export interface SelectRootActions {
+  unmount: () => void;
+}
+
+export type SelectRootChangeEventReason =
+  | 'trigger-press'
+  | 'outside-press'
+  | 'escape-key'
+  | 'window-resize'
+  | 'item-press'
+  | 'focus-out'
+  | 'list-navigation'
+  | 'cancel-open'
+  | 'none';
+
+export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
+
 export namespace SelectRoot {
-  export type Props<
+  export type Props<Value, Multiple extends boolean | undefined = false> = SelectRootProps<
     Value,
-    Multiple extends boolean | undefined = false,
-  > = SelectRootConditionalProps<Value, Multiple>;
-
-  export interface State {}
-
-  export interface Actions {
-    unmount: () => void;
-  }
-
-  export type ChangeEventReason =
-    | 'trigger-press'
-    | 'outside-press'
-    | 'escape-key'
-    | 'window-resize'
-    | 'item-press'
-    | 'focus-out'
-    | 'list-navigation'
-    | 'cancel-open'
-    | 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+    Multiple
+  >;
+  export type State = SelectRootState;
+  export type Actions = SelectRootActions;
+  export type ChangeEventReason = SelectRootChangeEventReason;
+  export type ChangeEventDetails = SelectRootChangeEventDetails;
 }

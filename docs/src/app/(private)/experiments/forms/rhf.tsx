@@ -109,7 +109,13 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>Username</Field.Label>
                 <Field.Control
                   placeholder="Required"
@@ -132,7 +138,13 @@ export default function ExampleForm() {
           control={control}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>
                   <Checkbox.Root
                     checked={field.value}
@@ -160,7 +172,13 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>
                   <Checkbox.Root
                     checked={field.value}
@@ -188,7 +206,13 @@ export default function ExampleForm() {
           control={control}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>
                   <Switch.Root
                     checked={field.value}
@@ -219,7 +243,13 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>Volume</Field.Label>
                 <Slider.Root
                   value={field.value}
@@ -258,7 +288,13 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>Quantity</Field.Label>
                 <NumberField.Root
                   value={field.value}
@@ -291,7 +327,13 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>Country</Field.Label>
                 <Select.Root
                   value={field.value}
@@ -357,6 +399,8 @@ export default function ExampleForm() {
               <Field.Root
                 name={field.name}
                 invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
                 render={<Fieldset.Root />}
                 className={styles.Field}
               >
@@ -408,6 +452,8 @@ export default function ExampleForm() {
               <Field.Root
                 name={field.name}
                 invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
                 render={<Fieldset.Root />}
                 className={styles.Field}
               >

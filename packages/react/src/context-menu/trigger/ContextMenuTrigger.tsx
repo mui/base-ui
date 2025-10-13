@@ -172,8 +172,12 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   return element;
 });
 
-export namespace ContextMenuTrigger {
-  export interface State {}
+export interface ContextMenuTriggerState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ContextMenuTriggerProps
+  extends BaseUIComponentProps<'div', ContextMenuTrigger.State> {}
+
+export namespace ContextMenuTrigger {
+  export type State = ContextMenuTriggerState;
+  export type Props = ContextMenuTriggerProps;
 }

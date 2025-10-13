@@ -9,7 +9,7 @@ export function useToastManager(): useToastManager.ReturnValue {
   const context = React.useContext(ToastContext);
 
   if (!context) {
-    throw new Error('Base UI: useToast must be used within <Toast.Provider>.');
+    throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');
   }
 
   const { toasts, add, close, update, promise } = context;
@@ -24,32 +24,6 @@ export function useToastManager(): useToastManager.ReturnValue {
     }),
     [toasts, add, close, update, promise],
   );
-}
-
-export namespace useToastManager {
-  export interface ReturnValue {
-    toasts: ToastContext<any>['toasts'];
-    add: <Data extends object>(options: AddOptions<Data>) => string;
-    close: (toastId: string) => void;
-    update: <Data extends object>(toastId: string, options: UpdateOptions<Data>) => void;
-    promise: <Value, Data extends object>(
-      promise: Promise<Value>,
-      options: PromiseOptions<Value, Data>,
-    ) => Promise<Value>;
-  }
-
-  export interface AddOptions<Data extends object>
-    extends Omit<ToastObject<Data>, 'id' | 'animation' | 'height' | 'ref' | 'limited'> {
-    id?: string;
-  }
-
-  export interface UpdateOptions<Data extends object> extends Partial<AddOptions<Data>> {}
-
-  export interface PromiseOptions<Value, Data extends object> {
-    loading: string | UpdateOptions<Data>;
-    success: string | UpdateOptions<Data> | ((result: Value) => string | UpdateOptions<Data>);
-    error: string | UpdateOptions<Data> | ((error: any) => string | UpdateOptions<Data>);
-  }
 }
 
 export interface ToastObject<Data extends object> {
@@ -115,4 +89,48 @@ export interface ToastObject<Data extends object> {
    * Custom data for the toast.
    */
   data?: Data;
+}
+
+export interface UseToastManagerReturnValue {
+  toasts: ToastContext<any>['toasts'];
+  add: <Data extends object>(options: UseToastManagerAddOptions<Data>) => string;
+  close: (toastId: string) => void;
+  update: <Data extends object>(
+    toastId: string,
+    options: UseToastManagerUpdateOptions<Data>,
+  ) => void;
+  promise: <Value, Data extends object>(
+    promise: Promise<Value>,
+    options: UseToastManagerPromiseOptions<Value, Data>,
+  ) => Promise<Value>;
+}
+
+export interface UseToastManagerAddOptions<Data extends object>
+  extends Omit<ToastObject<Data>, 'id' | 'animation' | 'height' | 'ref' | 'limited'> {
+  id?: string;
+}
+
+export interface UseToastManagerUpdateOptions<Data extends object>
+  extends Partial<UseToastManagerAddOptions<Data>> {}
+
+export interface UseToastManagerPromiseOptions<Value, Data extends object> {
+  loading: string | UseToastManagerUpdateOptions<Data>;
+  success:
+    | string
+    | UseToastManagerUpdateOptions<Data>
+    | ((result: Value) => string | UseToastManagerUpdateOptions<Data>);
+  error:
+    | string
+    | UseToastManagerUpdateOptions<Data>
+    | ((error: any) => string | UseToastManagerUpdateOptions<Data>);
+}
+
+export namespace useToastManager {
+  export type ReturnValue = UseToastManagerReturnValue;
+  export type AddOptions<Data extends object> = UseToastManagerAddOptions<Data>;
+  export type UpdateOptions<Data extends object> = UseToastManagerUpdateOptions<Data>;
+  export type PromiseOptions<Value, Data extends object> = UseToastManagerPromiseOptions<
+    Value,
+    Data
+  >;
 }

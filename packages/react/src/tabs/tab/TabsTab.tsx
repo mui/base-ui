@@ -206,43 +206,53 @@ export const TabsTab = React.forwardRef(function TabsTab(
   return element;
 });
 
+export type TabsTabValue = any | null;
+
+export type TabsTabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
+
+export interface TabsTabPosition {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+export interface TabsTabSize {
+  width: number;
+  height: number;
+}
+
+export interface TabsTabMetadata {
+  disabled: boolean;
+  id: string | undefined;
+  value: any | undefined;
+}
+
+export interface TabsTabState {
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  selected: boolean;
+  orientation: TabsRoot.Orientation;
+}
+
+export interface TabsTabProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', TabsTab.State> {
+  /**
+   * The value of the Tab.
+   * When not specified, the value is the child position index.
+   */
+  value?: TabsTab.Value;
+}
+
 export namespace TabsTab {
-  export type Value = any | null;
-
-  export type ActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
-
-  export interface Position {
-    left: number;
-    right: number;
-    top: number;
-    bottom: number;
-  }
-
-  export interface Size {
-    width: number;
-    height: number;
-  }
-
-  export interface Metadata {
-    disabled: boolean;
-    id: string | undefined;
-    value: any | undefined;
-  }
-
-  export interface State {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    selected: boolean;
-    orientation: TabsRoot.Orientation;
-  }
-
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    /**
-     * The value of the Tab.
-     * When not specified, the value is the child position index.
-     */
-    value?: Value;
-  }
+  export type Value = TabsTabValue;
+  export type ActivationDirection = TabsTabActivationDirection;
+  export type Position = TabsTabPosition;
+  export type Size = TabsTabSize;
+  export type Metadata = TabsTabMetadata;
+  export type State = TabsTabState;
+  export type Props = TabsTabProps;
 }

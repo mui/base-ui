@@ -20,8 +20,8 @@ describe('<Switch.Root />', () => {
 
   describe('interaction', () => {
     it('should change its state when clicked', async () => {
-      const { getByRole } = await render(<Switch.Root />);
-      const switchElement = getByRole('switch');
+      await render(<Switch.Root />);
+      const switchElement = screen.getByRole('switch');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
@@ -43,9 +43,9 @@ describe('<Switch.Root />', () => {
         );
       }
 
-      const { getByRole, getByText } = await render(<Test />);
-      const switchElement = getByRole('switch');
-      const button = getByText('Toggle');
+      await render(<Test />);
+      const switchElement = screen.getByRole('switch');
+      const button = screen.getByText('Toggle');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
       await act(async () => {
@@ -84,8 +84,8 @@ describe('<Switch.Root />', () => {
   describe('prop: onChange', () => {
     it('should call onChange when clicked', async () => {
       const handleChange = spy();
-      const { getByRole } = await render(<Switch.Root onCheckedChange={handleChange} />);
-      const switchElement = getByRole('switch');
+      await render(<Switch.Root onCheckedChange={handleChange} />);
+      const switchElement = screen.getByRole('switch');
 
       await act(async () => {
         switchElement.click();
@@ -99,8 +99,8 @@ describe('<Switch.Root />', () => {
   describe('prop: onClick', () => {
     it('should call onClick when clicked', async () => {
       const handleClick = spy();
-      const { getByRole } = await render(<Switch.Root onClick={handleClick} />);
-      const switchElement = getByRole('switch');
+      await render(<Switch.Root onClick={handleClick} />);
+      const switchElement = screen.getByRole('switch');
 
       await act(async () => {
         switchElement.click();
@@ -112,18 +112,18 @@ describe('<Switch.Root />', () => {
 
   describe('prop: disabled', () => {
     it('should have the `disabled` attribute', async () => {
-      const { getByRole } = await render(<Switch.Root disabled />);
-      expect(getByRole('switch')).to.have.attribute('disabled');
+      await render(<Switch.Root disabled />);
+      expect(screen.getByRole('switch')).to.have.attribute('disabled');
     });
 
     it('should not have the `disabled` attribute when `disabled` is not set', async () => {
-      const { getByRole } = await render(<Switch.Root />);
-      expect(getByRole('switch')).not.to.have.attribute('disabled');
+      await render(<Switch.Root />);
+      expect(screen.getByRole('switch')).not.to.have.attribute('disabled');
     });
 
     it('should not change its state when clicked', async () => {
-      const { getByRole } = await render(<Switch.Root disabled />);
-      const switchElement = getByRole('switch');
+      await render(<Switch.Root disabled />);
+      const switchElement = screen.getByRole('switch');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
@@ -137,18 +137,18 @@ describe('<Switch.Root />', () => {
 
   describe('prop: readOnly', () => {
     it('should have the `aria-readonly` attribute', async () => {
-      const { getByRole } = await render(<Switch.Root readOnly />);
-      expect(getByRole('switch')).to.have.attribute('aria-readonly', 'true');
+      await render(<Switch.Root readOnly />);
+      expect(screen.getByRole('switch')).to.have.attribute('aria-readonly', 'true');
     });
 
     it('should not have the aria attribute when `readOnly` is not set', async () => {
-      const { getByRole } = await render(<Switch.Root />);
-      expect(getByRole('switch')).not.to.have.attribute('aria-readonly');
+      await render(<Switch.Root />);
+      expect(screen.getByRole('switch')).not.to.have.attribute('aria-readonly');
     });
 
     it('should not change its state when clicked', async () => {
-      const { getByRole } = await render(<Switch.Root readOnly />);
-      const switchElement = getByRole('switch');
+      await render(<Switch.Root readOnly />);
+      const switchElement = screen.getByRole('switch');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
@@ -201,10 +201,10 @@ describe('<Switch.Root />', () => {
   });
 
   it('should set the name attribute only on the input', async () => {
-    const { getByRole } = await render(<Switch.Root name="switch-name" />);
+    await render(<Switch.Root name="switch-name" />);
 
     const switchElement = screen.getByRole('switch');
-    const input = getByRole('checkbox', { hidden: true });
+    const input = screen.getByRole('checkbox', { hidden: true });
 
     expect(input).to.have.attribute('name', 'switch-name');
     expect(switchElement).not.to.have.attribute('name');
@@ -214,15 +214,15 @@ describe('<Switch.Root />', () => {
     const user = userEvent.setup();
 
     it('should toggle the switch when a parent label is clicked', async () => {
-      const { getByTestId, getByRole } = await render(
+      await render(
         <label data-testid="label">
           <Switch.Root />
           Toggle
         </label>,
       );
 
-      const switchElement = getByRole('switch');
-      const label = getByTestId('label');
+      const switchElement = screen.getByRole('switch');
+      const label = screen.getByTestId('label');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
@@ -232,7 +232,7 @@ describe('<Switch.Root />', () => {
     });
 
     it('should toggle the switch when a linked label is clicked', async () => {
-      const { getByTestId, getByRole } = await render(
+      await render(
         <div>
           <label htmlFor="test-switch" data-testid="label">
             Toggle
@@ -241,8 +241,8 @@ describe('<Switch.Root />', () => {
         </div>,
       );
 
-      const switchElement = getByRole('switch');
-      const label = getByTestId('label');
+      const switchElement = screen.getByRole('switch');
+      const label = screen.getByTestId('label');
 
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
@@ -259,7 +259,7 @@ describe('<Switch.Root />', () => {
 
       let stringifiedFormData = '';
 
-      const { getByRole } = await render(
+      await render(
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -272,8 +272,8 @@ describe('<Switch.Root />', () => {
         </form>,
       );
 
-      const switchElement = getByRole('switch');
-      const submitButton = getByRole('button')!;
+      const switchElement = screen.getByRole('switch');
+      const submitButton = screen.getByRole('button')!;
 
       submitButton.click();
 
@@ -342,24 +342,24 @@ describe('<Switch.Root />', () => {
 
   describe('Field', () => {
     it('should receive disabled prop from Field.Root', async () => {
-      const { getByRole } = await render(
+      await render(
         <Field.Root disabled>
           <Switch.Root />
         </Field.Root>,
       );
 
-      const switchElement = getByRole('switch');
+      const switchElement = screen.getByRole('switch');
       expect(switchElement).to.have.attribute('disabled');
     });
 
     it('should receive name prop from Field.Root', async () => {
-      const { getByRole } = await render(
+      await render(
         <Field.Root name="field-switch">
           <Switch.Root />
         </Field.Root>,
       );
 
-      const input = getByRole('checkbox', { hidden: true });
+      const input = screen.getByRole('checkbox', { hidden: true });
       expect(input).to.have.attribute('name', 'field-switch');
     });
 
@@ -605,14 +605,14 @@ describe('<Switch.Root />', () => {
     });
 
     it('Field.Description', async () => {
-      const { container } = await render(
+      await render(
         <Field.Root>
           <Switch.Root data-testid="button" />
           <Field.Description data-testid="description" />
         </Field.Root>,
       );
 
-      const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
+      const internalInput = screen.queryByRole<HTMLInputElement>('checkbox', { hidden: true });
 
       expect(internalInput).to.have.attribute(
         'aria-describedby',
