@@ -83,7 +83,7 @@ export type State = {
   itemToStringLabel?: (item: any) => string;
   isItemEqualToValue: (item: any, value: any) => boolean;
   modal: boolean;
-  autoHighlight: boolean;
+  autoHighlight: boolean | 'always' | 'input-change';
   alwaysSubmitOnEnter: boolean;
   hasInputValue: boolean;
 };

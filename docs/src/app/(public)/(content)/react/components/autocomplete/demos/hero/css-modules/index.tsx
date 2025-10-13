@@ -4,7 +4,7 @@ import styles from './index.module.css';
 
 export default function ExampleAutocomplete() {
   return (
-    <Autocomplete.Root items={tags}>
+    <Autocomplete.Root items={tags} autoHighlight>
       <label className={styles.Label}>
         Search tags
         <Autocomplete.Input placeholder="e.g. feature" className={styles.Input} />

@@ -203,8 +203,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               );
             }
 
+            const trimmed = nextVal.trim();
+            const shouldMaintainHighlight = autoHighlight && trimmed !== '';
+
             if (!readOnly && !disabled) {
-              const trimmed = nextVal.trim();
               if (trimmed !== '') {
                 store.state.setOpen(
                   true,
@@ -220,11 +222,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               }
             }
 
-            if (
-              open &&
-              store.state.activeIndex !== null &&
-              !(autoHighlight && nextVal.trim() !== '')
-            ) {
+            if (open && store.state.activeIndex !== null && !shouldMaintainHighlight) {
               store.state.setIndices({
                 activeIndex: null,
                 selectedIndex: null,
@@ -253,8 +251,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             }
           }
 
+          const trimmed = event.currentTarget.value.trim();
           if (!readOnly && !disabled) {
-            const trimmed = event.currentTarget.value.trim();
             if (trimmed !== '') {
               store.state.setOpen(
                 true,
@@ -274,11 +272,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           // When the user types, ensure the list resets its highlight so that
           // virtual focus returns to the input (aria-activedescendant is
           // cleared).
-          if (
-            open &&
-            store.state.activeIndex !== null &&
-            !(autoHighlight && event.currentTarget.value.trim() !== '')
-          ) {
+          if (open && store.state.activeIndex !== null && !autoHighlight) {
             store.state.setIndices({
               activeIndex: null,
               selectedIndex: null,

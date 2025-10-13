@@ -154,6 +154,7 @@ export namespace AutocompleteRoot {
       | 'onInputValueChange' // onValueChange
       | 'autoComplete' // mode
       | 'itemToStringLabel' // itemToStringValue
+      | 'autoHighlight'
       // Custom JSDoc
       | 'actionsRef'
       | 'onOpenChange'
@@ -177,6 +178,13 @@ export namespace AutocompleteRoot {
       React.ComponentProps<'input'>['defaultValue'],
       'none'
     >['defaultInputValue'];
+    /**
+     * Whether the first matching option is highlighted automatically.
+     * - `true` or `{ behavior: 'input-change' }`: highlight after the user types and keep the highlight while the query changes.
+     * - `{ behavior: 'always' }`: highlight the first option as soon as the list is open, even before typing.
+     * @default false
+     */
+    autoHighlight?: boolean | { behavior?: 'always' | 'input-change' };
     /**
      * The input value of the autocomplete. Use when controlled.
      */

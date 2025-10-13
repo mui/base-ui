@@ -43,6 +43,7 @@ type ComboboxRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
   | 'fillInputOnItemPress'
   | 'autoComplete'
   | 'alwaysSubmitOnEnter'
+  | 'autoHighlight'
   | 'itemToStringLabel'
   | 'itemToStringValue'
   | 'isItemEqualToValue'
@@ -62,6 +63,11 @@ type ComboboxRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
    * @default false
    */
   multiple?: Multiple;
+  /**
+   * Whether to automatically highlight the first matching item while filtering.
+   * @default false
+   */
+  autoHighlight?: boolean;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.

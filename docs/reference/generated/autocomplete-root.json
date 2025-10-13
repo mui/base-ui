@@ -50,10 +50,10 @@
       "detailedType": "boolean | undefined"
     },
     "autoHighlight": {
-      "type": "boolean",
+      "type": "boolean | { behavior?: 'always' | 'input-change' }",
       "default": "false",
-      "description": "Whether to automatically highlight the first item while filtering.",
-      "detailedType": "boolean | undefined"
+      "description": "Whether the first matching option is highlighted automatically.\n- `true` or `{ behavior: 'input-change' }`: highlight after the user types and keep the highlight while the query changes.\n- `{ behavior: 'always' }`: highlight the first option as soon as the list is open, even before typing.",
+      "detailedType": "| boolean\n| { behavior?: 'always' | 'input-change' }\n| undefined"
     },
     "filter": {
       "type": "((itemValue: any, query: string, itemToString: ((itemValue: any) => string) | undefined) => boolean) | ((itemValue: ItemValue, query: string, itemToString: ((itemValue: ItemValue) => string) | undefined) => boolean) | null",
