@@ -65,7 +65,7 @@
     "@mui/internal-code-infra": "^0.0.3-canary.25",
     "@mui/internal-netlify-cache": "^0.0.2-canary.0",
     "@mui/internal-test-utils": "^2.0.10",
-    "@mui/monorepo": "github:mui/material-ui#v7.3.2",
+    "@mui/monorepo": "github:mui/material-ui#v7.3.4",
     "@octokit/rest": "^22.0.0",
     "@playwright/test": "1.55.1",
     "@tailwindcss/postcss": "4.1.13",
