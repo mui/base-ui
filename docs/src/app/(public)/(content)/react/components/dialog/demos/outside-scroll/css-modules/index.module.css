@@ -99,7 +99,7 @@
     opacity: 0;
   }
 
-  &[data-hovering]:not([data-block-hovering]),
+  &:hover,
   &[data-scrolling] {
     opacity: 1;
     transition-duration: 75ms;
@@ -133,7 +133,7 @@
   position: relative;
   width: min(40rem, calc(100vw - 2rem));
   padding: 2rem;
-  margin: 3rem auto;
+  margin: 4rem auto;
   border-radius: 0.5rem;
   background-color: var(--color-gray-50);
   color: var(--color-gray-900);
@@ -156,13 +156,9 @@
   }
 
   &[data-ending-style] {
-    transform: translateY(100%);
+    transform: translateY(max(100dvh, 100%));
     transition-duration: 350ms;
     transition-timing-function: cubic-bezier(0.375, 0.015, 0.545, 0.455);
-  }
-
-  @media (min-width: 768px) {
-    margin: 2rem auto 3rem;
   }
 }
 

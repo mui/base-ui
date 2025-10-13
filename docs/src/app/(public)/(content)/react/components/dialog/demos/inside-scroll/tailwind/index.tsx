@@ -5,7 +5,7 @@ import { ScrollArea } from '@base-ui-components/react/scroll-area';
 export default function InsideScrollDialog() {
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="m-0 flex h-10 select-none items-center justify-center rounded-md border border-[var(--color-gray-200)] bg-[var(--color-gray-50)] px-3.5 text-base font-medium leading-6 text-[var(--color-gray-900)] transition-colors [@media(hover:hover)]:hover:bg-[var(--color-gray-100)] active:bg-[var(--color-gray-100)] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-[var(--color-blue)]">
+      <Dialog.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>

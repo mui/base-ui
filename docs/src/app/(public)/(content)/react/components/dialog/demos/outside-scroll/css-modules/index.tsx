@@ -5,20 +5,14 @@ import styles from './index.module.css';
 
 export default function OutsideScrollDialog() {
   const popupRef = React.useRef<HTMLDivElement>(null);
-  const scrollportRef = React.useRef<HTMLDivElement>(null);
-  const [blockHovering, setBlockHovering] = React.useState(true);
   return (
-    <Dialog.Root
-      onOpenChangeComplete={(open) => {
-        setBlockHovering(!open);
-      }}
-    >
+    <Dialog.Root>
       <Dialog.Trigger className={styles.Button}>Open dialog</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Viewport className={styles.Viewport}>
           <ScrollArea.Root style={{ position: undefined }} className={styles.ScrollViewport}>
-            <ScrollArea.Viewport className={styles.ScrollViewport} ref={scrollportRef}>
+            <ScrollArea.Viewport className={styles.ScrollViewport}>
               <ScrollArea.Content className={styles.ScrollContent}>
                 <Dialog.Popup ref={popupRef} className={styles.Popup} initialFocus={popupRef}>
                   <div className={styles.PopupHeader}>
@@ -44,10 +38,7 @@ export default function OutsideScrollDialog() {
                 </Dialog.Popup>
               </ScrollArea.Content>
             </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar
-              className={styles.Scrollbar}
-              data-block-hovering={blockHovering ? '' : undefined}
-            >
+            <ScrollArea.Scrollbar className={styles.Scrollbar}>
               <ScrollArea.Thumb className={styles.ScrollbarThumb} />
             </ScrollArea.Scrollbar>
           </ScrollArea.Root>

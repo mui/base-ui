@@ -133,13 +133,13 @@
   border-radius: 0.5rem;
   background-color: var(--color-gray-50);
   color: var(--color-gray-900);
+  outline: 1px solid var(--color-gray-200);
   box-shadow: 0 24px 45px rgb(15 23 42 / 0.18);
   transition:
     opacity 300ms cubic-bezier(0.45, 1.005, 0, 1.005),
     transform 300ms cubic-bezier(0.45, 1.005, 0, 1.005);
   overflow: hidden;
   min-height: 0;
-  outline: 0;
 
   @media (prefers-color-scheme: dark) {
     outline: 1px solid var(--color-gray-300);
