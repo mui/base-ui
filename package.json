@@ -67,7 +67,7 @@
     "@mui/internal-test-utils": "^2.0.10",
     "@mui/monorepo": "github:mui/material-ui#v7.3.2",
     "@octokit/rest": "^22.0.0",
-    "@playwright/test": "1.55.1",
+    "@playwright/test": "1.56.0",
     "@tailwindcss/postcss": "4.1.14",
     "@types/node": "^22.18.8",
     "@types/react": "^19.1.13",
