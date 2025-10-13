@@ -8,7 +8,6 @@ export default function InsideScrollDialog() {
       <Dialog.Trigger className="m-0 flex h-10 select-none items-center justify-center rounded-md border border-[var(--color-gray-200)] bg-[var(--color-gray-50)] px-3.5 text-base font-medium leading-6 text-[var(--color-gray-900)] transition-colors [@media(hover:hover)]:hover:bg-[var(--color-gray-100)] active:bg-[var(--color-gray-100)] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-[var(--color-blue)]">
         Open dialog
       </Dialog.Trigger>
-
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-[250ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
         <div className="fixed inset-0 flex items-center justify-center overflow-hidden py-6 [@media(min-height:600px)]:pb-12 [@media(min-height:600px)]:pt-8">

@@ -7,7 +7,6 @@ export default function InsideScrollDialog() {
   return (
     <Dialog.Root>
       <Dialog.Trigger className={styles.Button}>Open dialog</Dialog.Trigger>
-
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <div className={styles.Viewport}>
