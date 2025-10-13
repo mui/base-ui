@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { DialogStore } from '../store';
+import { DialogStore } from '../DialogStore';
 
 export interface DialogRootContext {
   store: DialogStore;

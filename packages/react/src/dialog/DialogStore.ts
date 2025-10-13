@@ -3,83 +3,29 @@ import { createSelector, ReactStore } from '@base-ui-components/utils/store';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { type DialogRoot } from './root/DialogRoot';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
-import { FloatingUIOpenChangeDetails, type HTMLProps } from '../utils/types';
+import type { FloatingUIOpenChangeDetails, PopupTriggerMap, HTMLProps } from '../utils/types';
 import { type FloatingRootContext } from '../floating-ui-react/types';
 
 export type State = {
-  /**
-   * Whether the dialog is currently open.
-   */
   open: boolean;
-
-  /**
-   * Whether the dialog enters a modal state when open.
-   */
-  modal: boolean | 'trap-focus';
-  /**
-   * Determines if the dialog is nested within a parent dialog.
-   */
-  nested: boolean;
-  /**
-   * Number of nested dialogs that are currently open.
-   */
-  nestedOpenDialogCount: number;
-  /**
-   * Determines whether the dialog should close on outside clicks.
-   */
-  dismissible: boolean;
-  /**
-   * Determines what triggered the dialog to open.
-   */
-  openMethod: InteractionType | null;
-  /**
-   * The id of the description element associated with the dialog.
-   */
-  descriptionElementId: string | undefined;
-  /**
-   * The id of the title element associated with the dialog.
-   */
-  titleElementId: string | undefined;
-  /**
-   * Determines if the dialog should be mounted.
-   */
   mounted: boolean;
-  /**
-   * The transition status of the dialog.
-   */
+  modal: boolean | 'trap-focus';
+  dismissible: boolean;
   transitionStatus: TransitionStatus;
-  /**
-   * Active Trigger element's props.
-   */
-  activeTriggerProps: HTMLProps;
-  /**
-   * Inactive Trigger element's props.
-   */
-  inactiveTriggerProps: HTMLProps;
-  /**
-   * Popup element's props.
-   */
-  popupProps: HTMLProps;
-  /**
-   * The Floating UI root context.
-   */
-  floatingRootContext: FloatingRootContext;
-  /**
-   * The Popup DOM element.
-   */
-  popupElement: HTMLElement | null;
-  /**
-   * The Trigger DOM element.
-   */
+  openMethod: InteractionType | null;
+  nested: boolean;
+  nestedOpenDialogCount: number;
+  titleElementId: string | undefined;
+  descriptionElementId: string | undefined;
   activeTriggerId: string | null;
-  triggers: TriggerMap;
+  popupElement: HTMLElement | null;
+  triggers: PopupTriggerMap;
+  floatingRootContext: FloatingRootContext;
   payload: unknown | undefined;
+  activeTriggerProps: HTMLProps;
+  inactiveTriggerProps: HTMLProps;
+  popupProps: HTMLProps;
 };
-
-type TriggerMap<Payload = unknown> = Map<
-  string,
-  { element: HTMLElement; getPayload?: (() => Payload) | undefined }
->;
 
 type Context = {
   popupRef: React.RefObject<HTMLElement | null>;
@@ -117,7 +63,7 @@ const selectors = {
   inactiveTriggerProps: createSelector((state: State) => state.inactiveTriggerProps),
 };
 
-export class DialogStore<Payload> extends ReactStore<State, Context, typeof selectors> {
+export class DialogStore extends ReactStore<State, Context, typeof selectors> {
   static create(initialState: State) {
     const context: Context = {
       popupRef: React.createRef<HTMLElement>(),
@@ -146,8 +92,4 @@ export class DialogStore<Payload> extends ReactStore<State, Context, typeof sele
 
     this.set('open', nextOpen);
   };
-}
-
-export function createDialogHandle<Payload = undefined>(): DialogStore<Payload> {
-  return new DialogStore<Payload>();
 }

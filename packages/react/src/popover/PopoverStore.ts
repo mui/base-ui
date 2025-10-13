@@ -18,8 +18,8 @@ export type State = {
   openReason: PopoverRoot.ChangeEventReason | null;
   stickIfOpen: boolean;
 
-  titleId: string | undefined;
-  descriptionId: string | undefined;
+  titleElementId: string | undefined;
+  descriptionElementId: string | undefined;
   activeTriggerId: string | null;
   positionerElement: HTMLElement | null;
   popupElement: HTMLElement | null;
@@ -57,8 +57,8 @@ function createInitialState<Payload>(): State {
     transitionStatus: 'idle',
     openMethod: null,
     openReason: null,
-    titleId: undefined,
-    descriptionId: undefined,
+    titleElementId: undefined,
+    descriptionElementId: undefined,
     floatingRootContext: getEmptyContext(),
     payload: undefined,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
@@ -91,8 +91,8 @@ const selectors = {
   stickIfOpen: createSelector((state: State) => state.stickIfOpen),
   floatingRootContext: createSelector((state: State) => state.floatingRootContext),
 
-  titleId: createSelector((state: State) => state.titleId),
-  descriptionId: createSelector((state: State) => state.descriptionId),
+  titleElementId: createSelector((state: State) => state.titleElementId),
+  descriptionElementId: createSelector((state: State) => state.descriptionElementId),
 
   payload: createSelector((state: State) => state.payload),
 
