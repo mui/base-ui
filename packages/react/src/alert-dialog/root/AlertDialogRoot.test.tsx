@@ -135,11 +135,17 @@ describe('<AlertDialog.Root />', () => {
       const actionsRef = {
         current: {
           unmount: spy(),
+          close: spy(),
         },
       };
 
       const { user } = await render(
-        <AlertDialog.Root actionsRef={actionsRef}>
+        <AlertDialog.Root
+          actionsRef={actionsRef}
+          onOpenChange={(open, details) => {
+            details.preventUnmountOnClose();
+          }}
+        >
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
           <AlertDialog.Portal>
             <AlertDialog.Popup />

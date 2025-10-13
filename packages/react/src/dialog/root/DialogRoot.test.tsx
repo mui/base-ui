@@ -744,11 +744,17 @@ describe('<Dialog.Root />', () => {
       const actionsRef = {
         current: {
           unmount: spy(),
+          close: spy(),
         },
       };
 
       const { user } = await render(
-        <Dialog.Root actionsRef={actionsRef}>
+        <Dialog.Root
+          actionsRef={actionsRef}
+          onOpenChange={(open, details) => {
+            details.preventUnmountOnClose();
+          }}
+        >
           <Dialog.Trigger>Open</Dialog.Trigger>
           <Dialog.Portal>
             <Dialog.Popup />

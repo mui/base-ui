@@ -71,7 +71,9 @@ export type AlertDialogRootActions = DialogRoot.Actions;
 
 export type AlertDialogRootChangeEventReason = DialogRoot.ChangeEventReason;
 export type AlertDialogRootChangeEventDetails =
-  BaseUIChangeEventDetails<AlertDialogRoot.ChangeEventReason>;
+  BaseUIChangeEventDetails<AlertDialogRoot.ChangeEventReason> & {
+    preventUnmountOnClose(): void;
+  };
 
 export namespace AlertDialogRoot {
   export type Props<Payload = unknown> = AlertDialogRootProps<Payload>;
