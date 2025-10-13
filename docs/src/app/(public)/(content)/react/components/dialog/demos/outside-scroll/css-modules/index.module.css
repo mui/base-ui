@@ -36,35 +36,45 @@
 .Backdrop {
   position: fixed;
   inset: 0;
-  background-color: black;
-  opacity: 0.2;
-  transition: opacity 150ms cubic-bezier(0.45, 1.005, 0, 1.005);
+  transition-duration: 600ms;
+  transition-property: -webkit-backdrop-filter, backdrop-filter, opacity;
+  transition-timing-function: var(--ease-out-fast);
+  backdrop-filter: blur(1.5px);
+  background-image: linear-gradient(to bottom, rgb(0 0 0 / 5%) 0, rgb(0 0 0 / 10%) 50%);
 
   @media (prefers-color-scheme: dark) {
     opacity: 0.7;
   }
 
+  @supports (-webkit-touch-callout: none) {
+    position: absolute;
+  }
+
   &[data-starting-style],
   &[data-ending-style] {
+    backdrop-filter: blur(0);
     opacity: 0;
+  }
+
+  &[data-ending-style] {
+    transition-duration: 350ms;
+    transition-timing-function: cubic-bezier(0.375, 0.015, 0.545, 0.455);
   }
 }
 
 .Viewport {
   position: fixed;
   inset: 0;
-  transition: opacity 150ms;
-
-  &[data-starting-style],
-  &[data-ending-style] {
-    opacity: 0;
-  }
 }
 
 .ScrollViewport {
   box-sizing: border-box;
   height: 100%;
   overscroll-behavior: contain;
+
+  [data-ending-style] & {
+    pointer-events: none;
+  }
 }
 
 .ScrollContent {
@@ -77,15 +87,19 @@
 .Scrollbar {
   position: absolute;
   display: flex;
-  width: 0.325rem;
-  margin: 0.5rem;
+  width: 0.25rem;
+  margin: 0.4rem;
   justify-content: center;
   border-radius: 1rem;
   opacity: 0;
   transition: opacity 150ms;
   pointer-events: none;
 
-  &[data-hovering],
+  [data-ending-style] & {
+    opacity: 0;
+  }
+
+  &[data-hovering]:not([data-block-hovering]),
   &[data-scrolling] {
     opacity: 1;
     transition-duration: 75ms;
@@ -119,21 +133,36 @@
   position: relative;
   width: min(40rem, calc(100vw - 2rem));
   padding: 2rem;
-  margin: 2rem auto;
+  margin: 3rem auto;
   border-radius: 0.5rem;
-  outline: 1px solid var(--color-gray-200);
   background-color: var(--color-gray-50);
   color: var(--color-gray-900);
-  box-shadow: 0 24px 45px rgb(15, 23, 42 / 0.18);
-  transition: transform 150ms ease;
+  box-shadow:
+    0 10px 64px -10px rgb(36 40 52 / 20%),
+    0 0.25px 0 1px var(--color-gray-200);
+  transition: transform 700ms cubic-bezier(0.45, 1.005, 0, 1.005);
+  outline: 0;
 
   @media (prefers-color-scheme: dark) {
     outline: 1px solid var(--color-gray-300);
   }
 
-  &[data-starting-style],
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  &[data-starting-style] {
+    transform: translateY(100dvh);
+  }
+
   &[data-ending-style] {
-    transform: translateY(-1rem);
+    transform: translateY(100%);
+    transition-duration: 350ms;
+    transition-timing-function: cubic-bezier(0.375, 0.015, 0.545, 0.455);
+  }
+
+  @media (min-width: 768px) {
+    margin: 2rem auto 3rem;
   }
 }
 

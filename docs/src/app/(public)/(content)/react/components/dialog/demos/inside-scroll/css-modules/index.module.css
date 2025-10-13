@@ -38,7 +38,11 @@
   inset: 0;
   background-color: black;
   opacity: 0.2;
-  transition: opacity 150ms cubic-bezier(0.45, 1.005, 0, 1.005);
+  transition: opacity 250ms cubic-bezier(0.45, 1.005, 0, 1.005);
+
+  @supports (-webkit-touch-callout: none) {
+    position: absolute;
+  }
 
   @media (prefers-color-scheme: dark) {
     opacity: 0.7;
@@ -80,12 +84,12 @@
 .Scrollbar {
   position: absolute;
   display: flex;
-  width: 0.325rem;
-  margin: 0.5rem;
+  width: 0.25rem;
+  margin: 0.25rem;
   justify-content: center;
   border-radius: 1rem;
   opacity: 0;
-  transition: opacity 150ms;
+  transition: opacity 250ms;
   pointer-events: none;
 
   &[data-hovering],
@@ -94,6 +98,10 @@
     transition-duration: 75ms;
     transition-delay: 0ms;
     pointer-events: auto;
+  }
+
+  @media (min-width: 768px) {
+    width: 0.325rem;
   }
 }
 
@@ -126,12 +134,13 @@
   outline: 1px solid var(--color-gray-200);
   background-color: var(--color-gray-50);
   color: var(--color-gray-900);
-  box-shadow: 0 24px 45px rgb(15, 23, 42 / 0.18);
+  box-shadow: 0 24px 45px rgb(15 23 42 / 0.18);
   transition:
-    transform 150ms ease,
-    opacity 150ms ease;
+    opacity 300ms cubic-bezier(0.45, 1.005, 0, 1.005),
+    transform 300ms cubic-bezier(0.45, 1.005, 0, 1.005);
   overflow: hidden;
   min-height: 0;
+  outline: 0;
 
   @media (prefers-color-scheme: dark) {
     outline: 1px solid var(--color-gray-300);
@@ -140,7 +149,7 @@
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
-    transform: translateY(-1rem);
+    transform: scale(0.98);
   }
 }
 
@@ -172,17 +181,35 @@
   display: flex;
   min-height: 0;
   overflow: hidden;
-  border-block: 1px solid var(--color-gray-200);
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    height: 1px;
+    width: 100%;
+    background: var(--color-gray-200);
+  }
+
+  &::before {
+    top: 0;
+  }
+  &::after {
+    bottom: 0;
+  }
 }
 
 .BodyViewport {
   box-sizing: border-box;
   flex: 1 1 auto;
   min-height: 0;
-  overflow-y: auto;
   overscroll-behavior: contain;
-  padding-block: 1.5rem;
-  padding-right: 1.5rem;
+  padding: 1.5rem 1.5rem 1.5rem 0.25rem;
+
+  &:focus-visible {
+    outline: 1px solid var(--color-blue);
+    outline-offset: -1px;
+  }
 }
 
 .BodyContent {

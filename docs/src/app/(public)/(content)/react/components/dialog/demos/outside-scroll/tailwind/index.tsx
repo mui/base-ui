@@ -3,29 +3,43 @@ import { Dialog } from '@base-ui-components/react/dialog';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 
 export default function OutsideScrollDialog() {
+  const popupRef = React.useRef<HTMLDivElement>(null);
+  const scrollportRef = React.useRef<HTMLDivElement>(null);
+  const [blockHovering, setBlockHovering] = React.useState(true);
   return (
-    <Dialog.Root>
-      <Dialog.Trigger className="box-border m-0 flex h-10 items-center justify-center rounded-md border border-[var(--color-gray-200)] bg-[var(--color-gray-50)] px-3.5 py-0 text-base font-medium leading-6 text-[var(--color-gray-900)] select-none outline-none [@media(hover:hover)]:hover:bg-[var(--color-gray-100)] active:bg-[var(--color-gray-100)] focus-visible:outline-2 focus-visible:outline-[var(--color-blue)] focus-visible:outline-offset-[-1px]">
+    <Dialog.Root
+      onOpenChangeComplete={(open) => {
+        setBlockHovering(!open);
+      }}
+    >
+      <Dialog.Trigger className="m-0 flex h-10 select-none items-center justify-center rounded-md border border-[var(--color-gray-200)] bg-[var(--color-gray-50)] px-3.5 py-0 text-base font-medium leading-6 text-[var(--color-gray-900)] outline-none transition-colors [@media(hover:hover)]:hover:bg-[var(--color-gray-100)] active:bg-[var(--color-gray-100)] focus-visible:outline-2 focus-visible:outline-[var(--color-blue)] focus-visible:outline-offset-[-1px]">
         Open dialog
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-150 ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 dark:opacity-70" />
-        <Dialog.Viewport className="fixed inset-0 transition-opacity duration-150 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0">
+        <Dialog.Backdrop className="fixed inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/5%)_0,rgb(0_0_0/10%)_50%)] opacity-100 transition-[backdrop-filter,opacity] duration-[600ms] ease-[var(--ease-out-fast)] backdrop-blur-[1.5px] data-[starting-style]:backdrop-blur-0 data-[starting-style]:opacity-0 data-[ending-style]:backdrop-blur-0 data-[ending-style]:opacity-0 data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
+        <Dialog.Viewport className="group fixed inset-0">
           <ScrollArea.Root
             style={{ position: undefined }}
-            className="box-border h-full overscroll-contain"
+            className="h-full overscroll-contain group-data-[ending-style]:pointer-events-none"
           >
-            <ScrollArea.Viewport className="box-border h-full overscroll-contain">
+            <ScrollArea.Viewport
+              className="h-full overscroll-contain data-[ending-style]:pointer-events-none"
+              ref={scrollportRef}
+            >
               <ScrollArea.Content className="flex min-h-full items-center justify-center">
-                <Dialog.Popup className="box-border relative mx-auto my-8 w-[min(40rem,calc(100vw-2rem))] rounded-lg bg-[var(--color-gray-50)] p-8 text-[var(--color-gray-900)] shadow-[0_24px_45px_rgba(15,23,42,0.18)] [outline:1px_solid_var(--color-gray-200)] transition-transform duration-150 ease-[cubic-bezier(0.25,0.1,0.25,1)] data-[starting-style]:-translate-y-4 data-[ending-style]:-translate-y-4 dark:[outline:1px_solid_var(--color-gray-300)]">
+                <Dialog.Popup
+                  ref={popupRef}
+                  initialFocus={popupRef}
+                  className="outline-0 relative mx-auto my-12 w-[min(40rem,calc(100vw-2rem))] rounded-lg bg-[var(--color-gray-50)] p-8 text-[var(--color-gray-900)] shadow-[0_10px_64px_-10px_rgba(36,40,52,0.2),0_0.25px_0_1px_var(--color-gray-200)] transition-transform duration-[700ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:translate-y-[100dvh] data-[ending-style]:translate-y-full data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] md:mt-8 md:mb-12 dark:outline dark:outline-1 dark:outline-[var(--color-gray-300)] motion-reduce:transition-none"
+                >
                   <div className="mb-4 flex items-start justify-between gap-3">
                     <Dialog.Title className="m-0 text-xl font-semibold leading-[1.875rem]">
                       Dialog
                     </Dialog.Title>
                     <Dialog.Close
                       aria-label="Close"
-                      className="relative -top-2 -right-2 inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-gray-200)] bg-[var(--color-gray-50)] text-[var(--color-gray-600)] outline-none transition-colors duration-[120ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] [@media(hover:hover)]:hover:bg-[var(--color-gray-100)] [@media(hover:hover)]:hover:text-[var(--color-gray-900)] active:bg-[var(--color-gray-100)] focus-visible:outline-2 focus-visible:outline-[var(--color-blue)] focus-visible:outline-offset-[1px]"
+                      className="relative -right-2 -top-2 inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-gray-200)] bg-[var(--color-gray-50)] text-[var(--color-gray-600)] outline-none transition-colors duration-[120ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] [@media(hover:hover)]:hover:bg-[var(--color-gray-100)] [@media(hover:hover)]:hover:text-[var(--color-gray-900)] active:bg-[var(--color-gray-100)] focus-visible:outline-2 focus-visible:outline-[var(--color-blue)] focus-visible:outline-offset-[1px]"
                     >
                       <XIcon className="h-[1.1rem] w-[1.1rem]" />
                     </Dialog.Close>
@@ -36,7 +50,7 @@ export default function OutsideScrollDialog() {
                     the bottom edge.
                   </Dialog.Description>
 
-                  <div className="mb-7 flex flex-col gap-6">
+                  <div className="mb-[1.75rem] flex flex-col gap-6">
                     {CONTENT_SECTIONS.map((item) => (
                       <section key={item.title}>
                         <h3 className="m-0 mb-[0.4rem] text-base font-semibold leading-6">
@@ -51,7 +65,10 @@ export default function OutsideScrollDialog() {
                 </Dialog.Popup>
               </ScrollArea.Content>
             </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar className="pointer-events-none absolute m-2 flex w-[0.325rem] justify-center rounded-[1rem] opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.25,0.1,0.25,1)] data-[hovering]:pointer-events-auto data-[hovering]:opacity-100 data-[hovering]:duration-75 data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-75 md:w-[0.4375rem]">
+            <ScrollArea.Scrollbar
+              className="pointer-events-none absolute m-[0.4rem] flex w-[0.25rem] justify-center rounded-[1rem] opacity-0 transition-opacity duration-[150ms] group-data-[ending-style]:opacity-0 data-[hovering]:not-data-[block-hovering]:pointer-events-auto data-[hovering]:not-data-[block-hovering]:opacity-100 data-[hovering]:not-data-[block-hovering]:duration-[75ms] data-[hovering]:not-data-[block-hovering]:delay-[0ms] data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-[75ms] data-[scrolling]:delay-[0ms] md:w-[0.4375rem]"
+              data-block-hovering={blockHovering ? '' : undefined}
+            >
               <ScrollArea.Thumb className="w-full rounded-[inherit] bg-[var(--color-gray-500)] before:absolute before:content-[''] before:top-1/2 before:left-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2" />
             </ScrollArea.Scrollbar>
           </ScrollArea.Root>
