@@ -266,7 +266,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     floatingRootContext: floatingContext,
   });
 
-  const popoverContext: PopoverRootContext = React.useMemo(
+  const popoverContext: PopoverRootContext<Payload> = React.useMemo(
     () => ({
       store,
     }),
@@ -274,7 +274,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   );
 
   return (
-    <PopoverRootContext.Provider value={popoverContext}>
+    <PopoverRootContext.Provider value={popoverContext as PopoverRootContext<unknown>}>
       {typeof props.children === 'function' ? props.children({ payload }) : props.children}
     </PopoverRootContext.Provider>
   );

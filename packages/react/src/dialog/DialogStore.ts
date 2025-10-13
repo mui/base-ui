@@ -63,7 +63,7 @@ const selectors = {
   inactiveTriggerProps: createSelector((state: State) => state.inactiveTriggerProps),
 };
 
-export class DialogStore extends ReactStore<State, Context, typeof selectors> {
+export class DialogStore<Payload> extends ReactStore<State, Context, typeof selectors> {
   static create(initialState: State) {
     const context: Context = {
       popupRef: React.createRef<HTMLElement>(),
