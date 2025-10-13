@@ -63,7 +63,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   });
 }) as DialogTrigger;
 
-interface DialogTrigger {
+export interface DialogTrigger {
   <Payload>(
     componentProps: DialogTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
