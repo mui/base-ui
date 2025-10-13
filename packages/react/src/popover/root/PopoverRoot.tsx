@@ -24,9 +24,11 @@ import {
   type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
+import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
+    children,
     open: openProp,
     defaultOpen: defaultOpenProp = false,
     onOpenChange,
@@ -275,7 +277,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   return (
     <PopoverRootContext.Provider value={popoverContext as PopoverRootContext<unknown>}>
-      {typeof props.children === 'function' ? props.children({ payload }) : props.children}
+      {typeof children === 'function' ? children({ payload }) : children}
     </PopoverRootContext.Provider>
   );
 }
@@ -355,17 +357,13 @@ export interface PopoverRootProps<Payload = unknown> {
    * The content of the popover.
    * This can be a regular React node or a render function that receives the `payload` of the active trigger.
    */
-  children?: React.ReactNode | PopoverRoot.ChildRenderFunction<Payload>;
+  children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
 }
 
 export interface PopoverRootActions {
   unmount: () => void;
   close: () => void;
 }
-
-export type PopoverRootChildRenderFunction<Payload> = (arg: {
-  payload: Payload | undefined;
-}) => React.ReactNode;
 
 export type PopoverRootChangeEventReason =
   | 'trigger-hover'
@@ -388,5 +386,4 @@ export namespace PopoverRoot {
   export type Actions = PopoverRootActions;
   export type ChangeEventReason = PopoverRootChangeEventReason;
   export type ChangeEventDetails = PopoverRootChangeEventDetails;
-  export type ChildRenderFunction<Payload> = PopoverRootChildRenderFunction<Payload>;
 }

@@ -5,6 +5,7 @@ import { useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { DialogStore } from '../DialogStore';
+import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
 
 /**
  * Groups all parts of the dialog.
@@ -12,9 +13,7 @@ import { DialogStore } from '../DialogStore';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot<Payload>(
-  props: DialogRoot.Props<Payload>,
-) {
+export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   const {
     children,
     open: openProp,
@@ -37,6 +36,8 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot<Payloa
   store.useContextCallback('openChange', onOpenChange);
   store.useContextCallback('openChangeComplete', onOpenChangeComplete);
 
+  const payload = store.useState('payload') as Payload | undefined;
+
   useDialogRoot({
     store,
     actionsRef,
@@ -48,13 +49,12 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot<Payloa
 
   return (
     <DialogRootContext.Provider value={contextValue as DialogRootContext}>
-      {children}
+      {typeof children === 'function' ? children({ payload }) : children}
     </DialogRootContext.Provider>
   );
-};
+}
 
 export interface DialogRootProps<Payload = unknown> {
-  children?: React.ReactNode;
   /**
    * Whether the dialog is currently open.
    */
@@ -99,6 +99,11 @@ export interface DialogRootProps<Payload = unknown> {
    * If specified, allows external triggers to control the popover's open state.
    */
   handle?: DialogStore<Payload>;
+  /**
+   * The content of the dialog.
+   * This can be a regular React node or a render function that receives the `payload` of the active trigger.
+   */
+  children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
 }
 
 export interface DialogRootActions {

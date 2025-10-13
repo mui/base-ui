@@ -222,7 +222,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   return element;
 }) as PopoverTrigger;
 
-interface PopoverTrigger {
+export interface PopoverTrigger {
   <Payload>(
     componentProps: PopoverTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;

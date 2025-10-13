@@ -13,9 +13,7 @@ import type { DialogRoot } from '../../dialog/root/DialogRoot';
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot<Payload>(
-  props: AlertDialogRoot.Props<Payload>,
-) {
+export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) {
   const {
     children,
     open: openProp,
@@ -36,6 +34,8 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
   store.useContextCallback('openChange', onOpenChange);
   store.useContextCallback('openChangeComplete', onOpenChangeComplete);
 
+  const payload = store.useState('payload') as Payload | undefined;
+
   useDialogRoot({
     store,
     actionsRef,
@@ -47,10 +47,10 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
 
   return (
     <DialogRootContext.Provider value={contextValue as DialogRootContext}>
-      {children}
+      {typeof children === 'function' ? children({ payload }) : children}
     </DialogRootContext.Provider>
   );
-};
+}
 
 export interface AlertDialogRootProps<Payload = unknown>
   extends Omit<DialogRoot.Props<Payload>, 'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef'> {

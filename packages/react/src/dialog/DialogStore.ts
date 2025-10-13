@@ -98,6 +98,10 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
   };
 }
 
+export function createDialogHandle<Payload>(): DialogStore<Payload> {
+  return new DialogStore<Payload>();
+}
+
 function createInitialState<Payload>(): State<Payload> {
   return {
     open: false,

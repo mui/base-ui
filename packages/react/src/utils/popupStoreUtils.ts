@@ -41,3 +41,7 @@ export function useTriggerRegistration<Payload, State extends { triggers: PopupT
     [getPayload, store, id],
   );
 }
+
+export type PayloadChildRenderFunction<Payload> = (arg: {
+  payload: Payload | undefined;
+}) => React.ReactNode;
