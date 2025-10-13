@@ -288,6 +288,10 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
     return value.get('millisecond');
   };
 
+  public getTime = (value: DateTime): number => {
+    return value.toMillis();
+  };
+
   public setYear = (value: DateTime, year: number) => {
     return value.set({ year });
   };

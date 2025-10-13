@@ -272,6 +272,10 @@ export interface TemporalAdapter {
    */
   getMilliseconds(value: TemporalSupportedObject): number;
   /**
+   * Gets the time since epoch of the given date.
+   */
+  getTime(value: TemporalSupportedObject): number;
+  /**
    * Sets the year to the given date.
    */
   setYear(value: TemporalSupportedObject, year: number): TemporalSupportedObject;

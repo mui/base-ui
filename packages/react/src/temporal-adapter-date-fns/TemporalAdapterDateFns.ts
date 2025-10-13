@@ -345,6 +345,10 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
     return getMilliseconds(value);
   };
 
+  public getTime = (value: Date): number => {
+    return value.getTime();
+  };
+
   public setYear = (value: Date, year: number): Date => {
     return setYear(value, year);
   };
