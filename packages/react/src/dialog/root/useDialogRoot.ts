@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   useClick,
   useDismiss,
@@ -17,7 +18,7 @@ import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../DialogStore';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
-  const { store, parentContext } = params;
+  const { store, parentContext, actionsRef } = params;
 
   const open = store.useState('open');
   const dismissible = store.useState('dismissible');
@@ -27,6 +28,13 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
+  useIsoLayoutEffect(() => {
+    store.set('mounted', mounted);
+    if (!mounted) {
+      store.set('activeTriggerId', null);
+    }
+  }, [store, mounted]);
+
   const {
     openMethod,
     triggerProps,
@@ -35,12 +43,13 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
+    store.apply({ open: false, mounted: false, activeTriggerId: null });
     store.context.openChangeComplete?.(false);
     resetOpenInteractionType();
   });
 
   useOpenChangeComplete({
-    enabled: !params.actionsRef,
+    enabled: !actionsRef,
     open,
     ref: store.context.popupRef,
     onComplete() {
@@ -50,7 +59,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     },
   });
 
-  React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },
