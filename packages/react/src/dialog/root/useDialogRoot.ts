@@ -14,6 +14,7 @@ import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../DialogStore';
 
@@ -48,8 +49,24 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     resetOpenInteractionType();
   });
 
+  const createDialogEventDetails = useStableCallback((reason: DialogRoot.ChangeEventReason) => {
+    const details: DialogRoot.ChangeEventDetails =
+      createChangeEventDetails<DialogRoot.ChangeEventReason>(
+        reason,
+      ) as DialogRoot.ChangeEventDetails;
+    details.preventUnmountOnClose = () => {
+      store.context.preventUnmountingOnCloseRef.current = true;
+    };
+
+    return details;
+  });
+
+  const handleImperativeClose = React.useCallback(() => {
+    store.setOpen(false, createDialogEventDetails('imperative-action'));
+  }, [store, createDialogEventDetails]);
+
   useOpenChangeComplete({
-    enabled: !actionsRef,
+    enabled: !store.context.preventUnmountingOnCloseRef.current,
     open,
     ref: store.context.popupRef,
     onComplete() {
@@ -59,7 +76,11 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     },
   });
 
-  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({ unmount: handleUnmount, close: handleImperativeClose }),
+    [handleUnmount, handleImperativeClose],
+  );
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },

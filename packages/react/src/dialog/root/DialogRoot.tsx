@@ -108,6 +108,7 @@ export interface DialogRootProps<Payload = unknown> {
 
 export interface DialogRootActions {
   unmount: () => void;
+  close: () => void;
 }
 
 export type DialogRootChangeEventReason =
@@ -116,8 +117,13 @@ export type DialogRootChangeEventReason =
   | 'escape-key'
   | 'close-press'
   | 'focus-out'
+  | 'imperative-action'
   | 'none';
-export type DialogRootChangeEventDetails = BaseUIChangeEventDetails<DialogRoot.ChangeEventReason>;
+
+export type DialogRootChangeEventDetails =
+  BaseUIChangeEventDetails<DialogRoot.ChangeEventReason> & {
+    preventUnmountOnClose(): void;
+  };
 
 export namespace DialogRoot {
   export type Props<Payload = unknown> = DialogRootProps<Payload>;

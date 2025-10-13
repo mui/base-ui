@@ -33,6 +33,7 @@ type Context = {
   popupRef: React.RefObject<HTMLElement | null>;
   backdropRef: React.RefObject<HTMLDivElement | null>;
   internalBackdropRef: React.RefObject<HTMLDivElement | null>;
+  preventUnmountingOnCloseRef: React.RefObject<boolean>;
 
   openChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
   openChangeComplete?: (open: boolean) => void;
@@ -73,13 +74,21 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
         internalBackdropRef: React.createRef<HTMLDivElement>(),
+        preventUnmountingOnCloseRef: { current: false },
       },
       selectors,
     );
   }
 
-  public setOpen = (nextOpen: boolean, eventDetails: DialogRoot.ChangeEventDetails) => {
-    this.context.openChange?.(nextOpen, eventDetails);
+  public setOpen = (
+    nextOpen: boolean,
+    eventDetails: Omit<DialogRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
+  ) => {
+    (eventDetails as DialogRoot.ChangeEventDetails).preventUnmountOnClose = () => {
+      this.context.preventUnmountingOnCloseRef.current = true;
+    };
+
+    this.context.openChange?.(nextOpen, eventDetails as DialogRoot.ChangeEventDetails);
 
     if (eventDetails.isCanceled) {
       return;
