@@ -5,26 +5,6 @@ import { useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { DialogStore } from '../DialogStore';
-import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
-import { EMPTY_OBJECT } from '../../utils/constants';
-
-const INITIAL_STATE = {
-  open: false,
-  dismissible: true,
-  nested: false,
-  popupElement: null,
-  triggerElement: null,
-  modal: true,
-  descriptionElementId: undefined,
-  titleElementId: undefined,
-  openMethod: null,
-  mounted: false,
-  transitionStatus: 'idle',
-  nestedOpenDialogCount: 0,
-  triggerProps: EMPTY_OBJECT,
-  popupProps: EMPTY_OBJECT,
-  floatingRootContext: getEmptyContext(),
-} as const;
 
 /**
  * Groups all parts of the dialog.
@@ -32,24 +12,27 @@ const INITIAL_STATE = {
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
+export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot<Payload>(
+  props: DialogRoot.Props<Payload>,
+) {
   const {
     children,
     open: openProp,
-    defaultOpen: defaultOpenProp = false,
+    defaultOpen = false,
     onOpenChange,
     onOpenChangeComplete,
     dismissible = true,
     modal = true,
     actionsRef,
+    handle,
   } = props;
 
   const parentDialogRootContext = useDialogRootContext(true);
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(DialogStore.create, INITIAL_STATE).current;
+  const store = useRefWithInit(() => handle ?? new DialogStore<Payload>()).current;
 
-  store.useControlledProp('open', openProp, defaultOpenProp);
+  store.useControlledProp('open', openProp, defaultOpen);
   store.useSyncedValues({ dismissible, nested, modal });
   store.useContextCallback('openChange', onOpenChange);
   store.useContextCallback('openChangeComplete', onOpenChangeComplete);
@@ -61,12 +44,16 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
     onOpenChange,
   });
 
-  const contextValue: DialogRootContext = React.useMemo(() => ({ store }), [store]);
+  const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
 
-  return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
+  return (
+    <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+      {children}
+    </DialogRootContext.Provider>
+  );
 };
 
-export interface DialogRootProps {
+export interface DialogRootProps<Payload = unknown> {
   children?: React.ReactNode;
   /**
    * Whether the dialog is currently open.
@@ -107,6 +94,11 @@ export interface DialogRootProps {
    * Useful when the dialog's animation is controlled by an external library.
    */
   actionsRef?: React.RefObject<DialogRoot.Actions>;
+  /**
+   * A handle to associate the popover with a trigger.
+   * If specified, allows external triggers to control the popover's open state.
+   */
+  handle?: DialogStore<Payload>;
 }
 
 export interface DialogRootActions {
@@ -123,7 +115,7 @@ export type DialogRootChangeEventReason =
 export type DialogRootChangeEventDetails = BaseUIChangeEventDetails<DialogRoot.ChangeEventReason>;
 
 export namespace DialogRoot {
-  export type Props = DialogRootProps;
+  export type Props<Payload = unknown> = DialogRootProps<Payload>;
   export type Actions = DialogRootActions;
   export type ChangeEventReason = DialogRootChangeEventReason;
   export type ChangeEventDetails = DialogRootChangeEventDetails;

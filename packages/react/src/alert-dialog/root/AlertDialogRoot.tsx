@@ -2,30 +2,10 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
-import { DialogStore } from '../../dialog/DialogStore';
 import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import type { DialogRoot } from '../../dialog/root/DialogRoot';
-import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
 import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { EMPTY_OBJECT } from '../../utils/constants';
-
-const INITIAL_STATE = {
-  open: false,
-  dismissible: false,
-  nested: false,
-  popupElement: null,
-  triggerElement: null,
-  modal: true,
-  descriptionElementId: undefined,
-  titleElementId: undefined,
-  openMethod: null,
-  mounted: false,
-  transitionStatus: 'idle',
-  nestedOpenDialogCount: 0,
-  triggerProps: EMPTY_OBJECT,
-  popupProps: EMPTY_OBJECT,
-  floatingRootContext: getEmptyContext(),
-} as const;
+import { DialogStore } from '../../dialog/DialogStore';
+import type { DialogRoot } from '../../dialog/root/DialogRoot';
 
 /**
  * Groups all parts of the alert dialog.
@@ -33,20 +13,23 @@ const INITIAL_STATE = {
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
+export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot<Payload>(
+  props: AlertDialogRoot.Props<Payload>,
+) {
   const {
     children,
+    open: openProp,
     defaultOpen = false,
     onOpenChange,
     onOpenChangeComplete,
-    open: openProp,
     actionsRef,
+    handle,
   } = props;
 
   const parentDialogRootContext = useDialogRootContext();
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(DialogStore.create, INITIAL_STATE).current;
+  const store = useRefWithInit(() => handle ?? new DialogStore<Payload>()).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useSyncedValue('nested', nested);
@@ -60,13 +43,17 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
     onOpenChange,
   });
 
-  const contextValue: DialogRootContext = React.useMemo(() => ({ store }), [store]);
+  const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
 
-  return <DialogRootContext.Provider value={contextValue}>{children}</DialogRootContext.Provider>;
+  return (
+    <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+      {children}
+    </DialogRootContext.Provider>
+  );
 };
 
-export interface AlertDialogRootProps
-  extends Omit<DialogRoot.Props, 'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef'> {
+export interface AlertDialogRootProps<Payload = unknown>
+  extends Omit<DialogRoot.Props<Payload>, 'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef'> {
   /**
    * Event handler called when the dialog is opened or closed.
    */
@@ -87,7 +74,7 @@ export type AlertDialogRootChangeEventDetails =
   BaseUIChangeEventDetails<AlertDialogRoot.ChangeEventReason>;
 
 export namespace AlertDialogRoot {
-  export type Props = AlertDialogRootProps;
+  export type Props<Payload = unknown> = AlertDialogRootProps<Payload>;
   export type Actions = AlertDialogRootActions;
   export type ChangeEventReason = AlertDialogRootChangeEventReason;
   export type ChangeEventDetails = AlertDialogRootChangeEventDetails;

@@ -22,7 +22,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const open = store.useState('open');
   const dismissible = store.useState('dismissible');
   const modal = store.useState('modal');
-  const triggerElement = store.useState('triggerElement');
+  const triggerElement = store.useState('activeTriggerElement');
   const popupElement = store.useState('popupElement');
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -106,7 +106,11 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     referenceElement: popupElement,
   });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([role, click, dismiss]);
+  const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([
+    role,
+    click,
+    dismiss,
+  ]);
 
   // Listen for nested open/close events on this store to maintain the count
   store.useContextCallback('nestedDialogOpen', (ownChildrenCount) => {
@@ -141,7 +145,8 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     openMethod,
     mounted,
     transitionStatus,
-    triggerProps: dialogTriggerProps,
+    activeTriggerProps: dialogTriggerProps,
+    inactiveTriggerProps: getTriggerProps(),
     popupProps: getFloatingProps(),
     floatingRootContext: context,
     nestedOpenDialogCount: ownNestedOpenDialogs,
@@ -151,9 +156,9 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 export interface UseDialogRootSharedParameters {}
 
 export interface UseDialogRootParameters {
-  store: DialogStore;
+  store: DialogStore<any>;
   actionsRef?: DialogRoot.Props['actionsRef'];
-  parentContext?: DialogStore['context'];
+  parentContext?: DialogStore<unknown>['context'];
   onOpenChange: DialogRoot.Props['onOpenChange'];
 }
 

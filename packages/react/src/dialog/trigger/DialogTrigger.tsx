@@ -7,6 +7,8 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { DialogStore } from '../DialogStore';
+import { useTriggerRegistration } from '../../utils/popupStoreUtils';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 
 /**
  * A button that opens the dialog.
@@ -23,6 +25,8 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     className,
     disabled = false,
     nativeButton = true,
+    id: idProp,
+    payload,
     ...elementProps
   } = componentProps;
 
@@ -43,9 +47,12 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     native: nativeButton,
   });
 
+  const id = useBaseUiId(idProp);
+  const registerTrigger = useTriggerRegistration(id, payload, store);
+
   return useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, store.getElementSetter('activeTriggerElement')],
+    ref: [buttonRef, forwardedRef, registerTrigger],
     props: [
       triggerProps,
       { [CLICK_TRIGGER_IDENTIFIER as string]: '' },
@@ -54,7 +61,13 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     ],
     stateAttributesMapping: triggerOpenStateMapping,
   });
-});
+}) as DialogTrigger;
+
+interface DialogTrigger {
+  <Payload>(
+    componentProps: DialogTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
+}
 
 export interface DialogTriggerProps<Payload = unknown>
   extends NativeButtonProps,
