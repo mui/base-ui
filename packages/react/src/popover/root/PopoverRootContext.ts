@@ -2,8 +2,8 @@
 import * as React from 'react';
 import type { PopoverStore } from '../PopoverStore';
 
-export interface PopoverRootContext {
-  store: PopoverStore<unknown>;
+export interface PopoverRootContext<Payload = unknown> {
+  store: PopoverStore<Payload>;
 }
 
 export const PopoverRootContext = React.createContext<PopoverRootContext | undefined>(undefined);

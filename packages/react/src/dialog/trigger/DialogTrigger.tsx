@@ -6,6 +6,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
+import { DialogStore } from '../DialogStore';
 
 /**
  * A button that opens the dialog.
@@ -55,9 +56,23 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   });
 });
 
-export interface DialogTriggerProps
+export interface DialogTriggerProps<Payload = unknown>
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', DialogTrigger.State> {}
+    BaseUIComponentProps<'button', DialogTrigger.State> {
+  /**
+   * A handle to associate the trigger with a popover.
+   */
+  handle?: DialogStore<Payload>;
+  /**
+   * A payload to pass to the popover when it is opened.
+   */
+  payload?: Payload;
+  /**
+   * ID of the trigger. In addition to being forwarded to the rendered element,
+   * it is also used to specify the active trigger for the dialogs in controlled mode (with the DialogRoot `triggerId` prop).
+   */
+  id?: string;
+}
 
 export interface DialogTriggerState {
   /**

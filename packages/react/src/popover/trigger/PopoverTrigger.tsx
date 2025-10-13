@@ -28,6 +28,7 @@ import {
   isOutsideEvent,
 } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { useTriggerRegistration } from '../../utils/popupStoreUtils';
 
 /**
  * A button that opens the popover.
@@ -118,33 +119,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const localProps = useInteractions([click, hover]);
 
-  const getPayload = useStableCallback(() => {
-    return payload;
-  });
-
-  const registeredId = React.useRef<string>(null);
-  const registerTrigger = React.useCallback(
-    (element: HTMLElement | null) => {
-      if (id == null) {
-        throw new Error('Base UI: PopoverTrigger must have an `id` prop specified.');
-      }
-
-      if (element != null) {
-        store.registerTrigger(id, element, getPayload);
-        setTriggerElement(element);
-        // Keeping track of the registered id in case it changes.
-        registeredId.current = id;
-      } else {
-        if (registeredId.current != null) {
-          store.unregisterTrigger(registeredId.current);
-          registeredId.current = null;
-        }
-
-        setTriggerElement(null);
-      }
-    },
-    [getPayload, store, id],
-  );
+  const registerTrigger = useTriggerRegistration(id, payload, store);
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
@@ -174,7 +149,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, registerTrigger],
+    ref: [buttonRef, forwardedRef, registerTrigger, setTriggerElement],
     props: [
       localProps.getReferenceProps(),
       isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
