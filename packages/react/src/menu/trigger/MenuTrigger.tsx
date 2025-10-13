@@ -184,20 +184,25 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   return element;
 });
 
-export namespace MenuTrigger {
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface MenuTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', MenuTrigger.State> {
+  children?: React.ReactNode;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+}
 
-  export type State = {
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-  };
+export type MenuTriggerState = {
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+};
+
+export namespace MenuTrigger {
+  export type Props = MenuTriggerProps;
+  export type State = MenuTriggerState;
 }

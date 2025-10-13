@@ -27,6 +27,8 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     name,
     disabled: disabledProp = false,
     invalid: invalidProp,
+    dirty: dirtyProp,
+    touched: touchedProp,
     ...elementProps
   } = componentProps;
 
@@ -42,19 +44,33 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
 
-  const [touched, setTouched] = React.useState(false);
-  const [dirty, setDirtyUnwrapped] = React.useState(false);
+  const [touchedState, setTouchedUnwrapped] = React.useState(false);
+  const [dirtyState, setDirtyUnwrapped] = React.useState(false);
   const [filled, setFilled] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
 
+  const dirty = dirtyProp ?? dirtyState;
+  const touched = touchedProp ?? touchedState;
+
   const markedDirtyRef = React.useRef(false);
 
-  const setDirty: typeof setDirtyUnwrapped = React.useCallback((value) => {
+  const setDirty: typeof setDirtyUnwrapped = useEventCallback((value) => {
+    if (dirtyProp !== undefined) {
+      return;
+    }
+
     if (value) {
       markedDirtyRef.current = true;
     }
     setDirtyUnwrapped(value);
-  }, []);
+  });
+
+  const setTouched: typeof setTouchedUnwrapped = useEventCallback((value) => {
+    if (touchedProp !== undefined) {
+      return;
+    }
+    setTouchedUnwrapped(value);
+  });
 
   const invalid = Boolean(
     invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
@@ -118,6 +134,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
       validityData,
       disabled,
       touched,
+      setTouched,
       dirty,
       setDirty,
       filled,
@@ -161,56 +178,68 @@ export interface FieldValidityData {
   initialValue: unknown;
 }
 
-export namespace FieldRoot {
-  export interface State {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    touched: boolean;
-    dirty: boolean;
-    valid: boolean | null;
-    filled: boolean;
-    focused: boolean;
-  }
+export interface FieldRootState {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  touched: boolean;
+  dirty: boolean;
+  valid: boolean | null;
+  filled: boolean;
+  focused: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether the component should ignore user interaction.
-     * Takes precedence over the `disabled` prop on the `<Field.Control>` component.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Identifies the field when a form is submitted.
-     * Takes precedence over the `name` prop on the `<Field.Control>` component.
-     */
-    name?: string;
-    /**
-     * A function for custom validation. Return a string or an array of strings with
-     * the error message(s) if the value is invalid, or `null` if the value is valid.
-     */
-    validate?: (
-      value: unknown,
-      formValues: Record<string, unknown>,
-    ) => string | string[] | null | Promise<string | string[] | null>;
-    /**
-     * Determines when the field should be validated.
-     *
-     * - **onBlur** triggers validation when the control loses focus
-     * - **onChange** triggers validation on every change to the control value
-     * @default 'onBlur'
-     */
-    validationMode?: 'onBlur' | 'onChange';
-    /**
-     * How long to wait between `validate` callbacks if
-     * `validationMode="onChange"` is used. Specified in milliseconds.
-     * @default 0
-     */
-    validationDebounceTime?: number;
-    /**
-     * Whether the field is forcefully marked as invalid.
-     */
-    invalid?: boolean;
-  }
+export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.State> {
+  /**
+   * Whether the component should ignore user interaction.
+   * Takes precedence over the `disabled` prop on the `<Field.Control>` component.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Identifies the field when a form is submitted.
+   * Takes precedence over the `name` prop on the `<Field.Control>` component.
+   */
+  name?: string;
+  /**
+   * A function for custom validation. Return a string or an array of strings with
+   * the error message(s) if the value is invalid, or `null` if the value is valid.
+   */
+  validate?: (
+    value: unknown,
+    formValues: Record<string, unknown>,
+  ) => string | string[] | null | Promise<string | string[] | null>;
+  /**
+   * Determines when the field should be validated.
+   *
+   * - **onBlur** triggers validation when the control loses focus
+   * - **onChange** triggers validation on every change to the control value
+   * @default 'onBlur'
+   */
+  validationMode?: 'onBlur' | 'onChange';
+  /**
+   * How long to wait between `validate` callbacks if
+   * `validationMode="onChange"` is used. Specified in milliseconds.
+   * @default 0
+   */
+  validationDebounceTime?: number;
+  /**
+   * Whether the field is invalid.
+   * Useful when the field state is controlled by an external library.
+   */
+  invalid?: boolean;
+  /**
+   * Whether the field's value has been changed from its initial value.
+   * Useful when the field state is controlled by an external library.
+   */
+  dirty?: boolean;
+  /**
+   * Whether the field has been touched.
+   * Useful when the field state is controlled by an external library.
+   */
+  touched?: boolean;
+}
+
+export namespace FieldRoot {
+  export type State = FieldRootState;
+  export type Props = FieldRootProps;
 }

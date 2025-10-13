@@ -137,105 +137,116 @@ export function AutocompleteRoot<ItemValue>(
   );
 }
 
+export type AutocompleteRootState = AriaCombobox.State;
+
+export interface AutocompleteRootActions {
+  unmount: () => void;
+}
+
+export type AutocompleteRootChangeEventReason = AriaCombobox.ChangeEventReason;
+export type AutocompleteRootChangeEventDetails = AriaCombobox.ChangeEventDetails;
+
+export type AutocompleteRootHighlightEventReason = AriaCombobox.HighlightEventReason;
+export type AutocompleteRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
+
+export interface AutocompleteRootProps<ItemValue>
+  extends Omit<
+    AriaCombobox.Props<ItemValue, 'none'>,
+    | 'selectionMode'
+    | 'selectedValue'
+    | 'defaultSelectedValue'
+    | 'onSelectedValueChange'
+    | 'fillInputOnItemPress'
+    | 'itemToStringValue'
+    | 'isItemEqualToValue'
+    // Different names
+    | 'inputValue' // value
+    | 'defaultInputValue' // defaultValue
+    | 'onInputValueChange' // onValueChange
+    | 'autoComplete' // mode
+    | 'itemToStringLabel' // itemToStringValue
+    // Custom JSDoc
+    | 'autoHighlight'
+    | 'actionsRef'
+    | 'onOpenChange'
+    | 'onInputValueChange'
+  > {
+  /**
+   * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
+   * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.
+   * - `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).
+   * - `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).
+   * - `none`: items are static (not filtered), and the input value will not change based on the active item.
+   * @default 'list'
+   */
+  mode?: 'list' | 'both' | 'inline' | 'none';
+  /**
+   * Whether the first matching option is highlighted automatically.
+   * - `true` or `{ behavior: 'input-change' }`: highlight after the user types and keep the highlight while the query changes.
+   * - `{ behavior: 'always' }`: highlight the first option as soon as the list is open, even before typing.
+   * @default false
+   */
+  autoHighlight?: boolean | { behavior?: 'always' | 'input-change' };
+  /**
+   * The uncontrolled input value of the autocomplete when it's initially rendered.
+   *
+   * To render a controlled autocomplete, use the `value` prop instead.
+   */
+  defaultValue?: AriaCombobox.Props<
+    React.ComponentProps<'input'>['defaultValue'],
+    'none'
+  >['defaultInputValue'];
+  /**
+   * The input value of the autocomplete. Use when controlled.
+   */
+  value?: AriaCombobox.Props<React.ComponentProps<'input'>['value'], 'none'>['inputValue'];
+  /**
+   * Event handler called when the input value of the autocomplete changes.
+   */
+  onValueChange?: (value: string, eventDetails: AutocompleteRootChangeEventDetails) => void;
+  /**
+   * When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.
+   * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
+   */
+  itemToStringValue?: (itemValue: ItemValue) => string;
+  /**
+   * A ref to imperative actions.
+   * - `unmount`: When specified, the autocomplete will not be unmounted when closed.
+   * Instead, the `unmount` function must be called to unmount the autocomplete manually.
+   * Useful when the autocomplete's animation is controlled by an external library.
+   */
+  actionsRef?: React.RefObject<AutocompleteRootActions>;
+  /**
+   * Event handler called when the popup is opened or closed.
+   */
+  onOpenChange?: (open: boolean, eventDetails: AutocompleteRootChangeEventDetails) => void;
+  /**
+   * Event handler called when the input value changes.
+   */
+  onInputValueChange?: (
+    inputValue: string,
+    eventDetails: AutocompleteRootChangeEventDetails,
+  ) => void;
+  /**
+   * Callback fired when an item is highlighted or unhighlighted.
+   * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
+   * The `reason` can be:
+   * - `'keyboard'`: the highlight changed due to keyboard navigation.
+   * - `'pointer'`: the highlight changed due to pointer hovering.
+   * - `'none'`: the highlight changed programmatically.
+   */
+  onItemHighlighted?: (
+    highlightedValue: ItemValue | undefined,
+    eventDetails: AutocompleteRootHighlightEventDetails,
+  ) => void;
+}
+
 export namespace AutocompleteRoot {
-  export interface Props<ItemValue>
-    extends Omit<
-      AriaCombobox.Props<ItemValue, 'none'>,
-      | 'selectionMode'
-      | 'selectedValue'
-      | 'defaultSelectedValue'
-      | 'onSelectedValueChange'
-      | 'fillInputOnItemPress'
-      | 'itemToStringValue'
-      | 'isItemEqualToValue'
-      // Different names
-      | 'inputValue' // value
-      | 'defaultInputValue' // defaultValue
-      | 'onInputValueChange' // onValueChange
-      | 'autoComplete' // mode
-      | 'itemToStringLabel' // itemToStringValue
-      | 'autoHighlight'
-      // Custom JSDoc
-      | 'actionsRef'
-      | 'onOpenChange'
-      | 'onInputValueChange'
-    > {
-    /**
-     * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
-     * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.
-     * - `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).
-     * - `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).
-     * - `none`: items are static (not filtered), and the input value will not change based on the active item.
-     * @default 'list'
-     */
-    mode?: 'list' | 'both' | 'inline' | 'none';
-    /**
-     * The uncontrolled input value of the autocomplete when it's initially rendered.
-     *
-     * To render a controlled autocomplete, use the `value` prop instead.
-     */
-    defaultValue?: AriaCombobox.Props<
-      React.ComponentProps<'input'>['defaultValue'],
-      'none'
-    >['defaultInputValue'];
-    /**
-     * Whether the first matching option is highlighted automatically.
-     * - `true` or `{ behavior: 'input-change' }`: highlight after the user types and keep the highlight while the query changes.
-     * - `{ behavior: 'always' }`: highlight the first option as soon as the list is open, even before typing.
-     * @default false
-     */
-    autoHighlight?: boolean | { behavior?: 'always' | 'input-change' };
-    /**
-     * The input value of the autocomplete. Use when controlled.
-     */
-    value?: AriaCombobox.Props<React.ComponentProps<'input'>['value'], 'none'>['inputValue'];
-    /**
-     * Event handler called when the input value of the autocomplete changes.
-     */
-    onValueChange?: (value: string, eventDetails: ChangeEventDetails) => void;
-    /**
-     * When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.
-     * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
-     */
-    itemToStringValue?: (itemValue: ItemValue) => string;
-    /**
-     * A ref to imperative actions.
-     * - `unmount`: When specified, the autocomplete will not be unmounted when closed.
-     * Instead, the `unmount` function must be called to unmount the autocomplete manually.
-     * Useful when the autocomplete's animation is controlled by an external library.
-     */
-    actionsRef?: React.RefObject<Actions>;
-    /**
-     * Event handler called when the popup is opened or closed.
-     */
-    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
-    /**
-     * Event handler called when the input value changes.
-     */
-    onInputValueChange?: (inputValue: string, eventDetails: ChangeEventDetails) => void;
-    /**
-     * Callback fired when an item is highlighted or unhighlighted.
-     * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
-     * The `reason` can be:
-     * - `'keyboard'`: the highlight changed due to keyboard navigation.
-     * - `'pointer'`: the highlight changed due to pointer hovering.
-     * - `'none'`: the highlight changed programmatically.
-     */
-    onItemHighlighted?: (
-      highlightedValue: ItemValue | undefined,
-      eventDetails: AutocompleteRoot.HighlightEventDetails,
-    ) => void;
-  }
-
-  export type State = AriaCombobox.State;
-
-  export interface Actions {
-    unmount: () => void;
-  }
-
-  export type ChangeEventReason = AriaCombobox.ChangeEventReason;
-  export type ChangeEventDetails = AriaCombobox.ChangeEventDetails;
-
-  export type HighlightEventReason = AriaCombobox.HighlightEventReason;
-  export type HighlightEventDetails = AriaCombobox.HighlightEventDetails;
+  export type Props<ItemValue> = AutocompleteRootProps<ItemValue>;
+  export type State = AutocompleteRootState;
+  export type Actions = AutocompleteRootActions;
+  export type ChangeEventReason = AutocompleteRootChangeEventReason;
+  export type ChangeEventDetails = AutocompleteRootChangeEventDetails;
+  export type HighlightEventReason = AutocompleteRootHighlightEventReason;
+  export type HighlightEventDetails = AutocompleteRootHighlightEventDetails;
 }

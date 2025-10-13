@@ -31,13 +31,16 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   return element;
 });
 
-export namespace TooltipTrigger {
-  export interface State {
-    /**
-     * Whether the tooltip is currently open.
-     */
-    open: boolean;
-  }
+export interface TooltipTriggerState {
+  /**
+   * Whether the tooltip is currently open.
+   */
+  open: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+export interface TooltipTriggerProps extends BaseUIComponentProps<'button', TooltipTrigger.State> {}
+
+export namespace TooltipTrigger {
+  export type State = TooltipTriggerState;
+  export type Props = TooltipTriggerProps;
 }
