@@ -23,6 +23,11 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the dialog will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the dialog manually.\nUseful when the dialog's animation is controlled by an external library.",
       "detailedType": "| React.RefObject<AlertDialog.Root.Actions>\n| undefined"
     },
+    "handle": {
+      "type": "DialogStore<unknown>",
+      "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.",
+      "detailedType": "{} | undefined"
+    },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the dialog is opened or closed.",

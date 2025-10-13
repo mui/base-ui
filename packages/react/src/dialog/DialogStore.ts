@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui-components/utils/store';
+import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { type DialogRoot } from './root/DialogRoot';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
 import type { FloatingUIOpenChangeDetails, PopupTriggerMap, HTMLProps } from '../utils/types';
 import { type FloatingRootContext } from '../floating-ui-react/types';
+import { getEmptyContext } from '../floating-ui-react/hooks/useFloatingRootContext';
 
-export type State = {
+export type State<Payload> = {
   open: boolean;
   mounted: boolean;
   modal: boolean | 'trap-focus';
@@ -19,9 +21,9 @@ export type State = {
   descriptionElementId: string | undefined;
   activeTriggerId: string | null;
   popupElement: HTMLElement | null;
-  triggers: PopupTriggerMap;
+  triggers: PopupTriggerMap<Payload>;
   floatingRootContext: FloatingRootContext;
-  payload: unknown | undefined;
+  payload: Payload | undefined;
   activeTriggerProps: HTMLProps;
   inactiveTriggerProps: HTMLProps;
   popupProps: HTMLProps;
@@ -39,39 +41,41 @@ type Context = {
 };
 
 const selectors = {
-  open: createSelector((state: State) => state.open),
-  modal: createSelector((state: State) => state.modal),
-  nested: createSelector((state: State) => state.nested),
-  nestedOpenDialogCount: createSelector((state: State) => state.nestedOpenDialogCount),
-  dismissible: createSelector((state: State) => state.dismissible),
-  openMethod: createSelector((state: State) => state.openMethod),
-  descriptionElementId: createSelector((state: State) => state.descriptionElementId),
-  titleElementId: createSelector((state: State) => state.titleElementId),
-  mounted: createSelector((state: State) => state.mounted),
-  transitionStatus: createSelector((state: State) => state.transitionStatus),
-  popupProps: createSelector((state: State) => state.popupProps),
-  floatingRootContext: createSelector((state: State) => state.floatingRootContext),
-  activeTriggerId: createSelector((state: State) => state.activeTriggerId),
-  activeTriggerElement: createSelector((state: State) =>
+  open: createSelector((state: State<unknown>) => state.open),
+  modal: createSelector((state: State<unknown>) => state.modal),
+  nested: createSelector((state: State<unknown>) => state.nested),
+  nestedOpenDialogCount: createSelector((state: State<unknown>) => state.nestedOpenDialogCount),
+  dismissible: createSelector((state: State<unknown>) => state.dismissible),
+  openMethod: createSelector((state: State<unknown>) => state.openMethod),
+  descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
+  titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
+  mounted: createSelector((state: State<unknown>) => state.mounted),
+  transitionStatus: createSelector((state: State<unknown>) => state.transitionStatus),
+  popupProps: createSelector((state: State<unknown>) => state.popupProps),
+  floatingRootContext: createSelector((state: State<unknown>) => state.floatingRootContext),
+  activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
+  activeTriggerElement: createSelector((state: State<unknown>) =>
     state.mounted && state.activeTriggerId != null
       ? (state.triggers.get(state.activeTriggerId)?.element ?? null)
       : null,
   ),
-  popupElement: createSelector((state: State) => state.popupElement),
-  payload: createSelector((state: State) => state.payload),
-  activeTriggerProps: createSelector((state: State) => state.activeTriggerProps),
-  inactiveTriggerProps: createSelector((state: State) => state.inactiveTriggerProps),
+  popupElement: createSelector((state: State<unknown>) => state.popupElement),
+  payload: createSelector((state: State<unknown>) => state.payload),
+  activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
+  inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
 };
 
-export class DialogStore<Payload> extends ReactStore<State, Context, typeof selectors> {
-  static create(initialState: State) {
-    const context: Context = {
-      popupRef: React.createRef<HTMLElement>(),
-      backdropRef: React.createRef<HTMLDivElement>(),
-      internalBackdropRef: React.createRef<HTMLDivElement>(),
-    };
-
-    return new DialogStore(initialState, context, selectors);
+export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
+  constructor(initialState?: Partial<State<Payload>>) {
+    super(
+      { ...createInitialState<Payload>(), ...initialState },
+      {
+        popupRef: React.createRef<HTMLElement>(),
+        backdropRef: React.createRef<HTMLDivElement>(),
+        internalBackdropRef: React.createRef<HTMLDivElement>(),
+      },
+      selectors,
+    );
   }
 
   public setOpen = (nextOpen: boolean, eventDetails: DialogRoot.ChangeEventDetails) => {
@@ -91,5 +95,28 @@ export class DialogStore<Payload> extends ReactStore<State, Context, typeof sele
     this.state.floatingRootContext.events?.emit('openchange', details);
 
     this.set('open', nextOpen);
+  };
+}
+
+function createInitialState<Payload>(): State<Payload> {
+  return {
+    open: false,
+    dismissible: true,
+    nested: false,
+    popupElement: null,
+    activeTriggerId: null,
+    modal: true,
+    descriptionElementId: undefined,
+    titleElementId: undefined,
+    openMethod: null,
+    mounted: false,
+    transitionStatus: 'idle',
+    nestedOpenDialogCount: 0,
+    triggers: new Map(),
+    floatingRootContext: getEmptyContext(),
+    payload: undefined,
+    activeTriggerProps: EMPTY_OBJECT as HTMLProps,
+    inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
+    popupProps: EMPTY_OBJECT as HTMLProps,
   };
 }

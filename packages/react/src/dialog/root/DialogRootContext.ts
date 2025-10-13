@@ -2,11 +2,12 @@
 import * as React from 'react';
 import { DialogStore } from '../DialogStore';
 
-export interface DialogRootContext {
-  store: DialogStore;
+export interface DialogRootContext<Payload = unknown> {
+  store: DialogStore<Payload>;
 }
 
-export const DialogRootContext = React.createContext<DialogRootContext | undefined>(undefined);
+export const DialogRootContext =
+  React.createContext<DialogRootContext | undefined>(undefined);
 
 export function useDialogRootContext(optional?: false): DialogRootContext;
 export function useDialogRootContext(optional: true): DialogRootContext | undefined;
