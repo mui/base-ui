@@ -27,7 +27,8 @@ export function useCheckboxGroupParent(
       id,
       indeterminate,
       checked,
-      // TODO: custom `id` on child checkboxes could break this
+      // TODO: custom `id` on child checkboxes breaks this
+      // https://github.com/mui/base-ui/issues/2691
       'aria-controls': allValues.map((v) => `${id}-${v}`).join(' '),
       onCheckedChange(_, eventDetails) {
         const uncontrolledState = uncontrolledStateRef.current;
