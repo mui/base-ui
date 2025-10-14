@@ -90,4 +90,34 @@ describe('<Toast.Description />', () => {
     expect(titleElement).not.to.equal(null);
     expect(titleElement.textContent).to.equal('description');
   });
+
+  it('renders the description when passed to render prop', async () => {
+    function CustomList() {
+      return Toast.useToastManager().toasts.map((toastItem) => (
+        <Toast.Root key={toastItem.id} toast={toastItem} data-testid="root">
+          <Toast.Title data-testid="title" />
+          <Toast.Description
+            data-testid="description"
+            render={(props) => <div {...props}>Custom: {props.children}</div>}
+          />
+        </Toast.Root>
+      ));
+    }
+
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <CustomList />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const descriptionElement = screen.getByTestId('description');
+    expect(descriptionElement).not.to.equal(null);
+    expect(descriptionElement.textContent).to.equal('Custom: description');
+  });
 });
