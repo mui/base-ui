@@ -5,6 +5,7 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -75,6 +76,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const isMultiple = multiple ?? false;
 
   const { setDirty, validityData, validationMode } = useFieldRootContext();
+  const { controlId } = useLabelableContext();
 
   const ref = useMergedRefs(inputRef, rootContext.fieldControlValidation.inputRef);
 
@@ -153,7 +155,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               store.set('forceMount', true);
               queueMicrotask(handleChange);
             },
-            id: store.state.id || undefined,
+            id: id || controlId || undefined,
             name: isMultiple ? undefined : rootContext.name,
             value: serializedValue,
             disabled: rootContext.disabled,
