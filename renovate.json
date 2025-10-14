@@ -20,11 +20,6 @@
       "groupName": "MUI public packages",
       "matchPackageNames": ["@mui/*", "!@mui/internal-*", "!@mui/docs"],
       "allowedVersions": "!/-dev/"
-    },
-    {
-      "groupName": "chai - incompatible versions",
-      "matchPackageNames": ["chai", "@types/chai"],
-      "allowedVersions": "< 5.0.0"
     }
   ]
 }

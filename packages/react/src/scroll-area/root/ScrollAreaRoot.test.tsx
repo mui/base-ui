@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';

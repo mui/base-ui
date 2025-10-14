@@ -3,7 +3,7 @@
     "module": "nodenext",
     "target": "es2020",
     "lib": ["es2020", "dom"],
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noEmit": true,

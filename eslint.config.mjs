@@ -60,6 +60,7 @@ export default defineConfig(
       ],
       // We LOVE non-breaking spaces, and both straight and curly quotes here
       'no-irregular-whitespace': ['warn', { skipJSXText: true, skipStrings: true }],
+      'react/react-in-jsx-scope': 'off',
       'react/no-unescaped-entities': ['warn', { forbid: ['>', '}'] }],
       'react/prop-types': 'off',
       'react-hooks/exhaustive-deps': [
@@ -84,14 +85,6 @@ export default defineConfig(
     extends: createTestConfig({ useMocha: false }),
   },
   baseSpecRules,
-  {
-    files: [`packages/**/*.test.${EXTENSION_TS}`],
-    rules: {
-      'testing-library/prefer-screen-queries': 'off', // TODO: enable and fix
-      'testing-library/no-container': 'off', // TODO: enable and fix
-      'testing-library/render-result-naming-convention': 'off', // False positives
-    },
-  },
   {
     name: 'MUI ESLint config for docs',
     files: [`docs/**/*.${EXTENSION_TS}`],

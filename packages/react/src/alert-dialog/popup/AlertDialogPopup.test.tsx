@@ -23,7 +23,7 @@ describe('<AlertDialog.Popup />', () => {
   }));
 
   it('should have role="alertdialog"', async () => {
-    const { getByTestId } = await render(
+    await render(
       <AlertDialog.Root open>
         <AlertDialog.Backdrop />
         <AlertDialog.Portal>
@@ -32,13 +32,13 @@ describe('<AlertDialog.Popup />', () => {
       </AlertDialog.Root>,
     );
 
-    const dialog = getByTestId('test-alert-dialog');
+    const dialog = screen.getByTestId('test-alert-dialog');
     expect(dialog).to.have.attribute('role', 'alertdialog');
   });
 
   describe('prop: initialFocus', () => {
     it('should focus the first focusable element within the popup by default', async () => {
-      const { getByText, getByTestId } = await render(
+      await render(
         <div>
           <input />
           <AlertDialog.Root>
@@ -55,13 +55,13 @@ describe('<AlertDialog.Popup />', () => {
         </div>,
       );
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
       await waitFor(() => {
-        const dialogInput = getByTestId('dialog-input');
+        const dialogInput = screen.getByTestId('dialog-input');
         expect(dialogInput).to.toHaveFocus();
       });
     });
@@ -89,15 +89,15 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
       await waitFor(() => {
-        const input2 = getByTestId('input-2');
+        const input2 = screen.getByTestId('input-2');
         expect(input2).to.toHaveFocus();
       });
     });
@@ -128,15 +128,15 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
       await waitFor(() => {
-        const input2 = getByTestId('input-2');
+        const input2 = screen.getByTestId('input-2');
         expect(input2).to.toHaveFocus();
       });
     });
@@ -158,8 +158,8 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
       await waitFor(() => {
         expect(trigger).toHaveFocus();
@@ -183,10 +183,10 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
-      await user.click(getByText('Open'));
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByText('Open'));
       await waitFor(() => {
-        expect(getByTestId('input-1')).toHaveFocus();
+        expect(screen.getByTestId('input-1')).toHaveFocus();
       });
     });
 
@@ -207,17 +207,17 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
-      await user.click(getByText('Open'));
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByText('Open'));
       await waitFor(() => {
-        expect(getByTestId('input-1')).toHaveFocus();
+        expect(screen.getByTestId('input-1')).toHaveFocus();
       });
     });
   });
 
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {
-      const { getByText, user } = await render(
+      const { user } = await render(
         <div>
           <input />
           <AlertDialog.Root>
@@ -233,10 +233,10 @@ describe('<AlertDialog.Popup />', () => {
         </div>,
       );
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
 
-      const closeButton = getByText('Close');
+      const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       await waitFor(() => {
@@ -266,15 +266,15 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
 
-      const closeButton = getByText('Close');
+      const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
-      const inputToFocus = getByTestId('input-to-focus');
+      const inputToFocus = screen.getByTestId('input-to-focus');
 
       await waitFor(() => {
         expect(inputToFocus).toHaveFocus();
@@ -301,11 +301,11 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
-      await user.click(getByText('Open'));
-      await user.click(getByText('Close'));
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByText('Open'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
-        expect(getByTestId('input-to-focus')).toHaveFocus();
+        expect(screen.getByTestId('input-to-focus')).toHaveFocus();
       });
     });
 
@@ -326,10 +326,10 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).not.toHaveFocus();
       });
@@ -352,10 +352,10 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
@@ -378,10 +378,10 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });

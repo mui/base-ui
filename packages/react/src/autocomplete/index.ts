@@ -53,3 +53,8 @@ export type {
   ComboboxStatusState as AutocompleteStatusState,
 } from '../combobox/status/ComboboxStatus';
 export type { ComboboxCollectionProps as AutocompleteCollectionProps } from '../combobox/collection/ComboboxCollection';
+
+export type {
+  Filter as AutocompleteFilter,
+  UseFilterOptions as AutocompleteFilterOptions,
+} from '../combobox/root/utils/useFilter';

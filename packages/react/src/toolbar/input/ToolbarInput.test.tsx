@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Toolbar } from '@base-ui-components/react/toolbar';
@@ -42,13 +41,13 @@ describe('<Toolbar.Input />', () => {
 
   describe('ARIA attributes', () => {
     it('renders a textbox', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Toolbar.Root>
           <Toolbar.Input data-testid="input" />
         </Toolbar.Root>,
       );
 
-      expect(getByTestId('input')).to.equal(screen.getByRole('textbox'));
+      expect(screen.getByTestId('input')).to.equal(screen.getByRole('textbox'));
     });
   });
 
@@ -63,15 +62,15 @@ describe('<Toolbar.Input />', () => {
       const [orientation, nextKey, prevKey] = entry;
 
       it(`orientation: ${orientation}`, async () => {
-        const { getAllByRole, getByRole, user } = await render(
+        const { user } = await render(
           <Toolbar.Root orientation={orientation as Orientation}>
             <Toolbar.Button />
             <Toolbar.Input defaultValue="abcd" />
             <Toolbar.Button />
           </Toolbar.Root>,
         );
-        const input = getByRole('textbox') as HTMLInputElement;
-        const [button1, button2] = getAllByRole('button');
+        const input = screen.getByRole('textbox') as HTMLInputElement;
+        const [button1, button2] = screen.getAllByRole('button');
 
         await user.keyboard('[Tab]');
         expect(button1).toHaveFocus();

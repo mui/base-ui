@@ -845,4 +845,38 @@ describe('<Field.Root />', () => {
       expect(input.value).to.equal('abc');
     });
   });
+
+  describe('prop: dirty', () => {
+    it('controls the dirty state', async () => {
+      await render(
+        <Field.Root data-testid="root" dirty>
+          <Field.Control data-testid="control" />
+          <Field.Label data-testid="label" />
+          <Field.Description data-testid="description" />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      ['root', 'control', 'label', 'description'].forEach((part) => {
+        expect(screen.getByTestId(part)).to.have.attribute('data-dirty');
+      });
+    });
+  });
+
+  describe('prop: touched', () => {
+    it('controls the touched state', async () => {
+      await render(
+        <Field.Root data-testid="root" touched>
+          <Field.Control data-testid="control" />
+          <Field.Label data-testid="label" />
+          <Field.Description data-testid="description" />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      ['root', 'control', 'label', 'description'].forEach((part) => {
+        expect(screen.getByTestId(part)).to.have.attribute('data-touched');
+      });
+    });
+  });
 });

@@ -1,4 +1,3 @@
-import * as React from 'react';
 import type { Metadata } from 'next';
 import { ArrowRightIcon } from 'docs/src/icons/ArrowRightIcon';
 import { Header } from 'docs/src/components/Header';
