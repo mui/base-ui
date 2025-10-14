@@ -85,9 +85,8 @@
   background-color: canvas;
   color: var(--color-gray-900);
   width: var(--anchor-width);
-  max-height: min(var(--available-height), 22.5rem);
+  max-height: 23rem;
   max-width: var(--available-width);
-  overflow: hidden;
   transition:
     opacity 0.1s,
     transform 0.1s;
@@ -116,9 +115,9 @@
   box-sizing: border-box;
   overflow: auto;
   overscroll-behavior: contain;
-  scroll-padding-top: 2rem;
+  scroll-padding-top: 2.25rem;
   scroll-padding-bottom: 0.5rem;
-  max-height: min(22.5rem, var(--available-height));
+  max-height: min(23rem, var(--available-height));
   outline: 0;
 }
 
@@ -128,6 +127,7 @@
 }
 
 .GroupLabel {
+  box-sizing: border-box;
   padding: 0.75rem 1rem 0.25rem calc(1rem + 0.75rem + 0.5rem);
   font-size: 0.6875rem;
   font-weight: 600;
