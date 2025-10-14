@@ -624,7 +624,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   ]);
 
   useIsoLayoutEffect(() => {
-    if (disabled || !isHTMLElement(floatingFocusElement)) {
+    if (!open || disabled || !isHTMLElement(floatingFocusElement)) {
       return;
     }
 
@@ -655,11 +655,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       const focusAlreadyInsideFloatingEl = contains(floatingFocusElement, previouslyFocusedElement);
 
-      if (!focusAlreadyInsideFloatingEl && open) {
-        enqueueFocus(elToFocus, {
-          preventScroll: elToFocus === floatingFocusElement,
-        });
+      if (focusAlreadyInsideFloatingEl) {
+        return;
       }
+
+      enqueueFocus(elToFocus, {
+        preventScroll: elToFocus === floatingFocusElement,
+      });
     });
   }, [
     disabled,

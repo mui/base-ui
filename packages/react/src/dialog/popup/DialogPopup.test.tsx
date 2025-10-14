@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { act, waitFor, screen } from '@mui/internal-test-utils';
@@ -257,6 +258,55 @@ describe('<Dialog.Popup />', () => {
       await waitFor(() => {
         expect(screen.getByTestId('input-1')).toHaveFocus();
       });
+    });
+
+    it('should not call initialFocus function when closing the dialog', async () => {
+      const initialFocusSpy = spy();
+
+      function TestComponent() {
+        const input2Ref = React.useRef<HTMLInputElement>(null);
+
+        const getRef = React.useCallback(() => {
+          initialFocusSpy();
+          return input2Ref.current;
+        }, []);
+
+        return (
+          <div>
+            <Dialog.Root modal={false}>
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="dialog" initialFocus={getRef}>
+                  <input data-testid="input-1" />
+                  <input data-testid="input-2" ref={input2Ref} />
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+
+      const trigger = getByText('Open');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        const input2 = getByTestId('input-2');
+        expect(input2).toHaveFocus();
+      });
+
+      expect(initialFocusSpy.callCount).to.equal(1);
+
+      const closeButton = getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      expect(initialFocusSpy.callCount).to.equal(1);
     });
   });
 
