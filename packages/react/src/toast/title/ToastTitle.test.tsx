@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';

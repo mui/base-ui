@@ -61,6 +61,7 @@ export default defineConfig(
       ],
       // We LOVE non-breaking spaces, and both straight and curly quotes here
       'no-irregular-whitespace': ['warn', { skipJSXText: true, skipStrings: true }],
+      'react/react-in-jsx-scope': 'off',
       'react/no-unescaped-entities': ['warn', { forbid: ['>', '}'] }],
       'react/prop-types': 'off',
       'react-hooks/exhaustive-deps': [

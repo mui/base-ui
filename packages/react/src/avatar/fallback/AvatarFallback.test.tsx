@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Mock } from 'vitest';
 import { Avatar } from '@base-ui-components/react/avatar';
 import { waitFor, screen } from '@mui/internal-test-utils';

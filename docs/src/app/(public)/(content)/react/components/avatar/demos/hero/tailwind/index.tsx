@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Avatar } from '@base-ui-components/react/avatar';
 
 export default function ExampleAvatar() {
