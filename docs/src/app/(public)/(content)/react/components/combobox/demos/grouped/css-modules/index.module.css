@@ -128,6 +128,7 @@
 }
 
 .GroupLabel {
+  box-sizing: border-box;
   padding: 0.75rem 1rem 0.25rem calc(1rem + 0.75rem + 0.5rem);
   font-size: 0.6875rem;
   font-weight: 600;
