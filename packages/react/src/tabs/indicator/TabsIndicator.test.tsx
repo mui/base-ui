@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { Tabs } from '@base-ui-components/react/tabs';
 import { waitFor, screen } from '@mui/internal-test-utils';

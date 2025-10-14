@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Separator } from '@base-ui-components/react/separator';
 import styles from './index.module.css';
 

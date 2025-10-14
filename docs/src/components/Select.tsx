@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import clsx from 'clsx';
 import { ChevronDownIcon } from '../icons/ChevronDownIcon';

@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Slider } from '@base-ui-components/react/slider';
 
 export default function EdgeAlignedThumb() {
