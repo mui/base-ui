@@ -34,7 +34,7 @@ export const DialogPortal = React.forwardRef(function DialogPortal(
         {mounted && modal === true && (
           <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
         )}
-        {children}
+        {props.children}
       </FloatingPortal>
     </DialogPortalContext.Provider>
   );

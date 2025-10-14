@@ -34,6 +34,7 @@ export const AlertDialogPortal = React.forwardRef(function AlertDialogPortal(
         {mounted && modal === true && (
           <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
         )}
+        {props.children}
       </FloatingPortal>
     </AlertDialogPortalContext.Provider>
   );
