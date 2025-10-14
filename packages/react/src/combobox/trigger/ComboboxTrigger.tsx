@@ -97,6 +97,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       {
         tabIndex: inputInsidePopup ? 0 : -1,
         disabled,
+        role: inputInsidePopup ? 'combobox' : undefined,
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': open ? listElement?.id : undefined,

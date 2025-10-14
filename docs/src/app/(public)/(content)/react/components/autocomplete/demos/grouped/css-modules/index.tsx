@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import styles from './index.module.css';
 

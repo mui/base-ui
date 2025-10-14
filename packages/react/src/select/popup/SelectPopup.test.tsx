@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { Select } from '@base-ui-components/react/select';
 import { screen } from '@mui/internal-test-utils';
