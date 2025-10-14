@@ -22,7 +22,7 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
 
   const children = childrenProp ?? toast.title;
 
-  const shouldRender = Boolean(children);
+  const shouldRender = Boolean(children) || render !== undefined;
 
   const id = useId(idProp);
 
