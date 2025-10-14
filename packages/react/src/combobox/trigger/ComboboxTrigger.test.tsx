@@ -266,7 +266,7 @@ describe('<Combobox.Trigger />', () => {
         </Combobox.Root>,
       );
 
-      const trigger = screen.getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('combobox');
       await user.click(trigger);
       await user.keyboard('{ArrowDown}');
       expect(screen.queryByRole('listbox')).to.equal(null);
