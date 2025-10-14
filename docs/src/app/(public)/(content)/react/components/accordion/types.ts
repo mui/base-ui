@@ -3,7 +3,6 @@ import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const types = createMultipleTypes(import.meta.url, Accordion, {
   watchSourceDirectly: true,
-  globalTypes: ['node', 'react'],
 });
 
 export const TypesAccordionHeader = types.Header;

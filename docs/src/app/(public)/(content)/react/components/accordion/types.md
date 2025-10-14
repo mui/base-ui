@@ -30,7 +30,7 @@ Renders a `<div>` element.
 | Attribute        | Type | Description                                 |
 | :--------------- | :--- | :------------------------------------------ |
 | data-orientation | -    | Indicates the orientation of the accordion. |
-| data-disabled    | -    | Present when the accordion is disabled. T   |
+| data-disabled    | -    | Present when the accordion is disabled.     |
 
 ### Item
 
