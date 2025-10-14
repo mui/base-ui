@@ -23,7 +23,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
 
   const children = childrenProp ?? toast.description;
 
-  const shouldRender = Boolean(children) || render != undefined;
+  const shouldRender = Boolean(children) || render !== undefined;
 
   const id = useId(idProp);
 
