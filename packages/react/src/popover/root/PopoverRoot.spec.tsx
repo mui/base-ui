@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expectType } from '#test-utils';
 import { Popover } from '@base-ui-components/react/popover';
 

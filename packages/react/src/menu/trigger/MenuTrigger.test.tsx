@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';

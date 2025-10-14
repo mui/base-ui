@@ -66,7 +66,9 @@ describe('<Combobox.Root />', () => {
 
     expect(await screen.findByRole('listbox')).not.to.equal(null);
 
-    const input = await screen.findByRole('combobox');
+    const input = await waitFor(() =>
+      screen.getAllByRole('combobox').find((element) => element.tagName === 'INPUT'),
+    );
     expect(input).toHaveFocus();
 
     await user.click(trigger);
@@ -814,7 +816,9 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const trigger = screen.getByRole('button', { name: 'trigger' });
+      const trigger = screen
+        .getAllByRole('combobox')
+        .find((element) => element.tagName === 'BUTTON')!;
       const listbox = screen.getByRole('listbox');
 
       expect(trigger).to.have.attribute('aria-controls', listbox.id);
@@ -1376,7 +1380,9 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByRole('combobox')).to.have.value('');
+      const input = screen.getAllByRole('combobox').find((element) => element.tagName === 'INPUT');
+
+      expect(input).to.have.value('');
     });
 
     it('does not set input value for input-inside-popup pattern', async () => {
@@ -1393,7 +1399,9 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByRole('combobox')).to.have.value('');
+      const input = screen.getAllByRole('combobox').find((element) => element.tagName === 'INPUT');
+
+      expect(input).to.have.value('');
     });
   });
 
