@@ -55,7 +55,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     ref: [buttonRef, forwardedRef, registerTrigger],
     props: [
       triggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '' },
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id },
       elementProps,
       getButtonProps,
     ],
