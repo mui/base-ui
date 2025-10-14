@@ -50,13 +50,15 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   );
 });
 
-export namespace FieldsetRoot {
-  export type State = {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-  };
+export interface FieldsetRootState {
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+}
+export interface FieldsetRootProps extends BaseUIComponentProps<'fieldset', FieldsetRoot.State> {}
 
-  export interface Props extends BaseUIComponentProps<'fieldset', State> {}
+export namespace FieldsetRoot {
+  export type State = FieldsetRootState;
+  export type Props = FieldsetRootProps;
 }

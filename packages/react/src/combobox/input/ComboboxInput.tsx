@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { isAndroid, isFirefox } from '@base-ui-components/utils/detectBrowser';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -16,6 +17,7 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { useDirection } from '../../direction-provider/DirectionContext';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
   ...pressableTriggerOpenStateMapping,
@@ -43,6 +45,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const comboboxChipsContext = useComboboxChipsContext();
   const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
   const store = useComboboxRootContext();
+
+  const direction = useDirection();
 
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
@@ -173,6 +177,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
         },
         onCompositionStart(event) {
+          if (isAndroid) {
+            return;
+          }
           isComposingRef.current = true;
           setComposingValue(event.currentTarget.value);
         },
@@ -186,8 +193,12 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           );
         },
         onChange(event: React.ChangeEvent<HTMLInputElement>) {
-          // During IME composition, avoid propagating controlled updates to preserve
-          // its state.
+          // During IME composition, avoid propagating controlled updates to prevent
+          // filtering the options prematurely so `Empty` won't show incorrectly.
+          // We can't rely on this check for Android due to how it handles composition
+          // events with some keyboards (e.g. Samsung keyboard with predictive text on
+          // treats all text as always-composing).
+          // https://github.com/mui/base-ui/issues/2942
           if (isComposingRef.current) {
             const nextVal = event.currentTarget.value;
             setComposingValue(nextVal);
@@ -292,17 +303,23 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           store.state.keyboardActiveRef.current = true;
+          const input = event.currentTarget;
+          const scrollAmount = input.scrollWidth - input.clientWidth;
+          const isRTL = direction === 'rtl';
 
           if (event.key === 'Home') {
             stopEvent(event);
-            event.currentTarget.setSelectionRange(0, 0);
+            const cursor = isFirefox && isRTL ? input.value.length : 0;
+            input.setSelectionRange(cursor, cursor);
+            input.scrollLeft = 0;
             return;
           }
 
           if (event.key === 'End') {
             stopEvent(event);
-            const length = event.currentTarget.value.length;
-            event.currentTarget.setSelectionRange(length, length);
+            const cursor = isFirefox && isRTL ? 0 : input.value.length;
+            input.setSelectionRange(cursor, cursor);
+            input.scrollLeft = isRTL ? -scrollAmount : scrollAmount;
             return;
           }
 
@@ -328,7 +345,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (
             comboboxChipsContext &&
             event.key === 'Backspace' &&
-            event.currentTarget.value === '' &&
+            input.value === '' &&
             comboboxChipsContext.highlightedChipIndex === undefined &&
             Array.isArray(selectedValue) &&
             selectedValue.length > 0
@@ -411,19 +428,22 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   return element;
 });
 
-export namespace ComboboxInput {
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the popup is open.
-     */
-    open: boolean;
-  }
+export interface ComboboxInputState extends FieldRoot.State {
+  /**
+   * Whether the popup is open.
+   */
+  open: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'input', State> {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface ComboboxInputProps extends BaseUIComponentProps<'input', ComboboxInput.State> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+export namespace ComboboxInput {
+  export type State = ComboboxInputState;
+  export type Props = ComboboxInputProps;
 }

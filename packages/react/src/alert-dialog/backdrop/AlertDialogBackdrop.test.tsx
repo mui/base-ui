@@ -15,13 +15,13 @@ describe('<AlertDialog.Backdrop />', () => {
   }));
 
   it('has role="presentation"', async () => {
-    const { getByTestId } = await render(
+    await render(
       <AlertDialog.Root open>
         <AlertDialog.Backdrop data-testid="backdrop" />
       </AlertDialog.Root>,
     );
 
-    expect(getByTestId('backdrop')).to.have.attribute('role', 'presentation');
+    expect(screen.getByTestId('backdrop')).to.have.attribute('role', 'presentation');
   });
 
   describe('prop: forceRender', () => {

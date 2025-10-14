@@ -191,40 +191,46 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 });
 
+export type TabsRootOrientation = BaseOrientation;
+
+export interface TabsRootState {
+  orientation: TabsRoot.Orientation;
+  tabActivationDirection: TabsTab.ActivationDirection;
+}
+
+export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.State> {
+  /**
+   * The value of the currently selected `Tab`. Use when the component is controlled.
+   * When the value is `null`, no Tab will be selected.
+   */
+  value?: TabsTab.Value;
+  /**
+   * The default value. Use when the component is not controlled.
+   * When the value is `null`, no Tab will be selected.
+   * @default 0
+   */
+  defaultValue?: TabsTab.Value;
+  /**
+   * The component orientation (layout flow direction).
+   * @default 'horizontal'
+   */
+  orientation?: TabsRoot.Orientation;
+  /**
+   * Callback invoked when new value is being set.
+   */
+  onValueChange?: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;
+}
+
+export type TabsRootChangeEventReason = 'none';
+export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
+  TabsRoot.ChangeEventReason,
+  { activationDirection: TabsTab.ActivationDirection }
+>;
+
 export namespace TabsRoot {
-  export type Orientation = BaseOrientation;
-
-  export type State = {
-    orientation: Orientation;
-    tabActivationDirection: TabsTab.ActivationDirection;
-  };
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The value of the currently selected `Tab`. Use when the component is controlled.
-     * When the value is `null`, no Tab will be selected.
-     */
-    value?: TabsTab.Value;
-    /**
-     * The default value. Use when the component is not controlled.
-     * When the value is `null`, no Tab will be selected.
-     * @default 0
-     */
-    defaultValue?: TabsTab.Value;
-    /**
-     * The component orientation (layout flow direction).
-     * @default 'horizontal'
-     */
-    orientation?: Orientation;
-    /**
-     * Callback invoked when new value is being set.
-     */
-    onValueChange?: (value: TabsTab.Value, eventDetails: ChangeEventDetails) => void;
-  }
-
-  export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<
-    ChangeEventReason,
-    { activationDirection: TabsTab.ActivationDirection }
-  >;
+  export type State = TabsRootState;
+  export type Props = TabsRootProps;
+  export type Orientation = TabsRootOrientation;
+  export type ChangeEventReason = TabsRootChangeEventReason;
+  export type ChangeEventDetails = TabsRootChangeEventDetails;
 }

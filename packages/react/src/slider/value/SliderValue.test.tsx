@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Slider } from '@base-ui-components/react/slider';
@@ -15,34 +16,37 @@ describe('<Slider.Value />', () => {
   }));
 
   it('renders a single value', async () => {
-    const { getByTestId } = await render(
+    await render(
       <Slider.Root defaultValue={40}>
         <Slider.Value data-testid="output" />
       </Slider.Root>,
     );
-    const sliderValue = getByTestId('output');
+
+    const sliderValue = screen.getByTestId('output');
 
     expect(sliderValue).to.have.text('40');
   });
 
   it('renders a range', async () => {
-    const { getByTestId } = await render(
+    await render(
       <Slider.Root defaultValue={[40, 65]}>
         <Slider.Value data-testid="output" />
       </Slider.Root>,
     );
-    const sliderValue = getByTestId('output');
+
+    const sliderValue = screen.getByTestId('output');
 
     expect(sliderValue).to.have.text('40 – 65');
   });
 
   it('renders all thumb values', async () => {
-    const { getByTestId } = await render(
+    await render(
       <Slider.Root defaultValue={[40, 60, 80, 95]}>
         <Slider.Value data-testid="output" />
       </Slider.Root>,
     );
-    const sliderValue = getByTestId('output');
+
+    const sliderValue = screen.getByTestId('output');
 
     expect(sliderValue).to.have.text('40 – 60 – 80 – 95');
   });

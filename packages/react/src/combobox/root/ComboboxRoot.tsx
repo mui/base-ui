@@ -150,19 +150,30 @@ type ComboboxRootComponentProps<Value, Multiple extends boolean | undefined> =
   | ComboboxRootControlledProps<Value, Multiple>
   | ComboboxRootUncontrolledProps<Value, Multiple>;
 
+export type ComboboxRootProps<
+  Value,
+  Multiple extends boolean | undefined = false,
+> = ComboboxRootComponentProps<Value, Multiple>;
+
+export type ComboboxRootState = AriaCombobox.State;
+
+export type ComboboxRootActions = AriaCombobox.Actions;
+
+export type ComboboxRootChangeEventReason = AriaCombobox.ChangeEventReason;
+export type ComboboxRootChangeEventDetails = AriaCombobox.ChangeEventDetails;
+
+export type ComboboxRootHighlightEventReason = AriaCombobox.HighlightEventReason;
+export type ComboboxRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
+
 export namespace ComboboxRoot {
-  export type Props<
+  export type Props<Value, Multiple extends boolean | undefined = false> = ComboboxRootProps<
     Value,
-    Multiple extends boolean | undefined = false,
-  > = ComboboxRootComponentProps<Value, Multiple>;
-
-  export type State = AriaCombobox.State;
-
-  export type Actions = AriaCombobox.Actions;
-
-  export type ChangeEventReason = AriaCombobox.ChangeEventReason;
-  export type ChangeEventDetails = AriaCombobox.ChangeEventDetails;
-
-  export type HighlightEventReason = AriaCombobox.HighlightEventReason;
-  export type HighlightEventDetails = AriaCombobox.HighlightEventDetails;
+    Multiple
+  >;
+  export type State = ComboboxRootState;
+  export type Actions = ComboboxRootActions;
+  export type ChangeEventReason = ComboboxRootChangeEventReason;
+  export type ChangeEventDetails = ComboboxRootChangeEventDetails;
+  export type HighlightEventReason = ComboboxRootHighlightEventReason;
+  export type HighlightEventDetails = ComboboxRootHighlightEventDetails;
 }

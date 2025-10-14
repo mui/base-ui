@@ -27,17 +27,19 @@ export function NavigationMenuPortal(props: NavigationMenuPortal.Props) {
   );
 }
 
+export interface NavigationMenuPortalProps {
+  children?: React.ReactNode;
+  /**
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
+}
+
 export namespace NavigationMenuPortal {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the portal mounted in the DOM while the popup is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
-  }
+  export type Props = NavigationMenuPortalProps;
 }
