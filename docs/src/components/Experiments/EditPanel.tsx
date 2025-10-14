@@ -108,6 +108,13 @@ function resolveExtensionlessFile(filePath: string, preferTs: boolean): string {
     }
   }
 
+  for (const extension of extensions) {
+    const fullPath = `${filePath}/index${extension}`;
+    if (existsSync(fullPath)) {
+      return fullPath;
+    }
+  }
+
   throw new Error(
     `Could not find the file ${filePath} with any of the supported extensions: ${extensions.join(', ')}.`,
   );
