@@ -108,14 +108,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     animationAbortControllerRef.current?.abort();
   }, [isActiveItem]);
 
-  const setAutoSizes = useEventCallback(() => {
+  function setAutoSizes() {
     if (!popupElement) {
       return;
     }
 
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, 'auto');
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, 'auto');
-  });
+  }
 
   const handleValueChange = useEventCallback((currentWidth: number, currentHeight: number) => {
     if (!popupElement || !positionerElement) {
@@ -204,7 +204,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     return () => {
       mutationObserver.disconnect();
     };
-  }, [popupElement, positionerElement, isActiveItem, handleValueChange, setAutoSizes]);
+  }, [popupElement, positionerElement, isActiveItem, handleValueChange]);
 
   React.useEffect(() => {
     if (isActiveItem && open && popupElement && allowFocusRef.current) {
@@ -476,13 +476,18 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   );
 });
 
-export namespace NavigationMenuTrigger {
-  export interface State {
-    /**
-     * If `true`, the popup is open and the item is active.
-     */
-    open: boolean;
-  }
+export interface NavigationMenuTriggerState {
+  /**
+   * If `true`, the popup is open and the item is active.
+   */
+  open: boolean;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface NavigationMenuTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
+
+export namespace NavigationMenuTrigger {
+  export type State = NavigationMenuTriggerState;
+  export type Props = NavigationMenuTriggerProps;
 }

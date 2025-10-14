@@ -38,7 +38,7 @@
     },
     "id": {
       "type": "string",
-      "description": "Id of the trigger. In addition to being forwarded to the rendered element,\nit is also used to specify the active trigger for the popover in controlled mode (with the PopoverRoot `triggerId` prop).",
+      "description": "ID of the trigger. In addition to being forwarded to the rendered element,\nit is also used to specify the active trigger for the popover in controlled mode (with the Popover.Root `triggerId` prop).",
       "detailedType": "string | undefined"
     },
     "className": {

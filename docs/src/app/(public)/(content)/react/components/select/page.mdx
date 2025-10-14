@@ -60,22 +60,25 @@ import { Select } from '@base-ui-components/react/select';
 
 ## Positioning
 
-`Select.Positioner` has a special prop called `alignItemWithTrigger` which causes the positioning to act differently by default from other `Positioner` components.
+`<Select.Positioner>` has a special prop called `alignItemWithTrigger` which causes the positioning to act differently by default from other `Positioner` components.
 The prop makes the select popup overlap the trigger so the selected item's text is aligned with the trigger's value text.
 
-For styling, `data-side` is `"none"` on the `Popup` and `Positioner` parts when the mode is active.
+For styling, `data-side` is `"none"` on the `.Popup` and `.Positioner` parts when the mode is active.
 
-To prevent the select popup from overlapping its trigger, set the `alignItemWithTrigger` prop to `false`. When set to `true` (its default) there are a few important points to note about its behavior:
+To prevent the select popup from overlapping its trigger, set the `alignItemWithTrigger` prop to `false`.
+When set to `true` (its default) there are a few important points to note about its behavior:
 
 - **Interaction type dependent**: For UX reasons, the `alignItemWithTrigger` positioning mode is disabled if touch was the pointer type used to open the popup.
-- **Viewport space dependent**: There must be enough space in the viewport to align the selected item's text with the trigger's value text without causing the popup to be too vertically small - otherwise, it falls back to the default positioning mode. This can be customized by setting `min-height` on the `Select.Positioner` element; a smaller value will fallback less often. Additionally, the trigger must be at least 20px from the edges of the top and bottom of the viewport, or it will also fall back.
+- **Viewport space dependent**: There must be enough space in the viewport to align the selected item's text with the trigger's value text without causing the popup to be too vertically small - otherwise, it falls back to the default positioning mode.
+  This can be customized by setting `min-height` on the `<Select.Positioner>` element; a smaller value will fallback less often.
+  Additionally, the trigger must be at least 20px from the edges of the top and bottom of the viewport, or it will also fall back.
 - **Other positioning props are ignored**: Props like `side` or `align` have no effect unless the prop is set to `false` or when in fallback mode.
 
 ## Formatting the value
 
-By default, the `Select.Value` component renders the raw `value`.
+By default, the `<Select.Value>` component renders the raw `value`.
 
-Passing the `items` prop to `Select.Root` instead renders the matching label for the rendered value:
+Passing the `items` prop to `<Select.Root>` instead renders the matching label for the rendered value:
 
 ```jsx title="items prop" "items"1,3
 const items = [
@@ -90,7 +93,7 @@ const items = [
 </Select.Root>;
 ```
 
-A function can also be passed as the `children` prop of `Select.Value` to render a formatted value:
+A function can also be passed as the `children` prop of `<Select.Value>` to render a formatted value:
 
 ```jsx title="Lookup map" {8-12}
 const items = {
@@ -114,7 +117,7 @@ To avoid lookup, [object values](#object-values) for each item can also be used.
 
 ### Multiple selection
 
-Add the `multiple` prop to the `Select.Root` component to allow multiple selections.
+Add the `multiple` prop to the `<Select.Root>` component to allow multiple selections.
 
 import { DemoSelectMultiple } from './demos/multiple';
 
@@ -122,7 +125,8 @@ import { DemoSelectMultiple } from './demos/multiple';
 
 ### Object values
 
-Select items can use objects as values instead of primitives. This lets you access the full object in custom render functions, and can avoid needing to specify `items` for lookup.
+Select items can use objects as values instead of primitives.
+This lets you access the full object in custom render functions, and can avoid needing to specify `items` for lookup.
 
 import { DemoSelectObjectValues } from './demos/object-values';
 

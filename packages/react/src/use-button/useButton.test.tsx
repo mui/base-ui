@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useButton } from './useButton';
@@ -21,8 +21,8 @@ describe('useButton', () => {
 
         return <button {...getButtonProps(otherProps)} />;
       }
-      const { getByRole } = await render(<TestButton disabled />);
-      const button = getByRole('button');
+      await render(<TestButton disabled />);
+      const button = screen.getByRole('button');
       await act(() => button.focus());
       expect(button).toHaveFocus();
     });
@@ -38,14 +38,14 @@ describe('useButton', () => {
         );
       }
 
-      const { rerender, getByRole } = await render(
+      const { rerender } = await render(
         <CompositeRoot>
           <TestButton />
         </CompositeRoot>,
       );
 
       async function verify() {
-        const button = getByRole('button');
+        const button = screen.getByRole('button');
         await act(() => button.focus());
         expect(button).toHaveFocus();
       }
@@ -79,7 +79,7 @@ describe('useButton', () => {
         return <span {...getButtonProps(otherProps)} />;
       }
 
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <TestButton
           disabled
           onClick={handleClick}
@@ -90,7 +90,7 @@ describe('useButton', () => {
         />,
       );
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
       expect(document.activeElement).not.to.equal(button);
 
       expect(handleFocus.callCount).to.equal(0);
@@ -128,8 +128,8 @@ describe('useButton', () => {
         return <button {...getButtonProps()} />;
       }
 
-      const { getByRole } = await render(<TestButton />);
-      expect(getByRole('button')).to.have.property('tabIndex', 0);
+      await render(<TestButton />);
+      expect(screen.getByRole('button')).to.have.property('tabIndex', 0);
     });
 
     it('returns tabIndex in getButtonProps when host component is not BUTTON', async () => {
@@ -143,8 +143,8 @@ describe('useButton', () => {
         return <span {...getButtonProps()} />;
       }
 
-      const { getByRole } = await render(<TestButton />);
-      expect(getByRole('button')).to.have.property('tabIndex', 0);
+      await render(<TestButton />);
+      expect(screen.getByRole('button')).to.have.property('tabIndex', 0);
     });
 
     it('returns tabIndex in getButtonProps if it is explicitly provided', async () => {
@@ -154,8 +154,8 @@ describe('useButton', () => {
         return <button {...getButtonProps()} />;
       }
 
-      const { getByRole } = await render(<TestButton />);
-      expect(getByRole('button')).to.have.property('tabIndex', customTabIndex);
+      await render(<TestButton />);
+      expect(screen.getByRole('button')).to.have.property('tabIndex', customTabIndex);
     });
   });
 
@@ -167,8 +167,8 @@ describe('useButton', () => {
         return <button {...getButtonProps({ 'data-testid': buttonTestId })} />;
       }
 
-      const { getByRole } = await render(<TestButton />);
-      expect(getByRole('button')).to.have.attribute('data-testid', buttonTestId);
+      await render(<TestButton />);
+      expect(screen.getByRole('button')).to.have.attribute('data-testid', buttonTestId);
     });
   });
 
@@ -184,14 +184,14 @@ describe('useButton', () => {
         return <span {...getButtonProps(props)} />;
       }
 
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <TestButton
           onKeyUp={(event: React.KeyboardEvent<HTMLButtonElement>) => event.preventDefault()}
           onClick={handleClick}
         />,
       );
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
 
       await user.keyboard('[Tab]');
       expect(button).toHaveFocus();
@@ -210,11 +210,9 @@ describe('useButton', () => {
         return <span {...getButtonProps(props)} />;
       }
 
-      const { getByRole } = await render(
-        <TestButton onKeyDown={handleKeyDown} onClick={handleClick} />,
-      );
+      await render(<TestButton onKeyDown={handleKeyDown} onClick={handleClick} />);
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
 
       await act(() => button.focus());
       expect(button).toHaveFocus();
@@ -247,8 +245,8 @@ describe('useButton', () => {
         return <button {...getButtonProps(otherProps)} />;
       }
 
-      const { container } = renderToString(<TestButton disabled>Submit</TestButton>);
-      expect(container.querySelector('button')).to.have.property('disabled');
+      renderToString(<TestButton disabled>Submit</TestButton>);
+      expect(screen.getByRole('button')).to.have.property('disabled');
     });
   });
 

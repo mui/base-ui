@@ -308,7 +308,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       new Store<StoreState>({
         id,
         selectedValue,
-        inputValue,
         open,
         filter,
         query,
@@ -412,10 +411,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [forceMount, selectedValue, initialSelectedValueRef]);
 
-  const updateValue = useEventCallback((nextValue: any) => {
+  function updateValue(nextValue: any) {
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
-  });
+  }
 
   const formValue = selectionMode === 'none' ? inputValue : selectedValue;
 
@@ -966,7 +965,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     store.apply({
       id,
       selectedValue,
-      inputValue,
       open,
       mounted,
       transitionStatus,
@@ -999,7 +997,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     store,
     id,
     selectedValue,
-    inputValue,
     open,
     mounted,
     transitionStatus,

@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Link } from 'docs/src/components/Link';
 import { ArrowRightIcon } from 'docs/src/icons/ArrowRightIcon';
 import { Logo } from 'docs/src/components/Logo';

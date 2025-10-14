@@ -66,9 +66,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
-  const trackPointerType = useEventCallback((event: React.PointerEvent) => {
+  function trackPointerType(event: React.PointerEvent) {
     currentPointerTypeRef.current = event.pointerType;
-  });
+  }
 
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,
@@ -97,6 +97,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       {
         tabIndex: inputInsidePopup ? 0 : -1,
         disabled,
+        role: inputInsidePopup ? 'combobox' : undefined,
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': open ? listElement?.id : undefined,
@@ -175,23 +176,28 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   return element;
 });
 
-export namespace ComboboxTrigger {
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the popup is open.
-     */
-    open: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-  }
+export interface ComboboxTriggerState extends FieldRoot.State {
+  /**
+   * Whether the popup is open.
+   */
+  open: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface ComboboxTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ComboboxTrigger.State> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+export namespace ComboboxTrigger {
+  export type State = ComboboxTriggerState;
+  export type Props = ComboboxTriggerProps;
 }

@@ -64,7 +64,7 @@ describe('<Menu.Item />', () => {
       return <li {...other} ref={ref} />;
     });
 
-    const { getAllByRole, user } = await render(
+    const { user } = await render(
       <Menu.Root open>
         <Menu.Portal>
           <Menu.Positioner>
@@ -87,7 +87,7 @@ describe('<Menu.Item />', () => {
       </Menu.Root>,
     );
 
-    const menuItems = getAllByRole('menuitem');
+    const menuItems = screen.getAllByRole('menuitem');
     await act(async () => {
       menuItems[0].focus();
     });
@@ -124,7 +124,7 @@ describe('<Menu.Item />', () => {
 
   describe('prop: closeOnClick', () => {
     it('closes the menu when the item is clicked by default', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -137,17 +137,17 @@ describe('<Menu.Item />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitem');
+      const item = screen.getByRole('menuitem');
       await user.click(item);
 
-      expect(queryByRole('menu')).to.equal(null);
+      expect(screen.queryByRole('menu')).to.equal(null);
     });
 
     it('when `closeOnClick=false` does not close the menu when the item is clicked', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -160,13 +160,13 @@ describe('<Menu.Item />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitem');
+      const item = screen.getByRole('menuitem');
       await user.click(item);
 
-      expect(queryByRole('menu')).not.to.equal(null);
+      expect(screen.queryByRole('menu')).not.to.equal(null);
     });
   });
 
@@ -183,7 +183,7 @@ describe('<Menu.Item />', () => {
     }
 
     it('react-router <Link>', async () => {
-      const { getAllByRole, getByTestId, user } = await render(
+      const { user } = await render(
         <MemoryRouter initialEntries={['/']}>
           <Routes>
             <Route path="/" element={<One />} />
@@ -205,9 +205,9 @@ describe('<Menu.Item />', () => {
         </MemoryRouter>,
       );
 
-      const [link1, link2] = getAllByRole('menuitem');
+      const [link1, link2] = screen.getAllByRole('menuitem');
 
-      const locationDisplay = getByTestId('location');
+      const locationDisplay = screen.getByTestId('location');
 
       expect(screen.getByText(/page one/i)).not.to.equal(null);
 
@@ -245,7 +245,7 @@ describe('<Menu.Item />', () => {
       const handleKeyDown = spy();
       const handleKeyUp = spy();
 
-      const { getByRole } = await render(
+      await render(
         <Menu.Root open>
           <Menu.Portal>
             <Menu.Positioner>
@@ -264,7 +264,7 @@ describe('<Menu.Item />', () => {
         </Menu.Root>,
       );
 
-      const item = getByRole('menuitem');
+      const item = screen.getByRole('menuitem');
       await act(() => item.focus());
       expect(item).toHaveFocus();
 

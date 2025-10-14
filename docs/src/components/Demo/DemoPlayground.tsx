@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import kebabCase from 'es-toolkit/compat/kebabCase';
 import { DemoErrorFallback } from './DemoErrorFallback';

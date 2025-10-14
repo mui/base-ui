@@ -298,86 +298,95 @@ export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>
   );
 }
 
-export namespace PopoverRoot {
-  export interface State {}
+export interface PopoverRootState {}
 
-  export interface Props<Payload = unknown> {
-    /**
-     * Whether the popover is currently open.
-     */
-    open?: boolean;
-    /**
-     * Whether the popover is initially open.
-       To render a controlled popover, use the `open` prop instead.
-     */
-    defaultOpen?: boolean;
-    /**
-     * Event handler called when the popover is opened or closed.
-     */
-    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
-    /**
-     * Event handler called after any animations complete when the popover is opened or closed.
-     */
-    onOpenChangeComplete?: (open: boolean) => void;
-    /**
-     * ID of the trigger that the popover is associated with.
-     * This is useful in conjuntion with the `open` prop to create a controlled popover.
-     * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
-     */
-    triggerId?: string | null;
-    /**
-     * ID of the trigger that the popover is associated with.
-     * This is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.
-     */
-    defaultTriggerId?: string | null;
-    /**
-     * A ref to imperative actions.
-     * - `unmount`: When specified, the popover will not be unmounted when closed.
-     * Instead, the `unmount` function must be called to unmount the popover manually.
-     * Useful when the popover's animation is controlled by an external library.
-     */
-    actionsRef?: React.RefObject<Actions | null>;
-    /**
-     * Determines if the popover enters a modal state when open.
-     * - `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.
-     * - `false`: user interaction with the rest of the document is allowed.
-     * - `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.
-     * @default false
-     */
-    modal?: boolean | 'trap-focus';
-    /**
-     * A handle to associate the popover with a trigger.
-     * If specified, allows external triggers to control the popover's open state.
-     */
-    handle?: PopoverStore<Payload>;
-    /**
-     * The content of the popover.
-     * This can be a regular React node or a render function that receives the `payload` of the active trigger.
-     */
-    children?: React.ReactNode | ChildRenderFunction<Payload>;
-  }
+export interface PopoverRootProps<Payload = unknown> {
+  /**
+   * Whether the popover is initially open.
+   *
+   * To render a controlled popover, use the `open` prop instead.
+   * @default false
+   */
+  defaultOpen?: boolean;
+  /**
+   * Whether the popover is currently open.
+   */
+  open?: boolean;
+  /**
+   * Event handler called when the popover is opened or closed.
+   */
+  onOpenChange?: (open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void;
+  /**
+   * Event handler called after any animations complete when the popover is opened or closed.
+   */
+  onOpenChangeComplete?: (open: boolean) => void;
+  /**
+   * A ref to imperative actions.
+   * - `unmount`: When specified, the popover will not be unmounted when closed.
+   * Instead, the `unmount` function must be called to unmount the popover manually.
+   * Useful when the popover's animation is controlled by an external library.
+   */
+  actionsRef?: React.RefObject<PopoverRoot.Actions | null>;
+  /**
+   * Determines if the popover enters a modal state when open.
+   * - `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.
+   * - `false`: user interaction with the rest of the document is allowed.
+   * - `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.
+   * @default false
+   */
+  modal?: boolean | 'trap-focus';
+  /**
+   * ID of the trigger that the popover is associated with.
+   * This is useful in conjuntion with the `open` prop to create a controlled popover.
+   * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
+   */
+  triggerId?: string | null;
+  /**
+   * ID of the trigger that the popover is associated with.
+   * This is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.
+   */
+  defaultTriggerId?: string | null;
+  /**
+   * A handle to associate the popover with a trigger.
+   * If specified, allows external triggers to control the popover's open state.
+   */
+  handle?: PopoverStore<Payload>;
+  /**
+   * The content of the popover.
+   * This can be a regular React node or a render function that receives the `payload` of the active trigger.
+   */
+  children?: React.ReactNode | PopoverRoot.ChildRenderFunction<Payload>;
+}
 
-  export interface Actions {
-    unmount: () => void;
-    close: () => void;
-  }
+export interface PopoverRootActions {
+  unmount: () => void;
+  close: () => void;
+}
 
-  export type ChildRenderFunction<Payload> = (arg: {
-    payload: Payload | undefined;
-  }) => React.ReactNode;
+export type PopoverRootChildRenderFunction<Payload> = (arg: {
+  payload: Payload | undefined;
+}) => React.ReactNode;
 
-  export type ChangeEventReason =
-    | 'trigger-hover'
-    | 'trigger-focus'
-    | 'trigger-press'
-    | 'outside-press'
-    | 'escape-key'
-    | 'close-press'
-    | 'focus-out'
-    | 'imperative-action'
-    | 'none';
-
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason> & {
+export type PopoverRootChangeEventReason =
+  | 'trigger-hover'
+  | 'trigger-focus'
+  | 'trigger-press'
+  | 'outside-press'
+  | 'escape-key'
+  | 'close-press'
+  | 'focus-out'
+  | 'imperative-action'
+  | 'none';
+export type PopoverRootChangeEventDetails =
+  BaseUIChangeEventDetails<PopoverRoot.ChangeEventReason> & {
     preventUnmountOnClose(): void;
   };
+
+export namespace PopoverRoot {
+  export type State = PopoverRootState;
+  export type Props<Payload = unknown> = PopoverRootProps<Payload>;
+  export type Actions = PopoverRootActions;
+  export type ChangeEventReason = PopoverRootChangeEventReason;
+  export type ChangeEventDetails = PopoverRootChangeEventDetails;
+  export type ChildRenderFunction<Payload> = PopoverRootChildRenderFunction<Payload>;
 }
