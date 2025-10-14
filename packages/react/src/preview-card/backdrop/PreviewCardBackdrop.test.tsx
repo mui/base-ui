@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { PreviewCard } from '@base-ui-components/react/preview-card';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';

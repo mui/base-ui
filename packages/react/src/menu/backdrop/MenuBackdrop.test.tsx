@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';

@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
