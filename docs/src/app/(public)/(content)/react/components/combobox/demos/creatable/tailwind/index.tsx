@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { Dialog } from '@base-ui-components/react/dialog';

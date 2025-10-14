@@ -5,7 +5,7 @@ import {
   SettingsMetadata,
   useExperimentSettings,
 } from 'docs/src/components/Experiments/SettingsPanel';
-import demoStyles from 'docs/src/app/(public)/(content)/react/components/popover/demos/detached-triggers-full/css-modules/index.module.css';
+import demoStyles from 'docs/src/app/(public)/(content)/react/components/popover/demos/detached-triggers-full/css-modules/styles.module.css';
 import styles from './popovers.module.css';
 
 const popover1 = Popover.createHandle<number>();
