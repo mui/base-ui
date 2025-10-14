@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 

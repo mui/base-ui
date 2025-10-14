@@ -6,7 +6,7 @@ import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext'
 
 /**
  * Contains a list of navigation menu items.
- * Renders a `<div>` element.
+ * Renders a `<ul>` element.
  *
  * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
  */

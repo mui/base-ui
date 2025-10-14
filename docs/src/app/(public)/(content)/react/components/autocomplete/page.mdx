@@ -66,7 +66,8 @@ import { Autocomplete } from '@base-ui-components/react/autocomplete';
 
 ## TypeScript inference
 
-Autocomplete infers the item type from the `items` prop passed to `Autocomplete.Root`. If using `itemToStringValue`, `Autocomplete.Item`'s `value` prop must match the type of an item in the `items` array.
+Autocomplete infers the item type from the `items` prop passed to `<Autocomplete.Root>`.
+If using `itemToStringValue`, the value prop on the `<Autocomplete.Item>` must match the type of an item in the `items` array.
 
 ## Examples
 
@@ -96,7 +97,7 @@ Use fuzzy matching to find relevant results even when the query doesn't exactly 
 
 ### Limit results
 
-Limit the number of visible items using the `limit` prop and guide users to refine their query using `Autocomplete.Status`.
+Limit the number of visible items using the `limit` prop and guide users to refine their query using `<Autocomplete.Status>`.
 
 <Demo path="./demos/limit" compact />
 
@@ -108,7 +109,7 @@ Automatically highlight the first matching option as the user types using the `a
 
 ### Grid layout
 
-Display items in a grid layout, wrapping each row in `Autocomplete.Row` components.
+Display items in a grid layout, wrapping each row in `<Autocomplete.Row>` components.
 
 <Demo path="./demos/grid" compact />
 

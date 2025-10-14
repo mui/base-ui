@@ -38,9 +38,9 @@ Provides a shared state to a series of radio buttons. Renders a `<div>` element.
 
 To use a radio group in a form:
 
-1. Pass the group's `name` to `Field`
-2. Use the `render` prop to compose `Fieldset` and `RadioGroup`
-3. Use `Field.Item` to wrap each radio in the group
+1. Pass the group's `name` to `<Field>`
+2. Use the `render` prop to compose `<Fieldset>` and `<RadioGroup>`
+3. Use `<Field.Item>` to wrap each radio in the group
 
 ```tsx title="Using RadioGroup in a form"
 <Form>
@@ -58,6 +58,7 @@ To use a radio group in a form:
           <Radio.Root value="express" />
           Express
         </Field.Label>
+        ` `{' '}
       </Field.Item>
     </Fieldset.Root>
   </Field.Root>

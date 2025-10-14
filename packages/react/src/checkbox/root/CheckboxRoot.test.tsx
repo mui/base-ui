@@ -20,14 +20,12 @@ describe('<Checkbox.Root />', () => {
 
   describe('ARIA attributes', () => {
     it('sets the correct aria attributes', async () => {
-      const { getByRole, getByTestId, setProps } = await render(
-        <Checkbox.Root data-testid="test" required={false} />,
-      );
+      const { setProps } = await render(<Checkbox.Root data-testid="test" required={false} />);
 
-      expect(getByRole('checkbox')).to.equal(getByTestId('test'));
-      expect(getByRole('checkbox')).to.have.attribute('aria-checked');
+      expect(screen.getByRole('checkbox')).to.equal(screen.getByTestId('test'));
+      expect(screen.getByRole('checkbox')).to.have.attribute('aria-checked');
       await setProps({ required: true });
-      expect(getByRole('checkbox')).to.have.attribute('aria-required', 'true');
+      expect(screen.getByRole('checkbox')).to.have.attribute('aria-required', 'true');
     });
   });
 
@@ -39,9 +37,13 @@ describe('<Checkbox.Root />', () => {
   });
 
   it('should change its state when clicked', async () => {
-    const { getAllByRole, container } = await render(<Checkbox.Root />);
-    const [checkbox] = getAllByRole('checkbox');
-    const input = container.querySelector('input[type=checkbox]') as HTMLInputElement;
+    await render(<Checkbox.Root />);
+    const [checkbox] = screen.getAllByRole('checkbox');
+    // querying it separately since hidden true returns both button and input.
+    // without hidden it only returns the button (in the above query)
+    const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+      hidden: true,
+    });
 
     expect(checkbox).to.have.attribute('aria-checked', 'false');
     expect(input.checked).to.equal(false);
@@ -72,9 +74,9 @@ describe('<Checkbox.Root />', () => {
       );
     }
 
-    const { getAllByRole, getByText } = await render(<Test />);
-    const [checkbox] = getAllByRole('checkbox');
-    const button = getByText('Toggle');
+    await render(<Test />);
+    const [checkbox] = screen.getAllByRole('checkbox');
+    const button = screen.getByText('Toggle');
 
     expect(checkbox).to.have.attribute('aria-checked', 'false');
     await act(async () => {
@@ -92,8 +94,8 @@ describe('<Checkbox.Root />', () => {
 
   it('should call onChange when clicked', async () => {
     const handleChange = spy();
-    const { getAllByRole } = await render(<Checkbox.Root onCheckedChange={handleChange} />);
-    const [checkbox] = getAllByRole('checkbox');
+    await render(<Checkbox.Root onCheckedChange={handleChange} />);
+    const [checkbox] = screen.getAllByRole('checkbox');
 
     await act(async () => {
       checkbox.click();
@@ -105,18 +107,18 @@ describe('<Checkbox.Root />', () => {
 
   describe('prop: disabled', () => {
     it('should have the `disabled` attribute', async () => {
-      const { getAllByRole } = await render(<Checkbox.Root disabled />);
-      expect(getAllByRole('checkbox')[0]).to.have.attribute('disabled');
+      await render(<Checkbox.Root disabled />);
+      expect(screen.getAllByRole('checkbox')[0]).to.have.attribute('disabled');
     });
 
     it('should not have the `disabled` attribute when `disabled` is not set', async () => {
-      const { getAllByRole } = await render(<Checkbox.Root />);
-      expect(getAllByRole('checkbox')[0]).not.to.have.attribute('disabled');
+      await render(<Checkbox.Root />);
+      expect(screen.getAllByRole('checkbox')[0]).not.to.have.attribute('disabled');
     });
 
     it('should not change its state when clicked', async () => {
-      const { getAllByRole } = await render(<Checkbox.Root disabled />);
-      const [checkbox] = getAllByRole('checkbox');
+      await render(<Checkbox.Root disabled />);
+      const [checkbox] = screen.getAllByRole('checkbox');
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
@@ -130,18 +132,18 @@ describe('<Checkbox.Root />', () => {
 
   describe('prop: readOnly', () => {
     it('should have the `aria-readonly` attribute', async () => {
-      const { getAllByRole } = await render(<Checkbox.Root readOnly />);
-      expect(getAllByRole('checkbox')[0]).to.have.attribute('aria-readonly', 'true');
+      await render(<Checkbox.Root readOnly />);
+      expect(screen.getAllByRole('checkbox')[0]).to.have.attribute('aria-readonly', 'true');
     });
 
     it('should not have the aria attribute when `readOnly` is not set', async () => {
-      const { getAllByRole } = await render(<Checkbox.Root />);
-      expect(getAllByRole('checkbox')[0]).not.to.have.attribute('aria-readonly');
+      await render(<Checkbox.Root />);
+      expect(screen.getAllByRole('checkbox')[0]).not.to.have.attribute('aria-readonly');
     });
 
     it('should not change its state when clicked', async () => {
-      const { getAllByRole } = await render(<Checkbox.Root readOnly />);
-      const [checkbox] = getAllByRole('checkbox');
+      await render(<Checkbox.Root readOnly />);
+      const [checkbox] = screen.getAllByRole('checkbox');
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
@@ -155,13 +157,13 @@ describe('<Checkbox.Root />', () => {
 
   describe('prop: indeterminate', () => {
     it('should set the `aria-checked` attribute as "mixed"', async () => {
-      const { getAllByRole } = await render(<Checkbox.Root indeterminate />);
-      expect(getAllByRole('checkbox')[0]).to.have.attribute('aria-checked', 'mixed');
+      await render(<Checkbox.Root indeterminate />);
+      expect(screen.getAllByRole('checkbox')[0]).to.have.attribute('aria-checked', 'mixed');
     });
 
     it('should not change its state when clicked', async () => {
-      const { getAllByRole } = await render(<Checkbox.Root indeterminate />);
-      const [checkbox] = getAllByRole('checkbox');
+      await render(<Checkbox.Root indeterminate />);
+      const [checkbox] = screen.getAllByRole('checkbox');
 
       expect(checkbox).to.have.attribute('aria-checked', 'mixed');
 
@@ -173,20 +175,22 @@ describe('<Checkbox.Root />', () => {
     });
 
     it('should not have the aria attribute when `indeterminate` is not set', async () => {
-      const { getAllByRole } = await render(<Checkbox.Root />);
-      expect(getAllByRole('checkbox')[0]).not.to.have.attribute('aria-checked', 'mixed');
+      await render(<Checkbox.Root />);
+      expect(screen.getAllByRole('checkbox')[0]).not.to.have.attribute('aria-checked', 'mixed');
     });
 
     it('should not be overridden by `checked` prop', async () => {
-      const { getAllByRole } = await render(<Checkbox.Root indeterminate checked />);
-      expect(getAllByRole('checkbox')[0]).to.have.attribute('aria-checked', 'mixed');
+      await render(<Checkbox.Root indeterminate checked />);
+      expect(screen.getAllByRole('checkbox')[0]).to.have.attribute('aria-checked', 'mixed');
     });
   });
 
   it('should update its state if the underlying input is toggled', async () => {
-    const { getAllByRole, container } = await render(<Checkbox.Root />);
-    const [checkbox] = getAllByRole('checkbox');
-    const input = container.querySelector('input[type=checkbox]') as HTMLInputElement;
+    await render(<Checkbox.Root />);
+    const [checkbox] = screen.getAllByRole('checkbox');
+    const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+      hidden: true,
+    });
 
     await act(async () => {
       input.click();
@@ -196,13 +200,13 @@ describe('<Checkbox.Root />', () => {
   });
 
   it('should place the style hooks on the root and the indicator', async () => {
-    const { getAllByRole, setProps } = await render(
+    const { setProps } = await render(
       <Checkbox.Root defaultChecked disabled readOnly required>
         <Checkbox.Indicator />
       </Checkbox.Root>,
     );
 
-    const [checkbox] = getAllByRole('checkbox');
+    const [checkbox] = screen.getAllByRole('checkbox');
     const indicator = checkbox.querySelector('span');
 
     expect(checkbox).to.have.attribute('data-checked', '');
@@ -227,24 +231,26 @@ describe('<Checkbox.Root />', () => {
   });
 
   it('should set the name attribute only on the input', async () => {
-    const { container } = await render(<Checkbox.Root name="checkbox-name" />);
+    await render(<Checkbox.Root name="checkbox-name" />);
 
-    const input = container.querySelector('input[type="checkbox"]')! as HTMLInputElement;
+    const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+      hidden: true,
+    });
     expect(input).to.have.attribute('name', 'checkbox-name');
     expect(screen.getByRole('checkbox')).not.to.have.attribute('name');
   });
 
   describe('Form', () => {
     it('should toggle the checkbox when a parent label is clicked', async () => {
-      const { getByTestId, getAllByRole } = await render(
+      await render(
         <label data-testid="label">
           <Checkbox.Root />
           Toggle
         </label>,
       );
 
-      const [checkbox] = getAllByRole('checkbox');
-      const label = getByTestId('label');
+      const [checkbox] = screen.getAllByRole('checkbox');
+      const label = screen.getByTestId('label');
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
@@ -256,7 +262,7 @@ describe('<Checkbox.Root />', () => {
     });
 
     it('should toggle the checkbox when a linked label is clicked', async () => {
-      const { getByTestId, getAllByRole } = await render(
+      await render(
         <div>
           <label htmlFor="test-checkbox" data-testid="label">
             Toggle
@@ -265,8 +271,8 @@ describe('<Checkbox.Root />', () => {
         </div>,
       );
 
-      const [checkbox] = getAllByRole('checkbox');
-      const label = getByTestId('label');
+      const [checkbox] = screen.getAllByRole('checkbox');
+      const label = screen.getByTestId('label');
 
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
@@ -336,7 +342,7 @@ describe('<Checkbox.Root />', () => {
 
       let stringifiedFormData = '';
 
-      const { getAllByRole, getByRole } = await render(
+      await render(
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -349,8 +355,8 @@ describe('<Checkbox.Root />', () => {
         </form>,
       );
 
-      const [checkbox] = getAllByRole('checkbox');
-      const submitButton = getByRole('button')!;
+      const [checkbox] = screen.getAllByRole('checkbox');
+      const submitButton = screen.getByRole('button')!;
 
       submitButton.click();
 
@@ -373,7 +379,7 @@ describe('<Checkbox.Root />', () => {
 
       let stringifiedFormData = '';
 
-      const { getAllByRole, getByRole } = await render(
+      await render(
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -386,8 +392,8 @@ describe('<Checkbox.Root />', () => {
         </form>,
       );
 
-      const [checkbox] = getAllByRole('checkbox');
-      const submitButton = getByRole('button')!;
+      const [checkbox] = screen.getAllByRole('checkbox');
+      const submitButton = screen.getByRole('button')!;
 
       submitButton.click();
 
@@ -405,24 +411,26 @@ describe('<Checkbox.Root />', () => {
 
   describe('Field', () => {
     it('should receive disabled prop from Field.Root', async () => {
-      const { getAllByRole } = await render(
+      await render(
         <Field.Root disabled>
           <Checkbox.Root />
         </Field.Root>,
       );
 
-      const [checkbox] = getAllByRole('checkbox');
+      const [checkbox] = screen.getAllByRole('checkbox');
       expect(checkbox).to.have.attribute('disabled');
     });
 
     it('should receive name prop from Field.Root', async () => {
-      const { container } = await render(
+      await render(
         <Field.Root name="field-checkbox">
           <Checkbox.Root />
         </Field.Root>,
       );
 
-      const input = container.querySelector('input[type="checkbox"]');
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
       expect(input).to.have.attribute('name', 'field-checkbox');
     });
 
@@ -707,14 +715,14 @@ describe('<Checkbox.Root />', () => {
     });
 
     it('Field.Description', async () => {
-      const { container } = await render(
+      await render(
         <Field.Root>
           <Checkbox.Root data-testid="button" />
           <Field.Description data-testid="description" />
         </Field.Root>,
       );
 
-      const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
+      const internalInput = screen.getByRole<HTMLInputElement>('checkbox');
 
       expect(internalInput).to.have.attribute(
         'aria-describedby',
@@ -724,14 +732,14 @@ describe('<Checkbox.Root />', () => {
   });
 
   it('should change state when clicking the checkbox if it has a wrapping label', async () => {
-    const { getAllByRole } = await render(
+    await render(
       <label data-testid="label">
         <Checkbox.Root />
         Toggle
       </label>,
     );
 
-    const [checkbox] = getAllByRole('checkbox');
+    const [checkbox] = screen.getAllByRole('checkbox');
 
     expect(checkbox).to.have.attribute('aria-checked', 'false');
 

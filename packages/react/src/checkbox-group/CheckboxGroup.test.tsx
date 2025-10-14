@@ -328,23 +328,23 @@ describe('<CheckboxGroup />', () => {
   describe('Field.Label', () => {
     it('implicit association', async () => {
       const changeSpy = spy();
-      const { container } = await render(
+      render(
         <Field.Root name="apple">
           <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
             <Field.Item>
-              <Field.Label>
+              <Field.Label data-testid="label">
                 <Checkbox.Root value="fuji-apple" />
                 Fuji
               </Field.Label>
             </Field.Item>
             <Field.Item>
-              <Field.Label>
+              <Field.Label data-testid="label">
                 <Checkbox.Root value="gala-apple" />
                 Gala
               </Field.Label>
             </Field.Item>
             <Field.Item>
-              <Field.Label>
+              <Field.Label data-testid="label">
                 <Checkbox.Root value="granny-smith-apple" onCheckedChange={changeSpy} />
                 Granny Smith
               </Field.Label>
@@ -353,9 +353,10 @@ describe('<CheckboxGroup />', () => {
         </Field.Root>,
       );
 
-      const labels = container.querySelectorAll('label');
+      const labels = screen.getAllByTestId('label');
       expect(labels.length).to.equal(3);
       labels.forEach((label) => {
+        expect(label.tagName).to.equal('LABEL');
         expect(label).to.not.have.attribute('for');
       });
 
@@ -365,20 +366,21 @@ describe('<CheckboxGroup />', () => {
 
     it('explicit association', async () => {
       const changeSpy = spy();
-      const { container } = await render(
+
+      await render(
         <Field.Root name="apple">
           <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
             <Field.Item>
               <Checkbox.Root value="fuji-apple" />
-              <Field.Label>Fuji</Field.Label>
-              <Field.Description>
+              <Field.Label data-testid="label">Fuji</Field.Label>
+              <Field.Description data-testid="description">
                 A fuji apple is the round, edible fruit of an apple tree
               </Field.Description>
             </Field.Item>
             <Field.Item>
               <Checkbox.Root value="gala-apple" onCheckedChange={changeSpy} />
-              <Field.Label>Gala</Field.Label>
-              <Field.Description>
+              <Field.Label data-testid="label">Gala</Field.Label>
+              <Field.Description data-testid="description">
                 A gala apple is the round, edible fruit of an apple tree
               </Field.Description>
             </Field.Item>
@@ -387,8 +389,8 @@ describe('<CheckboxGroup />', () => {
       );
 
       const checkboxes = screen.getAllByRole('checkbox');
-      const labels = container.querySelectorAll('label');
-      const descriptions = container.querySelectorAll('p');
+      const labels = screen.getAllByTestId('label');
+      const descriptions = screen.getAllByTestId('description');
 
       checkboxes.forEach((checkbox, index) => {
         const label = labels[index];
@@ -407,7 +409,7 @@ describe('<CheckboxGroup />', () => {
 
   describe.skipIf(isJSDOM)('Form', () => {
     it('includes the checkbox group value in form submission', async () => {
-      const { getByRole } = await render(
+      render(
         <Form
           onSubmit={(event) => {
             event.preventDefault();
@@ -432,13 +434,14 @@ describe('<CheckboxGroup />', () => {
         </Form>,
       );
 
-      const submit = getByRole('button');
+      const submit = screen.getByRole('button');
       fireEvent.click(submit);
     });
 
     it('is validated as a group upon form submission', async () => {
       const validateSpy = spy();
-      const { getByRole } = await render(
+
+      render(
         <Form
           onSubmit={(event) => {
             event.preventDefault();
@@ -461,7 +464,7 @@ describe('<CheckboxGroup />', () => {
         </Form>,
       );
 
-      const submit = getByRole('button');
+      const submit = screen.getByRole('button');
       fireEvent.click(submit);
       expect(validateSpy.callCount).to.equal(1);
       expect(validateSpy.args[0][0]).to.deep.equal(['fuji-apple', 'gala-apple']);
@@ -495,7 +498,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = await render(<App />);
+      const { user } = render(<App />);
       expect(screen.queryByTestId('error')).to.equal(null);
       const submit = screen.getByText('Submit');
       await user.click(submit);
@@ -544,7 +547,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = await render(<App />);
+      const { user } = render(<App />);
 
       const [parentCheckbox, , , checkbox3] = screen.getAllByRole('checkbox');
 

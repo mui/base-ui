@@ -28,6 +28,8 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     name,
     disabled: disabledProp = false,
     invalid: invalidProp,
+    dirty: dirtyProp,
+    touched: touchedProp,
     ...elementProps
   } = componentProps;
 
@@ -39,19 +41,33 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const disabled = disabledFieldset || disabledProp;
 
-  const [touched, setTouched] = React.useState(false);
-  const [dirty, setDirtyUnwrapped] = React.useState(false);
+  const [touchedState, setTouchedUnwrapped] = React.useState(false);
+  const [dirtyState, setDirtyUnwrapped] = React.useState(false);
   const [filled, setFilled] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
 
+  const dirty = dirtyProp ?? dirtyState;
+  const touched = touchedProp ?? touchedState;
+
   const markedDirtyRef = React.useRef(false);
 
-  const setDirty: typeof setDirtyUnwrapped = React.useCallback((value) => {
+  const setDirty: typeof setDirtyUnwrapped = useEventCallback((value) => {
+    if (dirtyProp !== undefined) {
+      return;
+    }
+
     if (value) {
       markedDirtyRef.current = true;
     }
     setDirtyUnwrapped(value);
-  }, []);
+  });
+
+  const setTouched: typeof setTouchedUnwrapped = useEventCallback((value) => {
+    if (touchedProp !== undefined) {
+      return;
+    }
+    setTouchedUnwrapped(value);
+  });
 
   const invalid = Boolean(
     invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
@@ -106,6 +122,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
       validityData,
       disabled,
       touched,
+      setTouched,
       dirty,
       setDirty,
       filled,
@@ -198,9 +215,20 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.St
    */
   validationDebounceTime?: number;
   /**
-   * Whether the field is forcefully marked as invalid.
+   * Whether the field is invalid.
+   * Useful when the field state is controlled by an external library.
    */
   invalid?: boolean;
+  /**
+   * Whether the field's value has been changed from its initial value.
+   * Useful when the field state is controlled by an external library.
+   */
+  dirty?: boolean;
+  /**
+   * Whether the field has been touched.
+   * Useful when the field state is controlled by an external library.
+   */
+  touched?: boolean;
 }
 
 export namespace FieldRoot {

@@ -46,7 +46,7 @@ describe('<RadioGroup />', () => {
 
   describe('prop: disabled', () => {
     it('should have the `aria-disabled` attribute', async () => {
-      const { container } = await render(
+      render(
         <RadioGroup disabled>
           <Radio.Root value="a" />
         </RadioGroup>,
@@ -54,7 +54,11 @@ describe('<RadioGroup />', () => {
       expect(screen.getByRole('radiogroup')).to.have.attribute('aria-disabled', 'true');
       expect(screen.getByRole('radio')).to.have.attribute('aria-disabled', 'true');
       expect(screen.getByRole('radio')).to.have.attribute('data-disabled');
-      expect(container.querySelector('input')).to.have.attribute('disabled');
+      expect(
+        screen.getByRole('textbox', {
+          hidden: true,
+        }),
+      ).to.have.attribute('disabled');
     });
 
     it('should not have the aria attribute when `disabled` is not set', async () => {
@@ -513,17 +517,17 @@ describe('<RadioGroup />', () => {
     describe('Field.Label', () => {
       it('associates implicitly', async () => {
         const changeSpy = spy((newValue) => newValue);
-        const { container } = await render(
+        await render(
           <Field.Root name="options">
             <RadioGroup onValueChange={changeSpy}>
               <Field.Item>
-                <Field.Label>
+                <Field.Label data-testid="label">
                   <Radio.Root value="apple" />
                   Apple
                 </Field.Label>
               </Field.Item>
               <Field.Item>
-                <Field.Label>
+                <Field.Label data-testid="label">
                   <Radio.Root value="banana" />
                   Banana
                 </Field.Label>
@@ -532,7 +536,7 @@ describe('<RadioGroup />', () => {
           </Field.Root>,
         );
 
-        const labels = container.querySelectorAll('label');
+        const labels = screen.getAllByTestId('label');
         expect(labels.length).to.equal(2);
         labels.forEach((label) => {
           expect(label).to.not.have.attribute('for');
@@ -545,28 +549,30 @@ describe('<RadioGroup />', () => {
 
       it('associates explicitly', async () => {
         const changeSpy = spy((newValue) => newValue);
-        const { container } = await render(
+        await render(
           <Field.Root name="options">
             <RadioGroup onValueChange={changeSpy}>
               <Field.Item>
                 <Radio.Root value="apple" />
-                <Field.Label>Apple</Field.Label>
-                <Field.Description>
+                <Field.Label data-testid="label">Apple</Field.Label>
+                <Field.Description data-test-id="description">
                   An apple is the round, edible fruit of an apple tree
                 </Field.Description>
               </Field.Item>
               <Field.Item>
                 <Radio.Root value="banana" />
-                <Field.Label>Banana</Field.Label>
-                <Field.Description>A banana is an elongated, edible fruit</Field.Description>
+                <Field.Label data-testid="label">Banana</Field.Label>
+                <Field.Description data-test-id="description">
+                  A banana is an elongated, edible fruit
+                </Field.Description>
               </Field.Item>
             </RadioGroup>
           </Field.Root>,
         );
 
         const radios = screen.getAllByRole('radio');
-        const labels = container.querySelectorAll('label');
-        const descriptions = container.querySelectorAll('p');
+        const labels = screen.getAllByTestId('label');
+        const descriptions = screen.getAllByTestId('description');
 
         radios.forEach((radio, index) => {
           const label = labels[index];
