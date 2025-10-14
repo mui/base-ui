@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
-  useClick,
   useDismiss,
   useFloatingRootContext,
   useInteractions,
@@ -19,15 +18,24 @@ import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../DialogStore';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
-  const { store, parentContext, actionsRef } = params;
+  const { store, parentContext, actionsRef, triggerIdProp } = params;
 
   const open = store.useState('open');
   const dismissible = store.useState('dismissible');
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
   const popupElement = store.useState('popupElement');
+  const triggerElements = store.useState('triggers');
+  const activeTriggerId = store.useState('activeTriggerId');
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  let resolvedTriggerId: string | null = null;
+  if (mounted === true && triggerIdProp === undefined && triggerElements.size === 1) {
+    resolvedTriggerId = triggerElements.keys().next().value || null;
+  } else {
+    resolvedTriggerId = activeTriggerId ?? null;
+  }
 
   useIsoLayoutEffect(() => {
     store.set('mounted', mounted);
@@ -35,6 +43,18 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       store.set('activeTriggerId', null);
     }
   }, [store, mounted]);
+
+  useIsoLayoutEffect(() => {
+    if (open) {
+      if (resolvedTriggerId != null) {
+        store.set('activeTriggerId', resolvedTriggerId);
+        const triggerMetadata = triggerElements.get(resolvedTriggerId);
+        store.set('payload', triggerMetadata?.getPayload?.() ?? undefined);
+      } else {
+        store.set('payload', undefined);
+      }
+    }
+  }, [store, resolvedTriggerId, triggerElements, open]);
 
   const {
     openMethod,
@@ -93,7 +113,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const isTopmost = ownNestedOpenDialogs === 0;
 
   const role = useRole(context);
-  const click = useClick(context);
   const dismiss = useDismiss(context, {
     outsidePressEvent() {
       if (store.context.internalBackdropRef.current || store.context.backdropRef.current) {
@@ -136,11 +155,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     referenceElement: popupElement,
   });
 
-  const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([
-    role,
-    click,
-    dismiss,
-  ]);
+  const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([role, dismiss]);
 
   // Listen for nested open/close events on this store to maintain the count
   store.useContextCallback('nestedDialogOpen', (ownChildrenCount) => {
@@ -176,7 +191,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     mounted,
     transitionStatus,
     activeTriggerProps: dialogTriggerProps,
-    inactiveTriggerProps: getTriggerProps(),
+    inactiveTriggerProps: getTriggerProps(triggerProps),
     popupProps: getFloatingProps(),
     floatingRootContext: context,
     nestedOpenDialogCount: ownNestedOpenDialogs,
@@ -190,6 +205,7 @@ export interface UseDialogRootParameters {
   actionsRef?: DialogRoot.Props['actionsRef'];
   parentContext?: DialogStore<unknown>['context'];
   onOpenChange: DialogRoot.Props['onOpenChange'];
+  triggerIdProp?: string | null;
 }
 
 export type UseDialogRootReturnValue = void;

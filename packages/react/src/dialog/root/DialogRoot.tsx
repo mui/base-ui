@@ -24,6 +24,7 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
     modal = true,
     actionsRef,
     handle,
+    triggerId: triggerIdProp,
   } = props;
 
   const parentDialogRootContext = useDialogRootContext(true);
@@ -43,6 +44,7 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
     actionsRef,
     parentContext: parentDialogRootContext?.store.context,
     onOpenChange,
+    triggerIdProp,
   });
 
   const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
@@ -104,6 +106,7 @@ export interface DialogRootProps<Payload = unknown> {
    * This can be a regular React node or a render function that receives the `payload` of the active trigger.
    */
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
+  triggerId?: string | null;
 }
 
 export interface DialogRootActions {

@@ -60,6 +60,7 @@ const selectors = {
       ? (state.triggers.get(state.activeTriggerId)?.element ?? null)
       : null,
   ),
+  triggers: createSelector((state: State<unknown>) => state.triggers),
   popupElement: createSelector((state: State<unknown>) => state.popupElement),
   payload: createSelector((state: State<unknown>) => state.payload),
   activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
