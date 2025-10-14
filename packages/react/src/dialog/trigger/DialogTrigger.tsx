@@ -9,6 +9,7 @@ import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { DialogStore } from '../DialogStore';
 import { useTriggerRegistration } from '../../utils/popupStoreUtils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useClick, useInteractions } from '../../floating-ui-react';
 
 /**
  * A button that opens the dialog.
@@ -32,7 +33,13 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const { store } = useDialogRootContext();
   const open = store.useState('open');
-  const triggerProps = store.useState('activeTriggerProps');
+  const rootActiveTriggerProps = store.useState('activeTriggerProps');
+  const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
+  const activeTrigger = store.useState('activeTriggerElement');
+  const floatingContext = store.useState('floatingRootContext');
+
+  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const isTriggerActive = activeTrigger === triggerElement;
 
   const state: DialogTrigger.State = React.useMemo(
     () => ({
@@ -50,11 +57,15 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   const id = useBaseUiId(idProp);
   const registerTrigger = useTriggerRegistration(id, payload, store);
 
+  const click = useClick(floatingContext, { enabled: floatingContext != null });
+  const localInteractionProps = useInteractions([click]);
+
   return useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, registerTrigger],
+    ref: [buttonRef, forwardedRef, registerTrigger, setTriggerElement],
     props: [
-      triggerProps,
+      localInteractionProps.getReferenceProps(),
+      isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
       { [CLICK_TRIGGER_IDENTIFIER as string]: '', id },
       elementProps,
       getButtonProps,

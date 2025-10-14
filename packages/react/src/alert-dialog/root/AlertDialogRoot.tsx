@@ -22,6 +22,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     onOpenChangeComplete,
     actionsRef,
     handle,
+    triggerId: triggerIdProp,
   } = props;
 
   const parentDialogRootContext = useDialogRootContext();
@@ -41,6 +42,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     actionsRef,
     parentContext: parentDialogRootContext?.store.context,
     onOpenChange,
+    triggerIdProp,
   });
 
   const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);

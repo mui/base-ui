@@ -5,9 +5,11 @@ import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { DialogStore } from '../../dialog/DialogStore';
 import { useTriggerRegistration } from '../../utils/popupStoreUtils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useClick, useInteractions } from '../../floating-ui-react';
 
 /**
  * A button that opens the alert dialog.
@@ -31,7 +33,13 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 
   const { store } = useDialogRootContext();
   const open = store.useState('open');
-  const triggerProps = store.useState('activeTriggerProps');
+  const rootActiveTriggerProps = store.useState('activeTriggerProps');
+  const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
+  const activeTrigger = store.useState('activeTriggerElement');
+  const floatingContext = store.useState('floatingRootContext');
+
+  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const isTriggerActive = activeTrigger === triggerElement;
 
   const state: AlertDialogTrigger.State = React.useMemo(
     () => ({
@@ -49,11 +57,20 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   const id = useBaseUiId(idProp);
   const registerTrigger = useTriggerRegistration(id, payload, store);
 
+  const click = useClick(floatingContext, { enabled: floatingContext != null });
+  const localInteractionProps = useInteractions([click]);
+
   return useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, registerTrigger],
+    ref: [forwardedRef, buttonRef, registerTrigger, setTriggerElement],
     stateAttributesMapping: triggerOpenStateMapping,
-    props: [triggerProps, elementProps, getButtonProps],
+    props: [
+      localInteractionProps.getReferenceProps(),
+      isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id },
+      elementProps,
+      getButtonProps,
+    ],
   });
 }) as AlertDialogTrigger;
 
