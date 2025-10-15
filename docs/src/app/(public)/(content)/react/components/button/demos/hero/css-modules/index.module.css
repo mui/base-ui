@@ -25,6 +25,8 @@
 
   &:active:not([data-disabled]) {
     background-color: var(--color-gray-200);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-top-color: var(--color-gray-300);
   }
 
   &:focus-visible {
