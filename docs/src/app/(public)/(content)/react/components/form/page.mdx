@@ -34,6 +34,14 @@ import { Form } from '@base-ui-components/react/form';
 
 ## Examples
 
+### Submit with a Server Function
+
+Forms can be submitted with a [Server Function](https://react.dev/reference/react-dom/components/form#handle-form-submission-with-a-server-function) instead of `onSubmit`.
+
+import { DemoFormAction } from './demos/form-action';
+
+<DemoFormAction />
+
 ### Using with Zod
 
 When parsing the schema using `schema.safeParse()`, the `z.flattenError(result.error).fieldErrors` data can be used to map the errors to each field's `name`.
