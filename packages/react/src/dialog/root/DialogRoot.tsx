@@ -25,6 +25,7 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
     actionsRef,
     handle,
     triggerId: triggerIdProp,
+    defaultTriggerId: defaultTriggerIdProp = null,
   } = props;
 
   const parentDialogRootContext = useDialogRootContext(true);
@@ -33,6 +34,7 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   const store = useRefWithInit(() => handle ?? new DialogStore<Payload>()).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
+  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
   store.useSyncedValues({ dismissible, nested, modal });
   store.useContextCallback('openChange', onOpenChange);
   store.useContextCallback('openChangeComplete', onOpenChangeComplete);
@@ -106,7 +108,17 @@ export interface DialogRootProps<Payload = unknown> {
    * This can be a regular React node or a render function that receives the `payload` of the active trigger.
    */
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
+  /**
+   * ID of the trigger that the dialog is associated with.
+   * This is useful in conjuntion with the `open` prop to create a controlled dialog.
+   * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
+   */
   triggerId?: string | null;
+  /**
+   * ID of the trigger that the dialog is associated with.
+   * This is useful in conjuntion with the `defaultOpen` prop to create an initially open dialog.
+   */
+  defaultTriggerId?: string | null;
 }
 
 export interface DialogRootActions {
