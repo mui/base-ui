@@ -203,6 +203,10 @@ export function useCollapsiblePanel(
         });
       });
     } else {
+      if (panel.scrollHeight === 0 && panel.scrollWidth === 0) {
+        return undefined;
+      }
+
       /* closing */
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
