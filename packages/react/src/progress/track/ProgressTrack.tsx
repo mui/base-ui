@@ -30,6 +30,8 @@ export const ProgressTrack = React.forwardRef(function ProgressTrack(
   return element;
 });
 
+export interface ProgressTrackProps extends BaseUIComponentProps<'div', ProgressRoot.State> {}
+
 export namespace ProgressTrack {
-  export interface Props extends BaseUIComponentProps<'div', ProgressRoot.State> {}
+  export type Props = ProgressTrackProps;
 }

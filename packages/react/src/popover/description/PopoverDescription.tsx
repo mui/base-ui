@@ -18,16 +18,16 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { setDescriptionId } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
 
   const id = useBaseUiId(elementProps.id);
 
   useIsoLayoutEffect(() => {
-    setDescriptionId(id);
+    store.set('descriptionId', id);
     return () => {
-      setDescriptionId(undefined);
+      store.set('descriptionId', undefined);
     };
-  }, [setDescriptionId, id]);
+  }, [store, id]);
 
   const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
@@ -37,8 +37,12 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
   return element;
 });
 
-export namespace PopoverDescription {
-  export interface State {}
+export interface PopoverDescriptionState {}
 
-  export interface Props extends BaseUIComponentProps<'p', State> {}
+export interface PopoverDescriptionProps
+  extends BaseUIComponentProps<'p', PopoverDescription.State> {}
+
+export namespace PopoverDescription {
+  export type State = PopoverDescriptionState;
+  export type Props = PopoverDescriptionProps;
 }

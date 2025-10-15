@@ -931,14 +931,14 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
   });
 
-  test('nested floating elements with different portal roots', async () => {
+  test('nested floating elements with different portal containers', async () => {
     function ButtonWithFloating({
       children,
-      portalRoot,
+      portalContainer,
       triggerText,
     }: {
       children?: React.ReactNode;
-      portalRoot?: HTMLElement | null;
+      portalContainer?: HTMLElement | null;
       triggerText: string;
     }) {
       const [open, setOpen] = React.useState(false);
@@ -958,7 +958,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             {triggerText}
           </button>
           {open && (
-            <FloatingPortal root={portalRoot}>
+            <FloatingPortal container={portalContainer}>
               <FloatingFocusManager context={context} modal={false}>
                 <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                   {children}
@@ -978,8 +978,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
       return (
         <React.Fragment>
-          <ButtonWithFloating portalRoot={portal1} triggerText="open 1">
-            <ButtonWithFloating portalRoot={portal2} triggerText="open 2">
+          <ButtonWithFloating portalContainer={portal1} triggerText="open 1">
+            <ButtonWithFloating portalContainer={portal2} triggerText="open 2">
               <button>nested</button>
             </ButtonWithFloating>
           </ButtonWithFloating>

@@ -13,7 +13,6 @@
     },
     "keepMounted": {
       "type": "boolean",
-      "default": "false",
       "description": "Whether to keep the HTML element in the DOM when the item is not selected.",
       "detailedType": "boolean | undefined"
     },

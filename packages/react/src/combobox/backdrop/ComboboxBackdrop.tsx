@@ -57,14 +57,18 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
   });
 });
 
-export namespace ComboboxBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ComboboxBackdropProps
+  extends BaseUIComponentProps<'div', ComboboxBackdrop.State> {}
 
-  export interface State {
-    /**
-     * Whether the popup is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface ComboboxBackdropState {
+  /**
+   * Whether the popup is currently open.
+   */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+}
+
+export namespace ComboboxBackdrop {
+  export type Props = ComboboxBackdropProps;
+  export type State = ComboboxBackdropState;
 }

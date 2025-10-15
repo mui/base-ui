@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Dialog } from '@base-ui-components/react/dialog';
 import styles from './mobile-scroll-lock.module.css';
 

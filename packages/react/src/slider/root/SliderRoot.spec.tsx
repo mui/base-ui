@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expectType } from '#test-utils';
 import { Slider } from '@base-ui-components/react/slider';
 

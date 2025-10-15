@@ -6,7 +6,7 @@
       "type": "CollisionAvoidance",
       "description": "Determines how to handle collisions when positioning the popup.",
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
-      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'shift' | 'none' | 'flip'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| {\n    side?: 'shift' | 'none'\n    align?: 'shift' | 'none'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| undefined"
+      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'none' | 'shift' | 'flip'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| {\n    side?: 'none' | 'shift'\n    align?: 'none' | 'shift'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| undefined"
     },
     "align": {
       "type": "Align",
@@ -121,6 +121,12 @@
     "--available-width": {
       "description": "The available width between the trigger and the edge of the viewport.",
       "type": "number"
+    },
+    "--positioner-height": {
+      "description": "The height of the popover's positioner.\nIt is important to set `height` to this value when using CSS to animate size changes."
+    },
+    "--positioner-width": {
+      "description": "The width of the popover's positioner.\nIt is important to set `width` to this value when using CSS to animate size changes."
     },
     "--transform-origin": {
       "description": "The coordinates that this element is anchored to. Used for animations and transitions.",

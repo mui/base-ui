@@ -23,7 +23,7 @@ export default function getBabelConfig(api) {
 
   return {
     ...baseConfig,
-    plugins: [...plugins, ...baseConfig.plugins],
+    plugins: [...baseConfig.plugins, ...plugins],
     overrides: [
       {
         exclude: /\.test\.(js|ts|tsx)$/,

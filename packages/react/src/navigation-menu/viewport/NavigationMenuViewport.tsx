@@ -127,8 +127,12 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
   return hasPositioner ? <Guards>{element}</Guards> : element;
 });
 
-export namespace NavigationMenuViewport {
-  export interface State {}
+export interface NavigationMenuViewportState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface NavigationMenuViewportProps
+  extends BaseUIComponentProps<'div', NavigationMenuViewport.State> {}
+
+export namespace NavigationMenuViewport {
+  export type State = NavigationMenuViewportState;
+  export type Props = NavigationMenuViewportProps;
 }

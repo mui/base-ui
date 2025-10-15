@@ -7,6 +7,8 @@ import { Combobox } from '@base-ui-components/react/combobox';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
+import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 describe('<Combobox.Root />', () => {
   beforeEach(() => {
@@ -64,7 +66,9 @@ describe('<Combobox.Root />', () => {
 
     expect(await screen.findByRole('listbox')).not.to.equal(null);
 
-    const input = await screen.findByRole('combobox');
+    const input = await waitFor(() =>
+      screen.getAllByRole('combobox').find((element) => element.tagName === 'INPUT'),
+    );
     expect(input).toHaveFocus();
 
     await user.click(trigger);
@@ -328,7 +332,7 @@ describe('<Combobox.Root />', () => {
       it('should not auto-close during browser autofill', async () => {
         const items = ['apple', 'banana', 'cherry'];
 
-        const { container } = await render(
+        await render(
           <Combobox.Root items={items} name="test" defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.Portal>
@@ -349,7 +353,7 @@ describe('<Combobox.Root />', () => {
 
         expect(screen.getByRole('listbox')).not.to.equal(null);
 
-        const hiddenInput = container.querySelector('[name="test"]');
+        const hiddenInput = screen.queryByRole('textbox', { hidden: true });
         fireEvent.change(hiddenInput!, { target: { value: 'apple' } });
 
         await flushMicrotasks();
@@ -387,8 +391,9 @@ describe('<Combobox.Root />', () => {
       });
 
       it('should create multiple hidden inputs for form submission', async () => {
-        const { container } = await render(
-          <Combobox.Root multiple value={['a', 'b']} name="languages">
+        const items = ['a', 'b', 'c'];
+        await render(
+          <Combobox.Root multiple value={items} name="languages">
             <Combobox.Input />
             <Combobox.Portal>
               <Combobox.Positioner>
@@ -403,10 +408,11 @@ describe('<Combobox.Root />', () => {
           </Combobox.Root>,
         );
 
-        const hiddenInputs = container.querySelectorAll('input[type="hidden"][name="languages"]');
-        expect(hiddenInputs).to.have.length(2);
-        expect(hiddenInputs[0]).to.have.attribute('value', 'a');
-        expect(hiddenInputs[1]).to.have.attribute('value', 'b');
+        items.forEach((item) => {
+          const input = screen.getByDisplayValue(item);
+          expect(input).to.have.attribute('type', 'hidden');
+          expect(input.tagName).to.equal('INPUT');
+        });
       });
 
       it('should handle disabled state with chips', async () => {
@@ -810,7 +816,9 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const trigger = screen.getByRole('button', { name: 'trigger' });
+      const trigger = screen
+        .getAllByRole('combobox')
+        .find((element) => element.tagName === 'BUTTON')!;
       const listbox = screen.getByRole('listbox');
 
       expect(trigger).to.have.attribute('aria-controls', listbox.id);
@@ -826,7 +834,7 @@ describe('<Combobox.Root />', () => {
   });
 
   it('should handle browser autofill', async () => {
-    const { container, user } = await render(
+    const { user } = await render(
       <Combobox.Root name="test">
         <Combobox.Input />
         <Combobox.Portal>
@@ -844,7 +852,10 @@ describe('<Combobox.Root />', () => {
 
     const input = screen.getByRole('combobox');
 
-    fireEvent.change(container.querySelector('[name="test"]')!, { target: { value: 'b' } });
+    fireEvent.change(
+      screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'test')!,
+      { target: { value: 'b' } },
+    );
     await flushMicrotasks();
 
     await user.click(input);
@@ -860,12 +871,12 @@ describe('<Combobox.Root />', () => {
       { country: 'Canada', code: 'CA' },
     ];
 
-    const { container } = await render(
+    await render(
       <Combobox.Root
         name="country"
         items={items}
-        itemToStringLabel={(item) => item.country}
-        itemToStringValue={(item) => item.code}
+        itemToStringLabel={(item: (typeof items)[number]) => item.country}
+        itemToStringValue={(item: (typeof items)[number]) => item.code}
         defaultOpen
       >
         <Combobox.Input />
@@ -887,7 +898,11 @@ describe('<Combobox.Root />', () => {
 
     const input = screen.getByRole('combobox');
 
-    fireEvent.change(container.querySelector('[name="country"]')!, { target: { value: 'CA' } });
+    fireEvent.change(
+      // getByRole('textbox', { hidden: true, name: 'country' }) does not work
+      screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'country')!,
+      { target: { value: 'CA' } },
+    );
     await flushMicrotasks();
 
     fireEvent.click(input);
@@ -902,7 +917,7 @@ describe('<Combobox.Root />', () => {
 
   describe('prop: id', () => {
     it('sets the id on the hidden input', async () => {
-      const { container } = await render(
+      await render(
         <Combobox.Root id="test-id">
           <Combobox.Input />
           <Combobox.Portal>
@@ -918,7 +933,7 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const hiddenInput = container.querySelector('input[aria-hidden="true"]');
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
       expect(hiddenInput).to.have.attribute('id', 'test-id');
     });
   });
@@ -1009,7 +1024,7 @@ describe('<Combobox.Root />', () => {
     });
 
     it('should set disabled attribute on hidden input', async () => {
-      const { container } = await render(
+      await render(
         <Combobox.Root disabled name="test">
           <Combobox.Input />
           <Combobox.Portal>
@@ -1024,8 +1039,34 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const hiddenInput = container.querySelector('input[aria-hidden="true"]');
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
       expect(hiddenInput).to.have.attribute('disabled');
+    });
+  });
+
+  describe('prop: required', () => {
+    it('does not mark the hidden input as required when selection exists in multiple mode', async () => {
+      await render(
+        <Combobox.Root multiple required name="languages" value={['a']}>
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput).not.to.have.attribute('required');
+    });
+
+    it('keeps the hidden input required when no selection exists in multiple mode', async () => {
+      await render(
+        <Combobox.Root multiple required name="languages" value={[]}>
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput).to.have.attribute('required');
     });
   });
 
@@ -1116,7 +1157,7 @@ describe('<Combobox.Root />', () => {
     });
 
     it('should set readOnly attribute on hidden input', async () => {
-      const { container } = await render(
+      await render(
         <Combobox.Root readOnly name="test">
           <Combobox.Input />
           <Combobox.Portal>
@@ -1131,7 +1172,7 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const hiddenInput = container.querySelector('input[aria-hidden="true"]');
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
       expect(hiddenInput).to.have.attribute('readonly');
     });
 
@@ -1175,8 +1216,8 @@ describe('<Combobox.Root />', () => {
       const { user } = await render(
         <Combobox.Root
           items={items}
-          itemToStringLabel={(item) => item.country}
-          itemToStringValue={(item) => item.code}
+          itemToStringLabel={(item: (typeof items)[number]) => item.country}
+          itemToStringValue={(item: (typeof items)[number]) => item.code}
           defaultOpen
         >
           <Combobox.Input />
@@ -1210,7 +1251,7 @@ describe('<Combobox.Root />', () => {
     ];
 
     it('uses itemToStringValue for form submission', async () => {
-      const { container } = await render(
+      await render(
         <Combobox.Root
           name="country"
           items={items}
@@ -1235,19 +1276,21 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const hiddenInput = container.querySelector('input[name="country"]');
-      expect(hiddenInput).to.have.value('US');
+      const hiddenInput = screen.getByDisplayValue('US'); // input[name="country"]
+      expect(hiddenInput.tagName).to.equal('INPUT');
+      expect(hiddenInput).to.have.attribute('name', 'country');
     });
 
     it('uses itemToStringValue for multiple selection form submission', async () => {
-      const { container } = await render(
+      const values = [items[0], items[1]];
+      await render(
         <Combobox.Root
           name="countries"
           items={items}
           itemToStringLabel={(item) => item.country}
           itemToStringValue={(item) => item.code}
           multiple
-          defaultValue={[items[0], items[1]]}
+          defaultValue={values}
         >
           <Combobox.Input />
           <Combobox.Portal>
@@ -1266,10 +1309,11 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const hiddenInputs = container.querySelectorAll('input[name="countries"]');
-      expect(hiddenInputs).to.have.length(2);
-      expect(hiddenInputs[0]).to.have.value('US');
-      expect(hiddenInputs[1]).to.have.value('CA');
+      values.forEach((value) => {
+        const input = screen.getByDisplayValue(value.code);
+        expect(input.tagName).to.equal('INPUT');
+        expect(input).to.have.attribute('name', 'countries');
+      });
     });
   });
 
@@ -1336,7 +1380,9 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByRole('combobox')).to.have.value('');
+      const input = screen.getAllByRole('combobox').find((element) => element.tagName === 'INPUT');
+
+      expect(input).to.have.value('');
     });
 
     it('does not set input value for input-inside-popup pattern', async () => {
@@ -1353,7 +1399,9 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByRole('combobox')).to.have.value('');
+      const input = screen.getAllByRole('combobox').find((element) => element.tagName === 'INPUT');
+
+      expect(input).to.have.value('');
     });
   });
 
@@ -2675,7 +2723,7 @@ describe('<Combobox.Root />', () => {
       ];
 
       it('serializes {value,label} objects using their value field', async () => {
-        const { container } = await render(
+        await render(
           <Combobox.Root
             name="country"
             items={items}
@@ -2699,18 +2747,20 @@ describe('<Combobox.Root />', () => {
           </Combobox.Root>,
         );
 
-        const hiddenInput = container.querySelector('input[name="country"]');
-        expect(hiddenInput).to.have.value('CA');
+        const hiddenInput = screen.getByDisplayValue('CA');
+        expect(hiddenInput.tagName).to.equal('INPUT');
+        expect(hiddenInput).to.have.attribute('name', 'country');
       });
 
       it('serializes multiple {value,label} objects into multiple hidden inputs', async () => {
+        const values = [items[0], items[2]];
         const { container } = await render(
           <Combobox.Root
             name="countries"
             items={items}
             itemToStringLabel={(item) => item.label}
             multiple
-            defaultValue={[items[0], items[2]]}
+            defaultValue={values}
           >
             <Combobox.Input />
             <Combobox.Portal>
@@ -2729,10 +2779,12 @@ describe('<Combobox.Root />', () => {
           </Combobox.Root>,
         );
 
+        // eslint-disable-next-line testing-library/no-container -- Can't avoid container here. A better test would be checking form submission.
         const hiddenInputs = container.querySelectorAll('input[name="countries"]');
-        expect(hiddenInputs).to.have.length(2);
-        expect(hiddenInputs[0]).to.have.value('US');
-        expect(hiddenInputs[1]).to.have.value('AU');
+        expect(hiddenInputs).to.have.length(values.length);
+        values.forEach((item, index) => {
+          expect(hiddenInputs[index]).to.have.value(item.value);
+        });
       });
 
       it('falls back to itemToStringValue when object lacks value', async () => {
@@ -2767,6 +2819,7 @@ describe('<Combobox.Root />', () => {
           </Combobox.Root>,
         );
 
+        // eslint-disable-next-line testing-library/no-container -- Can't avoid container here. A better test would be checking form submission.
         const hiddenInput = container.querySelector('input[name="country"]');
         expect(hiddenInput).to.have.value('US');
       });
@@ -3433,6 +3486,54 @@ describe('<Combobox.Root />', () => {
       );
     });
 
+    it('properly deselects object values using the provided comparator', async () => {
+      const users = [
+        { id: 1, name: 'Alice' },
+        { id: 2, name: 'Bob' },
+      ];
+
+      await render(
+        <Combobox.Root
+          items={users}
+          defaultValue={[{ id: 2, name: 'Bob' }]}
+          itemToStringLabel={(item) => item.name}
+          itemToStringValue={(item) => String(item.id)}
+          isItemEqualToValue={(item, value) => item.id === value.id}
+          defaultOpen
+          multiple
+        >
+          <Combobox.Input data-testid="input" />
+          <span data-testid="value">
+            <Combobox.Value />
+          </span>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item.id} value={item}>
+                      {item.name}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const option = screen.getByRole('option', { name: 'Bob' });
+
+      fireEvent.click(option);
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Bob' })).to.have.attribute(
+          'aria-selected',
+          'false',
+        );
+      });
+    });
+
     it('does not call comparator with null when clearing the value', async () => {
       const users = [
         { id: 1, name: 'Alice' },
@@ -3488,6 +3589,30 @@ describe('<Combobox.Root />', () => {
       compare.getCalls().forEach((call) => {
         expect(call.args[1]).not.to.equal(null);
       });
+    });
+  });
+
+  describe('within Composite', () => {
+    it('should navigate between combobox and composite items', async () => {
+      const { user } = await render(
+        <CompositeRoot orientation="horizontal">
+          <CompositeItem tag="button">Item 1</CompositeItem>
+          <CompositeItem tag="button">Item 2</CompositeItem>
+          <Combobox.Root>
+            <Combobox.Input render={(props) => <CompositeItem tag="input" props={[props]} />} />
+          </Combobox.Root>
+        </CompositeRoot>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+
+      await user.keyboard('{ArrowLeft}');
+      const button2 = screen.getByRole('button', { name: 'Item 2' });
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('{ArrowRight}');
+      expect(input).toHaveFocus();
     });
   });
 });
