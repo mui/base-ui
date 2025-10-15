@@ -291,7 +291,9 @@ describe('<AlertDialog.Root />', () => {
           <AlertDialog.Trigger>Trigger 2</AlertDialog.Trigger>
 
           <AlertDialog.Portal>
-            <AlertDialog.Popup data-testid="alert-dialog-popup">Alert dialog content</AlertDialog.Popup>
+            <AlertDialog.Popup data-testid="alert-dialog-popup">
+              Alert dialog content
+            </AlertDialog.Popup>
           </AlertDialog.Portal>
         </AlertDialog.Root>,
       );
