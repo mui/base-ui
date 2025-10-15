@@ -28,10 +28,18 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     nativeButton = true,
     id: idProp,
     payload,
+    handle,
     ...elementProps
   } = componentProps;
 
-  const { store } = useDialogRootContext();
+  const dialogRootContext = useDialogRootContext(true);
+  const store = handle ?? dialogRootContext?.store;
+
+  if (!store) {
+    throw new Error(
+      'Base UI: <AlertDialog.Trigger> must be used within <AlertDialog.Root> or provided with a handle.',
+    );
+  }
   const open = store.useState('open');
   const rootActiveTriggerProps = store.useState('activeTriggerProps');
   const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
