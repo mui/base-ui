@@ -113,14 +113,6 @@ export function useCollapsiblePanel(
       return undefined;
     }
 
-    /**
-     * Explicitly set `display` to ensure the panel is actually rendered before
-     * measuring anything. `!important` is to needed to override a conflicting
-     * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
-     * https://github.com/tailwindlabs/tailwindcss/blob/cd154a4f471e7a63cc27cad15dada650de89d52b/packages/tailwindcss/preflight.css#L320-L326
-     */
-    element.style.setProperty('display', getComputedStyle(element).display || 'block', 'important');
-
     if (height === undefined || width === undefined) {
       setDimensions({ height: element.scrollHeight, width: element.scrollWidth });
       element.style.removeProperty('display');
@@ -183,7 +175,6 @@ export function useCollapsiblePanel(
       };
 
       /* opening */
-      panel.style.setProperty('display', getComputedStyle(panel).display || 'block', 'important');
       Object.keys(originalLayoutStyles).forEach((key) => {
         panel.style.setProperty(key, 'initial', 'important');
       });
