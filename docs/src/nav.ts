@@ -53,6 +53,11 @@ export const nav: NavGroup[] = [
         isNew: true,
       },
       {
+        label: 'Forms',
+        href: '/react/handbook/forms',
+        isNew: true,
+      },
+      {
         label: 'TypeScript',
         href: '/react/handbook/typescript',
         isNew: true,

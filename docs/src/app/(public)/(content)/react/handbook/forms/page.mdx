@@ -1,0 +1,282 @@
+# Forms
+
+<Subtitle>A guide to building forms with Base UI components.</Subtitle>
+<Meta name="description" content="A guide to buildling forms with Base UI components." />
+
+Base UI form control components extend the native [constraint validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api), to enable building forms that collect user input or provide control over an interface.
+
+TODO: kitchen sink demo here?
+
+## Naming form controls
+
+Form controls must have an accessible name in order to be recognized by assistive technologies. `<Field.Label>` and `<Field.Description>` will automatically assign the accessible name and description to their associated control:
+
+```tsx {3-4, 9-10}
+<Form>
+  <Field.Root>
+    <Field.Label>Time zone</Field.Label>
+    <Field.Description>Used for notifications and reminderss</Field.Description>
+    <Select.Root />
+  </Field.Root>
+
+  <Field.Root>
+    <Field.Label>Zoom level</Field.Label>
+    <Field.Description>Adjust the size of the user interface</Field.Description>
+    <Slider.Root />
+  </Field.Root>
+</Form>
+```
+
+`<Checkbox>`, `<Radio>` and `<Switch>` components can be implicitly labelled by enclosing them with `<Field.Label>`:
+
+```tsx
+<Field.Root>
+  <Field.Label>
+    <Switch />
+    Developer mode
+    <Field.Description>Enables extra tools for web developers</Field.Description>
+  </Field.Label>
+</Field.Root>
+```
+
+`<Fieldset>` should be used to group and label controls containing multiple `<input>` elements such as `<CheckboxGroup>`, `<RadioGroup>` and multi-thumb `<Slider>`s:
+
+```tsx {3-4, 11, 15-16, 19}
+<Form>
+  <Field.Root>
+    <Fieldset.Root render={<Slider.Root />}>
+      <Fieldset.Legend>Price range</Fieldset.Legend>
+      <Slider.Control>
+        <Slider.Track>
+          <Slider.Thumb />
+          <Slider.Thumb />
+        </Slider.Track>
+      </Slider.Control>
+    </Fieldset.Root>
+  </Field.Root>
+
+  <Field.Root>
+    <Fieldset.Root render={<RadioGroup />}>
+      <Fieldset.Legend>Storage type</Fieldset.Legend>
+      <Radio.Root value="ssd" />
+      <Radio.Root value="hdd" />
+    </Fieldset.Root>
+  </Field.Root>
+</Form>
+```
+
+Optionally use `<Field.Item>` in checkbox or radio groups to enable individual naming of each control:
+
+```tsx
+<Field.Root>
+  <Fieldset.Root render={<CheckboxGroup />}>
+    <Fieldset.Legend>Backup schedule</Fieldset.Legend>
+    <Field.Item>
+      <Checkbox.Root value="daily" />
+      <Field.Label>Daily</Field.Label>
+      <Field.Description>Daily at 00:00</Field.Description>
+    </Field.Item>
+    <Field.Item>
+      <Checkbox.Root value="weekly" />
+      <Field.Label>Monthly</Field.Label>
+      <Field.Description>On the 5th of every month at 23:59</Field.Description>
+    </Field.Item>
+  </Fieldset.Root>
+</Field.Root>
+```
+
+## Plain Base UI
+
+### Building form fields
+
+Pass the `name` prop to `<Field.Root>` and its value will be included when a parent form is submitted:
+
+```tsx {2}
+<Form>
+  <Field.Root name="country">
+    <Field.Label>Country of residence</Field.Label>
+    <Combobox.Root />
+  </Field.Root>
+</Form>
+```
+
+### Constraint validation
+
+Base UI form components support native HTML validation attributes for many validation rules:
+
+- `required` specifies a required field
+- `minLength` and `maxLength` specify a valid length for text input
+- `pattern` specifies a regular expression that the field value must match
+- `step` specifies an increment that numeric field values must be an integral multiple of
+
+```tsx
+<Field.Root name="website">
+  <Field.Control type="url" required pattern="https?://.*" />
+</Field.Root>
+```
+
+### Custom validation
+
+Custom validation logic can be added by passing a validation function to the `validate` prop, which runs after native validations have passed:
+
+```tsx {5-6, 8-9}
+<Field.Root
+  name="username"
+  validate={(value) => {
+    if (value === 'admin') {
+      /* return an error message when invalid */
+      return 'Reserved for system use';
+    }
+    /* return `null` when valid */
+    return null;
+  }}
+>
+  <Field.Control required minLength={3} />
+</Field.Root>
+```
+
+### Displaying errors
+
+Use `<Field.Error />` without `children` to automatically display the field's native error message when invalid. The `match` prop can be used to customize the message based on the validity state:
+
+```tsx
+// custom `required` error message
+<Field.Error match="valueMissing">You must create a username</Field.Error>
+```
+
+### Submitting data
+
+Once the form passes validation, your app can take over form submission in `onSubmit`:
+
+```tsx
+<Form
+  onSubmit={async (event) => {
+    // Prevent the browser's default full-page refresh
+    event.preventDefault();
+
+    // Create a FormData object
+    const formData = new FormData(event.currentTarget);
+
+    try {
+      await fetch('https://api.example.com', {
+        method: 'POST',
+        // Send the FormData instance in the request body
+        body: formData,
+      });
+    } catch (error) {
+      throw new Error(error);
+    }
+  }}
+/>
+```
+
+## React Hook Form
+
+React Hook Form can be integrated with Base UI to externally manage form and field state for your existing components.
+
+TODO: RHF kitchen sink demo here?
+
+### Initialize the form
+
+Initialize the form with the `useForm` hook, assigning the initial value of each field by their name in the `defaultValues` parameter:
+
+```tsx
+import { useForm } from 'react-hook-form';
+
+const { control, handleSubmit } = useForm<FormValues>({
+  defaultValues: {
+    username: '',
+    email: '',
+  },
+});
+```
+
+### Integrating Base UI components
+
+Use the `<Controller>` component to integrate with any `<Field>` component, forwarding the various `field` and `fieldState` render props to the appropriate part:
+
+```tsx {10-14,21-24}
+import { useForm, Controller } from "react-hook-form"
+
+const { control, handleSubmit} = useForm({
+  defaultValues: {
+    // default values
+  }
+})
+
+<Controller
+  render={({
+    field: { name, ref, value, onBlur, onChange },
+    fieldState: { invalid, isTouched, isDirty, error },
+  }) => (
+    <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+      <Field.Label>Username</Field.Label>
+      <Field.Description>
+        May appear where you contribute or are mentioned. You can remove it at any time.
+      </Field.Description>
+      <Field.Control
+        placeholder="e.g. alice132"
+        value={value}
+        onBlur={onBlur}
+        onValueChange={onChange}
+        ref={ref}
+      />
+    </Field.Root>
+  )}
+/>
+```
+
+### Client-side validation
+
+Specify `rules` on the `<Controller>` in the same format as [`register`](https://react-hook-form.com/docs/useform/register) options, and use the `match` prop to delegate control of the error rendering:
+
+```tsx {2-11, 28-30}
+<Controller
+  rules={{
+    required: 'This is a required field',
+    minLength: { value: 2, message: 'Too short' },
+    validate: (value) => {
+      if (/* custom logic */) {
+        return 'Invalid'
+      }
+      return null;
+    },
+  }}
+  render={({
+    field: { name, ref, value, onBlur, onChange },
+    fieldState: { invalid, isTouched, isDirty, error },
+  }) => (
+    <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+      <Field.Label>Username</Field.Label>
+      <Field.Description>
+        May appear where you contribute or are mentioned. You can remove it at any time.
+      </Field.Description>
+      <Field.Control
+        placeholder="e.g. alice132"
+        value={value}
+        onBlur={onBlur}
+        onValueChange={onChange}
+        ref={ref}
+      />
+      <Field.Error match={!!error}>
+        {error?.message ?? ''}
+      </Field.Error>
+    </Field.Root>
+  )}
+/>
+```
+
+### Submitting data
+
+Wrap your submit handler function with `handleSubmit` to receive the form values as a JS object for further handling:
+
+```tsx
+const { handleSubmit } = useForm<FormValues>();
+
+async function submitForm(data: FormValues) {
+  // transform the object and/or submit it to a server
+  await fetch(/* ... */);
+}
+
+return <Form onSubmit={handleSubmit(submitForm)} />;
+```
