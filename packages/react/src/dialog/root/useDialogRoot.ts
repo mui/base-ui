@@ -188,7 +188,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   store.useSyncedValues({
     openMethod,
-    mounted,
     transitionStatus,
     activeTriggerProps: dialogTriggerProps,
     inactiveTriggerProps: getTriggerProps(triggerProps),
