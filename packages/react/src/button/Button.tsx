@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useButton } from '../use-button/useButton';
 import { useRenderElement } from '../utils/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps, NonNativeButtonProps } from '../utils/types';
 
 /**
  * A button component that can be used to trigger actions.
@@ -12,31 +12,29 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
  */
 export const Button = React.forwardRef(function Button(
   componentProps: Button.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
     className,
     disabled: disabledProp = false,
     nativeButton = true,
-    loading = false,
     ...elementProps
   } = componentProps;
 
-  const disabled = disabledProp || loading;
+  const disabled = Boolean(disabledProp);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    focusableWhenDisabled: disabledProp ? false : loading,
+    focusableWhenDisabled: disabledProp === 'focusable',
     native: nativeButton,
   });
 
   const state: Button.State = React.useMemo(
     () => ({
       disabled,
-      loading,
     }),
-    [disabled, loading],
+    [disabled],
   );
 
   return useRenderElement('button', componentProps, {
@@ -46,24 +44,51 @@ export const Button = React.forwardRef(function Button(
   });
 });
 
-export namespace Button {
-  export interface State {
-    /**
-     * Whether the button should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the button is currently loading, indicating an ongoing action.
-     */
-    loading: boolean;
-  }
+export interface ButtonState {
+  /**
+   * Whether the button should ignore user interaction.
+   */
+  disabled: boolean;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the button is currently loading, indicating an ongoing action.
-     * When `true`, the button will disable interactions but remain focusable.
-     * @default false
-     */
-    loading?: boolean;
-  }
+interface ButtonCommonProps {
+  /**
+   * Whether the button should ignore user interaction.
+   *
+   * `'focusable'` disables the button but keeps it focusable.
+   * Use for loading states to prevent the button from losing focus.
+   */
+  disabled?: boolean | 'focusable';
+}
+
+type NonNativeAttributeKeys =
+  | 'form'
+  | 'formAction'
+  | 'formEncType'
+  | 'formMethod'
+  | 'formNoValidate'
+  | 'formTarget'
+  | 'name'
+  | 'type'
+  | 'value';
+
+interface ButtonNativeProps
+  extends NativeButtonProps,
+    ButtonCommonProps,
+    Omit<BaseUIComponentProps<'button', ButtonState>, 'disabled'> {
+  nativeButton?: true;
+}
+
+interface ButtonNonNativeProps
+  extends NonNativeButtonProps,
+    ButtonCommonProps,
+    Omit<BaseUIComponentProps<'button', ButtonState>, NonNativeAttributeKeys | 'disabled'> {
+  nativeButton: false;
+}
+
+export type ButtonProps = ButtonNativeProps | ButtonNonNativeProps;
+
+export namespace Button {
+  export type State = ButtonState;
+  export type Props = ButtonProps;
 }

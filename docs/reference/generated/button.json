@@ -1,29 +1,7 @@
 {
   "name": "Button",
   "description": "A button component that can be used to trigger actions.\nRenders a `<button>` element.",
-  "props": {
-    "loading": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the button is currently loading, indicating an ongoing action.\nWhen `true`, the button will disable interactions but remain focusable.",
-      "detailedType": "boolean | undefined"
-    },
-    "nativeButton": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
-      "detailedType": "boolean | undefined"
-    },
-    "className": {
-      "type": "string | ((state: Button.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
-    },
-    "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Button.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Button.State,\n  ) => ReactElement)"
-    }
-  },
+  "props": {},
   "dataAttributes": {},
   "cssVariables": {}
 }

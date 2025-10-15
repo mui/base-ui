@@ -8,7 +8,7 @@ export default function ExampleButton() {
   return (
     <Button
       className={styles.Button}
-      loading={loading}
+      disabled={loading ? 'focusable' : false}
       onClick={() => {
         setLoading(true);
         setTimeout(() => {
