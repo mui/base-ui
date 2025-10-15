@@ -45,6 +45,10 @@
       "description": "Event handler called after any animations complete when the dialog is opened or closed.",
       "detailedType": "((open: boolean) => void) | undefined"
     },
+    "triggerId": {
+      "type": "string | null",
+      "detailedType": "string | null | undefined"
+    },
     "children": {
       "type": "ReactNode | PayloadChildRenderFunction<Payload>",
       "description": "The content of the dialog.\nThis can be a regular React node or a render function that receives the `payload` of the active trigger.",
