@@ -40,7 +40,7 @@ export default function ExampleForm() {
         />
         <Field.Error className={styles.Error} />
       </Field.Root>
-      <Button disabled={loading ? 'focusable' : false} type="submit" className={styles.Button}>
+      <Button type="submit" disabled={loading ? 'focusable' : false} className={styles.Button}>
         Submit
       </Button>
     </Form>
