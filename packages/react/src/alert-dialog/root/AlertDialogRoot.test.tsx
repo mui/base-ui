@@ -174,6 +174,271 @@ describe('<AlertDialog.Root />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
+    type NumberPayload = { payload: number | undefined };
+
+    it('opens the alert dialog with any trigger', async () => {
+      const { user } = await render(
+        <AlertDialog.Root>
+          <AlertDialog.Trigger>Trigger 1</AlertDialog.Trigger>
+          <AlertDialog.Trigger>Trigger 2</AlertDialog.Trigger>
+          <AlertDialog.Trigger>Trigger 3</AlertDialog.Trigger>
+
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              Alert dialog content
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
+
+      expect(screen.queryByText('Alert dialog content')).to.equal(null);
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.queryByText('Alert dialog content')).not.to.equal(null);
+      });
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Alert dialog content')).to.equal(null);
+      });
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(screen.queryByText('Alert dialog content')).not.to.equal(null);
+      });
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Alert dialog content')).to.equal(null);
+      });
+
+      await user.click(trigger3);
+      await waitFor(() => {
+        expect(screen.queryByText('Alert dialog content')).not.to.equal(null);
+      });
+    });
+
+    it('sets the payload and renders content based on its value', async () => {
+      const { user } = await render(
+        <AlertDialog.Root>
+          {({ payload }: NumberPayload) => (
+            <React.Fragment>
+              <AlertDialog.Trigger payload={1}>Trigger 1</AlertDialog.Trigger>
+              <AlertDialog.Trigger payload={2}>Trigger 2</AlertDialog.Trigger>
+
+              <AlertDialog.Portal>
+                <AlertDialog.Popup>
+                  <span data-testid="content">{payload}</span>
+                  <AlertDialog.Close>Close</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </React.Fragment>
+          )}
+        </AlertDialog.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('1');
+      });
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('2');
+      });
+    });
+
+    it('reuses the popup DOM node when switching triggers', async () => {
+      const { user } = await render(
+        <AlertDialog.Root>
+          {({ payload }: NumberPayload) => (
+            <React.Fragment>
+              <AlertDialog.Trigger payload={1}>Trigger 1</AlertDialog.Trigger>
+              <AlertDialog.Trigger payload={2}>Trigger 2</AlertDialog.Trigger>
+
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="alert-dialog-popup">
+                  <span>{payload}</span>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </React.Fragment>
+          )}
+        </AlertDialog.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      const popupElement = screen.getByTestId('alert-dialog-popup');
+
+      await user.click(trigger2);
+      expect(screen.getByTestId('alert-dialog-popup')).to.equal(popupElement);
+    });
+
+    it('synchronizes ARIA attributes on the active trigger', async () => {
+      const { user } = await render(
+        <AlertDialog.Root>
+          <AlertDialog.Trigger>Trigger 1</AlertDialog.Trigger>
+          <AlertDialog.Trigger>Trigger 2</AlertDialog.Trigger>
+
+          <AlertDialog.Portal>
+            <AlertDialog.Popup data-testid="alert-dialog-popup">Alert dialog content</AlertDialog.Popup>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      expect(trigger1).to.have.attribute('aria-expanded', 'false');
+      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+
+      await user.click(trigger1);
+
+      const dialog = await screen.findByRole('alertdialog');
+      const trigger1Controls = trigger1.getAttribute('aria-controls');
+      expect(trigger1Controls).not.to.equal(null);
+      expect(dialog.getAttribute('id')).to.equal(trigger1Controls);
+      await waitFor(() => {
+        expect(trigger1).to.have.attribute('aria-expanded', 'true');
+      });
+      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('multiple detached triggers', () => {
+    type NumberPayload = { payload: number | undefined };
+
+    it('opens the alert dialog with any trigger', async () => {
+      const testDialog = AlertDialog.createHandle();
+      const { user } = await render(
+        <div>
+          <AlertDialog.Trigger handle={testDialog}>Trigger 1</AlertDialog.Trigger>
+          <AlertDialog.Trigger handle={testDialog}>Trigger 2</AlertDialog.Trigger>
+          <AlertDialog.Trigger handle={testDialog}>Trigger 3</AlertDialog.Trigger>
+
+          <AlertDialog.Root handle={testDialog}>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup>
+                Alert dialog content
+                <AlertDialog.Close>Close</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
+
+      expect(screen.queryByText('Alert dialog content')).to.equal(null);
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.queryByText('Alert dialog content')).not.to.equal(null);
+      });
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Alert dialog content')).to.equal(null);
+      });
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(screen.queryByText('Alert dialog content')).not.to.equal(null);
+      });
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Alert dialog content')).to.equal(null);
+      });
+
+      await user.click(trigger3);
+      await waitFor(() => {
+        expect(screen.queryByText('Alert dialog content')).not.to.equal(null);
+      });
+    });
+
+    it('sets the payload and renders content based on its value', async () => {
+      const testDialog = AlertDialog.createHandle<number>();
+      const { user } = await render(
+        <div>
+          <AlertDialog.Trigger handle={testDialog} payload={1}>
+            Trigger 1
+          </AlertDialog.Trigger>
+          <AlertDialog.Trigger handle={testDialog} payload={2}>
+            Trigger 2
+          </AlertDialog.Trigger>
+
+          <AlertDialog.Root handle={testDialog}>
+            {({ payload }: NumberPayload) => (
+              <AlertDialog.Portal>
+                <AlertDialog.Popup>
+                  <span data-testid="content">{payload}</span>
+                  <AlertDialog.Close>Close</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            )}
+          </AlertDialog.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('1');
+      });
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('2');
+      });
+    });
+
+    it('reuses the popup DOM node when switching triggers', async () => {
+      const testDialog = AlertDialog.createHandle<number>();
+      const { user } = await render(
+        <React.Fragment>
+          <AlertDialog.Trigger handle={testDialog} payload={1}>
+            Trigger 1
+          </AlertDialog.Trigger>
+          <AlertDialog.Trigger handle={testDialog} payload={2}>
+            Trigger 2
+          </AlertDialog.Trigger>
+
+          <AlertDialog.Root handle={testDialog}>
+            {({ payload }: NumberPayload) => (
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="alert-dialog-popup">
+                  <span>{payload}</span>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            )}
+          </AlertDialog.Root>
+        </React.Fragment>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      const popupElement = screen.getByTestId('alert-dialog-popup');
+
+      await user.click(trigger2);
+      expect(screen.getByTestId('alert-dialog-popup')).to.equal(popupElement);
+    });
+  });
+
   describe.skipIf(isJSDOM)('modality', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open', async () => {
       await render(

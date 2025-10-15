@@ -783,6 +783,273 @@ describe('<Dialog.Root />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
+    type NumberPayload = { payload: number | undefined };
+
+    it('opens the dialog with any trigger', async () => {
+      const { user } = await render(
+        <Dialog.Root>
+          <Dialog.Trigger>Trigger 1</Dialog.Trigger>
+          <Dialog.Trigger>Trigger 2</Dialog.Trigger>
+          <Dialog.Trigger>Trigger 3</Dialog.Trigger>
+
+          <Dialog.Portal>
+            <Dialog.Popup>
+              Dialog Content
+              <Dialog.Close>Close</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
+
+      expect(screen.queryByText('Dialog Content')).to.equal(null);
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).not.to.equal(null);
+      });
+
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).to.equal(null);
+      });
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).not.to.equal(null);
+      });
+
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).to.equal(null);
+      });
+
+      await user.click(trigger3);
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).not.to.equal(null);
+      });
+    });
+
+    it('sets the payload and renders content based on its value', async () => {
+      const { user } = await render(
+        <Dialog.Root>
+          {({ payload }: NumberPayload) => (
+            <React.Fragment>
+              <Dialog.Trigger payload={1}>Trigger 1</Dialog.Trigger>
+              <Dialog.Trigger payload={2}>Trigger 2</Dialog.Trigger>
+
+              <Dialog.Portal>
+                <Dialog.Popup>
+                  <span data-testid="content">{payload}</span>
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </React.Fragment>
+          )}
+        </Dialog.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('1');
+      });
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('2');
+      });
+    });
+
+    it('reuses the popup DOM node when switching triggers', async () => {
+      const { user } = await render(
+        <Dialog.Root>
+          {({ payload }: NumberPayload) => (
+            <React.Fragment>
+              <Dialog.Trigger payload={1}>Trigger 1</Dialog.Trigger>
+              <Dialog.Trigger payload={2}>Trigger 2</Dialog.Trigger>
+
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="dialog-popup">
+                  <span>{payload}</span>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </React.Fragment>
+          )}
+        </Dialog.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      const popupElement = screen.getByTestId('dialog-popup');
+
+      await user.click(trigger2);
+      expect(screen.getByTestId('dialog-popup')).to.equal(popupElement);
+    });
+
+    it('synchronizes ARIA attributes on the active trigger', async () => {
+      const { user } = await render(
+        <Dialog.Root>
+          <Dialog.Trigger>Trigger 1</Dialog.Trigger>
+          <Dialog.Trigger>Trigger 2</Dialog.Trigger>
+
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="dialog-popup">Dialog Content</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      expect(trigger1).to.have.attribute('aria-expanded', 'false');
+      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+
+      await user.click(trigger1);
+
+      const dialog = await screen.findByRole('dialog');
+      const trigger1Controls = trigger1.getAttribute('aria-controls');
+      expect(trigger1Controls).not.to.equal(null);
+      expect(dialog.getAttribute('id')).to.equal(trigger1Controls);
+      await waitFor(() => {
+        expect(trigger1).to.have.attribute('aria-expanded', 'true');
+      });
+      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('multiple detached triggers', () => {
+    type NumberPayload = { payload: number | undefined };
+
+    it('opens the dialog with any trigger', async () => {
+      const testDialog = Dialog.createHandle();
+      const { user } = await render(
+        <div>
+          <Dialog.Trigger handle={testDialog}>Trigger 1</Dialog.Trigger>
+          <Dialog.Trigger handle={testDialog}>Trigger 2</Dialog.Trigger>
+          <Dialog.Trigger handle={testDialog}>Trigger 3</Dialog.Trigger>
+
+          <Dialog.Root handle={testDialog}>
+            <Dialog.Portal>
+              <Dialog.Popup>
+                Dialog Content
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
+
+      expect(screen.queryByText('Dialog Content')).to.equal(null);
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).not.to.equal(null);
+      });
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).to.equal(null);
+      });
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).not.to.equal(null);
+      });
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).to.equal(null);
+      });
+
+      await user.click(trigger3);
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).not.to.equal(null);
+      });
+    });
+
+    it('sets the payload and renders content based on its value', async () => {
+      const testDialog = Dialog.createHandle<number>();
+      const { user } = await render(
+        <div>
+          <Dialog.Trigger handle={testDialog} payload={1}>
+            Trigger 1
+          </Dialog.Trigger>
+          <Dialog.Trigger handle={testDialog} payload={2}>
+            Trigger 2
+          </Dialog.Trigger>
+
+          <Dialog.Root handle={testDialog}>
+            {({ payload }: NumberPayload) => (
+              <Dialog.Portal>
+                <Dialog.Popup>
+                  <span data-testid="content">{payload}</span>
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            )}
+          </Dialog.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('1');
+      });
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('2');
+      });
+    });
+
+    it('reuses the popup DOM node when switching triggers', async () => {
+      const testDialog = Dialog.createHandle<number>();
+      const { user } = await render(
+        <React.Fragment>
+          <Dialog.Trigger handle={testDialog} payload={1}>
+            Trigger 1
+          </Dialog.Trigger>
+          <Dialog.Trigger handle={testDialog} payload={2}>
+            Trigger 2
+          </Dialog.Trigger>
+
+          <Dialog.Root handle={testDialog}>
+            {({ payload }: NumberPayload) => (
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="dialog-popup">
+                  <span>{payload}</span>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            )}
+          </Dialog.Root>
+        </React.Fragment>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      const popupElement = screen.getByTestId('dialog-popup');
+
+      await user.click(trigger2);
+      expect(screen.getByTestId('dialog-popup')).to.equal(popupElement);
+    });
+  });
+
   describe.skipIf(isJSDOM)('pointerdown removal', () => {
     it('moves focus to the popup when a focused child is removed on pointerdown and outside press still dismisses', async () => {
       function Test() {
