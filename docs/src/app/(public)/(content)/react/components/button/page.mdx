@@ -1,11 +1,11 @@
 # Button
 
 <Subtitle>
-  A button component that can be rendered as another tag with support for a loading state.
+  A button component that can be rendered as another tag or disabled while still being focusable.
 </Subtitle>
 <Meta
   name="description"
-  content="A high-quality, unstyled React button component that can be rendered as another tag, with support for a loading state."
+  content="A high-quality, unstyled React button component that can be rendered as another tag or disabled while still being focusable."
 />
 
 <Demo path="./demos/hero" />
@@ -30,11 +30,14 @@ import { Button } from '@base-ui-components/react/button';
 
 The button can remain keyboard accessible while being rendered as another tag, such as a `<div>`, by specifying `nativeButton={false}`.
 
-```jsx title="div button"
+```jsx title="Custom tag button"
 import { Button } from '@base-ui-components/react/button';
 
 <Button render={<div />} nativeButton={false}>
-  Button
+  Button that can contain complex children
+</Button>;
+<Button render={<a href="https://base-ui.com" />} nativeButton={false}>
+  Link that looks like a button
 </Button>;
 ```
 
