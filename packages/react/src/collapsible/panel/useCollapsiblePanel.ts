@@ -115,7 +115,6 @@ export function useCollapsiblePanel(
 
     if (height === undefined || width === undefined) {
       setDimensions({ height: element.scrollHeight, width: element.scrollWidth });
-      element.style.removeProperty('display');
 
       if (shouldCancelInitialOpenTransitionRef.current) {
         element.style.setProperty('transition-duration', '0s');
@@ -193,7 +192,6 @@ export function useCollapsiblePanel(
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
       resizeFrame = AnimationFrame.request(() => {
-        panel.style.removeProperty('display');
         Object.entries(originalLayoutStyles).forEach(([key, value]) => {
           if (value === '') {
             panel.style.removeProperty(key);
@@ -220,7 +218,6 @@ export function useCollapsiblePanel(
           runOnceAnimationsFinish(() => {
             setDimensions({ height: 0, width: 0 });
             panel.style.removeProperty('content-visibility');
-            panel.style.removeProperty('display');
             setMounted(false);
             abortControllerRef.current = null;
           }, signal);
