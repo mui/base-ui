@@ -1050,6 +1050,57 @@ describe('<Dialog.Root />', () => {
     });
   });
 
+  it('sets the payload when opening programmatically with a controlled triggerId', async () => {
+    type NumberPayload = { payload: number | undefined };
+
+    function App() {
+      const [open, setOpen] = React.useState(false);
+      const [triggerId, setTriggerId] = React.useState<string | null>(null);
+
+      return (
+        <div>
+          <Dialog.Root open={open} triggerId={triggerId}>
+            {({ payload }: NumberPayload) => (
+              <React.Fragment>
+                <Dialog.Trigger id="trigger-1" payload={1}>
+                  One
+                </Dialog.Trigger>
+                <Dialog.Trigger id="trigger-2" payload={2}>
+                  Two
+                </Dialog.Trigger>
+
+                <Dialog.Portal>
+                  <Dialog.Popup>
+                    <span data-testid="content">{payload}</span>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </React.Fragment>
+            )}
+          </Dialog.Root>
+
+          <button
+            type="button"
+            onClick={() => {
+              setTriggerId('trigger-2');
+              setOpen(true);
+            }}
+          >
+            Open programmatically
+          </button>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const openButton = screen.getByRole('button', { name: 'Open programmatically' });
+    await user.click(openButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('content').textContent).to.equal('2');
+    });
+  });
+
   describe.skipIf(isJSDOM)('pointerdown removal', () => {
     it('moves focus to the popup when a focused child is removed on pointerdown and outside press still dismisses', async () => {
       function Test() {

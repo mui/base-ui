@@ -23,6 +23,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     actionsRef,
     handle,
     triggerId: triggerIdProp,
+    defaultTriggerId: defaultTriggerIdProp = null,
   } = props;
 
   const parentDialogRootContext = useDialogRootContext();
@@ -31,6 +32,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   const store = useRefWithInit(() => handle ?? new DialogStore<Payload>()).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
+  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
   store.useSyncedValue('nested', nested);
   store.useContextCallback('openChange', onOpenChange);
   store.useContextCallback('openChangeComplete', onOpenChangeComplete);
