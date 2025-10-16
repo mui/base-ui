@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 1.5rem;
   padding-bottom: 30vh;
+  max-width: 650px;
 
   h2 {
     margin-bottom: 0.75rem;
