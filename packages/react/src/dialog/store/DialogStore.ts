@@ -69,9 +69,9 @@ const selectors = {
 };
 
 export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
-  constructor(initialState?: Partial<State<Payload>>) {
+  constructor() {
     super(
-      { ...createInitialState<Payload>(), ...initialState },
+      createInitialState<Payload>(),
       {
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
