@@ -68,9 +68,10 @@ export const SelectItem = React.memo(
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useValueAsRef(listItem.index);
+    const index = listItem.index;
+    const indexRef = useValueAsRef(index);
 
-    const hasRegistered = listItem.index !== -1;
+    const hasRegistered = index !== -1;
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
@@ -78,12 +79,12 @@ export const SelectItem = React.memo(
       }
 
       const values = valuesRef.current;
-      values[listItem.index] = value;
+      values[index] = value;
 
       return () => {
-        delete values[listItem.index];
+        delete values[index];
       };
-    }, [hasRegistered, listItem.index, value, valuesRef]);
+    }, [hasRegistered, index, value, valuesRef]);
 
     useIsoLayoutEffect(() => {
       if (hasRegistered) {
@@ -91,21 +92,13 @@ export const SelectItem = React.memo(
           const isValueSelected =
             Array.isArray(rootValue) && itemIncludes(rootValue, value, isItemEqualToValue);
           if (isValueSelected) {
-            registerItemIndex(listItem.index);
+            registerItemIndex(index);
           }
         } else if (compareItemEquality(rootValue, value, isItemEqualToValue)) {
-          registerItemIndex(listItem.index);
+          registerItemIndex(index);
         }
       }
-    }, [
-      hasRegistered,
-      listItem.index,
-      registerItemIndex,
-      value,
-      rootValue,
-      multiple,
-      isItemEqualToValue,
-    ]);
+    }, [hasRegistered, index, registerItemIndex, value, rootValue, multiple, isItemEqualToValue]);
 
     const state: SelectItem.State = React.useMemo(
       () => ({
@@ -151,15 +144,15 @@ export const SelectItem = React.memo(
       'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {
-        store.set('activeIndex', indexRef.current);
+        store.set('activeIndex', index);
       },
       onMouseEnter() {
         if (!keyboardActiveRef.current && store.state.selectedIndex === null) {
-          store.set('activeIndex', indexRef.current);
+          store.set('activeIndex', index);
         }
       },
       onMouseMove() {
-        store.set('activeIndex', indexRef.current);
+        store.set('activeIndex', index);
       },
       onMouseLeave(event) {
         if (keyboardActiveRef.current || isMouseWithinBounds(event)) {
@@ -167,7 +160,7 @@ export const SelectItem = React.memo(
         }
 
         highlightTimeout.start(0, () => {
-          if (store.state.activeIndex === indexRef.current) {
+          if (store.state.activeIndex === index) {
             store.set('activeIndex', null);
           }
         });
@@ -180,7 +173,7 @@ export const SelectItem = React.memo(
       },
       onKeyDown(event) {
         lastKeyRef.current = event.key;
-        store.set('activeIndex', indexRef.current);
+        store.set('activeIndex', index);
       },
       onClick(event) {
         didPointerDownRef.current = false;

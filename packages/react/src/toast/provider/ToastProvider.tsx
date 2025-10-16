@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { generateId } from '@base-ui-components/utils/generateId';
@@ -49,9 +48,6 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const viewportRef = React.useRef<HTMLElement | null>(null);
   const windowFocusedRef = React.useRef(true);
   const isPausedRef = React.useRef(false);
-
-  const hoveringRef = useValueAsRef(hovering);
-  const focusedRef = useValueAsRef(focused);
 
   function handleFocusManagement(toastId: string) {
     const activeEl = activeElement(ownerDocument(viewportRef.current));
@@ -155,8 +151,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     handleFocusManagement(toastId);
 
     if (toasts.length === 1) {
-      hoveringRef.current = false;
-      focusedRef.current = false;
+      setHovering(false);
+      setFocused(false);
     }
   });
 
@@ -169,8 +165,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const scheduleTimer = useStableCallback((id: string, delay: number, callback: () => void) => {
     const start = Date.now();
 
-    const shouldStartActive =
-      windowFocusedRef.current && !hoveringRef.current && !focusedRef.current;
+    const shouldStartActive = windowFocusedRef.current && !hovering && !focused;
 
     const currentTimeout = shouldStartActive ? Timeout.create() : undefined;
 
@@ -221,7 +216,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
         scheduleTimer(id, duration, () => close(id));
       }
 
-      if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
+      if (hovering || focused || !windowFocusedRef.current) {
         pauseTimers();
       }
 
@@ -262,7 +257,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
             scheduleTimer(id, successTimeout, () => close(id));
           }
 
-          if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
+          if (hovering || focused || !windowFocusedRef.current) {
             pauseTimers();
           }
 
@@ -280,7 +275,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
             scheduleTimer(id, errorTimeout, () => close(id));
           }
 
-          if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
+          if (hovering || focused || !windowFocusedRef.current) {
             pauseTimers();
           }
 
