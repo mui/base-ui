@@ -441,6 +441,122 @@ describe('<AlertDialog.Root />', () => {
     });
   });
 
+  describe('imperative actions on the handle', () => {
+    it('opens and closes the dialog', async () => {
+      const dialog = AlertDialog.createHandle();
+      await render(
+        <div>
+          <AlertDialog.Trigger handle={dialog} id="trigger">
+            Trigger
+          </AlertDialog.Trigger>
+          <AlertDialog.Root handle={dialog}>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup data-testid="content">Content</AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(screen.queryByRole('alertdialog')).to.equal(null);
+
+      await act(() => dialog.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).not.to.equal(null);
+      });
+
+      expect(screen.getByTestId('content').textContent).to.equal('Content');
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
+
+      await act(() => dialog.close());
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).to.equal(null);
+      });
+
+      expect(trigger).to.have.attribute('aria-expanded', 'false');
+    });
+
+    it('sets the payload assosiated with the trigger', async () => {
+      const dialog = AlertDialog.createHandle<number>();
+      await render(
+        <div>
+          <AlertDialog.Trigger handle={dialog} id="trigger1" payload={1}>
+            Trigger 1
+          </AlertDialog.Trigger>
+          <AlertDialog.Trigger handle={dialog} id="trigger2" payload={2}>
+            Trigger 2
+          </AlertDialog.Trigger>
+          <AlertDialog.Root handle={dialog}>
+            {({ payload }: { payload: number | undefined }) => (
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="content">{payload}</AlertDialog.Popup>
+              </AlertDialog.Portal>
+            )}
+          </AlertDialog.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      expect(screen.queryByRole('alertdialog')).to.equal(null);
+
+      await act(() => dialog.open('trigger2'));
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).not.to.equal(null);
+      });
+
+      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(trigger2).to.have.attribute('aria-expanded', 'true');
+      expect(trigger1).not.to.have.attribute('aria-expanded', 'true');
+
+      await act(() => dialog.close());
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).to.equal(null);
+      });
+
+      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+    });
+
+    it('sets the payload programmatically', async () => {
+      const dialog = AlertDialog.createHandle<number>();
+      await render(
+        <div>
+          <AlertDialog.Trigger handle={dialog} id="trigger1" payload={1}>
+            Trigger 1
+          </AlertDialog.Trigger>
+          <AlertDialog.Trigger handle={dialog} id="trigger2" payload={2}>
+            Trigger 2
+          </AlertDialog.Trigger>
+          <AlertDialog.Root handle={dialog}>
+            {({ payload }: { payload: number | undefined }) => (
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="content">{payload}</AlertDialog.Popup>
+              </AlertDialog.Portal>
+            )}
+          </AlertDialog.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      expect(screen.queryByRole('alertdialog')).to.equal(null);
+
+      await act(() => dialog.openWithPayload(8));
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).not.to.equal(null);
+      });
+
+      expect(screen.getByTestId('content').textContent).to.equal('8');
+      expect(trigger1).not.to.have.attribute('aria-expanded', 'true');
+      expect(trigger2).not.to.have.attribute('aria-expanded', 'true');
+
+      await act(() => dialog.close());
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).to.equal(null);
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('modality', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open', async () => {
       await render(

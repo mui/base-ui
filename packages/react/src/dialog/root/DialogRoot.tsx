@@ -4,7 +4,8 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { DialogHandle, DialogStore } from '../DialogStore';
+import { DialogStore } from '../store/DialogStore';
+import { DialogHandle } from '../store/DialogHandle';
 import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
 
 /**

@@ -154,6 +154,15 @@ export default function DialogExperiment() {
         <StyledTrigger handle={detachedDialog} payload={triggerLabels[3]}>
           {triggerLabels[3]}
         </StyledTrigger>
+        <button
+          type="button"
+          className={clsx(demoStyles.Button, styles.Button)}
+          onClick={() => {
+            detachedDialog.open('detached-uncontrolled-second-trigger');
+          }}
+        >
+          Open with the handle (Invites)
+        </button>
       </div>
 
       <h2>Controlled, detached triggers</h2>
@@ -191,7 +200,16 @@ export default function DialogExperiment() {
             setControlledDetachedTriggerId('detached-second-trigger');
           }}
         >
-          Open programmatically (Invites)
+          Controlled open (Invites)
+        </button>
+        <button
+          type="button"
+          className={clsx(demoStyles.Button, styles.Button)}
+          onClick={() => {
+            controlledDetachedDialog.open('detached-second-trigger');
+          }}
+        >
+          Open with the handle (Invites)
         </button>
       </div>
     </div>

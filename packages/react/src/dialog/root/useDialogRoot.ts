@@ -15,7 +15,7 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { type DialogRoot } from './DialogRoot';
-import { DialogStore } from '../DialogStore';
+import { DialogStore } from '../store/DialogStore';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const { store, parentContext, actionsRef, triggerIdProp } = params;

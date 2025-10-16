@@ -7,7 +7,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
-import { DialogHandle } from '../../dialog/DialogStore';
+import { DialogHandle } from '../../dialog/store/DialogHandle';
 import { useTriggerRegistration } from '../../utils/popupStoreUtils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useClick, useInteractions } from '../../floating-ui-react';
