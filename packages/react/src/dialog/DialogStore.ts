@@ -4,9 +4,10 @@ import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { type DialogRoot } from './root/DialogRoot';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
-import type { FloatingUIOpenChangeDetails, PopupTriggerMap, HTMLProps } from '../utils/types';
+import type { FloatingUIOpenChangeDetails, HTMLProps } from '../utils/types';
 import { type FloatingRootContext } from '../floating-ui-react/types';
 import { getEmptyContext } from '../floating-ui-react/hooks/useFloatingRootContext';
+import { PopupTriggerMap } from '../utils/popupStoreUtils';
 
 export type State<Payload> = {
   open: boolean;
@@ -21,7 +22,7 @@ export type State<Payload> = {
   descriptionElementId: string | undefined;
   activeTriggerId: string | null;
   popupElement: HTMLElement | null;
-  triggers: PopupTriggerMap<Payload>;
+  triggers: PopupTriggerMap;
   floatingRootContext: FloatingRootContext;
   payload: Payload | undefined;
   activeTriggerProps: HTMLProps;
@@ -57,7 +58,7 @@ const selectors = {
   activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
   activeTriggerElement: createSelector((state: State<unknown>) =>
     state.mounted && state.activeTriggerId != null
-      ? (state.triggers.get(state.activeTriggerId)?.element ?? null)
+      ? (state.triggers.get(state.activeTriggerId) ?? null)
       : null,
   ),
   triggers: createSelector((state: State<unknown>) => state.triggers),

@@ -119,7 +119,13 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const localProps = useInteractions([click, hover]);
 
-  const registerTrigger = useTriggerRegistration(id, payload, store);
+  const registerTrigger = useTriggerRegistration(id, store);
+
+  useIsoLayoutEffect(() => {
+    if (isTriggerActive) {
+      store.set('payload', payload);
+    }
+  }, [isTriggerActive, payload, store]);
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({

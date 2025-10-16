@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -63,7 +64,13 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   });
 
   const id = useBaseUiId(idProp);
-  const registerTrigger = useTriggerRegistration(id, payload, store);
+  const registerTrigger = useTriggerRegistration(id, store);
+
+  useIsoLayoutEffect(() => {
+    if (isTriggerActive) {
+      store.set('payload', payload);
+    }
+  }, [isTriggerActive, payload, store]);
 
   const click = useClick(floatingContext, { enabled: floatingContext != null });
   const localInteractionProps = useInteractions([click]);
