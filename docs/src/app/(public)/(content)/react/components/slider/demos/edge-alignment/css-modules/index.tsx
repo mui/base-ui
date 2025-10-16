@@ -8,7 +8,7 @@ export default function EdgeAlignedThumb() {
       <Slider.Control className={styles.Control}>
         <Slider.Track className={styles.Track}>
           <Slider.Indicator className={styles.Indicator} />
-          <Slider.Thumb className={styles.Thumb} />
+          <Slider.Thumb getAriaLabel={() => 'edge-aligned-thumb'} className={styles.Thumb} />
         </Slider.Track>
       </Slider.Control>
     </Slider.Root>
