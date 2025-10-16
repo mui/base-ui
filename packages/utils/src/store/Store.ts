@@ -13,7 +13,7 @@ export class Store<State> {
    *
    * Do not modify properties in state directly. Instead, use the provided methods to ensure proper state management and listener notification.
    */
-  public state: State;
+  public readonly state: State;
 
   private listeners: Set<Listener<State>>;
 
@@ -49,7 +49,7 @@ export class Store<State> {
    */
   public update(newState: State) {
     if (this.state !== newState) {
-      this.state = newState;
+      (this.state as State) = newState;
       this.listeners.forEach((l) => l(newState));
     }
   }
