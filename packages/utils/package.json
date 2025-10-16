@@ -12,6 +12,9 @@
     "./store": "./src/store/index.ts",
     "./*": "./src/*.ts"
   },
+  "imports": {
+    "#formatErrorMessage": "./src/formatErrorMessage.ts"
+  },
   "type": "commonjs",
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",

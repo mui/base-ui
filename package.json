@@ -20,7 +20,7 @@
     "docs:start": "pnpm --filter docs serve",
     "docs:link-check": "pnpm --filter docs link-check",
     "docs:generate-llms": "pnpm --filter docs run generate-llms",
-    "extract-error-codes": "cross-env MUI_EXTRACT_ERROR_CODES=true lerna run --concurrency 1 build:stable",
+    "extract-error-codes": "code-infra extract-error-codes --errorCodesPath docs/src/error-codes.json --detection opt-out",
     "eslint": "eslint . --cache --report-unused-disable-directives --ext .js,.ts,.tsx,.mts --max-warnings 0 && pnpm -r lint",
     "eslint:ci": "eslint . --report-unused-disable-directives --ext .js,.ts,.tsx,.mts --max-warnings 0 && pnpm -r lint",
     "stylelint": "stylelint --reportInvalidScopeDisables --reportNeedlessDisables \"docs/**/*.{js,ts,tsx}\" \"**/*.css\" --ignore-path .lintignore",
