@@ -60,7 +60,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
     store.apply({ open: false, mounted: false, activeTriggerId: null });
-    store.context.openChangeComplete?.(false);
+    store.context.onOpenChangeComplete?.(false);
     resetOpenInteractionType();
   });
 
@@ -157,25 +157,25 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([role, dismiss]);
 
   // Listen for nested open/close events on this store to maintain the count
-  store.useContextCallback('nestedDialogOpen', (ownChildrenCount) => {
+  store.useContextCallback('onNestedDialogOpen', (ownChildrenCount) => {
     setOwnNestedOpenDialogs(ownChildrenCount + 1);
   });
 
-  store.useContextCallback('nestedDialogClose', () => {
+  store.useContextCallback('onNestedDialogClose', () => {
     setOwnNestedOpenDialogs(0);
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
   React.useEffect(() => {
-    if (parentContext?.nestedDialogOpen && open) {
-      parentContext.nestedDialogOpen(ownNestedOpenDialogs);
+    if (parentContext?.onNestedDialogOpen && open) {
+      parentContext.onNestedDialogOpen(ownNestedOpenDialogs);
     }
-    if (parentContext?.nestedDialogClose && !open) {
-      parentContext.nestedDialogClose();
+    if (parentContext?.onNestedDialogClose && !open) {
+      parentContext.onNestedDialogClose();
     }
     return () => {
-      if (parentContext?.nestedDialogClose && open) {
-        parentContext.nestedDialogClose();
+      if (parentContext?.onNestedDialogClose && open) {
+        parentContext.onNestedDialogClose();
       }
     };
   }, [open, parentContext, ownNestedOpenDialogs]);

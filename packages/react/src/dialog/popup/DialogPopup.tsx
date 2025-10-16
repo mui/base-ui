@@ -59,7 +59,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        store.context.openChangeComplete?.(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
