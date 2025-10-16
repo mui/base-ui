@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import {
   useComboboxFloatingContext,
@@ -135,7 +135,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     ],
   );
 
-  const setPositionerElement = useUntrackedCallback((element) => {
+  const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
   });
 

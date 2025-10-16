@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   useComboboxRootContext,
@@ -70,7 +70,7 @@ export const ComboboxItem = React.memo(
     const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useUntrackedRef(index);
+    const indexRef = useValueAsRef(index);
 
     const hasRegistered = listItem.index !== -1;
 

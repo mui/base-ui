@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
@@ -75,7 +75,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
 
-  const positionerRef = useUntrackedRef(positionerElement);
+  const positionerRef = useValueAsRef(positionerElement);
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const timeoutFocus = useTimeout();
@@ -86,7 +86,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     native: nativeButton,
   });
 
-  const setTriggerElement = useUntrackedCallback((element) => {
+  const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);
   });
 

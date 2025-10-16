@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   activeElement,
@@ -280,7 +280,7 @@ export function useListNavigation(
   }
 
   const floatingFocusElement = getFloatingFocusElement(elements.floating);
-  const floatingFocusElementRef = useUntrackedRef(floatingFocusElement);
+  const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
 
   const parentId = useFloatingParentNodeId();
   const tree = useFloatingTree();
@@ -296,7 +296,7 @@ export function useListNavigation(
   const keyRef = React.useRef<null | string>(null);
   const isPointerModalityRef = React.useRef(true);
 
-  const onNavigate = useUntrackedCallback((event?: React.SyntheticEvent) => {
+  const onNavigate = useStableCallback((event?: React.SyntheticEvent) => {
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
@@ -306,12 +306,12 @@ export function useListNavigation(
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
 
-  const disabledIndicesRef = useUntrackedRef(disabledIndices);
-  const latestOpenRef = useUntrackedRef(open);
-  const scrollItemIntoViewRef = useUntrackedRef(scrollItemIntoView);
-  const selectedIndexRef = useUntrackedRef(selectedIndex);
+  const disabledIndicesRef = useValueAsRef(disabledIndices);
+  const latestOpenRef = useValueAsRef(open);
+  const scrollItemIntoViewRef = useValueAsRef(scrollItemIntoView);
+  const selectedIndexRef = useValueAsRef(selectedIndex);
 
-  const focusItem = useUntrackedCallback(() => {
+  const focusItem = useStableCallback(() => {
     function runFocus(item: HTMLElement) {
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
@@ -561,7 +561,7 @@ export function useListNavigation(
     );
   }, [parentId, tree, parentOrientation]);
 
-  const commonOnKeyDown = useUntrackedCallback((event: React.KeyboardEvent) => {
+  const commonOnKeyDown = useStableCallback((event: React.KeyboardEvent) => {
     isPointerModalityRef.current = false;
     forceSyncFocusRef.current = true;
 

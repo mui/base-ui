@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -87,7 +87,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   const scrollArrowFrame = useAnimationFrame();
 
-  const handleScroll = useUntrackedCallback((scroller: HTMLDivElement) => {
+  const handleScroll = useStableCallback((scroller: HTMLDivElement) => {
     if (!positionerElement || !popupRef.current || !initialPlacedRef.current) {
       return;
     }

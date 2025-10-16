@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import {
   FloatingTree,
@@ -87,7 +87,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     setViewportInert(false);
   }, [value]);
 
-  const setValue = useUntrackedCallback(
+  const setValue = useStableCallback(
     (nextValue: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => {
       if (!nextValue) {
         closeReasonRef.current = eventDetails.reason;
@@ -112,7 +112,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     },
   );
 
-  const handleUnmount = useUntrackedCallback(() => {
+  const handleUnmount = useStableCallback(() => {
     const doc = ownerDocument(rootRef.current);
     const activeEl = activeElement(doc);
 

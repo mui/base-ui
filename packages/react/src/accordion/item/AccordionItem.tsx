@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -64,7 +64,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     return false;
   }, [openValues, value]);
 
-  const onOpenChange = useUntrackedCallback(
+  const onOpenChange = useStableCallback(
     (nextOpen: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => {
       onOpenChangeProp?.(nextOpen, eventDetails);
 

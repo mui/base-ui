@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
@@ -40,7 +40,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     ...elementProps
   } = componentProps;
 
-  const formatOptionsRef = useUntrackedRef(format);
+  const formatOptionsRef = useValueAsRef(format);
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
   const formattedValue = formatValue(valueProp, locale, formatOptionsRef.current);

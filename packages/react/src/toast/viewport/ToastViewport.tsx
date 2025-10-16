@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
@@ -40,8 +40,8 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   } = useToastContext();
 
   const handlingFocusGuardRef = React.useRef(false);
-  const focusedRef = useUntrackedRef(focused);
-  const hoveringRef = useUntrackedRef(hovering);
+  const focusedRef = useValueAsRef(focused);
+  const hoveringRef = useValueAsRef(hovering);
   const numToasts = toasts.length;
   const frontmostHeight = toasts[0]?.height ?? 0;
   const markedReadyForMouseLeave = React.useRef(false);
@@ -138,6 +138,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     // are added when toasts have been created, once the ref is available.
     numToasts,
   ]);
+
+  const [x, setX] = React.useState(0);
+  React.useEffect(() => {}, [x, setX]);
 
   React.useEffect(() => {
     const viewportNode = viewportRef.current;

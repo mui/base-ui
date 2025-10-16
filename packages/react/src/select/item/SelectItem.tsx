@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStore } from '@base-ui-components/utils/store';
@@ -68,7 +68,7 @@ export const SelectItem = React.memo(
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useUntrackedRef(listItem.index);
+    const indexRef = useValueAsRef(listItem.index);
 
     const hasRegistered = listItem.index !== -1;
 

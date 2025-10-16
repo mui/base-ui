@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
-import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
@@ -78,13 +78,13 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   } = componentProps;
 
   const id = useBaseUiId(idProp);
-  const onValueChange = useUntrackedCallback(
+  const onValueChange = useStableCallback(
     onValueChangeProp as (
       value: number | number[],
       eventDetails: SliderRoot.ChangeEventDetails,
     ) => void,
   );
-  const onValueCommitted = useUntrackedCallback(
+  const onValueCommitted = useStableCallback(
     onValueCommittedProp as (
       value: number | readonly number[],
       eventDetails: SliderRoot.CommitEventDetails,
@@ -130,7 +130,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const pressedThumbIndexRef = React.useRef(-1);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
 
-  const formatOptionsRef = useUntrackedRef(format);
+  const formatOptionsRef = useValueAsRef(format);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -155,7 +155,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     getValue: () => valueUnwrapped,
   });
 
-  const registerFieldControlRef = useUntrackedCallback((element: HTMLElement | null) => {
+  const registerFieldControlRef = useStableCallback((element: HTMLElement | null) => {
     if (element) {
       controlRef.current = element;
     }
@@ -170,7 +170,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     return valueUnwrapped.slice().sort(asc);
   }, [max, min, range, valueUnwrapped]);
 
-  const setValue = useUntrackedCallback(
+  const setValue = useStableCallback(
     (newValue: number | number[], thumbIndex: number, event: Event) => {
       if (Number.isNaN(newValue) || areValuesEqual(newValue, valueUnwrapped)) {
         return;
@@ -207,7 +207,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   );
 
   // for keypresses only
-  const handleInputChange = useUntrackedCallback(
+  const handleInputChange = useStableCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
       const newValue = getSliderValue(valueInput, index, min, max, range, values);
 

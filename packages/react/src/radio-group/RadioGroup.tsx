@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -72,9 +72,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     state: 'value',
   });
 
-  const onValueChange = useUntrackedCallback(onValueChangeProp);
+  const onValueChange = useStableCallback(onValueChangeProp);
 
-  const setCheckedValue = useUntrackedCallback(
+  const setCheckedValue = useStableCallback(
     (value: unknown, eventDetails: RadioGroup.ChangeEventDetails) => {
       onValueChange(value, eventDetails);
 
@@ -87,7 +87,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   );
 
   const controlRef = React.useRef<HTMLElement>(null);
-  const registerControlRef = useUntrackedCallback((element: HTMLElement | null) => {
+  const registerControlRef = useStableCallback((element: HTMLElement | null) => {
     if (controlRef.current == null && element != null) {
       controlRef.current = element;
     }
@@ -124,7 +124,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
 
   const [touched, setTouched] = React.useState(false);
 
-  const onBlur = useUntrackedCallback((event) => {
+  const onBlur = useStableCallback((event) => {
     if (!contains(event.currentTarget, event.relatedTarget)) {
       setFieldTouched(true);
       setFocused(false);
@@ -135,7 +135,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     }
   });
 
-  const onKeyDownCapture = useUntrackedCallback((event) => {
+  const onKeyDownCapture = useStableCallback((event) => {
     if (event.key.startsWith('Arrow')) {
       setFieldTouched(true);
       setTouched(true);

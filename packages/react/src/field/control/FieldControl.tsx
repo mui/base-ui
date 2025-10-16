@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
@@ -82,7 +82,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const isControlled = valueProp !== undefined;
 
-  const setValue = useUntrackedCallback(
+  const setValue = useStableCallback(
     (nextValue: string, eventDetails: FieldControl.ChangeEventDetails) => {
       onValueChange?.(nextValue, eventDetails);
 

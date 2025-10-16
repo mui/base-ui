@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import {
   safePolygon,
   useDismiss,
@@ -50,11 +50,11 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
     state: 'open',
   });
 
-  const onOpenChange = useUntrackedCallback(onOpenChangeProp);
+  const onOpenChange = useStableCallback(onOpenChangeProp);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const handleUnmount = useUntrackedCallback(() => {
+  const handleUnmount = useStableCallback(() => {
     setMounted(false);
     onOpenChangeComplete?.(false);
   });
@@ -72,7 +72,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
 
   React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const setOpen = useUntrackedCallback(
+  const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => {
       const isHover = eventDetails.reason === 'trigger-hover';
       const isFocusOpen = nextOpen && eventDetails.reason === 'trigger-focus';

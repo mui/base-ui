@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { formatNumber } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
@@ -55,7 +55,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 
-  const formatOptionsRef = useUntrackedRef(format);
+  const formatOptionsRef = useValueAsRef(format);
 
   let status: ProgressStatus = 'indeterminate';
   if (Number.isFinite(value)) {

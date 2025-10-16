@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
@@ -96,7 +96,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }
 
-  const onCheckedChange = useUntrackedCallback(onCheckedChangeProp);
+  const onCheckedChange = useStableCallback(onCheckedChangeProp);
 
   const {
     checked: groupChecked = checkedProp,

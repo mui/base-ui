@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { observeScrollableInner } from '../utils/observeScrollableInner';
 
 const ARROW_UP = 'ArrowUp';
@@ -107,7 +107,7 @@ export function Item(props: React.ComponentProps<'details'>) {
   // in Chrome, the <details> opens automatically when the hash part of a URL
   // matches the `id` on <summary> but needs to be manually handled for Safari
   // and Firefox
-  const handleRef = useUntrackedCallback((element: HTMLDetailsElement | null) => {
+  const handleRef = useStableCallback((element: HTMLDetailsElement | null) => {
     if (element) {
       const trigger = element.querySelector<HTMLElement>('summary');
       const triggerId = trigger?.getAttribute('id');

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { stopEvent } from '../utils';
@@ -96,7 +96,7 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     }
   }, [open, selectedIndex, activeIndex]);
 
-  const setTypingChange = useUntrackedCallback((value: boolean) => {
+  const setTypingChange = useStableCallback((value: boolean) => {
     if (value) {
       if (!dataRef.current.typing) {
         dataRef.current.typing = value;
@@ -108,7 +108,7 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     }
   });
 
-  const onKeyDown = useUntrackedCallback((event: React.KeyboardEvent) => {
+  const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
     function getMatchingIndex(
       list: Array<string | null>,
       orderedList: Array<string | null>,

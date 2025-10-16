@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -85,7 +85,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     [fieldState, open, disabled],
   );
 
-  const setTriggerElement = useUntrackedCallback((element) => {
+  const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);
   });
 

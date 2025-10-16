@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 
@@ -20,7 +20,7 @@ export function useCheckboxGroupParent(
   const checked = value.length === allValues.length;
   const indeterminate = value.length !== allValues.length && value.length > 0;
 
-  const onValueChange = useUntrackedCallback(onValueChangeProp);
+  const onValueChange = useStableCallback(onValueChangeProp);
 
   const getParentProps: useCheckboxGroupParent.ReturnValue['getParentProps'] = React.useCallback(
     () => ({

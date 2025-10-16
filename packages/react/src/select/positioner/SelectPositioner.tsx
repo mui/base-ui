@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -150,7 +150,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     [open, renderedSide, positioning.align, positioning.anchorHidden],
   );
 
-  const setPositionerElement = useUntrackedCallback((element) => {
+  const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
   });
 
@@ -163,60 +163,56 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const prevMapSizeRef = React.useRef(0);
 
-  const onMapChange = useUntrackedCallback(
-    (map: Map<Element, { index?: number | null } | null>) => {
-      if (map.size === 0 && prevMapSizeRef.current === 0) {
-        return;
+  const onMapChange = useStableCallback((map: Map<Element, { index?: number | null } | null>) => {
+    if (map.size === 0 && prevMapSizeRef.current === 0) {
+      return;
+    }
+
+    if (valuesRef.current.length === 0) {
+      return;
+    }
+
+    const prevSize = prevMapSizeRef.current;
+    prevMapSizeRef.current = map.size;
+
+    if (map.size === prevSize) {
+      return;
+    }
+
+    const eventDetails = createChangeEventDetails('none');
+
+    if (prevSize !== 0 && !store.state.multiple && value !== null) {
+      const valueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
+      if (valueIndex === -1) {
+        const initial = initialValueRef.current;
+        const hasInitial =
+          initial != null && itemIncludes(valuesRef.current, initial, isItemEqualToValue);
+        const nextValue = hasInitial ? initial : null;
+        setValue(nextValue, eventDetails);
       }
+    }
 
-      if (valuesRef.current.length === 0) {
-        return;
+    if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
+      const nextValue = value.filter((v) => itemIncludes(valuesRef.current, v, isItemEqualToValue));
+      if (
+        nextValue.length !== value.length ||
+        nextValue.some((v) => !itemIncludes(value, v, isItemEqualToValue))
+      ) {
+        setValue(nextValue, eventDetails);
       }
+    }
 
-      const prevSize = prevMapSizeRef.current;
-      prevMapSizeRef.current = map.size;
+    if (open && alignItemWithTriggerActive) {
+      store.apply({
+        scrollUpArrowVisible: false,
+        scrollDownArrowVisible: false,
+      });
 
-      if (map.size === prevSize) {
-        return;
-      }
-
-      const eventDetails = createChangeEventDetails('none');
-
-      if (prevSize !== 0 && !store.state.multiple && value !== null) {
-        const valueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
-        if (valueIndex === -1) {
-          const initial = initialValueRef.current;
-          const hasInitial =
-            initial != null && itemIncludes(valuesRef.current, initial, isItemEqualToValue);
-          const nextValue = hasInitial ? initial : null;
-          setValue(nextValue, eventDetails);
-        }
-      }
-
-      if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
-        const nextValue = value.filter((v) =>
-          itemIncludes(valuesRef.current, v, isItemEqualToValue),
-        );
-        if (
-          nextValue.length !== value.length ||
-          nextValue.some((v) => !itemIncludes(value, v, isItemEqualToValue))
-        ) {
-          setValue(nextValue, eventDetails);
-        }
-      }
-
-      if (open && alignItemWithTriggerActive) {
-        store.apply({
-          scrollUpArrowVisible: false,
-          scrollDownArrowVisible: false,
-        });
-
-        const stylesToClear: React.CSSProperties = { height: '' };
-        clearStyles(positionerElement, stylesToClear);
-        clearStyles(popupRef.current, stylesToClear);
-      }
-    },
-  );
+      const stylesToClear: React.CSSProperties = { height: '' };
+      clearStyles(positionerElement, stylesToClear);
+      clearStyles(popupRef.current, stylesToClear);
+    }
+  });
 
   const contextValue: SelectPositionerContext = React.useMemo(
     () => ({

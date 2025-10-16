@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
@@ -360,8 +360,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }),
   ).current;
 
-  const onItemHighlighted = useUntrackedCallback(onItemHighlightedProp);
-  const onOpenChangeComplete = useUntrackedCallback(onOpenChangeCompleteProp);
+  const onItemHighlighted = useStableCallback(onItemHighlightedProp);
+  const onOpenChangeComplete = useStableCallback(onOpenChangeCompleteProp);
 
   const activeIndex = useStore(store, selectors.activeIndex);
   const selectedIndex = useStore(store, selectors.selectedIndex);
@@ -383,7 +383,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  const forceMount = useUntrackedCallback(() => {
+  const forceMount = useStableCallback(() => {
     if (items) {
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) =>
@@ -528,7 +528,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
 
-  const setIndices = useUntrackedCallback(
+  const setIndices = useStableCallback(
     (options: {
       activeIndex?: number | null;
       selectedIndex?: number | null;
@@ -555,7 +555,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const setInputValue = useUntrackedCallback(
+  const setInputValue = useStableCallback(
     (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
       hadInputClearRef.current = eventDetails.reason === 'input-clear';
 
@@ -589,7 +589,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const setOpen = useUntrackedCallback(
+  const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => {
       if (open === nextOpen) {
         return;
@@ -625,7 +625,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const setSelectedValue = useUntrackedCallback(
+  const setSelectedValue = useStableCallback(
     (nextValue: Value | Value[], eventDetails: AriaCombobox.ChangeEventDetails) => {
       // Cast to `any` due to conditional value type (single vs. multiple).
       // The runtime implementation already ensures the correct value shape.
@@ -659,7 +659,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const syncSelectedIndex = useUntrackedCallback(() => {
+  const syncSelectedIndex = useStableCallback(() => {
     if (selectionMode === 'none') {
       return;
     }
@@ -683,7 +683,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [open, selectedValue, syncSelectedIndex]);
 
-  const handleSelection = useUntrackedCallback(
+  const handleSelection = useStableCallback(
     (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
       let value = passedValue;
       if (value === undefined) {
@@ -737,7 +737,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const handleUnmount = useUntrackedCallback(() => {
+  const handleUnmount = useStableCallback(() => {
     setMounted(false);
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);

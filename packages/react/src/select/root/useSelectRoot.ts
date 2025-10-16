@@ -3,9 +3,9 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { warn } from '@base-ui-components/utils/warn';
-import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStore, Store } from '@base-ui-components/utils/store';
 import {
   useClick,
@@ -142,7 +142,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
 
-  const controlRef = useUntrackedRef(store.state.triggerElement);
+  const controlRef = useValueAsRef(store.state.triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
 
   useField({
@@ -220,7 +220,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     prevValueRef.current = value;
   }, [value]);
 
-  const setOpen = useUntrackedCallback(
+  const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
       params.onOpenChange?.(nextOpen, eventDetails);
 
@@ -250,7 +250,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     },
   );
 
-  const handleUnmount = useUntrackedCallback(() => {
+  const handleUnmount = useStableCallback(() => {
     setMounted(false);
     store.set('activeIndex', null);
     onOpenChangeComplete?.(false);
@@ -269,7 +269,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const setValue = useUntrackedCallback(
+  const setValue = useStableCallback(
     (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
       params.onValueChange?.(nextValue, eventDetails);
 
@@ -286,7 +286,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
    * Does nothing until at least one item has reported its index (so that
    * `valuesRef`/`labelsRef` are populated).
    */
-  const syncSelectedState = useUntrackedCallback(() => {
+  const syncSelectedState = useStableCallback(() => {
     if (!hasRegisteredRef.current) {
       return;
     }
@@ -345,7 +345,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
    * Called by each <Select.Item> once it knows its stable index. After the first
    * call, the root is able to resolve labels and selected indices.
    */
-  const registerItemIndex = useUntrackedCallback((index: number) => {
+  const registerItemIndex = useStableCallback((index: number) => {
     hasRegisteredRef.current = true;
 
     if (multiple) {
@@ -360,7 +360,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   // Keep store in sync whenever `value` changes after registration.
   useIsoLayoutEffect(syncSelectedState, [value, syncSelectedState]);
 
-  const handleScrollArrowVisibility = useUntrackedCallback(() => {
+  const handleScrollArrowVisibility = useStableCallback(() => {
     const scroller = store.state.listElement || popupRef.current;
     if (!scroller) {
       return;

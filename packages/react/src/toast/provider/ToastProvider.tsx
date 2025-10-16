@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { generateId } from '@base-ui-components/utils/generateId';
 import { Timeout } from '@base-ui-components/utils/useTimeout';
 import { activeElement, contains } from '../../floating-ui-react/utils';
@@ -50,8 +50,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const windowFocusedRef = React.useRef(true);
   const isPausedRef = React.useRef(false);
 
-  const hoveringRef = useUntrackedRef(hovering);
-  const focusedRef = useUntrackedRef(focused);
+  const hoveringRef = useValueAsRef(hovering);
+  const focusedRef = useValueAsRef(focused);
 
   function handleFocusManagement(toastId: string) {
     const activeEl = activeElement(ownerDocument(viewportRef.current));
@@ -95,7 +95,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     }
   }
 
-  const pauseTimers = useUntrackedCallback(() => {
+  const pauseTimers = useStableCallback(() => {
     if (isPausedRef.current) {
       return;
     }
@@ -110,7 +110,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     });
   });
 
-  const resumeTimers = useUntrackedCallback(() => {
+  const resumeTimers = useStableCallback(() => {
     if (!isPausedRef.current) {
       return;
     }
@@ -126,7 +126,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     });
   });
 
-  const close = useUntrackedCallback((toastId: string) => {
+  const close = useStableCallback((toastId: string) => {
     setToasts((prevToasts) => {
       const toastsWithEnding = prevToasts.map((toast) =>
         toast.id === toastId ? { ...toast, transitionStatus: 'ending' as const, height: 0 } : toast,
@@ -160,13 +160,13 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     }
   });
 
-  const remove = useUntrackedCallback((toastId: string) => {
+  const remove = useStableCallback((toastId: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== toastId));
     const toast = toasts.find((t) => t.id === toastId);
     toast?.onRemove?.();
   });
 
-  const scheduleTimer = useUntrackedCallback((id: string, delay: number, callback: () => void) => {
+  const scheduleTimer = useStableCallback((id: string, delay: number, callback: () => void) => {
     const start = Date.now();
 
     const shouldStartActive =
@@ -188,7 +188,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     });
   });
 
-  const add = useUntrackedCallback(
+  const add = useStableCallback(
     <Data extends object>(toast: useToastManager.AddOptions<Data>): string => {
       const id = toast.id || generateId('toast');
       const toastToAdd: ToastObject<Data> = {
@@ -229,7 +229,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     },
   );
 
-  const update = useUntrackedCallback(
+  const update = useStableCallback(
     <Data extends object>(id: string, updates: useToastManager.UpdateOptions<Data>) => {
       setToasts((prev) =>
         prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
@@ -237,7 +237,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     },
   );
 
-  const promise = useUntrackedCallback(
+  const promise = useStableCallback(
     <Value, Data extends object>(
       promiseValue: Promise<Value>,
       options: useToastManager.PromiseOptions<Value, Data>,
