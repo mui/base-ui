@@ -4,7 +4,7 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { DialogStore } from '../DialogStore';
+import { DialogHandle, DialogStore } from '../DialogStore';
 import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
 
 /**
@@ -31,7 +31,7 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   const parentDialogRootContext = useDialogRootContext(true);
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => handle ?? new DialogStore<Payload>()).current;
+  const store = useRefWithInit(() => handle?.store ?? new DialogStore<Payload>()).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
@@ -102,7 +102,7 @@ export interface DialogRootProps<Payload = unknown> {
    * A handle to associate the popover with a trigger.
    * If specified, allows external triggers to control the popover's open state.
    */
-  handle?: DialogStore<Payload>;
+  handle?: DialogHandle<Payload>;
   /**
    * The content of the dialog.
    * This can be a regular React node or a render function that receives the `payload` of the active trigger.
