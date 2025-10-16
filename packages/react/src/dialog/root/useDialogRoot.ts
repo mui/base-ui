@@ -46,15 +46,12 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   useIsoLayoutEffect(() => {
     if (open) {
-      if (resolvedTriggerId != null) {
-        store.set('activeTriggerId', resolvedTriggerId);
-        const triggerMetadata = triggerElements.get(resolvedTriggerId);
-        store.set('payload', triggerMetadata?.getPayload?.() ?? undefined);
-      } else {
+      store.set('activeTriggerId', resolvedTriggerId);
+      if (resolvedTriggerId == null) {
         store.set('payload', undefined);
       }
     }
-  }, [store, resolvedTriggerId, triggerElements, open]);
+  }, [store, resolvedTriggerId, open]);
 
   const {
     openMethod,
@@ -103,7 +100,11 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   );
 
   const context = useFloatingRootContext({
-    elements: { reference: triggerElement, floating: popupElement },
+    elements: {
+      reference: triggerElement,
+      floating: popupElement,
+      triggers: Array.from(triggerElements.values()),
+    },
     open,
     onOpenChange: store.setOpen,
     noEmit: true,

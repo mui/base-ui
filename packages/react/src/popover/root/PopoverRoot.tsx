@@ -86,15 +86,12 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   useIsoLayoutEffect(() => {
     if (open) {
-      if (resolvedTriggerId != null) {
-        store.set('activeTriggerId', resolvedTriggerId);
-        const triggerMetadata = triggerElements.get(resolvedTriggerId);
-        store.set('payload', triggerMetadata?.getPayload?.() ?? undefined);
-      } else {
+      store.set('activeTriggerId', resolvedTriggerId);
+      if (resolvedTriggerId == null) {
         store.set('payload', undefined);
       }
     }
-  }, [store, resolvedTriggerId, triggerElements, open]);
+  }, [store, resolvedTriggerId, open]);
 
   useScrollLock({
     enabled: open && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch',
@@ -221,9 +218,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     elements: {
       reference: activeTriggerElement,
       floating: positionerElement,
-      triggers: Array.from(triggerElements.values()).map(
-        (triggerMetadata) => triggerMetadata.element,
-      ),
+      triggers: Array.from(triggerElements.values()),
     },
     open,
     onOpenChange: setOpen,
