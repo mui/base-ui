@@ -2045,12 +2045,12 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('Field.Label', async () => {
       await render(
         <Field.Root>
-          <Slider.Root data-testid="slider">
+          <Slider.Root>
             <Slider.Control>
               <Slider.Thumb />
             </Slider.Control>
           </Slider.Root>
-          <Field.Label data-testid="label" render={<span />} />
+          <Field.Label data-testid="label" />
         </Field.Root>,
       );
 

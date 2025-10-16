@@ -5,6 +5,7 @@ import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../../form/FormContext';
+import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -39,10 +40,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   const validate = useEventCallback(validateProp || (() => null));
 
   const disabled = disabledFieldset || disabledProp;
-
-  const [controlId, setControlId] = React.useState<string | null | undefined>(undefined);
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
-  const [messageIds, setMessageIds] = React.useState<string[]>([]);
 
   const [touchedState, setTouchedUnwrapped] = React.useState(false);
   const [dirtyState, setDirtyUnwrapped] = React.useState(false);
@@ -101,12 +98,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
       invalid,
-      controlId,
-      setControlId,
-      labelId,
-      setLabelId,
-      messageIds,
-      setMessageIds,
       name,
       validityData,
       setValidityData,
@@ -127,9 +118,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     }),
     [
       invalid,
-      controlId,
-      labelId,
-      messageIds,
       name,
       validityData,
       disabled,
@@ -155,7 +143,11 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     stateAttributesMapping: fieldValidityMapping,
   });
 
-  return <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>;
+  return (
+    <LabelableProvider>
+      <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>
+    </LabelableProvider>
+  );
 });
 
 export interface FieldValidityData {
