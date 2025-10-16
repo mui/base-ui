@@ -13,6 +13,7 @@ interface Settings {
   modal: boolean;
   dismissible: boolean;
   keepMounted: boolean;
+  renderBackdrop?: boolean;
 }
 
 const dialogContents = {
@@ -238,7 +239,7 @@ function renderDialogContent(contentKey: keyof typeof dialogContents, settings: 
 
   return (
     <Dialog.Portal keepMounted={settings.keepMounted}>
-      <Dialog.Backdrop className={demoStyles.Backdrop} />
+      {settings.renderBackdrop && <Dialog.Backdrop className={demoStyles.Backdrop} />}
       <Dialog.Popup className={demoStyles.Popup}>
         <Dialog.Title className={demoStyles.Title}>{contentKey}</Dialog.Title>
         <Dialog.Description className={demoStyles.Description}>
@@ -271,6 +272,11 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     type: 'boolean',
     label: 'Keep mounted',
     default: false,
+  },
+  renderBackdrop: {
+    type: 'boolean',
+    label: 'Render backdrop',
+    default: true,
   },
 };
 
