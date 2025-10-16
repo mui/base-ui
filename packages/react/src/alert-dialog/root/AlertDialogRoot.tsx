@@ -29,7 +29,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   const parentDialogRootContext = useDialogRootContext();
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => handle ?? new DialogStore<Payload>()).current;
+  const store = useRefWithInit(() => handle?.store ?? new DialogStore<Payload>()).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);

@@ -41,15 +41,13 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     store.set('mounted', mounted);
     if (!mounted) {
       store.set('activeTriggerId', null);
+      store.set('payload', undefined);
     }
   }, [store, mounted]);
 
   useIsoLayoutEffect(() => {
     if (open) {
       store.set('activeTriggerId', resolvedTriggerId);
-      if (resolvedTriggerId == null) {
-        store.set('payload', undefined);
-      }
     }
   }, [store, resolvedTriggerId, open]);
 

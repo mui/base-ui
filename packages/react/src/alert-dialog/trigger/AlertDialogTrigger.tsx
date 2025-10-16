@@ -7,7 +7,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
-import { DialogStore } from '../../dialog/DialogStore';
+import { DialogHandle } from '../../dialog/DialogStore';
 import { useTriggerRegistration } from '../../utils/popupStoreUtils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useClick, useInteractions } from '../../floating-ui-react';
@@ -34,7 +34,7 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   } = componentProps;
 
   const dialogRootContext = useDialogRootContext(true);
-  const store = handle ?? dialogRootContext?.store;
+  const store = handle?.store ?? dialogRootContext?.store;
 
   if (!store) {
     throw new Error(
@@ -101,7 +101,7 @@ export interface AlertDialogTriggerProps<Payload = unknown>
   /**
    * A handle to associate the trigger with a popover.
    */
-  handle?: DialogStore<Payload>;
+  handle?: DialogHandle<Payload>;
   /**
    * A payload to pass to the popover when it is opened.
    */
