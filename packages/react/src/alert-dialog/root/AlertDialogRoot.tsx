@@ -5,6 +5,7 @@ import { useDialogRoot } from '../../dialog/root/useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { DialogStore } from '../../dialog/store/DialogStore';
+import { DialogHandle } from '../../dialog/store/DialogHandle';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 
 /**
@@ -57,7 +58,10 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
 }
 
 export interface AlertDialogRootProps<Payload = unknown>
-  extends Omit<DialogRoot.Props<Payload>, 'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef'> {
+  extends Omit<
+    DialogRoot.Props<Payload>,
+    'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef' | 'handle'
+  > {
   /**
    * Event handler called when the dialog is opened or closed.
    */
@@ -69,6 +73,12 @@ export interface AlertDialogRootProps<Payload = unknown>
    * Useful when the dialog's animation is controlled by an external library.
    */
   actionsRef?: React.RefObject<AlertDialogRoot.Actions>;
+  /**
+   * A handle to associate the popover with a trigger.
+   * If specified, allows external triggers to control the popover's open state.
+   * Can be created with the AlertDialog.createHandle() method.
+   */
+  handle?: DialogHandle<Payload>;
 }
 
 export type AlertDialogRootActions = DialogRoot.Actions;

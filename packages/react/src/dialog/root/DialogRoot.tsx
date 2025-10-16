@@ -102,6 +102,7 @@ export interface DialogRootProps<Payload = unknown> {
   /**
    * A handle to associate the popover with a trigger.
    * If specified, allows external triggers to control the popover's open state.
+   * Can be created with the Dialog.createHandle() method.
    */
   handle?: DialogHandle<Payload>;
   /**

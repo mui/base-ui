@@ -99,11 +99,12 @@ export interface DialogTriggerProps<Payload = unknown>
   extends NativeButtonProps,
     BaseUIComponentProps<'button', DialogTrigger.State> {
   /**
-   * A handle to associate the trigger with a popover.
+   * A handle to associate the trigger with a dialog.
+   * Can be created with the Dialog.createHandle() method.
    */
   handle?: DialogHandle<Payload>;
   /**
-   * A payload to pass to the popover when it is opened.
+   * A payload to pass to the dialog when it is opened.
    */
   payload?: Payload;
   /**
