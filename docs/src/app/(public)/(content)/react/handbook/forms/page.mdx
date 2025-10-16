@@ -3,7 +3,7 @@
 <Subtitle>A guide to building forms with Base UI components.</Subtitle>
 <Meta name="description" content="A guide to buildling forms with Base UI components." />
 
-Base UI form control components extend the native [constraint validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api), to enable building forms that collect user input or provide control over an interface.
+Base UI form control components extend the native [constraint validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api) to enable building forms for collecting user input or providing control over an interface.
 
 TODO: kitchen sink demo here?
 
@@ -11,11 +11,11 @@ TODO: kitchen sink demo here?
 
 Form controls must have an accessible name in order to be recognized by assistive technologies. `<Field.Label>` and `<Field.Description>` will automatically assign the accessible name and description to their associated control:
 
-```tsx {3-4, 9-10}
+```tsx {3-4, 9-10} title="Labelling select and slider"
 <Form>
   <Field.Root>
     <Field.Label>Time zone</Field.Label>
-    <Field.Description>Used for notifications and reminderss</Field.Description>
+    <Field.Description>Used for notifications and reminders</Field.Description>
     <Select.Root />
   </Field.Root>
 
@@ -29,7 +29,7 @@ Form controls must have an accessible name in order to be recognized by assistiv
 
 `<Checkbox>`, `<Radio>` and `<Switch>` components can be implicitly labelled by enclosing them with `<Field.Label>`:
 
-```tsx
+```tsx title="Implicitly labelling a switch"
 <Field.Root>
   <Field.Label>
     <Switch />
@@ -39,9 +39,9 @@ Form controls must have an accessible name in order to be recognized by assistiv
 </Field.Root>
 ```
 
-`<Fieldset>` should be used to group and label controls containing multiple `<input>` elements such as `<CheckboxGroup>`, `<RadioGroup>` and multi-thumb `<Slider>`s:
+Compose `<Fieldset>` with controls containing multiple `<input>` elements such as `<CheckboxGroup>`, `<RadioGroup>` and multi-thumb `<Slider>`s, using `<Fieldset.Legend>` to label the group:
 
-```tsx {3-4, 11, 15-16, 19}
+```tsx {3-4, 11, 15-16, 19} title="Composing range slider and radio group with fieldset"
 <Form>
   <Field.Root>
     <Fieldset.Root render={<Slider.Root />}>
@@ -65,9 +65,9 @@ Form controls must have an accessible name in order to be recognized by assistiv
 </Form>
 ```
 
-Optionally use `<Field.Item>` in checkbox or radio groups to enable individual naming of each control:
+Optionally use `<Field.Item>` in checkbox or radio groups to individually label each control when not implicitly labelled:
 
-```tsx
+```tsx title="Explicitly labelling checkboxes in a checkbox group"
 <Field.Root>
   <Fieldset.Root render={<CheckboxGroup />}>
     <Fieldset.Legend>Backup schedule</Fieldset.Legend>
@@ -89,9 +89,9 @@ Optionally use `<Field.Item>` in checkbox or radio groups to enable individual n
 
 ### Building form fields
 
-Pass the `name` prop to `<Field.Root>` and its value will be included when a parent form is submitted:
+Pass the `name` prop to `<Field.Root>` and the wrapped control's value will be included when a parent form is submitted:
 
-```tsx {2}
+```tsx {2} title="Assigning field name to combobox"
 <Form>
   <Field.Root name="country">
     <Field.Label>Country of residence</Field.Label>
@@ -104,43 +104,64 @@ Pass the `name` prop to `<Field.Root>` and its value will be included when a par
 
 Base UI form components support native HTML validation attributes for many validation rules:
 
-- `required` specifies a required field
-- `minLength` and `maxLength` specify a valid length for text input
-- `pattern` specifies a regular expression that the field value must match
-- `step` specifies an increment that numeric field values must be an integral multiple of
+- `required` specifies a required field.
+- `minLength` and `maxLength` specify a valid length for text fields.
+- `pattern` specifies a regular expression that the field value must match.
+- `step` specifies an increment that numeric field values must be an integral multiple of.
+  {/* `min/max` for numeric values don't work yet https://github.com/mui/base-ui/issues/1845 */}
 
-```tsx
+```tsx title="Defining constraint validation on a text field"
 <Field.Root name="website">
   <Field.Control type="url" required pattern="https?://.*" />
+  <Field.Error />
 </Field.Root>
 ```
 
 ### Custom validation
 
-Custom validation logic can be added by passing a validation function to the `validate` prop, which runs after native validations have passed:
+Custom validation logic can be added by passing a synchronous or asynchronous validation function to the `validate` prop, which runs after native validations have passed.
 
-```tsx {5-6, 8-9}
+The `validationMode` prop can be used to configure when validation is performed:
+
+- `onBlur` (default) validates the field when focus moves away.
+- `onChange` validates the field when the value changes, e.g. after each keypress in a text field or when a checkbox is checked or unchecked.
+
+`validationDebounceTime` can be useful for debouncing asynchronous validations or text fields that validate `onChange`.
+
+```tsx {3-5} title="Text input using custom asynchronous validation"
 <Field.Root
   name="username"
-  validate={(value) => {
+  validationMode="onChange"
+  validationDebounceTime={300}
+  validate={async (value) => {
     if (value === 'admin') {
       /* return an error message when invalid */
-      return 'Reserved for system use';
+      return 'Reserved for system use.';
     }
+
+    const result = await fetch(
+      {/* prettier-ignore */},
+      /* check the availability of a username from an external API */
+    );
+
+    if (!result) {
+      return `${value} is unavailable.`;
+    }
+
     /* return `null` when valid */
     return null;
   }}
 >
   <Field.Control required minLength={3} />
+  <Field.Error />
 </Field.Root>
 ```
 
 ### Displaying errors
 
-Use `<Field.Error />` without `children` to automatically display the field's native error message when invalid. The `match` prop can be used to customize the message based on the validity state:
+Use `<Field.Error>` without `children` to automatically display the field's native error message when invalid. The `match` prop can be used to customize the message based on the validity state, and manage internationalization from your application logic:
 
-```tsx
-// custom `required` error message
+```tsx title="Customizing error message for a required field"
 <Field.Error match="valueMissing">You must create a username</Field.Error>
 ```
 
@@ -148,12 +169,11 @@ Use `<Field.Error />` without `children` to automatically display the field's na
 
 Once the form passes validation, your app can take over form submission in `onSubmit`:
 
-```tsx
+```tsx {2-6} title="Submitting a form to an external API"
 <Form
   onSubmit={async (event) => {
     // Prevent the browser's default full-page refresh
     event.preventDefault();
-
     // Create a FormData object
     const formData = new FormData(event.currentTarget);
 
@@ -172,7 +192,7 @@ Once the form passes validation, your app can take over form submission in `onSu
 
 ## React Hook Form
 
-React Hook Form can be integrated with Base UI to externally manage form and field state for your existing components.
+[React Hook Form](https://react-hook-form.com) can be integrated with Base UI to externally manage form and field state for your existing components.
 
 TODO: RHF kitchen sink demo here?
 
@@ -180,7 +200,7 @@ TODO: RHF kitchen sink demo here?
 
 Initialize the form with the `useForm` hook, assigning the initial value of each field by their name in the `defaultValues` parameter:
 
-```tsx
+```tsx title="Initializing a React Hook Form instance"
 import { useForm } from 'react-hook-form';
 
 const { control, handleSubmit } = useForm<FormValues>({
@@ -195,12 +215,12 @@ const { control, handleSubmit } = useForm<FormValues>({
 
 Use the `<Controller>` component to integrate with any `<Field>` component, forwarding the various `field` and `fieldState` render props to the appropriate part:
 
-```tsx {10-14,21-24}
+```tsx {10-14,21-24} title="Integrating React Hook Form's controller component with Base UI field"
 import { useForm, Controller } from "react-hook-form"
 
 const { control, handleSubmit} = useForm({
   defaultValues: {
-    // default values
+    username: '',
   }
 })
 
@@ -226,11 +246,13 @@ const { control, handleSubmit} = useForm({
 />
 ```
 
-### Client-side validation
+### Field validation
 
 Specify `rules` on the `<Controller>` in the same format as [`register`](https://react-hook-form.com/docs/useform/register) options, and use the `match` prop to delegate control of the error rendering:
 
-```tsx {2-11, 28-30}
+```tsx {4-13, 30-32} title="Defining validation rules and displaying errors"
+import { Controller } from "react-hook-form"
+
 <Controller
   rules={{
     required: 'This is a required field',
@@ -270,7 +292,9 @@ Specify `rules` on the `<Controller>` in the same format as [`register`](https:/
 
 Wrap your submit handler function with `handleSubmit` to receive the form values as a JS object for further handling:
 
-```tsx
+```tsx title="Form submission with React Hook Form's submit handler"
+import { useForm } from 'react-hook-form';
+
 const { handleSubmit } = useForm<FormValues>();
 
 async function submitForm(data: FormValues) {
