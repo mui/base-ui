@@ -29,8 +29,8 @@
       "detailedType": "string | null | undefined"
     },
     "handle": {
-      "type": "DialogStore<Payload>",
-      "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.",
+      "type": "DialogHandle<Payload>",
+      "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.\nCan be created with the AlertDialog.createHandle() method.",
       "detailedType": "{} | undefined"
     },
     "onOpenChangeComplete": {

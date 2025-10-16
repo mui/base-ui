@@ -3,8 +3,8 @@
   "description": "A button that opens the alert dialog.\nRenders a `<button>` element.",
   "props": {
     "handle": {
-      "type": "DialogStore<Payload>",
-      "description": "A handle to associate the trigger with a popover.",
+      "type": "DialogHandle<Payload>",
+      "description": "A handle to associate the trigger with a dialog.\nCan be created with the AlertDialog.createHandle() method.",
       "detailedType": "{} | undefined"
     },
     "nativeButton": {
@@ -15,7 +15,7 @@
     },
     "payload": {
       "type": "Payload",
-      "description": "A payload to pass to the popover when it is opened.",
+      "description": "A payload to pass to the dialog when it is opened.",
       "detailedType": "Payload | undefined"
     },
     "style": {
