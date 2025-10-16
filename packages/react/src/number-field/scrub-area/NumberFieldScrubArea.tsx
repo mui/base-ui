@@ -3,8 +3,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerWindow, ownerDocument } from '@base-ui-components/utils/owner';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
@@ -51,7 +51,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     valueRef,
   } = useNumberFieldRootContext();
 
-  const latestValueRef = useLatestRef(value);
+  const latestValueRef = useUntrackedRef(value);
 
   const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
 
@@ -77,7 +77,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     }
   }
 
-  const onScrub = useEventCallback(({ movementX, movementY }: PointerEvent) => {
+  const onScrub = useUntrackedCallback(({ movementX, movementY }: PointerEvent) => {
     const virtualCursor = scrubAreaCursorRef.current;
     const scrubAreaEl = scrubAreaRef.current;
 
@@ -113,7 +113,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     updateCursorTransform(newCoords.x, newCoords.y);
   });
 
-  const onScrubbingChange = useEventCallback(
+  const onScrubbingChange = useUntrackedCallback(
     (scrubbingValue: boolean, { clientX, clientY }: PointerEvent) => {
       ReactDOM.flushSync(() => {
         setIsScrubbing(scrubbingValue);

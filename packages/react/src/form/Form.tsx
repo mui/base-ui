@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import type { BaseUIComponentProps } from '../utils/types';
 import { FormContext } from './FormContext';
 import { useRenderElement } from '../utils/useRenderElement';
@@ -23,7 +23,7 @@ export const Form = React.forwardRef(function Form(
   });
   const submittedRef = React.useRef(false);
 
-  const focusControl = useEventCallback((control: HTMLElement) => {
+  const focusControl = useUntrackedCallback((control: HTMLElement) => {
     control.focus();
     if (control.tagName === 'INPUT') {
       (control as HTMLInputElement).select();
@@ -76,7 +76,7 @@ export const Form = React.forwardRef(function Form(
     ],
   });
 
-  const clearErrors = useEventCallback((name: string | undefined) => {
+  const clearErrors = useUntrackedCallback((name: string | undefined) => {
     if (name && errors && EMPTY_OBJECT.hasOwnProperty.call(errors, name)) {
       const nextErrors = { ...errors };
       delete nextErrors[name];

@@ -1,6 +1,6 @@
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
 import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form/FormContext';
 import { useFieldRootContext } from './root/FieldRootContext';
@@ -10,7 +10,7 @@ export function useField(params: useField.Parameters) {
   const { invalid, markedDirtyRef, validityData, setValidityData } = useFieldRootContext();
   const { enabled = true, value, id, name, controlRef, commitValidation } = params;
 
-  const getValueRef = useLatestRef(params.getValue);
+  const getValueRef = useUntrackedRef(params.getValue);
 
   useIsoLayoutEffect(() => {
     if (!enabled) {

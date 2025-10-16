@@ -2,7 +2,12 @@
 import { useIsoLayoutEffect } from './useIsoLayoutEffect';
 import { useRefWithInit } from './useRefWithInit';
 
-export function useLatestRef<T>(value: T) {
+/**
+ * Untracks the provided value, removing its reactivity by turning it into a ref so it becomes stable between renders.
+ *
+ * Used to access the passed value inside `React.useEffect` without causing the effect to re-run when the value changes.
+ */
+export function useUntrackedRef<T>(value: T) {
   const latest = useRefWithInit(createLatestRef, value).current;
 
   latest.next = value;

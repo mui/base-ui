@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { type FocusableElement } from 'tabbable';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
@@ -118,7 +118,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const localProps = useInteractions([click, hover]);
 
-  const getPayload = useEventCallback(() => {
+  const getPayload = useUntrackedCallback(() => {
     return payload;
   });
 
@@ -188,7 +188,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const preFocusGuardRef = React.useRef<HTMLElement>(null);
 
-  const handlePreFocusGuardFocus = useEventCallback((event: React.FocusEvent) => {
+  const handlePreFocusGuardFocus = useUntrackedCallback((event: React.FocusEvent) => {
     ReactDOM.flushSync(() => {
       store.setOpen(
         false,
@@ -206,7 +206,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     previousTabbable?.focus();
   });
 
-  const handleFocusTargetFocus = useEventCallback((event: React.FocusEvent) => {
+  const handleFocusTargetFocus = useUntrackedCallback((event: React.FocusEvent) => {
     if (positionerElement && isOutsideEvent(event, positionerElement)) {
       store.context.beforeContentFocusGuardRef.current?.focus();
     } else {

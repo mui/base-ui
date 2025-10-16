@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps, HTMLProps, Orientation } from '../utils/types';
@@ -60,7 +60,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     state: 'value',
   });
 
-  const setGroupValue = useEventCallback(
+  const setGroupValue = useUntrackedCallback(
     (newValue: string, nextPressed: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => {
       let newGroupValue: any[] | undefined;
       if (multiple) {

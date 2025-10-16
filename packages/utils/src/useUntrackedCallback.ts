@@ -25,7 +25,16 @@ type Stable<T extends Callback> = {
   effect: () => void;
 };
 
-export function useEventCallback<T extends Callback>(callback: T | undefined): T {
+/**
+ * Untracks the provided function by removing its reactivity and stabilizing its reference so it's always the same between renders.
+ *
+ * It can safely be passed as a dependency of `React.useMemo` and `React.useEffect` without re-triggering them.
+ *
+ * The untracked function must only be called inside effects and event handlers, never during render (which throws an error).
+ *
+ * This hook is a more permissive version of React 19.2's `React.useEffectEvent` in that it can be passed through contexts and called in event handler props, not just effects.
+ */
+export function useUntrackedCallback<T extends Callback>(callback: T | undefined): T {
   const stable = useRefWithInit(createStableCallback).current;
   stable.next = callback;
   useSafeInsertionEffect(stable.effect);

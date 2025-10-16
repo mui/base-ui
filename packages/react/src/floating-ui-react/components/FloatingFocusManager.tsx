@@ -2,8 +2,8 @@ import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
@@ -261,8 +261,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     elements: { domReference, floating, triggers },
   } = context;
 
-  const getNodeId = useEventCallback(() => dataRef.current.floatingContext?.nodeId);
-  const getInsideElements = useEventCallback(getInsideElementsProp);
+  const getNodeId = useUntrackedCallback(() => dataRef.current.floatingContext?.nodeId);
+  const getInsideElements = useUntrackedCallback(getInsideElementsProp);
 
   const ignoreInitialFocus = initialFocus === false;
   // If the reference is a combobox and is typeable (e.g. input/textarea),
@@ -272,10 +272,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   // start.
   const isUntrappedTypeableCombobox = isTypeableCombobox(domReference) && ignoreInitialFocus;
 
-  const orderRef = useLatestRef(order);
-  const initialFocusRef = useLatestRef(initialFocus);
-  const returnFocusRef = useLatestRef(returnFocus);
-  const openInteractionTypeRef = useLatestRef(openInteractionType);
+  const orderRef = useUntrackedRef(order);
+  const initialFocusRef = useUntrackedRef(initialFocus);
+  const returnFocusRef = useUntrackedRef(returnFocus);
+  const openInteractionTypeRef = useUntrackedRef(openInteractionType);
 
   const tree = useFloatingTree();
   const portalContext = usePortalContext();
@@ -295,13 +295,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const isInsidePortal = portalContext != null;
   const floatingFocusElement = getFloatingFocusElement(floating);
 
-  const getTabbableContent = useEventCallback(
+  const getTabbableContent = useUntrackedCallback(
     (container: Element | null = floatingFocusElement) => {
       return container ? tabbable(container, getTabbableOptions()) : [];
     },
   );
 
-  const getTabbableElements = useEventCallback((container?: Element) => {
+  const getTabbableElements = useUntrackedCallback((container?: Element) => {
     const content = getTabbableContent(container);
 
     return orderRef.current

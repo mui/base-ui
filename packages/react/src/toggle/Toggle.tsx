@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
@@ -53,7 +53,7 @@ export const Toggle = React.forwardRef(function Toggle(
     state: 'pressed',
   });
 
-  const onPressedChange = useEventCallback(
+  const onPressedChange = useUntrackedCallback(
     (nextPressed: boolean, eventDetails: Toggle.ChangeEventDetails) => {
       groupContext?.setGroupValue?.(value, nextPressed, eventDetails);
       onPressedChangeProp?.(nextPressed, eventDetails);

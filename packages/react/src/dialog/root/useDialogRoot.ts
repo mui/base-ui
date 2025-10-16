@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import {
   useClick,
   useDismiss,
@@ -33,7 +33,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  const handleUnmount = useEventCallback(() => {
+  const handleUnmount = useUntrackedCallback(() => {
     setMounted(false);
     store.context.openChangeComplete?.(false);
     resetOpenInteractionType();

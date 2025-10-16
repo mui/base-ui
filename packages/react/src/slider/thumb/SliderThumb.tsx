@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
@@ -175,7 +175,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   useOnMount(() => setIsMounted(true));
 
-  const getInsetPosition = useEventCallback(() => {
+  const getInsetPosition = useUntrackedCallback(() => {
     const control = controlRef.current;
     const thumb = thumbRef.current;
     if (!control || !thumb) {

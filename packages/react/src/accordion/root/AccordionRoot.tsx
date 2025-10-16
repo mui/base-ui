@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui-components/utils/warn';
 import { BaseUIComponentProps, Orientation } from '../../utils/types';
@@ -66,7 +66,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     return undefined;
   }, [valueProp, defaultValueProp]);
 
-  const onValueChange = useEventCallback(onValueChangeProp);
+  const onValueChange = useUntrackedCallback(onValueChangeProp);
 
   const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
 
@@ -77,7 +77,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     state: 'value',
   });
 
-  const handleValueChange = useEventCallback((newValue: number | string, nextOpen: boolean) => {
+  const handleValueChange = useUntrackedCallback((newValue: number | string, nextOpen: boolean) => {
     const details = createChangeEventDetails('none');
     if (!multiple) {
       const nextValue = value[0] === newValue ? [] : [newValue];

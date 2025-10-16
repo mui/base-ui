@@ -2,7 +2,7 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
 
@@ -15,7 +15,7 @@ export type CompositeMetadata<CustomMetadata> = { index?: number | null } & Cust
 export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const { children, elementsRef, labelsRef, onMapChange: onMapChangeProp } = props;
 
-  const onMapChange = useEventCallback(onMapChangeProp);
+  const onMapChange = useUntrackedCallback(onMapChangeProp);
 
   const nextIndexRef = React.useRef(0);
   const listeners = useRefWithInit(createListeners).current;
@@ -33,13 +33,13 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const [mapTick, setMapTick] = React.useState(0);
   const lastTickRef = React.useRef(mapTick);
 
-  const register = useEventCallback((node: Element, metadata: Metadata) => {
+  const register = useUntrackedCallback((node: Element, metadata: Metadata) => {
     map.set(node, metadata ?? null);
     lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
   });
 
-  const unregister = useEventCallback((node: Element) => {
+  const unregister = useUntrackedCallback((node: Element) => {
     map.delete(node);
     lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
@@ -118,7 +118,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     };
   }, [labelsRef]);
 
-  const subscribeMapChange = useEventCallback((fn) => {
+  const subscribeMapChange = useUntrackedCallback((fn) => {
     listeners.add(fn);
     return () => {
       listeners.delete(fn);

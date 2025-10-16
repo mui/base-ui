@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import { useAnimationsFinished } from './useAnimationsFinished';
 import { getCssDimensions } from './getCssDimensions';
 import { Dimensions } from '../floating-ui-react/types';
@@ -25,8 +25,8 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
   const animationFrame = useAnimationFrame();
   const previousDimensionsRef = React.useRef<Dimensions | null>(null);
 
-  const onMeasureLayout = useEventCallback(onMeasureLayoutParam);
-  const onMeasureLayoutComplete = useEventCallback(onMeasureLayoutCompleteParam);
+  const onMeasureLayout = useUntrackedCallback(onMeasureLayoutParam);
+  const onMeasureLayoutComplete = useUntrackedCallback(onMeasureLayoutCompleteParam);
 
   useIsoLayoutEffect(() => {
     // Reset the state when the popup is closed.

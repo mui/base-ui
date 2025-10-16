@@ -1,12 +1,12 @@
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 
 export function useValueChanged<T>(
   valueRef: React.RefObject<T>,
   value: T,
   onChangeParam: (previousValue: T) => void,
 ) {
-  const onChange = useEventCallback(onChangeParam);
+  const onChange = useUntrackedCallback(onChangeParam);
 
   useIsoLayoutEffect(() => {
     if (valueRef.current === value) {

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { TabsRoot } from '../root/TabsRoot';
@@ -50,7 +50,7 @@ export const TabsList = React.forwardRef(function TabsList(
     getTabElementBySelectedValue,
   );
 
-  const onTabActivation = useEventCallback(
+  const onTabActivation = useUntrackedCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
       if (newValue !== value) {
         const activationDirection = detectActivationDirection(newValue);

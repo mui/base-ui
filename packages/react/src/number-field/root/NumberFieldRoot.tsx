@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useUntrackedCallback } from '@base-ui-components/utils/useUntrackedCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useInterval } from '@base-ui-components/utils/useInterval';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useUntrackedRef } from '@base-ui-components/utils/useUntrackedRef';
 import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isIOS } from '@base-ui-components/utils/detectBrowser';
@@ -105,7 +105,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   });
 
   const value = valueUnwrapped ?? null;
-  const valueRef = useLatestRef(value);
+  const valueRef = useUntrackedRef(value);
 
   useIsoLayoutEffect(() => {
     setFilled(value !== null);
@@ -113,11 +113,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const forceRender = useForcedRerendering();
 
-  const formatOptionsRef = useLatestRef(format);
+  const formatOptionsRef = useUntrackedRef(format);
 
   const hasPendingCommitRef = React.useRef(false);
 
-  const onValueCommitted = useEventCallback(
+  const onValueCommitted = useUntrackedCallback(
     (nextValue: number | null, eventDetails: NumberFieldRoot.CommitEventDetails) => {
       hasPendingCommitRef.current = false;
       onValueCommittedProp?.(nextValue, eventDetails);
@@ -152,7 +152,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   });
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
-  const getAllowedNonNumericKeys = useEventCallback(() => {
+  const getAllowedNonNumericKeys = useUntrackedCallback(() => {
     const { decimal, group, currency } = getNumberLocaleDetails(locale, format);
 
     const keys = new Set<string>();
@@ -192,7 +192,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     return keys;
   });
 
-  const getStepAmount = useEventCallback((event?: EventWithOptionalKeyState) => {
+  const getStepAmount = useUntrackedCallback((event?: EventWithOptionalKeyState) => {
     if (event?.altKey) {
       return smallStep;
     }
@@ -202,7 +202,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     return step;
   });
 
-  const setValue = useEventCallback(
+  const setValue = useUntrackedCallback(
     (unvalidatedValue: number | null, event?: React.MouseEvent | Event, dir?: 1 | -1) => {
       const eventWithOptionalKeyState = event as EventWithOptionalKeyState;
       const nativeEvent = event && isReactEvent(event) ? event.nativeEvent : event;
@@ -252,7 +252,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     },
   );
 
-  const incrementValue = useEventCallback(
+  const incrementValue = useUntrackedCallback(
     (
       amount: number,
       dir: 1 | -1,
@@ -266,7 +266,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     },
   );
 
-  const stopAutoChange = useEventCallback(() => {
+  const stopAutoChange = useUntrackedCallback(() => {
     intentionalTouchCheckTimeout.clear();
     startTickTimeout.clear();
     tickInterval.clear();
@@ -274,7 +274,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     movesAfterTouchRef.current = 0;
   });
 
-  const startAutoChange = useEventCallback(
+  const startAutoChange = useUntrackedCallback(
     (isIncrement: boolean, triggerEvent?: React.MouseEvent | Event) => {
       stopAutoChange();
 
