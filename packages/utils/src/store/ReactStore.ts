@@ -23,7 +23,6 @@ export class ReactStore<
 
   /**
    * Non-reactive values such as refs, callbacks, etc.
-   * Unlike `state`, this property can be accessed directly.
    */
   public readonly context: Context;
 
@@ -35,7 +34,10 @@ export class ReactStore<
   private selectors: Selectors | undefined;
 
   /**
-   * Synchronizes a single external value into the store during layout phase.
+   * Synchronizes a single external value into the store.
+   *
+   * Note that the while the value in `state` is updated immediately, the value returned
+   * by `useState` is updated before the next render (similarly to React's `useState`).
    */
   public useSyncedValue<Key extends keyof State, Value extends State[Key]>(
     key: keyof State,
@@ -49,8 +51,11 @@ export class ReactStore<
   }
 
   /**
-   * Synchronizes a single external value into the store during layout phase and
+   * Synchronizes a single external value into the store and
    * cleans it up (sets to `undefined`) on unmount.
+   *
+   * Note that the while the value in `state` is updated immediately, the value returned
+   * by `useState` is updated before the next render (similarly to React's `useState`).
    */
   public useSyncedValueWithCleanup<Key extends KeysAllowingUndefined<State>>(
     key: Key,
@@ -68,7 +73,10 @@ export class ReactStore<
   }
 
   /**
-   * Synchronizes multiple external values into the store during layout phase.
+   * Synchronizes multiple external values into the store.
+   *
+   * Note that the while the values in `state` are updated immediately, the values returned
+   * by `useState` are updated before the next render (similarly to React's `useState`).
    */
   public useSyncedValues(props: Partial<State>) {
     useIsoLayoutEffect(() => {
