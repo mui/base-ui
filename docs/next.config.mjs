@@ -50,6 +50,29 @@ const rootPackage = loadPackageJson();
 const nextConfig = {
   trailingSlash: false,
   pageExtensions: ['mdx', 'tsx'],
+  turbopack: {
+    rules: {
+      './app/**/types.ts': {
+        as: '*.ts',
+        loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedTypesMeta'],
+      },
+    },
+  },
+  webpack: (config, { defaultLoaders }) => {
+    // for production builds
+    config.module.rules.push({
+      test: /\/types\.ts$/,
+      use: [
+        defaultLoaders.babel,
+        {
+          loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedTypesMeta',
+          options: { performance: { logging: true } },
+        },
+      ],
+    });
+
+    return config;
+  },
   env: {
     // docs-infra
     LIB_VERSION: rootPackage.version,

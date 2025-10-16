@@ -16,6 +16,7 @@ import { processDemo } from './demoProcessor.mjs';
 import { processPropsReferenceTable } from './propsReferenceTableProcessor.mjs';
 import * as mdx from './mdxNodeHelpers.mjs';
 import { resolveMdLinks } from './resolver.mjs';
+import { processTypedoc } from './typedocProcessor.mjs';
 
 /**
  * Plugin to extract metadata from the MDX content
@@ -73,8 +74,52 @@ function transformJsx() {
         'mdxFlowExpression',
         'mdxTextExpression',
         'mdxJsxTextElement',
+        'heading',
       ],
       (node, index, parent) => {
+        if (node.type === 'mdxjsEsm') {
+          if (node.data.estree.type === 'Program') {
+            const estree = node.data.estree;
+            if (estree.body[0].type === 'ImportDeclaration') {
+              // Mark subsequent h3+ headings for removal until we hit an h2 or lower
+              for (let i = index + 1; i < parent.children.length; i += 1) {
+                const nextNode = parent.children[i];
+                if (nextNode.type === 'heading') {
+                  if (nextNode.depth >= 3) {
+                    // Remove h3 headings following the types import
+                    nextNode.data = nextNode.data || {};
+                    nextNode.data.remove = true;
+                  } else {
+                    break;
+                  }
+                }
+              }
+
+              // Handle import declarations in MDX
+              const importPath = estree.body[0].source.value;
+              const demoContent = processTypedoc(node, file.path || '', importPath);
+
+              // Replace the demo component with the generated content
+              parent.children.splice(index, 1, ...demoContent);
+              return visit.CONTINUE;
+            }
+          }
+        }
+
+        if (node.type === 'heading') {
+          if (node.data?.remove) {
+            parent.children.splice(index, 1);
+            return [visit.SKIP, index];
+          }
+          return visit.CONTINUE;
+        }
+
+        if (node.name.startsWith('Type')) {
+          // Remove Type components - they are handled by the import statement
+          parent.children.splice(index, 1);
+          return [visit.SKIP, index];
+        }
+
         // Process different component types
         switch (node.name) {
           case 'Demo': {
