@@ -42,6 +42,7 @@ const triggerLabels = Object.keys(dialogContents) as (keyof typeof dialogContent
 
 const detachedDialog = Dialog.createHandle<keyof typeof dialogContents>();
 const controlledDetachedDialog = Dialog.createHandle<keyof typeof dialogContents>();
+const handleControlledDialog = Dialog.createHandle<keyof typeof dialogContents>();
 
 export default function DialogExperiment() {
   const { settings } = useExperimentSettings<Settings>();
@@ -154,15 +155,6 @@ export default function DialogExperiment() {
         <StyledTrigger handle={detachedDialog} payload={triggerLabels[3]}>
           {triggerLabels[3]}
         </StyledTrigger>
-        <button
-          type="button"
-          className={clsx(demoStyles.Button, styles.Button)}
-          onClick={() => {
-            detachedDialog.open('detached-uncontrolled-second-trigger');
-          }}
-        >
-          Open with the handle (Invites)
-        </button>
       </div>
 
       <h2>Controlled, detached triggers</h2>
@@ -202,14 +194,61 @@ export default function DialogExperiment() {
         >
           Controlled open (Invites)
         </button>
+      </div>
+
+      <h2>Handle-controlled dialog</h2>
+      <div className={styles.Container}>
+        <StyledDialog
+          handle={handleControlledDialog}
+          open={controlledDetachedOpen}
+          onOpenChange={(nextOpen, eventDetails) => {
+            setControlledDetachedOpen(nextOpen);
+            setControlledDetachedTriggerId(eventDetails.trigger?.id ?? null);
+          }}
+          triggerId={controlledDetachedTriggerId}
+        />
+        <StyledTrigger handle={handleControlledDialog} payload={triggerLabels[0]}>
+          {triggerLabels[0]}
+        </StyledTrigger>
+        <StyledTrigger
+          handle={handleControlledDialog}
+          payload={triggerLabels[1]}
+          id="handle-controlled-second-trigger"
+        >
+          {triggerLabels[1]}
+        </StyledTrigger>
+        <StyledTrigger handle={handleControlledDialog} payload={triggerLabels[2]}>
+          {triggerLabels[2]}
+        </StyledTrigger>
+
         <button
           type="button"
           className={clsx(demoStyles.Button, styles.Button)}
           onClick={() => {
-            controlledDetachedDialog.open('detached-second-trigger');
+            handleControlledDialog.open('handle-controlled-second-trigger');
           }}
         >
-          Open with the handle (Invites)
+          Open (Invites)
+        </button>
+
+        <button
+          type="button"
+          className={clsx(demoStyles.Button, styles.Button)}
+          onClick={() => {
+            handleControlledDialog.open(null);
+          }}
+        >
+          Open (unassigned trigger, should display nothing)
+        </button>
+
+        <button
+          type="button"
+          className={clsx(demoStyles.Button, styles.Button)}
+          onClick={() => {
+            handleControlledDialog.openWithPayload('Notifications');
+          }}
+        >
+          Open (unassigned trigger, custom payload)
         </button>
       </div>
     </div>
@@ -259,17 +298,23 @@ function renderDialogContent(contentKey: keyof typeof dialogContents, settings: 
     <Dialog.Portal keepMounted={settings.keepMounted}>
       {settings.renderBackdrop && <Dialog.Backdrop className={demoStyles.Backdrop} />}
       <Dialog.Popup className={demoStyles.Popup} key={contentKey}>
-        <Dialog.Title className={demoStyles.Title}>{contentKey}</Dialog.Title>
-        <Dialog.Description className={demoStyles.Description}>
-          Example dialog for {contentKey}.
-        </Dialog.Description>
-        <div className={styles.DialogSection}>{content}</div>
-        <div className={styles.DialogSection}>
-          <StatefulComponent />
-        </div>
-        <div className={clsx(demoStyles.Actions, styles.Actions)}>
-          <Dialog.Close className={clsx(demoStyles.Button, styles.Button)}>Close</Dialog.Close>
-        </div>
+        {contentKey == null ? (
+          <p>No payload</p>
+        ) : (
+          <React.Fragment>
+            <Dialog.Title className={demoStyles.Title}>{contentKey}</Dialog.Title>
+            <Dialog.Description className={demoStyles.Description}>
+              Example dialog for {contentKey}.
+            </Dialog.Description>
+            <div className={styles.DialogSection}>{content}</div>
+            <div className={styles.DialogSection}>
+              <StatefulComponent />
+            </div>
+            <div className={clsx(demoStyles.Actions, styles.Actions)}>
+              <Dialog.Close className={clsx(demoStyles.Button, styles.Button)}>Close</Dialog.Close>
+            </div>
+          </React.Fragment>
+        )}
       </Dialog.Popup>
     </Dialog.Portal>
   );
