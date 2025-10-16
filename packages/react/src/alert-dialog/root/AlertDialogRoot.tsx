@@ -4,7 +4,7 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { DialogStore } from '../../dialog/DialogStore';
+import { DialogStore } from '../../dialog/store/DialogStore';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 
 /**

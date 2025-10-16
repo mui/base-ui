@@ -2,13 +2,12 @@ import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui-components/utils/store';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { type DialogRoot } from './root/DialogRoot';
-import { type TransitionStatus } from '../utils/useTransitionStatus';
-import type { FloatingUIOpenChangeDetails, HTMLProps } from '../utils/types';
-import { type FloatingRootContext } from '../floating-ui-react/types';
-import { getEmptyContext } from '../floating-ui-react/hooks/useFloatingRootContext';
-import { PopupTriggerMap } from '../utils/popupStoreUtils';
-import { createChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import { type DialogRoot } from '../root/DialogRoot';
+import { type TransitionStatus } from '../../utils/useTransitionStatus';
+import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
+import { type FloatingRootContext } from '../../floating-ui-react/types';
+import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { PopupTriggerMap } from '../../utils/popupStoreUtils';
 
 export type State<Payload> = {
   open: boolean;
@@ -112,59 +111,6 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
       this.set('activeTriggerId', newTriggerId);
     }
   };
-}
-
-export class DialogHandle<Payload> {
-  public readonly store: DialogStore<Payload>;
-
-  constructor() {
-    this.store = new DialogStore<Payload>();
-  }
-
-  /**
-   * Opens the dialog and associates it with the trigger with the given id.
-   * The trigger, if provided, must be a Dialog.Trigger component with this handle passed as a prop.
-   *
-   * @param triggerId ID of the trigger to associate with the dialog. If null, the dialog will open without a trigger association.
-   */
-  open(triggerId: string | null) {
-    const triggerElement = triggerId
-      ? (this.store.state.triggers.get(triggerId) ?? undefined)
-      : undefined;
-
-    if (process.env.NODE_ENV !== 'production' && triggerId && !triggerElement) {
-      console.warn(
-        `Base UI: DialogHandle.open: No trigger found with id "${triggerId}". The dialog will open, but the trigger will not be associated with the dialog.`,
-      );
-    }
-
-    this.store.setOpen(
-      true,
-      createChangeEventDetails('imperative-action', undefined, triggerElement),
-    );
-  }
-
-  /**
-   * Opens the dialog and sets the payload.
-   * Does not associate the dialog with any trigger.
-   *
-   * @param payload Payload to set when opening the dialog.
-   */
-  openWithPayload(payload: Payload) {
-    this.store.set('payload', payload);
-    this.store.setOpen(true, createChangeEventDetails('imperative-action', undefined, undefined));
-  }
-
-  /**
-   * Closes the dialog.
-   */
-  close() {
-    this.store.setOpen(false, createChangeEventDetails('imperative-action', undefined, undefined));
-  }
-}
-
-export function createDialogHandle<Payload>(): DialogHandle<Payload> {
-  return new DialogHandle<Payload>();
 }
 
 function createInitialState<Payload>(): State<Payload> {

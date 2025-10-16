@@ -974,7 +974,7 @@ describe('<Dialog.Root />', () => {
       });
     });
 
-    it('keep the payload reactive', async () => {
+    it('keeps the payload reactive', async () => {
       function App() {
         const [payloads, setPayloads] = React.useState([1, 2]);
 
@@ -1144,7 +1144,7 @@ describe('<Dialog.Root />', () => {
       expect(screen.getByTestId('dialog-popup')).to.equal(popupElement);
     });
 
-    it('keep the payload reactive', async () => {
+    it('keeps the payload reactive', async () => {
       const testDialog = Dialog.createHandle<number>();
       function Triggers() {
         // Setting up triggers in a separate component so payload is in their local state
@@ -1196,6 +1196,122 @@ describe('<Dialog.Root />', () => {
       await user.click(updateButton);
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).to.equal('8');
+      });
+    });
+  });
+
+  describe('imperative actions on the handle', () => {
+    it('opens and closes the dialog', async () => {
+      const dialog = Dialog.createHandle();
+      await render(
+        <div>
+          <Dialog.Trigger handle={dialog} id="trigger">
+            Trigger
+          </Dialog.Trigger>
+          <Dialog.Root handle={dialog}>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="content">Content</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(screen.queryByRole('dialog')).to.equal(null);
+
+      await act(() => dialog.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      expect(screen.getByTestId('content').textContent).to.equal('Content');
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
+
+      await act(() => dialog.close());
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+
+      expect(trigger).to.have.attribute('aria-expanded', 'false');
+    });
+
+    it('sets the payload assosiated with the trigger', async () => {
+      const dialog = Dialog.createHandle<number>();
+      await render(
+        <div>
+          <Dialog.Trigger handle={dialog} id="trigger1" payload={1}>
+            Trigger 1
+          </Dialog.Trigger>
+          <Dialog.Trigger handle={dialog} id="trigger2" payload={2}>
+            Trigger 2
+          </Dialog.Trigger>
+          <Dialog.Root handle={dialog}>
+            {({ payload }: { payload: number | undefined }) => (
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="content">{payload}</Dialog.Popup>
+              </Dialog.Portal>
+            )}
+          </Dialog.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      expect(screen.queryByRole('dialog')).to.equal(null);
+
+      await act(() => dialog.open('trigger2'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(trigger2).to.have.attribute('aria-expanded', 'true');
+      expect(trigger1).not.to.have.attribute('aria-expanded', 'true');
+
+      await act(() => dialog.close());
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+
+      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+    });
+
+    it('sets the payload programmatically', async () => {
+      const dialog = Dialog.createHandle<number>();
+      await render(
+        <div>
+          <Dialog.Trigger handle={dialog} id="trigger1" payload={1}>
+            Trigger 1
+          </Dialog.Trigger>
+          <Dialog.Trigger handle={dialog} id="trigger2" payload={2}>
+            Trigger 2
+          </Dialog.Trigger>
+          <Dialog.Root handle={dialog}>
+            {({ payload }: { payload: number | undefined }) => (
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="content">{payload}</Dialog.Popup>
+              </Dialog.Portal>
+            )}
+          </Dialog.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      expect(screen.queryByRole('dialog')).to.equal(null);
+
+      await act(() => dialog.openWithPayload(8));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      expect(screen.getByTestId('content').textContent).to.equal('8');
+      expect(trigger1).not.to.have.attribute('aria-expanded', 'true');
+      expect(trigger2).not.to.have.attribute('aria-expanded', 'true');
+
+      await act(() => dialog.close());
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
       });
     });
   });
