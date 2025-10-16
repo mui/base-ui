@@ -125,6 +125,6 @@ export interface DialogTriggerState {
 }
 
 export namespace DialogTrigger {
-  export type Props = DialogTriggerProps;
+  export type Props<Payload = unknown> = DialogTriggerProps<Payload>;
   export type State = DialogTriggerState;
 }
