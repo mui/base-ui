@@ -90,6 +90,12 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
       this.context.preventUnmountingOnCloseRef.current = true;
     };
 
+    if (!nextOpen && eventDetails.trigger == null && this.state.activeTriggerId != null) {
+      // When closing the dialog, pass the old trigger to the onOopenChange event
+      // so it's not reset too early (potentially causing focus issues in controlled scenarios).
+      eventDetails.trigger = this.state.triggers.get(this.state.activeTriggerId);
+    }
+
     this.context.openChange?.(nextOpen, eventDetails as DialogRoot.ChangeEventDetails);
 
     if (eventDetails.isCanceled) {
