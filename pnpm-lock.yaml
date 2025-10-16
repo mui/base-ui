@@ -169,6 +169,9 @@ importers:
       '@base-ui-components/utils':
         specifier: workspace:*
         version: link:../packages/utils/build
+      '@date-fns/tz':
+        specifier: ^1.4.1
+        version: 1.4.1
       '@emotion/cache':
         specifier: ^11.14.0
         version: 11.14.0
@@ -208,6 +211,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       es-toolkit:
         specifier: ^1.39.10
         version: 1.40.0
@@ -457,6 +463,9 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(react@19.1.1)
     devDependencies:
+      '@date-fns/tz':
+        specifier: ^1.4.1
+        version: 1.4.1
       '@mui/internal-test-utils':
         specifier: ^2.0.10
         version: 2.0.13(@babel/core@7.28.4)(@playwright/test@1.56.0)(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(chai@6.2.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -472,6 +481,9 @@ importers:
       '@types/chai-dom':
         specifier: ^1.11.3
         version: 1.11.3
+      '@types/luxon':
+        specifier: ^3.7.1
+        version: 3.7.1
       '@types/react':
         specifier: ^19.1.13
         version: 19.1.13
@@ -490,6 +502,12 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
+      luxon:
+        specifier: ^3.7.2
+        version: 3.7.2
       react:
         specifier: ^19.1.1
         version: 19.1.1
@@ -1572,6 +1590,9 @@ packages:
 
   '@dabh/diagnostics@2.0.3':
     resolution: {integrity: sha512-hrlQOIi7hAfzsMqlGSFyVucrx38O+j6wiGOf//H2ecvIEqYN4ADBSS2iLMh5UFyDunCNniUIPk/q3riFv45xRA==}
+
+  '@date-fns/tz@1.4.1':
+    resolution: {integrity: sha512-P5LUNhtbj6YfI3iJjw5EL9eUAG6OitD0W3fWQcpQjDRc/QIsL0tRNuO1PcDvPccWL1fSTXXdE1ds+l95DV/OFA==}
 
   '@dependents/detective-less@5.0.1':
     resolution: {integrity: sha512-Y6+WUMsTFWE5jb20IFP4YGa5IrGY/+a/FbOSjDF/wz9gepU2hwCYSXRHP/vPwBvwcY3SVMASt4yXxbXNXigmZQ==}
@@ -4292,6 +4313,9 @@ packages:
   '@types/katex@0.16.7':
     resolution: {integrity: sha512-HMwFiRujE5PjrgwHQ25+bsLJgowjGjm5Z8FVSf0N6PwgJrwxH0QxzHYDcKsTfV3wva0vzrpqMTJS2jXPr5BMEQ==}
 
+  '@types/luxon@3.7.1':
+    resolution: {integrity: sha512-H3iskjFIAn5SlJU7OuxUmTEpebK6TKB8rxZShDslBMZJ5u9S//KM1sbdAisiSrqwLQncVjnpi2OK2J51h+4lsg==}
+
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
 
@@ -5606,6 +5630,9 @@ packages:
   data-view-byte-offset@1.0.1:
     resolution: {integrity: sha512-BS8PfmtDGnrgYdOonGZQdLZslWIeCGFP9tpan0hi1Co2Zr2NKADsvGYA8XxuG/4UWgJ6Cjtv+YJnB6MM69QGlQ==}
     engines: {node: '>= 0.4'}
+
+  date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
   dateformat@3.0.3:
     resolution: {integrity: sha512-jyCETtSl3VMZMWeRo7iY1FL19ges1t55hMo5yaam4Jrsm5EPL89UQkoQRyiI+Yf4k8r2ZpdngkV8hr1lIdjb3Q==}
@@ -7585,8 +7612,8 @@ packages:
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  luxon@3.7.1:
-    resolution: {integrity: sha512-RkRWjA926cTvz5rAb1BqyWkKbbjzCGchDUIKMCUvNi17j6f6j8uHGDV82Aqcqtzd+icoYpELmG3ksgGiFNNcNg==}
+  luxon@3.7.2:
+    resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
     engines: {node: '>=12'}
 
   lz-string@1.5.0:
@@ -11941,6 +11968,8 @@ snapshots:
       enabled: 2.0.0
       kuler: 2.0.0
 
+  '@date-fns/tz@1.4.1': {}
+
   '@dependents/detective-less@5.0.1':
     dependencies:
       gonzales-pe: 4.3.0
@@ -15096,6 +15125,8 @@ snapshots:
 
   '@types/katex@0.16.7': {}
 
+  '@types/luxon@3.7.1': {}
+
   '@types/mdast@4.0.4':
     dependencies:
       '@types/unist': 3.0.3
@@ -16511,7 +16542,7 @@ snapshots:
 
   cron-parser@4.9.0:
     dependencies:
-      luxon: 3.7.1
+      luxon: 3.7.2
 
   cross-env@10.1.0:
     dependencies:
@@ -16568,6 +16599,8 @@ snapshots:
       call-bound: 1.0.4
       es-errors: 1.3.0
       is-data-view: 1.0.2
+
+  date-fns@4.1.0: {}
 
   dateformat@3.0.3: {}
 
@@ -18859,7 +18892,7 @@ snapshots:
     dependencies:
       react: 19.1.1
 
-  luxon@3.7.1: {}
+  luxon@3.7.2: {}
 
   lz-string@1.5.0: {}
 
