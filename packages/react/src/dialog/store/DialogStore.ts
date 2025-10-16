@@ -10,36 +10,36 @@ import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootCo
 import { PopupTriggerMap } from '../../utils/popupStoreUtils';
 
 export type State<Payload> = {
-  open: boolean;
-  mounted: boolean;
-  modal: boolean | 'trap-focus';
-  dismissible: boolean;
-  transitionStatus: TransitionStatus;
-  openMethod: InteractionType | null;
-  nested: boolean;
-  nestedOpenDialogCount: number;
-  titleElementId: string | undefined;
-  descriptionElementId: string | undefined;
-  activeTriggerId: string | null;
-  popupElement: HTMLElement | null;
-  triggers: PopupTriggerMap;
-  floatingRootContext: FloatingRootContext;
-  payload: Payload | undefined;
-  activeTriggerProps: HTMLProps;
-  inactiveTriggerProps: HTMLProps;
-  popupProps: HTMLProps;
+  readonly open: boolean;
+  readonly mounted: boolean;
+  readonly modal: boolean | 'trap-focus';
+  readonly dismissible: boolean;
+  readonly transitionStatus: TransitionStatus;
+  readonly openMethod: InteractionType | null;
+  readonly nested: boolean;
+  readonly nestedOpenDialogCount: number;
+  readonly titleElementId: string | undefined;
+  readonly descriptionElementId: string | undefined;
+  readonly activeTriggerId: string | null;
+  readonly popupElement: HTMLElement | null;
+  readonly triggers: PopupTriggerMap;
+  readonly floatingRootContext: FloatingRootContext;
+  readonly payload: Payload | undefined;
+  readonly activeTriggerProps: HTMLProps;
+  readonly inactiveTriggerProps: HTMLProps;
+  readonly popupProps: HTMLProps;
 };
 
 type Context = {
-  popupRef: React.RefObject<HTMLElement | null>;
-  backdropRef: React.RefObject<HTMLDivElement | null>;
-  internalBackdropRef: React.RefObject<HTMLDivElement | null>;
-  preventUnmountingOnCloseRef: React.RefObject<boolean>;
+  readonly popupRef: React.RefObject<HTMLElement | null>;
+  readonly backdropRef: React.RefObject<HTMLDivElement | null>;
+  readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
+  readonly preventUnmountingOnCloseRef: React.RefObject<boolean>;
 
-  openChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
-  openChangeComplete?: (open: boolean) => void;
-  nestedDialogOpen?: (ownChildrenCount: number) => void;
-  nestedDialogClose?: () => void;
+  readonly openChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
+  readonly openChangeComplete?: (open: boolean) => void;
+  readonly nestedDialogOpen?: (ownChildrenCount: number) => void;
+  readonly nestedDialogClose?: () => void;
 };
 
 const selectors = {
