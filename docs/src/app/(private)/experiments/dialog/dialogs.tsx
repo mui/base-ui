@@ -240,7 +240,7 @@ function renderDialogContent(contentKey: keyof typeof dialogContents, settings: 
   return (
     <Dialog.Portal keepMounted={settings.keepMounted}>
       {settings.renderBackdrop && <Dialog.Backdrop className={demoStyles.Backdrop} />}
-      <Dialog.Popup className={demoStyles.Popup}>
+      <Dialog.Popup className={demoStyles.Popup} key={contentKey}>
         <Dialog.Title className={demoStyles.Title}>{contentKey}</Dialog.Title>
         <Dialog.Description className={demoStyles.Description}>
           Example dialog for {contentKey}.
