@@ -36,10 +36,10 @@ type Context = {
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly preventUnmountingOnCloseRef: React.RefObject<boolean>;
 
-  readonly openChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
-  readonly openChangeComplete?: (open: boolean) => void;
-  readonly nestedDialogOpen?: (ownChildrenCount: number) => void;
-  readonly nestedDialogClose?: () => void;
+  readonly onOpenChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
+  readonly onOpenChangeComplete?: (open: boolean) => void;
+  readonly onNestedDialogOpen?: (ownChildrenCount: number) => void;
+  readonly onNestedDialogClose?: () => void;
 };
 
 const selectors = {
@@ -91,12 +91,12 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
     };
 
     if (!nextOpen && eventDetails.trigger == null && this.state.activeTriggerId != null) {
-      // When closing the dialog, pass the old trigger to the onOopenChange event
+      // When closing the dialog, pass the old trigger to the onOpenChange event
       // so it's not reset too early (potentially causing focus issues in controlled scenarios).
       eventDetails.trigger = this.state.triggers.get(this.state.activeTriggerId);
     }
 
-    this.context.openChange?.(nextOpen, eventDetails as DialogRoot.ChangeEventDetails);
+    this.context.onOpenChange?.(nextOpen, eventDetails as DialogRoot.ChangeEventDetails);
 
     if (eventDetails.isCanceled) {
       return;
