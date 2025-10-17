@@ -32,7 +32,7 @@ Form controls must have an accessible name in order to be recognized by assistiv
 ```tsx title="Implicitly labelling a switch"
 <Field.Root>
   <Field.Label>
-    <Switch />
+    <Switch.Root />
     Developer mode
     <Field.Description>Enables extra tools for web developers</Field.Description>
   </Field.Label>
@@ -125,7 +125,7 @@ The `validationMode` prop can be used to configure when validation is performed:
 - `onBlur` (default) validates the field when focus moves away.
 - `onChange` validates the field when the value changes, e.g. after each keypress in a text field or when a checkbox is checked or unchecked.
 
-`validationDebounceTime` can be useful for debouncing asynchronous validations or text fields that validate `onChange`.
+`validationDebounceTime` can be useful for debouncing the function in use-cases such as asynchronous requests or text fields that validate `onChange`.
 
 ```tsx {3-5} title="Text input using custom asynchronous validation"
 <Field.Root
@@ -245,7 +245,7 @@ const { control, handleSubmit} = useForm({
 />
 ```
 
-Ensure that custom components wrapping Base UI components are passing `ref`s with `React.forwardRef` to the underlying component, typically using the `inputRef` prop, in order for React Hook Form to focus invalid fields when performing validation.
+In order for React Hook Form to focus invalid fields when performing validation, ensure any wrapping components are forwarding `ref`s to the underlying Base UI component, typically using the `inputRef` prop.
 
 ### Field validation
 
@@ -296,6 +296,11 @@ Wrap your submit handler function with `handleSubmit` to receive the form values
 ```tsx title="Form submission with React Hook Form's submit handler"
 import { useForm } from 'react-hook-form';
 
+interface FormValues {
+  username: string;
+  email: string;
+}
+
 const { handleSubmit } = useForm<FormValues>();
 
 async function submitForm(data: FormValues) {
@@ -303,5 +308,5 @@ async function submitForm(data: FormValues) {
   await fetch(/* ... */);
 }
 
-return <Form onSubmit={handleSubmit(submitForm)} />;
+<Form onSubmit={handleSubmit(submitForm)} />;
 ```
