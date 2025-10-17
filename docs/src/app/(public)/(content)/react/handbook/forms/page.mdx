@@ -108,7 +108,6 @@ Base UI form components support native HTML validation attributes for many valid
 - `minLength` and `maxLength` specify a valid length for text fields.
 - `pattern` specifies a regular expression that the field value must match.
 - `step` specifies an increment that numeric field values must be an integral multiple of.
-  {/* `min/max` for numeric values don't work yet https://github.com/mui/base-ui/issues/1845 */}
 
 ```tsx title="Defining constraint validation on a text field"
 <Field.Root name="website">
@@ -245,6 +244,8 @@ const { control, handleSubmit} = useForm({
   )}
 />
 ```
+
+Ensure that custom components wrapping Base UI components are passing `ref`s with `React.forwardRef` to the underlying component, typically using the `inputRef` prop, in order for React Hook Form to focus invalid fields when performing validation.
 
 ### Field validation
 
