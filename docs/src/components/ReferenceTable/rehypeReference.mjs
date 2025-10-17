@@ -50,7 +50,7 @@ export function rehypeReference() {
         throw new Error(`Missing "component" prop on the "<Reference />" component.`);
       }
 
-      /** @type {import('./types').ComponentDef[]} */
+      /** @type {import('./types').RawComponentDef[]} */
       let componentDefs = [];
 
       if (parts) {

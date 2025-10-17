@@ -1,40 +1,15 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
-import { inlineMdxComponents } from 'docs/src/mdx-components';
-import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
 import type { PropDef as BasePropDef } from './types';
-import { TableCode, type TableCodeProps } from '../TableCode';
+import { TableCode } from '../TableCode';
 import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
-function ExpandedCode(props: React.ComponentProps<'code'>) {
-  const { className = '', ...rest } = props;
-  const cleaned = className
-    .split(' ')
-    .filter((c) => c !== 'Code')
-    .join(' ');
-  return <code {...rest} className={cleaned} />;
-}
-
-function ExpandedPre(props: React.ComponentProps<'pre'>) {
-  return (
-    <Accordion.Scrollable gradientColor="var(--color-gray-50)">
-      <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: 'none' }} />
-    </Accordion.Scrollable>
-  );
-}
-
-interface PropDef extends BasePropDef {
-  detailedType: string;
-  example?: string;
-}
-
 interface Props extends React.ComponentPropsWithoutRef<any> {
-  data: Record<string, PropDef>;
+  data: Record<string, BasePropDef>;
   type?: 'props' | 'return';
   name: string;
   // When reusing a component's reference for another component,
@@ -43,51 +18,7 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
   renameTo?: string;
 }
 
-function getShortPropType(name: string, type: string | undefined) {
-  if (/^(on|get)[A-Z].*/.test(name)) {
-    return { type: 'function', detailedType: true };
-  }
-
-  if (type === undefined || type === null) {
-    return { type: String(type), detailedType: false };
-  }
-
-  if (name === 'className') {
-    return { type: 'string | function', detailedType: true };
-  }
-
-  if (name === 'render') {
-    return { type: 'ReactElement | function', detailedType: true };
-  }
-
-  if (
-    name.endsWith('Ref') ||
-    name === 'children' ||
-    type === 'boolean' ||
-    type === 'string' ||
-    type === 'number' ||
-    type.indexOf(' | ') === -1 ||
-    (type.split('|').length < 3 && type.length < 30)
-  ) {
-    return { type, detailedType: false };
-  }
-
-  return { type: 'Union', detailedType: true };
-}
-
-function escapeRegExp(input: string) {
-  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function replaceComponentPrefix(input: string | undefined, from?: string, to?: string) {
-  if (!input || !from || !to) {
-    return input ?? '';
-  }
-  const pattern = new RegExp(`\\b${escapeRegExp(from)}(?=\\.)`, 'g');
-  return input.replace(pattern, to);
-}
-
-export async function PropsReferenceAccordion({
+export function PropsReferenceAccordion({
   data,
   name: partName,
   renameFrom,
@@ -107,72 +38,26 @@ export async function PropsReferenceAccordion({
         <Accordion.HeaderCell className="max-md:hidden">Default</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-md:hidden w-10" />
       </Accordion.HeaderRow>
-      {Object.keys(data).map(async (name, index) => {
+      {Object.keys(data).map((name, index) => {
         const prop = data[name];
 
-        const displayType = replaceComponentPrefix(prop.type, renameFrom, renameTo);
-        const detailedDisplayType = replaceComponentPrefix(
-          prop.detailedType ?? prop.type,
-          renameFrom,
-          renameTo,
-        );
-
-        const PropType = await createMdxComponent(`\`${displayType}\``, {
-          rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ code: TableCode }),
-        });
-
-        const PropDetailedType = await createMdxComponent(
-          `\`\`\`ts\n${detailedDisplayType}\n\`\`\``,
-          {
-            rehypePlugins: rehypeSyntaxHighlighting,
-            useMDXComponents: () => ({
-              code: ExpandedCode,
-              pre: ExpandedPre,
-            }),
-          },
-        );
-
-        const { type: shortPropTypeName, detailedType } = getShortPropType(name, displayType);
-        const hasExpandedType = Boolean(prop.detailedType);
-
-        const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
-          rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({
-            code: (codeProps: TableCodeProps) => (
-              <TableCode {...codeProps} printWidth={name === 'children' ? 999 : undefined} />
-            ),
-          }),
-        });
-
-        const PropDefault = await createMdxComponent(`\`${prop.default}\``, {
-          rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ code: TableCode }),
-        });
-
-        const PropDescription = prop.description
-          ? await createMdxComponent(prop.description, {
-              rehypePlugins: rehypeSyntaxHighlighting,
-              useMDXComponents: () => inlineMdxComponents,
-            })
-          : null;
-
-        const ExampleSnippet = prop.example
-          ? await createMdxComponent(prop.example, {
-              rehypePlugins: rehypeSyntaxHighlighting,
-              useMDXComponents: () => inlineMdxComponents,
-            })
-          : null;
+        // Use shortType if available (set by useTypes), otherwise use the full type
+        const displayShortType = prop.shortType ?? prop.type;
+        const displayDetailedType = prop.detailedType ?? prop.type;
+        const hasExpandedType = Boolean(prop.shortType || prop.detailedType);
 
         // anchor hash for each prop
         const id = `${partName}-${name}`;
+
+        const shortTypeText = prop.shortTypeText ?? 'type';
+        const defaultText = prop.defaultText;
 
         return (
           <Accordion.Item key={name}>
             <Accordion.Trigger
               id={id}
               index={index}
-              aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
+              aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortTypeText} ${defaultText !== undefined ? `(default: ${defaultText})` : ''}`}
               className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
             >
               <Accordion.Scrollable className="px-3">
@@ -183,15 +68,15 @@ export async function PropsReferenceAccordion({
               </Accordion.Scrollable>
               {prop.type && (
                 <Accordion.Scrollable className="px-3 flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
-                  {hasExpandedType || detailedType ? (
+                  {hasExpandedType ? (
                     <ReferenceTableTooltip.Root delay={300} hoverable={false}>
-                      <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
+                      <ReferenceTableTooltip.Trigger render={<span>{displayShortType}</span>} />
                       <ReferenceTableTooltip.Popup>
-                        {hasExpandedType ? <PropDetailedType /> : <PropType />}
+                        {displayDetailedType}
                       </ReferenceTableTooltip.Popup>
                     </ReferenceTableTooltip.Root>
                   ) : (
-                    <ShortPropType />
+                    displayShortType
                   )}
                 </Accordion.Scrollable>
               )}
@@ -199,7 +84,7 @@ export async function PropsReferenceAccordion({
                 {prop.required || prop.default === undefined ? (
                   <TableCode className="text-(--syntax-nullish)">—</TableCode>
                 ) : (
-                  <PropDefault />
+                  prop.default
                 )}
               </Accordion.Scrollable>
               <div className="flex justify-center max-xs:ml-auto max-xs:mr-3">
@@ -230,14 +115,14 @@ export async function PropsReferenceAccordion({
                     </DescriptionList.Details>
                   </DescriptionList.Item>
 
-                  {PropDescription != null && (
+                  {prop.description && (
                     <DescriptionList.Item>
                       <DescriptionList.Separator className="max-xs:pt-2">
                         <DescriptionList.Term>Description</DescriptionList.Term>
                       </DescriptionList.Separator>
                       {/* one-off override of the default mt/mb on CodeBlock.Root */}
                       <DescriptionList.Details className="[&_[role='figure']]:mt-1 [&_[role='figure']]:mb-1">
-                        <PropDescription />
+                        {prop.description}
                       </DescriptionList.Details>
                     </DescriptionList.Item>
                   )}
@@ -246,9 +131,7 @@ export async function PropsReferenceAccordion({
                     <DescriptionList.Separator className="max-xs:pt-2">
                       <DescriptionList.Term>Type</DescriptionList.Term>
                     </DescriptionList.Separator>
-                    <DescriptionList.Details>
-                      <PropDetailedType />
-                    </DescriptionList.Details>
+                    <DescriptionList.Details>{displayDetailedType}</DescriptionList.Details>
                   </DescriptionList.Item>
 
                   {prop.default !== undefined && (
@@ -256,19 +139,17 @@ export async function PropsReferenceAccordion({
                       <DescriptionList.Separator className="max-xs:pt-2">
                         <DescriptionList.Term>Default</DescriptionList.Term>
                       </DescriptionList.Separator>
-                      <DescriptionList.Details>
-                        <PropDefault />
-                      </DescriptionList.Details>
+                      <DescriptionList.Details>{prop.default}</DescriptionList.Details>
                     </DescriptionList.Item>
                   )}
 
-                  {ExampleSnippet != null && (
+                  {prop.example && (
                     <DescriptionList.Item>
                       <DescriptionList.Separator className="max-xs:pt-2">
                         <DescriptionList.Term>Example</DescriptionList.Term>
                       </DescriptionList.Separator>
                       <DescriptionList.Details className="*:my-0">
-                        <ExampleSnippet />
+                        {prop.example}
                       </DescriptionList.Details>
                     </DescriptionList.Item>
                   )}

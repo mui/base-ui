@@ -5,6 +5,8 @@ import { PropsReferenceAccordion } from './PropsReferenceAccordion';
 import { AttributesReferenceTable } from './AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './CssVariablesReferenceTable';
 
+import '../Demo/CodeHighlighting.css';
+
 type ReferenceTableProps = TypesContentProps<{
   hideDescription?: boolean;
 }>;
@@ -21,9 +23,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
 
   return (
     <React.Fragment>
-      {multiple && !hideDescription && data.description && (
-        <p className="mb-4">{data.description}</p>
-      )}
+      {multiple && !hideDescription && data.description && data.description}
 
       {Object.keys(data.props).length > 0 && (
         <PropsReferenceAccordion name={data.name} data={data.props} className="mt-5 mb-6" />
