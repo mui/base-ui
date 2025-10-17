@@ -17,7 +17,6 @@
 .DayGridBody {
   grid-row: 2;
   transform: translateX(0);
-  text-align: center;
   opacity: 1;
 
   /* Apply transition only when `data-ending-style` is present to allow for smooth animations from original translated positions. */
