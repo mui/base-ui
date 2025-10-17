@@ -7,7 +7,7 @@
 ### createHandle
 
 ```typescript
-() => {}
+() => {};
 ```
 
 ### Root

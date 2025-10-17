@@ -9,23 +9,23 @@
 ```typescript
 type FieldValidityData = {
   state: {
-    badInput: boolean
-    customError: boolean
-    patternMismatch: boolean
-    rangeOverflow: boolean
-    rangeUnderflow: boolean
-    stepMismatch: boolean
-    tooLong: boolean
-    tooShort: boolean
-    typeMismatch: boolean
-    valueMissing: boolean
-    valid: boolean | null
-  }
-  error: string
-  errors: string[]
-  value: unknown
-  initialValue: unknown
-}
+    badInput: boolean;
+    customError: boolean;
+    patternMismatch: boolean;
+    rangeOverflow: boolean;
+    rangeUnderflow: boolean;
+    stepMismatch: boolean;
+    tooLong: boolean;
+    tooShort: boolean;
+    typeMismatch: boolean;
+    valueMissing: boolean;
+    valid: boolean | null;
+  };
+  error: string;
+  errors: string[];
+  value: unknown;
+  initialValue: unknown;
+};
 ```
 
 ### Validity
@@ -34,12 +34,13 @@ Used to display a custom message based on the field’s validity. Requires `chil
 
 **Validity Props:**
 
-| Prop     | Type                                           | Default | Description                                                                                                                                            |
-| :------- | :--------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children | `((state: Field.Validity.State) => ReactNode)` | -       | A function that accepts the field validity state as an argument.`<Field.Validity>
-  {(validity) => {
-    return <div>...</div>
-  }} </Field.Validity>` |
+| Prop     | Type                                           | Default | Description                                                                       |
+| :------- | :--------------------------------------------- | :------ | :-------------------------------------------------------------------------------- |
+| children | `((state: Field.Validity.State) => ReactNode)` | -       | A function that accepts the field validity state as an argument.`<Field.Validity> |
+
+{(validity) => {
+return <div>...</div>
+}} </Field.Validity>` |
 
 ### Root
 
