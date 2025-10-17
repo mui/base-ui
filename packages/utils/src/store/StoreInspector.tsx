@@ -129,24 +129,11 @@ export interface StoreInspectorProps {
 
 /**
  * A tool to inspect the state of a Store in a floating panel.
+ * This is intended for development and debugging purposes.
  */
 export function StoreInspector(props: StoreInspectorProps) {
   const { store, title, additionalData, className } = props;
   const [open, setOpen] = React.useState(false);
-
-  // Inject styles once
-  useIsoLayoutEffect(() => {
-    if (typeof document === 'undefined') {
-      return;
-    }
-    const styleId = 'baseui-store-inspector-styles';
-    if (!document.getElementById(styleId)) {
-      const el = document.createElement('style');
-      el.id = styleId;
-      el.textContent = STYLES;
-      document.head.appendChild(el);
-    }
-  }, []);
 
   let content: React.ReactNode = null;
   if (open) {
@@ -164,6 +151,9 @@ export function StoreInspector(props: StoreInspectorProps) {
 
   return (
     <React.Fragment>
+      <style href="baseui-store-inspector" precedence="default">
+        {STYLES}
+      </style>
       <button
         className="baseui-store-inspector-trigger"
         type="button"
