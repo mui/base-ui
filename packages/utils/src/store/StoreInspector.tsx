@@ -8,10 +8,48 @@ import { useAnimationFrame } from '../useAnimationFrame';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 
 const STYLES = `
+.baseui-store-inspector-trigger {
+  all: unset;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: oklch(0.651 0.078 264);
+}
+
+.baseui-store-inspector-trigger:hover,
+.baseui-store-inspector-trigger:focus-visible {
+ opacity: 0.8;
+}
+
+.baseui-store-inspector-content {
+  background: #101010;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding-bottom: 12px;
+  scrollbar-width: thin;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.baseui-store-inspector-content h3 {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.baseui-store-inspector-content pre {
+  margin: 0 0 16px 0;
+}
+
+.baseui-store-inspector-content pre:last-child {
+  margin-bottom: 0;
+}
+
 .baseui-store-inspector-root {
   position: fixed;
-  top: 8px;
-  right: 8px;
   background: oklch(0.34 0.036 264);
   color: #fff;
   z-index: 1000;
@@ -37,74 +75,36 @@ const STYLES = `
   -webkit-user-select: none;
   touch-action: none;
   padding: 4px 8px 8px 8px;
-
-  h2 {
-    font-size: 16px;
-  }
-
-  button {
-    all: unset;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: default;
-
-    &:hover, &:focus-visible {
-      opacity: 0.8;
-    }
-  }
 }
 
-.baseui-store-inspector-resizeHandle {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  right: 2px;
-  bottom: 2px;
-  cursor: se-resize;
-  background: linear-gradient(135deg, transparent 50%, rgba(255, 255, 255, 0.25) 50%);
-  border-radius: 2px;
+.baseui-store-inspector-header h2 {
+  font-size: 16px;
 }
 
-.baseui-store-inspector-content {
-  background: #101010;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
-  padding-bottom: 12px;
-  scrollbar-width: thin;
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-
-  h3 {
-    text-transform: uppercase;
-    font-weight: bold;
-  }
-
-  pre {
-    margin: 0 0 16px 0;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-}
-
-.baseui-store-inspector-trigger {
+.baseui-store-inspector-header button {
   all: unset;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: oklch(0.651 0.078 264);
+  cursor: default;
+}
 
-  &:hover, &:focus-visible {
-    opacity: 0.8;
-  }
+.baseui-store-inspector-header button:hover,
+.baseui-store-inspector-header button:focus-visible {
+  opacity: 0.8;
+}
+
+.baseui-store-inspector-resize-handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  right: -4px;
+  bottom: -4px;
+  cursor: se-resize;
+  background: linear-gradient(135deg, transparent 50%, rgba(255, 255, 255, 0.25) 50%);
+  border-radius: 2px;
 }
 `;
 
@@ -121,10 +121,6 @@ export interface StoreInspectorProps {
    * Title to display in the panel header.
    */
   title?: string;
-  /**
-   * Optional class name for the root popup element.
-   */
-  className?: string;
 }
 
 /**
@@ -132,7 +128,7 @@ export interface StoreInspectorProps {
  * This is intended for development and debugging purposes.
  */
 export function StoreInspector(props: StoreInspectorProps) {
-  const { store, title, additionalData, className } = props;
+  const { store, title, additionalData } = props;
   const [open, setOpen] = React.useState(false);
 
   let content: React.ReactNode = null;
@@ -143,7 +139,6 @@ export function StoreInspector(props: StoreInspectorProps) {
         title={title}
         additionalData={additionalData}
         onClose={() => setOpen(false)}
-        className={className}
       />,
       document.body,
     );
@@ -172,14 +167,10 @@ interface PanelProps {
   title?: string;
   additionalData?: any;
   onClose: () => void;
-  className?: string;
 }
 
-function StoreInspectorPanel({ store, title, additionalData, onClose, className }: PanelProps) {
+function StoreInspectorPanel({ store, title, additionalData, onClose }: PanelProps) {
   const rerender = useForcedRerendering();
-  const rootRef = React.useRef<HTMLDivElement | null>(null);
-  const headerRef = React.useRef<HTMLDivElement | null>(null);
-  const raf = useAnimationFrame();
 
   // Update when state changes
   React.useEffect(() => {
@@ -188,7 +179,83 @@ function StoreInspectorPanel({ store, title, additionalData, onClose, className 
     return unsubscribe;
   }, [store, rerender]);
 
-  // Track position when user drags the panel
+  return (
+    <Window title={title ?? 'Store Inspector'} onClose={onClose}>
+      <h3>State</h3>
+      <pre>{JSON.stringify(store.state, getStringifyReplacer(), 2)}</pre>
+      {store instanceof ReactStore && Object.keys((store as any).context ?? {}).length > 0 && (
+        <React.Fragment>
+          <h3>Context</h3>
+          <pre>{JSON.stringify((store as any).context, getStringifyReplacer(), 2)}</pre>
+        </React.Fragment>
+      )}
+      {additionalData !== undefined && (
+        <React.Fragment>
+          <h3>Additional data</h3>
+          <pre>{JSON.stringify(additionalData, getStringifyReplacer(), 2)}</pre>
+        </React.Fragment>
+      )}
+    </Window>
+  );
+}
+
+function getStringifyReplacer() {
+  const ancestors: any[] = [];
+
+  return function replacer(this: unknown, _: string, value: unknown) {
+    if (value instanceof Element) {
+      return `Element(${value.tagName.toLowerCase()}${value.id ? `#${value.id}` : ''})`;
+    }
+
+    if (value === undefined) {
+      return '[undefined]';
+    }
+
+    if (value instanceof Map) {
+      return Array.from(value.entries());
+    }
+
+    if (value instanceof Set) {
+      return Array.from(value);
+    }
+
+    if (typeof value !== 'object' || value === null) {
+      return value;
+    }
+    // `this` is the object that value is contained in,
+    // i.e., its direct parent.
+    while (ancestors.length > 0 && ancestors.at(-1) !== this) {
+      ancestors.pop();
+    }
+
+    if (ancestors.includes(value)) {
+      return '[circular reference]';
+    }
+
+    ancestors.push(value);
+    return value;
+  };
+}
+
+interface WindowProps {
+  title?: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}
+
+/**
+ * A reusable draggable and resizable window component.
+ * Handles all the pointer events for dragging and resizing internally.
+ */
+function Window({ title, onClose, children }: WindowProps) {
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const headerRef = React.useRef<HTMLDivElement | null>(null);
+  const resizeHandleRef = React.useRef<HTMLDivElement | null>(null);
+  const raf = useAnimationFrame();
+  const minWidth = 160;
+  const minHeight = 52;
+
+  // Track position when user drags the window
   const [position, setPosition] = React.useState<{ left: number; top: number } | null>(null);
   const dragStateRef = React.useRef<{
     dragging: boolean;
@@ -200,7 +267,7 @@ function StoreInspectorPanel({ store, title, additionalData, onClose, className 
     maxTop: number;
   } | null>(null);
 
-  // Track size when user resizes the panel
+  // Track size when user resizes the window
   const [size, setSize] = React.useState<{ width: number; height: number } | null>(null);
   const resizeStateRef = React.useRef<{
     resizing: boolean;
@@ -281,7 +348,9 @@ function StoreInspectorPanel({ store, title, additionalData, onClose, className 
       state.maxTop,
       Math.max(0, state.startTop + (event.clientY - state.startY)),
     );
-    raf.request(() => setPosition({ left: nextLeft, top: nextTop }));
+    raf.request(() => {
+      setPosition({ left: nextLeft, top: nextTop });
+    });
   });
 
   const onResizePointerDown = useEventCallback((event: React.PointerEvent) => {
@@ -300,8 +369,8 @@ function StoreInspectorPanel({ store, title, additionalData, onClose, className 
       startY: event.clientY,
       startWidth: currentSize.width,
       startHeight: currentSize.height,
-      minWidth: 160,
-      minHeight: 52,
+      minWidth,
+      minHeight,
       maxWidth,
       maxHeight,
     };
@@ -322,7 +391,9 @@ function StoreInspectorPanel({ store, title, additionalData, onClose, className 
     const dy = event.clientY - state.startY;
     const nextWidth = Math.min(state.maxWidth, Math.max(state.minWidth, state.startWidth + dx));
     const nextHeight = Math.min(state.maxHeight, Math.max(state.minHeight, state.startHeight + dy));
-    raf.request(() => setSize({ width: nextWidth, height: nextHeight }));
+    raf.request(() => {
+      setSize({ width: nextWidth, height: nextHeight });
+    });
   });
 
   const endResize = useEventCallback((event?: PointerEvent) => {
@@ -359,7 +430,7 @@ function StoreInspectorPanel({ store, title, additionalData, onClose, className 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Compute panel style once per render
+  // Compute window style once per render
   const style: React.CSSProperties = {};
   const viewportMax =
     typeof window !== 'undefined' ? Math.max(0, window.innerHeight - 16) : undefined;
@@ -389,56 +460,26 @@ function StoreInspectorPanel({ store, title, additionalData, onClose, className 
   }
 
   return (
-    <div ref={rootRef} className={`baseui-store-inspector-root ${className}`} style={style}>
+    <div ref={rootRef} className="baseui-store-inspector-root" style={style}>
       <div ref={headerRef} className="baseui-store-inspector-header" onPointerDown={onPointerDown}>
         <h2>{title}</h2>
-        <button type="button" onClick={onClose} title="Close store inspector">
-          <CircleX />
+        <button type="button" onClick={onClose} title="Close window">
+          <CloseIcon />
         </button>
       </div>
-
-      <div className="baseui-store-inspector-content">
-        <h3>State</h3>
-        <pre>{JSON.stringify(store.state, stringifyReplacer, 2)}</pre>
-        {store instanceof ReactStore && Object.keys((store as any).context ?? {}).length > 0 && (
-          <React.Fragment>
-            <h3>Context</h3>
-            <pre>{JSON.stringify((store as any).context, stringifyReplacer, 2)}</pre>
-          </React.Fragment>
-        )}
-        {additionalData !== undefined && (
-          <React.Fragment>
-            <h3>Additional data</h3>
-            <pre>{JSON.stringify(additionalData, stringifyReplacer, 2)}</pre>
-          </React.Fragment>
-        )}
+      <div className="baseui-store-inspector-content">{children}</div>
+      <div
+        ref={resizeHandleRef}
+        onPointerDown={onResizePointerDown}
+        style={{ position: 'relative' }}
+      >
+        <div className="baseui-store-inspector-resize-handle" />
       </div>
-      <div className="baseui-store-inspector-resizeHandle" onPointerDown={onResizePointerDown} />
     </div>
   );
 }
 
-function stringifyReplacer(_: string, value: any) {
-  if (value instanceof Element) {
-    return `Element(${value.tagName.toLowerCase()}${value.id ? `#${value.id}` : ''})`;
-  }
-
-  if (value === undefined) {
-    return '-- undefined --';
-  }
-
-  if (value instanceof Map) {
-    return Array.from(value.entries());
-  }
-
-  if (value instanceof Set) {
-    return Array.from(value);
-  }
-
-  return value;
-}
-
-function CircleX() {
+function CloseIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
