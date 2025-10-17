@@ -61,6 +61,8 @@ import {
   SliderValue,
   SwitchRoot,
   SwitchThumb,
+  Toast,
+  ToastProvider,
 } from './components';
 
 interface FormValues {
@@ -68,21 +70,23 @@ interface FormValues {
   region: string | null;
   containerImage: string;
   serverType: string | null;
-  numOfInstances: number | undefined;
+  numOfInstances: number | null;
   scalingThreshold: number[];
   storageType: 'ssd' | 'hdd' | '';
   restartOnFailure: boolean;
   backupSchedule: string[];
 }
 
-export default function ReactHookForm() {
+function ReactHookForm() {
+  const toastManager = Toast.useToastManager();
+
   const { control, handleSubmit } = useForm<FormValues>({
     defaultValues: {
       serverName: '',
       region: null,
       containerImage: '',
       serverType: null,
-      numOfInstances: undefined,
+      numOfInstances: null,
       scalingThreshold: [0.2, 0.8],
       storageType: '',
       restartOnFailure: true,
@@ -91,11 +95,11 @@ export default function ReactHookForm() {
   });
 
   async function submitForm(data: FormValues) {
-    // Mimic a server response
-    await new Promise((resolve) => {
-      setTimeout(resolve, 500);
+    toastManager.add({
+      title: 'Form submitted',
+      description: 'The form contains these values:',
+      data,
     });
-    console.log('submitted', data);
   }
 
   return (
@@ -421,6 +425,14 @@ export default function ReactHookForm() {
         Launch server
       </Button>
     </Form>
+  );
+}
+
+export default function App() {
+  return (
+    <ToastProvider>
+      <ReactHookForm />
+    </ToastProvider>
   );
 }
 
