@@ -64,3 +64,10 @@ You can use the `timezone` prop to display data in the calendar in your preferre
 Timezone support is based on [@date-fns/tz](https://github.com/date-fns/tz).
 
 <Demo path="./demos/timezone" />
+
+### Animating month changes
+
+You can use the `<Calendar.Viewport>` component to animate month transitions.
+Wrapping the `<Calendar.DayGridBody>` in the `<Calendar.Viewport>` renders the previous month if a transition is in progress.
+
+<Demo path="./demos/animation" />

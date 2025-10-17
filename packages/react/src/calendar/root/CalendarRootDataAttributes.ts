@@ -15,4 +15,9 @@ export enum CalendarRootDataAttributes {
    * Present when the calendar is readonly.
    */
   readonly = 'data-readonly',
+  /**
+   * Indicates the direction of the navigation (based on the month navigating to).
+   * @type {'previous' | 'next' | 'none'}
+   */
+  navigationDirection = 'data-navigation-direction',
 }

@@ -10,7 +10,20 @@ import { CalendarContext } from '../use-context/CalendarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { selectors } from '../store';
+import { CalendarRootDataAttributes } from './CalendarRootDataAttributes';
+
+const stateAttributesMapping: StateAttributesMapping<CalendarRoot.State> = {
+  navigationDirection: (direction) => {
+    if (direction === 'none') {
+      return null;
+    }
+    return {
+      [CalendarRootDataAttributes.navigationDirection]: direction,
+    };
+  },
+};
 
 const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalNonRangeValue> = {
   getDateToUseForReferenceDate: (value) => value,
@@ -111,6 +124,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     state,
     ref: forwardedRef,
     props: [{ children: resolvedChildren, 'aria-label': ariaLabel }, elementProps],
+    stateAttributesMapping,
   });
 
   return (
@@ -123,6 +137,8 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
 });
 
 export namespace CalendarRoot {
+  export type NavigationDirection = 'previous' | 'next' | 'none';
+
   export interface State extends useSharedCalendarRoot.State {}
 
   export interface Props

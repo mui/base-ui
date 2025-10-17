@@ -94,7 +94,7 @@
 .DayGridBody {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  row-gap: 2px;
 }
 
 .DayGridRow,

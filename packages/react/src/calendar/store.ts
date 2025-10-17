@@ -8,6 +8,7 @@ import { TemporalAdapter } from '../types/temporal-adapter';
 import { validateDate } from '../utils/temporal/validateDate';
 import { getInitialReferenceDate } from '../utils/temporal/getInitialReferenceDate';
 import { TemporalManager } from '../utils/temporal/types';
+import type { CalendarRoot } from './root/CalendarRoot';
 
 export interface CalendarState<TValue extends TemporalSupportedValue = any> {
   /**
@@ -18,6 +19,10 @@ export interface CalendarState<TValue extends TemporalSupportedValue = any> {
    * The date that is currently visible in the calendar.
    */
   visibleDate: TemporalSupportedObject;
+  /**
+   * The direction the calendar is currently navigating in.
+   */
+  navigationDirection: CalendarRoot.NavigationDirection;
   /**
    * The initial date used to generate the reference date if any.
    */
@@ -180,6 +185,14 @@ const isSetMonthButtonDisabledSelector = createSelector(
   },
 );
 
+const visibleDate = createSelector((state: CalendarState) => state.visibleDate);
+
+const visibleMonth = createSelector(
+  (state: CalendarState) => state.adapter,
+  visibleDate,
+  (adapter, date) => adapter.startOfMonth(date),
+);
+
 export const selectors = {
   /**
    * Returns the props to check if a date is valid or not.
@@ -192,15 +205,15 @@ export const selectors = {
   /**
    * Returns the date currently visible.
    */
-  visibleDate: createSelector((state: CalendarState) => state.visibleDate),
+  visibleDate,
   /**
    * Returns the current visible month.
    */
-  visibleMonth: createSelector(
-    (state: CalendarState) => state.adapter,
-    (state: CalendarState) => state.visibleDate,
-    (adapter, visibleDate) => adapter.startOfMonth(visibleDate),
-  ),
+  visibleMonth,
+  /**
+   * Returns the navigation direction.
+   */
+  navigationDirection: createSelector((state: CalendarState) => state.navigationDirection),
   /**
    * Returns the current value with the timezone to render applied.
    */

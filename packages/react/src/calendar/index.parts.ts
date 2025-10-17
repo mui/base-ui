@@ -17,3 +17,5 @@ export { CalendarSetNextMonth as SetNextMonth } from './set-next-month/CalendarS
 
 // Context
 export { useCalendarContext as useContext } from './use-context/CalendarContext';
+
+export { CalendarViewport as Viewport } from './viewport/CalendarViewport';

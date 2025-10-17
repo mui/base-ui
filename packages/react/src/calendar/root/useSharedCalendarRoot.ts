@@ -92,11 +92,14 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       isDateUnavailable,
       disabled,
       monthPageSize,
+      navigationDirection: 'none',
     });
   }).current;
   const validationProps = useStore(store, selectors.validationProps);
   const value = useStore(store, selectors.valueWithTimezoneToRender);
   const referenceDate = useStore(store, selectors.referenceDate);
+  const visibleDate = useStore(store, selectors.visibleDate);
+  const navigationDirection = useStore(store, selectors.navigationDirection);
 
   const setValue = useEventCallback(
     (newValue: TValue, event: React.MouseEvent<HTMLButtonElement>) => {
@@ -170,9 +173,18 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       if (skipIfAlreadyVisible && isDateCellVisible(newVisibleDate)) {
         return;
       }
-
+      const currentMonth = adapter.getTime(visibleDate);
       onVisibleDateChange?.(newVisibleDate);
       store.set('visibleDate', newVisibleDate);
+
+      const newMonth = adapter.getTime(newVisibleDate);
+      let newNavigationDirection: CalendarRoot.NavigationDirection = 'none';
+      if (newMonth < currentMonth) {
+        newNavigationDirection = 'previous';
+      } else if (newMonth > currentMonth) {
+        newNavigationDirection = 'next';
+      }
+      store.set('navigationDirection', newNavigationDirection);
     },
   );
 
@@ -243,8 +255,9 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       invalid: isInvalid,
       disabled,
       readOnly,
+      navigationDirection,
     }),
-    [manager, value, isInvalid, disabled, readOnly],
+    [manager, value, isInvalid, disabled, readOnly, navigationDirection],
   );
 
   const context: SharedCalendarRootContext = React.useMemo(
@@ -444,5 +457,9 @@ export namespace useSharedCalendarRoot {
      * Whether the calendar is readonly.
      */
     readOnly?: boolean;
+    /**
+     * The direction of the navigation (based on the month navigating to).
+     */
+    navigationDirection: CalendarRoot.NavigationDirection;
   }
 }
