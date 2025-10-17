@@ -68,17 +68,18 @@ const STYLES = `
 
 .baseui-store-inspector-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   cursor: move;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
   padding: 4px 8px 8px 8px;
-}
+  gap: 8px;
 
-.baseui-store-inspector-header h2 {
-  font-size: 16px;
+  h2 {
+    font-size: 16px;
+    flex-grow: 1;
+  }
 }
 
 .baseui-store-inspector-header button {
@@ -154,6 +155,7 @@ export function StoreInspector(props: StoreInspectorProps) {
         type="button"
         onClick={() => setOpen((o) => !o)}
         title="Toggle store inspector"
+        aria-hidden
       >
         <FileJson />
       </button>
@@ -179,8 +181,33 @@ function StoreInspectorPanel({ store, title, additionalData, onClose }: PanelPro
     return unsubscribe;
   }, [store, rerender]);
 
+  const logToConsole = useEventCallback(() => {
+    const data: any = {
+      state: store.state,
+    };
+
+    if (store instanceof ReactStore && Object.keys((store as any).context ?? {}).length > 0) {
+      data.context = (store as any).context;
+    }
+
+    if (additionalData !== undefined) {
+      data.additionalData = additionalData;
+    }
+
+    // eslint-disable-next-line no-console
+    console.log(data);
+  });
+
   return (
-    <Window title={title ?? 'Store Inspector'} onClose={onClose}>
+    <Window
+      title={title ?? 'Store Inspector'}
+      onClose={onClose}
+      headerActions={
+        <button type="button" onClick={logToConsole} title="Log to console">
+          <SquareTerminal />
+        </button>
+      }
+    >
       <h3>State</h3>
       <pre>{JSON.stringify(store.state, getStringifyReplacer(), 2)}</pre>
       {store instanceof ReactStore && Object.keys((store as any).context ?? {}).length > 0 && (
@@ -241,13 +268,14 @@ interface WindowProps {
   title?: string;
   onClose: () => void;
   children: React.ReactNode;
+  headerActions?: React.ReactNode;
 }
 
 /**
  * A reusable draggable and resizable window component.
  * Handles all the pointer events for dragging and resizing internally.
  */
-function Window({ title, onClose, children }: WindowProps) {
+function Window({ title, onClose, children, headerActions }: WindowProps) {
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const headerRef = React.useRef<HTMLDivElement | null>(null);
   const resizeHandleRef = React.useRef<HTMLDivElement | null>(null);
@@ -451,6 +479,7 @@ function Window({ title, onClose, children }: WindowProps) {
     <div ref={rootRef} className="baseui-store-inspector-root" style={style}>
       <div ref={headerRef} className="baseui-store-inspector-header" onPointerDown={onPointerDown}>
         <h2>{title}</h2>
+        {headerActions}
         <button type="button" onClick={onClose} title="Close window">
           <CloseIcon />
         </button>
@@ -504,6 +533,26 @@ function FileJson() {
       <path d="M14 2v4a2 2 0 0 0 2 2h4" />
       <path d="M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1" />
       <path d="M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1" />
+    </svg>
+  );
+}
+
+function SquareTerminal() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m7 11 2-2-2-2" />
+      <path d="M11 13h4" />
+      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
     </svg>
   );
 }
