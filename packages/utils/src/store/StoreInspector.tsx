@@ -263,8 +263,6 @@ function Window({ title, onClose, children }: WindowProps) {
     startY: number;
     startLeft: number;
     startTop: number;
-    maxLeft: number;
-    maxTop: number;
   } | null>(null);
 
   // Track size when user resizes the window
@@ -302,17 +300,12 @@ function Window({ title, onClose, children }: WindowProps) {
       return;
     }
     const currentPos = position ?? { left: 8, top: 8 };
-    const rect = rootRef.current.getBoundingClientRect();
-    const maxLeft = Math.max(0, window.innerWidth - rect.width);
-    const maxTop = Math.max(0, window.innerHeight - rect.height);
     dragStateRef.current = {
       dragging: true,
       startX: event.clientX,
       startY: event.clientY,
       startLeft: currentPos.left,
       startTop: currentPos.top,
-      maxLeft,
-      maxTop,
     };
     try {
       headerRef.current.setPointerCapture(event.pointerId);
@@ -340,14 +333,9 @@ function Window({ title, onClose, children }: WindowProps) {
     if (!state || !state.dragging) {
       return;
     }
-    const nextLeft = Math.min(
-      state.maxLeft,
-      Math.max(0, state.startLeft + (event.clientX - state.startX)),
-    );
-    const nextTop = Math.min(
-      state.maxTop,
-      Math.max(0, state.startTop + (event.clientY - state.startY)),
-    );
+    const nextLeft = state.startLeft + (event.clientX - state.startX);
+    const nextTop = Math.max(0, state.startTop + (event.clientY - state.startY));
+
     raf.request(() => {
       setPosition({ left: nextLeft, top: nextTop });
     });
