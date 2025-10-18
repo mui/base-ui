@@ -4,11 +4,12 @@ import { type InteractionType } from '@base-ui-components/utils/useEnhancedClick
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { type FloatingRootContext } from '../floating-ui-react';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
-import { type PopupTriggerMap, type HTMLProps } from '../utils/types';
+import { type HTMLProps } from '../utils/types';
 import { getEmptyContext } from '../floating-ui-react/hooks/useFloatingRootContext';
 import { PopoverRoot } from './root/PopoverRoot';
+import { PopupTriggerMap } from '../utils/popupStoreUtils';
 
-export type State = {
+export type State<Payload> = {
   open: boolean;
   mounted: boolean;
   instantType: 'dismiss' | 'click' | undefined;
@@ -18,8 +19,8 @@ export type State = {
   openReason: PopoverRoot.ChangeEventReason | null;
   stickIfOpen: boolean;
 
-  titleId: string | undefined;
-  descriptionId: string | undefined;
+  titleElementId: string | undefined;
+  descriptionElementId: string | undefined;
   activeTriggerId: string | null;
   positionerElement: HTMLElement | null;
   popupElement: HTMLElement | null;
@@ -27,7 +28,7 @@ export type State = {
 
   floatingRootContext: FloatingRootContext;
 
-  payload: unknown | undefined;
+  payload: Payload | undefined;
 
   activeTriggerProps: HTMLProps;
   inactiveTriggerProps: HTMLProps;
@@ -44,7 +45,7 @@ type Context = {
   beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
 
-function createInitialState<Payload>(): State {
+function createInitialState<Payload>(): State<Payload> {
   return {
     open: false,
     mounted: false,
@@ -52,13 +53,13 @@ function createInitialState<Payload>(): State {
     activeTriggerId: null,
     positionerElement: null,
     popupElement: null,
-    triggers: new Map<string, { element: HTMLElement; getPayload?: (() => Payload) | undefined }>(),
+    triggers: new Map<string, HTMLElement>(),
     instantType: undefined,
     transitionStatus: 'idle',
     openMethod: null,
     openReason: null,
-    titleId: undefined,
-    descriptionId: undefined,
+    titleElementId: undefined,
+    descriptionElementId: undefined,
     floatingRootContext: getEmptyContext(),
     payload: undefined,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
@@ -69,40 +70,40 @@ function createInitialState<Payload>(): State {
 }
 
 const selectors = {
-  open: createSelector((state: State) => state.open),
-  mounted: createSelector((state: State) => state.mounted),
+  open: createSelector((state: State<unknown>) => state.open),
+  mounted: createSelector((state: State<unknown>) => state.mounted),
 
-  activeTriggerId: createSelector((state: State) => state.activeTriggerId),
-  activeTriggerElement: createSelector((state: State) =>
+  activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
+  activeTriggerElement: createSelector((state: State<unknown>) =>
     state.mounted && state.activeTriggerId != null
-      ? (state.triggers.get(state.activeTriggerId)?.element ?? null)
+      ? (state.triggers.get(state.activeTriggerId) ?? null)
       : null,
   ),
-  positionerElement: createSelector((state: State) => state.positionerElement),
-  popupElement: createSelector((state: State) => state.popupElement),
-  triggers: createSelector((state: State) => state.triggers),
+  positionerElement: createSelector((state: State<unknown>) => state.positionerElement),
+  popupElement: createSelector((state: State<unknown>) => state.popupElement),
+  triggers: createSelector((state: State<unknown>) => state.triggers),
 
-  instantType: createSelector((state: State) => state.instantType),
-  transitionStatus: createSelector((state: State) => state.transitionStatus),
-  openMethod: createSelector((state: State) => state.openMethod),
-  openReason: createSelector((state: State) => state.openReason),
+  instantType: createSelector((state: State<unknown>) => state.instantType),
+  transitionStatus: createSelector((state: State<unknown>) => state.transitionStatus),
+  openMethod: createSelector((state: State<unknown>) => state.openMethod),
+  openReason: createSelector((state: State<unknown>) => state.openReason),
 
-  modal: createSelector((state: State) => state.modal),
-  stickIfOpen: createSelector((state: State) => state.stickIfOpen),
-  floatingRootContext: createSelector((state: State) => state.floatingRootContext),
+  modal: createSelector((state: State<unknown>) => state.modal),
+  stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
+  floatingRootContext: createSelector((state: State<unknown>) => state.floatingRootContext),
 
-  titleId: createSelector((state: State) => state.titleId),
-  descriptionId: createSelector((state: State) => state.descriptionId),
+  titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
+  descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
 
-  payload: createSelector((state: State) => state.payload),
+  payload: createSelector((state: State<unknown>) => state.payload),
 
-  activeTriggerProps: createSelector((state: State) => state.activeTriggerProps),
-  inactiveTriggerProps: createSelector((state: State) => state.inactiveTriggerProps),
-  popupProps: createSelector((state: State) => state.popupProps),
+  activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
+  inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
+  popupProps: createSelector((state: State<unknown>) => state.popupProps),
 };
 
-export class PopoverStore<Payload = undefined> extends ReactStore<State, Context, Selectors> {
-  constructor(initialState?: Partial<State>) {
+export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, Selectors> {
+  constructor(initialState?: Partial<State<Payload>>) {
     super(
       { ...createInitialState<Payload>(), ...initialState },
       {
@@ -118,18 +119,6 @@ export class PopoverStore<Payload = undefined> extends ReactStore<State, Context
     );
   }
 
-  registerTrigger(triggerId: string, triggerElement: HTMLElement, getPayload?: () => Payload) {
-    const triggers = new Map(this.state.triggers);
-    triggers.set(triggerId, { element: triggerElement, getPayload });
-    this.set('triggers', triggers);
-  }
-
-  unregisterTrigger(triggerId: string) {
-    const triggers = new Map(this.state.triggers);
-    triggers.delete(triggerId);
-    this.set('triggers', triggers);
-  }
-
   setOpen(
     open: boolean,
     eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
@@ -138,7 +127,7 @@ export class PopoverStore<Payload = undefined> extends ReactStore<State, Context
   }
 }
 
-export function createPopoverHandle<Payload = undefined>(): PopoverStore<Payload> {
+export function createPopoverHandle<Payload>(): PopoverStore<Payload> {
   return new PopoverStore<Payload>();
 }
 
