@@ -46,7 +46,7 @@
     "autoHighlight": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to automatically highlight the first item while filtering.",
+      "description": "Whether to automatically highlight the first matching item while filtering.",
       "detailedType": "boolean | undefined"
     },
     "defaultInputValue": {

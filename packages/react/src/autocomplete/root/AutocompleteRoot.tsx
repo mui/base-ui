@@ -166,6 +166,7 @@ export interface AutocompleteRootProps<ItemValue>
     | 'autoComplete' // mode
     | 'itemToStringLabel' // itemToStringValue
     // Custom JSDoc
+    | 'autoHighlight'
     | 'actionsRef'
     | 'onOpenChange'
     | 'onInputValueChange'
@@ -179,6 +180,13 @@ export interface AutocompleteRootProps<ItemValue>
    * @default 'list'
    */
   mode?: 'list' | 'both' | 'inline' | 'none';
+  /**
+   * Whether the first matching option is highlighted automatically.
+   * - `true` or `{ behavior: 'input-change' }`: highlight after the user types and keep the highlight while the query changes.
+   * - `{ behavior: 'always' }`: highlight the first option as soon as the list is open, even before typing.
+   * @default false
+   */
+  autoHighlight?: boolean | { behavior?: 'always' | 'input-change' };
   /**
    * The uncontrolled input value of the autocomplete when it's initially rendered.
    *
