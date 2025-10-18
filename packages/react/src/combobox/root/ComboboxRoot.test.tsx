@@ -2853,6 +2853,61 @@ describe('<Combobox.Root />', () => {
       expect(error).to.have.text('required');
     });
 
+    it('focuses trigger and surfaces errors when input is inside popup', async () => {
+      let submittedCalls = 0;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        submittedCalls += 1;
+      };
+
+      const { user } = await render(
+        <Form onSubmit={handleSubmit}>
+          <Field.Root name="combobox">
+            <Combobox.Root required>
+              <Combobox.Trigger data-testid="trigger">
+                <Combobox.Value />
+              </Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.Input data-testid="input" />
+                    <Combobox.List>
+                      <Combobox.Item value="a">a</Combobox.Item>
+                      <Combobox.Item value="b">b</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+            <Field.Error match="valueMissing" data-testid="error">
+              required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(submittedCalls).to.equal(0);
+
+      const trigger = screen.getByTestId('trigger');
+
+      await waitFor(() => expect(trigger).toHaveFocus());
+      expect(trigger).to.have.attribute('data-invalid', '');
+
+      const error = screen.getByTestId('error');
+      expect(error).to.have.text('required');
+
+      await user.click(trigger);
+
+      const input = await screen.findByTestId('input');
+      expect(input).to.have.attribute('data-invalid', '');
+    });
+
     it('clears errors on change', async () => {
       function App() {
         const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
