@@ -6,6 +6,12 @@ type Listener<T> = (state: T) => void;
  */
 export class Store<State> {
   /**
+   * The internal state of the store.
+   * This property is mutable only within this class methods.
+   */
+  private internalState: State;
+
+  /**
    * The current state of the store.
    * This property is updated immediately when the state changes as a result of calling {@link update}, {@link apply}, or {@link set}.
    * To subscribe to state changes, use the {@link useState} method. The value returned by {@link useState} is updated after the component renders (similarly to React's useState).
@@ -13,12 +19,14 @@ export class Store<State> {
    *
    * Do not modify properties in state directly. Instead, use the provided methods to ensure proper state management and listener notification.
    */
-  public state: State;
+  public get state() {
+    return this.internalState;
+  }
 
   private listeners: Set<Listener<State>>;
 
   constructor(state: State) {
-    this.state = state;
+    this.internalState = state;
     this.listeners = new Set();
   }
 
@@ -39,7 +47,7 @@ export class Store<State> {
    * Returns the current state of the store.
    */
   public getSnapshot = () => {
-    return this.state;
+    return this.internalState;
   };
 
   /**
@@ -48,8 +56,8 @@ export class Store<State> {
    * @param newState The new state to set for the store.
    */
   public update(newState: State) {
-    if (this.state !== newState) {
-      this.state = newState;
+    if (this.internalState !== newState) {
+      this.internalState = newState;
       this.listeners.forEach((l) => l(newState));
     }
   }
@@ -61,8 +69,8 @@ export class Store<State> {
    */
   public apply(changes: Partial<State>) {
     for (const key in changes) {
-      if (!Object.is(this.state[key], changes[key])) {
-        this.update({ ...this.state, ...changes });
+      if (!Object.is(this.internalState[key], changes[key])) {
+        this.update({ ...this.internalState, ...changes });
         return;
       }
     }
@@ -75,8 +83,8 @@ export class Store<State> {
    * @param value The new value to set for the specified key.
    */
   public set<T>(key: keyof State, value: T) {
-    if (!Object.is(this.state[key], value)) {
-      this.update({ ...this.state, [key]: value });
+    if (!Object.is(this.internalState[key], value)) {
+      this.update({ ...this.internalState, [key]: value });
     }
   }
 }

@@ -8,14 +8,7 @@ import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { NOOP } from '../empty';
 
 /**
- * A Store that supports controlled state keys.
- *
- * - Keys registered through {@link useControlledProp} become controlled when a non-undefined
- *   value is provided. Controlled keys mirror the incoming value and ignore local writes
- *   (via {@link set}, {@link apply}, or {@link update}).
- * - When a key is uncontrolled, an optional default value is written once on first render.
- * - Use {@link useSyncedValue} and {@link useSyncedValues} to synchronize external values/props into the
- *   store during a layout phase using {@link useIsoLayoutEffect}.
+ * A Store that supports controlled state keys, non-reactive values and provides utility methods for React.
  */
 export class ReactStore<
   State,
@@ -113,14 +106,14 @@ export class ReactStore<
       this.controlledValues.set(key, isControlled);
 
       if (!isControlled && !Object.is(this.state[key], defaultValue)) {
-        super.update({ ...(this.state as State), [key]: defaultValue } as State);
+        super.update({ ...this.state, [key]: defaultValue } as State);
       }
     }
 
     useIsoLayoutEffect(() => {
       if (isControlled && !Object.is(this.state[key], controlled)) {
         // Set the internal state to match the controlled value.
-        super.update({ ...(this.state as State), [key]: controlled } as State);
+        super.update({ ...this.state, [key]: controlled } as State);
       }
     }, [key, controlled, defaultValue, isControlled]);
   }
