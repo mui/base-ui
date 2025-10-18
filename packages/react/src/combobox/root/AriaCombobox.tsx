@@ -57,6 +57,7 @@ import {
   itemIncludes,
   removeItem,
 } from '../../utils/itemEquality';
+import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
 /**
  * @internal
@@ -281,6 +282,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
+  const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
+  const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -425,6 +428,64 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [items, flatFilteredItems]);
 
+  useIsoLayoutEffect(() => {
+    const pendingHighlight = pendingQueryHighlightRef.current;
+    if (pendingHighlight) {
+      if (pendingHighlight.hasQuery) {
+        if (store.state.autoHighlight) {
+          store.set('activeIndex', 0);
+        }
+      } else if (store.state.autoHighlight) {
+        store.set('activeIndex', null);
+      }
+      pendingQueryHighlightRef.current = null;
+    }
+
+    if (!store.state.open && !store.state.inline) {
+      return;
+    }
+
+    const candidateItems = items ? flatFilteredItems : valuesRef.current;
+    const storeActiveIndex = store.state.activeIndex;
+
+    if (storeActiveIndex == null) {
+      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+        store.state.onItemHighlighted(
+          undefined,
+          createGenericEventDetails('none', undefined, { index: -1 }),
+        );
+      }
+      return;
+    }
+
+    if (storeActiveIndex >= candidateItems.length) {
+      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+        store.state.onItemHighlighted(
+          undefined,
+          createGenericEventDetails('none', undefined, { index: -1 }),
+        );
+      }
+      store.set('activeIndex', null);
+      return;
+    }
+
+    const nextActiveValue = candidateItems[storeActiveIndex];
+    const lastHighlightedValue = lastHighlightRef.current.value;
+    const isSameItem =
+      lastHighlightedValue !== NO_ACTIVE_VALUE &&
+      store.state.isItemEqualToValue(nextActiveValue, lastHighlightedValue);
+
+    if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
+      lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
+      store.state.onItemHighlighted(
+        nextActiveValue,
+        createGenericEventDetails('none', undefined, { index: storeActiveIndex }),
+      );
+    }
+  }, [flatFilteredItems, store, items, valuesRef]);
+
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
   // - Multiple: drop any removed selections.
@@ -542,9 +603,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
 
       if (options.activeIndex === null) {
-        onItemHighlighted(undefined, createGenericEventDetails(type, undefined, { index: -1 }));
+        if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+          lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+          onItemHighlighted(undefined, createGenericEventDetails(type, undefined, { index: -1 }));
+        }
       } else {
         const activeValue = valuesRef.current[options.activeIndex];
+        lastHighlightRef.current = { value: activeValue, index: options.activeIndex };
         onItemHighlighted(
           activeValue,
           createGenericEventDetails(type, undefined, {
@@ -572,16 +637,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         if (hasQuery) {
           setQueryChangedAfterOpen(true);
         }
-
-        // Avoid out-of-range indices when the visible list becomes smaller.
-        if (hasQuery) {
-          if (autoHighlight) {
-            setIndices({ activeIndex: 0, selectedIndex: null });
-          } else {
-            setIndices({ selectedIndex: null });
-          }
-        } else if (autoHighlight) {
-          setIndices({ activeIndex: null });
+        // Defer index updates until after the filtered items have been derived to ensure
+        // `onItemHighlighted` receives the latest item.
+        pendingQueryHighlightRef.current = { hasQuery };
+        if (hasQuery && autoHighlight && store.state.activeIndex == null) {
+          store.set('activeIndex', 0);
         }
       }
 
