@@ -58,6 +58,10 @@
   line-height: 1.25rem;
   transition: all 150ms ease-out;
 
+  &[hidden]:not([hidden='until-found']) {
+    display: none;
+  }
+
   &[data-starting-style],
   &[data-ending-style] {
     height: 0;
