@@ -85,9 +85,7 @@ Optionally use `<Field.Item>` in checkbox or radio groups to individually label 
 </Field.Root>
 ```
 
-## Plain Base UI
-
-### Building form fields
+## Building form fields
 
 Pass the `name` prop to `<Field.Root>` and the wrapped control's value will be included when a parent form is submitted:
 
@@ -100,7 +98,7 @@ Pass the `name` prop to `<Field.Root>` and the wrapped control's value will be i
 </Form>
 ```
 
-### Constraint validation
+## Constraint validation
 
 Base UI form components support native HTML validation attributes for many validation rules:
 
@@ -116,7 +114,7 @@ Base UI form components support native HTML validation attributes for many valid
 </Field.Root>
 ```
 
-### Custom validation
+## Custom validation
 
 Custom validation logic can be added by passing a synchronous or asynchronous validation function to the `validate` prop, which runs after native validations have passed.
 
@@ -156,7 +154,7 @@ The `validationMode` prop can be used to configure when validation is performed:
 </Field.Root>
 ```
 
-### Displaying errors
+## Displaying errors
 
 Use `<Field.Error>` without `children` to automatically display the field's native error message when invalid. The `match` prop can be used to customize the message based on the validity state, and manage internationalization from your application logic:
 
@@ -164,7 +162,7 @@ Use `<Field.Error>` without `children` to automatically display the field's nati
 <Field.Error match="valueMissing">You must create a username</Field.Error>
 ```
 
-### Submitting data
+## Submitting data
 
 Once the form passes validation, your app can take over form submission in `onSubmit`:
 
