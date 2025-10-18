@@ -4,6 +4,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
+import type { Form } from '../../form';
 import { useFormContext } from '../../form/FormContext';
 import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -19,12 +20,14 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
+  const { errors, validationMode: formValidationMode } = useFormContext();
+
   const {
     render,
     className,
     validate: validateProp,
     validationDebounceTime = 0,
-    validationMode = 'onBlur',
+    validationMode = formValidationMode,
     name,
     disabled: disabledProp = false,
     invalid: invalidProp,
@@ -34,8 +37,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   } = componentProps;
 
   const { disabled: disabledFieldset } = useFieldsetRootContext();
-
-  const { errors } = useFormContext();
 
   const validate = useStableCallback(validateProp || (() => null));
 
@@ -195,6 +196,8 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.St
   /**
    * A function for custom validation. Return a string or an array of strings with
    * the error message(s) if the value is invalid, or `null` if the value is valid.
+   * Asynchronous functions are supported, but they do not prevent form submission
+   * when using `validationMode="onSubmit"`.
    */
   validate?: (
     value: unknown,
@@ -202,12 +205,15 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.St
   ) => string | string[] | null | Promise<string | string[] | null>;
   /**
    * Determines when the field should be validated.
+   * This takes precedence over the `validationMode` prop on `<Form>`.
    *
-   * - **onBlur** triggers validation when the control loses focus
-   * - **onChange** triggers validation on every change to the control value
-   * @default 'onBlur'
+   * - `onSubmit`: triggers validation when the form is submitted, and re-validates on change after submission.
+   * - `onBlur`: triggers validation when the control loses focus.
+   * - `onChange`: triggers validation on every change to the control value.
+   *
+   * @default 'onSubmit'
    */
-  validationMode?: 'onBlur' | 'onChange';
+  validationMode?: Form.ValidationMode;
   /**
    * How long to wait between `validate` callbacks if
    * `validationMode="onChange"` is used. Specified in milliseconds.

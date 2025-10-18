@@ -3,6 +3,7 @@ import * as React from 'react';
 import { NOOP } from '../../utils/noop';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { FieldRoot, FieldValidityData } from './FieldRoot';
+import type { Form } from '../../form';
 
 export interface FieldRootContext {
   invalid: boolean | undefined;
@@ -22,7 +23,7 @@ export interface FieldRootContext {
     value: unknown,
     formValues: Record<string, unknown>,
   ) => string | string[] | null | Promise<string | string[] | null>;
-  validationMode: 'onBlur' | 'onChange';
+  validationMode: Form.ValidationMode;
   validationDebounceTime: number;
   state: FieldRoot.State;
   markedDirtyRef: React.MutableRefObject<boolean>;
