@@ -8,7 +8,7 @@ export type ReasonToEvent<Reason extends string> = Reason extends 'trigger-press
   : Reason extends 'trigger-hover'
     ? MouseEvent
     : Reason extends 'outside-press'
-      ? MouseEvent | PointerEvent
+      ? MouseEvent | PointerEvent | TouchEvent
       : Reason extends 'item-press' | 'close-press'
         ? MouseEvent | KeyboardEvent | PointerEvent
         : Reason extends 'cancel-open'
