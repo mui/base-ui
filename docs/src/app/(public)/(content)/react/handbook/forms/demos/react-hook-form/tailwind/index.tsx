@@ -72,7 +72,7 @@ interface FormValues {
   serverType: string | null;
   numOfInstances: number | null;
   scalingThreshold: number[];
-  storageType: 'ssd' | 'hdd' | '';
+  storageType: 'ssd' | 'hdd';
   restartOnFailure: boolean;
   backupSchedule: string[];
 }
@@ -88,7 +88,7 @@ function ReactHookForm() {
       serverType: null,
       numOfInstances: null,
       scalingThreshold: [0.2, 0.8],
-      storageType: '',
+      storageType: 'ssd',
       restartOnFailure: true,
       backupSchedule: [],
     },
@@ -234,6 +234,7 @@ function ReactHookForm() {
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
           <FieldRoot name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+            <FieldLabel>Server type</FieldLabel>
             <SelectRoot items={SERVER_TYPES} value={value} onValueChange={onChange} inputRef={ref}>
               <SelectTrigger className="w-48" onBlur={onBlur}>
                 <SelectValue />
@@ -336,12 +337,9 @@ function ReactHookForm() {
       <Controller
         name="storageType"
         control={control}
-        rules={{
-          required: 'This field is required',
-        }}
         render={({
           field: { ref, name, value, onBlur, onChange },
-          fieldState: { invalid, isTouched, isDirty, error },
+          fieldState: { invalid, isTouched, isDirty },
         }) => (
           <FieldRoot name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
             <FieldsetRoot
@@ -368,7 +366,6 @@ function ReactHookForm() {
                 HDD
               </FieldLabel>
             </FieldsetRoot>
-            <FieldError match={!!error}>{error?.message}</FieldError>
           </FieldRoot>
         )}
       />

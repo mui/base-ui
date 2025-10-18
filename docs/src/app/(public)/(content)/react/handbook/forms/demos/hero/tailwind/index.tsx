@@ -186,7 +186,7 @@ function ExampleForm() {
         </FieldsetRoot>
       </FieldRoot>
       <FieldRoot name="storageType" className="mt-3">
-        <FieldsetRoot render={<RadioGroup className="gap-4" required />}>
+        <FieldsetRoot render={<RadioGroup className="gap-4" defaultValue="ssd" />}>
           <FieldsetLegend className="-mt-px">Storage type</FieldsetLegend>
           <FieldLabel>
             <Radio value="ssd">
@@ -201,7 +201,6 @@ function ExampleForm() {
             HDD
           </FieldLabel>
         </FieldsetRoot>
-        <FieldError />
       </FieldRoot>
       <FieldRoot name="restartOnFailure">
         <FieldLabel className="flex flex-row gap-4">
