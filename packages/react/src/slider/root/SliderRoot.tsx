@@ -72,6 +72,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
     step = 1,
+    thumbCollisionBehavior = 'push',
     thumbAlignment = 'center',
     value: valueProp,
     ...elementProps
@@ -128,6 +129,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   // This is updated on pointerdown, which is sooner than the `active/activeIndex`
   // state which is updated later when the nested `input` receives focus.
   const pressedThumbIndexRef = React.useRef(-1);
+  // The values when the current drag interaction started.
+  const pressedValuesRef = React.useRef<readonly number[] | null>(null);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
 
   const formatOptionsRef = useLatestRef(format);
@@ -135,16 +138,24 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
   // - The active state isn't transferred when inversing a range slider.
-  const [active, setActive] = React.useState(-1);
+  const [active, setActiveState] = React.useState(-1);
+  const [lastUsedThumbIndex, setLastUsedThumbIndex] = React.useState(-1);
   const [dragging, setDragging] = React.useState(false);
   const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
-
   const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
     undefined,
     undefined,
   ]);
+
+  const setActive = useEventCallback((value: number) => {
+    setActiveState(value);
+
+    if (value !== -1) {
+      setLastUsedThumbIndex(value);
+    }
+  });
 
   useField({
     id,
@@ -289,6 +300,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       inset: thumbAlignment !== 'center',
       labelId: ariaLabelledby,
       largeStep,
+      lastUsedThumbIndex,
       lastChangedValueRef,
       locale,
       max,
@@ -300,6 +312,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedInputRef,
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
+      pressedValuesRef,
       registerFieldControlRef,
       renderBeforeHydration: thumbAlignment === 'edge',
       setActive,
@@ -308,6 +321,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       setValue,
       state,
       step,
+      thumbCollisionBehavior,
       thumbMap,
       thumbRefs,
       values,
@@ -323,6 +337,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       handleInputChange,
       indicatorPosition,
       largeStep,
+      lastUsedThumbIndex,
       lastChangedValueRef,
       locale,
       max,
@@ -334,6 +349,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedInputRef,
       pressedThumbCenterOffsetRef,
       pressedThumbIndexRef,
+      pressedValuesRef,
       registerFieldControlRef,
       setActive,
       setDragging,
@@ -341,6 +357,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       setValue,
       state,
       step,
+      thumbCollisionBehavior,
       thumbAlignment,
       thumbMap,
       thumbRefs,
@@ -413,6 +430,7 @@ export interface SliderRootState extends FieldRoot.State {
    */
   values: readonly number[];
 }
+
 export interface SliderRootProps<
   Value extends number | readonly number[] = number | readonly number[],
 > extends BaseUIComponentProps<'div', SliderRoot.State> {
@@ -482,6 +500,17 @@ export interface SliderRootProps<
    * @default 'center'
    */
   thumbAlignment?: 'center' | 'edge' | 'edge-client-only';
+  /**
+   * Controls how thumbs behave when they collide during pointer interactions.
+   *
+   * - `'push'` (default): Thumbs push each other without restoring their previous positions when dragged back.
+   * - `'push-sticky'`: Thumbs push each other and cling when dragged back to their previous positions.
+   * - `'swap'`: Thumbs swap places when dragged past each other.
+   * - `'none'`: Thumbs cannot move past each other; excess movement is ignored.
+   *
+   * @default 'push-sticky'
+   */
+  thumbCollisionBehavior?: 'push' | 'push-sticky' | 'swap' | 'none';
   /**
    * The value of the slider.
    * For ranged sliders, provide an array with two values.
