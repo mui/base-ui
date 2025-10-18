@@ -68,6 +68,10 @@ export type State = {
    * The Trigger DOM element.
    */
   triggerElement: HTMLElement | null;
+  /**
+   * The Viewport DOM element.
+   */
+  viewportElement: HTMLElement | null;
 };
 
 type Context = {
@@ -97,6 +101,7 @@ const selectors = {
   floatingRootContext: createSelector((state: State) => state.floatingRootContext),
   popupElement: createSelector((state: State) => state.popupElement),
   triggerElement: createSelector((state: State) => state.triggerElement),
+  viewportElement: createSelector((state: State) => state.viewportElement),
 };
 
 export class DialogStore extends ReactStore<State, Context, typeof selectors> {

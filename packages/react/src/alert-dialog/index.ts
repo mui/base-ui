@@ -8,3 +8,4 @@ export type * from './backdrop/AlertDialogBackdrop';
 export type * from './title/AlertDialogTitle';
 export type * from './description/AlertDialogDescription';
 export type * from './close/AlertDialogClose';
+export type * from './viewport/AlertDialogViewport';
