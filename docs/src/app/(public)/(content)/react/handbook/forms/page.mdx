@@ -67,7 +67,7 @@ Compose `<Fieldset>` with controls containing multiple `<input>` elements such a
 
 Optionally use `<Field.Item>` in checkbox or radio groups to individually label each control when not implicitly labelled:
 
-```tsx title="Explicitly labelling checkboxes in a checkbox group"
+```tsx {4,8,9,13} title="Explicitly labelling checkboxes in a checkbox group"
 <Field.Root>
   <Fieldset.Root render={<CheckboxGroup />}>
     <Fieldset.Legend>Backup schedule</Fieldset.Legend>
@@ -212,7 +212,7 @@ const { control, handleSubmit } = useForm<FormValues>({
 
 Use the `<Controller>` component to integrate with any `<Field>` component, forwarding the various `field` and `fieldState` render props to the appropriate part:
 
-```tsx {10-14,21-24} title="Integrating React Hook Form's controller component with Base UI field"
+```tsx {10-14,21-24} title="Integrating React Hook Form's controller component with Base UI field" "name" "ref" "value" "onBlur" "onChange" "invalid" "isTouched" "isDirty" "error"
 import { useForm, Controller } from "react-hook-form"
 
 const { control, handleSubmit} = useForm({
@@ -238,6 +238,9 @@ const { control, handleSubmit} = useForm({
         onValueChange={onChange}
         ref={ref}
       />
+      <Field.Error match={!!error}>
+        {error?.message}
+      </Field.Error>
     </Field.Root>
   )}
 />
@@ -280,7 +283,7 @@ import { Controller } from "react-hook-form"
         ref={ref}
       />
       <Field.Error match={!!error}>
-        {error?.message ?? ''}
+        {error?.message}
       </Field.Error>
     </Field.Root>
   )}
