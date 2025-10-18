@@ -1632,11 +1632,16 @@ describe('<Popover.Root />', () => {
         const comboboxPopup = screen.getByTestId('combobox-popup');
         expect(comboboxPopup).not.to.equal(null);
 
-        // Simulate touch scroll: pointerdown + pointermove on the scrollable list
-        fireEvent.pointerDown(comboboxPopup, {
+        // Simulate touch scroll: touchstart + touchmove on the scrollable list
+        const touch1 = new Touch({
+          identifier: 1,
+          target: comboboxPopup,
           clientX: 100,
           clientY: 100,
-          pointerType: 'touch',
+        });
+
+        fireEvent.touchStart(comboboxPopup, {
+          touches: [touch1],
         });
 
         // Wait for the markInsideReactTree timeout to finish
@@ -1644,16 +1649,19 @@ describe('<Popover.Root />', () => {
           setTimeout(resolve);
         });
 
-        fireEvent.pointerMove(comboboxPopup, {
+        const touch2 = new Touch({
+          identifier: 1,
+          target: comboboxPopup,
           clientX: 100,
           clientY: 50,
-          pointerType: 'touch',
         });
 
-        fireEvent.pointerUp(comboboxPopup, {
-          clientX: 100,
-          clientY: 50,
-          pointerType: 'touch',
+        fireEvent.touchMove(comboboxPopup, {
+          touches: [touch2],
+        });
+
+        fireEvent.touchEnd(comboboxPopup, {
+          changedTouches: [touch2],
         });
 
         await flushMicrotasks();
