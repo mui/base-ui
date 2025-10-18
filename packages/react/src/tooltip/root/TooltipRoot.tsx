@@ -49,6 +49,8 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
+  const [lastOpenChangeReason, setLastOpenChangeReason] =
+    React.useState<TooltipRoot.ChangeEventReason | null>(null);
 
   const popupRef = React.useRef<HTMLElement>(null);
 
@@ -75,7 +77,14 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     }
 
     function changeState() {
+      if (isFocusOpen || isDismissClose) {
+        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
+      } else if (reason === 'trigger-hover') {
+        setInstantTypeState(undefined);
+      }
+
       setOpenState(nextOpen);
+      setLastOpenChangeReason(reason);
     }
 
     if (isHover) {
@@ -84,12 +93,6 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       ReactDOM.flushSync(changeState);
     } else {
       changeState();
-    }
-
-    if (isFocusOpen || isDismissClose) {
-      setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-    } else if (reason === 'trigger-hover') {
-      setInstantTypeState(undefined);
     }
   }
 
@@ -131,7 +134,17 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const providerContext = useTooltipProviderContext();
   const { delayRef, isInstantPhase, hasProvider } = useDelayGroup(floatingRootContext);
 
-  const instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
+  // Animations should be instant in two cases:
+  // 1) Opening during the provider's instant phase (adjacent tooltip opens instantly)
+  // 2) Closing because another tooltip opened (reason === 'none')
+  // Otherwise, allow the animation to play. In particular, do not disable animations
+  // during the 'ending' phase unless it's due to a sibling opening.
+  let instantType: 'dismiss' | 'focus' | 'delay' | undefined;
+  if (transitionStatus === 'ending') {
+    instantType = lastOpenChangeReason === 'none' ? 'delay' : instantTypeState;
+  } else {
+    instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
+  }
 
   const hover = useHover(floatingRootContext, {
     enabled: !disabled,
