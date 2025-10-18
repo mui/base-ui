@@ -90,8 +90,11 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     [currentContentRef],
   );
 
-  const commonProps: HTMLProps = {
-    onFocus() {
+  const commonProps: HTMLProps<HTMLDivElement> = {
+    onFocus(event) {
+      if (event.target?.hasAttribute('data-base-ui-focus-guard')) {
+        return;
+      }
       setFocusInside(true);
     },
     onBlur(event) {
