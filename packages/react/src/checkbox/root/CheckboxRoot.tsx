@@ -408,10 +408,6 @@ export interface CheckboxRootProps
    * The value of the selected checkbox.
    */
   value?: string;
-  /**
-   * This is a new property added to demonstrate rich diffs
-   */
-  newProp?: string;
 }
 
 export type CheckboxRootChangeEventReason = 'none';
