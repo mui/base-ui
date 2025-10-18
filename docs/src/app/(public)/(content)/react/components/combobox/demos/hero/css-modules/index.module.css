@@ -1,6 +1,7 @@
 .Input {
   box-sizing: border-box;
   padding-left: 0.875rem;
+  padding-right: calc(0.5rem + 1.5rem);
   margin: 0;
   border: 1px solid var(--color-gray-200);
   width: 16rem;
@@ -28,8 +29,15 @@
   position: relative;
 }
 
+.InputWrapper {
+  position: relative;
+
+  &:has(.Clear) .Input {
+    padding-right: calc(0.5rem + 1.5rem * 2);
+  }
+}
+
 .ActionButtons {
-  --size: 1.5rem;
   box-sizing: border-box;
   position: absolute;
   display: flex;
@@ -50,7 +58,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--size);
+  width: 1.5rem;
   height: 2.5rem;
   color: var(--color-gray-600);
   border: none;
