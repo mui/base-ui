@@ -7,7 +7,11 @@ import { isAndroid, isFirefox } from '@base-ui-components/utils/detectBrowser';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxDerivedItemsContext,
+  useComboboxInputValueContext,
+  useComboboxRootContext,
+} from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -19,11 +23,14 @@ import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { Side } from '../../utils/useAnchorPositioning';
 import { useDirection } from '../../direction-provider/DirectionContext';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
+  popupSide: (side) => (side ? { 'data-popup-side': side } : null),
+  listEmpty: (empty) => (empty ? { 'data-list-empty': '' } : null),
 };
 
 /**
@@ -51,8 +58,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
   const comboboxChipsContext = useComboboxChipsContext();
-  const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
+  const positioning = useComboboxPositionerContext(true);
+  const hasPositionerParent = Boolean(positioning);
   const store = useComboboxRootContext();
+  const { filteredItems } = useComboboxDerivedItemsContext();
 
   const direction = useDirection();
 
@@ -66,7 +75,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const inputProps = useStore(store, selectors.inputProps);
   const triggerProps = useStore(store, selectors.triggerProps);
   const open = useStore(store, selectors.open);
+  const mounted = useStore(store, selectors.mounted);
   const selectedValue = useStore(store, selectors.selectedValue);
+  const popupSideValue = useStore(store, selectors.popupSide);
+
+  const popupSide = mounted ? popupSideValue : '';
 
   const id = useBaseUiId(idProp);
 
@@ -91,14 +104,18 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     });
   });
 
+  const listEmpty = filteredItems.length === 0;
+
   const state: ComboboxInput.State = React.useMemo(
     () => ({
       ...fieldState,
       open,
       disabled,
       readOnly,
+      popupSide,
+      listEmpty,
     }),
-    [fieldState, open, disabled, readOnly],
+    [fieldState, open, disabled, readOnly, popupSide, listEmpty],
   );
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -441,9 +458,21 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
 export interface ComboboxInputState extends FieldRoot.State {
   /**
-   * Whether the popup is open.
+   * Whether the corresponding popup is open.
    */
   open: boolean;
+  /**
+   * Indicates which side the corresponding popup is positioned relative to the input.
+   */
+  popupSide: Side | '';
+  /**
+   * Present when the corresponding items list is empty.
+   */
+  listEmpty: boolean;
+  /**
+   * Whether the component should ignore user edits.
+   */
+  readOnly: boolean;
 }
 
 export interface ComboboxInputProps extends BaseUIComponentProps<'input', ComboboxInput.State> {
