@@ -420,15 +420,17 @@ export function useDismiss(
       return;
     }
 
-    const callback = () => {
+    const target = getTarget(event);
+
+    function callback() {
       if (event.type === 'pointerdown') {
         handlePointerDown(event as PointerEvent);
       } else {
         closeOnPressOutside(event as MouseEvent, endedOrStartedInside);
       }
-      getTarget(event)?.removeEventListener(event.type, callback);
-    };
-    getTarget(event)?.addEventListener(event.type, callback);
+      target?.removeEventListener(event.type, callback);
+    }
+    target?.addEventListener(event.type, callback);
   });
 
   const handlePointerMove = useEventCallback((event: PointerEvent) => {
@@ -457,6 +459,15 @@ export function useDismiss(
     }
   });
 
+  const handlePointerMoveCapture = useEventCallback((event: PointerEvent) => {
+    const target = getTarget(event);
+    function callback() {
+      handlePointerMove(event);
+      target?.removeEventListener(event.type, callback);
+    }
+    target?.addEventListener(event.type, callback);
+  });
+
   const handlePointerUp = useEventCallback((event: PointerEvent) => {
     if (
       getOutsidePressEvent() !== 'sloppy' ||
@@ -474,6 +485,15 @@ export function useDismiss(
 
     cancelDismissOnEndTimeout.clear();
     touchStateRef.current = null;
+  });
+
+  const handlePointerUpCapture = useEventCallback((event: PointerEvent) => {
+    const target = getTarget(event);
+    function callback() {
+      handlePointerUp(event);
+      target?.removeEventListener(event.type, callback);
+    }
+    target?.addEventListener(event.type, callback);
   });
 
   React.useEffect(() => {
@@ -534,8 +554,8 @@ export function useDismiss(
         outsidePressCapture ? closeOnPressOutsideCapture : closeOnPressOutside,
         outsidePressCapture,
       );
-      doc.addEventListener('pointermove', handlePointerMove, outsidePressCapture);
-      doc.addEventListener('pointerup', handlePointerUp, outsidePressCapture);
+      doc.addEventListener('pointermove', handlePointerMoveCapture, outsidePressCapture);
+      doc.addEventListener('pointerup', handlePointerUpCapture, outsidePressCapture);
       doc.addEventListener('mousedown', closeOnPressOutsideCapture, outsidePressCapture);
     }
 
@@ -590,8 +610,8 @@ export function useDismiss(
           outsidePressCapture ? closeOnPressOutsideCapture : closeOnPressOutside,
           outsidePressCapture,
         );
-        doc.removeEventListener('pointermove', handlePointerMove, outsidePressCapture);
-        doc.removeEventListener('pointerup', handlePointerUp, outsidePressCapture);
+        doc.removeEventListener('pointermove', handlePointerMoveCapture, outsidePressCapture);
+        doc.removeEventListener('pointerup', handlePointerUpCapture, outsidePressCapture);
         doc.removeEventListener('mousedown', closeOnPressOutsideCapture, outsidePressCapture);
       }
 
@@ -619,8 +639,8 @@ export function useDismiss(
     outsidePressCapture,
     closeOnPressOutsideCapture,
     handlePointerDown,
-    handlePointerMove,
-    handlePointerUp,
+    handlePointerMoveCapture,
+    handlePointerUpCapture,
     trackPointerType,
   ]);
 
@@ -669,6 +689,7 @@ export function useDismiss(
       onMouseDownCapture: handleCaptureInside,
       onClickCapture: handleCaptureInside,
       onMouseUpCapture: handleCaptureInside,
+      onPointerMoveCapture: handleCaptureInside,
     }),
     [closeOnEscapeKeyDown, handlePressedInside, handleCaptureInside],
   );

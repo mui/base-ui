@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
+import { Combobox } from '@base-ui-components/react/combobox';
 import { Menu } from '@base-ui-components/react/menu';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
@@ -1585,5 +1586,81 @@ describe('<Popover.Root />', () => {
 
       expect(screen.getByTestId('popup').textContent).to.equal('2');
     });
+  });
+
+  describe('nested popup interactions', () => {
+    it.skipIf(isJSDOM)(
+      'should not close popover when scrolling nested popup on touch',
+      async () => {
+        const fruits = Array.from({ length: 50 }, (_, i) => i);
+        await render(
+          <Popover.Root defaultOpen>
+            <Popover.Trigger>Toggle</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popover-popup">
+                  <Combobox.Root items={fruits} defaultOpen>
+                    <Combobox.Input placeholder="Choose a fruit" />
+                    <Combobox.Portal>
+                      <Combobox.Positioner>
+                        <Combobox.Popup
+                          data-testid="combobox-popup"
+                          style={{ maxHeight: 200, overflow: 'auto' }}
+                        >
+                          <Combobox.List>
+                            {(item: string) => (
+                              <Combobox.Item key={item} value={item} style={{ height: 100 }}>
+                                {item}
+                              </Combobox.Item>
+                            )}
+                          </Combobox.List>
+                        </Combobox.Popup>
+                      </Combobox.Positioner>
+                    </Combobox.Portal>
+                  </Combobox.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>,
+        );
+
+        const popoverPopup = screen.getByTestId('popover-popup');
+        expect(popoverPopup).not.to.equal(null);
+
+        await flushMicrotasks();
+
+        const comboboxPopup = screen.getByTestId('combobox-popup');
+        expect(comboboxPopup).not.to.equal(null);
+
+        // Simulate touch scroll: pointerdown + pointermove on the scrollable list
+        fireEvent.pointerDown(comboboxPopup, {
+          clientX: 100,
+          clientY: 100,
+          pointerType: 'touch',
+        });
+
+        // Wait for the markInsideReactTree timeout to finish
+        await new Promise((resolve) => {
+          setTimeout(resolve);
+        });
+
+        fireEvent.pointerMove(comboboxPopup, {
+          clientX: 100,
+          clientY: 50,
+          pointerType: 'touch',
+        });
+
+        fireEvent.pointerUp(comboboxPopup, {
+          clientX: 100,
+          clientY: 50,
+          pointerType: 'touch',
+        });
+
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+        expect(screen.queryByTestId('combobox-popup')).not.to.equal(null);
+      },
+    );
   });
 });
