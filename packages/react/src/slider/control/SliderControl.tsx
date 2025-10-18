@@ -3,7 +3,7 @@ import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
 import { clamp } from '../../utils/clamp';
@@ -108,7 +108,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   const controlRef = React.useRef<HTMLElement>(null);
   const stylesRef = React.useRef<CSSStyleDeclaration>(null);
-  const setStylesRef = useEventCallback((element: HTMLElement | null) => {
+  const setStylesRef = useStableCallback((element: HTMLElement | null) => {
     if (element && stylesRef.current == null) {
       if (stylesRef.current == null) {
         stylesRef.current = getComputedStyle(element);
@@ -124,7 +124,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   // This value should be equal to the radius or half the width/height of the thumb.
   const insetThumbOffsetRef = React.useRef(0);
 
-  const getFingerState = useEventCallback((fingerCoords: Coords): FingerState | null => {
+  const getFingerState = useStableCallback((fingerCoords: Coords): FingerState | null => {
     const control = controlRef.current;
 
     if (!control) {
@@ -173,7 +173,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     };
   });
 
-  const startPressing = useEventCallback((fingerCoords: Coords) => {
+  const startPressing = useStableCallback((fingerCoords: Coords) => {
     const pressedThumbIndex = pressedThumbIndexRef.current;
     let closestThumbIndex = pressedThumbIndex;
 
@@ -222,13 +222,13 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
   });
 
-  const focusThumb = useEventCallback((thumbIndex: number) => {
+  const focusThumb = useStableCallback((thumbIndex: number) => {
     thumbRefs.current?.[thumbIndex]
       ?.querySelector<HTMLInputElement>('input[type="range"]')
       ?.focus({ preventScroll: true });
   });
 
-  const handleTouchMove = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
+  const handleTouchMove = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
     const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
 
     if (fingerCoords == null) {
@@ -296,7 +296,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     stopListening();
   }
 
-  const handleTouchStart = useEventCallback((nativeEvent: TouchEvent) => {
+  const handleTouchStart = useStableCallback((nativeEvent: TouchEvent) => {
     if (disabled) {
       return;
     }
@@ -328,7 +328,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     doc.addEventListener('touchend', handleTouchEnd, { passive: true });
   });
 
-  const stopListening = useEventCallback(() => {
+  const stopListening = useStableCallback(() => {
     const doc = ownerDocument(controlRef.current);
     doc.removeEventListener('pointermove', handleTouchMove);
     doc.removeEventListener('pointerup', handleTouchEnd);

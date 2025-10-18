@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
@@ -83,7 +83,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   const overflowEdgeThreshold = normalizeOverflowEdgeThreshold(overflowEdgeThresholdProp);
 
-  const handleScroll = useEventCallback((scrollPosition: { x: number; y: number }) => {
+  const handleScroll = useStableCallback((scrollPosition: { x: number; y: number }) => {
     const offsetX = scrollPosition.x - scrollPositionRef.current.x;
     const offsetY = scrollPosition.y - scrollPositionRef.current.y;
     scrollPositionRef.current = scrollPosition;
@@ -105,7 +105,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     }
   });
 
-  const handlePointerDown = useEventCallback((event: React.PointerEvent) => {
+  const handlePointerDown = useStableCallback((event: React.PointerEvent) => {
     if (event.button !== 0) {
       return;
     }
@@ -129,7 +129,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     }
   });
 
-  const handlePointerMove = useEventCallback((event: React.PointerEvent) => {
+  const handlePointerMove = useStableCallback((event: React.PointerEvent) => {
     if (!thumbDraggingRef.current) {
       return;
     }
@@ -189,7 +189,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     }
   });
 
-  const handlePointerUp = useEventCallback((event: React.PointerEvent) => {
+  const handlePointerUp = useStableCallback((event: React.PointerEvent) => {
     thumbDraggingRef.current = false;
 
     if (thumbYRef.current && currentOrientationRef.current === 'vertical') {

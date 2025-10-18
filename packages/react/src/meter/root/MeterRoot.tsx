@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
@@ -40,10 +39,8 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     ...elementProps
   } = componentProps;
 
-  const formatOptionsRef = useLatestRef(format);
-
   const [labelId, setLabelId] = React.useState<string | undefined>();
-  const formattedValue = formatValue(valueProp, locale, formatOptionsRef.current);
+  const formattedValue = formatValue(valueProp, locale, format);
 
   let ariaValuetext = `${valueProp}%`;
   if (getAriaValueText) {

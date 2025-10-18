@@ -3,8 +3,8 @@ import * as React from 'react';
 import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import {
   autoUpdate,
   flip,
@@ -139,9 +139,9 @@ export function useAnchorPositioning(
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
-  const anchorFnCallback = useEventCallback(anchorFn);
+  const anchorFnCallback = useStableCallback(anchorFn);
   const anchorDep = anchorFn ? anchorFnCallback : anchor;
-  const anchorValueRef = useLatestRef(anchor);
+  const anchorValueRef = useValueAsRef(anchor);
 
   const direction = useDirection();
   const isRtl = direction === 'rtl';
@@ -204,8 +204,8 @@ export function useAnchorPositioning(
   const arrowRef = React.useRef<Element | null>(null);
 
   // Keep these reactive if they're not functions
-  const sideOffsetRef = useLatestRef(sideOffset);
-  const alignOffsetRef = useLatestRef(alignOffset);
+  const sideOffsetRef = useValueAsRef(sideOffset);
+  const alignOffsetRef = useValueAsRef(alignOffset);
   const sideOffsetDep = typeof sideOffset !== 'function' ? sideOffset : 0;
   const alignOffsetDep = typeof alignOffset !== 'function' ? alignOffset : 0;
 
