@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { isAndroid, isFirefox } from '@base-ui-components/utils/detectBrowser';
@@ -412,13 +411,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               store.state.handleSelection(nativeEvent);
             };
 
-            if (store.state.alwaysSubmitOnEnter) {
-              // Commit the input value update synchronously so the form reads the committed value.
-              ReactDOM.flushSync(selectActiveItem);
-              return;
+            if (!store.state.submitOnClick) {
+              stopEvent(event);
             }
 
-            stopEvent(event);
             selectActiveItem();
           }
         },
