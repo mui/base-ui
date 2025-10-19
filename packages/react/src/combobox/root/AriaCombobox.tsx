@@ -432,16 +432,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
       if (pendingHighlight.hasQuery) {
-        if (store.state.autoHighlight) {
+        if (autoHighlight) {
           store.set('activeIndex', 0);
         }
-      } else if (store.state.autoHighlight) {
+      } else if (autoHighlight) {
         store.set('activeIndex', null);
       }
       pendingQueryHighlightRef.current = null;
     }
 
-    if (!store.state.open && !store.state.inline) {
+    if (!open && !inline) {
       return;
     }
 
@@ -484,7 +484,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         createGenericEventDetails('none', undefined, { index: storeActiveIndex }),
       );
     }
-  }, [flatFilteredItems, store, items, valuesRef]);
+  }, [activeIndex, autoHighlight, flatFilteredItems, inline, items, open, store, valuesRef]);
 
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
