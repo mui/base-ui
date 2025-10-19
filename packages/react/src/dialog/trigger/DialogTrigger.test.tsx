@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { screen } from '@mui/internal-test-utils';

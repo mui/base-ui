@@ -288,7 +288,7 @@ Renders a \`<div>\` element.
 
 | Prop         | Type                                                                                | Default | Description                                                                                                                                                                                                                 |
 | :----------- | :---------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value        | \`AccordionItemValue\`                                                                | -       | A unique value that identifies this accordion item.&#xA;If no value is provided, a unique ID will be generated automatically.&#xA;Use when controlling the accordion programmatically, or to set an initial&#xA;open state. |
+| value        | \`any\`                                                                               | -       | A unique value that identifies this accordion item.&#xA;If no value is provided, a unique ID will be generated automatically.&#xA;Use when controlling the accordion programmatically, or to set an initial&#xA;open state. |
 | onOpenChange | \`((open: boolean, eventDetails: Accordion.Item.ChangeEventDetails) => void)\`        | -       | Event handler called when the panel is opened or closed.                                                                                                                                                                    |
 | disabled     | \`boolean\`                                                                           | \`false\` | Whether the component should ignore user interaction.                                                                                                                                                                       |
 | className    | \`string \\| ((state: Accordion.Item.State) => string)\`                               | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                                                    |
@@ -397,7 +397,6 @@ This example shows how to implement the component using Tailwind CSS.
 
 \`\`\`tsx
 /* index.tsx */
-import * as React from 'react';
 import { Slider } from '@base-ui-components/react/slider';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 
@@ -464,7 +463,6 @@ This example shows how to implement the component using CSS Modules.
 
 \`\`\`tsx
 /* index.tsx */
-import * as React from 'react';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Slider } from '@base-ui-components/react/slider';
 import styles from './index.module.css';

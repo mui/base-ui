@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
@@ -22,18 +21,18 @@ describe('<Menu.Trigger />', () => {
 
   describe('prop: disabled', () => {
     it('should render a disabled button', async () => {
-      const { getByRole } = await render(
+      await render(
         <Menu.Root>
           <Menu.Trigger disabled />
         </Menu.Root>,
       );
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
       expect(button).to.have.property('disabled', true);
     });
 
     it('should not open the menu when clicked', async () => {
-      const { getByRole, queryByRole } = await render(
+      await render(
         <Menu.Root>
           <Menu.Trigger disabled />
           <Menu.Portal>
@@ -44,15 +43,15 @@ describe('<Menu.Trigger />', () => {
         </Menu.Root>,
       );
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
       await user.click(button);
 
-      expect(queryByRole('menu', { hidden: false })).to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: false })).to.equal(null);
     });
   });
 
   it('toggles the menu state when clicked', async () => {
-    const { getByRole, findByRole } = await render(
+    await render(
       <Menu.Root>
         <Menu.Trigger>Open</Menu.Trigger>
         <Menu.Portal>
@@ -63,10 +62,10 @@ describe('<Menu.Trigger />', () => {
       </Menu.Root>,
     );
 
-    const button = getByRole('button', { name: 'Open' });
+    const button = screen.getByRole('button', { name: 'Open' });
     await user.click(button);
 
-    const menuPopup = await findByRole('menu', { hidden: false });
+    const menuPopup = await screen.findByRole('menu', { hidden: false });
     expect(menuPopup).not.to.equal(null);
     expect(menuPopup).to.have.attribute('data-open', '');
   });
@@ -85,7 +84,7 @@ describe('<Menu.Trigger />', () => {
         }
 
         it(`opens the menu when pressing "${key}" on a ${buttonType} button`, async () => {
-          const { getByRole, queryByRole } = await render(
+          await render(
             <Menu.Root>
               {buttonComponent}
               <Menu.Portal>
@@ -98,14 +97,14 @@ describe('<Menu.Trigger />', () => {
             </Menu.Root>,
           );
 
-          const button = getByRole('button', { name: 'Open' });
+          const button = screen.getByRole('button', { name: 'Open' });
           await act(async () => {
             button.focus();
           });
 
           await user.keyboard(`[${key}]`);
 
-          const menuPopup = queryByRole('menu', { hidden: false });
+          const menuPopup = screen.queryByRole('menu', { hidden: false });
           expect(menuPopup).not.to.equal(null);
         });
       });
@@ -114,35 +113,35 @@ describe('<Menu.Trigger />', () => {
 
   describe('accessibility attributes', () => {
     it('has the aria-haspopup attribute', async () => {
-      const { getByRole } = await render(
+      await render(
         <Menu.Root>
           <Menu.Trigger />
         </Menu.Root>,
       );
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
       expect(button).to.have.attribute('aria-haspopup');
     });
 
     it('has the aria-expanded=false attribute when closed', async () => {
-      const { getByRole } = await render(
+      await render(
         <Menu.Root>
           <Menu.Trigger />
         </Menu.Root>,
       );
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
       expect(button).to.have.attribute('aria-expanded', 'false');
     });
 
     it('has the aria-expanded=true attribute when open', async () => {
-      const { getByRole } = await render(
+      await render(
         <Menu.Root open>
           <Menu.Trigger />
         </Menu.Root>,
       );
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
       expect(button).to.have.attribute('aria-expanded', 'true');
     });
   });
@@ -294,7 +293,7 @@ describe('<Menu.Trigger />', () => {
 
   describe('preventBaseUIHandler', () => {
     it('prevents opening the menu with a mouse when `preventBaseUIHandler` is called in onMouseDown', async () => {
-      const { getByRole, queryByRole } = await render(
+      await render(
         <Menu.Root>
           <Menu.Trigger onMouseDown={(event) => event.preventBaseUIHandler()} />
           <Menu.Portal>
@@ -305,14 +304,14 @@ describe('<Menu.Trigger />', () => {
         </Menu.Root>,
       );
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
       await user.click(button);
 
-      expect(queryByRole('menu', { hidden: false })).to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: false })).to.equal(null);
     });
 
     it('prevents opening the menu with keyboard when `preventBaseUIHandler` is called in onClick', async () => {
-      const { getByRole, queryByRole } = await render(
+      await render(
         <Menu.Root>
           <Menu.Trigger onClick={(event) => event.preventBaseUIHandler()} />
           <Menu.Portal>
@@ -323,19 +322,19 @@ describe('<Menu.Trigger />', () => {
         </Menu.Root>,
       );
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
       await act(async () => {
         button.focus();
       });
 
       await user.keyboard('[Enter]');
 
-      expect(queryByRole('menu', { hidden: false })).to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: false })).to.equal(null);
     });
   });
 
   it('does not have role prop inside a Popover', async () => {
-    const { getByTestId } = await render(
+    await render(
       <Popover.Root open>
         <Popover.Trigger>Open</Popover.Trigger>
         <Popover.Portal>
@@ -350,12 +349,12 @@ describe('<Menu.Trigger />', () => {
       </Popover.Root>,
     );
 
-    const button = getByTestId('menu-trigger');
+    const button = screen.getByTestId('menu-trigger');
     expect(button).not.to.have.attribute('role');
   });
 
   it('has a role prop inside a Popover when not a native button', async () => {
-    const { getByTestId } = await render(
+    await render(
       <Popover.Root open>
         <Popover.Trigger>Open</Popover.Trigger>
         <Popover.Portal>
@@ -370,7 +369,7 @@ describe('<Menu.Trigger />', () => {
       </Popover.Root>,
     );
 
-    const button = getByTestId('menu-trigger');
+    const button = screen.getByTestId('menu-trigger');
     expect(button).to.have.attribute('role', 'button');
   });
 });

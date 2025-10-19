@@ -18,7 +18,7 @@ import {
 } from '../../floating-ui-react';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
@@ -53,24 +53,16 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     setDirty,
     validityData,
     validationMode,
-    setControlId,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
   } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
-  const id = useBaseUiId(idProp);
-
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  useIsoLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
+  const id = useLabelableId({ id: idProp });
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: params.value,
@@ -562,13 +554,19 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   };
 }
 
-export namespace useSelectRoot {
-  export interface Parameters<Value, Multiple extends boolean | undefined = false>
-    extends Omit<SelectRootConditionalProps<Value, Multiple>, 'children' | 'inputRef'> {}
+export interface UseSelectRootParameters<Value, Multiple extends boolean | undefined = false>
+  extends Omit<SelectRootConditionalProps<Value, Multiple>, 'children' | 'inputRef'> {}
 
-  export type ReturnValue = {
-    rootContext: SelectRootContext;
-    floatingContext: FloatingRootContext;
-    value: any;
-  };
+export type UseSelectRootReturnValue = {
+  rootContext: SelectRootContext;
+  floatingContext: FloatingRootContext;
+  value: any;
+};
+
+export namespace useSelectRoot {
+  export type Parameters<
+    Value,
+    Multiple extends boolean | undefined = false,
+  > = UseSelectRootParameters<Value, Multiple>;
+  export type ReturnValue = UseSelectRootReturnValue;
 }

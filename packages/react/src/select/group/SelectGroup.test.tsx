@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';

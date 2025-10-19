@@ -34,9 +34,9 @@ import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useFormContext } from '../../form/FormContext';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -112,27 +112,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     setDirty,
     validityData,
     validationMode,
-    setControlId,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
   } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
-
-  const id = useBaseUiId(idProp);
+  const id = useLabelableId({ id: idProp });
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const commitValidation = fieldControlValidation.commitValidation;
-
-  useIsoLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
     controlled: selectedValueProp,
@@ -311,7 +302,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       new Store<StoreState>({
         id,
         selectedValue,
-        inputValue,
         open,
         filter,
         query,
@@ -415,10 +405,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [forceMount, selectedValue, initialSelectedValueRef]);
 
-  const updateValue = useEventCallback((nextValue: any) => {
+  function updateValue(nextValue: any) {
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
-  });
+  }
 
   const formValue = selectionMode === 'none' ? inputValue : selectedValue;
 
@@ -1026,7 +1016,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     store.apply({
       id,
       selectedValue,
-      inputValue,
       open,
       mounted,
       transitionStatus,
@@ -1059,7 +1048,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     store,
     id,
     selectedValue,
-    inputValue,
     open,
     mounted,
     transitionStatus,

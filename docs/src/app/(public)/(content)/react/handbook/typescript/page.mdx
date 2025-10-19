@@ -25,7 +25,7 @@ function MyTooltip(props: Tooltip.Root.Props) {
 ### State
 
 The `State` type is the internal state of the component.
-For example, `Positioner` components (such as `Popover.Positioner`) have state that describes the position of the element in relation to their anchor.
+For example, `Positioner` components (such as `<Popover.Positioner>`) have state that describes the position of the element in relation to their anchor.
 
 ```tsx title="Positioner state"
 function renderPositioner(props: Popover.Positioner.Props, state: Popover.Positioner.State) {
@@ -67,6 +67,6 @@ function onOpenChange(open: boolean, eventDetails: Combobox.Root.ChangeEventDeta
 Depending on the component API, other types are also exported on component parts or utility functions.
 The following list is non-exhaustive, and each of these are documented where necessary.
 
-- Popups have an `actionsRef` prop to access imperative methods. For example, `Menu.Root.Actions` gives access to the shape of the `actionsRef` object prop on `Menu.Root`.
-- The `toast` object on `Toast.Root` is a complex object with many properties. `Toast.Root.ToastObject` gives access to this interface.
+- Popups have an `actionsRef` prop to access imperative methods. For example, `Menu.Root.Actions` gives access to the shape of the `actionsRef` object prop on `<Menu.Root>`.
+- The `toast` object on `<Toast.Root>` is a complex object with many properties. `Toast.Root.ToastObject` gives access to this interface.
 - Components that have a `render` prop have an extended `React.ComponentProps` type, enhanced with a `render` prop. The `useRender.ComponentProps` type on the function gives access to this interface.
