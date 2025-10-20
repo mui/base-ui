@@ -162,11 +162,11 @@ export default function DialogExperiment() {
         <StyledDialog
           handle={controlledDetachedDialog}
           open={controlledDetachedOpen}
+          triggerId={controlledDetachedTriggerId}
           onOpenChange={(nextOpen, eventDetails) => {
             setControlledDetachedOpen(nextOpen);
             setControlledDetachedTriggerId(eventDetails.trigger?.id ?? null);
           }}
-          triggerId={controlledDetachedTriggerId}
         />
         <StyledTrigger handle={controlledDetachedDialog} payload={triggerLabels[0]}>
           {triggerLabels[0]}
@@ -198,15 +198,7 @@ export default function DialogExperiment() {
 
       <h2>Handle-controlled dialog</h2>
       <div className={styles.Container}>
-        <StyledDialog
-          handle={handleControlledDialog}
-          open={controlledDetachedOpen}
-          onOpenChange={(nextOpen, eventDetails) => {
-            setControlledDetachedOpen(nextOpen);
-            setControlledDetachedTriggerId(eventDetails.trigger?.id ?? null);
-          }}
-          triggerId={controlledDetachedTriggerId}
-        />
+        <StyledDialog handle={handleControlledDialog} />
         <StyledTrigger handle={handleControlledDialog} payload={triggerLabels[0]}>
           {triggerLabels[0]}
         </StyledTrigger>
