@@ -9,6 +9,7 @@ import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -47,7 +48,14 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     ...elementProps
   } = componentProps;
 
-  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
+  const {
+    setTouched,
+    setFocused,
+    validationMode,
+    state: fieldState,
+    disabled: fieldDisabled,
+  } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
   const {
     store,
     setOpen,
@@ -68,8 +76,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const listElement = useStore(store, selectors.listElement);
 
   const positionerRef = useLatestRef(positionerElement);
-
-  const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const timeoutFocus = useTimeout();

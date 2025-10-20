@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Separator } from '@base-ui-components/react/separator';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -12,17 +12,16 @@ describe('<Separator />', () => {
   }));
 
   it('renders a div with the `separator` role', async () => {
-    const { getByRole } = await render(<Separator />);
-    expect(getByRole('separator')).toBeVisible();
+    await render(<Separator />);
+    expect(screen.getByRole('separator')).toBeVisible();
   });
 
   describe('prop: orientation', () => {
     ['horizontal', 'vertical'].forEach((orientation) => {
       it(orientation, async () => {
-        const { getByRole } = await render(
-          <Separator orientation={orientation as Separator.Props['orientation']} />,
-        );
-        expect(getByRole('separator')).to.have.attribute('aria-orientation', orientation);
+        await render(<Separator orientation={orientation as Separator.Props['orientation']} />);
+
+        expect(screen.getByRole('separator')).to.have.attribute('aria-orientation', orientation);
       });
     });
   });

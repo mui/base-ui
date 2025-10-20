@@ -3,8 +3,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { isFirefox } from '@base-ui-components/utils/detectBrowser';
+import { isAndroid, isFirefox } from '@base-ui-components/utils/detectBrowser';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
   useComboboxDerivedItemsContext,
@@ -13,11 +14,12 @@ import {
 } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../../field/utils/constants';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
-import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -39,16 +41,22 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   componentProps: ComboboxInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    id: idProp,
+    ...elementProps
+  } = componentProps;
 
   const {
     state: fieldState,
     disabled: fieldDisabled,
-    labelId,
     setTouched,
     setFocused,
     validationMode,
   } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
   const comboboxChipsContext = useComboboxChipsContext();
   const positioning = useComboboxPositionerContext(true);
   const hasPositionerParent = Boolean(positioning);
@@ -71,6 +79,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const selectedValue = useStore(store, selectors.selectedValue);
   const popupSideValue = useStore(store, selectors.popupSide);
   const positionerElement = useStore(store, selectors.positionerElement);
+
+  const id = useBaseUiId(idProp);
 
   // `inputValue` can't be placed in the store.
   // https://github.com/mui/base-ui/issues/2703
@@ -180,6 +190,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         disabled,
         readOnly,
         ...(selectionMode === 'none' && name && { name }),
+        id,
         onFocus() {
           setFocused(true);
         },
@@ -193,6 +204,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
         },
         onCompositionStart(event) {
+          if (isAndroid) {
+            return;
+          }
           isComposingRef.current = true;
           setComposingValue(event.currentTarget.value);
         },
@@ -206,8 +220,12 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           );
         },
         onChange(event: React.ChangeEvent<HTMLInputElement>) {
-          // During IME composition, avoid propagating controlled updates to preserve
-          // its state.
+          // During IME composition, avoid propagating controlled updates to prevent
+          // filtering the options prematurely so `Empty` won't show incorrectly.
+          // We can't rely on this check for Android due to how it handles composition
+          // events with some keyboards (e.g. Samsung keyboard with predictive text on
+          // treats all text as always-composing).
+          // https://github.com/mui/base-ui/issues/2942
           if (isComposingRef.current) {
             const nextVal = event.currentTarget.value;
             setComposingValue(nextVal);

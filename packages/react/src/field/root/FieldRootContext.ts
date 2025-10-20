@@ -6,16 +6,6 @@ import type { FieldRoot, FieldValidityData } from './FieldRoot';
 
 export interface FieldRootContext {
   invalid: boolean | undefined;
-  /**
-   * The `id` of the labelable element that corresponds to the `for` attribute of a `Field.Label`.
-   * When `null` the association is implicit.
-   */
-  controlId: string | null | undefined;
-  setControlId: React.Dispatch<React.SetStateAction<string | null | undefined>>;
-  labelId: string | undefined;
-  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  messageIds: string[];
-  setMessageIds: React.Dispatch<React.SetStateAction<string[]>>;
   name: string | undefined;
   validityData: FieldValidityData;
   setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
@@ -40,12 +30,6 @@ export interface FieldRootContext {
 
 export const FieldRootContext = React.createContext<FieldRootContext>({
   invalid: undefined,
-  controlId: undefined,
-  setControlId: NOOP,
-  labelId: undefined,
-  setLabelId: NOOP,
-  messageIds: [],
-  setMessageIds: NOOP,
   name: undefined,
   validityData: {
     state: DEFAULT_VALIDITY_STATE,
@@ -81,7 +65,7 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
 export function useFieldRootContext(optional = true) {
   const context = React.useContext(FieldRootContext);
 
-  if (context.setControlId === NOOP && !optional) {
+  if (context.setValidityData === NOOP && !optional) {
     throw new Error(
       'Base UI: FieldRootContext is missing. Field parts must be placed within <Field.Root>.',
     );

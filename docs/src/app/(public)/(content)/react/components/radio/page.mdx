@@ -38,24 +38,29 @@ Provides a shared state to a series of radio buttons. Renders a `<div>` element.
 
 To use a radio group in a form:
 
-1. Pass the group's `name` to `Field`
-2. Use `Field.Label` to label each radio
-3. Use the `render` prop to render the field as a `Fieldset` in order to label the group
+1. Pass the group's `name` to `<Field>`
+2. Use the `render` prop to compose `<Fieldset>` and `<RadioGroup>`
+3. Use `<Field.Item>` to wrap each radio in the group
 
 ```tsx title="Using RadioGroup in a form"
 <Form>
-  <Field.Root name="shipping" render={<Fieldset.Root />}>
-    <Fieldset.Legend>Shipping method</Fieldset.Legend>
-    <RadioGroup>
-      <Field.Label>
-        <Radio.Root value="standard" />
-        Standard
-      </Field.Label>
-      <Field.Label>
-        <Radio.Root value="express" />
-        Express
-      </Field.Label>
-    </RadioGroup>
+  <Field.Root name="shipping">
+    <Fieldset.Root render={<RadioGroup />}>
+      <Fieldset.Legend>Shipping method</Fieldset.Legend>
+      <Field.Item>
+        <Field.Label>
+          <Radio.Root value="standard" />
+          Standard
+        </Field.Label>
+      </Field.Item>
+      <Field.Item>
+        <Field.Label>
+          <Radio.Root value="express" />
+          Express
+        </Field.Label>
+        ` `{' '}
+      </Field.Item>
+    </Fieldset.Root>
   </Field.Root>
 </Form>
 ```
