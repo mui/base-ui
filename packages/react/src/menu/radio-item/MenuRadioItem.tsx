@@ -14,6 +14,7 @@ import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { MenuStore } from '../store/MenuStore';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuRadioItem(
@@ -31,8 +32,7 @@ const InnerMenuRadioItem = React.memo(
       menuEvents,
       itemProps,
       render,
-      allowMouseUpTriggerRef,
-      typingRef,
+      store,
       nativeButton,
       nodeId,
       ...elementProps
@@ -44,8 +44,7 @@ const InnerMenuRadioItem = React.memo(
       highlighted,
       id,
       menuEvents,
-      allowMouseUpTriggerRef,
-      typingRef,
+      store,
       nativeButton,
       itemMetadata: REGULAR_ITEM,
       nodeId,
@@ -104,7 +103,10 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const listItem = useCompositeListItem({ label });
   const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
 
-  const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
+  const { store } = useMenuRootContext();
+  const itemProps = store.useState('itemProps');
+  const activeIndex = store.useState('activeIndex');
+
   const menuPositionerContext = useMenuPositionerContext(true);
 
   const id = useBaseUiId(idProp);
@@ -147,10 +149,9 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
         highlighted={highlighted}
         menuEvents={menuEvents}
         itemProps={itemProps}
-        allowMouseUpTriggerRef={allowMouseUpTriggerRef}
+        store={store}
         checked={selectedValue === value}
         setChecked={setChecked}
-        typingRef={typingRef}
         closeOnClick={closeOnClick}
         nativeButton={nativeButton}
         nodeId={menuPositionerContext?.floatingContext.nodeId}
@@ -163,10 +164,9 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   highlighted: boolean;
   itemProps: HTMLProps;
   menuEvents: FloatingEvents;
-  allowMouseUpTriggerRef: React.RefObject<boolean>;
+  store: MenuStore;
   checked: boolean;
   setChecked: (data: MenuRoot.ChangeEventDetails) => void;
-  typingRef: React.RefObject<boolean>;
   closeOnClick: boolean;
   nativeButton: boolean;
   nodeId: string | undefined;

@@ -9,11 +9,12 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { MenuRoot } from '../root/MenuRoot';
+import { MenuStore } from '../store/MenuStore';
 
 const InnerMenuCheckboxItem = React.memo(
   React.forwardRef(function InnerMenuCheckboxItem(
@@ -30,10 +31,8 @@ const InnerMenuCheckboxItem = React.memo(
       highlighted,
       id,
       menuEvents,
-      itemProps,
       render,
-      allowMouseUpTriggerRef,
-      typingRef,
+      store,
       nativeButton,
       nodeId,
       ...elementProps
@@ -52,12 +51,13 @@ const InnerMenuCheckboxItem = React.memo(
       highlighted,
       id,
       menuEvents,
-      allowMouseUpTriggerRef,
-      typingRef,
+      store,
       nativeButton,
       nodeId,
       itemMetadata: REGULAR_ITEM,
     });
+
+    const itemProps = store.useState('itemProps');
 
     const state: MenuCheckboxItem.State = React.useMemo(
       () => ({
@@ -116,7 +116,8 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   const listItem = useCompositeListItem({ label });
   const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
 
-  const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
+  const { store } = useMenuRootContext();
+  const activeIndex = store.useState('activeIndex');
   const menuPositionerContext = useMenuPositionerContext(true);
 
   const id = useBaseUiId(idProp);
@@ -135,9 +136,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
       ref={mergedRef}
       highlighted={highlighted}
       menuEvents={menuEvents}
-      itemProps={itemProps}
-      allowMouseUpTriggerRef={allowMouseUpTriggerRef}
-      typingRef={typingRef}
+      store={store}
       closeOnClick={closeOnClick}
       nativeButton={nativeButton}
       nodeId={menuPositionerContext?.floatingContext.nodeId}
@@ -147,10 +146,8 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
 interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   highlighted: boolean;
-  itemProps: HTMLProps;
   menuEvents: FloatingEvents;
-  allowMouseUpTriggerRef: React.RefObject<boolean>;
-  typingRef: React.RefObject<boolean>;
+  store: MenuStore;
   closeOnClick: boolean;
   nativeButton: boolean;
   nodeId: string | undefined;

@@ -6,9 +6,10 @@ import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
+import { MenuStore } from '../store/MenuStore';
 
 const InnerMenuItem = React.memo(
   React.forwardRef(function InnerMenuItem(
@@ -22,10 +23,8 @@ const InnerMenuItem = React.memo(
       highlighted,
       id,
       menuEvents,
-      itemProps,
+      store,
       render,
-      allowMouseUpTriggerRef,
-      typingRef,
       nativeButton,
       nodeId,
       ...elementProps
@@ -37,12 +36,13 @@ const InnerMenuItem = React.memo(
       highlighted,
       id,
       menuEvents,
-      allowMouseUpTriggerRef,
-      typingRef,
+      store,
       nativeButton,
       nodeId,
       itemMetadata: REGULAR_ITEM,
     });
+
+    const itemProps = store.useState('itemProps');
 
     const state: MenuItem.State = React.useMemo(
       () => ({
@@ -76,7 +76,9 @@ export const MenuItem = React.forwardRef(function MenuItem(
   const listItem = useCompositeListItem({ label });
   const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
 
-  const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
+  const { store } = useMenuRootContext();
+  const activeIndex = store.useState('activeIndex');
+
   const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
 
@@ -94,9 +96,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
       ref={mergedRef}
       highlighted={highlighted}
       menuEvents={menuEvents}
-      itemProps={itemProps}
-      allowMouseUpTriggerRef={allowMouseUpTriggerRef}
-      typingRef={typingRef}
+      store={store}
       nativeButton={nativeButton}
       nodeId={menuPositionerContext?.floatingContext.nodeId}
     />
@@ -105,10 +105,8 @@ export const MenuItem = React.forwardRef(function MenuItem(
 
 interface InnerMenuItemProps extends MenuItem.Props {
   highlighted: boolean;
-  itemProps: HTMLProps;
   menuEvents: FloatingEvents;
-  allowMouseUpTriggerRef: React.RefObject<boolean>;
-  typingRef: React.RefObject<boolean>;
+  store: MenuStore;
   nativeButton: boolean;
   nodeId: string | undefined;
 }
