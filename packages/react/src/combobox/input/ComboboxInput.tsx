@@ -78,6 +78,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const popupSide = mounted && positionerElement ? popupSideValue : '';
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
+  const listEmpty = filteredItems.length === 0;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
@@ -93,8 +94,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       inputInsidePopup: hasPositionerParent,
     });
   });
-
-  const listEmpty = filteredItems.length === 0;
 
   const state: ComboboxInput.State = React.useMemo(
     () => ({
