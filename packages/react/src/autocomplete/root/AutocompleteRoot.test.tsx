@@ -168,6 +168,36 @@ describe('<Autocomplete.Root />', () => {
       });
     });
 
+    it('highlights the first item when opening via ArrowDown', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['alpha', 'beta', 'gamma']} autoHighlight>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      const firstOption = await screen.findByRole('option', { name: 'alpha' });
+      expect(firstOption).to.have.attribute('data-highlighted');
+      expect(input.getAttribute('aria-activedescendant')).to.equal(firstOption.id);
+    });
+
     it('links aria-activedescendant to the highlighted item after filtering', async () => {
       const { user } = await render(
         <Autocomplete.Root items={['feature', 'fix']} autoHighlight>

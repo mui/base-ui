@@ -944,7 +944,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     virtual: true,
     loop: true,
     allowEscape: !autoHighlight,
-    focusItemOnOpen: queryChangedAfterOpen || selectionMode === 'none' ? false : 'auto',
+    focusItemOnOpen:
+      queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlight) ? false : 'auto',
     // `cols` > 1 enables grid navigation.
     // Since <Combobox.Row> infers column sizes (and is required when building a grid),
     // it works correctly even with a value of `2`.
