@@ -1,5 +1,6 @@
 @layer components {
   .DemoRoot {
+    position: relative;
     background-color: var(--color-content);
     border: 1px solid var(--color-gray-200);
     border-radius: var(--radius-md);

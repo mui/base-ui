@@ -16,11 +16,13 @@ export interface DemoProps extends React.ComponentProps<typeof BaseDemo.Root> {
   variants: BaseDemo.DemoVariant[];
   defaultOpen?: boolean;
   compact?: boolean;
+  showExtraSandboxLink?: boolean;
 }
 
 export function Demo({
   defaultOpen = false,
   compact = false,
+  showExtraSandboxLink = false,
   className,
   title,
   ...props
@@ -31,6 +33,13 @@ export function Demo({
 
   return (
     <BaseDemo.Root className={clsx('DemoRoot', className)} {...props}>
+      {showExtraSandboxLink && (
+        <CodeSandboxLink
+          title="Base UI example"
+          description="Base UI example"
+          className="absolute top-2 right-2"
+        />
+      )}
       <DemoPlayground />
       <Collapsible.Root open={open} onOpenChange={setOpen}>
         <div role="figure" aria-label="Component demo code">
