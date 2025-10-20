@@ -73,7 +73,8 @@
     "./use-week-list": "./src/use-week-list/index.ts"
   },
   "imports": {
-    "#test-utils": "./test/index.ts"
+    "#test-utils": "./test/index.ts",
+    "#formatErrorMessage": "@base-ui-components/utils/formatErrorMessage"
   },
   "type": "commonjs",
   "scripts": {
@@ -92,7 +93,7 @@
     "@floating-ui/utils": "^0.2.10",
     "reselect": "^5.1.1",
     "tabbable": "^6.2.0",
-    "use-sync-external-store": "^1.5.0"
+    "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
     "@date-fns/tz": "^1.4.1",
@@ -102,16 +103,16 @@
     "@types/chai": "^5.2.2",
     "@types/chai-dom": "^1.11.3",
     "@types/luxon": "^3.7.1",
-    "@types/react": "^19.1.13",
-    "@types/react-dom": "^19.1.9",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
     "@types/sinon": "^17.0.4",
     "@types/use-sync-external-store": "^1.5.0",
     "chai": "^6.2.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "luxon": "^3.7.2",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "react-router": "^7.9.3",
     "sinon": "^21.0.0",
     "typescript": "^5.9.3",

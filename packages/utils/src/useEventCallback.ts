@@ -46,6 +46,8 @@ function createStableCallback() {
 
 function assertNotCalled() {
   if (process.env.NODE_ENV !== 'production') {
-    throw new Error('Base UI: Cannot call an event handler while rendering.');
+    throw /* minify-error-disabled */ new Error(
+      'Base UI: Cannot call an event handler while rendering.',
+    );
   }
 }

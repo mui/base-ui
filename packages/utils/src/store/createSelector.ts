@@ -125,7 +125,7 @@ export const createSelector = ((
   } else if (a) {
     selector = a;
   } else {
-    throw new Error('Missing arguments');
+    throw /* minify-error-disabled */ new Error('Missing arguments');
   }
 
   return selector;
@@ -206,7 +206,7 @@ export const createSelectorMemoized: CreateSelectorFunction = (...selectors: any
       case 2: return fn(state, a1, a2);
       case 3: return fn(state, a1, a2, a3);
       default:
-        throw new Error('unreachable');
+        throw /* minify-error-disabled */ new Error('unreachable');
     }
   };
 

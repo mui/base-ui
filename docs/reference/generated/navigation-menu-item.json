@@ -1,6 +1,6 @@
 {
   "name": "NavigationMenuItem",
-  "description": "An individual navigation menu item.\nRenders a `<div>` element.",
+  "description": "An individual navigation menu item.\nRenders a `<li>` element.",
   "props": {
     "value": {
       "type": "any",
