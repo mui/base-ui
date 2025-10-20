@@ -20,7 +20,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { errors, validationMode: formValidationMode } = useFormContext();
+  const { errors, validationMode: formValidationMode, submitAttemptedRef } = useFormContext();
 
   const {
     render,
@@ -70,6 +70,12 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     setTouchedUnwrapped(value);
   });
 
+  const shouldValidateOnChange = useStableCallback(
+    () =>
+      validationMode === 'onChange' ||
+      (validationMode === 'onSubmit' && submitAttemptedRef.current),
+  );
+
   const invalid = Boolean(
     invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
   );
@@ -114,6 +120,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
       validate,
       validationMode,
       validationDebounceTime,
+      shouldValidateOnChange,
       state,
       markedDirtyRef,
     }),
@@ -133,6 +140,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
       validate,
       validationMode,
       validationDebounceTime,
+      shouldValidateOnChange,
       state,
     ],
   );

@@ -25,6 +25,7 @@ export interface FieldRootContext {
   ) => string | string[] | null | Promise<string | string[] | null>;
   validationMode: Form.ValidationMode;
   validationDebounceTime: number;
+  shouldValidateOnChange: () => boolean;
   state: FieldRoot.State;
   markedDirtyRef: React.MutableRefObject<boolean>;
 }
@@ -52,6 +53,7 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   validate: () => null,
   validationMode: 'onSubmit',
   validationDebounceTime: 0,
+  shouldValidateOnChange: () => false,
   state: {
     disabled: false,
     valid: null,
