@@ -1,7 +1,7 @@
 /* eslint-disable react/no-children-prop */
 'use client';
 import * as React from 'react';
-import { useForm } from '@tanstack/react-form';
+import { useForm, revalidateLogic } from '@tanstack/react-form';
 
 import { ChevronDown, ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
 import {
@@ -64,11 +64,13 @@ import {
   SliderValue,
   SwitchRoot,
   SwitchThumb,
-  Toast,
   ToastProvider,
+  useToastManager,
 } from './_components';
 
-export default function App() {
+function TanstckForm() {
+  const toastManager = useToastManager();
+
   const { Field: FormField, handleSubmit } = useForm({
     defaultValues: {
       // null defaultValue doesn't work, TSF throws a type error
@@ -76,20 +78,30 @@ export default function App() {
       staticIpAddress: '',
       region: '',
       image: '',
-      instanceType: '',
+      serverType: '',
       cpuCores: 1,
-      cpuUtilization: [0.3, 0.8],
+      scalingThreshold: [0.3, 0.8],
       // with casting `number | null` the bound field.handleChange throws
       // a type error because it doesn't know that the numberfield is clearable
       numOfInstances: 1 as number | null,
       storageType: '',
       backupSchedule: [] as string[],
+      restartOnFailure: true,
     },
     onSubmit: async ({ value }) => {
       console.log('submit', value);
+      toastManager.add({
+        title: 'Form submitted',
+        description: 'The form contains these values:',
+        data: value,
+      });
     },
+    validationLogic: revalidateLogic({
+      mode: 'submit',
+      modeAfterSubmission: 'change',
+    }),
     validators: {
-      onSubmit: ({ value: formValues }) => {
+      onDynamic: ({ value: formValues }) => {
         console.log('validate on submit', formValues);
         const fields: Record<string, string | undefined> = {};
 
@@ -113,8 +125,8 @@ export default function App() {
           fields.image = 'Invalid ipv4 address';
         }
 
-        if (!formValues.instanceType) {
-          fields.instanceType = 'Required';
+        if (!formValues.serverType) {
+          fields.serverType = 'Required';
         }
 
         if (formValues.numOfInstances == null) {
@@ -146,17 +158,6 @@ export default function App() {
         </h2>
         <FormField
           name="serverName"
-          validators={{
-            onBlur: ({ value, fieldApi }) => {
-              if (!fieldApi.state.meta.isDirty) {
-                return undefined;
-              }
-              if (!value) {
-                return 'Required';
-              }
-              return value.length < 4 ? 'At least 4 characters' : undefined;
-            },
-          }}
           children={(field) => {
             return (
               <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
@@ -177,17 +178,6 @@ export default function App() {
         />
         <FormField
           name="staticIpAddress"
-          validators={{
-            onBlur: ({ value, fieldApi }) => {
-              if (!fieldApi.state.meta.isDirty) {
-                return undefined;
-              }
-              if (!value) {
-                return 'Required';
-              }
-              return IPV4_PATTERN.test(value) ? undefined : 'Invalid ipv4 address';
-            },
-          }}
           children={(field) => {
             return (
               <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
@@ -210,25 +200,6 @@ export default function App() {
         />
         <FormField
           name="region"
-          validators={{
-            onBlur: ({ value, fieldApi }) => {
-              if (!fieldApi.state.meta.isDirty) {
-                return undefined;
-              }
-              if (!value) {
-                return 'Required';
-              }
-              return value.includes('east') ? `${value} is unavailable` : undefined;
-            },
-            onChange: ({ value, fieldApi }) => {
-              // revalidate on change
-              if (fieldApi.state.meta.isDirty && fieldApi.state.meta.isBlurred && value) {
-                const message = value.includes('east') ? `${value} is unavailable` : undefined;
-                fieldApi.setErrorMap({ onBlur: message });
-              }
-              return undefined;
-            },
-          }}
           children={(field) => {
             return (
               <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
@@ -280,19 +251,6 @@ export default function App() {
 
         <FormField
           name="image"
-          validators={{
-            onBlur: ({ value, fieldApi }) => {
-              if (!fieldApi.state.meta.isDirty) {
-                return undefined;
-              }
-              if (!value) {
-                return 'Required';
-              }
-              return CONTAINER_URL_PATTERN.test(value)
-                ? undefined
-                : 'Please enter a valid container URL';
-            },
-          }}
           children={(field) => {
             return (
               <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
@@ -318,7 +276,10 @@ export default function App() {
                           {(image: Image) => {
                             return (
                               <AutocompleteItem key={image.url} value={image}>
-                                {image.name} ({image.url})
+                                <span className="text-base leading-6">{image.name}</span>
+                                <span className="font-mono whitespace-nowrap text-xs leading-4 opacity-80">
+                                  {image.url}
+                                </span>
                               </AutocompleteItem>
                             );
                           }}
@@ -337,28 +298,20 @@ export default function App() {
         />
 
         <FormField
-          name="instanceType"
-          validators={{
-            onChange: ({ value, fieldApi }) => {
-              if (fieldApi.state.meta.isDirty && fieldApi.state.meta.isBlurred) {
-                return !value ? 'Required' : undefined;
-              }
-              return undefined;
-            },
-          }}
+          name="serverType"
           children={(field) => {
             return (
               <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
-                <FieldLabel>Instance type</FieldLabel>
+                <FieldLabel>Server type</FieldLabel>
                 <SelectRoot
                   items={INSTANCE_TYPES}
                   value={field.state.value || null}
                   onValueChange={field.handleChange}
                 >
-                  <SelectTrigger className="w-48" onBlur={field.handleBlur}>
+                  <SelectTrigger className="!w-48" onBlur={field.handleBlur}>
                     <SelectValue />
                     <SelectIcon>
-                      <ChevronsUpDown />
+                      <ChevronsUpDown className="size-4" />
                     </SelectIcon>
                   </SelectTrigger>
                   <SelectPortal>
@@ -392,11 +345,6 @@ export default function App() {
 
         <FormField
           name="cpuCores"
-          validators={{
-            onChange: ({ value }) => {
-              return value > 16 ? 'Pro plan required for over 16 cores' : undefined;
-            },
-          }}
           children={(field) => {
             return (
               <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
@@ -427,7 +375,7 @@ export default function App() {
         />
 
         <FormField
-          name="cpuUtilization"
+          name="scalingThreshold"
           children={(field) => {
             return (
               <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
@@ -450,7 +398,7 @@ export default function App() {
                     />
                   }
                 >
-                  <FieldsetLegend>CPU utilization range</FieldsetLegend>
+                  <FieldsetLegend>Scaling threshold</FieldsetLegend>
                   <SliderValue className="col-start-2 text-end" />
                   <SliderControl>
                     <SliderTrack>
@@ -470,24 +418,6 @@ export default function App() {
 
         <FormField
           name="numOfInstances"
-          validators={{
-            onBlur: ({ value, fieldApi }) => {
-              if (!fieldApi.state.meta.isDirty) {
-                return undefined;
-              }
-              if (!value) {
-                return 'Required';
-              }
-              return value > 32 ? 'Pro plan required' : undefined;
-            },
-            onChange: ({ value, fieldApi }) => {
-              // revalidate on change
-              if (fieldApi.state.meta.isDirty && fieldApi.state.meta.isBlurred && value) {
-                fieldApi.setErrorMap({ onBlur: value > 32 ? 'Pro plan required' : undefined });
-              }
-              return undefined;
-            },
-          }}
           children={(field) => {
             return (
               <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
@@ -520,7 +450,7 @@ export default function App() {
           name="storageType"
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid} className="mt-3">
+              <FieldRoot name={field.name} invalid={!field.state.meta.isValid} className="mt-2">
                 <FieldsetRoot
                   render={
                     <RadioGroup
@@ -554,17 +484,9 @@ export default function App() {
 
         <FormField
           name="backupSchedule"
-          validators={{
-            onBlur: ({ value, fieldApi }) => {
-              if (fieldApi.state.meta.isDirty && fieldApi.state.meta.isBlurred) {
-                return value.length > 0 ? undefined : 'Required';
-              }
-              return undefined;
-            },
-          }}
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid} className="mt-2">
+              <FieldRoot name={field.name} invalid={!field.state.meta.isValid} className="mt-1">
                 <FieldsetRoot
                   render={
                     <CheckboxGroup value={field.state.value} onValueChange={field.handleChange} />
@@ -594,11 +516,42 @@ export default function App() {
           }}
         />
 
+        <FormField
+          name="restartOnFailure"
+          children={(field) => {
+            return (
+              <FieldRoot name={field.name} invalid={!field.state.meta.isValid} className="mt-2">
+                <FieldLabel>
+                  <SwitchRoot
+                    checked={field.state.value}
+                    onCheckedChange={field.handleChange}
+                    onBlur={field.handleBlur}
+                  >
+                    <SwitchThumb />
+                  </SwitchRoot>
+                  Restart on failure
+                </FieldLabel>
+                <FieldError match={!field.state.meta.isValid}>
+                  {field.state.meta.errors.join(',')}
+                </FieldError>
+              </FieldRoot>
+            );
+          }}
+        />
+
         <Button type="submit" className="mt-4">
           Save
         </Button>
       </Form>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ToastProvider>
+      <TanstckForm />
+    </ToastProvider>
   );
 }
 
@@ -627,12 +580,12 @@ function cartesian<T extends string[][]>(...arrays: T): string[][] {
   );
 }
 
-const REGIONS = cartesian(['us', 'eu'], ['central', 'east', 'west'], ['1', '2', '3', '4']).map(
+const REGIONS = cartesian(['us', 'eu', 'ap'], ['central', 'east', 'west'], ['1', '2', '3']).map(
   (v) => v.join('-'),
 );
 
 const INSTANCE_TYPES = [
-  { label: 'Pick instance type', value: null },
+  { label: 'Select server type', value: null },
   ...cartesian(['t', 'm'], ['1', '2'], ['small', 'medium', 'large'])
     .map((val1) => val1.join('.').replace('.', ''))
     .map((val2) => ({

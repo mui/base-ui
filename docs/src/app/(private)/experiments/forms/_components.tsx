@@ -496,7 +496,7 @@ export function FieldLabel({ className, ...props }: BField.Label.Props) {
   return (
     <BField.Label
       className={clsx(
-        'text-sm font-medium text-gray-900 has-[.Checkbox]:flex has-[.Checkbox]:items-center has-[.Checkbox]:gap-2 has-[.Radio]:flex has-[.Radio]:items-center has-[.Radio]:gap-2 has-[.Switch]:flex has-[.Switch]:items-center has-[.Radio]:font-normal',
+        'text-sm font-medium text-gray-900 has-[[role="checkbox"]]:flex has-[[role="checkbox"]]:items-center has-[[role="checkbox"]]:gap-2 has-[[role="radio"]]:flex has-[[role="radio"]]:items-center has-[[role="radio"]]:gap-2 has-[[role="switch"]]:flex has-[[role="switch"]]:items-center has-[[role="switch"]]:gap-2 has-[[role="radio"]]:font-normal',
         className,
       )}
       {...props}
@@ -591,4 +591,4 @@ export function ToastProvider(props: { children: React.ReactNode }) {
   );
 }
 
-export { BToast as Toast };
+export const useToastManager = BToast.useToastManager;
