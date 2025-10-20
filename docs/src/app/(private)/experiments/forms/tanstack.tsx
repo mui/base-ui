@@ -68,7 +68,7 @@ import {
   useToastManager,
 } from './_components';
 
-function TanstckForm() {
+function TanstackForm() {
   const toastManager = useToastManager();
 
   const { Field: FormField, handleSubmit } = useForm({
@@ -84,7 +84,7 @@ function TanstckForm() {
       // with casting `number | null` the bound field.handleChange throws
       // a type error because it doesn't know that the numberfield is clearable
       numOfInstances: 1 as number | null,
-      storageType: '',
+      storageType: 'ssd',
       backupSchedule: [] as string[],
       restartOnFailure: true,
     },
@@ -137,10 +137,6 @@ function TanstckForm() {
           fields.storageType = 'Required';
         }
 
-        if (formValues.backupSchedule.length === 0) {
-          fields.backupSchedule = 'Required';
-        }
-
         return { fields };
       },
     },
@@ -160,7 +156,12 @@ function TanstckForm() {
           name="serverName"
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+              <FieldRoot
+                name={field.name}
+                invalid={!field.state.meta.isValid}
+                dirty={field.state.meta.isDirty}
+                touched={field.state.meta.isTouched}
+              >
                 <FieldLabel>Server name</FieldLabel>
                 <FieldControl
                   value={field.state.value}
@@ -180,7 +181,12 @@ function TanstckForm() {
           name="staticIpAddress"
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+              <FieldRoot
+                name={field.name}
+                invalid={!field.state.meta.isValid}
+                dirty={field.state.meta.isDirty}
+                touched={field.state.meta.isTouched}
+              >
                 <FieldLabel>Static IP</FieldLabel>
                 <FieldDescription>Only IPv4 addresses are supported</FieldDescription>
                 <FieldControl
@@ -202,7 +208,12 @@ function TanstckForm() {
           name="region"
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+              <FieldRoot
+                name={field.name}
+                invalid={!field.state.meta.isValid}
+                dirty={field.state.meta.isDirty}
+                touched={field.state.meta.isTouched}
+              >
                 <ComboboxRoot
                   items={REGIONS}
                   // useForm doesn't work well with `defaultValue: null`, but an
@@ -253,7 +264,12 @@ function TanstckForm() {
           name="image"
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+              <FieldRoot
+                name={field.name}
+                invalid={!field.state.meta.isValid}
+                dirty={field.state.meta.isDirty}
+                touched={field.state.meta.isTouched}
+              >
                 <AutocompleteRoot
                   items={IMAGES}
                   mode="both"
@@ -301,7 +317,12 @@ function TanstckForm() {
           name="serverType"
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+              <FieldRoot
+                name={field.name}
+                invalid={!field.state.meta.isValid}
+                dirty={field.state.meta.isDirty}
+                touched={field.state.meta.isTouched}
+              >
                 <FieldLabel>Server type</FieldLabel>
                 <SelectRoot
                   items={INSTANCE_TYPES}
@@ -347,7 +368,12 @@ function TanstckForm() {
           name="cpuCores"
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+              <FieldRoot
+                name={field.name}
+                invalid={!field.state.meta.isValid}
+                dirty={field.state.meta.isDirty}
+                touched={field.state.meta.isTouched}
+              >
                 <SliderRoot
                   value={field.state.value}
                   onValueChange={field.handleChange}
@@ -378,7 +404,12 @@ function TanstckForm() {
           name="scalingThreshold"
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+              <FieldRoot
+                name={field.name}
+                invalid={!field.state.meta.isValid}
+                dirty={field.state.meta.isDirty}
+                touched={field.state.meta.isTouched}
+              >
                 <FieldsetRoot
                   render={
                     <SliderRoot
@@ -420,7 +451,12 @@ function TanstckForm() {
           name="numOfInstances"
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid}>
+              <FieldRoot
+                name={field.name}
+                invalid={!field.state.meta.isValid}
+                dirty={field.state.meta.isDirty}
+                touched={field.state.meta.isTouched}
+              >
                 <NumberFieldRoot
                   value={field.state.value}
                   onValueChange={field.handleChange}
@@ -450,7 +486,13 @@ function TanstckForm() {
           name="storageType"
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid} className="mt-2">
+              <FieldRoot
+                name={field.name}
+                invalid={!field.state.meta.isValid}
+                dirty={field.state.meta.isDirty}
+                touched={field.state.meta.isTouched}
+                className="mt-2"
+              >
                 <FieldsetRoot
                   render={
                     <RadioGroup
@@ -486,7 +528,13 @@ function TanstckForm() {
           name="backupSchedule"
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid} className="mt-1">
+              <FieldRoot
+                name={field.name}
+                invalid={!field.state.meta.isValid}
+                dirty={field.state.meta.isDirty}
+                touched={field.state.meta.isTouched}
+                className="mt-1"
+              >
                 <FieldsetRoot
                   render={
                     <CheckboxGroup value={field.state.value} onValueChange={field.handleChange} />
@@ -520,7 +568,13 @@ function TanstckForm() {
           name="restartOnFailure"
           children={(field) => {
             return (
-              <FieldRoot name={field.name} invalid={!field.state.meta.isValid} className="mt-2">
+              <FieldRoot
+                name={field.name}
+                invalid={!field.state.meta.isValid}
+                dirty={field.state.meta.isDirty}
+                touched={field.state.meta.isTouched}
+                className="mt-2"
+              >
                 <FieldLabel>
                   <SwitchRoot
                     checked={field.state.value}
@@ -550,7 +604,7 @@ function TanstckForm() {
 export default function App() {
   return (
     <ToastProvider>
-      <TanstckForm />
+      <TanstackForm />
     </ToastProvider>
   );
 }
