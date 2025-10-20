@@ -330,7 +330,7 @@ function getFullyQualifiedName(typeName: tae.TypeName): string {
     return namespace;
   });
 
-  return `${joinedNamespaces}.${nameWithTypeArgs}`;
+  return `${joinedNamespaces.join('.')}.${nameWithTypeArgs}`;
 }
 
 function createNameWithTypeArguments(typeName: tae.TypeName) {
