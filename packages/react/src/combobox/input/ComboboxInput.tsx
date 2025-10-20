@@ -70,13 +70,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const mounted = useStore(store, selectors.mounted);
   const selectedValue = useStore(store, selectors.selectedValue);
   const popupSideValue = useStore(store, selectors.popupSide);
-
-  const popupSide = mounted ? popupSideValue : '';
+  const positionerElement = useStore(store, selectors.positionerElement);
 
   // `inputValue` can't be placed in the store.
   // https://github.com/mui/base-ui/issues/2703
   const inputValue = useComboboxInputValueContext();
 
+  const popupSide = mounted && positionerElement ? popupSideValue : '';
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
