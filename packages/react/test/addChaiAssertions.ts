@@ -1,4 +1,4 @@
-import chai from 'chai';
+import * as chai from 'chai';
 
 // https://stackoverflow.com/a/46755166/3406963
 declare global {
