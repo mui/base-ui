@@ -35,29 +35,26 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 ) {
   const { render, className, finalFocus, ...elementProps } = componentProps;
 
-  const {
-    open,
-    setOpen,
-    popupRef,
-    transitionStatus,
-    popupProps,
-    mounted,
-    instantType,
-    triggerElement,
-    onOpenChangeComplete,
-    parent,
-    lastOpenChangeReason,
-    rootId,
-  } = useMenuRootContext();
+  const { store } = useMenuRootContext();
   const { side, align, floatingContext } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
 
+  const open = store.useState('open');
+  const transitionStatus = store.useState('transitionStatus');
+  const popupProps = store.useState('popupProps');
+  const mounted = store.useState('mounted');
+  const instantType = store.useState('instantType');
+  const triggerElement = store.useState('triggerElement');
+  const parent = store.useState('parent');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const rootId = store.useState('rootId');
+
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
@@ -69,7 +66,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       domEvent: Event | undefined;
       reason: MenuRoot.ChangeEventReason;
     }) {
-      setOpen(false, createChangeEventDetails(event.reason, event.domEvent));
+      store.setOpen(false, createChangeEventDetails(event.reason, event.domEvent));
     }
 
     menuEvents.on('close', handleClose);
@@ -77,7 +74,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     return () => {
       menuEvents.off('close', handleClose);
     };
-  }, [menuEvents, setOpen]);
+  }, [menuEvents, store]);
 
   const state: MenuPopup.State = React.useMemo(
     () => ({
@@ -93,7 +90,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, popupRef],
+    ref: [forwardedRef, store.context.popupRef],
     stateAttributesMapping,
     props: [
       popupProps,

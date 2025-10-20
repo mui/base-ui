@@ -17,7 +17,8 @@ export const MenuPortal = React.forwardRef(function MenuPortal(
 ) {
   const { keepMounted = false, ...portalProps } = props;
 
-  const { mounted } = useMenuRootContext();
+  const { store } = useMenuRootContext();
+  const mounted = store.useState('mounted');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
