@@ -118,7 +118,7 @@ export interface DialogRootProps<Payload = unknown> {
   triggerId?: string | null;
   /**
    * ID of the trigger that the dialog is associated with.
-   * This is useful in conjuntion with the `defaultOpen` prop to create an initially open dialog.
+   * This is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.
    */
   defaultTriggerId?: string | null;
 }
