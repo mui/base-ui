@@ -36,18 +36,18 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
 }
 
 export function useFieldControlValidation() {
-  const { formRef, clearErrors, submitAttemptedRef } = useFormContext();
+  const { formRef, clearErrors } = useFormContext();
 
   const {
     setValidityData,
     validate,
     validityData,
     validationDebounceTime,
-    validationMode,
     invalid,
     markedDirtyRef,
     state,
     name,
+    shouldValidateOnChange,
   } = useFieldRootContext();
 
   const { controlId, getDescriptionProps } = useLabelableContext();
@@ -153,8 +153,9 @@ export function useFieldControlValidation() {
     const nextState = getState(element);
 
     let defaultValidationMessage;
+    const validateOnChange = shouldValidateOnChange();
 
-    if (element.validationMessage && validationMode !== 'onChange') {
+    if (element.validationMessage && !validateOnChange) {
       // not validating on change, if there is a `validationMessage` from
       // native validity, set errors and skip calling the custom validate fn
       defaultValidationMessage = element.validationMessage;
@@ -195,7 +196,7 @@ export function useFieldControlValidation() {
           validationErrors = [result];
           element.setCustomValidity(result);
         }
-      } else if (validationMode === 'onChange') {
+      } else if (validateOnChange) {
         // validate function returned no errors, if validating on change
         // we need to clear the custom validity state
         element.setCustomValidity('');
@@ -251,11 +252,7 @@ export function useFieldControlValidation() {
 
             clearErrors(name);
 
-            const shouldValidateOnChange =
-              validationMode === 'onChange' ||
-              (validationMode === 'onSubmit' && submitAttemptedRef.current);
-
-            if (!shouldValidateOnChange) {
+            if (!shouldValidateOnChange()) {
               commitValidation(event.currentTarget.value, true);
               return;
             }
@@ -293,8 +290,7 @@ export function useFieldControlValidation() {
       commitValidation,
       invalid,
       validationDebounceTime,
-      validationMode,
-      submitAttemptedRef,
+      shouldValidateOnChange,
     ],
   );
 
