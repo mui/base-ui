@@ -1,0 +1,30 @@
+{
+  "name": "CalendarViewport",
+  "description": "A viewport for displaying calendar month transitions.\nThis component is only required if you want to animate certain part of a calendar when navigating between months.\nThe first rendered child element has to handle a ref.\nPasses `data-current` to the currently visible content and `data-previous` to the previous content when animating between two.\nDoesn't render its own HTML element.",
+  "props": {
+    "children": {
+      "type": "React.JSX.Element",
+      "required": true,
+      "description": "The content to render inside the transition container."
+    }
+  },
+  "dataAttributes": {
+    "data-current": {
+      "description": "Applied to the direct child of the viewport when no transitions are present or the new content when it's entering."
+    },
+    "data-navigation-direction": {
+      "description": "Indicates the direction of the navigation (based on the month navigating to).",
+      "type": "'previous' | 'next' | 'none'"
+    },
+    "data-previous": {
+      "description": "Applied to the direct child of the viewport that contains the exiting content when transitions are present."
+    },
+    "data-starting-style": {
+      "description": "Present when the day grid body is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the day grid body is animating out."
+    }
+  },
+  "cssVariables": {}
+}

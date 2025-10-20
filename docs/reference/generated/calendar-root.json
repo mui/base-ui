@@ -109,6 +109,10 @@
     },
     "data-empty": {
       "description": "Present when the current value is empty."
+    },
+    "data-navigation-direction": {
+      "description": "Indicates the direction of the navigation (based on the month navigating to).",
+      "type": "'previous' | 'next' | 'none'"
     }
   },
   "cssVariables": {}
