@@ -73,42 +73,29 @@ commands:
                 # See https://stackoverflow.com/a/73411601
                 command: corepack enable --install-directory ~/bin
       - run:
-          name: Resolve React version
-          command: |
-            echo 'Using React version: << parameters.react-version >>'
-            node scripts/useReactVersion.mjs
-            # log a patch for maintainers who want to check out this change
-            git --no-pager diff HEAD
-      - run:
           name: View install environment
           command: |
             node --version
             pnpm --version
-      - when:
-          condition:
-            equal: [<< parameters.react-version >>, stable]
-          steps:
-            - run:
-                name: Install JS dependencies
-                command: pnpm install
-      - unless:
-          condition:
-            equal: [<< parameters.react-version >>, stable]
-          steps:
-            - run:
-                name: Install JS dependencies (without frozen lockfile)
-                command: pnpm install --no-frozen-lockfile
-            - run:
-                name: Restore clean working copy
-                command: git restore .
+      - run:
+          name: Install js dependencies
+          command: |
+            args=""
+            if [ -n "$REACT_VERSION" ] && [ "$REACT_VERSION" != "stable" ]; then
+              args="react@$REACT_VERSION"
+            fi
+            if [ -n "$args" ]; then
+              pnpm dlx @mui/internal-code-infra@canary set-version-overrides --pkg $args
+            else
+              pnpm install
+            fi
 
 jobs:
   test_unit:
     <<: *default-job
     steps:
       - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - install_js
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom:coverage
@@ -129,8 +116,7 @@ jobs:
     <<: *default-job
     steps:
       - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - install_js
       - run:
           name: '`pnpm prettier` changes committed?'
           command: |
@@ -154,8 +140,7 @@ jobs:
     <<: *default-job
     steps:
       - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - install_js
       - run:
           name: '`pnpm dedupe` was run?'
           command: |
@@ -192,8 +177,7 @@ jobs:
     resource_class: 'medium+'
     steps:
       - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - install_js
       - run:
           name: Tests TypeScript definitions
           command: pnpm typescript
@@ -213,8 +197,7 @@ jobs:
     resource_class: 'medium+'
     steps:
       - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - install_js
       - run:
           name: Resolve typescript version
           command: |
@@ -247,7 +230,6 @@ jobs:
     steps:
       - checkout
       - install_js:
-          react-version: << parameters.react-version >>
           browsers: true
       - run:
           name: Run tests on headless Chromium
@@ -272,7 +254,6 @@ jobs:
     steps:
       - checkout
       - install_js:
-          react-version: << parameters.react-version >>
           browsers: true
       - run:
           name: Run visual regression tests
@@ -296,8 +277,7 @@ jobs:
     <<: *default-job
     steps:
       - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - install_js
       - run:
           name: Build packages
           command: pnpm release:build
