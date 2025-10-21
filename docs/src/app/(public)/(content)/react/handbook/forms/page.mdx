@@ -189,7 +189,7 @@ Once the form passes validation, your app can take over form submission in `onSu
 
 ## React Hook Form
 
-[React Hook Form](https://react-hook-form.com) can be integrated with Base UI to externally manage form and field state for your existing components.
+[React Hook Form](https://react-hook-form.com) is a popular library that can be integrated with Base UI to externally manage form and field state for your existing components.
 
 <Demo path="./demos/react-hook-form" />
 
@@ -212,7 +212,7 @@ const { control, handleSubmit } = useForm<FormValues>({
 
 Use the `<Controller>` component to integrate with any `<Field>` component, forwarding the various `field` and `fieldState` render props to the appropriate part:
 
-```tsx {10-14,21-24} title="Integrating React Hook Form's controller component with Base UI field" "name" "ref" "value" "onBlur" "onChange" "invalid" "isTouched" "isDirty" "error"
+```tsx {10-15,22-25} title="Integrating React Hook Form's controller component with Base UI field" "name" "ref" "value" "onBlur" "onChange" "invalid" "isTouched" "isDirty" "error"
 import { useForm, Controller } from "react-hook-form"
 
 const { control, handleSubmit} = useForm({
@@ -222,6 +222,7 @@ const { control, handleSubmit} = useForm({
 })
 
 <Controller
+  name="username"
   render={({
     field: { name, ref, value, onBlur, onChange },
     fieldState: { invalid, isTouched, isDirty, error },
@@ -252,10 +253,11 @@ In order for React Hook Form to focus invalid fields when performing validation,
 
 Specify `rules` on the `<Controller>` in the same format as [`register`](https://react-hook-form.com/docs/useform/register) options, and use the `match` prop to delegate control of the error rendering:
 
-```tsx {4-13, 30-32} title="Defining validation rules and displaying errors"
+```tsx {4-14, 31-33} title="Defining validation rules and displaying errors"
 import { Controller } from "react-hook-form"
 
 <Controller
+  name="username"
   rules={{
     required: 'This is a required field',
     minLength: { value: 2, message: 'Too short' },
@@ -294,7 +296,7 @@ import { Controller } from "react-hook-form"
 
 Wrap your submit handler function with `handleSubmit` to receive the form values as a JS object for further handling:
 
-```tsx title="Form submission with React Hook Form's submit handler"
+```tsx title="Form submission with React Hook Form"
 import { useForm } from 'react-hook-form';
 
 interface FormValues {
@@ -310,4 +312,167 @@ async function submitForm(data: FormValues) {
 }
 
 <Form onSubmit={handleSubmit(submitForm)} />;
+```
+
+## TanStack Form
+
+[TanStack Form](https://tanstack.com/form/v1/docs/overview) is a newer library also supported by Base UI components, and uses a function-based API to orchestrate validations.
+
+// TODO TSF demo
+
+### Create a form instance
+
+Create a form instance with the `useForm` hook, assigning the initial value of each field by their name in the `defaultValues` parameter:
+
+```tsx title="Initialize a TanStack Form instance"
+import { useForm } from '@tanstack/react-form';
+
+interface FormValues {
+  username: string;
+  email: string;
+}
+
+const formInstance = useForm<FormValues>({
+  defaultValues: {
+    username: '',
+    email: '',
+  },
+});
+```
+
+### Integrate Base UI components
+
+Use the `<form.Field>` component from the form instance to integrate with Base UI components by using the explicit `children` prop, forwarding the various `field` render props to the appropriate part:
+
+```tsx {7-9, 11-14, 18-20, 24} title="Integrating TanStack Form fields with Base UI components" "field.name" "value" "isValid" "isDirty" "isTouched" "handleChange" "handleBlur"
+import { Field } from '@base-ui-components/react/Field';
+import { useForm } from '@tanstack/react-form';
+
+const form = useForm(/* parameters */)
+
+<form>
+  <form.Field
+    name="username"
+    children={(field) => (
+      <Field.Root
+        name={field.name}
+        invalid={!field.state.meta.isValid}
+        dirty={field.state.meta.isDirty}
+        touched={field.state.meta.isTouched}
+      >
+        <Field.Label>Username</Field.Label>
+        <Field.Control
+          value={field.state.value}
+          onValueChange={field.handleChange}
+          onBlur={field.handleBlur}
+          placeholder="e.g. bob276"
+        />
+
+        <Field.Error match={!field.state.meta.isValid}>
+          {field.state.meta.errors.join(',')}
+        </Field.Error>
+      </Field.Root>
+    )}
+  />
+</form>
+```
+
+The Base UI `<Form>` component is not needed when using TanStack Form.
+
+### Form validators
+
+To configure a native `<form>`-like validation strategy:
+
+1. Use the additional `revalidateLogic` hook and pass it to `useForm`
+2. Pass a validation function to the `validators.onDynamic` prop on `<FormField>` that returns an error object with keys corresponding to the field `name`s
+
+This validates all fields when the first submission is attempted, and revalidates any invalid fields when their values change again.
+
+```tsx {8, 13} title="Form-level validation with TanStack Form" "revalidateLogic" "onDynamic"
+import { useForm, revalidateLogic } from '@tanstack/react-form';
+
+const form = useForm({
+  defaultValues: {
+    username: '',
+    email: '',
+  },
+  validationLogic: revalidateLogic({
+    mode: 'submit',
+    modeAfterSubmission: 'change',
+  }),
+  validators: {
+    onDynamic: ({ value: formValues }) => {
+      const errors = {};
+
+      if (!formValues.username) {
+        errors.username = 'Username is required.';
+      } else if (formValues.username.length < 3) {
+        errors.username = 'At least 3 characters.';
+      }
+
+      if (!formValues.email) {
+        errors.username = 'Email is required.';
+      } else if (!checkEmailRegex(formValues.email)) {
+        errors.username = 'Invalid email format.';
+      }
+
+      return errors;
+    },
+  },
+});
+```
+
+### Field validators
+
+Additional validator functions can be passed to individual `<form.Field>`s to add validations on top of the form-level validators:
+
+```tsx {8-16} title="Field-level validation with TanStack Form"
+import { Field } from '@base-ui-components/react/Field';
+import { useForm } from '@tanstack/react-form';
+
+const form = useForm();
+
+<form.Field
+  name="username"
+  validators={{
+    onChangeAsync: async ({ value: username }) => {
+      const result = await fetch(
+        /* check the availability of a username from an external API */
+      );
+
+      return result.success ? undefined : `${username} is not available.`
+    }
+  }}
+  children={(field) => (
+    <Field.Root name={field.name} /* forward the field props */ />
+  )}
+>
+```
+
+### Submission handling
+
+To submit the form:
+
+1. Pass a submit handler function to the `onSubmit` parameter of `useForm`
+2. Call `form.handleSubmit()` from an event handler, e.g. form `onSubmit` or `onClick` on a button
+
+```tsx {4-7, 13, 17} title="Form submission with TanStack Form" "form.handleSubmit()"
+import { useForm } from '@tanstack/form';
+
+const form = useForm({
+  onSubmit: async ({ value: formValues }) => {
+    /* prettier-ignore */
+    await fetch(/* POST the `formValues` to an external API */);
+  },
+});
+
+<form
+  onSubmit={(event) => {
+    event.preventDefault();
+    form.handleSubmit();
+  }}
+>
+  {/* form fields */}
+  <button type="submit">Submit</button>
+</form>;
 ```
