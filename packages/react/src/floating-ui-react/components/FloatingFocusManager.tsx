@@ -624,7 +624,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   ]);
 
   useIsoLayoutEffect(() => {
-    if (disabled || !isHTMLElement(floatingFocusElement)) {
+    if (!open || disabled || !isHTMLElement(floatingFocusElement)) {
       return;
     }
 
@@ -655,11 +655,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       const focusAlreadyInsideFloatingEl = contains(floatingFocusElement, previouslyFocusedElement);
 
-      if (!focusAlreadyInsideFloatingEl && open) {
-        enqueueFocus(elToFocus, {
-          preventScroll: elToFocus === floatingFocusElement,
-        });
+      if (focusAlreadyInsideFloatingEl) {
+        return;
       }
+
+      enqueueFocus(elToFocus, {
+        preventScroll: elToFocus === floatingFocusElement,
+      });
     });
   }, [
     disabled,
@@ -879,7 +881,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             if (modal) {
               const els = getTabbableElements();
               enqueueFocus(els[els.length - 1]);
-            } else if (portalContext?.preserveTabOrder && portalContext.portalNode) {
+            } else if (portalContext?.portalNode) {
               preventReturnFocusRef.current = false;
               if (isOutsideEvent(event, portalContext.portalNode)) {
                 const nextTabbable = getNextTabbable(domReference);
@@ -899,7 +901,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           onFocus={(event) => {
             if (modal) {
               enqueueFocus(getTabbableElements()[0]);
-            } else if (portalContext?.preserveTabOrder && portalContext.portalNode) {
+            } else if (portalContext?.portalNode) {
               if (closeOnFocusOut) {
                 preventReturnFocusRef.current = true;
               }

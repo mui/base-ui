@@ -5,7 +5,11 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxDerivedItemsContext,
+  useComboboxFloatingContext,
+  useComboboxRootContext,
+} from '../root/ComboboxRootContext';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
@@ -25,6 +29,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
+  const { filteredItems } = useComboboxDerivedItemsContext();
 
   const items = useStore(store, selectors.items);
   const labelsRef = useStore(store, selectors.labelsRef);
@@ -38,6 +43,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const virtualized = useStore(store, selectors.virtualized);
 
   const multiple = selectionMode === 'multiple';
+  const empty = filteredItems.length === 0;
 
   const setPositionerElement = useEventCallback((element) => {
     store.set('positionerElement', element);
@@ -70,7 +76,15 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     return children;
   }, [children]);
 
+  const state: ComboboxList.State = React.useMemo(
+    () => ({
+      empty,
+    }),
+    [empty],
+  );
+
   const element = useRenderElement('div', componentProps, {
+    state,
     ref: [forwardedRef, setListElement, hasPositionerContext ? null : setPositionerElement],
     props: [
       popupProps,
@@ -130,7 +144,12 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   );
 });
 
-export interface ComboboxListState {}
+export interface ComboboxListState {
+  /**
+   * Whether the list is empty.
+   */
+  empty: boolean;
+}
 
 export interface ComboboxListProps
   extends Omit<BaseUIComponentProps<'div', ComboboxList.State>, 'children'> {

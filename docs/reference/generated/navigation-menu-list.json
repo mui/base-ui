@@ -1,6 +1,6 @@
 {
   "name": "NavigationMenuList",
-  "description": "Contains a list of navigation menu items.\nRenders a `<div>` element.",
+  "description": "Contains a list of navigation menu items.\nRenders a `<ul>` element.",
   "props": {
     "className": {
       "type": "string | ((state: NavigationMenu.List.State) => string)",

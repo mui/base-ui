@@ -24,6 +24,7 @@ import { useField } from '../../field/useField';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFormContext } from '../../form/FormContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
@@ -93,7 +94,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const { clearErrors } = useFormContext();
   const {
-    labelId,
     state: fieldState,
     disabled: fieldDisabled,
     name: fieldName,
@@ -102,6 +102,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     validityData,
     validationMode,
   } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
 
   const fieldControlValidation = useFieldControlValidation();
 

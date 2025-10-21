@@ -28,7 +28,7 @@ describe('<AlertDialog.Root />', () => {
   });
 
   it('ARIA attributes', async () => {
-    const { queryByRole, getByText } = await render(
+    await render(
       <AlertDialog.Root open>
         <AlertDialog.Trigger />
         <AlertDialog.Portal>
@@ -41,13 +41,13 @@ describe('<AlertDialog.Root />', () => {
       </AlertDialog.Root>,
     );
 
-    const popup = queryByRole('alertdialog');
+    const popup = screen.queryByRole('alertdialog');
     expect(popup).not.to.equal(null);
 
-    expect(getByText('title text').getAttribute('id')).to.equal(
+    expect(screen.getByText('title text').getAttribute('id')).to.equal(
       popup?.getAttribute('aria-labelledby'),
     );
-    expect(getByText('description text').getAttribute('id')).to.equal(
+    expect(screen.getByText('description text').getAttribute('id')).to.equal(
       popup?.getAttribute('aria-describedby'),
     );
   });

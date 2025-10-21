@@ -18,3 +18,5 @@ export type ToastManagerPromiseOptions<
 > = Toast.useToastManager.PromiseOptions<Value, Data>;
 
 export type ToastCreateManagerReturn = ReturnType<typeof Toast.createToastManager>;
+
+export const { useToastManager, createToastManager } = Toast;

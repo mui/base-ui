@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
