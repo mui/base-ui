@@ -2,6 +2,10 @@
   "name": "Button",
   "description": "A button component that can be used to trigger actions.\nRenders a `<button>` element.",
   "props": {},
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the button is disabled."
+    }
+  },
   "cssVariables": {}
 }
