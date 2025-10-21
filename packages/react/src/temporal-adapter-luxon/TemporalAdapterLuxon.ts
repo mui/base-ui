@@ -74,12 +74,11 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
     value: T,
     timezone: TemporalTimezone,
   ): DateBuilderReturnType<T> => {
-    type R = DateBuilderReturnType<T>;
     if (value === null) {
-      return <R>null;
+      return null;
     }
 
-    return <R>DateTime.fromISO(value, { locale: this.locale, zone: timezone });
+    return DateTime.fromISO(value, { locale: this.locale, zone: timezone });
   };
 
   public getTimezone = (value: DateTime): string => {
