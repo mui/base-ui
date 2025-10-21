@@ -333,7 +333,7 @@ describe('<Slider.Thumb />', () => {
   describe.skipIf(isJSDOM || isWebKit || typeof Touch === 'undefined')('positioning styles', () => {
     describe('positions the thumb when dragged', () => {
       it('single thumb', async () => {
-        const { getByTestId } = await render(
+        await render(
           <Slider.Root
             style={{
               width: '1000px',
@@ -348,9 +348,8 @@ describe('<Slider.Thumb />', () => {
           </Slider.Root>,
         );
 
-        const sliderControl = getByTestId('control');
-
-        const thumbStyles = getComputedStyle(getByTestId('thumb'));
+        const sliderControl = screen.getByTestId('control');
+        const thumbStyles = getComputedStyle(screen.getByTestId('thumb'));
 
         stub(sliderControl, 'getBoundingClientRect').callsFake(() => getHorizontalSliderRect(1000));
 
@@ -381,7 +380,7 @@ describe('<Slider.Thumb />', () => {
       });
 
       it('multiple thumbs', async () => {
-        const { getByTestId, getAllByTestId } = await render(
+        await render(
           <Slider.Root
             defaultValue={[20, 40]}
             style={{
@@ -398,11 +397,11 @@ describe('<Slider.Thumb />', () => {
           </Slider.Root>,
         );
 
-        const sliderControl = getByTestId('control');
+        const sliderControl = screen.getByTestId('control');
 
         const computedStyles = {
-          thumb1: getComputedStyle(getAllByTestId('thumb')[0]),
-          thumb2: getComputedStyle(getAllByTestId('thumb')[1]),
+          thumb1: getComputedStyle(screen.getAllByTestId('thumb')[0]),
+          thumb2: getComputedStyle(screen.getAllByTestId('thumb')[1]),
         };
 
         stub(sliderControl, 'getBoundingClientRect').callsFake(() => getHorizontalSliderRect(1000));
@@ -442,7 +441,7 @@ describe('<Slider.Thumb />', () => {
         }
 
         it('prevents thumbs from passing each other when set to "none"', async () => {
-          const { getByTestId } = await render(
+          await render(
             <Slider.Root
               defaultValue={[20, 40]}
               thumbCollisionBehavior="none"
@@ -460,7 +459,7 @@ describe('<Slider.Thumb />', () => {
             </Slider.Root>,
           );
 
-          const sliderControl = getByTestId('control');
+          const sliderControl = screen.getByTestId('control');
 
           stub(sliderControl, 'getBoundingClientRect').callsFake(() =>
             getHorizontalSliderRect(1000),
@@ -483,7 +482,7 @@ describe('<Slider.Thumb />', () => {
         });
 
         it('pushes adjacent thumbs forward when set to "push"', async () => {
-          const { getByTestId } = await render(
+          await render(
             <Slider.Root
               defaultValue={[20, 40]}
               thumbCollisionBehavior="push"
@@ -501,7 +500,7 @@ describe('<Slider.Thumb />', () => {
             </Slider.Root>,
           );
 
-          const sliderControl = getByTestId('control');
+          const sliderControl = screen.getByTestId('control');
 
           stub(sliderControl, 'getBoundingClientRect').callsFake(() =>
             getHorizontalSliderRect(1000),
@@ -524,7 +523,7 @@ describe('<Slider.Thumb />', () => {
         });
 
         it('allows thumbs to swap when set to "swap"', async () => {
-          const { getByTestId } = await render(
+          await render(
             <Slider.Root
               defaultValue={[20, 40]}
               thumbCollisionBehavior="swap"
@@ -542,7 +541,7 @@ describe('<Slider.Thumb />', () => {
             </Slider.Root>,
           );
 
-          const sliderControl = getByTestId('control');
+          const sliderControl = screen.getByTestId('control');
 
           stub(sliderControl, 'getBoundingClientRect').callsFake(() =>
             getHorizontalSliderRect(1000),
@@ -565,7 +564,7 @@ describe('<Slider.Thumb />', () => {
         });
 
         it('maintains minimum steps between values when swapping', async () => {
-          const { getByTestId } = await render(
+          await render(
             <Slider.Root
               defaultValue={[20, 40, 60]}
               minStepsBetweenValues={10}
@@ -585,7 +584,7 @@ describe('<Slider.Thumb />', () => {
             </Slider.Root>,
           );
 
-          const sliderControl = getByTestId('control');
+          const sliderControl = screen.getByTestId('control');
 
           stub(sliderControl, 'getBoundingClientRect').callsFake(() =>
             getHorizontalSliderRect(1000),
@@ -633,12 +632,12 @@ describe('<Slider.Thumb />', () => {
             </React.Fragment>
           );
         }
-        const { getByTestId, getByRole } = await render(<App />);
+        await render(<App />);
 
-        const thumbStyles = getComputedStyle(getByTestId('thumb'));
+        const thumbStyles = getComputedStyle(screen.getByTestId('thumb'));
         expect(thumbStyles.getPropertyValue('left')).to.equal('20px');
 
-        fireEvent.click(getByRole('button'));
+        fireEvent.click(screen.getByRole('button'));
         expect(thumbStyles.getPropertyValue('left')).to.equal('55px');
       });
 
