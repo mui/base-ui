@@ -3805,7 +3805,7 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const input = screen.getByTestId<HTMLInputElement>('input');
+      const input = screen.getByRole<HTMLInputElement>('combobox');
       await user.click(input);
       await user.type(input, 'ap');
 
@@ -3842,7 +3842,7 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const input = screen.getByTestId<HTMLInputElement>('input');
+      const input = screen.getByRole<HTMLInputElement>('combobox');
       await user.click(input);
 
       const banana = screen.getByRole('option', { name: 'banana' });
@@ -3872,7 +3872,7 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const input = screen.getByTestId<HTMLInputElement>('input');
+      const input = screen.getByRole<HTMLInputElement>('combobox');
       await user.click(input);
 
       const banana = screen.getByRole('option', { name: 'banana' });

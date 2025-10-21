@@ -464,6 +464,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
+      if (autoHighlightBehavior === 'always' && candidateItems.length > 0) {
+        store.set('activeIndex', 0);
+        return;
+      }
       if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
         lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
         store.state.onItemHighlighted(

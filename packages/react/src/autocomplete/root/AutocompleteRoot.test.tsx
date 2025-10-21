@@ -50,7 +50,11 @@ describe('<Autocomplete.Root />', () => {
       const onItemHighlighted = spy();
 
       const { user } = await render(
-        <Autocomplete.Root items={['alpha', 'alpine', 'beta']} autoHighlight onItemHighlighted={onItemHighlighted}>
+        <Autocomplete.Root
+          items={['alpha', 'alpine', 'beta']}
+          autoHighlight
+          onItemHighlighted={onItemHighlighted}
+        >
           <Autocomplete.Input data-testid="input" />
           <Autocomplete.Portal>
             <Autocomplete.Positioner>
@@ -268,11 +272,7 @@ describe('<Autocomplete.Root />', () => {
 
     it('retains highlight when clearing the query with autoHighlight enabled', async () => {
       const { user } = await render(
-        <Autocomplete.Root
-          items={['apple', 'banana', 'cherry']}
-          autoHighlight
-          openOnInputClick
-        >
+        <Autocomplete.Root items={['apple', 'banana', 'cherry']} autoHighlight openOnInputClick>
           <Autocomplete.Input />
           <Autocomplete.Portal>
             <Autocomplete.Positioner>
@@ -308,11 +308,7 @@ describe('<Autocomplete.Root />', () => {
 
     it('highlights the first item immediately when behavior is "always"', async () => {
       await render(
-        <Autocomplete.Root
-          items={['alpha', 'beta', 'gamma']}
-          autoHighlight="always"
-          defaultOpen
-        >
+        <Autocomplete.Root items={['alpha', 'beta', 'gamma']} autoHighlight="always" defaultOpen>
           <Autocomplete.Input />
           <Autocomplete.Portal>
             <Autocomplete.Positioner>
