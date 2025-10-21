@@ -5,6 +5,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useId } from '@base-ui-components/utils/useId';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   FloatingTree,
   useClick,
@@ -62,35 +63,10 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     closeParentOnEsc = true,
   } = props;
 
-  const store = useRefWithInit(() => new MenuStore()).current;
-
-  store.useSyncedValues({
-    disabled: disabledProp,
-    modal: modalProp,
-  });
-
-  const triggerElement = store.useState('triggerElement');
-  const positionerElement = store.useState('positionerElement');
-  const hoverEnabled = store.useState('hoverEnabled');
-  const modal = store.useState('modal');
-  const disabled = store.useState('disabled');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-
-  const [stickIfOpen, setStickIfOpen] = React.useState(true);
-
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
-
-  const openEventRef = React.useRef<Event | null>(null);
-  const popupRef = React.useRef<HTMLElement>(null);
-
-  const stickIfOpenTimeout = useTimeout();
   const contextMenuContext = useContextMenuRootContext(true);
   const parentContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
   const isSubmenu = useMenuSubmenuRootContext();
-  const nested = useFloatingParentNodeId() != null;
-
-  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
 
   const parent: MenuParent = React.useMemo(() => {
     if (isSubmenu && parentContext) {
@@ -122,8 +98,33 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     };
   }, [contextMenuContext, parentContext, menubarContext, isSubmenu]);
 
-  store.useControlledProp('open', openProp, defaultOpen);
+  const store = useRefWithInit(() => new MenuStore({ parent })).current;
 
+  store.useSyncedValues({
+    disabled: disabledProp,
+    modal: modalProp,
+  });
+
+  const triggerElement = store.useState('triggerElement');
+  const positionerElement = store.useState('positionerElement');
+  const hoverEnabled = store.useState('hoverEnabled');
+  const modal = store.useState('modal');
+  const disabled = store.useState('disabled');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+
+  const [stickIfOpen, setStickIfOpen] = React.useState(true);
+
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
+
+  const openEventRef = React.useRef<Event | null>(null);
+  const popupRef = React.useRef<HTMLElement>(null);
+
+  const stickIfOpenTimeout = useTimeout();
+  const nested = useFloatingParentNodeId() != null;
+
+  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
+
+  store.useControlledProp('open', openProp, defaultOpen);
   store.useSyncedValue('rootId', useId());
   store.useSyncedValue('parent', parent);
 
@@ -185,9 +186,11 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     referenceElement: positionerElement,
   });
 
-  if (!open && !hoverEnabled) {
-    store.set('hoverEnabled', true);
-  }
+  useIsoLayoutEffect(() => {
+    if (!open && !hoverEnabled) {
+      store.set('hoverEnabled', true);
+    }
+  }, [open, hoverEnabled, store]);
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);

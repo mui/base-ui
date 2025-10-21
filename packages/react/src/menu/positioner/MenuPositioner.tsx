@@ -202,7 +202,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       open,
       nodeId,
       parentNodeId,
-      reason: store.state.lastOpenChangeReason,
+      reason: store.select('lastOpenChangeReason'),
     };
 
     menuEvents.emit('menuopenchange', eventDetails);

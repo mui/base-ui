@@ -74,7 +74,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
     if (
       contains(triggerRef.current, mouseUpTarget) ||
-      contains(store.state.positionerElement, mouseUpTarget) ||
+      contains(store.select('positionerElement'), mouseUpTarget) ||
       mouseUpTarget === triggerRef.current
     ) {
       return;
@@ -113,7 +113,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         isMenubar ? { role: 'menuitem' } : {},
         {
           'aria-haspopup': 'menu' as const,
-          ref: [buttonRef, store.getElementSetter('triggerElement')],
+          ref: buttonRef,
           onMouseDown: (event: React.MouseEvent) => {
             if (open) {
               return;
@@ -151,7 +151,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     [disabled, open],
   );
 
-  const ref = [triggerRef, forwardedRef, buttonRef];
+  const ref = [triggerRef, forwardedRef, buttonRef, store.getElementSetter('triggerElement')];
   const props = [rootTriggerProps, elementProps, getTriggerProps];
 
   const element = useRenderElement('button', componentProps, {
