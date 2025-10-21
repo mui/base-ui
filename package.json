@@ -20,7 +20,7 @@
     "docs:start": "pnpm --filter docs serve",
     "docs:link-check": "pnpm --filter docs link-check",
     "docs:generate-llms": "pnpm --filter docs run generate-llms",
-    "extract-error-codes": "cross-env MUI_EXTRACT_ERROR_CODES=true lerna run --concurrency 1 build:stable",
+    "extract-error-codes": "code-infra extract-error-codes --errorCodesPath docs/src/error-codes.json --detection opt-out",
     "eslint": "eslint . --cache --report-unused-disable-directives --ext .js,.ts,.tsx,.mts --max-warnings 0 && pnpm -r lint",
     "eslint:ci": "eslint . --report-unused-disable-directives --ext .js,.ts,.tsx,.mts --max-warnings 0 && pnpm -r lint",
     "stylelint": "stylelint --reportInvalidScopeDisables --reportNeedlessDisables \"docs/**/*.{js,ts,tsx}\" \"**/*.css\" --ignore-path .lintignore",
@@ -69,7 +69,7 @@
     "@playwright/test": "1.56.0",
     "@tailwindcss/postcss": "4.1.14",
     "@types/node": "^22.18.8",
-    "@types/react": "^19.1.13",
+    "@types/react": "^19.2.2",
     "@types/yargs": "^17.0.33",
     "@vitejs/plugin-react": "^5.0.4",
     "@vitest/browser": "^3.2.4",
@@ -91,8 +91,8 @@
     "prettier": "^3.6.2",
     "pretty-quick": "^4.2.2",
     "publint": "^0.3.14",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "remark-mdx": "^3.1.1",
     "rimraf": "^6.0.1",
     "serve": "^14.2.5",
@@ -119,7 +119,7 @@
     "@babel/preset-typescript": "^7.27.1",
     "@babel/types": "^7.28.4",
     "@types/node": "^22.18.8",
-    "@types/react": "^19.1.13",
-    "@types/react-dom": "^19.1.9"
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2"
   }
 }

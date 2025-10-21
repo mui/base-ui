@@ -23,7 +23,10 @@ export const Form = React.forwardRef(function Form(
   });
   const submittedRef = React.useRef(false);
 
-  const focusControl = useEventCallback((control: HTMLElement) => {
+  const focusControl = useEventCallback((control: HTMLElement | null) => {
+    if (!control) {
+      return;
+    }
     control.focus();
     if (control.tagName === 'INPUT') {
       (control as HTMLInputElement).select();

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { readFile, writeFile } from 'node:fs/promises';
 import { globby } from 'globby';
 import { compile } from '@mdx-js/mdx';
@@ -108,6 +108,7 @@ async function getLinksAndAnchors(
   // Use compile instead of evaluate to avoid executing imports
   // This processes the MDX syntax without running the JavaScript
   const compiledMdx = await compile(mdxSource, {
+    baseUrl: pathToFileURL(filePath),
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
       rehypeReference,
