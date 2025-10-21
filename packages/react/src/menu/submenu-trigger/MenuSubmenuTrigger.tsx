@@ -47,7 +47,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const activeIndex = parentMenuContext.useState('activeIndex');
   const itemProps = parentMenuContext.useState('itemProps');
-  const allowMouseEnter = parentMenuContext.useState('allowMouseEnter');
 
   const item = useCompositeListItem();
 
@@ -59,9 +58,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     () => ({
       type: 'submenu-trigger' as const,
       setActive: () => parentMenuContext.set('activeIndex', item.index),
-      allowMouseEnterEnabled: allowMouseEnter,
     }),
-    [parentMenuContext, item.index, allowMouseEnter],
+    [parentMenuContext, item.index],
   );
 
   const { getItemProps, itemRef } = useMenuItem({

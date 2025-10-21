@@ -157,7 +157,6 @@ export type UseMenuItemMetadata =
   | {
       type: 'submenu-trigger';
       setActive: () => void;
-      allowMouseEnterEnabled: boolean;
     };
 
 export interface UseMenuItemReturnValue {
