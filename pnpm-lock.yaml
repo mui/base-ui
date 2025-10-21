@@ -189,7 +189,7 @@ importers:
         version: 3.1.1(@types/react@19.2.2)(react@19.2.0)
       '@mui/internal-docs-infra':
         specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@84f9ae3
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@84f9ae3(@types/react@19.1.13)(next@15.5.4(@babel/core@7.28.4)(@playwright/test@1.56.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@84f9ae3(@types/react@19.2.2)(next@15.5.4(@babel/core@7.28.4)(@playwright/test@1.56.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@next/mdx':
         specifier: ^15.5.4
         version: 15.5.4(@mdx-js/loader@3.1.1(webpack@5.101.3))(@mdx-js/react@3.1.1(@types/react@19.2.2)(react@19.2.0))
@@ -2315,7 +2315,7 @@ packages:
     version: 0.2.2
     engines: {node: '>=22.12.0'}
     peerDependencies:
-      '@types/react': ^19.1.13
+      '@types/react': ^19.2.2
       next: ^13.5.1 || ^14 || ^15.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
@@ -12834,7 +12834,7 @@ snapshots:
       - stylelint
       - supports-color
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@84f9ae3(@types/react@19.1.13)(next@15.5.4(@babel/core@7.28.4)(@playwright/test@1.56.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@84f9ae3(@types/react@19.2.2)(next@15.5.4(@babel/core@7.28.4)(@playwright/test@1.56.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@babel/standalone': 7.28.4
@@ -12846,15 +12846,15 @@ snapshots:
       jsondiffpatch: 0.7.3
       kebab-case: 2.0.2
       lz-string: 1.5.0
-      next: 15.5.4(@babel/core@7.28.4)(@playwright/test@1.56.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      next: 15.5.4(@babel/core@7.28.4)(@playwright/test@1.56.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       path-module: 0.1.2
       prettier: 3.6.2
-      react: 19.1.1
+      react: 19.2.0
       uint8-to-base64: 0.2.1
       unist-util-visit: 5.0.0
       vscode-oniguruma: 2.0.1
     optionalDependencies:
-      '@types/react': 19.1.13
+      '@types/react': 19.2.2
     transitivePeerDependencies:
       - supports-color
 
