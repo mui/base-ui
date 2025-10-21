@@ -1,69 +1,21 @@
 import * as React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { ChevronDown, ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
-import {
-  AutocompleteInput,
-  AutocompleteItem,
-  AutocompleteList,
-  AutocompletePopup,
-  AutocompletePortal,
-  AutocompletePositioner,
-  AutocompleteRoot,
-  Button,
-  Checkbox,
-  CheckboxGroup,
-  CheckboxIndicator,
-  ComboboxClear,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxItemIndicator,
-  ComboboxList,
-  ComboboxPopup,
-  ComboboxPortal,
-  ComboboxPositioner,
-  ComboboxRoot,
-  ComboboxTrigger,
-  FieldControl,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-  FieldRoot,
-  FieldsetRoot,
-  FieldsetLegend,
-  Form,
-  NumberFieldDecrement,
-  NumberFieldGroup,
-  NumberFieldIncrement,
-  NumberFieldInput,
-  NumberFieldRoot,
-  RadioGroup,
-  Radio,
-  RadioIndicator,
-  SelectIcon,
-  SelectItem,
-  SelectItemIndicator,
-  SelectItemText,
-  SelectList,
-  SelectPopup,
-  SelectPortal,
-  SelectPositioner,
-  SelectRoot,
-  SelectScrollDownArrow,
-  SelectScrollUpArrow,
-  SelectTrigger,
-  SelectValue,
-  SliderControl,
-  SliderIndicator,
-  SliderRoot,
-  SliderThumb,
-  SliderTrack,
-  SliderValue,
-  SwitchRoot,
-  SwitchThumb,
-  Toast,
-  ToastProvider,
-} from './components';
+import { Button } from '../../hero/tailwind/button';
+import { CheckboxGroup } from '../../hero/tailwind/checkbox-group';
+import { Form } from '../../hero/tailwind/form';
+import { RadioGroup } from '../../hero/tailwind/radio-group';
+import { ToastProvider, useToastManager } from '../../hero/tailwind/toast';
+import * as Autocomplete from '../../hero/tailwind/autocomplete';
+import * as Checkbox from '../../hero/tailwind/checkbox';
+import * as Combobox from '../../hero/tailwind/combobox';
+import * as Field from '../../hero/tailwind/field';
+import * as Fieldset from '../../hero/tailwind/fieldset';
+import * as NumberField from '../../hero/tailwind/number-field';
+import * as Radio from '../../hero/tailwind/radio';
+import * as Select from '../../hero/tailwind/select';
+import * as Slider from '../../hero/tailwind/slider';
+import * as Switch from '../../hero/tailwind/switch';
 
 interface FormValues {
   serverName: string;
@@ -78,7 +30,7 @@ interface FormValues {
 }
 
 function ReactHookForm() {
-  const toastManager = Toast.useToastManager();
+  const toastManager = useToastManager();
 
   const { control, handleSubmit } = useForm<FormValues>({
     defaultValues: {
@@ -115,17 +67,17 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
-          <FieldRoot name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <FieldLabel>Server name</FieldLabel>
-            <FieldControl
+          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+            <Field.Label>Server name</Field.Label>
+            <Field.Control
               ref={ref}
               value={value}
               onBlur={onBlur}
               onValueChange={onChange}
               placeholder="e.g. api-server-01"
             />
-            <FieldError match={!!error}>{error?.message}</FieldError>
-          </FieldRoot>
+            <Field.Error match={!!error}>{error?.message}</Field.Error>
+          </Field.Root>
         )}
       />
       <Controller
@@ -138,40 +90,40 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
-          <FieldRoot name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <ComboboxRoot items={REGIONS} value={value} onValueChange={onChange}>
+          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+            <Combobox.Root items={REGIONS} value={value} onValueChange={onChange}>
               <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
-                <FieldLabel>Region</FieldLabel>
-                <ComboboxInput placeholder="e.g. eu-central-1" ref={ref} onBlur={onBlur} />
+                <Field.Label>Region</Field.Label>
+                <Combobox.Input placeholder="e.g. eu-central-1" ref={ref} onBlur={onBlur} />
                 <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
-                  <ComboboxClear />
-                  <ComboboxTrigger>
+                  <Combobox.Clear />
+                  <Combobox.Trigger>
                     <ChevronDown className="size-4" />
-                  </ComboboxTrigger>
+                  </Combobox.Trigger>
                 </div>
               </div>
-              <ComboboxPortal>
-                <ComboboxPositioner>
-                  <ComboboxPopup>
-                    <ComboboxEmpty>No matches</ComboboxEmpty>
-                    <ComboboxList>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.Empty>No matches</Combobox.Empty>
+                    <Combobox.List>
                       {(region: string) => {
                         return (
-                          <ComboboxItem key={region} value={region}>
-                            <ComboboxItemIndicator>
+                          <Combobox.Item key={region} value={region}>
+                            <Combobox.ItemIndicator>
                               <Check className="size-3" />
-                            </ComboboxItemIndicator>
+                            </Combobox.ItemIndicator>
                             <div className="col-start-2">{region}</div>
-                          </ComboboxItem>
+                          </Combobox.Item>
                         );
                       }}
-                    </ComboboxList>
-                  </ComboboxPopup>
-                </ComboboxPositioner>
-              </ComboboxPortal>
-            </ComboboxRoot>
-            <FieldError match={!!error}>{error?.message}</FieldError>
-          </FieldRoot>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+            <Field.Error match={!!error}>{error?.message}</Field.Error>
+          </Field.Root>
         )}
       />
       <Controller
@@ -184,43 +136,43 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
-          <FieldRoot name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <AutocompleteRoot
+          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+            <Autocomplete.Root
               items={IMAGES}
               mode="both"
               itemToStringValue={(itemValue: Image) => itemValue.url}
               value={value}
               onValueChange={onChange}
             >
-              <FieldLabel>Container image</FieldLabel>
-              <FieldDescription>Provide a registry URL including tags</FieldDescription>
-              <AutocompleteInput
+              <Field.Label>Container image</Field.Label>
+              <Field.Description>Provide a registry URL including tags</Field.Description>
+              <Autocomplete.Input
                 placeholder="e.g. docker.io/library/node:latest"
                 ref={ref}
                 onBlur={onBlur}
               />
 
-              <AutocompletePortal>
-                <AutocompletePositioner>
-                  <AutocompletePopup>
-                    <AutocompleteList>
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
                       {(image: Image) => {
                         return (
-                          <AutocompleteItem key={image.url} value={image}>
+                          <Autocomplete.Item key={image.url} value={image}>
                             <span className="text-base leading-6">{image.name}</span>
                             <span className="font-mono whitespace-nowrap text-xs leading-4 opacity-80">
                               {image.url}
                             </span>
-                          </AutocompleteItem>
+                          </Autocomplete.Item>
                         );
                       }}
-                    </AutocompleteList>
-                  </AutocompletePopup>
-                </AutocompletePositioner>
-              </AutocompletePortal>
-            </AutocompleteRoot>
-            <FieldError match={!!error}>{error?.message}</FieldError>
-          </FieldRoot>
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+            <Field.Error match={!!error}>{error?.message}</Field.Error>
+          </Field.Root>
         )}
       />
       <Controller
@@ -233,38 +185,38 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
-          <FieldRoot name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <FieldLabel>Server type</FieldLabel>
-            <SelectRoot items={SERVER_TYPES} value={value} onValueChange={onChange} inputRef={ref}>
-              <SelectTrigger className="w-48" onBlur={onBlur}>
-                <SelectValue />
-                <SelectIcon>
+          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+            <Field.Label>Server type</Field.Label>
+            <Select.Root items={SERVER_TYPES} value={value} onValueChange={onChange} inputRef={ref}>
+              <Select.Trigger className="w-48" onBlur={onBlur}>
+                <Select.Value />
+                <Select.Icon>
                   <ChevronsUpDown className="size-4" />
-                </SelectIcon>
-              </SelectTrigger>
-              <SelectPortal>
-                <SelectPositioner>
-                  <SelectPopup>
-                    <SelectScrollUpArrow />
-                    <SelectList>
+                </Select.Icon>
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.ScrollUpArrow />
+                    <Select.List>
                       {SERVER_TYPES.map(({ label, value: serverType }) => {
                         return (
-                          <SelectItem key={serverType} value={serverType}>
-                            <SelectItemIndicator>
+                          <Select.Item key={serverType} value={serverType}>
+                            <Select.ItemIndicator>
                               <Check className="size-3" />
-                            </SelectItemIndicator>
-                            <SelectItemText>{label}</SelectItemText>
-                          </SelectItem>
+                            </Select.ItemIndicator>
+                            <Select.ItemText>{label}</Select.ItemText>
+                          </Select.Item>
                         );
                       })}
-                    </SelectList>
-                    <SelectScrollDownArrow />
-                  </SelectPopup>
-                </SelectPositioner>
-              </SelectPortal>
-            </SelectRoot>
-            <FieldError match={!!error}>{error?.message}</FieldError>
-          </FieldRoot>
+                    </Select.List>
+                    <Select.ScrollDownArrow />
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <Field.Error match={!!error}>{error?.message}</Field.Error>
+          </Field.Root>
         )}
       />
       <Controller
@@ -277,21 +229,21 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
-          <FieldRoot name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <NumberFieldRoot value={value} min={1} max={64} onValueChange={onChange}>
-              <FieldLabel>Number of instances</FieldLabel>
-              <NumberFieldGroup>
-                <NumberFieldDecrement>
+          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+            <NumberField.Root value={value} min={1} max={64} onValueChange={onChange}>
+              <Field.Label>Number of instances</Field.Label>
+              <NumberField.Group>
+                <NumberField.Decrement>
                   <Minus className="size-4" />
-                </NumberFieldDecrement>
-                <NumberFieldInput className="!w-16" ref={ref} onBlur={onBlur} />
-                <NumberFieldIncrement>
+                </NumberField.Decrement>
+                <NumberField.Input className="!w-16" ref={ref} onBlur={onBlur} />
+                <NumberField.Increment>
                   <Plus className="size-4" />
-                </NumberFieldIncrement>
-              </NumberFieldGroup>
-            </NumberFieldRoot>
-            <FieldError match={!!error}>{error?.message}</FieldError>
-          </FieldRoot>
+                </NumberField.Increment>
+              </NumberField.Group>
+            </NumberField.Root>
+            <Field.Error match={!!error}>{error?.message}</Field.Error>
+          </Field.Root>
         )}
       />
       <Controller
@@ -301,10 +253,10 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty },
         }) => (
-          <FieldRoot name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <FieldsetRoot
+          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+            <Fieldset.Root
               render={
-                <SliderRoot
+                <Slider.Root
                   value={value}
                   onValueChange={onChange}
                   onValueCommitted={onChange}
@@ -321,17 +273,17 @@ function ReactHookForm() {
                 />
               }
             >
-              <FieldsetLegend>Scaling threshold</FieldsetLegend>
-              <SliderValue className="col-start-2 text-end" />
-              <SliderControl>
-                <SliderTrack>
-                  <SliderIndicator />
-                  <SliderThumb index={0} onBlur={onBlur} inputRef={ref} />
-                  <SliderThumb index={1} onBlur={onBlur} />
-                </SliderTrack>
-              </SliderControl>
-            </FieldsetRoot>
-          </FieldRoot>
+              <Fieldset.Legend>Scaling threshold</Fieldset.Legend>
+              <Slider.Value className="col-start-2 text-end" />
+              <Slider.Control>
+                <Slider.Track>
+                  <Slider.Indicator />
+                  <Slider.Thumb index={0} onBlur={onBlur} inputRef={ref} />
+                  <Slider.Thumb index={1} onBlur={onBlur} />
+                </Slider.Track>
+              </Slider.Control>
+            </Fieldset.Root>
+          </Field.Root>
         )}
       />
       <Controller
@@ -341,8 +293,8 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty },
         }) => (
-          <FieldRoot name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <FieldsetRoot
+          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+            <Fieldset.Root
               render={
                 <RadioGroup
                   className="gap-4"
@@ -352,21 +304,21 @@ function ReactHookForm() {
                 />
               }
             >
-              <FieldsetLegend className="-mt-px">Storage type</FieldsetLegend>
-              <FieldLabel>
-                <Radio value="ssd" onBlur={onBlur}>
-                  <RadioIndicator />
-                </Radio>
+              <Fieldset.Legend className="-mt-px">Storage type</Fieldset.Legend>
+              <Field.Label>
+                <Radio.Root value="ssd" onBlur={onBlur}>
+                  <Radio.Indicator />
+                </Radio.Root>
                 SSD
-              </FieldLabel>
-              <FieldLabel>
-                <Radio value="hdd" onBlur={onBlur}>
-                  <RadioIndicator />
-                </Radio>
+              </Field.Label>
+              <Field.Label>
+                <Radio.Root value="hdd" onBlur={onBlur}>
+                  <Radio.Indicator />
+                </Radio.Root>
                 HDD
-              </FieldLabel>
-            </FieldsetRoot>
-          </FieldRoot>
+              </Field.Label>
+            </Fieldset.Root>
+          </Field.Root>
         )}
       />
       <Controller
@@ -376,14 +328,19 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty },
         }) => (
-          <FieldRoot name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <FieldLabel className="flex flex-row gap-4">
+          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+            <Field.Label className="flex flex-row gap-4">
               Restart on failure
-              <SwitchRoot checked={value} inputRef={ref} onCheckedChange={onChange} onBlur={onBlur}>
-                <SwitchThumb />
-              </SwitchRoot>
-            </FieldLabel>
-          </FieldRoot>
+              <Switch.Root
+                checked={value}
+                inputRef={ref}
+                onCheckedChange={onChange}
+                onBlur={onBlur}
+              >
+                <Switch.Thumb />
+              </Switch.Root>
+            </Field.Label>
+          </Field.Root>
         )}
       />
       <Controller
@@ -393,32 +350,32 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty },
         }) => (
-          <FieldRoot name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <FieldsetRoot render={<CheckboxGroup value={value} onValueChange={onChange} />}>
-              <FieldsetLegend className="mb-2">Backup schedule</FieldsetLegend>
+          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+            <Fieldset.Root render={<CheckboxGroup value={value} onValueChange={onChange} />}>
+              <Fieldset.Legend className="mb-2">Backup schedule</Fieldset.Legend>
               <div className="flex gap-4">
                 {['daily', 'weekly', 'monthly'].map((val) => {
                   return (
-                    <FieldLabel key={val} className="capitalize">
-                      <Checkbox
+                    <Field.Label key={val} className="capitalize">
+                      <Checkbox.Root
                         value={val}
                         inputRef={val === 'daily' ? ref : undefined}
                         onBlur={onBlur}
                       >
-                        <CheckboxIndicator>
+                        <Checkbox.Indicator>
                           <Check className="size-3" />
-                        </CheckboxIndicator>
-                      </Checkbox>
+                        </Checkbox.Indicator>
+                      </Checkbox.Root>
                       {val}
-                    </FieldLabel>
+                    </Field.Label>
                   );
                 })}
               </div>
-            </FieldsetRoot>
-          </FieldRoot>
+            </Fieldset.Root>
+          </Field.Root>
         )}
       />
-      <Button type="submit" className="mt-4">
+      <Button type="submit" className="mt-3">
         Launch server
       </Button>
     </Form>
@@ -441,28 +398,23 @@ function cartesian<T extends string[][]>(...arrays: T): string[][] {
 }
 
 const REGIONS = cartesian(['us', 'eu', 'ap'], ['central', 'east', 'west'], ['1', '2', '3']).map(
-  (v) => v.join('-'),
+  (part) => part.join('-'),
 );
 
 interface Image {
   url: string;
   name: string;
 }
-
-const IMAGES: Image[] = [
-  { url: 'docker.io/library/nginx:1.29-alpine', name: 'nginx:1.29-alpine' },
-  { url: 'docker.io/library/node:22-slim', name: 'node:22-slim' },
-  { url: 'docker.io/library/postgres:18', name: 'postgres:18' },
-  { url: 'docker.io/library/redis:8.2.2-alpine', name: 'redis:8.2.2-alpine' },
-];
+/* prettier-ignore */
+const IMAGES: Image[] = ['nginx:1.29-alpine', 'node:22-slim', 'postgres:18', 'redis:8.2.2-alpine'].map((name) => ({
+  url: `docker.io/library/${name}`,
+  name,
+}));
 
 const SERVER_TYPES = [
   { label: 'Select server type', value: null },
-  ...cartesian(['t', 'm'], ['1', '2'], ['small', 'medium', 'large']).map((v) => {
-    const value = v.join('.').replace('.', '');
-    return {
-      label: value,
-      value,
-    };
+  ...cartesian(['t', 'm'], ['1', '2'], ['small', 'medium', 'large']).map((part) => {
+    const value = part.join('.').replace('.', '');
+    return { label: value, value };
   }),
 ];

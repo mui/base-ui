@@ -229,7 +229,7 @@ function ExampleForm() {
           </div>
         </Fieldset.Root>
       </Field.Root>
-      <Button type="submit" className="mt-4">
+      <Button type="submit" className="mt-3">
         Launch server
       </Button>
     </Form>
