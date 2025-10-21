@@ -13,7 +13,6 @@ export type State = {
   modal: boolean;
   mounted: boolean;
   allowMouseEnter: boolean;
-  allowMouseUpTrigger: boolean;
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
@@ -35,6 +34,7 @@ type Context = {
   typingRef: React.RefObject<boolean>;
   itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   itemLabels: React.RefObject<(string | null)[]>;
+  allowMouseUpTriggerRef: React.RefObject<boolean>;
 
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
 };
@@ -53,10 +53,6 @@ const selectors = {
     state.parent.type === 'menu'
       ? state.parent.context.select('allowMouseEnter')
       : state.allowMouseEnter,
-  allowMouseUpTrigger: (state: State): boolean =>
-    state.parent.type === 'menu'
-      ? state.parent.context.select('allowMouseUpTrigger')
-      : state.allowMouseUpTrigger,
   parent: (state: State) => state.parent,
   rootId: (state: State): string | undefined => {
     if (state.parent.type === 'menu') {
@@ -90,16 +86,23 @@ const writeInterceptors = {
   },
 
   parent: (value: MenuParent, store: ReactStore<State, Context, typeof selectors>) => {
-    if (value.type === 'menu') {
-      value.context.subscribe(() => {
-        // Propagate changes from parent menu
-        store.notifyAll();
-      });
-    }
-
+    registerParent(store, value);
     return value;
   },
 };
+
+function registerParent(store: ReactStore<any, Context, any>, parent: MenuParent) {
+  if (parent.type === 'menu') {
+    parent.context.subscribe(() => {
+      // Propagate changes from parent menu
+      store.notifyAll();
+    });
+
+    store.context.allowMouseUpTriggerRef = parent.context.context.allowMouseUpTriggerRef;
+  } else if (parent.type !== undefined) {
+    store.context.allowMouseUpTriggerRef = parent.context.allowMouseUpTriggerRef;
+  }
+}
 
 export class MenuStore extends ReactStore<State, Context, typeof selectors> {
   constructor(initialState?: Partial<State>) {
@@ -111,11 +114,16 @@ export class MenuStore extends ReactStore<State, Context, typeof selectors> {
         typingRef: { current: false },
         itemDomElements: { current: [] },
         itemLabels: { current: [] },
+        allowMouseUpTriggerRef: { current: false },
         onOpenChangeComplete: undefined,
       },
       selectors,
       writeInterceptors,
     );
+
+    if (initialState?.parent) {
+      registerParent(this as any, initialState.parent);
+    }
   }
 
   setOpen(open: boolean, eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>) {
@@ -129,8 +137,7 @@ function createInitialState(): State {
     disabled: false,
     modal: true,
     mounted: false,
-    allowMouseEnter: false,
-    allowMouseUpTrigger: false,
+    allowMouseEnter: true,
     parent: {
       type: undefined,
     },

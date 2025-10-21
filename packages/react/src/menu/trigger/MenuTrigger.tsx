@@ -58,7 +58,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   React.useEffect(() => {
     if (!open && parent.type === undefined) {
-      store.set('allowMouseUpTrigger', false);
+      store.context.allowMouseUpTriggerRef.current = false;
     }
   }, [store, open, parent.type]);
 
@@ -68,7 +68,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }
 
     allowMouseUpTriggerTimeout.clear();
-    store.set('allowMouseUpTrigger', false);
+    store.context.allowMouseUpTriggerRef.current = false;
 
     const mouseUpTarget = mouseEvent.target as Element | null;
 
@@ -121,7 +121,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
             // mousedown -> mouseup on menu item should not trigger it within 200ms.
             allowMouseUpTriggerTimeout.start(200, () => {
-              store.set('allowMouseUpTrigger', true);
+              store.context.allowMouseUpTriggerRef.current = true;
             });
 
             const doc = ownerDocument(event.currentTarget);

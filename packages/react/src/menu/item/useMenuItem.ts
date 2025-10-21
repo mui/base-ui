@@ -74,7 +74,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           onMouseUp(event) {
             if (
               itemRef.current &&
-              store.select('allowMouseUpTrigger') &&
+              store.context.allowMouseUpTriggerRef.current &&
               (!isContextMenu || event.button === 2)
             ) {
               // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
