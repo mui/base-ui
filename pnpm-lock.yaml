@@ -206,7 +206,7 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       es-toolkit:
-        specifier: ^1.39.10
+        specifier: ^1.40.0
         version: 1.40.0
       estree-util-value-to-estree:
         specifier: ^3.4.0
@@ -578,7 +578,7 @@ importers:
         specifier: ^17.0.33
         version: 17.0.33
       es-toolkit:
-        specifier: ^1.39.10
+        specifier: ^1.40.0
         version: 1.40.0
       rimraf:
         specifier: ^6.0.1
