@@ -1,0 +1,505 @@
+import * as React from 'react';
+import { useForm, revalidateLogic, DeepKeys, ValidationError } from '@tanstack/react-form';
+import { ChevronDown, ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
+import { Button } from '../../hero/tailwind/button';
+import { CheckboxGroup } from '../../hero/tailwind/checkbox-group';
+import { RadioGroup } from '../../hero/tailwind/radio-group';
+import { ToastProvider, useToastManager } from '../../hero/tailwind/toast';
+import * as Autocomplete from '../../hero/tailwind/autocomplete';
+import * as Checkbox from '../../hero/tailwind/checkbox';
+import * as Combobox from '../../hero/tailwind/combobox';
+import * as Field from '../../hero/tailwind/field';
+import * as Fieldset from '../../hero/tailwind/fieldset';
+import * as NumberField from '../../hero/tailwind/number-field';
+import * as Radio from '../../hero/tailwind/radio';
+import * as Select from '../../hero/tailwind/select';
+import * as Slider from '../../hero/tailwind/slider';
+import * as Switch from '../../hero/tailwind/switch';
+
+interface FormValues {
+  serverName: string;
+  region: string | null;
+  containerImage: string;
+  serverType: string | null;
+  numOfInstances: number | null;
+  scalingThreshold: number[];
+  storageType: 'ssd' | 'hdd';
+  restartOnFailure: boolean;
+  backupSchedule: string[];
+}
+
+const defaultValues: FormValues = {
+  serverName: '',
+  region: null,
+  containerImage: '',
+  serverType: null,
+  numOfInstances: null,
+  scalingThreshold: [0.2, 0.8],
+  storageType: 'ssd',
+  restartOnFailure: true,
+  backupSchedule: [],
+};
+
+function TanstackForm() {
+  const toastManager = useToastManager();
+
+  const form = useForm({
+    defaultValues,
+    onSubmit: async ({ value: formValues }) => {
+      toastManager.add({
+        title: 'Form submitted',
+        description: 'The form contains these values:',
+        data: formValues,
+      });
+    },
+    validationLogic: revalidateLogic({
+      mode: 'submit',
+      modeAfterSubmission: 'change',
+    }),
+    validators: {
+      onDynamic: ({ value: formValues }) => {
+        const fields: Partial<Record<DeepKeys<FormValues>, ValidationError>> = {};
+
+        if (!formValues.serverName) {
+          fields.serverName = 'This is a required field.';
+        }
+
+        if (!formValues.region) {
+          fields.region = 'This is a required field.';
+        }
+
+        if (!formValues.containerImage) {
+          fields.containerImage = 'This is a required field.';
+        }
+
+        if (!formValues.serverType) {
+          fields.serverType = 'This is a required field.';
+        }
+
+        if (formValues.numOfInstances == null) {
+          fields.numOfInstances = 'This is a required field.';
+        }
+
+        if (!formValues.storageType) {
+          fields.storageType = 'This is a required field.';
+        }
+
+        return { fields };
+      },
+    },
+  });
+
+  /* eslint-disable react/no-children-prop */
+  return (
+    <form
+      className="flex w-full max-w-3xs sm:max-w-[20rem] flex-col gap-5"
+      onSubmit={(event) => {
+        event.preventDefault();
+        form.handleSubmit();
+      }}
+    >
+      <form.Field
+        name="serverName"
+        children={(field) => {
+          return (
+            <Field.Root
+              name={field.name}
+              invalid={!field.state.meta.isValid}
+              dirty={field.state.meta.isDirty}
+              touched={field.state.meta.isTouched}
+            >
+              <Field.Label>Server name</Field.Label>
+              <Field.Control
+                value={field.state.value}
+                onValueChange={field.handleChange}
+                onBlur={field.handleBlur}
+                placeholder="e.g. api-server-01"
+              />
+
+              <Field.Error match={!field.state.meta.isValid}>
+                {field.state.meta.errors.join(',')}
+              </Field.Error>
+            </Field.Root>
+          );
+        }}
+      />
+      <form.Field
+        name="region"
+        children={(field) => {
+          return (
+            <Field.Root
+              name={field.name}
+              invalid={!field.state.meta.isValid}
+              dirty={field.state.meta.isDirty}
+              touched={field.state.meta.isTouched}
+            >
+              <Combobox.Root
+                items={REGIONS}
+                value={field.state.value}
+                onValueChange={field.handleChange}
+              >
+                <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
+                  <Field.Label>Choose a region</Field.Label>
+                  <Combobox.Input placeholder="e.g. eu-central-1" onBlur={field.handleBlur} />
+                  <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
+                    <Combobox.Clear />
+                    <Combobox.Trigger>
+                      <ChevronDown className="size-4" />
+                    </Combobox.Trigger>
+                  </div>
+                </div>
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.Empty>No matches</Combobox.Empty>
+                      <Combobox.List>
+                        {(region: string) => {
+                          return (
+                            <Combobox.Item key={region} value={region}>
+                              <Combobox.ItemIndicator>
+                                <Check className="size-3" />
+                              </Combobox.ItemIndicator>
+                              <div className="col-start-2">{region}</div>
+                            </Combobox.Item>
+                          );
+                        }}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+
+              <Field.Error match={!field.state.meta.isValid}>
+                {field.state.meta.errors.join(',')}
+              </Field.Error>
+            </Field.Root>
+          );
+        }}
+      />
+      <form.Field
+        name="containerImage"
+        children={(field) => {
+          return (
+            <Field.Root
+              name={field.name}
+              invalid={!field.state.meta.isValid}
+              dirty={field.state.meta.isDirty}
+              touched={field.state.meta.isTouched}
+            >
+              <Autocomplete.Root
+                items={IMAGES}
+                mode="both"
+                value={field.state.value}
+                onValueChange={field.handleChange}
+                itemToStringValue={(itemValue: Image) => itemValue.url}
+              >
+                <Field.Label>
+                  Container image
+                  <Autocomplete.Input
+                    placeholder="e.g. docker.io/library/node:latest"
+                    onBlur={field.handleBlur}
+                  />
+                </Field.Label>
+                <Autocomplete.Portal>
+                  <Autocomplete.Positioner>
+                    <Autocomplete.Popup>
+                      <Autocomplete.List>
+                        {(image: Image) => {
+                          return (
+                            <Autocomplete.Item key={image.url} value={image}>
+                              <span className="text-base leading-6">{image.name}</span>
+                              <span className="font-mono whitespace-nowrap text-xs leading-4 opacity-80">
+                                {image.url}
+                              </span>
+                            </Autocomplete.Item>
+                          );
+                        }}
+                      </Autocomplete.List>
+                    </Autocomplete.Popup>
+                  </Autocomplete.Positioner>
+                </Autocomplete.Portal>
+              </Autocomplete.Root>
+              <Field.Error match={!field.state.meta.isValid}>
+                {field.state.meta.errors.join(',')}
+              </Field.Error>
+            </Field.Root>
+          );
+        }}
+      />
+      <form.Field
+        name="serverType"
+        children={(field) => {
+          return (
+            <Field.Root
+              name={field.name}
+              invalid={!field.state.meta.isValid}
+              dirty={field.state.meta.isDirty}
+              touched={field.state.meta.isTouched}
+            >
+              <Field.Label>Server type</Field.Label>
+              <Select.Root
+                items={SERVER_TYPES}
+                value={field.state.value}
+                onValueChange={field.handleChange}
+              >
+                <Select.Trigger className="!w-48" onBlur={field.handleBlur}>
+                  <Select.Value />
+                  <Select.Icon>
+                    <ChevronsUpDown className="size-4" />
+                  </Select.Icon>
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.ScrollUpArrow />
+                      <Select.List>
+                        {SERVER_TYPES.map(({ label, value }) => {
+                          return (
+                            <Select.Item key={value} value={value}>
+                              <Select.ItemIndicator>
+                                <Check className="size-3" />
+                              </Select.ItemIndicator>
+                              <Select.ItemText>{label}</Select.ItemText>
+                            </Select.Item>
+                          );
+                        })}
+                      </Select.List>
+                      <Select.ScrollDownArrow />
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+              <Field.Error match={!field.state.meta.isValid}>
+                {field.state.meta.errors.join(',')}
+              </Field.Error>
+            </Field.Root>
+          );
+        }}
+      />
+      <form.Field
+        name="numOfInstances"
+        children={(field) => {
+          return (
+            <Field.Root
+              name={field.name}
+              invalid={!field.state.meta.isValid}
+              dirty={field.state.meta.isDirty}
+              touched={field.state.meta.isTouched}
+            >
+              <NumberField.Root
+                value={field.state.value}
+                onValueChange={field.handleChange}
+                min={1}
+                max={64}
+              >
+                <Field.Label>No. of instances</Field.Label>
+                <NumberField.Group>
+                  <NumberField.Decrement>
+                    <Minus />
+                  </NumberField.Decrement>
+                  <NumberField.Input className="!w-16" onBlur={field.handleBlur} />
+                  <NumberField.Increment>
+                    <Plus />
+                  </NumberField.Increment>
+                </NumberField.Group>
+              </NumberField.Root>
+              <Field.Error match={!field.state.meta.isValid}>
+                {field.state.meta.errors.join(',')}
+              </Field.Error>
+            </Field.Root>
+          );
+        }}
+      />
+      <form.Field
+        name="scalingThreshold"
+        children={(field) => {
+          return (
+            <Field.Root
+              name={field.name}
+              invalid={!field.state.meta.isValid}
+              dirty={field.state.meta.isDirty}
+              touched={field.state.meta.isTouched}
+            >
+              <Fieldset.Root
+                render={
+                  <Slider.Root
+                    value={field.state.value}
+                    onValueChange={field.handleChange}
+                    onValueCommitted={field.handleChange}
+                    thumbAlignment="edge"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    format={{
+                      style: 'percent',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }}
+                    className="w-72 gap-y-2"
+                  />
+                }
+              >
+                <Fieldset.Legend>Scaling threshold</Fieldset.Legend>
+                <Slider.Value className="col-start-2 text-end" />
+                <Slider.Control>
+                  <Slider.Track>
+                    <Slider.Indicator />
+                    <Slider.Thumb index={0} onBlur={field.handleBlur} />
+                    <Slider.Thumb index={1} onBlur={field.handleBlur} />
+                  </Slider.Track>
+                </Slider.Control>
+              </Fieldset.Root>
+              <Field.Error match={!field.state.meta.isValid}>
+                {field.state.meta.errors.join(',')}
+              </Field.Error>
+            </Field.Root>
+          );
+        }}
+      />
+      <form.Field
+        name="storageType"
+        children={(field) => {
+          return (
+            <Field.Root
+              name={field.name}
+              invalid={!field.state.meta.isValid}
+              dirty={field.state.meta.isDirty}
+              touched={field.state.meta.isTouched}
+            >
+              <Fieldset.Root
+                render={
+                  <RadioGroup
+                    value={field.state.value}
+                    onValueChange={(newValue) =>
+                      field.handleChange(newValue as FormValues['storageType'])
+                    }
+                    className="gap-4"
+                  />
+                }
+              >
+                <Fieldset.Legend className="-mt-px">Storage type</Fieldset.Legend>
+                {['ssd', 'hdd'].map((radioValue) => (
+                  <Field.Label key={radioValue} className="uppercase">
+                    <Radio.Root value={radioValue}>
+                      <Radio.Indicator />
+                    </Radio.Root>
+                    {radioValue}
+                  </Field.Label>
+                ))}
+              </Fieldset.Root>
+              <Field.Error match={!field.state.meta.isValid}>
+                {field.state.meta.errors.join(',')}
+              </Field.Error>
+            </Field.Root>
+          );
+        }}
+      />
+      <form.Field
+        name="restartOnFailure"
+        children={(field) => {
+          return (
+            <Field.Root
+              name={field.name}
+              invalid={!field.state.meta.isValid}
+              dirty={field.state.meta.isDirty}
+              touched={field.state.meta.isTouched}
+              className="mt-2"
+            >
+              <Field.Label className="gap-4">
+                Restart on failure
+                <Switch.Root
+                  checked={field.state.value}
+                  onCheckedChange={field.handleChange}
+                  onBlur={field.handleBlur}
+                >
+                  <Switch.Thumb />
+                </Switch.Root>
+              </Field.Label>
+              <Field.Error match={!field.state.meta.isValid}>
+                {field.state.meta.errors.join(',')}
+              </Field.Error>
+            </Field.Root>
+          );
+        }}
+      />
+      <form.Field
+        name="backupSchedule"
+        children={(field) => {
+          return (
+            <Field.Root
+              name={field.name}
+              invalid={!field.state.meta.isValid}
+              dirty={field.state.meta.isDirty}
+              touched={field.state.meta.isTouched}
+            >
+              <Fieldset.Root
+                render={
+                  <CheckboxGroup value={field.state.value} onValueChange={field.handleChange} />
+                }
+              >
+                <Fieldset.Legend className="mb-2">Backup schedule</Fieldset.Legend>
+                <div className="flex gap-4">
+                  {['daily', 'weekly', 'monthly'].map((checkboxValue) => {
+                    return (
+                      <Field.Label key={checkboxValue} className="capitalize">
+                        <Checkbox.Root value={checkboxValue} onBlur={field.handleBlur}>
+                          <Checkbox.Indicator>
+                            <Check className="size-3" />
+                          </Checkbox.Indicator>
+                        </Checkbox.Root>
+                        {checkboxValue}
+                      </Field.Label>
+                    );
+                  })}
+                </div>
+              </Fieldset.Root>
+              <Field.Error match={!field.state.meta.isValid}>
+                {field.state.meta.errors.join(',')}
+              </Field.Error>
+            </Field.Root>
+          );
+        }}
+      />
+      <Button type="submit" className="mt-3">
+        Launch server
+      </Button>
+    </form>
+  );
+}
+
+export default function App() {
+  return (
+    <ToastProvider>
+      <TanstackForm />
+    </ToastProvider>
+  );
+}
+
+function cartesian<T extends string[][]>(...arrays: T): string[][] {
+  return arrays.reduce<string[][]>(
+    (acc, curr) => acc.flatMap((a) => curr.map((b) => [...a, b])),
+    [[]],
+  );
+}
+
+const REGIONS = cartesian(['us', 'eu', 'ap'], ['central', 'east', 'west'], ['1', '2', '3']).map(
+  (part) => part.join('-'),
+);
+
+interface Image {
+  url: string;
+  name: string;
+}
+/* prettier-ignore */
+const IMAGES: Image[] = ['nginx:1.29-alpine', 'node:22-slim', 'postgres:18', 'redis:8.2.2-alpine'].map((name) => ({
+  url: `docker.io/library/${name}`,
+  name,
+}));
+
+const SERVER_TYPES = [
+  { label: 'Select server type', value: null },
+  ...cartesian(['t', 'm'], ['1', '2'], ['small', 'medium', 'large']).map((part) => {
+    const value = part.join('.').replace('.', '');
+    return { label: value, value };
+  }),
+];

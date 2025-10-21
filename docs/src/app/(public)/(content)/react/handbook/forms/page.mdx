@@ -351,13 +351,13 @@ async function submitForm(data: FormValues) {
 
 [TanStack Form](https://tanstack.com/form/v1/docs/overview) is a newer library also supported by Base UI, and uses a function-based API to orchestrate validations.
 
-// TODO TSF demo
+<Demo path="./demos/tanstack-form" />
 
 ### Create a form instance
 
 Create a form instance with the `useForm` hook, assigning the initial value of each field by their name in the `defaultValues` parameter:
 
-```tsx title="Initialize a TanStack Form instance"
+```tsx {13-14} title="Initialize a TanStack Form instance"
 import { useForm } from '@tanstack/react-form';
 
 interface FormValues {
@@ -365,11 +365,14 @@ interface FormValues {
   email: string;
 }
 
-const formInstance = useForm<FormValues>({
-  defaultValues: {
-    username: '',
-    email: '',
-  },
+const defaultValues: FormValues = {
+  username: '',
+  email: '',
+};
+
+/* useForm returns a form instance */
+const form = useForm<FormValues>({
+  defaultValues,
 });
 ```
 
