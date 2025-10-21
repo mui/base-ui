@@ -42,7 +42,9 @@ type Context = {
 const selectors = {
   open: (state: State) => state.open,
   disabled: (state: State) =>
-    state.parent.type === 'menubar' ? state.parent.context.disabled : state.disabled,
+    state.parent.type === 'menubar'
+      ? state.parent.context.disabled || state.disabled
+      : state.disabled,
 
   modal: (state: State) =>
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
