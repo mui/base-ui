@@ -74,5 +74,7 @@
   "73": "Base UI: useToastManager must be used within <Toast.Provider>.",
   "74": "Base UI: PopoverTrigger must be either used within a PopoverRoot component or have the `handle` prop set.",
   "75": "Base UI: PopoverTrigger must have an `id` prop specified.",
-  "76": "Base UI: selectors are required to call useState."
+  "76": "Base UI: selectors are required to call useState.",
+  "77": "useDayList: The 'amount' parameter must be a positive number, but received %s.",
+  "78": "useWeekList: The 'amount' parameter must be a positive number, but received %s."
 }
