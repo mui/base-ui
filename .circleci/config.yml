@@ -201,7 +201,7 @@ jobs:
             NODE_OPTIONS: --max-old-space-size=3072
       - run:
           name: Any defect declaration files?
-          command: node scripts/testBuiltTypes.mjs
+          command: pnpm code-infra validate-built-types
       - save_cache:
           name: Save generated declaration files
           key: typescript-declaration-files-{{ .Branch }}-{{ .Revision }}
@@ -237,7 +237,7 @@ jobs:
             # Fixing these takes some effort that isn't viable to merge in a single PR.
             # We'll simply monitor them for now.
             set +e
-            node scripts/testBuiltTypes.mjs
+            pnpm code-infra validate-built-types
             exit 0
   test_browser:
     <<: *default-job
@@ -303,7 +303,7 @@ jobs:
           command: pnpm release:build
       - run:
           name: Validate type declarations
-          command: pnpm validate-declarations
+          command: pnpm code-infra validate-built-types
       - run:
           name: Check public types
           command: pnpm -r run release:test
