@@ -63,7 +63,7 @@
     "@mui/internal-netlify-cache": "^0.0.2-canary.0",
     "@mui/internal-test-utils": "^2.0.10",
     "@octokit/rest": "^22.0.0",
-    "@playwright/test": "1.56.0",
+    "@playwright/test": "1.56.1",
     "@tailwindcss/postcss": "4.1.14",
     "@types/node": "^22.18.8",
     "@types/react": "^19.2.2",
