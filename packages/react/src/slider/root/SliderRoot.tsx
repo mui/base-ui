@@ -503,13 +503,12 @@ export interface SliderRootProps<
    * Controls how thumbs behave when they collide during pointer interactions.
    *
    * - `'push'` (default): Thumbs push each other without restoring their previous positions when dragged back.
-   * - `'push-sticky'`: Thumbs push each other and cling when dragged back to their previous positions.
    * - `'swap'`: Thumbs swap places when dragged past each other.
    * - `'none'`: Thumbs cannot move past each other; excess movement is ignored.
    *
-   * @default 'push-sticky'
+   * @default 'push'
    */
-  thumbCollisionBehavior?: 'push' | 'push-sticky' | 'swap' | 'none';
+  thumbCollisionBehavior?: 'push' | 'swap' | 'none';
   /**
    * The value of the slider.
    * For ranged sliders, provide an array with two values.

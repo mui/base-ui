@@ -192,7 +192,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
       max,
       step,
       minStepsBetweenValues,
-      initialValues: pressedValuesRef.current ?? undefined,
     });
 
     if (thumbCollisionBehavior === 'swap' && collisionResult.didSwap) {
@@ -205,13 +204,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const startPressing = useEventCallback((fingerCoords: Coords) => {
-    if (thumbCollisionBehavior === 'push-sticky') {
-      if (pressedValuesRef.current == null) {
-        pressedValuesRef.current = values.slice();
-      }
-    } else {
-      pressedValuesRef.current = null;
-    }
+    pressedValuesRef.current = null;
 
     const pressedThumbIndex = pressedThumbIndexRef.current;
     let closestThumbIndex = pressedThumbIndex;

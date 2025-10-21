@@ -523,52 +523,6 @@ describe('<Slider.Thumb />', () => {
           expect(getSliderValues()).to.deep.equal([65, 65]);
         });
 
-        it('clings to initial positions when set to "push-sticky"', async () => {
-          const { getByTestId } = await render(
-            <Slider.Root
-              defaultValue={[30, 50]}
-              thumbCollisionBehavior="push-sticky"
-              style={{
-                width: '1000px',
-              }}
-            >
-              <Slider.Control data-testid="control">
-                <Slider.Track>
-                  <Slider.Indicator />
-                  <Slider.Thumb index={0} data-testid="thumb1" />
-                  <Slider.Thumb index={1} />
-                </Slider.Track>
-              </Slider.Control>
-            </Slider.Root>,
-          );
-
-          const sliderControl = getByTestId('control');
-
-          stub(sliderControl, 'getBoundingClientRect').callsFake(() =>
-            getHorizontalSliderRect(1000),
-          );
-
-          fireEvent.touchStart(
-            sliderControl,
-            createTouches([{ identifier: 1, clientX: 500, clientY: 0 }]),
-          );
-
-          fireEvent.touchMove(
-            document.body,
-            createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
-          );
-          fireEvent.touchMove(
-            document.body,
-            createTouches([{ identifier: 1, clientX: 350, clientY: 0 }]),
-          );
-          fireEvent.touchEnd(
-            document.body,
-            createTouches([{ identifier: 1, clientX: 350, clientY: 0 }]),
-          );
-
-          expect(getSliderValues()).to.deep.equal([30, 35]);
-        });
-
         it('allows thumbs to swap when set to "swap"', async () => {
           const { getByTestId } = await render(
             <Slider.Root

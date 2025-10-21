@@ -12,7 +12,6 @@ export interface ResolveThumbCollisionParams {
   max: number;
   step: number;
   minStepsBetweenValues: number;
-  initialValues?: readonly number[] | null;
 }
 
 export interface ResolveThumbCollisionResult {
@@ -30,7 +29,6 @@ export function resolveThumbCollision({
   max,
   step,
   minStepsBetweenValues,
-  initialValues,
 }: ResolveThumbCollisionParams): ResolveThumbCollisionResult {
   const range = values.length > 1;
 
@@ -75,10 +73,7 @@ export function resolveThumbCollision({
         didSwap: targetIndex !== pressedIndex,
       };
     }
-    case 'push-sticky':
     case 'push': {
-      const stickyInitialValues =
-        behavior === 'push-sticky' ? (initialValues ?? values) : undefined;
       const nextValues = getPushedThumbValues({
         values,
         index: pressedIndex,
@@ -87,7 +82,6 @@ export function resolveThumbCollision({
         max,
         step,
         minStepsBetweenValues,
-        initialValues: stickyInitialValues ?? undefined,
       });
 
       return {

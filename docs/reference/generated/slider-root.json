@@ -43,10 +43,10 @@
       "detailedType": "'center' | 'edge' | 'edge-client-only' | undefined"
     },
     "thumbCollisionBehavior": {
-      "type": "'none' | 'push' | 'push-sticky' | 'swap'",
-      "default": "'push-sticky'",
-      "description": "Controls how thumbs behave when they collide during pointer interactions.\n\n- `'push'` (default): Thumbs push each other without restoring their previous positions when dragged back.\n- `'push-sticky'`: Thumbs push each other and cling when dragged back to their previous positions.\n- `'swap'`: Thumbs swap places when dragged past each other.\n- `'none'`: Thumbs cannot move past each other; excess movement is ignored.",
-      "detailedType": "| 'none'\n| 'push'\n| 'push-sticky'\n| 'swap'\n| undefined"
+      "type": "'none' | 'push' | 'swap'",
+      "default": "'push'",
+      "description": "Controls how thumbs behave when they collide during pointer interactions.\n\n- `'push'` (default): Thumbs push each other without restoring their previous positions when dragged back.\n- `'swap'`: Thumbs swap places when dragged past each other.\n- `'none'`: Thumbs cannot move past each other; excess movement is ignored.",
+      "detailedType": "'none' | 'push' | 'swap' | undefined"
     },
     "step": {
       "type": "number",

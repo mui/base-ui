@@ -85,7 +85,7 @@ export interface SliderRootContext {
    * @default 1
    */
   step: number;
-  thumbCollisionBehavior: 'push' | 'push-sticky' | 'swap' | 'none';
+  thumbCollisionBehavior: 'push' | 'swap' | 'none';
   thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
   thumbRefs: React.RefObject<(HTMLElement | null)[]>;
   /**
