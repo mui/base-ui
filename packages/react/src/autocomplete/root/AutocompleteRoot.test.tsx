@@ -50,11 +50,7 @@ describe('<Autocomplete.Root />', () => {
       const onItemHighlighted = spy();
 
       const { user } = await render(
-        <Autocomplete.Root
-          items={['alpha', 'alpine', 'beta']}
-          autoHighlight
-          onItemHighlighted={onItemHighlighted}
-        >
+        <Autocomplete.Root items={['alpha', 'alpine', 'beta']} autoHighlight onItemHighlighted={onItemHighlighted}>
           <Autocomplete.Input data-testid="input" />
           <Autocomplete.Portal>
             <Autocomplete.Positioner>
@@ -270,11 +266,11 @@ describe('<Autocomplete.Root />', () => {
       });
     });
 
-    it('retains highlight when clearing the query with behavior "input-change"', async () => {
+    it('retains highlight when clearing the query with autoHighlight enabled', async () => {
       const { user } = await render(
         <Autocomplete.Root
           items={['apple', 'banana', 'cherry']}
-          autoHighlight={{ behavior: 'input-change' }}
+          autoHighlight
           openOnInputClick
         >
           <Autocomplete.Input />
@@ -314,7 +310,7 @@ describe('<Autocomplete.Root />', () => {
       await render(
         <Autocomplete.Root
           items={['alpha', 'beta', 'gamma']}
-          autoHighlight={{ behavior: 'always' }}
+          autoHighlight="always"
           defaultOpen
         >
           <Autocomplete.Input />

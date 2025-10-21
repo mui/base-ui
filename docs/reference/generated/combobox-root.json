@@ -46,7 +46,7 @@
     "autoHighlight": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to automatically highlight the first matching item while filtering.",
+      "description": "Controls whether the first matching item is highlighted automatically while filtering.",
       "detailedType": "boolean | undefined"
     },
     "defaultInputValue": {
@@ -63,6 +63,12 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether list items are presented in a grid layout.\nWhen enabled, arrow keys navigate across rows and columns inferred from DOM rows.",
+      "detailedType": "boolean | undefined"
+    },
+    "highlightItemOnHover": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether moving the pointer over items should highlight them.",
       "detailedType": "boolean | undefined"
     },
     "inputValue": {
@@ -89,6 +95,12 @@
       "type": "any[] | Group[]",
       "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
       "detailedType": "any[] | Group[] | undefined"
+    },
+    "keepHighlight": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the highlighted item should be preserved when the pointer leaves the list.",
+      "detailedType": "boolean | undefined"
     },
     "limit": {
       "type": "number",
