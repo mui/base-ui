@@ -103,9 +103,9 @@ const writeInterceptors = {
 };
 
 export class MenuStore extends ReactStore<State, Context, typeof selectors> {
-  constructor() {
+  constructor(initialState?: Partial<State>) {
     super(
-      createInitialState(),
+      { ...createInitialState(), ...initialState },
       {
         positionerRef: React.createRef<HTMLElement | null>(),
         popupRef: React.createRef<HTMLElement | null>(),
