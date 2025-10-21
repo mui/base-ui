@@ -563,6 +563,49 @@ describe('<Slider.Thumb />', () => {
 
           expect(getSliderValues()).to.deep.equal([40, 70]);
         });
+
+        it('maintains minimum steps between values when swapping', async () => {
+          const { getByTestId } = await render(
+            <Slider.Root
+              defaultValue={[20, 40, 60]}
+              minStepsBetweenValues={10}
+              thumbCollisionBehavior="swap"
+              style={{
+                width: '1000px',
+              }}
+            >
+              <Slider.Control data-testid="control">
+                <Slider.Track>
+                  <Slider.Indicator />
+                  <Slider.Thumb index={0} data-testid="thumb1" />
+                  <Slider.Thumb index={1} />
+                  <Slider.Thumb index={2} />
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>,
+          );
+
+          const sliderControl = getByTestId('control');
+
+          stub(sliderControl, 'getBoundingClientRect').callsFake(() =>
+            getHorizontalSliderRect(1000),
+          );
+
+          fireEvent.touchStart(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
+          );
+          fireEvent.touchMove(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 550, clientY: 0 }]),
+          );
+          fireEvent.touchEnd(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 550, clientY: 0 }]),
+          );
+
+          expect(getSliderValues()).to.deep.equal([40, 55, 65]);
+        });
       });
     });
 

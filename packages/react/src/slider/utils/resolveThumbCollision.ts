@@ -1,5 +1,4 @@
 import { clamp } from '../../utils/clamp';
-import { replaceArrayItemAtIndex } from './replaceArrayItemAtIndex';
 import { getPushedThumbValues } from './getPushedThumbValues';
 import { SliderRootContext } from '../root/SliderRootContext';
 
@@ -44,31 +43,60 @@ export function resolveThumbCollision({
 
   switch (behavior) {
     case 'swap': {
-      let targetIndex = pressedIndex;
+      const pressedInitialValue = values[pressedIndex];
+      const annotatedValues = values.map((value, index) => ({
+        value,
+        index,
+      }));
 
-      if (pressedIndex > 0 && nextValue <= values[pressedIndex - 1]) {
-        while (targetIndex > 0 && nextValue <= values[targetIndex - 1]) {
-          targetIndex -= 1;
+      annotatedValues[pressedIndex] = {
+        value: nextValue,
+        index: pressedIndex,
+      };
+
+      const sortedAnnotated = annotatedValues.slice().sort((a, b) => {
+        if (a.value === b.value) {
+          return a.index - b.index;
         }
-      } else if (pressedIndex < values.length - 1 && nextValue >= values[pressedIndex + 1]) {
-        while (targetIndex < values.length - 1 && nextValue >= values[targetIndex + 1]) {
-          targetIndex += 1;
-        }
+        return a.value - b.value;
+      });
+
+      const targetIndex = sortedAnnotated.findIndex((item) => item.index === pressedIndex);
+
+      if (targetIndex === pressedIndex) {
+        const previousNeighbor = values[pressedIndex - 1];
+        const nextNeighbor = values[pressedIndex + 1];
+        const lowerBound = previousNeighbor != null ? previousNeighbor + minValueDifference : min;
+        const upperBound = nextNeighbor != null ? nextNeighbor - minValueDifference : max;
+        const constrainedValue = clamp(nextValue, lowerBound, upperBound);
+        const updatedValues = values.slice();
+        updatedValues[pressedIndex] = constrainedValue;
+
+        return {
+          value: updatedValues,
+          thumbIndex: pressedIndex,
+          didSwap: false,
+        };
       }
 
-      const candidateValues = replaceArrayItemAtIndex(values, pressedIndex, nextValue);
+      const candidateValues = sortedAnnotated.map((item) => item.value);
+      const initialValues = sortedAnnotated.map((item) =>
+        item.index === pressedIndex ? pressedInitialValue : values[item.index],
+      );
 
-      const previousNeighbor = candidateValues[targetIndex - 1];
-      const nextNeighbor = candidateValues[targetIndex + 1];
-
-      const lowerBound = previousNeighbor != null ? previousNeighbor + minValueDifference : min;
-      const upperBound = nextNeighbor != null ? nextNeighbor - minValueDifference : max;
-
-      const constrainedValue = clamp(nextValue, lowerBound, upperBound);
-      candidateValues[targetIndex] = constrainedValue;
+      const adjustedValues = getPushedThumbValues({
+        values: candidateValues,
+        index: targetIndex,
+        nextValue: candidateValues[targetIndex],
+        min,
+        max,
+        step,
+        minStepsBetweenValues,
+        initialValues,
+      });
 
       return {
-        value: candidateValues,
+        value: adjustedValues,
         thumbIndex: targetIndex,
         didSwap: targetIndex !== pressedIndex,
       };
