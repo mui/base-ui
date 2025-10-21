@@ -33,7 +33,6 @@ type Context = {
   positionerRef: React.RefObject<HTMLElement | null>;
   popupRef: React.RefObject<HTMLElement | null>;
   typingRef: React.RefObject<boolean>;
-  allowMouseUpTriggerRef: React.RefObject<boolean>;
   itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   itemLabels: React.RefObject<(string | null)[]>;
 
@@ -50,18 +49,18 @@ const selectors = {
     (state.modal ?? true),
 
   mounted: (state: State) => state.mounted,
-  allowMouseEnter: (state: State) =>
+  allowMouseEnter: (state: State): boolean =>
     state.parent.type === 'menu'
-      ? state.parent.context.state.allowMouseEnter
+      ? state.parent.context.select('allowMouseEnter')
       : state.allowMouseEnter,
-  allowMouseUpTrigger: (state: State) =>
+  allowMouseUpTrigger: (state: State): boolean =>
     state.parent.type === 'menu'
-      ? state.parent.context.state.allowMouseUpTrigger
+      ? state.parent.context.select('allowMouseUpTrigger')
       : state.allowMouseUpTrigger,
   parent: (state: State) => state.parent,
-  rootId: (state: State) => {
+  rootId: (state: State): string | undefined => {
     if (state.parent.type === 'menu') {
-      return state.parent.context.state.rootId;
+      return state.parent.context.select('rootId');
     }
 
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
@@ -110,7 +109,6 @@ export class MenuStore extends ReactStore<State, Context, typeof selectors> {
         positionerRef: React.createRef<HTMLElement | null>(),
         popupRef: React.createRef<HTMLElement | null>(),
         typingRef: { current: false },
-        allowMouseUpTriggerRef: { current: false },
         itemDomElements: { current: [] },
         itemLabels: { current: [] },
         onOpenChangeComplete: undefined,
