@@ -1,20 +1,20 @@
 import * as React from 'react';
 import { ChevronDown, ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
-import * as Autocomplete from './autocomplete';
 import { Button } from './button';
-import * as Checkbox from './checkbox';
 import { CheckboxGroup } from './checkbox-group';
+import { Form } from './form';
+import { RadioGroup } from './radio-group';
+import { ToastProvider, useToastManager } from './toast';
+import * as Autocomplete from './autocomplete';
+import * as Checkbox from './checkbox';
 import * as Combobox from './combobox';
 import * as Field from './field';
 import * as Fieldset from './fieldset';
-import { Form } from './form';
 import * as NumberField from './number-field';
-import { RadioGroup } from './radio-group';
 import * as Radio from './radio';
 import * as Select from './select';
 import * as Slider from './slider';
 import * as Switch from './switch';
-import { ToastProvider, useToastManager } from './toast';
 
 function ExampleForm() {
   const toastManager = useToastManager();
@@ -25,6 +25,7 @@ function ExampleForm() {
         const formData = new FormData(event.currentTarget);
         const entries = Object.fromEntries(formData as any);
         entries.backupSchedule = formData.getAll('backupSchedule');
+        entries.restartOnFailure = formData.get('restartOnFailure') === 'true';
         entries.scalingThreshold = formData.getAll('scalingThreshold');
         toastManager.add({
           title: 'Form submitted',
@@ -64,7 +65,7 @@ function ExampleForm() {
                     return (
                       <Combobox.Item key={region} value={region}>
                         <Combobox.ItemIndicator>
-                          <Check className="size-3" />
+                          <Check className="size-4" />
                         </Combobox.ItemIndicator>
                         <div className="col-start-2">{region}</div>
                       </Combobox.Item>
@@ -126,7 +127,7 @@ function ExampleForm() {
                     return (
                       <Select.Item key={value} value={value}>
                         <Select.ItemIndicator>
-                          <Check className="size-3" />
+                          <Check className="size-4" />
                         </Select.ItemIndicator>
                         <Select.ItemText>{label}</Select.ItemText>
                       </Select.Item>
@@ -184,7 +185,7 @@ function ExampleForm() {
           </Slider.Control>
         </Fieldset.Root>
       </Field.Root>
-      <Field.Root name="storageType" className="mt-3">
+      <Field.Root name="storageType">
         <Fieldset.Root render={<RadioGroup className="gap-4" defaultValue="ssd" />}>
           <Fieldset.Legend className="-mt-px">Storage type</Fieldset.Legend>
           <Field.Label>
@@ -251,28 +252,23 @@ function cartesian<T extends string[][]>(...arrays: T): string[][] {
 }
 
 const REGIONS = cartesian(['us', 'eu', 'ap'], ['central', 'east', 'west'], ['1', '2', '3']).map(
-  (v) => v.join('-'),
+  (part) => part.join('-'),
 );
 
 interface Image {
   url: string;
   name: string;
 }
-
-const IMAGES: Image[] = [
-  { url: 'docker.io/library/nginx:1.29-alpine', name: 'nginx:1.29-alpine' },
-  { url: 'docker.io/library/node:22-slim', name: 'node:22-slim' },
-  { url: 'docker.io/library/postgres:18', name: 'postgres:18' },
-  { url: 'docker.io/library/redis:8.2.2-alpine', name: 'redis:8.2.2-alpine' },
-];
+/* prettier-ignore */
+const IMAGES: Image[] = ['nginx:1.29-alpine', 'node:22-slim', 'postgres:18', 'redis:8.2.2-alpine'].map((name) => ({
+  url: `docker.io/library/${name}`,
+  name,
+}));
 
 const SERVER_TYPES = [
   { label: 'Select server type', value: null },
-  ...cartesian(['t', 'm'], ['1', '2'], ['small', 'medium', 'large']).map((v) => {
-    const value = v.join('.').replace('.', '');
-    return {
-      label: value,
-      value,
-    };
+  ...cartesian(['t', 'm'], ['1', '2'], ['small', 'medium', 'large']).map((part) => {
+    const value = part.join('.').replace('.', '');
+    return { label: value, value };
   }),
 ];
