@@ -3,9 +3,10 @@ import * as ReactDOM from 'react-dom';
 import { Store } from './Store';
 import { ReactStore } from './ReactStore';
 import { useForcedRerendering } from '../useForcedRerendering';
-import { useEventCallback } from '../useEventCallback';
+import { useStableCallback } from '../useStableCallback';
 import { useAnimationFrame } from '../useAnimationFrame';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
+import { useTimeout } from '../useTimeout';
 
 const STYLES = `
 .baseui-store-inspector-trigger {
@@ -122,6 +123,11 @@ export interface StoreInspectorProps {
    * Title to display in the panel header.
    */
   title?: string;
+  /**
+   * Whether the inspector panel should be open by default.
+   * @default false
+   */
+  defaultOpen?: boolean;
 }
 
 /**
@@ -129,21 +135,8 @@ export interface StoreInspectorProps {
  * This is intended for development and debugging purposes.
  */
 export function StoreInspector(props: StoreInspectorProps) {
-  const { store, title, additionalData } = props;
-  const [open, setOpen] = React.useState(false);
-
-  let content: React.ReactNode = null;
-  if (open) {
-    content = ReactDOM.createPortal(
-      <StoreInspectorPanel
-        store={store}
-        title={title}
-        additionalData={additionalData}
-        onClose={() => setOpen(false)}
-      />,
-      document.body,
-    );
-  }
+  const { store, title, additionalData, defaultOpen = false } = props;
+  const [open, setOpen] = React.useState(defaultOpen);
 
   return (
     <React.Fragment>
@@ -159,7 +152,13 @@ export function StoreInspector(props: StoreInspectorProps) {
       >
         <FileJson />
       </button>
-      {content}
+      <StoreInspectorPanel
+        open={open}
+        store={store}
+        title={title}
+        additionalData={additionalData}
+        onClose={() => setOpen(false)}
+      />
     </React.Fragment>
   );
 }
@@ -168,20 +167,24 @@ interface PanelProps {
   store: Store<any>;
   title?: string;
   additionalData?: any;
-  onClose: () => void;
+  open: boolean;
+  onClose?: () => void;
 }
 
-function StoreInspectorPanel({ store, title, additionalData, onClose }: PanelProps) {
+export function StoreInspectorPanel({ store, title, additionalData, open, onClose }: PanelProps) {
   const rerender = useForcedRerendering();
+  const rerenderTimeout = useTimeout();
 
   // Update when state changes
-  React.useEffect(() => {
-    const unsubscribe = store.subscribe(rerender);
-    rerender();
-    return unsubscribe;
-  }, [store, rerender]);
+  useIsoLayoutEffect(() => {
+    const unsubscribe = store.subscribe(() => {
+      rerenderTimeout.start(1, () => rerender());
+    });
 
-  const logToConsole = useEventCallback(() => {
+    return unsubscribe;
+  }, [store, rerender, rerenderTimeout]);
+
+  const logToConsole = useStableCallback(() => {
     const data: any = {
       state: store.state,
     };
@@ -198,7 +201,11 @@ function StoreInspectorPanel({ store, title, additionalData, onClose }: PanelPro
     console.log(data);
   });
 
-  return (
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const content = (
     <Window
       title={title ?? 'Store Inspector'}
       onClose={onClose}
@@ -224,6 +231,8 @@ function StoreInspectorPanel({ store, title, additionalData, onClose }: PanelPro
       )}
     </Window>
   );
+
+  return open ? ReactDOM.createPortal(content, document.body) : null;
 }
 
 function getStringifyReplacer() {
@@ -266,7 +275,7 @@ function getStringifyReplacer() {
 
 interface WindowProps {
   title?: string;
-  onClose: () => void;
+  onClose?: () => void;
   children: React.ReactNode;
   headerActions?: React.ReactNode;
 }
@@ -319,7 +328,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     setPosition({ left: 8, top: 8 });
   }, [position]);
 
-  const onPointerDown = useEventCallback((event: React.PointerEvent) => {
+  const onPointerDown = useStableCallback((event: React.PointerEvent) => {
     if (!headerRef.current || !rootRef.current) {
       return;
     }
@@ -343,7 +352,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     event.preventDefault();
   });
 
-  const endDrag = useEventCallback((event?: PointerEvent) => {
+  const endDrag = useStableCallback((event?: PointerEvent) => {
     if (headerRef.current && event) {
       try {
         headerRef.current.releasePointerCapture(event.pointerId);
@@ -356,7 +365,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     }
   });
 
-  const onPointerMove = useEventCallback((event: PointerEvent) => {
+  const onPointerMove = useStableCallback((event: PointerEvent) => {
     const state = dragStateRef.current;
     if (!state || !state.dragging) {
       return;
@@ -369,7 +378,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     });
   });
 
-  const onResizePointerDown = useEventCallback((event: React.PointerEvent) => {
+  const onResizePointerDown = useStableCallback((event: React.PointerEvent) => {
     if (!rootRef.current) {
       return;
     }
@@ -398,7 +407,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     event.preventDefault();
   });
 
-  const onResizePointerMove = useEventCallback((event: PointerEvent) => {
+  const onResizePointerMove = useStableCallback((event: PointerEvent) => {
     const state = resizeStateRef.current;
     if (!state || !state.resizing) {
       return;
@@ -412,7 +421,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     });
   });
 
-  const endResize = useEventCallback((event?: PointerEvent) => {
+  const endResize = useStableCallback((event?: PointerEvent) => {
     if (event) {
       try {
         (event.target as any)?.releasePointerCapture?.((event as any).pointerId);
