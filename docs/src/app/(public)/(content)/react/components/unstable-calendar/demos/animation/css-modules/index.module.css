@@ -7,6 +7,78 @@
   --easing: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.HeaderLabelWrapper {
+  width: 100%;
+  display: grid;
+  justify-content: center;
+  perspective: 200px;
+  transform-origin: center center;
+  transform-style: preserve-3d;
+}
+
+.HeaderLabel {
+  grid-row: 1;
+  grid-column: 1;
+  background-color: white;
+  min-width: 185px;
+  text-align: center;
+  /* Apply transition only when `data-ending-style` is present to allow for smooth animations from original translated positions. */
+  &[data-ending-style] {
+    &[data-current],
+    &[data-previous] {
+      @media (prefers-reduced-motion: no-preference) {
+        transition:
+          opacity var(--duration) var(--easing),
+          transform var(--duration) var(--easing);
+      }
+    }
+  }
+
+  &[data-navigation-direction='next'][data-previous] {
+    &[data-starting-style] {
+      opacity: 1;
+      transform: rotateX(0);
+    }
+    &[data-ending-style] {
+      opacity: 0;
+      transform: rotateX(90deg);
+    }
+  }
+
+  &[data-navigation-direction='next'][data-current] {
+    &[data-starting-style] {
+      opacity: 0;
+      transform: rotateX(-270deg);
+    }
+    &[data-ending-style] {
+      opacity: 1;
+      transform: rotateX(0);
+    }
+  }
+
+  &[data-navigation-direction='previous'][data-previous] {
+    &[data-starting-style] {
+      opacity: 1;
+      transform: rotateX(0);
+    }
+    &[data-ending-style] {
+      opacity: 0;
+      transform: rotateX(-90deg);
+    }
+  }
+
+  &[data-navigation-direction='previous'][data-current] {
+    &[data-starting-style] {
+      opacity: 0;
+      transform: rotateX(270deg);
+    }
+    &[data-ending-style] {
+      opacity: 1;
+      transform: rotateX(0);
+    }
+  }
+}
+
 .DayGrid {
   /* Need to use grid to position two tbody elements centered horizontally. */
   display: grid;

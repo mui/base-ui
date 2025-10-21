@@ -14,7 +14,13 @@ export default function AnimatedCalendar() {
             <Calendar.SetPreviousMonth className={styles.SetPreviousMonth}>
               ◀
             </Calendar.SetPreviousMonth>
-            <span className={styles.HeaderLabel}>{format(visibleDate, 'MMMM yyyy')}</span>
+            <div className={indexStyles.HeaderLabelWrapper}>
+              <Calendar.Viewport>
+                <span className={clsx(styles.HeaderLabel, indexStyles.HeaderLabel)}>
+                  {format(visibleDate, 'MMMM yyyy')}
+                </span>
+              </Calendar.Viewport>
+            </div>
             <Calendar.SetNextMonth className={styles.SetNextMonth}>▶</Calendar.SetNextMonth>
           </header>
           <Calendar.DayGrid className={clsx(styles.DayGrid, indexStyles.DayGrid)}>
