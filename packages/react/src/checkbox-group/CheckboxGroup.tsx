@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useRenderElement } from '../utils/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
@@ -51,7 +51,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     state: 'value',
   });
 
-  const setValue = useEventCallback(
+  const setValue = useStableCallback(
     (v: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => {
       onValueChange?.(v, eventDetails);
 
