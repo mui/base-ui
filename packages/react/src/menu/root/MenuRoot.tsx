@@ -117,7 +117,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const openEventRef = React.useRef<Event | null>(null);
-  const popupRef = React.useRef<HTMLElement>(null);
 
   const stickIfOpenTimeout = useTimeout();
   const nested = useFloatingParentNodeId() != null;
@@ -208,7 +207,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   useOpenChangeComplete({
     enabled: !actionsRef,
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (!open) {
         handleUnmount();
@@ -444,11 +443,12 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     openOnArrowKeyDown: parent.type !== 'context-menu',
   });
 
-  const typingRef = React.useRef(false);
-
-  const onTypingChange = React.useCallback((nextTyping: boolean) => {
-    typingRef.current = nextTyping;
-  }, []);
+  const onTypingChange = React.useCallback(
+    (nextTyping: boolean) => {
+      store.context.typingRef.current = nextTyping;
+    },
+    [store],
+  );
 
   const typeahead = useTypeahead(floatingRootContext, {
     listRef: store.context.itemLabels,
