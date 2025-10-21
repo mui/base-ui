@@ -203,7 +203,7 @@ function ExampleForm() {
         </Fieldset.Root>
       </Field.Root>
       <Field.Root name="restartOnFailure">
-        <Field.Label className="flex flex-row gap-4">
+        <Field.Label className="gap-4">
           Restart on failure
           <Switch.Root defaultChecked>
             <Switch.Thumb />

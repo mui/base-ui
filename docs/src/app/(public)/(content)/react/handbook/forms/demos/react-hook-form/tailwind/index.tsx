@@ -111,7 +111,7 @@ function ReactHookForm() {
                         return (
                           <Combobox.Item key={region} value={region}>
                             <Combobox.ItemIndicator>
-                              <Check className="size-3" />
+                              <Check className="size-4" />
                             </Combobox.ItemIndicator>
                             <div className="col-start-2">{region}</div>
                           </Combobox.Item>
@@ -203,7 +203,7 @@ function ReactHookForm() {
                         return (
                           <Select.Item key={serverType} value={serverType}>
                             <Select.ItemIndicator>
-                              <Check className="size-3" />
+                              <Check className="size-4" />
                             </Select.ItemIndicator>
                             <Select.ItemText>{label}</Select.ItemText>
                           </Select.Item>
@@ -329,7 +329,7 @@ function ReactHookForm() {
           fieldState: { invalid, isTouched, isDirty },
         }) => (
           <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <Field.Label className="flex flex-row gap-4">
+            <Field.Label className="gap-4">
               Restart on failure
               <Switch.Root
                 checked={value}
