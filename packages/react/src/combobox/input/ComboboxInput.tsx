@@ -86,7 +86,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   // https://github.com/mui/base-ui/issues/2703
   const inputValue = useComboboxInputValueContext();
 
-  const popupSide = mounted && positionerElement ? popupSideValue : '';
+  const popupSide = mounted && positionerElement ? popupSideValue : null;
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = filteredItems.length === 0;
 
@@ -463,7 +463,7 @@ export interface ComboboxInputState extends FieldRoot.State {
   /**
    * Indicates which side the corresponding popup is positioned relative to the input.
    */
-  popupSide: Side | '';
+  popupSide: Side | null;
   /**
    * Present when the corresponding items list is empty.
    */

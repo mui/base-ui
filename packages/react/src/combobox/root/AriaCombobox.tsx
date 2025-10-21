@@ -344,7 +344,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         listElement: null,
         triggerElement: null,
         inputElement: null,
-        popupSide: '',
+        popupSide: null,
         openMethod: null,
         inputInsidePopup: true,
         onOpenChangeComplete: onOpenChangeCompleteProp || NOOP,

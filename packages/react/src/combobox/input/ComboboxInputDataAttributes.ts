@@ -19,7 +19,7 @@ export enum ComboboxInputDataAttributes {
   readonly = 'data-readonly',
   /**
    * Indicates which side the corresponding popup is positioned on the input.
-   * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
+   * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null}
    */
   popupSide = 'data-popup-side',
   /**
