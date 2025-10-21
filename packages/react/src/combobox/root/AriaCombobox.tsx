@@ -8,6 +8,7 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui-components/utils/store';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import {
   ElementProps,
   useDismiss,
@@ -34,9 +35,9 @@ import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useFormContext } from '../../form/FormContext';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -112,14 +113,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     setDirty,
     validityData,
     validationMode,
-    setControlId,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
   } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
-
-  const id = useBaseUiId(idProp);
+  const id = useLabelableId({ id: idProp });
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -129,13 +128,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const autoHighlightBehavior = autoHighlight
     ? (typeof autoHighlight === 'object' && autoHighlight.behavior) || 'input-change'
     : false;
-
-  useIsoLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
     controlled: selectedValueProp,
@@ -390,6 +382,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const queryRef = React.useRef(query);
   const selectedValueRef = React.useRef(selectedValue);
   const inputValueRef = React.useRef(inputValue);
+  const triggerRef = useLatestRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const {
@@ -428,7 +421,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     id,
     commitValidation,
     value: formValue,
-    controlRef: inputRef,
+    controlRef: inputInsidePopup ? triggerRef : inputRef,
     name,
     getValue: () => formValue,
   });
@@ -440,94 +433,63 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [items, flatFilteredItems]);
 
-  useIsoLayoutEffect(
-    function handleAutoHighlight() {
-      if (!open) {
-        return;
-      }
-
-      const candidateItems = items ? flatFilteredItems : valuesRef.current;
-      const hasCandidates = candidateItems.length > 0;
-
-      let pendingHighlight = pendingQueryHighlightRef.current;
-      const shouldResetPending = pendingHighlight !== null;
-
-      if (
-        !pendingHighlight &&
-        autoHighlightBehavior === 'always' &&
-        store.state.activeIndex == null
-      ) {
-        pendingHighlight = { hasQuery: true };
-      }
-
-      if (pendingHighlight) {
-        if (pendingHighlight.hasQuery) {
-          if (autoHighlightBehavior) {
-            if (hasCandidates) {
-              store.set('activeIndex', 0);
-            } else {
-              store.set('activeIndex', null);
-            }
-          }
-        } else if (autoHighlightBehavior && autoHighlightBehavior !== 'input-change') {
-          store.set('activeIndex', null);
-        }
-
-        if (shouldResetPending) {
-          pendingQueryHighlightRef.current = null;
-        }
-      }
-
-      if (!store.state.open && !store.state.inline) {
-        return;
-      }
-
-      const storeActiveIndex = store.state.activeIndex;
-
-      if (storeActiveIndex == null) {
-        if (autoHighlightBehavior === 'always' && hasCandidates) {
+  useIsoLayoutEffect(() => {
+    const pendingHighlight = pendingQueryHighlightRef.current;
+    if (pendingHighlight) {
+      if (pendingHighlight.hasQuery) {
+        if (autoHighlight) {
           store.set('activeIndex', 0);
-          return;
         }
-
-        if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
-          lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
-          store.state.onItemHighlighted(
-            undefined,
-            createGenericEventDetails('none', undefined, { index: -1 }),
-          );
-        }
-        return;
-      }
-
-      if (storeActiveIndex >= candidateItems.length) {
-        if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
-          lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
-          store.state.onItemHighlighted(
-            undefined,
-            createGenericEventDetails('none', undefined, { index: -1 }),
-          );
-        }
+      } else if (autoHighlight) {
         store.set('activeIndex', null);
-        return;
       }
+      pendingQueryHighlightRef.current = null;
+    }
 
-      const nextActiveValue = candidateItems[storeActiveIndex];
-      const lastHighlightedValue = lastHighlightRef.current.value;
-      const isSameItem =
-        lastHighlightedValue !== NO_ACTIVE_VALUE &&
-        store.state.isItemEqualToValue(nextActiveValue, lastHighlightedValue);
+    if (!open && !inline) {
+      return;
+    }
 
-      if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
-        lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
+    const candidateItems = items ? flatFilteredItems : valuesRef.current;
+    const storeActiveIndex = store.state.activeIndex;
+
+    if (storeActiveIndex == null) {
+      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
         store.state.onItemHighlighted(
-          nextActiveValue,
-          createGenericEventDetails('none', undefined, { index: storeActiveIndex }),
+          undefined,
+          createGenericEventDetails('none', undefined, { index: -1 }),
         );
       }
-    },
-    [open, autoHighlightBehavior, flatFilteredItems, store, items, valuesRef],
-  );
+      return;
+    }
+
+    if (storeActiveIndex >= candidateItems.length) {
+      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+        store.state.onItemHighlighted(
+          undefined,
+          createGenericEventDetails('none', undefined, { index: -1 }),
+        );
+      }
+      store.set('activeIndex', null);
+      return;
+    }
+
+    const nextActiveValue = candidateItems[storeActiveIndex];
+    const lastHighlightedValue = lastHighlightRef.current.value;
+    const isSameItem =
+      lastHighlightedValue !== NO_ACTIVE_VALUE &&
+      store.state.isItemEqualToValue(nextActiveValue, lastHighlightedValue);
+
+    if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
+      lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
+      store.state.onItemHighlighted(
+        nextActiveValue,
+        createGenericEventDetails('none', undefined, { index: storeActiveIndex }),
+      );
+    }
+  }, [activeIndex, autoHighlight, flatFilteredItems, inline, items, open, store, valuesRef]);
 
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
@@ -986,8 +948,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     selectedIndex,
     virtual: true,
     loop: true,
-    allowEscape: !autoHighlightBehavior,
-    focusItemOnOpen: queryChangedAfterOpen || selectionMode === 'none' ? false : 'auto',
+    allowEscape: !autoHighlight,
+    focusItemOnOpen:
+      queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlight) ? false : 'auto',
     // `cols` > 1 enables grid navigation.
     // Since <Combobox.Row> infers column sizes (and is required when building a grid),
     // it works correctly even with a value of `2`.

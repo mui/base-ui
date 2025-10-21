@@ -2,6 +2,7 @@ import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
@@ -45,6 +46,47 @@ describe('<Autocomplete.Root />', () => {
   });
 
   describe('prop: autoHighlight', () => {
+    it('calls onItemHighlighted when the popup auto highlights on open', async () => {
+      const onItemHighlighted = spy();
+
+      const { user } = await render(
+        <Autocomplete.Root
+          items={['alpha', 'alpine', 'beta']}
+          autoHighlight
+          onItemHighlighted={onItemHighlighted}
+        >
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      await user.type(input, 'a');
+
+      const firstOption = await screen.findByRole('option', { name: 'alpha' });
+      expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+
+      const [value, eventDetails] = onItemHighlighted.lastCall.args;
+      expect(value).to.equal('alpha');
+      expect(eventDetails.reason).to.equal('none');
+
+      await waitFor(() => {
+        expect(firstOption).to.have.attribute('data-highlighted');
+      });
+    });
+
     it('highlights the first item when typing and keeps it during filtering', async () => {
       const { user } = await render(
         <Autocomplete.Root autoHighlight>
@@ -124,6 +166,36 @@ describe('<Autocomplete.Root />', () => {
       await waitFor(() => {
         expect(input).to.have.attribute('aria-activedescendant');
       });
+    });
+
+    it('highlights the first item when opening via ArrowDown', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['alpha', 'beta', 'gamma']} autoHighlight>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      const firstOption = await screen.findByRole('option', { name: 'alpha' });
+      expect(firstOption).to.have.attribute('data-highlighted');
+      expect(input.getAttribute('aria-activedescendant')).to.equal(firstOption.id);
     });
 
     it('links aria-activedescendant to the highlighted item after filtering', async () => {
