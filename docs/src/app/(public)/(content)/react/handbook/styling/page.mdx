@@ -55,7 +55,7 @@ Components that render an HTML element accept a `style` prop to style the elemen
 <Switch.Thumb style={{ height: '100px' }} />
 ```
 
-The prop can also be passed a function that takes the component's state as an argument.
+The prop also accepts a function that takes the component's state as an argument.
 
 ```tsx title="switch.tsx"
 <Switch.Thumb style={(state) => ({ color: state.checked ? 'red' : 'blue' })} />
