@@ -240,9 +240,9 @@ const { control, handleSubmit } = useForm<FormValues>({
 
 ### Integrating Base UI components
 
-Use the `<Controller>` component to integrate with any `<Field>` component, forwarding the various `field` and `fieldState` render props to the appropriate part:
+Use the `<Controller>` component to integrate with any `<Field>` component, forwarding `name` and `field`, `fieldState` render props to the appropriate part:
 
-```tsx {10-15,22-25} title="Integrating React Hook Form's controller component with Base UI field" "name" "ref" "value" "onBlur" "onChange" "invalid" "isTouched" "isDirty" "error"
+```tsx {11-17,22-26} title="Integrating React Hook Form's controller component with Base UI field" "ref" "value" "onBlur" "onChange" "invalid" "isTouched" "isDirty" "error"
 import { useForm, Controller } from "react-hook-form"
 import { Field } from '@base-ui-components/react/field';
 
@@ -254,6 +254,7 @@ const { control, handleSubmit} = useForm({
 
 <Controller
   name="username"
+  control={control}
   render={({
     field: { name, ref, value, onBlur, onChange },
     fieldState: { invalid, isTouched, isDirty, error },
@@ -284,12 +285,13 @@ In order for React Hook Form to focus invalid fields when performing validation,
 
 Specify `rules` on the `<Controller>` in the same format as [`register`](https://react-hook-form.com/docs/useform/register) options, and use the `match` prop to delegate control of the error rendering:
 
-```tsx {4-14, 31-33} title="Defining validation rules and displaying errors"
+```tsx {5-15, 33-35} title="Defining validation rules and displaying errors"
 import { Controller } from "react-hook-form"
 import { Field } from '@base-ui-components/react/field';
 
 <Controller
   name="username"
+  control={control}
   rules={{
     required: 'This is a required field',
     minLength: { value: 2, message: 'Too short' },
@@ -384,7 +386,7 @@ Use the `<form.Field>` component from the form instance to integrate with Base U
 import { useForm } from '@tanstack/react-form';
 import { Field } from '@base-ui-components/react/Field';
 
-const form = useForm(/* parameters */)
+const form = useForm(/* defaultValues, other parameters */)
 
 <form>
   <form.Field
@@ -420,7 +422,7 @@ The Base UI `<Form>` component is not needed when using TanStack Form.
 To configure a native `<form>`-like validation strategy:
 
 1. Use the additional `revalidateLogic` hook and pass it to `useForm`
-2. Pass a validation function to the `validators.onDynamic` prop on `<FormField>` that returns an error object with keys corresponding to the field `name`s
+2. Pass a validation function to the `validators.onDynamic` prop on `<form.Field>` that returns an error object with keys corresponding to the field `name`s
 
 This validates all fields when the first submission is attempted, and revalidates any invalid fields when their values change again.
 
@@ -452,7 +454,7 @@ const form = useForm({
         errors.username = 'Invalid email format.';
       }
 
-      return errors;
+      return { fields: errors };
     },
   },
 });
