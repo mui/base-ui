@@ -5,11 +5,11 @@
     "defaultValue": {
       "type": "Tabs.Tab.Value",
       "default": "0",
-      "description": "The default value. Use when the component is not controlled.\nWhen the value is `null`, no Tab will be selected."
+      "description": "The default value. Use when the component is not controlled.\nWhen the value is `null`, no Tab will be active."
     },
     "value": {
       "type": "Tabs.Tab.Value",
-      "description": "The value of the currently selected `Tab`. Use when the component is controlled.\nWhen the value is `null`, no Tab will be selected."
+      "description": "The value of the currently selected `Tab`. Use when the component is controlled.\nWhen the value is `null`, no Tab will be active."
     },
     "onValueChange": {
       "type": "((value: Tabs.Tab.Value, eventDetails: { reason: 'none', event: ReasonToEvent, cancel: (() => void), allowPropagation: (() => void), isCanceled: boolean, isPropagationAllowed: boolean, trigger: HTMLElement | undefined } & { activationDirection: Tabs.Tab.ActivationDirection }) => void)",
@@ -38,7 +38,7 @@
       "type": "'horizontal' | 'vertical'"
     },
     "data-activation-direction": {
-      "description": "Indicates the direction of the activation (based on the previous selected tab).",
+      "description": "Indicates the direction of the activation (based on the previous active tab).",
       "type": "'left' | 'right' | 'up' | 'down' | 'none'"
     }
   },

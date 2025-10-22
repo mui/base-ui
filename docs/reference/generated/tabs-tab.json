@@ -23,12 +23,6 @@
     }
   },
   "dataAttributes": {
-    "data-selected": {
-      "description": "Present when the tab is selected."
-    },
-    "data-highlighted": {
-      "description": "Present when the tab is highlighted."
-    },
     "data-orientation": {
       "description": "Indicates the orientation of the tabs.",
       "type": "'horizontal' | 'vertical'"
@@ -37,8 +31,11 @@
       "description": "Present when the tab is disabled."
     },
     "data-activation-direction": {
-      "description": "Indicates the direction of the activation (based on the previous selected tab).",
+      "description": "Indicates the direction of the activation (based on the previous active tab).",
       "type": "'left' | 'right' | 'up' | 'down' | 'none'"
+    },
+    "data-active": {
+      "description": "Present when the tab is active."
     }
   },
   "cssVariables": {}
