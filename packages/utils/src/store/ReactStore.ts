@@ -8,24 +8,39 @@ import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { NOOP } from '../empty';
 
 /**
- * A Store that supports controlled state keys.
- *
- * - Keys registered through {@link useControlledProp} become controlled when a non-undefined
- *   value is provided. Controlled keys mirror the incoming value and ignore local writes
- *   (via {@link set}, {@link update}, or {@link setState}).
- * - When a key is uncontrolled, an optional default value is written once on first render.
- * - Use {@link useSyncedValue} and {@link useSyncedValues} to synchronize external values/props into the
- *   store during a layout phase using {@link useIsoLayoutEffect}.
+ * A Store that supports controlled state keys, non-reactive values and provides utility methods for React.
  */
 export class ReactStore<
   State,
   Context = Record<string, never>,
-  Selectors extends Record<string, (state: State) => any> = Record<string, never>,
+  Selectors extends Record<string, SelectorFunction<State>> = Record<string, never>,
 > extends Store<State> {
-  constructor(state: State, context: Context = {} as Context, selectors?: Selectors) {
+  /**
+   * Creates a new ReactStore instance.
+   *
+   * @param state Initial state of the store.
+   * @param context Non-reactive context values.
+   * @param selectors Optional selectors for use with `useState`.
+   * @param writeInterceptors Optional custom write interceptors for specific state keys. If provided,
+   *   these functions are called whenever the corresponding key is updated via `set`, `apply`, or `update`.
+   *   Note that updates to controlled keys are ignored regardless of write interceptors
+   *   (though interceptors are still called, which may be useful for side effects).
+   */
+  constructor(
+    state: State,
+    context: Context = {} as Context,
+    selectors?: Selectors,
+    writeInterceptors?: Partial<{
+      [K in keyof State]: (
+        value: State[K],
+        store: ReactStore<State, Context, Selectors>,
+      ) => State[K];
+    }>,
+  ) {
     super(state);
     this.context = context;
     this.selectors = selectors;
+    this.writeInterceptors = new Map(Object.entries(writeInterceptors ?? {}) as any);
   }
 
   /**
@@ -40,6 +55,8 @@ export class ReactStore<
   private controlledValues: Map<keyof State, boolean> = new Map();
 
   private selectors: Selectors | undefined;
+
+  private writeInterceptors: Map<keyof State, (value: any, store: this) => any>;
 
   /**
    * Synchronizes a single external value into the store during layout phase.
@@ -113,16 +130,28 @@ export class ReactStore<
       this.controlledValues.set(key, isControlled);
 
       if (!isControlled && !Object.is(this.state[key], defaultValue)) {
-        super.setState({ ...(this.state as State), [key]: defaultValue } as State);
+        super.setState({ ...this.state, [key]: defaultValue });
       }
     }
 
     useIsoLayoutEffect(() => {
       if (isControlled && !Object.is(this.state[key], controlled)) {
         // Set the internal state to match the controlled value.
-        super.setState({ ...(this.state as State), [key]: controlled } as State);
+        super.setState({ ...this.state, [key]: controlled });
       }
     }, [key, controlled, defaultValue, isControlled]);
+  }
+
+  /** Gets the current value from the store using a selector with the provided key. */
+  public select<Key extends keyof Selectors>(
+    key: Key,
+    ...args: SelectorArgs<Selectors[Key]>
+  ): ReturnType<Selectors[Key]> {
+    if (!this.selectors || !this.selectors[key]) {
+      throw new Error(`Base UI: Selector for key "${String(key)}" is not defined.`);
+    }
+
+    return this.selectors[key](this.state, ...args);
   }
 
   /**
@@ -134,6 +163,16 @@ export class ReactStore<
    * @param value The new value to set for the specified key.
    */
   public set<T>(key: keyof State, value: T): void {
+    const interceptor = this.writeInterceptors.get(key);
+    if (interceptor) {
+      const updatedValue = interceptor(value, this);
+      if (!this.controlledValues.get(key) === true) {
+        super.set(key, updatedValue);
+      }
+
+      return;
+    }
+
     if (this.controlledValues.get(key) === true) {
       // Ignore updates to controlled values
       return;
@@ -151,9 +190,20 @@ export class ReactStore<
   public update(values: Partial<State>): void {
     const newValues = { ...values };
     for (const key in newValues) {
+      if (!Object.prototype.hasOwnProperty.call(newValues, key)) {
+        continue;
+      }
+
+      const interceptor = this.writeInterceptors.get(key);
+      if (interceptor) {
+        const updatedValue = interceptor(newValues[key as keyof State], this);
+        newValues[key as keyof State] = updatedValue;
+      }
+
       if (this.controlledValues.get(key) === true) {
         // Ignore updates to controlled values
         delete newValues[key];
+        continue;
       }
     }
 
@@ -169,9 +219,20 @@ export class ReactStore<
   public setState(newState: State) {
     const newValues = { ...newState };
     for (const key in newValues) {
+      if (!Object.prototype.hasOwnProperty.call(newValues, key)) {
+        continue;
+      }
+
+      const interceptor = this.writeInterceptors.get(key);
+      if (interceptor) {
+        const updatedValue = interceptor(newValues[key as keyof State], this);
+        newValues[key as keyof State] = updatedValue;
+      }
+
       if (this.controlledValues.get(key) === true) {
         // Ignore updates to controlled values
         delete newValues[key];
+        continue;
       }
     }
 
@@ -185,14 +246,21 @@ export class ReactStore<
    *
    * @param key Key of the selector to use.
    */
-  public useState<Key extends keyof Selectors>(key: Key): ReturnType<Selectors[Key]> {
+  public useState<Key extends keyof Selectors>(
+    key: Key,
+    ...args: SelectorArgs<Selectors[Key]>
+  ): ReturnType<Selectors[Key]> {
     if (!this.selectors) {
       throw new Error('Base UI: selectors are required to call useState.');
     }
-    return useStore<State, ReturnType<Selectors[Key]>>(
-      this,
-      this.selectors[key] as (state: State) => ReturnType<Selectors[Key]>,
-    );
+    const selector = this.selectors[key];
+    if (!selector) {
+      throw new Error(`Base UI: Selector for key "${String(key)}" is not defined.`);
+    }
+
+    // Cast avoids emitting runtime branches and sidesteps TypeScript's overload checks,
+    // which do not accept spreading a generic tuple into `useStore`.
+    return (useStore as any)(this, selector, ...args) as ReturnType<Selectors[Key]>;
   }
 
   /**
@@ -236,3 +304,11 @@ type ContextFunction<Context, Key extends keyof Context> = Extract<Context[Key],
 type KeysAllowingUndefined<State> = {
   [Key in keyof State]-?: undefined extends State[Key] ? Key : never;
 }[keyof State];
+
+type SelectorFunction<State> = (state: State, ...args: any[]) => any;
+
+type Tail<T extends readonly any[]> = T extends readonly [any, ...infer Rest] ? Rest : [];
+
+type SelectorArgs<Selector> = Selector extends (...params: infer Params) => any
+  ? Tail<Params>
+  : never;
