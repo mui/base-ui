@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { TooltipRootContext } from './TooltipRootContext';
 import {
   useClientPoint,
@@ -22,6 +22,7 @@ import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { TooltipStore } from '../store/TooltipStore';
 
 /**
  * Groups all parts of the tooltip.
@@ -46,20 +47,16 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
-  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
-  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
-  const [lastOpenChangeReason, setLastOpenChangeReason] =
-    React.useState<TooltipRoot.ChangeEventReason | null>(null);
+  const store = useRefWithInit(() => new TooltipStore()).current;
 
-  const popupRef = React.useRef<HTMLElement>(null);
+  store.useControlledProp('open', openProp, defaultOpen);
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
-  const [openState, setOpenState] = useControlled({
-    controlled: openProp,
-    default: defaultOpen,
-    name: 'Tooltip',
-    state: 'open',
-  });
+  const openState = store.useState('open');
+  const triggerElement = store.useState('triggerElement');
+  const positionerElement = store.useState('positionerElement');
+  const instantTypeState = store.useState('instantType');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
 
   const open = !disabled && openState;
 
@@ -78,13 +75,12 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
     function changeState() {
       if (isFocusOpen || isDismissClose) {
-        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
+        store.set('instantType', isFocusOpen ? 'focus' : 'dismiss');
       } else if (reason === 'trigger-hover') {
-        setInstantTypeState(undefined);
+        store.set('instantType', undefined);
       }
 
-      setOpenState(nextOpen);
-      setLastOpenChangeReason(reason);
+      store.apply({ open: nextOpen, lastOpenChangeReason: reason });
     }
 
     if (isHover) {
@@ -104,15 +100,18 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
+  store.useSyncedValues({ mounted, transitionStatus });
+
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    onOpenChangeComplete?.(false);
+    store.set('mounted', false);
+    store.context.onOpenChangeComplete?.(false);
   });
 
   useOpenChangeComplete({
     enabled: !actionsRef,
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (!open) {
         handleUnmount();
@@ -195,50 +194,22 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     clientPoint,
   ]);
 
-  const tooltipRoot = React.useMemo(
-    () => ({
-      open,
-      setOpen,
-      mounted,
-      setMounted,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      triggerProps: getReferenceProps(),
-      popupProps: getFloatingProps(),
-      floatingRootContext,
-      instantType,
-      transitionStatus,
-      onOpenChangeComplete,
-    }),
-    [
-      open,
-      setOpen,
-      mounted,
-      setMounted,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      getReferenceProps,
-      getFloatingProps,
-      floatingRootContext,
-      instantType,
-      transitionStatus,
-      onOpenChangeComplete,
-    ],
-  );
+  store.useSyncedValues({
+    delay: delayWithDefault,
+    closeDelay: closeDelayWithDefault,
+    trackCursorAxis,
+    hoverable,
+    floatingRootContext,
+    instantType,
+    triggerProps: getReferenceProps(),
+    popupProps: getFloatingProps(),
+  });
 
   const contextValue: TooltipRootContext = React.useMemo(
     () => ({
-      ...tooltipRoot,
-      delay: delayWithDefault,
-      closeDelay: closeDelayWithDefault,
-      trackCursorAxis,
-      hoverable,
+      store,
     }),
-    [tooltipRoot, delayWithDefault, closeDelayWithDefault, trackCursorAxis, hoverable],
+    [store],
   );
 
   return (
