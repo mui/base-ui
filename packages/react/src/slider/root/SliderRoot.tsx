@@ -149,7 +149,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     undefined,
   ]);
 
-  const setActive = useEventCallback((value: number) => {
+  const setActive = useStableCallback((value: number) => {
     setActiveState(value);
 
     if (value !== -1) {

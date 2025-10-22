@@ -142,7 +142,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     pressedInputRef.current = thumbElement.querySelector<HTMLInputElement>('input[type="range"]');
   });
 
-  const getFingerState = useEventCallback((fingerCoords: Coords): FingerState | null => {
+  const getFingerState = useStableCallback((fingerCoords: Coords): FingerState | null => {
     const control = controlRef.current;
 
     if (!control) {
