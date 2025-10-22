@@ -20,6 +20,7 @@ function ExampleForm() {
   const toastManager = useToastManager();
   return (
     <Form
+      aria-label="Launch new cloud server"
       onSubmit={async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
@@ -40,8 +41,10 @@ function ExampleForm() {
           defaultValue=""
           placeholder="e.g. api-server-01"
           required
+          minLength={3}
           pattern=".*[A-Za-z].*"
         />
+        <Field.Description>Must be 3 or more characters long</Field.Description>
         <Field.Error />
       </Field.Root>
       <Field.Root name="region">
@@ -86,8 +89,8 @@ function ExampleForm() {
           required
         >
           <Field.Label>Container image</Field.Label>
-          <Field.Description>Provide a registry URL including tags</Field.Description>
           <Autocomplete.Input placeholder="e.g. docker.io/library/node:latest" />
+          <Field.Description>Enter a registry URL with optional tags</Field.Description>
           <Autocomplete.Portal>
             <Autocomplete.Positioner>
               <Autocomplete.Popup>

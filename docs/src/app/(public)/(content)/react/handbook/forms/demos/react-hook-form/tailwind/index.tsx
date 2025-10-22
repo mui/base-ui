@@ -55,13 +55,13 @@ function ReactHookForm() {
   }
 
   return (
-    <Form onSubmit={handleSubmit(submitForm)}>
+    <Form aria-label="Launch new cloud server" onSubmit={handleSubmit(submitForm)}>
       <Controller
         name="serverName"
         control={control}
         rules={{
-          required: 'This field is required',
-          minLength: { value: 2, message: 'Too short' },
+          required: 'This field is required.',
+          minLength: { value: 3, message: 'At least 3 characters.' },
         }}
         render={({
           field: { ref, name, value, onBlur, onChange },
@@ -76,6 +76,7 @@ function ReactHookForm() {
               onValueChange={onChange}
               placeholder="e.g. api-server-01"
             />
+            <Field.Description>Must be 3 or more characters long</Field.Description>
             <Field.Error match={!!error}>{error?.message}</Field.Error>
           </Field.Root>
         )}
@@ -84,7 +85,7 @@ function ReactHookForm() {
         name="region"
         control={control}
         rules={{
-          required: 'This field is required',
+          required: 'This field is required.',
         }}
         render={({
           field: { ref, name, value, onBlur, onChange },
@@ -130,7 +131,7 @@ function ReactHookForm() {
         name="containerImage"
         control={control}
         rules={{
-          required: 'This field is required',
+          required: 'This field is required.',
         }}
         render={({
           field: { ref, name, value, onBlur, onChange },
@@ -145,13 +146,12 @@ function ReactHookForm() {
               onValueChange={onChange}
             >
               <Field.Label>Container image</Field.Label>
-              <Field.Description>Provide a registry URL including tags</Field.Description>
               <Autocomplete.Input
                 placeholder="e.g. docker.io/library/node:latest"
                 ref={ref}
                 onBlur={onBlur}
               />
-
+              <Field.Description>Enter a registry URL with optional tags</Field.Description>
               <Autocomplete.Portal>
                 <Autocomplete.Positioner>
                   <Autocomplete.Popup>
@@ -179,7 +179,7 @@ function ReactHookForm() {
         name="serverType"
         control={control}
         rules={{
-          required: 'This field is required',
+          required: 'This field is required.',
         }}
         render={({
           field: { ref, name, value, onBlur, onChange },
@@ -223,7 +223,7 @@ function ReactHookForm() {
         name="numOfInstances"
         control={control}
         rules={{
-          required: 'This field is required',
+          required: 'This field is required.',
         }}
         render={({
           field: { ref, name, value, onBlur, onChange },

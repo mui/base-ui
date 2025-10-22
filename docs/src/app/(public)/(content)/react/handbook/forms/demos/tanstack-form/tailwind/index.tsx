@@ -58,33 +58,21 @@ function TanstackForm() {
     }),
     validators: {
       onDynamic: ({ value: formValues }) => {
-        const fields: Partial<Record<DeepKeys<FormValues>, ValidationError>> = {};
+        const errors: Partial<Record<DeepKeys<FormValues>, ValidationError>> = {};
 
-        if (!formValues.serverName) {
-          fields.serverName = 'This is a required field.';
+        (
+          ['serverName', 'region', 'containerImage', 'serverType', 'numOfInstances'] as const
+        ).forEach((requiredField) => {
+          if (!formValues[requiredField]) {
+            errors[requiredField] = 'This is a required field.';
+          }
+        });
+
+        if (formValues.serverName && formValues.serverName.length < 3) {
+          errors.serverName = 'At least 3 characters.';
         }
 
-        if (!formValues.region) {
-          fields.region = 'This is a required field.';
-        }
-
-        if (!formValues.containerImage) {
-          fields.containerImage = 'This is a required field.';
-        }
-
-        if (!formValues.serverType) {
-          fields.serverType = 'This is a required field.';
-        }
-
-        if (formValues.numOfInstances == null) {
-          fields.numOfInstances = 'This is a required field.';
-        }
-
-        if (!formValues.storageType) {
-          fields.storageType = 'This is a required field.';
-        }
-
-        return { fields };
+        return { fields: errors };
       },
     },
   });
@@ -92,6 +80,7 @@ function TanstackForm() {
   /* eslint-disable react/no-children-prop */
   return (
     <form
+      aria-label="Launch new cloud server"
       className="flex w-full max-w-3xs sm:max-w-[20rem] flex-col gap-5"
       onSubmit={(event) => {
         event.preventDefault();
@@ -115,7 +104,7 @@ function TanstackForm() {
                 onBlur={field.handleBlur}
                 placeholder="e.g. api-server-01"
               />
-
+              <Field.Description>Must be 3 or more characters long</Field.Description>
               <Field.Error match={!field.state.meta.isValid}>
                 {field.state.meta.errors.join(',')}
               </Field.Error>
@@ -139,7 +128,7 @@ function TanstackForm() {
                 onValueChange={field.handleChange}
               >
                 <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
-                  <Field.Label>Choose a region</Field.Label>
+                  <Field.Label>Region</Field.Label>
                   <Combobox.Input placeholder="e.g. eu-central-1" onBlur={field.handleBlur} />
                   <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
                     <Combobox.Clear />
@@ -193,13 +182,12 @@ function TanstackForm() {
                 onValueChange={field.handleChange}
                 itemToStringValue={(itemValue: Image) => itemValue.url}
               >
-                <Field.Label>
-                  Container image
-                  <Autocomplete.Input
-                    placeholder="e.g. docker.io/library/node:latest"
-                    onBlur={field.handleBlur}
-                  />
-                </Field.Label>
+                <Field.Label>Container image</Field.Label>
+                <Autocomplete.Input
+                  placeholder="e.g. docker.io/library/node:latest"
+                  onBlur={field.handleBlur}
+                />
+                <Field.Description>Enter a registry URL with optional tags</Field.Description>
                 <Autocomplete.Portal>
                   <Autocomplete.Positioner>
                     <Autocomplete.Popup>
@@ -292,14 +280,14 @@ function TanstackForm() {
                 min={1}
                 max={64}
               >
-                <Field.Label>No. of instances</Field.Label>
+                <Field.Label>Number of instances</Field.Label>
                 <NumberField.Group>
                   <NumberField.Decrement>
-                    <Minus />
+                    <Minus className="size-4" />
                   </NumberField.Decrement>
                   <NumberField.Input className="!w-16" onBlur={field.handleBlur} />
                   <NumberField.Increment>
-                    <Plus />
+                    <Plus className="size-4" />
                   </NumberField.Increment>
                 </NumberField.Group>
               </NumberField.Root>
@@ -335,7 +323,7 @@ function TanstackForm() {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0,
                     }}
-                    className="w-72 gap-y-2"
+                    className="w-98/100 gap-y-2"
                   />
                 }
               >
@@ -403,7 +391,6 @@ function TanstackForm() {
               invalid={!field.state.meta.isValid}
               dirty={field.state.meta.isDirty}
               touched={field.state.meta.isTouched}
-              className="mt-2"
             >
               <Field.Label className="gap-4">
                 Restart on failure
