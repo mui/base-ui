@@ -22,6 +22,10 @@
       "type": "Intl.LocalesArgument",
       "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
     },
+    "style": {
+      "type": "CSSProperties | ((state: Progress.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Progress.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "min": {
       "type": "number",
       "default": "0",
@@ -40,8 +44,9 @@
       "detailedType": "Intl.NumberFormatOptions | undefined"
     },
     "className": {
-      "type": "string | ((state: Progress.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Progress.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Progress.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Progress.Root.State) => ReactElement)",
