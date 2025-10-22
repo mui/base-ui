@@ -28,6 +28,7 @@
   "dependencies": {
     "@babel/runtime": "^7.28.4",
     "@floating-ui/utils": "^0.2.10",
+    "react-compiler-runtime": "^1.0.0",
     "reselect": "^5.1.1",
     "use-sync-external-store": "^1.6.0"
   },

@@ -57,6 +57,9 @@ const nextConfig = {
   },
   ...(process.env.NODE_ENV === 'production' && { distDir: 'export', output: 'export' }),
   devIndicators: false,
+  experimental: {
+    reactCompiler: true,
+  },
 };
 
 const mergedConfig = withMdx(withDeploymentConfig(nextConfig));
