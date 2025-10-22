@@ -6,6 +6,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useId } from '@base-ui-components/utils/useId';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
 import {
   FloatingTree,
   useClick,
@@ -22,7 +23,7 @@ import {
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { EMPTY_ARRAY, PATIENT_CLICK_THRESHOLD, TYPEAHEAD_RESET_MS } from '../../utils/constants';
+import { PATIENT_CLICK_THRESHOLD, TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -72,7 +73,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     if (isSubmenu && parentContext) {
       return {
         type: 'menu',
-        context: parentContext.store,
+        store: parentContext.store,
       };
     }
 
@@ -99,38 +100,31 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   }, [contextMenuContext, parentContext, menubarContext, isSubmenu]);
 
   const store = useRefWithInit(() => new MenuStore({ parent })).current;
-
+  store.useControlledProp('open', openProp, defaultOpen);
   store.useSyncedValues({
     disabled: disabledProp,
     modal: modalProp,
+    rootId: useId(),
+    parent,
   });
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
+  const open = store.useState('open');
   const triggerElement = store.useState('triggerElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const modal = store.useState('modal');
   const disabled = store.useState('disabled');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const allowMouseEnter = store.useState('allowMouseEnter');
+  const activeIndex = store.useState('activeIndex');
 
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
-
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
-
   const openEventRef = React.useRef<Event | null>(null);
-
   const stickIfOpenTimeout = useTimeout();
   const nested = useFloatingParentNodeId() != null;
 
   let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
-
-  store.useControlledProp('open', openProp, defaultOpen);
-  store.useSyncedValue('rootId', useId());
-  store.useSyncedValue('parent', parent);
-
-  const open = store.useState('open');
-
-  const allowMouseEnter = store.useState('allowMouseEnter');
-  const activeIndex = store.useState('activeIndex');
 
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalProp !== undefined) {
@@ -172,6 +166,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   store.useSyncedValues({ mounted, transitionStatus });
+
   const {
     openMethod,
     triggerProps: interactionTypeProps,
@@ -645,7 +640,7 @@ export type MenuRootOrientation = 'horizontal' | 'vertical';
 export type MenuParent =
   | {
       type: 'menu';
-      context: MenuStore;
+      store: MenuStore;
     }
   | {
       type: 'menubar';
