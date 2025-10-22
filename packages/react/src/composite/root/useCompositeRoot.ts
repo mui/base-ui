@@ -135,7 +135,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
 
-  const wrappedOnLoop = useEventCallback(
+  const wrappedOnLoop = useStableCallback(
     (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => {
       if (!onLoop) {
         return nextIndex;
