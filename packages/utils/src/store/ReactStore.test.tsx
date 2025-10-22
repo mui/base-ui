@@ -6,7 +6,7 @@ import { useRefWithInit } from '../useRefWithInit';
 
 type TestState = { value: number; label: string };
 
-function useStableStore<State>(
+function useStableStore<State extends object>(
   initial: State,
   writeInterceptors?: Partial<{
     [Key in keyof State]: (value: State[Key]) => State[Key];

@@ -11,7 +11,7 @@ import { NOOP } from '../empty';
  * A Store that supports controlled state keys, non-reactive values and provides utility methods for React.
  */
 export class ReactStore<
-  State,
+  State extends object,
   Context = Record<string, never>,
   Selectors extends Record<string, SelectorFunction<State>> = Record<string, never>,
 > extends Store<State> {
@@ -192,7 +192,7 @@ export class ReactStore<
   public update(values: Partial<State>): void {
     const newValues = { ...values };
     for (const key in newValues) {
-      if (!Object.prototype.hasOwnProperty.call(newValues, key)) {
+      if (!Object.hasOwn(newValues, key)) {
         continue;
       }
 
@@ -221,7 +221,7 @@ export class ReactStore<
   public setState(newState: State) {
     const newValues = { ...newState };
     for (const key in newValues) {
-      if (!Object.prototype.hasOwnProperty.call(newValues, key)) {
+      if (!Object.hasOwn(newValues, key)) {
         continue;
       }
 
