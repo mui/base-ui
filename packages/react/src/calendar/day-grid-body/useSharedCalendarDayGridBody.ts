@@ -270,7 +270,6 @@ export function useSharedCalendarDayGridBody(
     enableHomeAndEndKeys: true,
     onMapChange: handleItemMapUpdate,
     highlightedIndex,
-    // @ts-expect-error TODO: temporary solution
     onKeyDown: handleKeyboardNavigation,
     onHighlightedIndexChange: setHighlightedIndex,
     onLoop: (event, prevIndex, nextIndex, elementsRef) => {
