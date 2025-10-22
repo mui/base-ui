@@ -92,7 +92,7 @@
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
-    "@mui/internal-test-utils": "^2.0.10",
+    "@mui/internal-test-utils": "^2.0.14",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/chai": "^5.2.2",
