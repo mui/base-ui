@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import {
   useClick,
   useDismiss,
@@ -33,7 +33,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  const handleUnmount = useEventCallback(() => {
+  const handleUnmount = useStableCallback(() => {
     setMounted(false);
     store.context.openChangeComplete?.(false);
     resetOpenInteractionType();
@@ -148,15 +148,19 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   });
 }
 
+export interface UseDialogRootSharedParameters {}
+
+export interface UseDialogRootParameters {
+  store: DialogStore;
+  actionsRef?: DialogRoot.Props['actionsRef'];
+  parentContext?: DialogStore['context'];
+  onOpenChange: DialogRoot.Props['onOpenChange'];
+}
+
+export type UseDialogRootReturnValue = void;
+
 export namespace useDialogRoot {
-  export interface SharedParameters {}
-
-  export interface Parameters {
-    store: DialogStore;
-    actionsRef?: DialogRoot.Props['actionsRef'];
-    parentContext?: DialogStore['context'];
-    onOpenChange: DialogRoot.Props['onOpenChange'];
-  }
-
-  export type ReturnValue = void;
+  export type SharedParameters = UseDialogRootSharedParameters;
+  export type Parameters = UseDialogRootParameters;
+  export type ReturnValue = UseDialogRootReturnValue;
 }

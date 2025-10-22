@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { Fieldset } from '@base-ui-components/react/fieldset';
 import { expect } from 'chai';

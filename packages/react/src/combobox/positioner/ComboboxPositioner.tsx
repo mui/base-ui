@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import {
   useComboboxFloatingContext,
@@ -135,7 +135,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     ],
   );
 
-  const setPositionerElement = useEventCallback((element) => {
+  const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
   });
 
@@ -156,19 +156,22 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   );
 });
 
-export namespace ComboboxPositioner {
-  export interface State {
-    /**
-     * Whether the popup is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-    empty: boolean;
-  }
+export interface ComboboxPositionerState {
+  /**
+   * Whether the popup is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+  empty: boolean;
+}
 
-  export interface Props
-    extends useAnchorPositioning.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+export interface ComboboxPositionerProps
+  extends useAnchorPositioning.SharedParameters,
+    BaseUIComponentProps<'div', ComboboxPositioner.State> {}
+
+export namespace ComboboxPositioner {
+  export type State = ComboboxPositionerState;
+  export type Props = ComboboxPositionerProps;
 }

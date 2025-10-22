@@ -23,7 +23,7 @@ function ExpandedCode(props: React.ComponentProps<'code'>) {
 function ExpandedPre(props: React.ComponentProps<'pre'>) {
   return (
     <Accordion.Scrollable gradientColor="var(--color-gray-50)">
-      <pre {...props} className="m-0 p-0 text-xs" style={{ backgroundColor: 'none' }} />
+      <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: 'none' }} />
     </Accordion.Scrollable>
   );
 }
@@ -105,7 +105,7 @@ export async function PropsReferenceAccordion({
         <Accordion.HeaderCell>Prop</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-xs:hidden">Type</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-md:hidden">Default</Accordion.HeaderCell>
-        <Accordion.HeaderCell className="w-10 max-md:hidden" />
+        <Accordion.HeaderCell className="max-md:hidden w-10" />
       </Accordion.HeaderRow>
       {Object.keys(data).map(async (name, index) => {
         const prop = data[name];
@@ -182,7 +182,7 @@ export async function PropsReferenceAccordion({
                 </TableCode>
               </Accordion.Scrollable>
               {prop.type && (
-                <Accordion.Scrollable className="max-xs:hidden flex items-baseline px-3 text-sm leading-none break-keep whitespace-nowrap">
+                <Accordion.Scrollable className="px-3 flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
                   {hasExpandedType || detailedType ? (
                     <ReferenceTableTooltip.Root delay={300} hoverable={false}>
                       <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
@@ -195,14 +195,14 @@ export async function PropsReferenceAccordion({
                   )}
                 </Accordion.Scrollable>
               )}
-              <Accordion.Scrollable className="px-3 break-keep whitespace-nowrap max-md:hidden">
+              <Accordion.Scrollable className="max-md:hidden break-keep whitespace-nowrap px-3">
                 {prop.required || prop.default === undefined ? (
                   <TableCode className="text-(--syntax-nullish)">—</TableCode>
                 ) : (
                   <PropDefault />
                 )}
               </Accordion.Scrollable>
-              <div className="max-xs:ml-auto max-xs:mr-3 flex justify-center">
+              <div className="flex justify-center max-xs:ml-auto max-xs:mr-3">
                 <svg
                   className="AccordionIcon translate-y-px"
                   width="10"
@@ -218,7 +218,7 @@ export async function PropsReferenceAccordion({
             <Accordion.Panel>
               <Accordion.Content>
                 <DescriptionList.Root
-                  className={clsx('max-xs:py-3 text-gray-600', PANEL_GRID_LAYOUT)}
+                  className={clsx('text-gray-600 max-xs:py-3', PANEL_GRID_LAYOUT)}
                   aria-label="Info"
                 >
                   <DescriptionList.Item>

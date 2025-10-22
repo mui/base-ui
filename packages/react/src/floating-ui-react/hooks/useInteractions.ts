@@ -14,6 +14,7 @@ export interface UseInteractionsReturn {
   getItemProps: (
     userProps?: Omit<React.HTMLProps<HTMLElement>, 'selected' | 'active'> & ExtendedUserProps,
   ) => Record<string, unknown>;
+  getTriggerProps: (userProps?: React.HTMLProps<Element>) => Record<string, unknown>;
 }
 
 /**
@@ -26,6 +27,7 @@ export function useInteractions(propsList: Array<ElementProps | void> = []): Use
   const referenceDeps = propsList.map((key) => key?.reference);
   const floatingDeps = propsList.map((key) => key?.floating);
   const itemDeps = propsList.map((key) => key?.item);
+  const triggerDeps = propsList.map((key) => key?.trigger);
 
   const getReferenceProps = React.useCallback(
     (userProps?: React.HTMLProps<Element>) => mergeProps(userProps, propsList, 'reference'),
@@ -46,9 +48,15 @@ export function useInteractions(propsList: Array<ElementProps | void> = []): Use
     itemDeps,
   );
 
+  const getTriggerProps = React.useCallback(
+    (userProps?: React.HTMLProps<Element>) => mergeProps(userProps, propsList, 'trigger'),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    triggerDeps,
+  );
+
   return React.useMemo(
-    () => ({ getReferenceProps, getFloatingProps, getItemProps }),
-    [getReferenceProps, getFloatingProps, getItemProps],
+    () => ({ getReferenceProps, getFloatingProps, getItemProps, getTriggerProps }),
+    [getReferenceProps, getFloatingProps, getItemProps, getTriggerProps],
   );
 }
 

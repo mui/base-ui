@@ -1,17 +1,21 @@
 'use client';
 import * as React from 'react';
-import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
+import { FloatingPortal } from '../../floating-ui-react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { DialogPortalContext } from './DialogPortalContext';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
  * By default, the portal element is appended to `<body>`.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export function DialogPortal(props: DialogPortal.Props) {
-  const { children, keepMounted = false, container } = props;
+export const DialogPortal = React.forwardRef(function DialogPortal(
+  props: DialogPortal.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { keepMounted = false, ...portalProps } = props;
 
   const { store } = useDialogRootContext();
   const mounted = store.useState('mounted');
@@ -23,22 +27,27 @@ export function DialogPortal(props: DialogPortal.Props) {
 
   return (
     <DialogPortalContext.Provider value={keepMounted}>
-      <FloatingPortal root={container}>{children}</FloatingPortal>
+      <FloatingPortal ref={forwardedRef} {...portalProps} />
     </DialogPortalContext.Provider>
   );
+});
+
+export namespace DialogPortal {
+  export interface State {}
+}
+
+export interface DialogPortalProps extends FloatingPortal.Props<DialogPortal.State> {
+  /**
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?: FloatingPortal.Props<DialogPortal.State>['container'];
 }
 
 export namespace DialogPortal {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the portal mounted in the DOM while the popup is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: FloatingPortalProps['root'];
-  }
+  export type Props = DialogPortalProps;
 }

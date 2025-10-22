@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Field } from '@base-ui-components/react/field';

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -56,7 +56,7 @@ export const TabsList = React.forwardRef(function TabsList(
     getTabElementBySelectedValue,
   );
 
-  const onTabActivation = useEventCallback(
+  const onTabActivation = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
       if (newValue !== value) {
         const activationDirection = detectActivationDirection(newValue);
@@ -232,21 +232,24 @@ function useActivationDirectionDetector(
   );
 }
 
-export namespace TabsList {
-  export interface State extends TabsRoot.State {}
+export interface TabsListState extends TabsRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to automatically change the active tab on arrow key focus.
-     * Otherwise, tabs will be activated using Enter or Spacebar key press.
-     * @default true
-     */
-    activateOnFocus?: boolean;
-    /**
-     * Whether to loop keyboard focus back to the first item
-     * when the end of the list is reached while using the arrow keys.
-     * @default true
-     */
-    loop?: boolean;
-  }
+export interface TabsListProps extends BaseUIComponentProps<'div', TabsList.State> {
+  /**
+   * Whether to automatically change the active tab on arrow key focus.
+   * Otherwise, tabs will be activated using Enter or Spacebar key press.
+   * @default true
+   */
+  activateOnFocus?: boolean;
+  /**
+   * Whether to loop keyboard focus back to the first item
+   * when the end of the list is reached while using the arrow keys.
+   * @default true
+   */
+  loop?: boolean;
+}
+
+export namespace TabsList {
+  export type State = TabsListState;
+  export type Props = TabsListProps;
 }

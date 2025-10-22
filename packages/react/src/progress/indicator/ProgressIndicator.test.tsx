@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Progress } from '@base-ui-components/react/progress';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -15,7 +15,7 @@ describe('<Progress.Indicator />', () => {
 
   describe.skipIf(isJSDOM)('internal styles', () => {
     it('determinate', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Progress.Root value={33}>
           <Progress.Track>
             <Progress.Indicator data-testid="indicator" render={<span />} />
@@ -23,7 +23,7 @@ describe('<Progress.Indicator />', () => {
         </Progress.Root>,
       );
 
-      const indicator = getByTestId('indicator');
+      const indicator = screen.getByTestId('indicator');
 
       expect(indicator).toHaveComputedStyle({
         insetInlineStart: '0px',
@@ -32,7 +32,7 @@ describe('<Progress.Indicator />', () => {
     });
 
     it('sets zero width when value is 0', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Progress.Root value={0}>
           <Progress.Track>
             <Progress.Indicator data-testid="indicator" />
@@ -40,7 +40,7 @@ describe('<Progress.Indicator />', () => {
         </Progress.Root>,
       );
 
-      const indicator = getByTestId('indicator');
+      const indicator = screen.getByTestId('indicator');
 
       expect(indicator).toHaveComputedStyle({
         insetInlineStart: '0px',
@@ -49,7 +49,7 @@ describe('<Progress.Indicator />', () => {
     });
 
     it('indeterminate', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Progress.Root value={null}>
           <Progress.Track>
             <Progress.Indicator data-testid="indicator" />
@@ -57,7 +57,7 @@ describe('<Progress.Indicator />', () => {
         </Progress.Root>,
       );
 
-      const indicator = getByTestId('indicator');
+      const indicator = screen.getByTestId('indicator');
 
       expect(indicator).toHaveComputedStyle({});
     });

@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -87,7 +87,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   const scrollArrowFrame = useAnimationFrame();
 
-  const handleScroll = useEventCallback((scroller: HTMLDivElement) => {
+  const handleScroll = useStableCallback((scroller: HTMLDivElement) => {
     if (!positionerElement || !popupRef.current || !initialPlacedRef.current) {
       return;
     }
@@ -421,15 +421,18 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   );
 });
 
-export namespace SelectPopup {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    children?: React.ReactNode;
-  }
+export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopup.State> {
+  children?: React.ReactNode;
+}
 
-  export interface State {
-    side: Side | 'none';
-    align: Align;
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface SelectPopupState {
+  side: Side | 'none';
+  align: Align;
+  open: boolean;
+  transitionStatus: TransitionStatus;
+}
+
+export namespace SelectPopup {
+  export type Props = SelectPopupProps;
+  export type State = SelectPopupState;
 }

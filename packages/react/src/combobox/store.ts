@@ -3,7 +3,7 @@ import type { InteractionType } from '@base-ui-components/utils/useEnhancedClick
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import type { useFieldControlValidation } from '../field/control/useFieldControlValidation';
-import type { ComboboxRootInternal } from './root/ComboboxRootInternal';
+import type { AriaCombobox } from './root/AriaCombobox';
 import { compareItemEquality } from '../utils/itemEquality';
 
 export type State = {
@@ -16,7 +16,6 @@ export type State = {
   items: readonly any[] | undefined;
 
   selectedValue: any;
-  inputValue: React.ComponentProps<'input'>['value'];
 
   open: boolean;
   mounted: boolean;
@@ -45,6 +44,7 @@ export type State = {
   selectionMode: 'single' | 'multiple' | 'none';
 
   listRef: React.RefObject<Array<HTMLElement | null>>;
+  labelsRef: React.RefObject<Array<string | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
@@ -54,15 +54,15 @@ export type State = {
   allValuesRef: React.RefObject<Array<any>>;
   selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
 
-  setOpen: (open: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
-  setInputValue: (value: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
-  setSelectedValue: (value: any, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
+  setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setIndices: (indices: {
     activeIndex?: number | null;
     selectedIndex?: number | null;
     type?: 'keyboard' | 'pointer' | 'none';
   }) => void;
-  onItemHighlighted: (item: any, eventDetails: ComboboxRootInternal.HighlightEventDetails) => void;
+  onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
   getItemProps: (
@@ -97,7 +97,6 @@ export const selectors = {
   items: createSelector((state: State) => state.items),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
-  inputValue: createSelector((state: State) => state.inputValue),
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
@@ -136,6 +135,7 @@ export const selectors = {
 
   selectionMode: createSelector((state: State) => state.selectionMode),
   listRef: createSelector((state: State) => state.listRef),
+  labelsRef: createSelector((state: State) => state.labelsRef),
   popupRef: createSelector((state: State) => state.popupRef),
   inputRef: createSelector((state: State) => state.inputRef),
   keyboardActiveRef: createSelector((state: State) => state.keyboardActiveRef),

@@ -18,16 +18,16 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { setTitleId } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
 
   const id = useBaseUiId(elementProps.id);
 
   useIsoLayoutEffect(() => {
-    setTitleId(id);
+    store.set('titleId', id);
     return () => {
-      setTitleId(undefined);
+      store.set('titleId', undefined);
     };
-  }, [setTitleId, id]);
+  }, [store, id]);
 
   const element = useRenderElement('h2', componentProps, {
     ref: forwardedRef,
@@ -37,9 +37,12 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
   return element;
 });
 
-export namespace PopoverTitle {
-  export interface State {}
+export interface PopoverTitleState {}
 
-  export interface Props
-    extends BaseUIComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', State> {}
+export interface PopoverTitleProps
+  extends BaseUIComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', PopoverTitle.State> {}
+
+export namespace PopoverTitle {
+  export type State = PopoverTitleState;
+  export type Props = PopoverTitleProps;
 }

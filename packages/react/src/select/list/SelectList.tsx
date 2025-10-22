@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useStore } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -43,7 +43,7 @@ export const SelectList = React.forwardRef(function SelectList(
     className: hasScrollArrows && !touchModality ? styleDisableScrollbar.className : undefined,
   };
 
-  const setListElement = useEventCallback((element: HTMLElement | null) => {
+  const setListElement = useStableCallback((element: HTMLElement | null) => {
     store.set('listElement', element);
   });
 
@@ -53,8 +53,11 @@ export const SelectList = React.forwardRef(function SelectList(
   });
 });
 
-export namespace SelectList {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface SelectListProps extends BaseUIComponentProps<'div', SelectList.State> {}
 
-  export interface State {}
+export interface SelectListState {}
+
+export namespace SelectList {
+  export type Props = SelectListProps;
+  export type State = SelectListState;
 }

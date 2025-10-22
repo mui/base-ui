@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -228,7 +228,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     });
   }
 
-  const computeThumbPosition = useEventCallback(() => {
+  const computeThumbPosition = useStableCallback(() => {
     ReactDOM.flushSync(computeThumbPositionHandler);
   });
 
@@ -270,9 +270,9 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     };
   }, [computeThumbPosition, viewportRef]);
 
-  const handleUserInteraction = useEventCallback(() => {
+  function handleUserInteraction() {
     programmaticScrollRef.current = false;
-  });
+  }
 
   const props: React.ComponentProps<'div'> = {
     role: 'presentation',
@@ -353,8 +353,12 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   );
 });
 
-export namespace ScrollAreaViewport {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ScrollAreaViewportProps
+  extends BaseUIComponentProps<'div', ScrollAreaViewport.State> {}
 
-  export interface State extends ScrollAreaRoot.State {}
+export interface ScrollAreaViewportState extends ScrollAreaRoot.State {}
+
+export namespace ScrollAreaViewport {
+  export type Props = ScrollAreaViewportProps;
+  export type State = ScrollAreaViewportState;
 }

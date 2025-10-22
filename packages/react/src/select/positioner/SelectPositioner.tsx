@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -150,7 +150,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     [open, renderedSide, positioning.align, positioning.anchorHidden],
   );
 
-  const setPositionerElement = useEventCallback((element) => {
+  const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
   });
 
@@ -163,7 +163,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const prevMapSizeRef = React.useRef(0);
 
-  const onMapChange = useEventCallback((map: Map<Element, { index?: number | null } | null>) => {
+  const onMapChange = useStableCallback((map: Map<Element, { index?: number | null } | null>) => {
     if (map.size === 0 && prevMapSizeRef.current === 0) {
       return;
     }
@@ -236,21 +236,24 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   );
 });
 
-export namespace SelectPositioner {
-  export interface State {
-    open: boolean;
-    side: Side | 'none';
-    align: Align;
-    anchorHidden: boolean;
-  }
+export interface SelectPositionerState {
+  open: boolean;
+  side: Side | 'none';
+  align: Align;
+  anchorHidden: boolean;
+}
 
-  export interface Props
-    extends useAnchorPositioning.SharedParameters,
-      BaseUIComponentProps<'div', State> {
-    /**
-     * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
-     * @default true
-     */
-    alignItemWithTrigger?: boolean;
-  }
+export interface SelectPositionerProps
+  extends useAnchorPositioning.SharedParameters,
+    BaseUIComponentProps<'div', SelectPositioner.State> {
+  /**
+   * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
+   * @default true
+   */
+  alignItemWithTrigger?: boolean;
+}
+
+export namespace SelectPositioner {
+  export type State = SelectPositionerState;
+  export type Props = SelectPositionerProps;
 }
