@@ -1,7 +1,10 @@
 import * as React from 'react';
 import { format } from 'date-fns/format';
-import { Locale, fr, zhCN } from 'date-fns/locale';
-import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui-components/react/temporal-locale-provider';
+import { fr, zhCN } from 'date-fns/locale';
+import {
+  UnstableTemporalLocaleProvider as TemporalLocaleProvider,
+  unstable_useTemporalLocale as useTemporalLocale,
+} from '@base-ui-components/react/temporal-locale-provider';
 import { Calendar } from '@base-ui-components/react/calendar';
 import styles from '../../../calendar.module.css';
 import indexStyles from './index.module.css';
@@ -10,16 +13,17 @@ export default function NestedLocalizedCalendars() {
   return (
     <div className={indexStyles.Wrapper}>
       <TemporalLocaleProvider locale={fr}>
-        <LocalizedCalendar locale={fr} />
+        <LocalizedCalendar />
         <TemporalLocaleProvider locale={zhCN}>
-          <LocalizedCalendar locale={zhCN} />
+          <LocalizedCalendar />
         </TemporalLocaleProvider>
       </TemporalLocaleProvider>
     </div>
   );
 }
 
-function LocalizedCalendar({ locale }: { locale: Locale }) {
+function LocalizedCalendar() {
+  const locale = useTemporalLocale();
   return (
     <Calendar.Root className={styles.Root}>
       {({ visibleDate }) => (
