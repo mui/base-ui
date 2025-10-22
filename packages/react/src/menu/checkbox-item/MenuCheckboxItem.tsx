@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
+import { useFloatingTree } from '../../floating-ui-react';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
@@ -14,91 +14,6 @@ import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { MenuRoot } from '../root/MenuRoot';
-import { MenuStore } from '../store/MenuStore';
-
-const InnerMenuCheckboxItem = React.memo(
-  React.forwardRef(function InnerMenuCheckboxItem(
-    componentProps: InnerMenuCheckboxItemProps,
-    forwardedRef: React.ForwardedRef<Element>,
-  ) {
-    const {
-      checked: checkedProp,
-      defaultChecked,
-      onCheckedChange,
-      className,
-      closeOnClick,
-      disabled = false,
-      highlighted,
-      id,
-      menuEvents,
-      render,
-      store,
-      nativeButton,
-      nodeId,
-      ...elementProps
-    } = componentProps;
-
-    const [checked, setChecked] = useControlled({
-      controlled: checkedProp,
-      default: defaultChecked ?? false,
-      name: 'MenuCheckboxItem',
-      state: 'checked',
-    });
-
-    const { getItemProps, itemRef } = useMenuItem({
-      closeOnClick,
-      disabled,
-      highlighted,
-      id,
-      menuEvents,
-      store,
-      nativeButton,
-      nodeId,
-      itemMetadata: REGULAR_ITEM,
-    });
-
-    const itemProps = store.useState('itemProps');
-
-    const state: MenuCheckboxItem.State = React.useMemo(
-      () => ({
-        disabled,
-        highlighted,
-        checked,
-      }),
-      [disabled, highlighted, checked],
-    );
-
-    const element = useRenderElement('div', componentProps, {
-      state,
-      stateAttributesMapping: itemMapping,
-      props: [
-        itemProps,
-        {
-          role: 'menuitemcheckbox',
-          'aria-checked': checked,
-          onClick(event: React.MouseEvent) {
-            const details = createChangeEventDetails('item-press', event.nativeEvent);
-
-            onCheckedChange?.(!checked, details);
-
-            if (details.isCanceled) {
-              return;
-            }
-
-            setChecked((currentlyChecked) => !currentlyChecked);
-          },
-        },
-        elementProps,
-        getItemProps,
-      ],
-      ref: [itemRef, forwardedRef],
-    });
-
-    return (
-      <MenuCheckboxItemContext.Provider value={state}>{element}</MenuCheckboxItemContext.Provider>
-    );
-  }),
-);
 
 /**
  * A menu item that toggles a setting on or off.
@@ -107,51 +22,92 @@ const InnerMenuCheckboxItem = React.memo(
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
-  props: MenuCheckboxItem.Props,
+  componentProps: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, label, closeOnClick = false, nativeButton = false, ...other } = props;
+  const {
+    render,
+    className,
+    id: idProp,
+    label,
+    nativeButton = false,
+    disabled = false,
+    closeOnClick = false,
+    checked: checkedProp,
+    defaultChecked,
+    onCheckedChange,
+    ...elementProps
+  } = componentProps;
 
-  const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
-  const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
-
-  const { store } = useMenuRootContext();
-  const activeIndex = store.useState('activeIndex');
   const menuPositionerContext = useMenuPositionerContext(true);
-
   const id = useBaseUiId(idProp);
-
-  const highlighted = listItem.index === activeIndex;
   const { events: menuEvents } = useFloatingTree()!;
 
-  // This wrapper component is used as a performance optimization.
-  // MenuCheckboxItem reads the context and re-renders the actual MenuCheckboxItem
-  // only when it needs to.
+  const { store } = useMenuRootContext();
+  const highlighted = store.useState('isActive', listItem.index);
+  const itemProps = store.useState('itemProps');
+
+  const [checked, setChecked] = useControlled({
+    controlled: checkedProp,
+    default: defaultChecked ?? false,
+    name: 'MenuCheckboxItem',
+    state: 'checked',
+  });
+
+  const { getItemProps, itemRef } = useMenuItem({
+    closeOnClick,
+    disabled,
+    highlighted,
+    id,
+    menuEvents,
+    store,
+    nativeButton,
+    nodeId: menuPositionerContext?.floatingContext.nodeId,
+    itemMetadata: REGULAR_ITEM,
+  });
+
+  const state: MenuCheckboxItem.State = React.useMemo(
+    () => ({
+      disabled,
+      highlighted,
+      checked,
+    }),
+    [disabled, highlighted, checked],
+  );
+
+  const handleClick = useStableCallback((event: React.MouseEvent) => {
+    const details = createChangeEventDetails('item-press', event.nativeEvent);
+
+    onCheckedChange?.(!checked, details);
+
+    if (details.isCanceled) {
+      return;
+    }
+
+    setChecked((currentlyChecked) => !currentlyChecked);
+  });
+
+  const element = useRenderElement('div', componentProps, {
+    state,
+    stateAttributesMapping: itemMapping,
+    props: [
+      itemProps,
+      {
+        role: 'menuitemcheckbox',
+        'aria-checked': checked,
+        onClick: handleClick,
+      },
+      elementProps,
+      getItemProps,
+    ],
+    ref: [itemRef, forwardedRef, listItem.ref],
+  });
 
   return (
-    <InnerMenuCheckboxItem
-      {...other}
-      id={id}
-      ref={mergedRef}
-      highlighted={highlighted}
-      menuEvents={menuEvents}
-      store={store}
-      closeOnClick={closeOnClick}
-      nativeButton={nativeButton}
-      nodeId={menuPositionerContext?.floatingContext.nodeId}
-    />
+    <MenuCheckboxItemContext.Provider value={state}>{element}</MenuCheckboxItemContext.Provider>
   );
 });
-
-interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
-  highlighted: boolean;
-  menuEvents: FloatingEvents;
-  store: MenuStore;
-  closeOnClick: boolean;
-  nativeButton: boolean;
-  nodeId: string | undefined;
-}
 
 export type MenuCheckboxItemState = {
   /**

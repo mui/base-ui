@@ -64,6 +64,7 @@ const selectors = {
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
   },
   activeIndex: (state: State) => state.activeIndex,
+  isActive: (state: State, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State) => state.hoverEnabled,
   triggerElement: (state: State) => state.triggerElement,
   positionerElement: (state: State) => state.positionerElement,
