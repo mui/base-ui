@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ReactStore } from '@base-ui-components/utils/store';
+import { createSelector, ReactStore } from '@base-ui-components/utils/store';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingRootContext } from '../../floating-ui-react';
@@ -40,41 +40,45 @@ type Context = {
 };
 
 const selectors = {
-  open: (state: State) => state.open,
-  disabled: (state: State) =>
+  open: createSelector((state: State) => state.open),
+  disabled: createSelector((state: State) =>
     state.parent.type === 'menubar'
       ? state.parent.context.disabled || state.disabled
       : state.disabled,
+  ),
 
-  modal: (state: State) =>
-    (state.parent.type === undefined || state.parent.type === 'context-menu') &&
-    (state.modal ?? true),
+  modal: createSelector(
+    (state: State) =>
+      (state.parent.type === undefined || state.parent.type === 'context-menu') &&
+      (state.modal ?? true),
+  ),
 
-  mounted: (state: State) => state.mounted,
-  allowMouseEnter: (state: State): boolean =>
+  mounted: createSelector((state: State) => state.mounted),
+  allowMouseEnter: createSelector((state: State): boolean =>
     state.parent.type === 'menu'
       ? state.parent.store.select('allowMouseEnter')
       : state.allowMouseEnter,
-  parent: (state: State) => state.parent,
-  rootId: (state: State): string | undefined => {
+  ),
+  parent: createSelector((state: State) => state.parent),
+  rootId: createSelector((state: State): string | undefined => {
     if (state.parent.type === 'menu') {
       return state.parent.store.select('rootId');
     }
 
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
-  },
-  activeIndex: (state: State) => state.activeIndex,
-  isActive: (state: State, itemIndex: number) => state.activeIndex === itemIndex,
-  hoverEnabled: (state: State) => state.hoverEnabled,
-  triggerElement: (state: State) => state.triggerElement,
-  positionerElement: (state: State) => state.positionerElement,
-  transitionStatus: (state: State) => state.transitionStatus,
-  instantType: (state: State) => state.instantType,
-  lastOpenChangeReason: (state: State) => state.lastOpenChangeReason,
-  floatingRootContext: (state: State) => state.floatingRootContext,
-  itemProps: (state: State) => state.itemProps,
-  popupProps: (state: State) => state.popupProps,
-  triggerProps: (state: State) => state.triggerProps,
+  }),
+  activeIndex: createSelector((state: State) => state.activeIndex),
+  isActive: createSelector((state: State, itemIndex: number) => state.activeIndex === itemIndex),
+  hoverEnabled: createSelector((state: State) => state.hoverEnabled),
+  triggerElement: createSelector((state: State) => state.triggerElement),
+  positionerElement: createSelector((state: State) => state.positionerElement),
+  transitionStatus: createSelector((state: State) => state.transitionStatus),
+  instantType: createSelector((state: State) => state.instantType),
+  lastOpenChangeReason: createSelector((state: State) => state.lastOpenChangeReason),
+  floatingRootContext: createSelector((state: State) => state.floatingRootContext),
+  itemProps: createSelector((state: State) => state.itemProps),
+  popupProps: createSelector((state: State) => state.popupProps),
+  triggerProps: createSelector((state: State) => state.triggerProps),
 };
 
 const writeInterceptors = {
