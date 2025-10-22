@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { contains } from '../../floating-ui-react/utils';
 import { useFloatingTree } from '../../floating-ui-react/index';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -67,7 +67,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }
   }, [allowMouseUpTriggerRef, open, parent.type]);
 
-  const handleDocumentMouseUp = useEventCallback((mouseEvent: MouseEvent) => {
+  const handleDocumentMouseUp = useStableCallback((mouseEvent: MouseEvent) => {
     if (!triggerRef.current) {
       return;
     }

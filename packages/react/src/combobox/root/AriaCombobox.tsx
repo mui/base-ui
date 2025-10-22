@@ -3,12 +3,12 @@ import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui-components/utils/store';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import {
   ElementProps,
   useDismiss,
@@ -58,6 +58,7 @@ import {
   itemIncludes,
   removeItem,
 } from '../../utils/itemEquality';
+import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
 /**
  * @internal
@@ -282,6 +283,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
+  const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
+  const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -362,8 +365,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }),
   ).current;
 
-  const onItemHighlighted = useEventCallback(onItemHighlightedProp);
-  const onOpenChangeComplete = useEventCallback(onOpenChangeCompleteProp);
+  const onItemHighlighted = useStableCallback(onItemHighlightedProp);
+  const onOpenChangeComplete = useStableCallback(onOpenChangeCompleteProp);
 
   const activeIndex = useStore(store, selectors.activeIndex);
   const selectedIndex = useStore(store, selectors.selectedIndex);
@@ -377,7 +380,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const queryRef = React.useRef(query);
   const selectedValueRef = React.useRef(selectedValue);
   const inputValueRef = React.useRef(inputValue);
-  const triggerRef = useLatestRef(triggerElement);
+  const triggerRef = useValueAsRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const {
@@ -386,7 +389,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  const forceMount = useEventCallback(() => {
+  const forceMount = useStableCallback(() => {
     if (items) {
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) =>
@@ -427,6 +430,64 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       listRef.current.length = flatFilteredItems.length;
     }
   }, [items, flatFilteredItems]);
+
+  useIsoLayoutEffect(() => {
+    const pendingHighlight = pendingQueryHighlightRef.current;
+    if (pendingHighlight) {
+      if (pendingHighlight.hasQuery) {
+        if (autoHighlight) {
+          store.set('activeIndex', 0);
+        }
+      } else if (autoHighlight) {
+        store.set('activeIndex', null);
+      }
+      pendingQueryHighlightRef.current = null;
+    }
+
+    if (!open && !inline) {
+      return;
+    }
+
+    const candidateItems = items ? flatFilteredItems : valuesRef.current;
+    const storeActiveIndex = store.state.activeIndex;
+
+    if (storeActiveIndex == null) {
+      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+        store.state.onItemHighlighted(
+          undefined,
+          createGenericEventDetails('none', undefined, { index: -1 }),
+        );
+      }
+      return;
+    }
+
+    if (storeActiveIndex >= candidateItems.length) {
+      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+        store.state.onItemHighlighted(
+          undefined,
+          createGenericEventDetails('none', undefined, { index: -1 }),
+        );
+      }
+      store.set('activeIndex', null);
+      return;
+    }
+
+    const nextActiveValue = candidateItems[storeActiveIndex];
+    const lastHighlightedValue = lastHighlightRef.current.value;
+    const isSameItem =
+      lastHighlightedValue !== NO_ACTIVE_VALUE &&
+      store.state.isItemEqualToValue(nextActiveValue, lastHighlightedValue);
+
+    if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
+      lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
+      store.state.onItemHighlighted(
+        nextActiveValue,
+        createGenericEventDetails('none', undefined, { index: storeActiveIndex }),
+      );
+    }
+  }, [activeIndex, autoHighlight, flatFilteredItems, inline, items, open, store, valuesRef]);
 
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
@@ -531,7 +592,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
 
-  const setIndices = useEventCallback(
+  const setIndices = useStableCallback(
     (options: {
       activeIndex?: number | null;
       selectedIndex?: number | null;
@@ -545,9 +606,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
 
       if (options.activeIndex === null) {
-        onItemHighlighted(undefined, createGenericEventDetails(type, undefined, { index: -1 }));
+        if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+          lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+          onItemHighlighted(undefined, createGenericEventDetails(type, undefined, { index: -1 }));
+        }
       } else {
         const activeValue = valuesRef.current[options.activeIndex];
+        lastHighlightRef.current = { value: activeValue, index: options.activeIndex };
         onItemHighlighted(
           activeValue,
           createGenericEventDetails(type, undefined, {
@@ -558,7 +623,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const setInputValue = useEventCallback(
+  const setInputValue = useStableCallback(
     (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
       hadInputClearRef.current = eventDetails.reason === 'input-clear';
 
@@ -575,16 +640,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         if (hasQuery) {
           setQueryChangedAfterOpen(true);
         }
-
-        // Avoid out-of-range indices when the visible list becomes smaller.
-        if (hasQuery) {
-          if (autoHighlight) {
-            setIndices({ activeIndex: 0, selectedIndex: null });
-          } else {
-            setIndices({ selectedIndex: null });
-          }
-        } else if (autoHighlight) {
-          setIndices({ activeIndex: null });
+        // Defer index updates until after the filtered items have been derived to ensure
+        // `onItemHighlighted` receives the latest item.
+        pendingQueryHighlightRef.current = { hasQuery };
+        if (hasQuery && autoHighlight && store.state.activeIndex == null) {
+          store.set('activeIndex', 0);
         }
       }
 
@@ -592,7 +652,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const setOpen = useEventCallback(
+  const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => {
       if (open === nextOpen) {
         return;
@@ -628,7 +688,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const setSelectedValue = useEventCallback(
+  const setSelectedValue = useStableCallback(
     (nextValue: Value | Value[], eventDetails: AriaCombobox.ChangeEventDetails) => {
       // Cast to `any` due to conditional value type (single vs. multiple).
       // The runtime implementation already ensures the correct value shape.
@@ -662,7 +722,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const syncSelectedIndex = useEventCallback(() => {
+  const syncSelectedIndex = useStableCallback(() => {
     if (selectionMode === 'none') {
       return;
     }
@@ -686,7 +746,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [open, selectedValue, syncSelectedIndex]);
 
-  const handleSelection = useEventCallback(
+  const handleSelection = useStableCallback(
     (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
       let value = passedValue;
       if (value === undefined) {
@@ -740,7 +800,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const handleUnmount = useEventCallback(() => {
+  const handleUnmount = useStableCallback(() => {
     setMounted(false);
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
@@ -887,7 +947,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     virtual: true,
     loop: true,
     allowEscape: !autoHighlight,
-    focusItemOnOpen: queryChangedAfterOpen || selectionMode === 'none' ? false : 'auto',
+    focusItemOnOpen:
+      queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlight) ? false : 'auto',
     // `cols` > 1 enables grid navigation.
     // Since <Combobox.Row> infers column sizes (and is required when building a grid),
     // it works correctly even with a value of `2`.
