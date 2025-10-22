@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
 import { BaseUIEvent, HTMLProps } from '../../utils/types';
@@ -109,7 +109,7 @@ export function useSharedCalendarDayGridBody(
     return output;
   }, [itemMap]);
 
-  const handleItemMapUpdate = useEventCallback((newMap: typeof itemMap) => {
+  const handleItemMapUpdate = useStableCallback((newMap: typeof itemMap) => {
     setItemMap(newMap);
     if (executeAfterItemMapUpdate.current) {
       queueMicrotask(() => {
@@ -232,7 +232,7 @@ export function useSharedCalendarDayGridBody(
     }
   };
 
-  const handleItemLooping = useEventCallback(
+  const handleItemLooping = useStableCallback(
     (
       eventKey: React.KeyboardEvent['key'],
       startingIndex: number,

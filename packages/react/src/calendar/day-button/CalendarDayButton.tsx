@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useStore } from '@base-ui-components/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -81,7 +81,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     [adapter, value, format],
   );
 
-  const onClick = useEventCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+  const onClick = useStableCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     if (isUnavailable) {
       return;
     }

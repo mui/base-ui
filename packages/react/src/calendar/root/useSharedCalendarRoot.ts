@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { Store, useStore } from '@base-ui-components/utils/store';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -101,7 +101,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
   const visibleDate = useStore(store, selectors.visibleDate);
   const navigationDirection = useStore(store, selectors.navigationDirection);
 
-  const setValue = useEventCallback(
+  const setValue = useStableCallback(
     (newValue: TValue, event: React.MouseEvent<HTMLButtonElement>) => {
       const inputTimezone = manager.getTimezone(store.state.value);
       const newValueWithInputTimezone =
@@ -136,7 +136,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
   const dayGridsRef = React.useRef<Record<number, TemporalSupportedObject>>({});
   const currentMonthDayGridRef = React.useRef<Record<number, TemporalSupportedObject[]>>(null);
 
-  const registerDayGrid = useEventCallback((month: TemporalSupportedObject) => {
+  const registerDayGrid = useStableCallback((month: TemporalSupportedObject) => {
     const id = Math.random();
     dayGridsRef.current![id] = month;
 
@@ -145,7 +145,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     };
   });
 
-  const registerCurrentMonthDayGrid = useEventCallback(
+  const registerCurrentMonthDayGrid = useStableCallback(
     (week: TemporalSupportedObject, days: TemporalSupportedObject[]) => {
       if (currentMonthDayGridRef.current == null) {
         currentMonthDayGridRef.current = {};
@@ -168,7 +168,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     return true;
   };
 
-  const handleVisibleDateChange = useEventCallback(
+  const handleVisibleDateChange = useStableCallback(
     (newVisibleDate: TemporalSupportedObject, skipIfAlreadyVisible: boolean) => {
       if (skipIfAlreadyVisible && isDateCellVisible(newVisibleDate)) {
         return;
@@ -199,7 +199,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     }
   }, [value, prevValue, getActiveDateFromValue, adapter, handleVisibleDateChange]);
 
-  const selectDate = useEventCallback<SharedCalendarRootContext['selectDate']>(
+  const selectDate = useStableCallback<SharedCalendarRootContext['selectDate']>(
     (selectedDate: TemporalSupportedObject, event: React.MouseEvent<HTMLButtonElement>) => {
       if (readOnly) {
         return;

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -37,7 +37,7 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
 
   const isDisabled = useStore(store, selectors.isSetMonthButtonDisabled, disabled, targetDate);
 
-  const setTarget = useEventCallback(() => {
+  const setTarget = useStableCallback(() => {
     if (isDisabled) {
       return;
     }
