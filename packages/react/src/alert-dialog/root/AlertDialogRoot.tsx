@@ -68,7 +68,8 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
 export interface AlertDialogRootProps
   extends Omit<DialogRoot.Props, 'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef'> {
   /**
-   * Event handler called when the dialog is opened or closed.
+   * Event handler called when the dialog's open state changes internally.
+   * Only fires in uncontrolled mode (when using `defaultOpen`).
    */
   onOpenChange?: (open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void;
   /**
