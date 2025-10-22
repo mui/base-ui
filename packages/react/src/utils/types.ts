@@ -69,6 +69,11 @@ export type BaseUIComponentProps<
   render?:
     | ComponentRenderFn<RenderFunctionProps, State>
     | React.ReactElement<Record<string, unknown>>;
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component’s state.
+   */
+  style?: React.CSSProperties | ((state: State) => React.CSSProperties);
 };
 
 export interface NativeButtonProps {
