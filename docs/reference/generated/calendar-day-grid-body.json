@@ -4,7 +4,7 @@
   "props": {
     "fixedWeekNumber": {
       "type": "number",
-      "description": "Will render the requested amount of weeks by adding weeks of the next month if needed.\nPut it to 6 to create a Gregorian calendar where all months have the same amount of weeks displayed.",
+      "description": "Will render the requested amount of weeks by adding weeks of the next month if needed.\nSet it to 6 to create a Gregorian calendar where all months have the same amount of weeks.",
       "detailedType": "number | undefined"
     },
     "offset": {

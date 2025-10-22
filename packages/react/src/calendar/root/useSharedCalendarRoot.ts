@@ -150,7 +150,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       if (currentMonthDayGridRef.current == null) {
         currentMonthDayGridRef.current = {};
       }
-      const weekTime = adapter.toJsDate(week).getTime();
+      const weekTime = adapter.getTime(week);
       if (currentMonthDayGridRef.current[weekTime] == null) {
         currentMonthDayGridRef.current[weekTime] = days;
       }

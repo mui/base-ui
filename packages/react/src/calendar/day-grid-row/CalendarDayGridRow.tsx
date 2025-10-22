@@ -24,9 +24,7 @@ export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
 
   React.useEffect(() => {
     const unregister = registerCurrentMonthDayGrid(value, days);
-    return () => {
-      unregister();
-    };
+    return () => unregister();
   }, [registerCurrentMonthDayGrid, days, value]);
 
   const resolvedChildren = React.useMemo(() => {
@@ -64,12 +62,5 @@ export namespace CalendarDayGridRow {
           index: number,
           days: TemporalSupportedObject[],
         ) => React.ReactNode);
-  }
-
-  export interface ChildrenParameters {
-    /**
-     * The days of the week.
-     */
-    days: TemporalSupportedObject[];
   }
 }
