@@ -42,25 +42,25 @@ describe('<Tabs.Indicator />', () => {
     function assertBubblePositionVariables(
       bubble: HTMLElement,
       tabList: HTMLElement,
-      activeTab: HTMLElement,
+      selectedTab: HTMLElement,
     ) {
-      const relativeLeft = activeTab.offsetLeft - tabList.clientLeft;
-      const { width: rectWidth, height: rectHeight } = activeTab.getBoundingClientRect();
+      const relativeLeft = selectedTab.offsetLeft - tabList.clientLeft;
+      const { width: rectWidth, height: rectHeight } = selectedTab.getBoundingClientRect();
       const flooredWidth = Math.floor(rectWidth);
       const flooredHeight = Math.floor(rectHeight);
       const relativeRight =
-        tabList.scrollWidth - activeTab.offsetLeft - flooredWidth - tabList.clientLeft;
-      const relativeTop = activeTab.offsetTop - tabList.clientTop;
+        tabList.scrollWidth - selectedTab.offsetLeft - flooredWidth - tabList.clientLeft;
+      const relativeTop = selectedTab.offsetTop - tabList.clientTop;
       const relativeBottom =
-        tabList.scrollHeight - activeTab.offsetTop - flooredHeight - tabList.clientTop;
+        tabList.scrollHeight - selectedTab.offsetTop - flooredHeight - tabList.clientTop;
 
       const bubbleComputedStyle = window.getComputedStyle(bubble);
-      const actualLeft = bubbleComputedStyle.getPropertyValue('--active-tab-left');
-      const actualRight = bubbleComputedStyle.getPropertyValue('--active-tab-right');
-      const actualTop = bubbleComputedStyle.getPropertyValue('--active-tab-top');
-      const actualBottom = bubbleComputedStyle.getPropertyValue('--active-tab-bottom');
-      const actualWidth = bubbleComputedStyle.getPropertyValue('--active-tab-width');
-      const actualHeight = bubbleComputedStyle.getPropertyValue('--active-tab-height');
+      const actualLeft = bubbleComputedStyle.getPropertyValue('--selected-tab-left');
+      const actualRight = bubbleComputedStyle.getPropertyValue('--selected-tab-right');
+      const actualTop = bubbleComputedStyle.getPropertyValue('--selected-tab-top');
+      const actualBottom = bubbleComputedStyle.getPropertyValue('--selected-tab-bottom');
+      const actualWidth = bubbleComputedStyle.getPropertyValue('--selected-tab-width');
+      const actualHeight = bubbleComputedStyle.getPropertyValue('--selected-tab-height');
 
       assertSize(actualLeft, relativeLeft);
       assertSize(actualRight, relativeRight);
@@ -70,7 +70,7 @@ describe('<Tabs.Indicator />', () => {
       assertSize(actualHeight, flooredHeight);
     }
 
-    it('should set CSS variables corresponding to the active tab', async () => {
+    it('should set CSS variables corresponding to the selected tab', async () => {
       await render(
         <Tabs.Root value={2}>
           <Tabs.List>
@@ -84,15 +84,15 @@ describe('<Tabs.Indicator />', () => {
 
       const bubble = screen.getByTestId('bubble');
       const tabs = screen.getAllByRole('tab');
-      const activeTab = tabs[1];
+      const selectedTab = tabs[1];
       const tabList = screen.getByRole('tablist');
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        assertBubblePositionVariables(bubble, tabList, selectedTab);
       });
     });
 
-    it('should update the position and movement variables when the active tab changes', async () => {
+    it('should update the position and movement variables when the selected tab changes', async () => {
       const { setProps } = await render(
         <Tabs.Root value={2}>
           <Tabs.List>
@@ -108,15 +108,15 @@ describe('<Tabs.Indicator />', () => {
 
       const bubble = screen.getByTestId('bubble');
       const tabs = screen.getAllByRole('tab');
-      let activeTab = tabs[2];
+      let selectedTab = tabs[2];
       const tabList = screen.getByRole('tablist');
 
-      assertBubblePositionVariables(bubble, tabList, activeTab);
+      assertBubblePositionVariables(bubble, tabList, selectedTab);
 
       await setProps({ value: 1 });
-      activeTab = tabs[0];
+      selectedTab = tabs[0];
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        assertBubblePositionVariables(bubble, tabList, selectedTab);
       });
     });
 
@@ -137,17 +137,17 @@ describe('<Tabs.Indicator />', () => {
 
       const bubble = screen.getByTestId('bubble');
       const tabs = screen.getAllByRole('tab');
-      const activeTab = tabs[0];
+      const selectedTab = tabs[0];
       const tabList = screen.getByRole('tablist');
 
-      assertBubblePositionVariables(bubble, tabList, activeTab);
+      assertBubblePositionVariables(bubble, tabList, selectedTab);
 
       await setProps({
         style: { width: '800px' },
       });
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        assertBubblePositionVariables(bubble, tabList, selectedTab);
       });
     });
   });

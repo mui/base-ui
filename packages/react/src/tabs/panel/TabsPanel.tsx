@@ -11,7 +11,7 @@ import type { TabsTab } from '../tab/TabsTab';
 import { TabsPanelDataAttributes } from './TabsPanelDataAttributes';
 
 /**
- * A panel displayed when the corresponding tab is active.
+ * A panel displayed when the corresponding tab is selected.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)

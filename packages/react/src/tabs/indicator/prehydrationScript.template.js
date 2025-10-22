@@ -9,30 +9,30 @@
     return;
   }
 
-  const activeTab = list.querySelector('[data-selected]');
-  if (!activeTab) {
+  const selectedTab = list.querySelector('[data-selected]');
+  if (!selectedTab) {
     return;
   }
 
-  if (activeTab.offsetWidth === 0 || list.offsetWidth === 0) {
+  if (selectedTab.offsetWidth === 0 || list.offsetWidth === 0) {
     return;
   }
 
   const direction = getComputedStyle(list).direction;
 
-  const left = activeTab.offsetLeft - list.clientLeft;
-  const { width: rectWidth, height: rectHeight } = activeTab.getBoundingClientRect();
+  const left = selectedTab.offsetLeft - list.clientLeft;
+  const { width: rectWidth, height: rectHeight } = selectedTab.getBoundingClientRect();
   const width = Math.floor(rectWidth);
   const height = Math.floor(rectHeight);
   const right =
     direction === 'ltr'
-      ? list.scrollWidth - activeTab.offsetLeft - width - list.clientLeft
-      : activeTab.offsetLeft - list.clientLeft;
-  const top = activeTab.offsetTop - list.clientTop;
-  const bottom = list.scrollHeight - activeTab.offsetTop - height - list.clientTop;
+      ? list.scrollWidth - selectedTab.offsetLeft - width - list.clientLeft
+      : selectedTab.offsetLeft - list.clientLeft;
+  const top = selectedTab.offsetTop - list.clientTop;
+  const bottom = list.scrollHeight - selectedTab.offsetTop - height - list.clientTop;
 
   function setProp(name, value) {
-    indicator.style.setProperty(`--active-tab-${name}`, `${value}px`);
+    indicator.style.setProperty(`--selected-tab-${name}`, `${value}px`);
   }
 
   setProp('left', left);

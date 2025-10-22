@@ -1,6 +1,6 @@
 {
   "name": "TabsPanel",
-  "description": "A panel displayed when the corresponding tab is active.\nRenders a `<div>` element.",
+  "description": "A panel displayed when the corresponding tab is selected.\nRenders a `<div>` element.",
   "props": {
     "value": {
       "type": "Tabs.Tab.Value",

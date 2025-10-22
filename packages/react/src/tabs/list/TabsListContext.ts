@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { TabsRoot } from '../root/TabsRoot';
 
 export interface TabsListContext {
-  activateOnFocus: boolean;
+  selectOnFocus: boolean;
   highlightedTabIndex: number;
   onTabActivation: (newValue: any, eventDetails: TabsRoot.ChangeEventDetails) => void;
   setHighlightedTabIndex: (index: number) => void;

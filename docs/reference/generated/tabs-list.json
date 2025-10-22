@@ -2,10 +2,10 @@
   "name": "TabsList",
   "description": "Groups the individual tab buttons.\nRenders a `<div>` element.",
   "props": {
-    "activateOnFocus": {
+    "selectOnFocus": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether to automatically change the active tab on arrow key focus.\nOtherwise, tabs will be activated using Enter or Spacebar key press.",
+      "description": "Whether to automatically change the selected tab on arrow key focus.\nOtherwise, tabs will be selected using Enter or Spacebar key press.",
       "detailedType": "boolean | undefined"
     },
     "loop": {
