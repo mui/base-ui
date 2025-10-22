@@ -2,6 +2,10 @@
   "name": "ToolbarLink",
   "description": "A link component.\nRenders an `<a>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Toolbar.Link.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toolbar.Link.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Toolbar.Link.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

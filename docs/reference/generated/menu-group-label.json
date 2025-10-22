@@ -2,6 +2,10 @@
   "name": "MenuGroupLabel",
   "description": "An accessible label that is automatically associated with its parent group.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Menu.GroupLabel.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.GroupLabel.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Menu.GroupLabel.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

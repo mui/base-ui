@@ -2,6 +2,10 @@
   "name": "SelectScrollDownArrow",
   "description": "An element that scrolls the select popup down when hovered. Does not render when using touch input.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Select.ScrollDownArrow.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Select.ScrollDownArrow.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Select.ScrollDownArrow.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

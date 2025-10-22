@@ -2,6 +2,10 @@
   "name": "AlertDialogDescription",
   "description": "A paragraph with additional information about the alert dialog.\nRenders a `<p>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: AlertDialog.Description.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: AlertDialog.Description.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: AlertDialog.Description.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

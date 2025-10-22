@@ -2,6 +2,10 @@
   "name": "NumberFieldGroup",
   "description": "Groups the input with the increment and decrement buttons.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: NumberField.Group.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: NumberField.Group.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: NumberField.Group.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

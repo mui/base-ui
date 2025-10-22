@@ -2,6 +2,10 @@
   "name": "AlertDialogTitle",
   "description": "A heading that labels the dialog.\nRenders an `<h2>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: AlertDialog.Title.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: AlertDialog.Title.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: AlertDialog.Title.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

@@ -2,6 +2,10 @@
   "name": "DialogDescription",
   "description": "A paragraph with additional information about the dialog.\nRenders a `<p>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Dialog.Description.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Dialog.Description.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Dialog.Description.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

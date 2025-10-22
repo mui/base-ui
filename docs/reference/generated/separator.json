@@ -2,6 +2,10 @@
   "name": "Separator",
   "description": "A separator element accessible to screen readers.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Separator.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Separator.State) => CSSProperties)\n| undefined"
+    },
     "orientation": {
       "type": "Orientation",
       "default": "'horizontal'",

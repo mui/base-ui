@@ -18,6 +18,11 @@
       "description": "A payload to pass to the popover when it is opened.",
       "detailedType": "Payload | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Popover.Trigger.State) => CSSProperties)",
+      "description": "Style applied to the element, or a function that\nreturns a style object based on the component’s state.",
+      "detailedType": "| React.CSSProperties\n| ((state: Popover.Trigger.State) => CSSProperties)\n| undefined"
+    },
     "openOnHover": {
       "type": "boolean",
       "default": "false",

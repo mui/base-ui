@@ -2,6 +2,10 @@
   "name": "ScrollAreaThumb",
   "description": "The draggable part of the the scrollbar that indicates the current scroll position.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: ScrollArea.Thumb.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: ScrollArea.Thumb.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: ScrollArea.Thumb.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

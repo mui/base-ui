@@ -2,6 +2,10 @@
   "name": "SelectItemIndicator",
   "description": "Indicates whether the select item is selected.\nRenders a `<span>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Select.ItemIndicator.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Select.ItemIndicator.State) => CSSProperties)\n| undefined"
+    },
     "children": {
       "type": "ReactNode",
       "detailedType": "React.ReactNode"

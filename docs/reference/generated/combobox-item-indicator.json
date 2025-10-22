@@ -2,6 +2,10 @@
   "name": "ComboboxItemIndicator",
   "description": "Indicates whether the item is selected.\nRenders a `<span>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.ItemIndicator.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Combobox.ItemIndicator.State) => CSSProperties)\n| undefined"
+    },
     "children": {
       "type": "ReactNode",
       "detailedType": "React.ReactNode"

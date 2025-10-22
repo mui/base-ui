@@ -2,6 +2,10 @@
   "name": "ToastRoot",
   "description": "Groups all parts of an individual toast.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Toast.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toast.Root.State) => CSSProperties)\n| undefined"
+    },
     "swipeDirection": {
       "type": "'left' | 'right' | 'up' | 'down' | ('left' | 'right' | 'up' | 'down')[]",
       "default": "['down', 'right']",

@@ -2,6 +2,10 @@
   "name": "DialogPortal",
   "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Dialog.Portal.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Dialog.Portal.State) => CSSProperties)\n| undefined"
+    },
     "container": {
       "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
       "description": "A parent element to render the portal element into.",

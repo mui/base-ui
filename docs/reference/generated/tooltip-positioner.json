@@ -6,13 +6,17 @@
       "type": "CollisionAvoidance",
       "description": "Determines how to handle collisions when positioning the popup.",
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
-      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'none' | 'shift' | 'flip'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| {\n    side?: 'none' | 'shift'\n    align?: 'none' | 'shift'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| undefined"
+      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'none' | 'flip' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| {\n    side?: 'none' | 'shift'\n    align?: 'none' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| undefined"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Tooltip.Positioner.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Tooltip.Positioner.State) => CSSProperties)\n| undefined"
     },
     "align": {
       "type": "Align",
       "default": "'center'",
       "description": "How to align the popup relative to the specified side.",
-      "detailedType": "'center' | 'start' | 'end' | undefined"
+      "detailedType": "'center' | 'end' | 'start' | undefined"
     },
     "alignOffset": {
       "type": "number | OffsetFunction",
@@ -25,7 +29,7 @@
       "type": "Side",
       "default": "'top'",
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions.",
-      "detailedType": "| 'top'\n| 'bottom'\n| 'left'\n| 'right'\n| 'inline-end'\n| 'inline-start'\n| undefined"
+      "detailedType": "| 'left'\n| 'right'\n| 'bottom'\n| 'top'\n| 'inline-end'\n| 'inline-start'\n| undefined"
     },
     "sideOffset": {
       "type": "number | OffsetFunction",

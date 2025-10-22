@@ -2,6 +2,10 @@
   "name": "MenuRadioItemIndicator",
   "description": "Indicates whether the radio item is selected.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Menu.RadioItemIndicator.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.RadioItemIndicator.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Menu.RadioItemIndicator.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

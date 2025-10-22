@@ -2,6 +2,10 @@
   "name": "PopoverTitle",
   "description": "A heading that labels the popover.\nRenders an `<h2>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Popover.Title.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Popover.Title.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Popover.Title.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

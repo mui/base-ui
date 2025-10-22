@@ -29,6 +29,10 @@
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button.",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Menu.RadioItem.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.RadioItem.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

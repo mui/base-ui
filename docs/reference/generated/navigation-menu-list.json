@@ -2,6 +2,10 @@
   "name": "NavigationMenuList",
   "description": "Contains a list of navigation menu items.\nRenders a `<ul>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: NavigationMenu.List.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: NavigationMenu.List.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: NavigationMenu.List.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

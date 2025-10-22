@@ -18,6 +18,10 @@
       "description": "Event handler called when the panel is opened or closed.",
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Collapsible.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Collapsible.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Collapsible.Root.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

@@ -2,6 +2,10 @@
   "name": "AccordionHeader",
   "description": "A heading that labels the corresponding panel.\nRenders an `<h3>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Accordion.Item.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Accordion.Item.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Accordion.Item.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

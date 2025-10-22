@@ -2,6 +2,10 @@
   "name": "MeterValue",
   "description": "A text element displaying the current value.\nRenders a `<span>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Meter.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Meter.Root.State) => CSSProperties)\n| undefined"
+    },
     "children": {
       "type": "((formattedValue: string, value: number) => ReactNode) | null",
       "detailedType": "| ((formattedValue: string, value: number) => ReactNode)\n| null\n| undefined"

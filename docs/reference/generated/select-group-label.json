@@ -2,6 +2,10 @@
   "name": "SelectGroupLabel",
   "description": "An accessible label that is automatically associated with its parent group.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Select.GroupLabel.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Select.GroupLabel.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Select.GroupLabel.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

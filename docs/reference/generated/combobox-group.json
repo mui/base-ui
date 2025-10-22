@@ -7,6 +7,10 @@
       "description": "Items to be rendered within this group.\nWhen provided, child `Collection` components will use these items.",
       "detailedType": "any[] | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Group.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Combobox.Group.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Combobox.Group.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

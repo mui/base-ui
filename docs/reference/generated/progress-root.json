@@ -22,6 +22,10 @@
       "type": "Intl.LocalesArgument",
       "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
     },
+    "style": {
+      "type": "CSSProperties | ((state: Progress.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Progress.Root.State) => CSSProperties)\n| undefined"
+    },
     "min": {
       "type": "number",
       "default": "0",

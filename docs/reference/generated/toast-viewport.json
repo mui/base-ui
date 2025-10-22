@@ -2,6 +2,10 @@
   "name": "ToastViewport",
   "description": "A container viewport for toasts.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Toast.Viewport.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toast.Viewport.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Toast.Viewport.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

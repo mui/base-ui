@@ -2,6 +2,10 @@
   "name": "ComboboxInput",
   "description": "A text input to search for items in the list.\nRenders an `<input>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Input.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Combobox.Input.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

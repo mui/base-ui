@@ -29,6 +29,10 @@
       "description": "Whether multiple items can be open at the same time.",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Accordion.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Accordion.Root.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

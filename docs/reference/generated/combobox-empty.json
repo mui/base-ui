@@ -2,6 +2,10 @@
   "name": "ComboboxEmpty",
   "description": "Renders its children only when the list is empty.\nRequires the `items` prop on the root component.\nAnnounces changes politely to screen readers.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Empty.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Combobox.Empty.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Combobox.Empty.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

@@ -6,6 +6,10 @@
       "type": "any",
       "description": "A unique value that identifies this navigation menu item.\nIf no value is provided, a unique ID will be generated automatically.\nUse when controlling the navigation menu programmatically."
     },
+    "style": {
+      "type": "CSSProperties | ((state: NavigationMenu.Item.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: NavigationMenu.Item.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: NavigationMenu.Item.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

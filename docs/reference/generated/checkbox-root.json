@@ -48,6 +48,10 @@
       "description": "Whether the checkbox controls a group of child checkboxes.\n\nMust be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Checkbox.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Checkbox.Root.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

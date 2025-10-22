@@ -7,6 +7,10 @@
       "description": "Callback fired when the loading status changes.",
       "detailedType": "((status: ImageLoadingStatus) => void) | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Avatar.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Avatar.Root.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Avatar.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

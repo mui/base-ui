@@ -2,6 +2,10 @@
   "name": "NavigationMenuPopup",
   "description": "A container for the navigation menu contents.\nRenders a `<nav>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: NavigationMenu.Popup.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: NavigationMenu.Popup.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: NavigationMenu.Popup.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

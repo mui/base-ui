@@ -8,6 +8,10 @@
       "description": "Whether the menubar is modal.",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Menubar.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menubar.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

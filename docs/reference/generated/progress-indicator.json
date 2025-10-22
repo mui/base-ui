@@ -2,6 +2,10 @@
   "name": "ProgressIndicator",
   "description": "Visualizes the completion status of the task.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Progress.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Progress.Root.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Progress.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

@@ -2,6 +2,10 @@
   "name": "FieldItem",
   "description": "Groups individual items in a checkbox group or radio group with a label and description.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Field.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Field.Root.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

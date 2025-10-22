@@ -22,6 +22,10 @@
       "description": "Names of all checkboxes in the group. Use this when creating a parent checkbox.",
       "detailedType": "string[] | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: CheckboxGroup.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: CheckboxGroup.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

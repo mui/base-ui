@@ -8,6 +8,10 @@
       "description": "The threshold in pixels that must be passed before the overflow edge attributes are applied.\nAccepts a single number for all edges or an object to configure them individually.",
       "detailedType": "| number\n| {\n    xStart?: number\n    xEnd?: number\n    yStart?: number\n    yEnd?: number\n  }\n| undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: ScrollArea.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: ScrollArea.Root.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: ScrollArea.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

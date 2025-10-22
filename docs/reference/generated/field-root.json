@@ -12,6 +12,10 @@
       "description": "Whether the field's value has been changed from its initial value.\nUseful when the field state is controlled by an external library.",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Field.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Field.Root.State) => CSSProperties)\n| undefined"
+    },
     "touched": {
       "type": "boolean",
       "description": "Whether the field has been touched.\nUseful when the field state is controlled by an external library.",

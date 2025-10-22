@@ -6,6 +6,10 @@
       "type": "Tabs.Tab.Value",
       "description": "The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.\nIf not provided, it will fall back to the index of the panel.\nIt is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server."
     },
+    "style": {
+      "type": "CSSProperties | ((state: Tabs.Panel.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Tabs.Panel.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Tabs.Panel.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

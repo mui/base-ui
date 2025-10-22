@@ -12,6 +12,10 @@
       "description": "Event handler called when the panel is opened or closed.",
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Accordion.Item.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Accordion.Item.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Accordion.Item.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

@@ -2,6 +2,10 @@
   "name": "ComboboxChip",
   "description": "An individual chip that represents a value in a multiselectable input.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Chip.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Combobox.Chip.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Combobox.Chip.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

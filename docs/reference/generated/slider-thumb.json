@@ -28,6 +28,10 @@
       "description": "A focus handler forwarded to the `input`.",
       "detailedType": "| React.FocusEventHandler<HTMLInputElement>\n| undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Slider.Thumb.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Slider.Thumb.State) => CSSProperties)\n| undefined"
+    },
     "tabIndex": {
       "type": "number",
       "description": "Optional tab index attribute forwarded to the `input`.",

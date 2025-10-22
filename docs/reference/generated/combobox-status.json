@@ -2,6 +2,10 @@
   "name": "ComboboxStatus",
   "description": "Displays a status message whose content changes are announced politely to screen readers.\nUseful for conveying the status of an asynchronously loaded list.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Status.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Combobox.Status.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Combobox.Status.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

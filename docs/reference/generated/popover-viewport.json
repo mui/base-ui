@@ -2,6 +2,10 @@
   "name": "PopoverViewport",
   "description": "A viewport for displaying content transitions.\nThis component is only required if one popup can be opened by multiple triggers, its content change based on the trigger\nand switching between them is animated.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Popover.Viewport.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Popover.Viewport.State) => CSSProperties)\n| undefined"
+    },
     "children": {
       "type": "ReactNode",
       "description": "The content to render inside the transition container.",

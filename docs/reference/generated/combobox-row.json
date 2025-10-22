@@ -2,6 +2,10 @@
   "name": "ComboboxRow",
   "description": "Displays a single row of items in a grid list.\nEnable `grid` on the root component to turn the listbox into a grid.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Row.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Combobox.Row.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Combobox.Row.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

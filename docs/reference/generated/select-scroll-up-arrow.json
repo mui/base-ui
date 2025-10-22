@@ -2,6 +2,10 @@
   "name": "SelectScrollUpArrow",
   "description": "An element that scrolls the select popup up when hovered. Does not render when using touch input.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Select.ScrollUpArrow.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Select.ScrollUpArrow.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Select.ScrollUpArrow.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

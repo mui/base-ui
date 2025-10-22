@@ -2,6 +2,10 @@
   "name": "SelectPopup",
   "description": "A container for the select list.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Select.Popup.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Select.Popup.State) => CSSProperties)\n| undefined"
+    },
     "children": {
       "type": "ReactNode",
       "detailedType": "React.ReactNode"

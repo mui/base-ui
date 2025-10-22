@@ -2,6 +2,10 @@
   "name": "ComboboxList",
   "description": "A list container for the items.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.List.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Combobox.List.State) => CSSProperties)\n| undefined"
+    },
     "children": {
       "type": "ReactNode | ((item: any, index: number) => ReactNode)",
       "detailedType": "| React.ReactNode\n| ((item: any, index: number) => ReactNode)"

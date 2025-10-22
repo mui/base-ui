@@ -2,6 +2,10 @@
   "name": "FieldsetRoot",
   "description": "Groups the fieldset legend and the associated fields.\nRenders a `<fieldset>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Fieldset.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Fieldset.Root.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Fieldset.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

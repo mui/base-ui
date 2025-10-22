@@ -2,6 +2,10 @@
   "name": "ToolbarGroup",
   "description": "Groups several toolbar items or toggles.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Toolbar.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toolbar.Root.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

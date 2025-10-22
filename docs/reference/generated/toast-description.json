@@ -2,6 +2,10 @@
   "name": "ToastDescription",
   "description": "A description that describes the toast.\nCan be used as the default message for the toast when no title is provided.\nRenders a `<p>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Toast.Description.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toast.Description.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Toast.Description.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

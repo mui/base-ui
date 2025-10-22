@@ -2,6 +2,10 @@
   "name": "ScrollAreaScrollbar",
   "description": "A vertical or horizontal scrollbar for the scroll area.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: ScrollArea.Scrollbar.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: ScrollArea.Scrollbar.State) => CSSProperties)\n| undefined"
+    },
     "orientation": {
       "type": "'horizontal' | 'vertical'",
       "default": "'vertical'",

@@ -2,6 +2,10 @@
   "name": "MenuPopup",
   "description": "A container for the menu items.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Menu.Popup.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.Popup.State) => CSSProperties)\n| undefined"
+    },
     "finalFocus": {
       "type": "boolean | RefObject<HTMLElement | null> | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
       "description": "Determines the element to focus when the menu is closed.\n\n- `false`: Do not move focus.\n- `true`: Move focus based on the default behavior (trigger or previously focused element).\n- `RefObject`: Move focus to the ref element.\n- `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\n  Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.",

@@ -8,6 +8,10 @@
       "description": "The number of columns. When greater than 1, the toolbar is arranged into\na grid.",
       "detailedType": "number | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Toolbar.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toolbar.Root.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "detailedType": "boolean | undefined"

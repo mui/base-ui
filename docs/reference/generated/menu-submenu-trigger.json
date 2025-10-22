@@ -17,6 +17,10 @@
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button.",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Menu.SubmenuTrigger.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.SubmenuTrigger.State) => CSSProperties)\n| undefined"
+    },
     "id": {
       "type": "string",
       "detailedType": "string | undefined"

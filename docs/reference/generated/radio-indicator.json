@@ -2,6 +2,10 @@
   "name": "RadioIndicator",
   "description": "Indicates whether the radio button is selected.\nRenders a `<span>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Radio.Indicator.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Radio.Indicator.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Radio.Indicator.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

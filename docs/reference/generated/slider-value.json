@@ -2,6 +2,10 @@
   "name": "SliderValue",
   "description": "Displays the current value of the slider as text.\nRenders an `<output>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Slider.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Slider.Root.State) => CSSProperties)\n| undefined"
+    },
     "children": {
       "type": "((formattedValues: string[], values: number[]) => ReactNode) | null",
       "detailedType": "| ((\n    formattedValues: string[],\n    values: number[],\n  ) => ReactNode)\n| null\n| undefined"

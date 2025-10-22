@@ -2,6 +2,10 @@
   "name": "AvatarFallback",
   "description": "Rendered when the image fails to load or when no image is provided.\nRenders a `<span>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Avatar.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Avatar.Root.State) => CSSProperties)\n| undefined"
+    },
     "delay": {
       "type": "number",
       "description": "How long to wait before showing the fallback. Specified in milliseconds.",

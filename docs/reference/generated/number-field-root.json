@@ -37,6 +37,10 @@
       "description": "Whether the value should snap to the nearest step when incrementing or decrementing.",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: NumberField.Root.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: NumberField.Root.State) => CSSProperties)\n| undefined"
+    },
     "step": {
       "type": "number",
       "default": "1",

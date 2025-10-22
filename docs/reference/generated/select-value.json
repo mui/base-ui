@@ -2,6 +2,10 @@
   "name": "SelectValue",
   "description": "A text label of the currently selected item.\nRenders a `<span>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Select.Value.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Select.Value.State) => CSSProperties)\n| undefined"
+    },
     "children": {
       "type": "ReactNode | ((value: any) => ReactNode)",
       "description": "Accepts a function that returns a `ReactNode` to format the selected value.",

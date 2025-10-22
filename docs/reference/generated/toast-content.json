@@ -2,6 +2,10 @@
   "name": "ToastContent",
   "description": "A container for the contents of a toast.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Toast.Content.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toast.Content.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Toast.Content.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

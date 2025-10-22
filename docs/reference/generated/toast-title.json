@@ -2,6 +2,10 @@
   "name": "ToastTitle",
   "description": "A title that labels the toast.\nRenders an `<h2>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Toast.Title.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toast.Title.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: Toast.Title.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

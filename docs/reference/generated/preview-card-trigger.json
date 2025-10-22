@@ -2,6 +2,10 @@
   "name": "PreviewCardTrigger",
   "description": "A link that opens the preview card.\nRenders an `<a>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: PreviewCard.Trigger.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: PreviewCard.Trigger.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: PreviewCard.Trigger.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

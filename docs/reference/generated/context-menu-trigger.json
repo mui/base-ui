@@ -2,6 +2,10 @@
   "name": "ContextMenuTrigger",
   "description": "An area that opens the menu on right click or long press.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: ContextMenu.Trigger.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: ContextMenu.Trigger.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: ContextMenu.Trigger.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

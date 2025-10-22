@@ -2,6 +2,10 @@
   "name": "MenuGroup",
   "description": "Groups related menu items with the corresponding label.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Menu.Group.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.Group.State) => CSSProperties)\n| undefined"
+    },
     "children": {
       "type": "ReactNode",
       "description": "The content of the component.",

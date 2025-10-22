@@ -20,6 +20,10 @@
       "description": "Callback fired when the value changes.",
       "detailedType": "| ((\n    value: unknown,\n    eventDetails: Radio.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: RadioGroup.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: RadioGroup.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

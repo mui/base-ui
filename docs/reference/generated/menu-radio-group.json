@@ -15,6 +15,10 @@
       "description": "Function called when the selected value changes.",
       "detailedType": "| ((\n    value: any,\n    eventDetails: Menu.RadioGroup.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Menu.RadioGroup.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.RadioGroup.State) => CSSProperties)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

@@ -2,6 +2,10 @@
   "name": "NavigationMenuIcon",
   "description": "An icon that indicates that the trigger button opens a menu.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: NavigationMenu.Icon.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: NavigationMenu.Icon.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: NavigationMenu.Icon.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

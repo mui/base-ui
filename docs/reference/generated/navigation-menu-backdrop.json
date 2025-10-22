@@ -2,6 +2,10 @@
   "name": "NavigationMenuBackdrop",
   "description": "A backdrop for the navigation menu popup.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: NavigationMenu.Backdrop.State) => CSSProperties)",
+      "detailedType": "| React.CSSProperties\n| ((state: NavigationMenu.Backdrop.State) => CSSProperties)\n| undefined"
+    },
     "className": {
       "type": "string | ((state: NavigationMenu.Backdrop.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
