@@ -28,7 +28,7 @@
     "@types/mdx": "^2.0.13",
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.1",
-    "es-toolkit": "^1.39.10",
+    "es-toolkit": "^1.40.0",
     "estree-util-value-to-estree": "^3.4.0",
     "globby": "^15.0.0",
     "hast": "^1.0.0",
