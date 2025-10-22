@@ -50,7 +50,7 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   focused: false,
   setFocused: NOOP,
   validate: () => null,
-  validationMode: 'onBlur',
+  validationMode: 'onSubmit',
   validationDebounceTime: 0,
   state: {
     disabled: false,
