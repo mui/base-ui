@@ -12,6 +12,10 @@
       "description": "Event handler called when the panel is opened or closed.",
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Accordion.Item.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Accordion.Item.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Accordion.Item.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -19,8 +23,9 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Accordion.Item.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Accordion.Item.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Accordion.Item.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)",

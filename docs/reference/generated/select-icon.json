@@ -2,9 +2,14 @@
   "name": "SelectIcon",
   "description": "An icon that indicates that the trigger button opens a select popup.\nRenders a `<span>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Select.Icon.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Select.Icon.State) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: Select.Icon.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Select.Icon.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Select.Icon.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Select.Icon.State) => ReactElement)",

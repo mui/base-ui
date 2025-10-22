@@ -5,6 +5,7 @@ import { mergeObjects } from '@base-ui-components/utils/mergeObjects';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
 import { resolveClassName } from './resolveClassName';
+import { resolveStyle } from './resolveStyle';
 import { mergeProps, mergePropsN, mergeClassNames } from '../merge-props';
 import { EMPTY_OBJECT } from './constants';
 
@@ -51,7 +52,7 @@ function useRenderElementProps<
   componentProps: useRenderElement.ComponentProps<State>,
   params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
 ): React.HTMLAttributes<any> & React.RefAttributes<any> {
-  const { className: classNameProp, render: renderProp } = componentProps;
+  const { className: classNameProp, style: styleProp, render: renderProp } = componentProps;
 
   const {
     state = EMPTY_OBJECT as State,
@@ -62,6 +63,7 @@ function useRenderElementProps<
   } = params;
 
   const className = enabled ? resolveClassName(classNameProp, state) : undefined;
+  const style = enabled ? resolveStyle(styleProp, state) : undefined;
 
   const stateProps = enabled
     ? getStateAttributesProps(state, stateAttributesMapping)
@@ -93,6 +95,10 @@ function useRenderElementProps<
 
   if (className !== undefined) {
     outProps.className = mergeClassNames(outProps.className, className);
+  }
+
+  if (style !== undefined) {
+    outProps.style = mergeObjects(outProps.style, style);
   }
 
   return outProps;
@@ -190,7 +196,7 @@ export interface UseRenderElementComponentProps<State> {
    * The class name to apply to the rendered element.
    * Can be a string or a function that accepts the state and returns a string.
    */
-  className?: string | ((state: State) => string);
+  className?: string | ((state: State) => string | undefined);
   /**
    * The render prop or React element to override the default element.
    */
@@ -198,6 +204,11 @@ export interface UseRenderElementComponentProps<State> {
     | undefined
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
     | React.ReactElement<Record<string, unknown>>;
+  /**
+   * The style to apply to the rendered element.
+   * Can be a style object or a function that accepts the state and returns a style object.
+   */
+  style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined);
 }
 
 export namespace useRenderElement {
