@@ -53,12 +53,12 @@ const selectors = {
   mounted: (state: State) => state.mounted,
   allowMouseEnter: (state: State): boolean =>
     state.parent.type === 'menu'
-      ? state.parent.context.select('allowMouseEnter')
+      ? state.parent.store.select('allowMouseEnter')
       : state.allowMouseEnter,
   parent: (state: State) => state.parent,
   rootId: (state: State): string | undefined => {
     if (state.parent.type === 'menu') {
-      return state.parent.context.select('rootId');
+      return state.parent.store.select('rootId');
     }
 
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
@@ -82,7 +82,7 @@ const writeInterceptors = {
     // If this menu is a submenu, it should inherit `allowMouseEnter` from its
     // parent. Otherwise it manages the state on its own.
     if (store.state.parent.type === 'menu') {
-      store.state.parent.context.set('allowMouseEnter', value);
+      store.state.parent.store.set('allowMouseEnter', value);
     }
 
     return value;
@@ -96,12 +96,12 @@ const writeInterceptors = {
 
 function registerParent(store: ReactStore<any, Context, any>, parent: MenuParent) {
   if (parent.type === 'menu') {
-    parent.context.subscribe(() => {
+    parent.store.subscribe(() => {
       // Propagate changes from parent menu
       store.notifyAll();
     });
 
-    store.context.allowMouseUpTriggerRef = parent.context.context.allowMouseUpTriggerRef;
+    store.context.allowMouseUpTriggerRef = parent.store.context.allowMouseUpTriggerRef;
   } else if (parent.type !== undefined) {
     store.context.allowMouseUpTriggerRef = parent.context.allowMouseUpTriggerRef;
   }
