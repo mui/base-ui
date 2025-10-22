@@ -1322,7 +1322,7 @@ describe('<Autocomplete.Root />', () => {
 
     it('prop: validate', async () => {
       await render(
-        <Field.Root validate={() => 'error'}>
+        <Field.Root validationMode="onBlur" validate={() => 'error'}>
           <Autocomplete.Root>
             <Autocomplete.Input data-testid="input" />
             <Autocomplete.Portal>
@@ -1333,13 +1333,56 @@ describe('<Autocomplete.Root />', () => {
       );
 
       const input = screen.getByTestId('input');
-
       expect(input).not.to.have.attribute('aria-invalid');
 
-      await act(async () => input.focus());
-      await act(async () => input.blur());
-
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+      await flushMicrotasks();
       expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('prop: validationMode=onSubmit', async () => {
+      const { user } = await render(
+        <Form>
+          <Field.Root
+            validate={(value) => {
+              return value === 'one' ? 'error' : null;
+            }}
+          >
+            <Autocomplete.Root required>
+              <Autocomplete.Input data-testid="input" />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      <Autocomplete.Item value="one">Option 1</Autocomplete.Item>
+                      <Autocomplete.Item value="two">Option 2</Autocomplete.Item>
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByTestId('input');
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      await user.click(screen.getByText('submit'));
+      expect(input).to.have.attribute('aria-invalid', 'true');
+
+      await user.type(input, 'two');
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      await user.clear(input);
+      await user.type(input, 'one');
+      expect(input).to.have.attribute('aria-invalid', 'true');
+
+      await user.clear(input);
+      await user.type(input, 'three');
+      expect(input).not.to.have.attribute('aria-invalid');
     });
 
     // flaky in real browser

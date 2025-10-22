@@ -114,7 +114,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const {
     setDirty,
     validityData,
-    validationMode,
+    shouldValidateOnChange,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
@@ -867,7 +867,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     clearErrors(name);
     commitValidation?.(selectedValue, true);
 
-    if (validationMode === 'onChange') {
+    if (shouldValidateOnChange()) {
       commitValidation?.(selectedValue);
     }
 
@@ -902,7 +902,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     clearErrors(name);
     commitValidation?.(inputValue, true);
 
-    if (validationMode === 'onChange') {
+    if (shouldValidateOnChange()) {
       commitValidation?.(inputValue);
     }
 
@@ -1227,7 +1227,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 setDirty(nextValue !== validityData.initialValue);
                 setInputValue(nextValue, details);
 
-                if (validationMode === 'onChange') {
+                if (shouldValidateOnChange()) {
                   fieldControlValidation.commitValidation(nextValue);
                 }
                 return;
@@ -1245,7 +1245,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 setDirty(matchingValue !== validityData.initialValue);
                 setSelectedValue?.(matchingValue, details);
 
-                if (validationMode === 'onChange') {
+                if (shouldValidateOnChange()) {
                   fieldControlValidation.commitValidation(matchingValue);
                 }
               }

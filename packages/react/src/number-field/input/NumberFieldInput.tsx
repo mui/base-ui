@@ -87,7 +87,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
-  const { validationMode, setTouched, setFocused, invalid } = useFieldRootContext();
+  const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange } =
+    useFieldRootContext();
   const { labelId } = useLabelableContext();
 
   const {
@@ -118,10 +119,10 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
     clearErrors(name);
 
-    if (validationMode === 'onChange') {
+    if (shouldValidateOnChange()) {
       commitValidation(value);
     }
-  }, [value, inputValue, name, clearErrors, validationMode, commitValidation]);
+  }, [value, inputValue, name, clearErrors, shouldValidateOnChange, commitValidation]);
 
   useIsoLayoutEffect(() => {
     if (prevValueRef.current === value || validationMode === 'onChange') {

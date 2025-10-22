@@ -1032,7 +1032,7 @@ describe('<NumberField />', () => {
 
     it('prop: validate', async () => {
       await render(
-        <Field.Root validate={() => 'error'}>
+        <Field.Root validationMode="onBlur" validate={() => 'error'}>
           <NumberFieldBase.Root>
             <NumberFieldBase.Input />
           </NumberFieldBase.Root>
@@ -1047,6 +1047,37 @@ describe('<NumberField />', () => {
       fireEvent.focus(input);
       fireEvent.blur(input);
 
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('prop: validationMode=onSubmit', async () => {
+      await render(
+        <Form>
+          <Field.Root validate={(value) => (value === 1 ? 'error' : null)}>
+            <NumberFieldBase.Root required>
+              <NumberFieldBase.Input data-testid="input" />
+            </NumberFieldBase.Root>
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByRole('textbox');
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.click(screen.getByText('submit'));
+      expect(input).to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.change(input, { target: { value: '2' } });
+      expect(input).not.to.have.attribute('aria-invalid');
+      // re-invalidate the field value
+      fireEvent.change(input, { target: { value: '1' } });
+      expect(input).to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.change(input, { target: { value: '3' } });
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.change(input, { target: { value: '' } });
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
 

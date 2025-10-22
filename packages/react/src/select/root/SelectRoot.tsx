@@ -75,7 +75,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const store = rootContext.store;
   const isMultiple = multiple ?? false;
 
-  const { setDirty, validityData, validationMode } = useFieldRootContext();
+  const { setDirty, shouldValidateOnChange, validityData } = useFieldRootContext();
   const { controlId } = useLabelableContext();
 
   const ref = useMergedRefs(inputRef, rootContext.fieldControlValidation.inputRef);
@@ -146,7 +146,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                   setDirty(matchingValue !== validityData.initialValue);
                   rootContext.setValue?.(matchingValue, details);
 
-                  if (validationMode === 'onChange') {
+                  if (shouldValidateOnChange()) {
                     rootContext.fieldControlValidation.commitValidation(matchingValue);
                   }
                 }
