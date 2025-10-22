@@ -29,6 +29,10 @@
       "description": "Whether multiple items can be open at the same time.",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Accordion.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Accordion.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -48,8 +52,9 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: Accordion.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Accordion.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Accordion.Root.State) => string | undefined)"
     },
     "keepMounted": {
       "type": "boolean",
