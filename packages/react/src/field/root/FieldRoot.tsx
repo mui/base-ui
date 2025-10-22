@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
@@ -37,7 +37,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const { errors } = useFormContext();
 
-  const validate = useEventCallback(validateProp || (() => null));
+  const validate = useStableCallback(validateProp || (() => null));
 
   const disabled = disabledFieldset || disabledProp;
 
@@ -51,7 +51,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const markedDirtyRef = React.useRef(false);
 
-  const setDirty: typeof setDirtyUnwrapped = useEventCallback((value) => {
+  const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
     if (dirtyProp !== undefined) {
       return;
     }
@@ -62,7 +62,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     setDirtyUnwrapped(value);
   });
 
-  const setTouched: typeof setTouchedUnwrapped = useEventCallback((value) => {
+  const setTouched: typeof setTouchedUnwrapped = useStableCallback((value) => {
     if (touchedProp !== undefined) {
       return;
     }

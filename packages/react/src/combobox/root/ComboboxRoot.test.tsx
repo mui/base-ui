@@ -2044,6 +2044,36 @@ describe('<Combobox.Root />', () => {
       expect(input).to.have.attribute('aria-activedescendant', cherry.id);
     });
 
+    it('highlights the first matching item for a static list without the items prop', async () => {
+      const { user } = await render(
+        <Combobox.Root autoHighlight>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="alpha">alpha</Combobox.Item>
+                  <Combobox.Item value="alphabet">alphabet</Combobox.Item>
+                  <Combobox.Item value="beta">beta</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'al');
+
+      const alpha = screen.getByRole('option', { name: 'alpha' });
+      await waitFor(() => expect(alpha).to.have.attribute('data-highlighted'));
+      expect(input).to.have.attribute('aria-activedescendant', alpha.id);
+
+      await user.type(input, ' ');
+      expect(alpha).to.have.attribute('data-highlighted');
+      expect(input).to.have.attribute('aria-activedescendant', alpha.id);
+    });
+
     it('clears highlight when query is cleared back to empty', async () => {
       const { user } = await render(
         <Combobox.Root items={['apple', 'banana', 'cherry']} autoHighlight>
@@ -2191,6 +2221,106 @@ describe('<Combobox.Root />', () => {
       await user.keyboard('{ArrowDown}');
       await waitFor(() => expect(input).to.have.attribute('aria-activedescendant', grapefruit.id));
     });
+
+    it('updates highlighted callback with newly filtered first item', async () => {
+      const onItemHighlighted = spy();
+      const items = ['banana', 'apple', 'apricot'];
+
+      const { user } = await render(
+        <Combobox.Root
+          items={items}
+          autoHighlight
+          defaultOpen
+          onItemHighlighted={onItemHighlighted}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+      const [initialValue] = onItemHighlighted.lastCall.args;
+      expect(initialValue).to.equal('banana');
+
+      onItemHighlighted.resetHistory();
+
+      await user.type(input, 'ap');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+      const [nextValue, data] = onItemHighlighted.lastCall.args;
+      expect(nextValue).to.equal('apple');
+      expect(data.reason).to.equal('none');
+      expect(data.index).to.equal(0);
+    });
+
+    it('fires a single clearing highlight on Enter selection', async () => {
+      const onItemHighlighted = spy();
+
+      const { user } = await render(
+        <Combobox.Root
+          items={['Apple', 'Apricot', 'Banana']}
+          autoHighlight
+          onItemHighlighted={onItemHighlighted}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await user.type(input, 'app');
+
+      // Reset history to focus on close events only.
+      onItemHighlighted.resetHistory();
+      await user.keyboard('{Enter}');
+      await flushMicrotasks();
+
+      const clearingCalls = onItemHighlighted
+        .getCalls()
+        .filter((call) => call.args[0] === undefined);
+      expect(clearingCalls.length).to.equal(1);
+      const postClearCalls = onItemHighlighted
+        .getCalls()
+        .slice(onItemHighlighted.getCalls().indexOf(clearingCalls[0]) + 1);
+      expect(postClearCalls.every((c) => c.args[0] === undefined)).to.equal(true);
+    });
   });
 
   describe('prop: onItemHighlighted', () => {
@@ -2229,36 +2359,6 @@ describe('<Combobox.Root />', () => {
       expect(value).to.equal('a');
       expect(eventDetails.reason).to.equal('keyboard');
       expect(eventDetails.index).to.equal(0);
-    });
-
-    it('fires with undefined on close', async () => {
-      const onItemHighlighted = spy();
-
-      const { user } = await render(
-        <Combobox.Root defaultOpen onItemHighlighted={onItemHighlighted}>
-          <Combobox.Input data-testid="input" />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  <Combobox.Item value="a">a</Combobox.Item>
-                  <Combobox.Item value="b">b</Combobox.Item>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      await user.keyboard('{ArrowDown}');
-      await user.keyboard('{ArrowDown}');
-
-      await user.click(document.body);
-      await flushMicrotasks();
-
-      const [, eventDetails] = onItemHighlighted.lastCall.args;
-      expect(onItemHighlighted.lastCall.args[0]).to.equal(undefined);
-      expect(eventDetails.index).to.equal(-1);
     });
   });
 
