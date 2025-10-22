@@ -22,8 +22,8 @@
       "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
     },
     "style": {
-      "type": "CSSProperties | ((state: Meter.Root.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Meter.Root.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Meter.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Meter.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "min": {
       "type": "number",
@@ -43,8 +43,9 @@
       "detailedType": "Intl.NumberFormatOptions | undefined"
     },
     "className": {
-      "type": "string | ((state: Meter.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Meter.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Meter.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Meter.Root.State) => ReactElement)",

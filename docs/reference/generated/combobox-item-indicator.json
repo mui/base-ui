@@ -3,17 +3,17 @@
   "description": "Indicates whether the item is selected.\nRenders a `<span>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: Combobox.ItemIndicator.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Combobox.ItemIndicator.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Combobox.ItemIndicator.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Combobox.ItemIndicator.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "children": {
       "type": "ReactNode",
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: Combobox.ItemIndicator.State) => string)",
+      "type": "string | ((state: Combobox.ItemIndicator.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Combobox.ItemIndicator.State) => string)"
+      "detailedType": "| string\n| ((\n    state: Combobox.ItemIndicator.State,\n  ) => string | undefined)"
     },
     "keepMounted": {
       "type": "boolean",

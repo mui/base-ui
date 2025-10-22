@@ -3,8 +3,8 @@
   "description": "Rendered when the image fails to load or when no image is provided.\nRenders a `<span>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: Avatar.Root.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Avatar.Root.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Avatar.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Avatar.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "delay": {
       "type": "number",
@@ -12,8 +12,9 @@
       "detailedType": "number | undefined"
     },
     "className": {
-      "type": "string | ((state: Avatar.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Avatar.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Avatar.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)",

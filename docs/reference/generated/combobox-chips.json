@@ -3,12 +3,13 @@
   "description": "A container for the chips in a multiselectable input.\nRenders a `<div>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: Combobox.Chips.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Combobox.Chips.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Combobox.Chips.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Combobox.Chips.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: Combobox.Chips.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Combobox.Chips.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Combobox.Chips.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Combobox.Chips.State) => ReactElement)",

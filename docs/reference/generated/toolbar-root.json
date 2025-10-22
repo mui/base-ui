@@ -9,8 +9,8 @@
       "detailedType": "number | undefined"
     },
     "style": {
-      "type": "CSSProperties | ((state: Toolbar.Root.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Toolbar.Root.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Toolbar.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toolbar.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "disabled": {
       "type": "boolean",
@@ -29,8 +29,9 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: Toolbar.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Toolbar.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Toolbar.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Root.State) => ReactElement)",

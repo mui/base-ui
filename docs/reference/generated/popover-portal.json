@@ -3,8 +3,8 @@
   "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.\nRenders a `<div>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: Popover.Portal.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Popover.Portal.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Popover.Portal.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Popover.Portal.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "container": {
       "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
@@ -12,8 +12,9 @@
       "detailedType": "| HTMLElement\n| ShadowRoot\n| React.RefObject<HTMLElement | ShadowRoot | null>\n| null\n| undefined"
     },
     "className": {
-      "type": "string | ((state: Popover.Portal.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Popover.Portal.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Popover.Portal.State) => string | undefined)"
     },
     "keepMounted": {
       "type": "boolean",

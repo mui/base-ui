@@ -9,12 +9,13 @@
       "detailedType": "boolean | undefined"
     },
     "style": {
-      "type": "CSSProperties | ((state: Dialog.Close.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Dialog.Close.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Dialog.Close.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Dialog.Close.State) => CSSProperties | undefined)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: Dialog.Close.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Dialog.Close.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Dialog.Close.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Dialog.Close.State) => ReactElement)",

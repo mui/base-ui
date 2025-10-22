@@ -15,8 +15,8 @@
       "detailedType": "number | undefined"
     },
     "style": {
-      "type": "CSSProperties | ((state: NumberField.ScrubArea.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: NumberField.ScrubArea.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: NumberField.ScrubArea.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: NumberField.ScrubArea.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "teleportDistance": {
       "type": "number",
@@ -24,9 +24,9 @@
       "detailedType": "number | undefined"
     },
     "className": {
-      "type": "string | ((state: NumberField.ScrubArea.State) => string)",
+      "type": "string | ((state: NumberField.ScrubArea.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: NumberField.ScrubArea.State) => string)"
+      "detailedType": "| string\n| ((\n    state: NumberField.ScrubArea.State,\n  ) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NumberField.ScrubArea.State) => ReactElement)",

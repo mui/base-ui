@@ -3,8 +3,8 @@
   "description": "An error message displayed if the field control fails validation.\nRenders a `<div>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: Field.Root.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Field.Root.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Field.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Field.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "match": {
       "type": "boolean | 'valid' | 'badInput' | 'customError' | 'patternMismatch' | 'rangeOverflow' | 'rangeUnderflow' | 'stepMismatch' | 'tooLong' | 'tooShort' | 'typeMismatch' | 'valueMissing'",
@@ -12,8 +12,9 @@
       "detailedType": "| boolean\n| 'valid'\n| 'badInput'\n| 'customError'\n| 'patternMismatch'\n| 'rangeOverflow'\n| 'rangeUnderflow'\n| 'stepMismatch'\n| 'tooLong'\n| 'tooShort'\n| 'typeMismatch'\n| 'valueMissing'\n| undefined"
     },
     "className": {
-      "type": "string | ((state: Field.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Field.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Field.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",

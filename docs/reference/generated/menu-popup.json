@@ -3,8 +3,8 @@
   "description": "A container for the menu items.\nRenders a `<div>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: Menu.Popup.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Menu.Popup.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Menu.Popup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.Popup.State) => CSSProperties | undefined)\n| undefined"
     },
     "finalFocus": {
       "type": "boolean | RefObject<HTMLElement | null> | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
@@ -20,8 +20,9 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: Menu.Popup.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Menu.Popup.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Menu.Popup.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.Popup.State) => ReactElement)",

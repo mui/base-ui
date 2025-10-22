@@ -30,8 +30,8 @@
       "detailedType": "boolean | undefined"
     },
     "style": {
-      "type": "CSSProperties | ((state: Toggle.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Toggle.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Toggle.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toggle.State) => CSSProperties | undefined)\n| undefined"
     },
     "disabled": {
       "type": "boolean",
@@ -40,8 +40,9 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Toggle.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Toggle.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Toggle.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toggle.State) => ReactElement)",

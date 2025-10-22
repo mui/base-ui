@@ -23,8 +23,8 @@
       "detailedType": "string[] | undefined"
     },
     "style": {
-      "type": "CSSProperties | ((state: CheckboxGroup.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: CheckboxGroup.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: CheckboxGroup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: CheckboxGroup.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "disabled": {
       "type": "boolean",
@@ -33,8 +33,9 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: CheckboxGroup.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: CheckboxGroup.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: CheckboxGroup.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: CheckboxGroup.State) => ReactElement)",

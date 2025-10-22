@@ -38,8 +38,8 @@
       "detailedType": "boolean | undefined"
     },
     "style": {
-      "type": "CSSProperties | ((state: NumberField.Root.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: NumberField.Root.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: NumberField.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: NumberField.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "step": {
       "type": "number",
@@ -109,8 +109,9 @@
       "detailedType": "string | undefined"
     },
     "className": {
-      "type": "string | ((state: NumberField.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: NumberField.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: NumberField.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NumberField.Root.State) => ReactElement)",

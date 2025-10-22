@@ -3,13 +3,13 @@
   "description": "Displays an element pointing toward the navigation menu's current anchor.\nRenders a `<div>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: NavigationMenu.Arrow.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: NavigationMenu.Arrow.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: NavigationMenu.Arrow.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: NavigationMenu.Arrow.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: NavigationMenu.Arrow.State) => string)",
+      "type": "string | ((state: NavigationMenu.Arrow.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: NavigationMenu.Arrow.State) => string)"
+      "detailedType": "| string\n| ((\n    state: NavigationMenu.Arrow.State,\n  ) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Arrow.State) => ReactElement)",

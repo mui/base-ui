@@ -3,12 +3,13 @@
   "description": "Visualizes the position of the value along the range.\nRenders a `<div>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: Meter.Root.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Meter.Root.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Meter.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Meter.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: Meter.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Meter.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Meter.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Meter.Root.State) => ReactElement)",

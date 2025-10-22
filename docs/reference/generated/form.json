@@ -13,11 +13,11 @@
       "detailedType": "((errors: Errors) => void) | undefined"
     },
     "style": {
-      "type": "CSSProperties | ((state: Form.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Form.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Form.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Form.State) => CSSProperties | undefined)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: Form.State) => string)",
+      "type": "string | ((state: Form.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {

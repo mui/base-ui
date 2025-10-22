@@ -3,12 +3,13 @@
   "description": "A heading that labels the corresponding panel.\nRenders an `<h3>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: Accordion.Item.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Accordion.Item.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Accordion.Item.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Accordion.Item.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: Accordion.Item.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Accordion.Item.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Accordion.Item.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)",

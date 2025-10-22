@@ -3,8 +3,8 @@
   "description": "A container for the alert dialog contents.\nRenders a `<div>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: AlertDialog.Popup.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: AlertDialog.Popup.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: AlertDialog.Popup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: AlertDialog.Popup.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "initialFocus": {
       "type": "boolean | RefObject<HTMLElement | null> | ((openType: InteractionType) => boolean | void | HTMLElement | null)",
@@ -17,8 +17,9 @@
       "detailedType": "| boolean\n| React.RefObject<HTMLElement | null>\n| ((\n    closeType: InteractionType,\n  ) => boolean | void | HTMLElement | null)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: AlertDialog.Popup.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: AlertDialog.Popup.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: AlertDialog.Popup.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: AlertDialog.Popup.State) => ReactElement)",

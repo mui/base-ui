@@ -3,12 +3,13 @@
   "description": "The clickable, interactive part of the slider.\nRenders a `<div>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: Slider.Root.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Slider.Root.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Slider.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Slider.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: Slider.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Slider.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Slider.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Slider.Root.State) => ReactElement)",

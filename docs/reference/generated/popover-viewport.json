@@ -3,8 +3,8 @@
   "description": "A viewport for displaying content transitions.\nThis component is only required if one popup can be opened by multiple triggers, its content change based on the trigger\nand switching between them is animated.\nRenders a `<div>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: Popover.Viewport.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Popover.Viewport.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Popover.Viewport.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Popover.Viewport.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "children": {
       "type": "ReactNode",
@@ -12,9 +12,9 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: Popover.Viewport.State) => string)",
+      "type": "string | ((state: Popover.Viewport.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Popover.Viewport.State) => string)"
+      "detailedType": "| string\n| ((state: Popover.Viewport.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Popover.Viewport.State) => ReactElement)",

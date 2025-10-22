@@ -14,8 +14,8 @@
       "detailedType": "boolean | undefined"
     },
     "style": {
-      "type": "CSSProperties | ((state: Radio.Root.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Radio.Root.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Radio.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Radio.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "disabled": {
       "type": "boolean",
@@ -38,8 +38,9 @@
       "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "className": {
-      "type": "string | ((state: Radio.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Radio.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Radio.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Radio.Root.State) => ReactElement)",

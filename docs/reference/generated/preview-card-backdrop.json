@@ -3,13 +3,13 @@
   "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: PreviewCard.Backdrop.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: PreviewCard.Backdrop.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: PreviewCard.Backdrop.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: PreviewCard.Backdrop.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: PreviewCard.Backdrop.State) => string)",
+      "type": "string | ((state: PreviewCard.Backdrop.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: PreviewCard.Backdrop.State) => string)"
+      "detailedType": "| string\n| ((\n    state: PreviewCard.Backdrop.State,\n  ) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: PreviewCard.Backdrop.State) => ReactElement)",

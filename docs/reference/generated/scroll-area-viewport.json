@@ -3,13 +3,13 @@
   "description": "The actual scrollable container of the scroll area.\nRenders a `<div>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: ScrollArea.Viewport.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: ScrollArea.Viewport.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: ScrollArea.Viewport.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: ScrollArea.Viewport.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: ScrollArea.Viewport.State) => string)",
+      "type": "string | ((state: ScrollArea.Viewport.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: ScrollArea.Viewport.State) => string)"
+      "detailedType": "| string\n| ((state: ScrollArea.Viewport.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: ScrollArea.Viewport.State) => ReactElement)",

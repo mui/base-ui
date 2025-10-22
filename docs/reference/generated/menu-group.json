@@ -3,8 +3,8 @@
   "description": "Groups related menu items with the corresponding label.\nRenders a `<div>` element.",
   "props": {
     "style": {
-      "type": "CSSProperties | ((state: Menu.Group.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Menu.Group.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Menu.Group.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.Group.State) => CSSProperties | undefined)\n| undefined"
     },
     "children": {
       "type": "ReactNode",
@@ -12,8 +12,9 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: Menu.Group.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Menu.Group.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Menu.Group.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.Group.State) => ReactElement)",

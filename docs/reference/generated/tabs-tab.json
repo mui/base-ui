@@ -13,12 +13,13 @@
       "detailedType": "boolean | undefined"
     },
     "style": {
-      "type": "CSSProperties | ((state: Tabs.Tab.State) => CSSProperties)",
-      "detailedType": "| React.CSSProperties\n| ((state: Tabs.Tab.State) => CSSProperties)\n| undefined"
+      "type": "CSSProperties | ((state: Tabs.Tab.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Tabs.Tab.State) => CSSProperties | undefined)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: Tabs.Tab.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Tabs.Tab.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Tabs.Tab.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Tabs.Tab.State) => ReactElement)",
