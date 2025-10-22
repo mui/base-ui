@@ -15,7 +15,7 @@
     },
     "onOpenChange": {
       "type": "((open: boolean, eventDetails: Dialog.Root.ChangeEventDetails) => void)",
-      "description": "Event handler called when the dialog is opened or closed.",
+      "description": "Event handler called when the dialog's open state changes internally.\nOnly fires in uncontrolled mode (when using `defaultOpen`).",
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Dialog.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
