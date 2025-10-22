@@ -40,7 +40,9 @@ export class ReactStore<
     super(state);
     this.context = context;
     this.selectors = selectors;
-    this.writeInterceptors = new Map(Object.entries(writeInterceptors ?? {}) as any);
+    this.writeInterceptors = writeInterceptors
+      ? new Map(Object.entries(writeInterceptors) as any)
+      : undefined;
   }
 
   /**
@@ -56,7 +58,7 @@ export class ReactStore<
 
   private selectors: Selectors | undefined;
 
-  private writeInterceptors: Map<keyof State, (value: any, store: this) => any>;
+  private writeInterceptors: Map<keyof State, (value: any, store: this) => any> | undefined;
 
   /**
    * Synchronizes a single external value into the store during layout phase.
@@ -163,7 +165,7 @@ export class ReactStore<
    * @param value The new value to set for the specified key.
    */
   public set<T>(key: keyof State, value: T): void {
-    const interceptor = this.writeInterceptors.get(key);
+    const interceptor = this.writeInterceptors?.get(key);
     if (interceptor) {
       const updatedValue = interceptor(value, this);
       if (!this.controlledValues.get(key) === true) {
@@ -194,7 +196,7 @@ export class ReactStore<
         continue;
       }
 
-      const interceptor = this.writeInterceptors.get(key);
+      const interceptor = this.writeInterceptors?.get(key);
       if (interceptor) {
         const updatedValue = interceptor(newValues[key as keyof State], this);
         newValues[key as keyof State] = updatedValue;
@@ -223,7 +225,7 @@ export class ReactStore<
         continue;
       }
 
-      const interceptor = this.writeInterceptors.get(key);
+      const interceptor = this.writeInterceptors?.get(key);
       if (interceptor) {
         const updatedValue = interceptor(newValues[key as keyof State], this);
         newValues[key as keyof State] = updatedValue;
