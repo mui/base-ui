@@ -89,7 +89,7 @@ export interface DialogRootProps {
   modal?: boolean | 'trap-focus';
   /**
    * Event handler called when the dialog's open state changes internally.
-   * Only fires in uncontrolled mode (when using `defaultOpen`).
+   * Only fires in uncontrolled mode (when the `open` prop is not provided).
    */
   onOpenChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
   /**
