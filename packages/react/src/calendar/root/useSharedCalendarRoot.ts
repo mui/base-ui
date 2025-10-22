@@ -402,12 +402,6 @@ export namespace useSharedCalendarRoot {
     referenceDate: TemporalSupportedObject;
   }
 
-  export interface CellRefs {
-    cell: React.RefObject<HTMLButtonElement | null>;
-    row: React.RefObject<HTMLDivElement | null>;
-    grid: React.RefObject<HTMLElement | null>;
-  }
-
   export interface State {
     /**
      * Whether the current value is empty.
