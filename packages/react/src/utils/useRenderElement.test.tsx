@@ -1,9 +1,9 @@
 /* eslint-disable testing-library/render-result-naming-convention */
 import * as React from 'react';
 import { expect } from 'chai';
+import { createRenderer } from '#test-utils';
 import type { BaseUIComponentProps } from '../utils/types';
 import { useRenderElement } from './useRenderElement';
-import { createRenderer } from '#test-utils';
 
 describe('useRenderElement', () => {
   const { render } = createRenderer();
@@ -12,7 +12,7 @@ describe('useRenderElement', () => {
     componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render, active, ...elementProps } = componentProps;
+    const { className, render: renderProp, active, ...elementProps } = componentProps;
 
     const state = React.useMemo(() => ({ active }), [active]);
 
