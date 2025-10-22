@@ -2,12 +2,12 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isTabbable } from 'tabbable';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import {
   safePolygon,
   useClick,
@@ -99,7 +99,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const animationAbortControllerRef = React.useRef<AbortController | null>(null);
 
   const isActiveItem = open && value === itemValue;
-  const isActiveItemRef = useLatestRef(isActiveItem);
+  const isActiveItemRef = useValueAsRef(isActiveItem);
   const interactionsEnabled = positionerElement ? true : !value;
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
@@ -117,7 +117,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, 'auto');
   }
 
-  const handleValueChange = useEventCallback((currentWidth: number, currentHeight: number) => {
+  const handleValueChange = useStableCallback((currentWidth: number, currentHeight: number) => {
     if (!popupElement || !positionerElement) {
       return;
     }
@@ -337,7 +337,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     });
   }
 
-  const handleOpenEvent = useEventCallback((event: React.MouseEvent | React.KeyboardEvent) => {
+  const handleOpenEvent = useStableCallback((event: React.MouseEvent | React.KeyboardEvent) => {
     // For nested scenarios without positioner/popup, we can still open the menu
     // but we can't do size calculations
     if (!popupElement || !positionerElement) {

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 
@@ -137,10 +137,10 @@ export function useHover(
 
   const tree = useFloatingTree();
   const parentId = useFloatingParentNodeId();
-  const handleCloseRef = useLatestRef(handleClose);
-  const delayRef = useLatestRef(delay);
-  const openRef = useLatestRef(open);
-  const restMsRef = useLatestRef(restMs);
+  const handleCloseRef = useValueAsRef(handleClose);
+  const delayRef = useValueAsRef(delay);
+  const openRef = useValueAsRef(open);
+  const restMsRef = useValueAsRef(restMs);
 
   const pointerTypeRef = React.useRef<string>(undefined);
   const interactedInsideRef = React.useRef(false);
@@ -152,12 +152,12 @@ export function useHover(
   const unbindMouseMoveRef = React.useRef(() => {});
   const restTimeoutPendingRef = React.useRef(false);
 
-  const isHoverOpen = useEventCallback(() => {
+  const isHoverOpen = useStableCallback(() => {
     const type = dataRef.current.openEvent?.type;
     return type?.includes('mouse') && type !== 'mousedown';
   });
 
-  const isClickLikeOpenEvent = useEventCallback(() => {
+  const isClickLikeOpenEvent = useStableCallback(() => {
     if (interactedInsideRef.current) {
       return true;
     }
@@ -247,12 +247,12 @@ export function useHover(
     [delayRef, onOpenChange, timeout],
   );
 
-  const cleanupMouseMoveHandler = useEventCallback(() => {
+  const cleanupMouseMoveHandler = useStableCallback(() => {
     unbindMouseMoveRef.current();
     handlerRef.current = undefined;
   });
 
-  const clearPointerEvents = useEventCallback(() => {
+  const clearPointerEvents = useStableCallback(() => {
     if (performedPointerEventsMutationRef.current) {
       const body = getDocument(elements.floating).body;
       body.style.pointerEvents = '';
@@ -261,7 +261,7 @@ export function useHover(
     }
   });
 
-  const handleInteractInside = useEventCallback((event: PointerEvent) => {
+  const handleInteractInside = useStableCallback((event: PointerEvent) => {
     const target = event.target as Element | null;
     if (!isInteractiveElement(target)) {
       interactedInsideRef.current = false;

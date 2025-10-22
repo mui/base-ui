@@ -2,10 +2,14 @@
   "name": "NavigationMenuContent",
   "description": "A container for the content of the navigation menu item that is moved into the popup\nwhen the item is active.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: NavigationMenu.Content.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: NavigationMenu.Content.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: NavigationMenu.Content.State) => string)",
+      "type": "string | ((state: NavigationMenu.Content.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: NavigationMenu.Content.State) => string)"
+      "detailedType": "| string\n| ((\n    state: NavigationMenu.Content.State,\n  ) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Content.State) => ReactElement)",

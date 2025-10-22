@@ -37,6 +37,10 @@
       "description": "Whether the value should snap to the nearest step when incrementing or decrementing.",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: NumberField.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: NumberField.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "step": {
       "type": "number",
       "default": "1",
@@ -105,8 +109,9 @@
       "detailedType": "string | undefined"
     },
     "className": {
-      "type": "string | ((state: NumberField.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: NumberField.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: NumberField.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NumberField.Root.State) => ReactElement)",

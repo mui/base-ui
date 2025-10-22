@@ -12,6 +12,10 @@
       "description": "When `true` the item remains focuseable when disabled.",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Toolbar.Input.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Toolbar.Input.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -19,8 +23,9 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Toolbar.Input.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Toolbar.Input.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Toolbar.Input.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Input.State) => ReactElement)",
