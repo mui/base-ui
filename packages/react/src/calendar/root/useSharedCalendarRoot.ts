@@ -217,38 +217,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     },
   );
 
-  // const changePage: NavigateInGridChangePage = (params) => {
-  //   // TODO: Jump over months with no valid date.
-  //   if (params.direction === 'previous') {
-  //     const targetDate = adapter.addMonths(adapter.startOfMonth(visibleDate), -monthPageSize);
-  //     const lastMonthInNewPage = adapter.addMonths(targetDate, monthPageSize - 1);
-
-  //     // All the months before the visible ones are fully disabled, we skip the navigation.
-  //     if (
-  //       validationProps.minDate != null &&
-  //       adapter.isAfter(adapter.startOfMonth(validationProps.minDate), lastMonthInNewPage)
-  //     ) {
-  //       return;
-  //     }
-
-  //     setVisibleDate(adapter.addMonths(visibleDate, -monthPageSize));
-  //   }
-  //   if (params.direction === 'next') {
-  //     const targetDate = adapter.addMonths(adapter.startOfMonth(visibleDate), monthPageSize);
-
-  //     // All the months after the visible ones are fully disabled, we skip the navigation.
-  //     if (
-  //       validationProps.maxDate != null &&
-  //       adapter.isBefore(adapter.startOfMonth(validationProps.maxDate), targetDate)
-  //     ) {
-  //       return;
-  //     }
-  //     setVisibleDate(adapter.addMonths(visibleDate, monthPageSize));
-  //   }
-
-  //   pageNavigationTargetRef.current = params.target;
-  // };
-
   const state: useSharedCalendarRoot.State = React.useMemo(
     () => ({
       empty: manager.areValuesEqual(value, manager.emptyValue),
