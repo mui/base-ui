@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import {
   useClientPoint,
@@ -34,13 +34,13 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const {
     disabled = false,
     defaultOpen = false,
-    onOpenChange,
     open: openProp,
     delay,
     closeDelay,
     hoverable = true,
     trackCursorAxis = 'none',
     actionsRef,
+    onOpenChange,
     onOpenChangeComplete,
   } = props;
 
@@ -50,6 +50,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const store = useRefWithInit(() => new TooltipStore()).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
+  store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const openState = store.useState('open');
@@ -60,43 +61,11 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const open = !disabled && openState;
 
-  function setOpenUnwrapped(nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) {
-    const reason = eventDetails.reason;
-
-    const isHover = reason === 'trigger-hover';
-    const isFocusOpen = nextOpen && reason === 'trigger-focus';
-    const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
-
-    onOpenChange?.(nextOpen, eventDetails);
-
-    if (eventDetails.isCanceled) {
-      return;
+  useIsoLayoutEffect(() => {
+    if (openState && disabled) {
+      store.setOpen(false, createChangeEventDetails('disabled'));
     }
-
-    function changeState() {
-      if (isFocusOpen || isDismissClose) {
-        store.set('instantType', isFocusOpen ? 'focus' : 'dismiss');
-      } else if (reason === 'trigger-hover') {
-        store.set('instantType', undefined);
-      }
-
-      store.apply({ open: nextOpen, lastOpenChangeReason: reason });
-    }
-
-    if (isHover) {
-      // If a hover reason is provided, we need to flush the state synchronously. This ensures
-      // `node.getAnimations()` knows about the new state.
-      ReactDOM.flushSync(changeState);
-    } else {
-      changeState();
-    }
-  }
-
-  const setOpen = useStableCallback(setOpenUnwrapped);
-
-  if (openState && disabled) {
-    setOpenUnwrapped(false, createChangeEventDetails('disabled'));
-  }
+  }, [openState, disabled, store]);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -127,7 +96,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       floating: positionerElement,
     },
     open,
-    onOpenChange: setOpen,
+    onOpenChange: store.setOpen,
   });
 
   const providerContext = useTooltipProviderContext();
