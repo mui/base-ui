@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
@@ -138,7 +138,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     },
   });
 
-  const recalculateHeight = useEventCallback(() => {
+  const recalculateHeight = useStableCallback(() => {
     const element = rootRef.current;
     if (!element) {
       return;
