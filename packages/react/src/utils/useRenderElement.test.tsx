@@ -19,7 +19,7 @@ describe('useRenderElement', () => {
     const element = useRenderElement('div', componentProps, {
       state,
       ref: forwardedRef,
-      props: [elementProps],
+      props: [{ ...elementProps, className: 'test-component', style: { padding: '10px' } }],
     });
 
     return element;
@@ -35,7 +35,17 @@ describe('useRenderElement', () => {
 
     const element = container.firstElementChild;
 
-    expect(element).to.have.attribute('class', 'active-class');
+    expect(element).to.have.attribute('class', 'active-class test-component');
+  });
+
+  it('accepts className as function that returns undefined', async () => {
+    const { container } = await render(
+      <TestComponent className={(state) => (state.active ? 'active-class' : undefined)} />,
+    );
+
+    const element = container.firstElementChild;
+
+    expect(element).to.have.attribute('class', 'test-component');
   });
 
   it('accepts style as function', async () => {
@@ -48,6 +58,16 @@ describe('useRenderElement', () => {
 
     const element = container.firstElementChild;
 
-    expect(element?.getAttribute('style')).to.equal('color: rgb(255, 0, 0);');
+    expect(element?.getAttribute('style')).to.equal('padding: 10px; color: rgb(255, 0, 0);');
+  });
+
+  it('accepts style as function that returns undefined', async () => {
+    const { container } = await render(
+      <TestComponent style={(state) => (state.active ? { color: 'rgb(255,0,0)' } : undefined)} />,
+    );
+
+    const element = container.firstElementChild;
+
+    expect(element?.getAttribute('style')).to.equal('padding: 10px;');
   });
 });

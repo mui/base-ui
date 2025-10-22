@@ -6,7 +6,7 @@
  * @param state
  */
 export function resolveStyle<State>(
-  style: React.CSSProperties | ((state: State) => React.CSSProperties) | undefined,
+  style: React.CSSProperties | ((state: State) => React.CSSProperties | undefined) | undefined,
   state: State,
 ) {
   return typeof style === 'function' ? style(state) : style;

@@ -196,7 +196,7 @@ export interface UseRenderElementComponentProps<State> {
    * The class name to apply to the rendered element.
    * Can be a string or a function that accepts the state and returns a string.
    */
-  className?: string | ((state: State) => string);
+  className?: string | ((state: State) => string | undefined);
   /**
    * The render prop or React element to override the default element.
    */
@@ -208,7 +208,7 @@ export interface UseRenderElementComponentProps<State> {
    * The style to apply to the rendered element.
    * Can be a style object or a function that accepts the state and returns a style object.
    */
-  style?: React.CSSProperties | ((state: State) => React.CSSProperties);
+  style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined);
 }
 
 export namespace useRenderElement {
