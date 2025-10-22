@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
+import { useFloatingTree } from '../../floating-ui-react';
 import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -9,56 +8,6 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { MenuStore } from '../store/MenuStore';
-
-const InnerMenuItem = React.memo(
-  React.forwardRef(function InnerMenuItem(
-    componentProps: InnerMenuItemProps,
-    forwardedRef: React.ForwardedRef<Element>,
-  ) {
-    const {
-      className,
-      closeOnClick = true,
-      disabled = false,
-      highlighted,
-      id,
-      menuEvents,
-      store,
-      render,
-      nativeButton,
-      nodeId,
-      ...elementProps
-    } = componentProps;
-
-    const { getItemProps, itemRef } = useMenuItem({
-      closeOnClick,
-      disabled,
-      highlighted,
-      id,
-      menuEvents,
-      store,
-      nativeButton,
-      nodeId,
-      itemMetadata: REGULAR_ITEM,
-    });
-
-    const itemProps = store.useState('itemProps');
-
-    const state: MenuItem.State = React.useMemo(
-      () => ({
-        disabled,
-        highlighted,
-      }),
-      [disabled, highlighted],
-    );
-
-    return useRenderElement('div', componentProps, {
-      state,
-      ref: [itemRef, forwardedRef],
-      props: [itemProps, elementProps, getItemProps],
-    });
-  }),
-);
 
 /**
  * An individual interactive item in the menu.
@@ -67,49 +16,55 @@ const InnerMenuItem = React.memo(
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuItem = React.forwardRef(function MenuItem(
-  props: MenuItem.Props,
+  componentProps: MenuItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, label, nativeButton = false, ...other } = props;
+  const {
+    render,
+    className,
+    id: idProp,
+    label,
+    nativeButton = false,
+    disabled = false,
+    closeOnClick = true,
+    ...elementProps
+  } = componentProps;
 
-  const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
-  const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
-
-  const { store } = useMenuRootContext();
-  const activeIndex = store.useState('activeIndex');
-
   const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
-
-  const highlighted = listItem.index === activeIndex;
   const { events: menuEvents } = useFloatingTree()!;
 
-  // This wrapper component is used as a performance optimization.
-  // MenuItem reads the context and re-renders the actual MenuItem
-  // only when it needs to.
+  const { store } = useMenuRootContext();
+  const highlighted = store.useState('isActive', listItem.index);
+  const itemProps = store.useState('itemProps');
 
-  return (
-    <InnerMenuItem
-      {...other}
-      id={id}
-      ref={mergedRef}
-      highlighted={highlighted}
-      menuEvents={menuEvents}
-      store={store}
-      nativeButton={nativeButton}
-      nodeId={menuPositionerContext?.floatingContext.nodeId}
-    />
+  const { getItemProps, itemRef } = useMenuItem({
+    closeOnClick,
+    disabled,
+    highlighted,
+    id,
+    menuEvents,
+    store,
+    nativeButton,
+    nodeId: menuPositionerContext?.floatingContext.nodeId,
+    itemMetadata: REGULAR_ITEM,
+  });
+
+  const state: MenuItem.State = React.useMemo(
+    () => ({
+      disabled,
+      highlighted,
+    }),
+    [disabled, highlighted],
   );
-});
 
-interface InnerMenuItemProps extends MenuItem.Props {
-  highlighted: boolean;
-  menuEvents: FloatingEvents;
-  store: MenuStore;
-  nativeButton: boolean;
-  nodeId: string | undefined;
-}
+  return useRenderElement('div', componentProps, {
+    state,
+    props: [itemProps, elementProps, getItemProps],
+    ref: [itemRef, forwardedRef, listItem.ref],
+  });
+});
 
 export interface MenuItemState {
   /**
@@ -125,7 +80,6 @@ export interface MenuItemState {
 export interface MenuItemProps
   extends NonNativeButtonProps,
     BaseUIComponentProps<'div', MenuItem.State> {
-  children?: React.ReactNode;
   /**
    * The click handler for the menu item.
    */
