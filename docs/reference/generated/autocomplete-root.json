@@ -94,10 +94,10 @@
       "detailedType": "boolean | undefined"
     },
     "mode": {
-      "type": "'none' | 'list' | 'inline' | 'both'",
+      "type": "'none' | 'list' | 'both' | 'inline'",
       "default": "'list'",
       "description": "Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.\n- `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.\n- `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).\n- `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).\n- `none`: items are static (not filtered), and the input value will not change based on the active item.",
-      "detailedType": "'none' | 'list' | 'inline' | 'both' | undefined"
+      "detailedType": "'none' | 'list' | 'both' | 'inline' | undefined"
     },
     "onInputValueChange": {
       "type": "((inputValue: string, eventDetails: Autocomplete.Root.ChangeEventDetails) => void)",

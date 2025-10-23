@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Store } from './Store';
 import { useStore } from './useStore';
-import { useEventCallback } from '../useEventCallback';
+import { useStableCallback } from '../useStableCallback';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { NOOP } from '../empty';
 
@@ -196,7 +196,7 @@ export class ReactStore<
   }
 
   /**
-   * Wraps a function with `useEventCallback` to ensure it has a stable reference
+   * Wraps a function with `useStableCallback` to ensure it has a stable reference
    * and assigns it to the context.
    *
    * @param key Key of the event callback. Must be a function in the context.
@@ -206,7 +206,7 @@ export class ReactStore<
     key: Key,
     fn: ContextFunction<Context, Key> | undefined,
   ) {
-    const stableFunction = useEventCallback(fn ?? (NOOP as ContextFunction<Context, Key>));
+    const stableFunction = useStableCallback(fn ?? (NOOP as ContextFunction<Context, Key>));
     (this.context as Record<Key, ContextFunction<Context, Key>>)[key] = stableFunction;
   }
 

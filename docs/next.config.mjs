@@ -2,7 +2,7 @@
 import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
-import withDocsInfra from '@mui/monorepo/docs/nextConfigDocsInfra.js';
+import { withDeploymentConfig } from '@mui/internal-docs-infra/withDocsInfra';
 import nextMdx from '@next/mdx';
 import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
 import remarkGfm from 'remark-gfm';
@@ -59,7 +59,7 @@ const nextConfig = {
   devIndicators: false,
 };
 
-const mergedConfig = withMdx(withDocsInfra(nextConfig));
+const mergedConfig = withMdx(withDeploymentConfig(nextConfig));
 
 if (!process.env.CI) {
   delete mergedConfig.experimental?.cpus;

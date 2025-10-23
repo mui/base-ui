@@ -611,6 +611,75 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('animations', () => {
+    it('toggles instant animations for adjacent tooltips only while opening', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const style = `
+          .tooltip {
+            transition: opacity 1ms;
+          }
+          .tooltip[data-starting-style],
+          .tooltip[data-ending-style] {
+            opacity: 0;
+          }
+
+          .tooltip[data-instant] {
+            transition: none;
+          }
+        `;
+
+      const { user } = await render(
+        <Tooltip.Provider>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Tooltip.Root delay={0}>
+            <Tooltip.Trigger data-testid="trigger-1">First</Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup className="tooltip" data-testid="popup-1">
+                  First tooltip
+                </Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+          <Tooltip.Root delay={0}>
+            <Tooltip.Trigger data-testid="trigger-2">Second</Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup className="tooltip" data-testid="popup-2">
+                  Second tooltip
+                </Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </Tooltip.Provider>,
+      );
+
+      const firstTrigger = screen.getByTestId('trigger-1');
+      const secondTrigger = screen.getByTestId('trigger-2');
+
+      await user.hover(firstTrigger);
+
+      const firstPopup = await screen.findByTestId('popup-1');
+      expect(firstPopup.dataset.instant).to.equal(undefined);
+
+      await user.unhover(firstTrigger);
+      await user.hover(secondTrigger);
+
+      const secondPopup = await screen.findByTestId('popup-2');
+
+      expect(secondPopup.dataset.instant).to.equal('delay');
+      expect(secondPopup.getAnimations().length).to.equal(0);
+
+      await user.unhover(secondTrigger);
+
+      expect(secondPopup.dataset.endingStyle).to.equal('');
+      expect(secondPopup.dataset.instant).to.equal(undefined);
+      expect(secondPopup.getAnimations().length).to.equal(1);
+    });
+  });
+
   describe('prop: disabled', () => {
     it('should not open when disabled', async () => {
       await render(
