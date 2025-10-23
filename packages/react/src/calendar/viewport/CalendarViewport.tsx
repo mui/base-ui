@@ -143,12 +143,15 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
         );
       }
     } else {
-      currentContainerRef.current.removeAttribute('data-current');
-      currentContainerRef.current.removeAttribute('data-starting-style');
-      currentContainerRef.current.removeAttribute('data-ending-style');
-      currentContainerRef.current.removeAttribute(
+      const attributes = [
+        CalendarViewportDataAttributes.current,
+        CalendarViewportDataAttributes.startingStyle,
+        CalendarViewportDataAttributes.endingStyle,
         CalendarViewportDataAttributes.navigationDirection,
-      );
+      ];
+      for (const attribute of attributes) {
+        currentContainerRef.current.removeAttribute(attribute);
+      }
     }
   }
 
