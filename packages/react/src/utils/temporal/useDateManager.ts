@@ -4,7 +4,7 @@ import { areDatesEqual } from './date-helpers';
 import { validateDate } from './validateDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalManager } from './types';
-import { TemporalNonRangeValue } from '../../types/temporal';
+import { TemporalValue } from '../../types/temporal';
 
 export function useDateManager(
   _parameters: useDateManager.Parameters = {},
@@ -34,7 +34,7 @@ export namespace useDateManager {
   export interface Parameters {}
 
   export type ReturnValue = TemporalManager<
-    TemporalNonRangeValue,
+    TemporalValue,
     validateDate.ReturnValue,
     validateDate.ValidationProps
   >;

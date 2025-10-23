@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { BaseUIChangeEventDetails } from '@base-ui-components/react/types';
-import { TemporalNonRangeValue } from '../../types/temporal';
+import { TemporalValue } from '../../types/temporal';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useSharedCalendarRoot } from './useSharedCalendarRoot';
 import { useDateManager } from '../../utils/temporal/useDateManager';
@@ -25,7 +25,7 @@ const stateAttributesMapping: StateAttributesMapping<CalendarRoot.State> = {
   },
 };
 
-const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalNonRangeValue> = {
+const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalValue> = {
   getDateToUseForReferenceDate: (value) => value,
   onSelectDate: ({ setValue, selectedDate }) => setValue(selectedDate),
   getActiveDateFromValue: (value) => value,
@@ -143,7 +143,7 @@ export namespace CalendarRoot {
 
   export interface Props
     extends Omit<BaseUIComponentProps<'div', State>, 'children'>,
-      useSharedCalendarRoot.PublicParameters<TemporalNonRangeValue> {
+      useSharedCalendarRoot.PublicParameters<TemporalValue> {
     /**
      * The children of the component.
      * If a function is provided, it will be called with the public context as its parameter.

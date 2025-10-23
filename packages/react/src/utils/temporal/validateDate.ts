@@ -1,4 +1,4 @@
-import { TemporalAdapter, TemporalNonRangeValue, TemporalSupportedObject } from '../../types';
+import { TemporalAdapter, TemporalValue, TemporalSupportedObject } from '../../types';
 import { isAfterDay, isBeforeDay } from './date-helpers';
 
 export function validateDate(parameters: validateDate.Parameters): validateDate.ReturnValue {
@@ -30,7 +30,7 @@ export namespace validateDate {
     /**
      * The value to validate.
      */
-    value: TemporalNonRangeValue;
+    value: TemporalValue;
     /**
      * The props used to validate a date.
      */

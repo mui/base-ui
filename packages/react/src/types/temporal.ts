@@ -27,23 +27,23 @@ export type TemporalTimezone = 'default' | 'system' | 'UTC' | string;
 /**
  * The type that the `value` and `defaultValue` props can receive on non-range date and time components (date, time and date-time).
  */
-export type TemporalNonRangeValue = TemporalSupportedObject | null;
+export type TemporalValue = TemporalSupportedObject | null;
 
 /**
  * The type that the `value` and `defaultValue` props can receive on range components (date-range, time-range and date-time-range).
  */
-export type TemporalRangeValue = [TemporalSupportedObject | null, TemporalSupportedObject | null];
+export type TemporalRangeValue = [TemporalValue, TemporalValue];
 
 /**
  * The type that the `value` and `defaultValue` props can receive on all temporal components.
  */
-export type TemporalSupportedValue = TemporalNonRangeValue | TemporalRangeValue;
+export type TemporalSupportedValue = TemporalValue | TemporalRangeValue;
 
 export type TemporalNonNullableRangeValue = [TemporalSupportedObject, TemporalSupportedObject];
 
 export type TemporalNonNullableValue<TValue extends TemporalSupportedValue> =
   TValue extends TemporalRangeValue
-    ? TValue extends TemporalNonRangeValue
+    ? TValue extends TemporalValue
       ? TemporalSupportedObject | TemporalNonNullableRangeValue
       : TemporalNonNullableRangeValue
     : TemporalSupportedObject;
