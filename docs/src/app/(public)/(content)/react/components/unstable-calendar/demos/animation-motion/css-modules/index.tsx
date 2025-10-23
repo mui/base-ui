@@ -34,7 +34,7 @@ export default function AnimatedCalendarWithMotion() {
             </Calendar.DayGridHeader>
             <AnimatePresence initial={false} mode="popLayout">
               <Calendar.DayGridBody
-                key={visibleDate.valueOf()}
+                key={`${visibleDate.getUTCFullYear()}-${visibleDate.getMonth()}`}
                 className={styles.DayGridBody}
                 render={
                   <motion.tbody
