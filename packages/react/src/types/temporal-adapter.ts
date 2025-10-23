@@ -76,7 +76,7 @@ export interface TemporalAdapter {
   isTimezoneCompatible: boolean;
   formats: TemporalAdapterFormats;
   /**
-   * Name of the library that is used right now
+   * Name of the library that is used right now.
    */
   lib: string;
   /**
@@ -112,7 +112,7 @@ export interface TemporalAdapter {
    */
   isValid(value: TemporalSupportedValue): value is TemporalSupportedObject;
   /**
-   * Formats a date using an adapter format string (see the `AdapterFormats` interface)
+   * Formats a date using an adapter format string (see the `AdapterFormats` interface).
    */
   format(value: TemporalSupportedObject, formatKey: keyof TemporalAdapterFormats): string;
   /**
@@ -124,27 +124,31 @@ export interface TemporalAdapter {
    */
   isEqual(value: TemporalSupportedValue, comparing: TemporalSupportedValue): boolean;
   /**
-   * Checks if the two dates are in the same year (using the timezone of the reference date).
+   * Checks if the two dates are in the same year.
+   * Uses the timezone of the `value`.
    */
   isSameYear(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
-   * Check sif the two dates are in the same month (using the timezone of the reference date).
+   * Checks if the two dates are in the same month.
+   * Uses the timezone of the `value`.
    */
   isSameMonth(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
-   * Checks if the two dates are in the same day (using the timezone of the reference date).
+   * Checks if the two dates are in the same day.
+   * Uses the timezone of the `value`.
    */
   isSameDay(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
-   * Checks if the two dates are at the same hour (using the timezone of the reference date).
+   * Checks if the two dates are at the same hour.
+   * Uses the timezone of the `value`.
    */
   isSameHour(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
-   * Checks if the reference date is after the second date.
+   * Checks if the `value` date is after the `comparing` date.
    */
   isAfter(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
-   * Checks if the reference date is before the second date.
+   * Checks if the `value` date is before the `comparing` date.
    */
   isBefore(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
