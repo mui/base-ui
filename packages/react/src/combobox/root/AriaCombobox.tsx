@@ -597,7 +597,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       selectedIndex?: number | null;
       type?: 'none' | 'keyboard' | 'pointer';
     }) => {
-      store.apply(options);
+      store.update(options);
       const type: AriaCombobox.HighlightEventReason = options.type || 'none';
 
       if (options.activeIndex === undefined) {
@@ -999,7 +999,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   ]);
 
   useOnFirstRender(() => {
-    store.apply({
+    store.update({
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
@@ -1016,7 +1016,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   useIsoLayoutEffect(() => {
-    store.apply({
+    store.update({
       id,
       selectedValue,
       open,
