@@ -7,6 +7,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 export class DialogHandle<Payload> {
   /**
    * Internal store holding the dialog state.
+   * @internal
    */
   public readonly store: DialogStore<Payload>;
 
@@ -53,6 +54,13 @@ export class DialogHandle<Payload> {
    */
   close() {
     this.store.setOpen(false, createChangeEventDetails('imperative-action', undefined, undefined));
+  }
+
+  /**
+   * Indicates whether the dialog is currently open.
+   */
+  get isOpen() {
+    return this.store.state.open;
   }
 }
 
