@@ -169,8 +169,7 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
   };
 
   public getCurrentLocaleCode = () => {
-    // `code` is undefined only in `date-fns` types, but all locales have it
-    return this.locale.code!;
+    return this.locale.code;
   };
 
   public isValid = (value: Date | null): value is Date => {
