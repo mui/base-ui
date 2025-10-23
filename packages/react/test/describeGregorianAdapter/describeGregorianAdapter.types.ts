@@ -6,7 +6,7 @@ import {
 
 export interface DescribeGregorianAdapterParameters {
   /**
-   * Default adapter
+   * Default adapter.
    */
   adapter: TemporalAdapter;
   /**

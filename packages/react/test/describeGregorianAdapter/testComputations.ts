@@ -642,6 +642,10 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     expect(adapter.getMilliseconds(testDateIso)).to.equal(750);
   });
 
+  it('Method: getTime', () => {
+    expect(adapter.getTime(testDateIso)).to.equal(1540899865750);
+  });
+
   it('Method: setYear', () => {
     expect(adapter.setYear(testDateIso, 2011)).toEqualDateTime('2011-10-30T11:44:25.750');
   });
