@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Store } from './Store';
-import { ReactStore } from './ReactStore';
 import { useForcedRerendering } from '../useForcedRerendering';
 import { useStableCallback } from '../useStableCallback';
 import { useAnimationFrame } from '../useAnimationFrame';
