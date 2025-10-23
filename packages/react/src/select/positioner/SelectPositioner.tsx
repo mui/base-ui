@@ -206,7 +206,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     }
 
     if (open && alignItemWithTriggerActive) {
-      store.apply({
+      store.update({
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
       });
