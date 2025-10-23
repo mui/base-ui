@@ -2,10 +2,14 @@
   "name": "CalendarDayGridHeader",
   "description": "Groups all parts of the calendar's day grid header.\nRenders a `<thead>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Calendar.DayGridHeader.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.DayGridHeader.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: Calendar.DayGridHeader.State) => string)",
+      "type": "string | ((state: Calendar.DayGridHeader.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Calendar.DayGridHeader.State) => string)"
+      "detailedType": "| string\n| ((\n    state: Calendar.DayGridHeader.State,\n  ) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGridHeader.State) => ReactElement)",

@@ -54,6 +54,10 @@
       "description": "The date used to generate the new value when both `value` and `defaultValue` are empty.",
       "detailedType": "Date | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Calendar.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "timezone": {
       "type": "string",
       "default": "'The timezone of the \"value\" or \"defaultValue\" prop if defined, \"default\" otherwise.'",
@@ -88,8 +92,9 @@
       "detailedType": "| React.ReactNode\n| ((parameters: CalendarContext) => ReactNode)"
     },
     "className": {
-      "type": "string | ((state: Calendar.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Calendar.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Calendar.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Calendar.Root.State) => ReactElement)",

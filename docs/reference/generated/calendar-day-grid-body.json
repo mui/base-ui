@@ -13,15 +13,19 @@
       "description": "The offset to apply to the rendered month compared to the current month.\nThis is mostly useful when displaying multiple day grids.",
       "detailedType": "number | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Calendar.DayGridBody.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.DayGridBody.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "children": {
       "type": "ReactNode | ((week: Date, index: number, weeks: Date[]) => ReactNode)",
       "description": "The children of the component.\nIf a function is provided, it will be called for each week to render as its parameter.",
       "detailedType": "| React.ReactNode\n| ((\n    week: Date,\n    index: number,\n    weeks: Date[],\n  ) => ReactNode)"
     },
     "className": {
-      "type": "string | ((state: Calendar.DayGridBody.State) => string)",
+      "type": "string | ((state: Calendar.DayGridBody.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Calendar.DayGridBody.State) => string)"
+      "detailedType": "| string\n| ((\n    state: Calendar.DayGridBody.State,\n  ) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGridBody.State) => ReactElement)",

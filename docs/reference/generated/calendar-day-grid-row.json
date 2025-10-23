@@ -7,15 +7,19 @@
       "required": true,
       "description": "The date object representing the week."
     },
+    "style": {
+      "type": "CSSProperties | ((state: Calendar.DayGridRow.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.DayGridRow.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "children": {
       "type": "ReactNode | ((day: Date, index: number, days: Date[]) => ReactNode)",
       "description": "The children of the component.\nIf a function is provided, it will be called for each day of the week as its parameter.",
       "detailedType": "| React.ReactNode\n| ((day: Date, index: number, days: Date[]) => ReactNode)"
     },
     "className": {
-      "type": "string | ((state: Calendar.DayGridRow.State) => string)",
+      "type": "string | ((state: Calendar.DayGridRow.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Calendar.DayGridRow.State) => string)"
+      "detailedType": "| string\n| ((\n    state: Calendar.DayGridRow.State,\n  ) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGridRow.State) => ReactElement)",

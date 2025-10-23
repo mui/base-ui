@@ -2,10 +2,14 @@
   "name": "CalendarDayGrid",
   "description": "Groups all the parts of the calendar's day grid.\nRenders a `<table>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Calendar.DayGrid.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.DayGrid.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: Calendar.DayGrid.State) => string)",
+      "type": "string | ((state: Calendar.DayGrid.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Calendar.DayGrid.State) => string)"
+      "detailedType": "| string\n| ((state: Calendar.DayGrid.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGrid.State) => ReactElement)",

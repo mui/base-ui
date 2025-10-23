@@ -12,10 +12,14 @@
       "description": "The formatter function used to display the day of the week.",
       "detailedType": "((date: Date) => string) | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Calendar.DayGridHeaderCell.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.DayGridHeaderCell.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: Calendar.DayGridHeaderCell.State) => string)",
+      "type": "string | ((state: Calendar.DayGridHeaderCell.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Calendar.DayGridHeaderCell.State) => string)"
+      "detailedType": "| string\n| ((\n    state: Calendar.DayGridHeaderCell.State,\n  ) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGridHeaderCell.State) => ReactElement)",
