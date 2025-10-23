@@ -118,5 +118,14 @@
     "@types/node": "^22.18.11",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2"
+  },
+  "pnpm": {
+    "packageExtensions": {
+      "@mui/internal-test-utils": {
+        "dependencies": {
+          "lodash.kebabcase": "^4.1.1"
+        }
+      }
+    }
   }
 }
