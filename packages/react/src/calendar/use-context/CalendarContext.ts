@@ -3,7 +3,7 @@ import { TemporalSupportedObject } from '../../types/temporal';
 
 export interface CalendarContext {
   /**
-   * The date currently visible.
+   * The currently visible date.
    */
   visibleDate: TemporalSupportedObject;
 }
