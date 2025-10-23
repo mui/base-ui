@@ -66,7 +66,8 @@ export function replaceInvalidDateByNull(
 }
 
 /**
- * Checks if the day of the date A is after the day of the date B (using the timezone of the date A).
+ * Check if the day of the date A is after the day of the date B.
+ * Uses timezone of the date A.
  */
 export function isAfterDay(
   adapter: TemporalAdapter,
@@ -78,7 +79,8 @@ export function isAfterDay(
 }
 
 /**
- * Checks if the day of the date A is before the day of the date B (using the timezone of the date A).
+ * Check if the day of the date A is before the day of the date B.
+ * Uses timezone of the date A.
  */
 export function isBeforeDay(
   adapter: TemporalAdapter,
