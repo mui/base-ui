@@ -548,6 +548,9 @@ importers:
       '@types/react':
         specifier: ^19.2.2
         version: 19.2.2
+      '@types/react-dom':
+        specifier: ^19.2.2
+        version: 19.2.2(@types/react@19.2.2)
       '@types/sinon':
         specifier: ^17.0.4
         version: 17.0.4

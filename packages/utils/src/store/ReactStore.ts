@@ -12,7 +12,7 @@ import { NOOP } from '../empty';
  *
  * - Keys registered through {@link useControlledProp} become controlled when a non-undefined
  *   value is provided. Controlled keys mirror the incoming value and ignore local writes
- *   (via {@link set}, {@link apply}, or {@link update}).
+ *   (via {@link set}, {@link update}, or {@link setState}).
  * - When a key is uncontrolled, an optional default value is written once on first render.
  * - Use {@link useSyncedValue} and {@link useSyncedValues} to synchronize external values/props into the
  *   store during a layout phase using {@link useIsoLayoutEffect}.
@@ -79,7 +79,7 @@ export class ReactStore<
    */
   public useSyncedValues(props: Partial<State>) {
     useIsoLayoutEffect(() => {
-      this.apply(props);
+      this.update(props);
     }, [props]);
   }
 
@@ -113,14 +113,14 @@ export class ReactStore<
       this.controlledValues.set(key, isControlled);
 
       if (!isControlled && !Object.is(this.state[key], defaultValue)) {
-        super.update({ ...(this.state as State), [key]: defaultValue } as State);
+        super.setState({ ...(this.state as State), [key]: defaultValue } as State);
       }
     }
 
     useIsoLayoutEffect(() => {
       if (isControlled && !Object.is(this.state[key], controlled)) {
         // Set the internal state to match the controlled value.
-        super.update({ ...(this.state as State), [key]: controlled } as State);
+        super.setState({ ...(this.state as State), [key]: controlled } as State);
       }
     }, [key, controlled, defaultValue, isControlled]);
   }
@@ -148,7 +148,7 @@ export class ReactStore<
    *
    * @param values An object containing the changes to apply to the current state.
    */
-  public apply(values: Partial<State>): void {
+  public update(values: Partial<State>): void {
     const newValues = { ...values };
     for (const key in newValues) {
       if (this.controlledValues.get(key) === true) {
@@ -157,7 +157,7 @@ export class ReactStore<
       }
     }
 
-    super.apply(newValues);
+    super.update(newValues);
   }
 
   /**
@@ -166,7 +166,7 @@ export class ReactStore<
    *
    * @param newState The new state to set for the store.
    */
-  public update(newState: State) {
+  public setState(newState: State) {
     const newValues = { ...newState };
     for (const key in newValues) {
       if (this.controlledValues.get(key) === true) {
@@ -175,7 +175,7 @@ export class ReactStore<
       }
     }
 
-    super.update({ ...this.state, ...newValues });
+    super.setState({ ...this.state, ...newValues });
   }
 
   /**

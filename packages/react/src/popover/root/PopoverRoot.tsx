@@ -190,7 +190,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    store.apply({ stickIfOpen: true, openReason: null, activeTriggerId: null, mounted: false });
+    store.update({ stickIfOpen: true, openReason: null, activeTriggerId: null, mounted: false });
     onOpenChangeComplete?.(false);
   });
 

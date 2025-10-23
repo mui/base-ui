@@ -11,9 +11,14 @@
       "description": "Callback fired when the `value` changes. Use when controlled.",
       "detailedType": "| ((\n    value: string,\n    eventDetails: Field.Control.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Input.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Input.State) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: Input.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Input.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Input.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Input.State) => ReactElement)",
