@@ -61,10 +61,11 @@
 .List {
   box-sizing: border-box;
   overflow: auto;
-  scroll-padding-top: 2.5rem;
-  scroll-padding-bottom: 0.35rem;
+  scroll-padding-top: 2.25rem;
+  scroll-padding-bottom: 0.5rem;
   overscroll-behavior: contain;
   max-height: min(22.5rem, var(--available-height));
+  outline: 0;
 }
 
 .Group {
@@ -73,7 +74,8 @@
 }
 
 .GroupLabel {
-  padding: 0.5rem 1rem;
+  box-sizing: border-box;
+  padding: 0.5rem 1rem 0.25rem;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
