@@ -63,8 +63,6 @@
   "devDependencies": {
     "@mdx-js/mdx": "^3.1.1",
     "@mui/internal-docs-infra": "^0.2.3-canary.5",
-    "@mui/internal-docs-utils": "^2.0.3",
-    "@mui/internal-scripts": "^2.0.14",
     "@mui/internal-test-utils": "^2.0.14",
     "@tailwindcss/postcss": "4.1.14",
     "@types/chai": "^5.2.2",
