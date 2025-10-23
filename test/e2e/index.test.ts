@@ -64,6 +64,50 @@ describe('e2e', () => {
     await browser.close();
   });
 
+  describe('<Field.Control />', () => {
+    describe('validationMode=onChange', () => {
+      it('updates the validity state based on the latest value', async () => {
+        await renderFixture('InputValidateOnChange');
+        expect(await page.getByTestId('error').count()).toEqual(0);
+
+        const input = page.getByRole('textbox');
+
+        await input.press('a');
+        await expect(page.getByText('tooShort error')).toBeVisible();
+        expect(await page.getByTestId('error').count()).toEqual(1);
+
+        // clear the input
+        await input.press('Backspace');
+        await expect(page.getByText('valueMissing error')).toBeVisible();
+        expect(await page.getByTestId('error').count()).toEqual(1);
+
+        await input.pressSequentially('abc');
+        await expect(input).toHaveValue('abc');
+        expect(await page.getByTestId('error').count()).toEqual(0);
+
+        await input.press('d');
+        await expect(input).toHaveValue('abcd');
+        await expect(page.getByText('custom error')).toBeVisible();
+        expect(await page.getByTestId('error').count()).toEqual(1);
+
+        await input.press('Backspace');
+        await expect(input).toHaveValue('abc');
+        expect(await page.getByTestId('error').count()).toEqual(0);
+
+        await input.press('Backspace');
+        await expect(input).toHaveValue('ab');
+        expect(await page.getByTestId('error').count()).toEqual(1);
+        await expect(page.getByText('tooShort error')).toBeVisible();
+
+        await input.press('Backspace');
+        await input.press('Backspace');
+        await expect(input).toHaveValue('');
+        expect(await page.getByTestId('error').count()).toEqual(1);
+        await expect(page.getByText('valueMissing error')).toBeVisible();
+      });
+    });
+  });
+
   describe('<Radio />', () => {
     it('loops focus by default', async () => {
       await renderFixture('Radio');
