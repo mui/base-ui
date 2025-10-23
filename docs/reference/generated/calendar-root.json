@@ -3,19 +3,19 @@
   "description": "Groups all parts of the calendar.\nRenders a `<div>` element.",
   "props": {
     "defaultValue": {
-      "type": "TemporalNonRangeValue",
+      "type": "TemporalValue",
       "description": "The uncontrolled value that should be initially selected.\nTo render a controlled (Range)Calendar, use the `value` prop instead.",
       "detailedType": "Date | null | undefined"
     },
     "value": {
-      "type": "TemporalNonRangeValue",
+      "type": "TemporalValue",
       "description": "The controlled value that should be selected.\nTo render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead.",
       "detailedType": "Date | null | undefined"
     },
     "onValueChange": {
-      "type": "((value: TemporalNonRangeValue, eventDetails: Calendar.Root.ChangeEventDetails) => void)",
+      "type": "((value: TemporalValue, eventDetails: Calendar.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.\nHas `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.",
-      "detailedType": "| ((\n    value: TemporalNonRangeValue,\n    eventDetails: Calendar.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: TemporalValue,\n    eventDetails: Calendar.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultVisibleDate": {
       "type": "Date",
