@@ -11,10 +11,11 @@
   font-size: 1rem;
   background-color: canvas;
   color: var(--color-gray-900);
+  outline: none;
 
   &:focus {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+    border-color: var(--color-blue);
+    outline: 1px solid var(--color-blue);
   }
 }
 
@@ -31,13 +32,14 @@
 
 .InputWrapper {
   position: relative;
+}
 
-  &:has(.Clear) .Input {
-    padding-right: calc(0.5rem + 1.5rem * 2);
-  }
+.InputWrapper:has(.Clear) .Input {
+  padding-right: calc(0.5rem + 1.5rem * 2);
 }
 
 .ActionButtons {
+  --size: 1.5rem;
   box-sizing: border-box;
   position: absolute;
   display: flex;
@@ -58,7 +60,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
+  width: var(--size);
   height: 2.5rem;
   color: var(--color-gray-600);
   border: none;
@@ -111,16 +113,32 @@
 
 .List {
   box-sizing: border-box;
-  overflow-y: auto;
+  overflow: auto;
   overscroll-behavior: contain;
-  padding-block: 0.5rem;
-  scroll-padding-block: 0.5rem;
-  outline: 0;
+  scroll-padding-top: 2.25rem;
+  scroll-padding-bottom: 0.5rem;
   max-height: min(23rem, var(--available-height));
+  outline: 0;
+}
 
-  &[data-empty] {
-    padding: 0;
-  }
+.Group {
+  display: block;
+  padding-bottom: 0.5rem;
+}
+
+.GroupLabel {
+  box-sizing: border-box;
+  padding: 0.75rem 1rem 0.25rem calc(1rem + 0.75rem + 0.5rem);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: canvas;
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  margin: 0 0.5rem 0 0;
+  width: calc(100% - 0.5rem);
 }
 
 .Item {
@@ -128,13 +146,11 @@
   outline: 0;
   cursor: default;
   user-select: none;
-  padding-block: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 2rem;
+  padding: 0.5rem 2rem 0.5rem 1rem;
   display: grid;
+  grid-template-columns: 0.75rem 1fr;
   gap: 0.5rem;
   align-items: center;
-  grid-template-columns: 0.75rem 1fr;
   font-size: 1rem;
   line-height: 1rem;
 
@@ -155,10 +171,6 @@
   }
 }
 
-.ItemText {
-  grid-column-start: 2;
-}
-
 .ItemIndicator {
   grid-column-start: 1;
 }
@@ -169,9 +181,14 @@
   height: 0.75rem;
 }
 
+.ItemText {
+  grid-column-start: 2;
+}
+
 .Empty:not(:empty) {
+  box-sizing: border-box;
+  padding: 1rem;
   font-size: 0.925rem;
   line-height: 1rem;
   color: var(--color-gray-600);
-  padding: 1rem;
 }

@@ -80,7 +80,7 @@ export class ReactStore<
    */
   public useSyncedValues(props: Partial<State>) {
     useIsoLayoutEffect(() => {
-      this.apply(props);
+      this.update(props);
     }, [props]);
   }
 
@@ -114,14 +114,14 @@ export class ReactStore<
       this.controlledValues.set(key, isControlled);
 
       if (!isControlled && !Object.is(this.state[key], defaultValue)) {
-        super.update({ ...this.state, [key]: defaultValue } as State);
+        super.setState({ ...this.state, [key]: defaultValue });
       }
     }
 
     useIsoLayoutEffect(() => {
       if (isControlled && !Object.is(this.state[key], controlled)) {
         // Set the internal state to match the controlled value.
-        super.update({ ...this.state, [key]: controlled } as State);
+        super.setState({ ...this.state, [key]: controlled });
       }
     }, [key, controlled, defaultValue, isControlled]);
   }
@@ -149,7 +149,7 @@ export class ReactStore<
    *
    * @param values An object containing the changes to apply to the current state.
    */
-  public apply(values: Partial<State>): void {
+  public update(values: Partial<State>): void {
     const newValues = { ...values };
     for (const key in newValues) {
       if (this.controlledValues.get(key) === true) {
@@ -158,7 +158,7 @@ export class ReactStore<
       }
     }
 
-    super.apply(newValues);
+    super.update(newValues);
   }
 
   /**
@@ -167,7 +167,7 @@ export class ReactStore<
    *
    * @param newState The new state to set for the store.
    */
-  public update(newState: State) {
+  public setState(newState: State) {
     const newValues = { ...newState };
     for (const key in newValues) {
       if (this.controlledValues.get(key) === true) {
@@ -176,7 +176,7 @@ export class ReactStore<
       }
     }
 
-    super.update({ ...this.state, ...newValues });
+    super.setState({ ...this.state, ...newValues });
   }
 
   /**

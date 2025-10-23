@@ -59,7 +59,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    store.apply({ open: false, mounted: false, activeTriggerId: null });
+    store.update({ open: false, mounted: false, activeTriggerId: null });
     store.context.onOpenChangeComplete?.(false);
     resetOpenInteractionType();
   });
