@@ -234,7 +234,7 @@ describe('ReactStore', () => {
 
     const parentSelectors = { count: (state: ParentState) => state.count };
     const childSelectors = {
-      count: (state: ChildState) => state.count,
+      count: (state: ChildState) => state.parent?.state.count ?? state.count,
       parent: (state: ChildState) => state.parent,
     };
 
@@ -260,8 +260,9 @@ describe('ReactStore', () => {
         unsubscribeParentHandler?.();
         return;
       }
-      unsubscribeParentHandler = newParent.observe('count', (newCount) => {
-        store.set('count', newCount);
+
+      unsubscribeParentHandler = newParent.subscribe(() => {
+        store.notifyAll();
       });
     };
 
@@ -293,7 +294,7 @@ describe('ReactStore', () => {
     await act(async () => {
       childStore.set('parent', parentStore);
     });
-    expect(childStore.state.count).to.equal(0);
+    expect(childStore.state.count).to.equal(5);
     expect(childStore.select('count')).to.equal(0);
     expect(output.textContent).to.equal('0');
 
@@ -309,7 +310,7 @@ describe('ReactStore', () => {
       parentStore.set('count', 15);
     });
     expect(parentStore.state.count).to.equal(15);
-    expect(childStore.state.count).to.equal(15);
+    expect(childStore.state.count).to.equal(20);
     expect(childStore.select('count')).to.equal(15);
     expect(output.textContent).to.equal('15');
   });

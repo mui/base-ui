@@ -264,25 +264,16 @@ export class ReactStore<
   /**
    * Observes changes derived from the store's selectors and calls the listener when the selected value changes.
    */
-  public observe<Key extends keyof Selectors>(
-    selectorKey: Key,
-    listener: (
-      newValue: ReturnType<Selectors[Key]>,
-      oldValue: ReturnType<Selectors[Key]>,
-      store: this,
-    ) => void,
+  public observe<Key extends keyof State>(
+    key: Key,
+    listener: (newValue: State[Key], oldValue: State[Key], store: this) => void,
   ) {
-    if (!this.selectors || !Object.hasOwn(this.selectors, selectorKey)) {
-      throw new Error(`Base UI: Selector for key "${String(selectorKey)}" is not defined.`);
-    }
-
-    const selector = this.selectors[selectorKey];
-    let prevValue = selector(this.state);
+    let prevValue = this.state[key];
 
     listener(prevValue, prevValue, this);
 
     return this.subscribe((nextState) => {
-      const nextValue = selector(nextState);
+      const nextValue = nextState[key];
       if (!Object.is(prevValue, nextValue)) {
         const oldValue = prevValue;
         prevValue = nextValue;
