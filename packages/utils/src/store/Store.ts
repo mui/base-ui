@@ -95,12 +95,4 @@ export class Store<State> {
       Store.prototype.setState.call(this, { ...this.state, [key]: value });
     }
   }
-
-  /**
-   * Gives the state a new reference and updates all registered listeners.
-   */
-  public notifyAll() {
-    const newState = { ...this.state };
-    Store.prototype.setState.call(this, newState);
-  }
 }

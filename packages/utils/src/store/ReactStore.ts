@@ -21,28 +21,11 @@ export class ReactStore<
    * @param state Initial state of the store.
    * @param context Non-reactive context values.
    * @param selectors Optional selectors for use with `useState`.
-   * @param writeInterceptors Optional custom write interceptors for specific state keys. If provided,
-   *   these functions are called whenever the corresponding key is updated via `set`, `apply`, or `update`.
-   *   Note that updates to controlled keys are ignored regardless of write interceptors
-   *   (though interceptors are still called, which may be useful for side effects).
    */
-  constructor(
-    state: State,
-    context: Context = {} as Context,
-    selectors?: Selectors,
-    writeInterceptors?: Partial<{
-      [K in keyof State]: (
-        value: State[K],
-        store: ReactStore<State, Context, Selectors>,
-      ) => State[K];
-    }>,
-  ) {
+  constructor(state: State, context: Context = {} as Context, selectors?: Selectors) {
     super(state);
     this.context = context;
     this.selectors = selectors;
-    this.writeInterceptors = writeInterceptors
-      ? new Map(Object.entries(writeInterceptors) as any)
-      : undefined;
   }
 
   /**
@@ -56,8 +39,6 @@ export class ReactStore<
   private controlledValues: Map<keyof State, boolean> = new Map();
 
   private selectors: Selectors | undefined;
-
-  private writeInterceptors: Map<keyof State, (value: any, store: this) => any> | undefined;
 
   /**
    * Synchronizes a single external value into the store.
@@ -173,16 +154,6 @@ export class ReactStore<
    * @param value The new value to set for the specified key.
    */
   public set<T>(key: keyof State, value: T): void {
-    const interceptor = this.writeInterceptors?.get(key);
-    if (interceptor) {
-      const updatedValue = interceptor(value, this);
-      if (!this.controlledValues.get(key) === true) {
-        super.set(key, updatedValue);
-      }
-
-      return;
-    }
-
     if (this.controlledValues.get(key) === true) {
       // Ignore updates to controlled values
       return;
@@ -202,12 +173,6 @@ export class ReactStore<
     for (const key in newValues) {
       if (!Object.hasOwn(newValues, key)) {
         continue;
-      }
-
-      const interceptor = this.writeInterceptors?.get(key);
-      if (interceptor) {
-        const updatedValue = interceptor(newValues[key as keyof State], this);
-        newValues[key as keyof State] = updatedValue;
       }
 
       if (this.controlledValues.get(key) === true) {
@@ -231,12 +196,6 @@ export class ReactStore<
     for (const key in newValues) {
       if (!Object.hasOwn(newValues, key)) {
         continue;
-      }
-
-      const interceptor = this.writeInterceptors?.get(key);
-      if (interceptor) {
-        const updatedValue = interceptor(newValues[key as keyof State], this);
-        newValues[key as keyof State] = updatedValue;
       }
 
       if (this.controlledValues.get(key) === true) {
@@ -300,6 +259,36 @@ export class ReactStore<
       },
       [key],
     );
+  }
+
+  /**
+   * Observes changes derived from the store's selectors and calls the listener when the selected value changes.
+   */
+  public observe<Key extends keyof Selectors>(
+    selectorKey: Key,
+    listener: (
+      newValue: ReturnType<Selectors[Key]>,
+      oldValue: ReturnType<Selectors[Key]>,
+      store: this,
+    ) => void,
+  ) {
+    if (!this.selectors || !Object.hasOwn(this.selectors, selectorKey)) {
+      throw new Error(`Base UI: Selector for key "${String(selectorKey)}" is not defined.`);
+    }
+
+    const selector = this.selectors[selectorKey];
+    let prevValue = selector(this.state);
+
+    listener(prevValue, prevValue, this);
+
+    return this.subscribe((nextState) => {
+      const nextValue = selector(nextState);
+      if (!Object.is(prevValue, nextValue)) {
+        const oldValue = prevValue;
+        prevValue = nextValue;
+        listener(nextValue, oldValue, this);
+      }
+    });
   }
 }
 

@@ -6,15 +6,8 @@ import { useRefWithInit } from '../useRefWithInit';
 
 type TestState = { value: number; label: string };
 
-function useStableStore<State extends object>(
-  initial: State,
-  writeInterceptors?: Partial<{
-    [Key in keyof State]: (value: State[Key]) => State[Key];
-  }>,
-) {
-  return useRefWithInit(
-    () => new ReactStore<State>(initial, undefined, undefined, writeInterceptors),
-  ).current;
+function useStableStore<State extends object>(initial: State) {
+  return useRefWithInit(() => new ReactStore<State>(initial)).current;
 }
 
 describe('ReactStore', () => {
@@ -235,260 +228,53 @@ describe('ReactStore', () => {
     expect(store.state.element).to.equal(null);
   });
 
-  it('calls custom write interceptors when setting values with `set()`', () => {
-    type CustomState = { count: number; text: string };
-    let store!: ReactStore<CustomState>;
-
-    function Test() {
-      store = useStableStore<CustomState>(
-        { count: 10, text: '' },
-        {
-          count: (value) => Math.max(0, value),
-          text: (value) => value.trim(),
-        },
-      );
-
-      return null;
-    }
-
-    render(<Test />);
-
-    act(() => {
-      store.set('count', -5);
-    });
-
-    expect(store.state.count).to.equal(0);
-
-    act(() => {
-      store.set('text', '   hello world   ');
-    });
-
-    expect(store.state.text).to.equal('hello world');
-  });
-
-  it('calls custom write interceptors when setting values with `update()`', () => {
-    type CustomState = { count: number; text: string };
-    let store!: ReactStore<CustomState>;
-
-    function Test() {
-      store = useStableStore<CustomState>(
-        { count: 10, text: '' },
-        {
-          count: (value) => Math.max(0, value),
-          text: (value) => value.trim(),
-        },
-      );
-
-      return null;
-    }
-
-    render(<Test />);
-
-    act(() => {
-      store.update({
-        count: -10,
-        text: '   hello world   ',
-      });
-    });
-
-    expect(store.state.count).to.equal(0);
-    expect(store.state.text).to.equal('hello world');
-  });
-
-  it('calls custom write interceptors when setting values with `setState()`', () => {
-    type CustomState = { count: number; text: string };
-    let store!: ReactStore<CustomState>;
-
-    function Test() {
-      store = useStableStore<CustomState>(
-        { count: 10, text: '' },
-        {
-          count: (value) => Math.max(0, value),
-          text: (value) => value.trim(),
-        },
-      );
-
-      return null;
-    }
-
-    render(<Test />);
-
-    act(() => {
-      store.setState({
-        count: -10,
-        text: '   hello world   ',
-      });
-    });
-
-    expect(store.state.count).to.equal(0);
-    expect(store.state.text).to.equal('hello world');
-  });
-
-  it('calls custom write interceptors but disacrds the result when setting values with `set()` on a controlled prop', () => {
-    type CustomState = { count: number; text: string };
-    let store!: ReactStore<CustomState>;
-
-    const log: string[] = [];
-
-    function Test() {
-      store = useStableStore<CustomState>(
-        { count: 10, text: '' },
-        {
-          count: (value) => {
-            log.push(`setting count: ${value}`);
-            return Math.max(0, value);
-          },
-          text: (value) => {
-            log.push(`setting text: ${value}`);
-            return value.trim();
-          },
-        },
-      );
-
-      store.useControlledProp('count', 10, 10);
-      store.useControlledProp('text', '', '');
-
-      return null;
-    }
-
-    render(<Test />);
-
-    act(() => {
-      store.set('count', -5);
-    });
-
-    expect(store.state.count).to.equal(10);
-
-    act(() => {
-      store.set('text', '   hello world   ');
-    });
-
-    expect(store.state.text).to.equal('');
-
-    expect(log).to.deep.equal(['setting count: -5', 'setting text:    hello world   ']);
-  });
-
-  it('calls custom write interceptors but disacrds the result when setting values with `update()` on a controlled prop', () => {
-    type CustomState = { count: number; text: string };
-    let store!: ReactStore<CustomState>;
-
-    const log: string[] = [];
-
-    function Test() {
-      store = useStableStore<CustomState>(
-        { count: 10, text: '' },
-        {
-          count: (value) => {
-            log.push(`setting count: ${value}`);
-            return Math.max(0, value);
-          },
-          text: (value) => {
-            log.push(`setting text: ${value}`);
-            return value.trim();
-          },
-        },
-      );
-
-      store.useControlledProp('count', 10, 10);
-      store.useControlledProp('text', '', '');
-
-      return null;
-    }
-
-    render(<Test />);
-
-    act(() => {
-      store.update({ count: -5, text: '   hello world   ' });
-    });
-
-    expect(store.state.count).to.equal(10);
-    expect(store.state.text).to.equal('');
-
-    expect(log).to.deep.equal(['setting count: -5', 'setting text:    hello world   ']);
-  });
-
-  it('calls custom write interceptors but disacrds the result when setting values with `setState()` on a controlled prop', () => {
-    type CustomState = { count: number; text: string };
-    let store!: ReactStore<CustomState>;
-
-    const log: string[] = [];
-
-    function Test() {
-      store = useStableStore<CustomState>(
-        { count: 10, text: '' },
-        {
-          count: (value) => {
-            log.push(`setting count: ${value}`);
-            return Math.max(0, value);
-          },
-          text: (value) => {
-            log.push(`setting text: ${value}`);
-            return value.trim();
-          },
-        },
-      );
-
-      store.useControlledProp('count', 10, 10);
-      store.useControlledProp('text', '', '');
-
-      return null;
-    }
-
-    render(<Test />);
-
-    act(() => {
-      store.setState({ count: -5, text: '   hello world   ' });
-    });
-
-    expect(store.state.count).to.equal(10);
-    expect(store.state.text).to.equal('');
-
-    expect(log).to.deep.equal(['setting count: -5', 'setting text:    hello world   ']);
-  });
-
   it('supports nested stores as state values', async () => {
     type ParentState = { count: number };
     type ChildState = { count: number; parent?: ReactStore<ParentState> };
 
     const parentSelectors = { count: (state: ParentState) => state.count };
     const childSelectors = {
-      count: (state: ChildState) => state.parent?.state.count ?? state.count,
-    };
-
-    const childWriteInterceptors = {
-      count: (value: number, store: ReactStore<ChildState, any, any>) => {
-        if (store.state.parent) {
-          store.state.parent.set('count', value);
-        }
-
-        return value;
-      },
-      parent: (
-        value: ReactStore<ParentState> | undefined,
-        store: ReactStore<ChildState, any, any>,
-      ) => {
-        if (value) {
-          value.subscribe(() => {
-            store.notifyAll();
-          });
-        }
-
-        return value;
-      },
+      count: (state: ChildState) => state.count,
+      parent: (state: ChildState) => state.parent,
     };
 
     const parentStore = new ReactStore<ParentState, Record<string, never>, typeof parentSelectors>(
       { count: 0 },
       undefined,
       parentSelectors,
-      undefined,
     );
+
     const childStore = new ReactStore<ChildState, Record<string, never>, typeof childSelectors>(
       { count: 10 },
       undefined,
       childSelectors,
-      childWriteInterceptors,
     );
+
+    let unsubscribeParentHandler: () => void;
+    const onParentUpdated = (
+      newParent: ReactStore<ParentState> | undefined,
+      _: ReactStore<ParentState> | undefined,
+      store: ReactStore<ChildState, any, any>,
+    ) => {
+      if (!newParent) {
+        unsubscribeParentHandler?.();
+        return;
+      }
+      unsubscribeParentHandler = newParent.observe('count', (newCount) => {
+        store.set('count', newCount);
+      });
+    };
+
+    const onCountUpdated = (
+      newCount: number,
+      _: number,
+      store: ReactStore<ChildState, any, any>,
+    ) => {
+      store.state.parent?.set('count', newCount);
+    };
+
+    childStore.observe('parent', onParentUpdated);
+    childStore.observe('count', onCountUpdated);
 
     function Test() {
       const count = childStore.useState('count');
@@ -507,7 +293,7 @@ describe('ReactStore', () => {
     await act(async () => {
       childStore.set('parent', parentStore);
     });
-    expect(childStore.state.count).to.equal(5);
+    expect(childStore.state.count).to.equal(0);
     expect(childStore.select('count')).to.equal(0);
     expect(output.textContent).to.equal('0');
 
@@ -523,7 +309,7 @@ describe('ReactStore', () => {
       parentStore.set('count', 15);
     });
     expect(parentStore.state.count).to.equal(15);
-    expect(childStore.state.count).to.equal(20);
+    expect(childStore.state.count).to.equal(15);
     expect(childStore.select('count')).to.equal(15);
     expect(output.textContent).to.equal('15');
   });
