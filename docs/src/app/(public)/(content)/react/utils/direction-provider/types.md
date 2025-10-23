@@ -14,3 +14,7 @@ Enables RTL behavior for Base UI components.
 | :-------- | :-------------- | :------ | :-------------------------------- |
 | direction | `TextDirection` | `'ltr'` | The reading direction of the text |
 | children  | `ReactNode`     | -       | -                                 |
+
+### DirectionProvider.Props
+
+Re-export of [DirectionProvider](#directionprovider) props.

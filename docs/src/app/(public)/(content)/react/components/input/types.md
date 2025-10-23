@@ -13,9 +13,9 @@ A native input element that automatically works with [Field](https://base-ui.com
 | Prop          | Type                                                                       | Default | Description                                                                                                                                                                              |
 | :------------ | :------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | defaultValue  | `string \| number \| string[]`                                             | -       | -                                                                                                                                                                                        |
-| onValueChange | `((value: string, eventDetails: FieldControl.ChangeEventDetails) => void)` | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                            |
-| className     | `string \| ((state: InputState) => string)`                                | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render        | `ReactElement \| ((props: HTMLProps, state: InputState) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| onValueChange | `((value: string, eventDetails: FieldControlChangeEventDetails) => void)`  | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                            |
+| className     | `string \| ((state: Input.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render        | `ReactElement \| ((props: HTMLProps, state: Input.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
@@ -28,3 +28,20 @@ A native input element that automatically works with [Field](https://base-ui.com
 | data-touched  | -    | Present when the input has been touched.    |
 | data-filled   | -    | Present when the input is filled.           |
 | data-focused  | -    | Present when the input is focused.          |
+
+### Input.Props
+
+Re-export of [Input](#input) props.
+
+### Input.State
+
+```typescript
+type InputState = {
+  disabled: boolean;
+  touched: boolean;
+  dirty: boolean;
+  valid: boolean | null;
+  filled: boolean;
+  focused: boolean;
+};
+```

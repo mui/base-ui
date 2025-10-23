@@ -10,11 +10,21 @@ The container for menus.
 
 **Menubar Props:**
 
-| Prop        | Type                                                                        | Default        | Description                                                                                                                                                                              |
-| :---------- | :-------------------------------------------------------------------------- | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| modal       | `boolean`                                                                   | `true`         | Whether the menubar is modal.                                                                                                                                                            |
-| disabled    | `boolean`                                                                   | `false`        | Whether the whole menubar is disabled.                                                                                                                                                   |
-| loop        | `boolean`                                                                   | `true`         | Whether to loop keyboard focus back to the first item when the end of the list is reached while using the arrow keys.                                                                    |
-| orientation | `MenuRoot.Orientation`                                                      | `'horizontal'` | The orientation of the menubar.                                                                                                                                                          |
-| className   | `string \| ((state: MenubarState) => string)`                               | -              | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render      | `ReactElement \| ((props: HTMLProps, state: MenubarState) => ReactElement)` | -              | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                         | Default        | Description                                                                                                                                                                              |
+| :---------- | :--------------------------------------------------------------------------- | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| modal       | `boolean`                                                                    | `true`         | Whether the menubar is modal.                                                                                                                                                            |
+| disabled    | `boolean`                                                                    | `false`        | Whether the whole menubar is disabled.                                                                                                                                                   |
+| loop        | `boolean`                                                                    | `true`         | Whether to loop keyboard focus back to the first item when the end of the list is reached while using the arrow keys.                                                                    |
+| orientation | `MenuRootOrientation`                                                        | `'horizontal'` | The orientation of the menubar.                                                                                                                                                          |
+| className   | `string \| ((state: Menubar.State) => string)`                               | -              | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render      | `ReactElement \| ((props: HTMLProps, state: Menubar.State) => ReactElement)` | -              | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Menubar.Props
+
+Re-export of [Menubar](#menubar) props.
+
+### Menubar.State
+
+```typescript
+type MenubarState = {};
+```

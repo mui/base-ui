@@ -4,12 +4,6 @@
 
 ## API Reference
 
-### createHandle
-
-```typescript
-() => {};
-```
-
 ### Root
 
 Groups all parts of the popover. Doesn’t render its own HTML element.
@@ -29,6 +23,53 @@ Groups all parts of the popover. Doesn’t render its own HTML element.
 | triggerId            | `string \| null`                                                           | -       | ID of the trigger that the popover is associated with. This is useful in conjuntion with the `open` prop to create a controlled popover. There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).                                                                                                                                                                           |
 | children             | `ReactNode \| Popover.Root.ChildRenderFunction<Payload>`                   | -       | The content of the popover. This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                                                                                                                             |
 
+### Root.Props
+
+Re-export of [Root](#root) props.
+
+### Root.State
+
+```typescript
+type PopoverRootState = {};
+```
+
+### Root.Actions
+
+```typescript
+type PopoverRootActions = { unmount: () => void; close: () => void };
+```
+
+### Trigger
+
+A button that opens the popover. Renders a `<button>` element.
+
+**Trigger Props:**
+
+| Prop         | Type                                                                                 | Default | Description                                                                                                                                                                                          |
+| :----------- | :----------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| handle       | `PopoverStore<Payload>`                                                              | -       | A handle to associate the trigger with a popover.                                                                                                                                                    |
+| nativeButton | `boolean`                                                                            | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                            |
+| payload      | `Payload`                                                                            | -       | A payload to pass to the popover when it is opened.                                                                                                                                                  |
+| openOnHover  | `boolean`                                                                            | `false` | Whether the popover should also open when the trigger is hovered.                                                                                                                                    |
+| delay        | `number`                                                                             | `300`   | How long to wait before the popover may be opened on hover. Specified in milliseconds.Requires the `openOnHover` prop.                                                                               |
+| closeDelay   | `number`                                                                             | `0`     | How long to wait before closing the popover that was opened on hover. Specified in milliseconds.Requires the `openOnHover` prop.                                                                     |
+| id           | `string`                                                                             | -       | ID of the trigger. In addition to being forwarded to the rendered element, it is also used to specify the active trigger for the popover in controlled mode (with the PopoverRoot `triggerId` prop). |
+| className    | `string \| ((state: Popover.Trigger.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                 |
+| render       | `ReactElement \| ((props: HTMLProps, state: Popover.Trigger.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.             |
+
+**Trigger Data Attributes:**
+
+| Attribute       | Type | Description                                     |
+| :-------------- | :--- | :---------------------------------------------- |
+| data-popup-open | -    | Present when the corresponding popover is open. |
+| data-pressed    | -    | Present when the trigger is pressed.            |
+
+### Trigger.State
+
+```typescript
+type PopoverTriggerState = { disabled: boolean; open: boolean };
+```
+
 ### Portal
 
 A portal element that moves the popup to a different part of the DOM. By default, the portal element is appended to `<body>`. Renders a `<div>` element.
@@ -42,86 +83,9 @@ A portal element that moves the popup to a different part of the DOM. By default
 | keepMounted | `boolean`                                                                           | `false` | Whether to keep the portal mounted in the DOM while the popup is hidden.                                                                                                                 |
 | render      | `ReactElement \| ((props: HTMLProps, state: Popover.Portal.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
-### Title
+### Portal.Props
 
-A heading that labels the popover. Renders an `<h2>` element.
-
-**Title Props:**
-
-| Prop      | Type                                                                             | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: PopoverTitleState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: PopoverTitleState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Description
-
-A paragraph with additional information about the popover. Renders a `<p>` element.
-
-**Description Props:**
-
-| Prop      | Type                                                                                   | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: PopoverDescriptionState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: PopoverDescriptionState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Close
-
-A button that closes the popover. Renders a `<button>` element.
-
-**Close Props:**
-
-| Prop         | Type                                                                             | Default | Description                                                                                                                                                                              |
-| :----------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                        | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| className    | `string \| ((state: PopoverCloseState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: PopoverCloseState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Trigger
-
-A button that opens the popover. Renders a `<button>` element.
-
-**Trigger Props:**
-
-| Prop         | Type                                                                               | Default | Description                                                                                                                                                                                          |
-| :----------- | :--------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| handle       | `PopoverStore<Payload>`                                                            | -       | A handle to associate the trigger with a popover.                                                                                                                                                    |
-| nativeButton | `boolean`                                                                          | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                            |
-| payload      | `Payload`                                                                          | -       | A payload to pass to the popover when it is opened.                                                                                                                                                  |
-| openOnHover  | `boolean`                                                                          | `false` | Whether the popover should also open when the trigger is hovered.                                                                                                                                    |
-| delay        | `number`                                                                           | `300`   | How long to wait before the popover may be opened on hover. Specified in milliseconds.Requires the `openOnHover` prop.                                                                               |
-| closeDelay   | `number`                                                                           | `0`     | How long to wait before closing the popover that was opened on hover. Specified in milliseconds.Requires the `openOnHover` prop.                                                                     |
-| id           | `string`                                                                           | -       | ID of the trigger. In addition to being forwarded to the rendered element, it is also used to specify the active trigger for the popover in controlled mode (with the PopoverRoot `triggerId` prop). |
-| className    | `string \| ((state: PopoverTriggerState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                 |
-| render       | `ReactElement \| ((props: HTMLProps, state: PopoverTriggerState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.             |
-
-**Trigger Data Attributes:**
-
-| Attribute       | Type | Description                                     |
-| :-------------- | :--- | :---------------------------------------------- |
-| data-popup-open | -    | Present when the corresponding popover is open. |
-| data-pressed    | -    | Present when the trigger is pressed.            |
-
-### Arrow
-
-Displays an element positioned against the popover anchor. Renders a `<div>` element.
-
-**Arrow Props:**
-
-| Prop      | Type                                                                             | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: PopoverArrowState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: PopoverArrowState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Arrow Data Attributes:**
-
-| Attribute          | Type                                                                       | Description                                                           |
-| :----------------- | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-open          | -                                                                          | Present when the popup is open.                                       |
-| data-closed        | -                                                                          | Present when the popup is closed.                                     |
-| data-uncentered    | -                                                                          | Present when the popover arrow is uncentered.                         |
-| data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                    |
-| data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+Re-export of [Portal](#portal) props.
 
 ### Backdrop
 
@@ -129,10 +93,10 @@ An overlay displayed beneath the popover. Renders a `<div>` element.
 
 **Backdrop Props:**
 
-| Prop      | Type                                                                                | Default | Description                                                                                                                                                                              |
-| :-------- | :---------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: PopoverBackdropState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: PopoverBackdropState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                  | Default | Description                                                                                                                                                                              |
+| :-------- | :------------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Popover.Backdrop.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Popover.Backdrop.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Backdrop Data Attributes:**
 
@@ -142,6 +106,16 @@ An overlay displayed beneath the popover. Renders a `<div>` element.
 | data-closed         | -    | Present when the popup is closed.        |
 | data-starting-style | -    | Present when the popup is animating in.  |
 | data-ending-style   | -    | Present when the popup is animating out. |
+
+### Backdrop.Props
+
+Re-export of [Backdrop](#backdrop) props.
+
+### Backdrop.State
+
+```typescript
+type PopoverBackdropState = { open: boolean; transitionStatus: TransitionStatus };
+```
 
 ### Positioner
 
@@ -163,8 +137,8 @@ Positions the popover against the trigger. Renders a `<div>` element.
 | sticky             | `boolean`                                                                                                      | `false`                | Whether to maintain the popup in the viewport after the anchor element was scrolled out of view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | positionMethod     | `'fixed' \| 'absolute'`                                                                                        | `'absolute'`           | Determines which CSS `position` property to use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | trackAnchor        | `boolean`                                                                                                      | `true`                 | Whether the popup tracks any layout shift of its positioning anchor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| className          | `string \| ((state: PopoverPositionerState) => string)`                                                        | -                      | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| render             | `ReactElement \| ((props: HTMLProps, state: PopoverPositionerState) => ReactElement)`                          | -                      | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| className          | `string \| ((state: Popover.Positioner.State) => string)`                                                      | -                      | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| render             | `ReactElement \| ((props: HTMLProps, state: Popover.Positioner.State) => ReactElement)`                        | -                      | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 **Positioner Data Attributes:**
 
@@ -188,6 +162,22 @@ Positions the popover against the trigger. Renders a `<div>` element.
 | `--positioner-width`  | ``       | The width of the popover's positioner. It is important to set `width` to this value when using CSS to animate size changes.   |
 | `--transform-origin`  | `string` | The coordinates that this element is anchored to. Used for animations and transitions.                                        |
 
+### Positioner.Props
+
+Re-export of [Positioner](#positioner) props.
+
+### Positioner.State
+
+```typescript
+type PopoverPositionerState = {
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+  instant: string | undefined;
+};
+```
+
 ### Popup
 
 A container for the popover contents. Renders a `<div>` element.
@@ -198,8 +188,8 @@ A container for the popover contents. Renders a `<div>` element.
 | :----------- | :---------------------------------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | initialFocus | `boolean \| RefObject<HTMLElement \| null> \| ((openType: InteractionType) => boolean \| void \| HTMLElement \| null)`  | -       | Determines the element to focus when the popover is opened.`false`: Do not move focus., `true`: Move focus based on the default behavior (first tabbable element or popup)., `RefObject`: Move focus to the ref element., `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`). Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.       |
 | finalFocus   | `boolean \| RefObject<HTMLElement \| null> \| ((closeType: InteractionType) => boolean \| void \| HTMLElement \| null)` | -       | Determines the element to focus when the popover is closed.`false`: Do not move focus., `true`: Move focus based on the default behavior (trigger or previously focused element)., `RefObject`: Move focus to the ref element., `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`). Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing. |
-| className    | `string \| ((state: PopoverPopupState) => string)`                                                                      | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                         |
-| render       | `ReactElement \| ((props: HTMLProps, state: PopoverPopupState) => ReactElement)`                                        | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                     |
+| className    | `string \| ((state: Popover.Popup.State) => string)`                                                                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                         |
+| render       | `ReactElement \| ((props: HTMLProps, state: Popover.Popup.State) => ReactElement)`                                      | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                     |
 
 **Popup Data Attributes:**
 
@@ -219,6 +209,122 @@ A container for the popover contents. Renders a `<div>` element.
 | :--------------- | :--- | :----------------------- |
 | `--popup-height` | ``   | The height of the popup. |
 | `--popup-width`  | ``   | The width of the popup.  |
+
+### Popup.Props
+
+Re-export of [Popup](#popup) props.
+
+### Popup.State
+
+```typescript
+type PopoverPopupState = {
+  open: boolean;
+  side: Side;
+  align: Align;
+  transitionStatus: TransitionStatus;
+};
+```
+
+### Arrow
+
+Displays an element positioned against the popover anchor. Renders a `<div>` element.
+
+**Arrow Props:**
+
+| Prop      | Type                                                                               | Default | Description                                                                                                                                                                              |
+| :-------- | :--------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Popover.Arrow.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Popover.Arrow.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Arrow Data Attributes:**
+
+| Attribute          | Type                                                                       | Description                                                           |
+| :----------------- | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| data-open          | -                                                                          | Present when the popup is open.                                       |
+| data-closed        | -                                                                          | Present when the popup is closed.                                     |
+| data-uncentered    | -                                                                          | Present when the popover arrow is uncentered.                         |
+| data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                    |
+| data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
+| data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+
+### Arrow\.Props
+
+Re-export of [Arrow](#arrow) props.
+
+### Arrow\.State
+
+```typescript
+type PopoverArrowState = {
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+};
+```
+
+### Title
+
+A heading that labels the popover. Renders an `<h2>` element.
+
+**Title Props:**
+
+| Prop      | Type                                                                               | Default | Description                                                                                                                                                                              |
+| :-------- | :--------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Popover.Title.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Popover.Title.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Title.Props
+
+Re-export of [Title](#title) props.
+
+### Title.State
+
+```typescript
+type PopoverTitleState = {};
+```
+
+### Description
+
+A paragraph with additional information about the popover. Renders a `<p>` element.
+
+**Description Props:**
+
+| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                              |
+| :-------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Popover.Description.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Popover.Description.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Description.Props
+
+Re-export of [Description](#description) props.
+
+### Description.State
+
+```typescript
+type PopoverDescriptionState = {};
+```
+
+### Close
+
+A button that closes the popover. Renders a `<button>` element.
+
+**Close Props:**
+
+| Prop         | Type                                                                               | Default | Description                                                                                                                                                                              |
+| :----------- | :--------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                          | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
+| className    | `string \| ((state: Popover.Close.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render       | `ReactElement \| ((props: HTMLProps, state: Popover.Close.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Close.Props
+
+Re-export of [Close](#close) props.
+
+### Close.State
+
+```typescript
+type PopoverCloseState = {};
+```
 
 ### Viewport
 
@@ -247,3 +353,9 @@ A viewport for displaying content transitions. This component is only required i
 | :--------------- | :--- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `--popup-height` | ``   | The height of the parent popup. This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered. It can be used to freeze the dimensions of the popup when animating between different content. |
 | `--popup-width`  | ``   | The width of the parent popup. This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered. It can be used to freeze the dimensions of the popup when animating between different content.   |
+
+### createHandle
+
+```typescript
+() => {};
+```

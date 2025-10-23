@@ -4,24 +4,55 @@
 
 ## API Reference
 
-### Root
+### Icon
 
-Groups all parts of the navigation menu. Renders a `<nav>` element at the root, or `<div>` element when nested.
+An icon that indicates that the trigger button opens a menu.
 
-**Root Props:**
+**Icon Props:**
 
-| Prop                 | Type                                                                                   | Default        | Description                                                                                                                                                                                                                                    |
-| :------------------- | :------------------------------------------------------------------------------------- | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue         | `any`                                                                                  | `null`         | The uncontrolled value of the item that should be initially selected.To render a controlled navigation menu, use the `value` prop instead.                                                                                                     |
-| value                | `any`                                                                                  | `null`         | The controlled value of the navigation menu item that should be currently open. When non-nullish, the menu will be open. When nullish, the menu will be closed.To render an uncontrolled navigation menu, use the `defaultValue` prop instead. |
-| onValueChange        | `((value: any, eventDetails: NavigationMenu.Root.ChangeEventDetails) => void)`         | -              | Callback fired when the value changes.                                                                                                                                                                                                         |
-| actionsRef           | `RefObject<NavigationMenu.Root.Actions>`                                               | -              | A ref to imperative actions.                                                                                                                                                                                                                   |
-| onOpenChangeComplete | `((open: boolean) => void)`                                                            | -              | Event handler called after any animations complete when the navigation menu is closed.                                                                                                                                                         |
-| delay                | `number`                                                                               | `50`           | How long to wait before opening the navigation menu. Specified in milliseconds.                                                                                                                                                                |
-| closeDelay           | `number`                                                                               | `50`           | How long to wait before closing the navigation menu. Specified in milliseconds.                                                                                                                                                                |
-| orientation          | `'horizontal' \| 'vertical'`                                                           | `'horizontal'` | The orientation of the navigation menu.                                                                                                                                                                                                        |
-| className            | `string \| ((state: NavigationMenuRootState) => string)`                               | -              | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                           |
-| render               | `ReactElement \| ((props: HTMLProps, state: NavigationMenuRootState) => ReactElement)` | -              | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                       |
+| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                              |
+| :-------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: NavigationMenu.Icon.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Icon.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Icon.Props
+
+Re-export of [Icon](#icon) props.
+
+### Icon.State
+
+```typescript
+type NavigationMenuIconState = { open: boolean };
+```
+
+### Link
+
+A link in the navigation menu that can be used to navigate to a different page or section. Renders an `<a>` element.
+
+**Link Props:**
+
+| Prop         | Type                                                                                     | Default | Description                                                                                                                                                                              |
+| :----------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| closeOnClick | `boolean`                                                                                | `false` | Whether to close the navigation menu when the link is clicked.                                                                                                                           |
+| active       | `boolean`                                                                                | `false` | Whether the link is the currently active page.                                                                                                                                           |
+| className    | `string \| ((state: NavigationMenu.Link.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render       | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Link.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Link Data Attributes:**
+
+| Attribute   | Type | Description                                         |
+| :---------- | :--- | :-------------------------------------------------- |
+| data-active | -    | Present when the link is the currently active page. |
+
+### Link.Props
+
+Re-export of [Link](#link) props.
+
+### Link.State
+
+```typescript
+type NavigationMenuLinkState = { active: boolean };
+```
 
 ### List
 
@@ -29,22 +60,84 @@ Contains a list of navigation menu items. Renders a `<ul>` element.
 
 **List Props:**
 
-| Prop      | Type                                                                                   | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: NavigationMenuListState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenuListState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                              |
+| :-------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: NavigationMenu.List.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.List.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
-### Item
+### List.Props
 
-An individual navigation menu item. Renders a `<li>` element.
+Re-export of [List](#list) props.
 
-**Item Props:**
+### List.State
 
-| Prop      | Type                                                                                   | Default | Description                                                                                                                                                                                |
-| :-------- | :------------------------------------------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value     | `any`                                                                                  | -       | A unique value that identifies this navigation menu item. If no value is provided, a unique ID will be generated automatically. Use when controlling the navigation menu programmatically. |
-| className | `string \| ((state: NavigationMenuItemState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                       |
-| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenuItemState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.   |
+```typescript
+type NavigationMenuListState = { open: boolean };
+```
+
+### Root
+
+Groups all parts of the navigation menu. Renders a `<nav>` element at the root, or `<div>` element when nested.
+
+**Root Props:**
+
+| Prop                 | Type                                                                                     | Default        | Description                                                                                                                                                                                                                                    |
+| :------------------- | :--------------------------------------------------------------------------------------- | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue         | `any`                                                                                    | `null`         | The uncontrolled value of the item that should be initially selected.To render a controlled navigation menu, use the `value` prop instead.                                                                                                     |
+| value                | `any`                                                                                    | `null`         | The controlled value of the navigation menu item that should be currently open. When non-nullish, the menu will be open. When nullish, the menu will be closed.To render an uncontrolled navigation menu, use the `defaultValue` prop instead. |
+| onValueChange        | `((value: any, eventDetails: NavigationMenu.Root.ChangeEventDetails) => void)`           | -              | Callback fired when the value changes.                                                                                                                                                                                                         |
+| actionsRef           | `RefObject<NavigationMenu.Root.Actions>`                                                 | -              | A ref to imperative actions.                                                                                                                                                                                                                   |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                              | -              | Event handler called after any animations complete when the navigation menu is closed.                                                                                                                                                         |
+| delay                | `number`                                                                                 | `50`           | How long to wait before opening the navigation menu. Specified in milliseconds.                                                                                                                                                                |
+| closeDelay           | `number`                                                                                 | `50`           | How long to wait before closing the navigation menu. Specified in milliseconds.                                                                                                                                                                |
+| orientation          | `'horizontal' \| 'vertical'`                                                             | `'horizontal'` | The orientation of the navigation menu.                                                                                                                                                                                                        |
+| className            | `string \| ((state: NavigationMenu.Root.State) => string)`                               | -              | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                           |
+| render               | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Root.State) => ReactElement)` | -              | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                       |
+
+### Root.Props
+
+Re-export of [Root](#root) props.
+
+### Root.State
+
+```typescript
+type NavigationMenuRootState = { open: boolean; nested: boolean };
+```
+
+### Root.Actions
+
+```typescript
+type NavigationMenuRootActions = { unmount: () => void };
+```
+
+### Trigger
+
+Opens the navigation menu popup when hovered or clicked, revealing the associated content. Renders a `<button>` element.
+
+**Trigger Props:**
+
+| Prop         | Type                                                                                        | Default | Description                                                                                                                                                                              |
+| :----------- | :------------------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                   | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
+| className    | `string \| ((state: NavigationMenu.Trigger.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render       | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Trigger.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Trigger Data Attributes:**
+
+| Attribute       | Type | Description                                             |
+| :-------------- | :--- | :------------------------------------------------------ |
+| data-popup-open | -    | Present when the corresponding navigation menu is open. |
+| data-pressed    | -    | Present when the trigger is pressed.                    |
+
+### Trigger.Props
+
+Re-export of [Trigger](#trigger) props.
+
+### Trigger.State
+
+```typescript
+type NavigationMenuTriggerState = { open: boolean };
+```
 
 ### Portal
 
@@ -59,67 +152,9 @@ A portal element that moves the popup to a different part of the DOM. By default
 | keepMounted | `boolean`                                                                                  | `false` | Whether to keep the portal mounted in the DOM while the popup is hidden.                                                                                                                 |
 | render      | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Portal.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
-### Viewport
+### Portal.Props
 
-The clipping viewport of the navigation menu's current content. Renders a `<div>` element.
-
-**Viewport Props:**
-
-| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                              |
-| :-------- | :----------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: NavigationMenuViewportState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenuViewportState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Icon
-
-An icon that indicates that the trigger button opens a menu.
-
-**Icon Props:**
-
-| Prop      | Type                                                                                   | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: NavigationMenuIconState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenuIconState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Content
-
-A container for the content of the navigation menu item that is moved into the popup when the item is active. Renders a `<div>` element.
-
-**Content Props:**
-
-| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                              |
-| :-------- | :---------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: NavigationMenuContentState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenuContentState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Content Data Attributes:**
-
-| Attribute                 | Type | Description                                         |
-| :------------------------ | :--- | :-------------------------------------------------- |
-| data-open                 | -    | Present when the popup is open.                     |
-| data-closed               | -    | Present when the popup is closed.                   |
-| data-activation-direction | -    | Which direction another trigger was activated from. |
-| data-starting-style       | -    | Present when the content is animating in.           |
-| data-ending-style         | -    | Present when the content is animating out.          |
-
-### Trigger
-
-Opens the navigation menu popup when hovered or clicked, revealing the associated content. Renders a `<button>` element.
-
-**Trigger Props:**
-
-| Prop         | Type                                                                                      | Default | Description                                                                                                                                                                              |
-| :----------- | :---------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                                 | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| className    | `string \| ((state: NavigationMenuTriggerState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: NavigationMenuTriggerState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Trigger Data Attributes:**
-
-| Attribute       | Type | Description                                             |
-| :-------------- | :--- | :------------------------------------------------------ |
-| data-popup-open | -    | Present when the corresponding navigation menu is open. |
-| data-pressed    | -    | Present when the trigger is pressed.                    |
+Re-export of [Portal](#portal) props.
 
 ### Backdrop
 
@@ -127,10 +162,10 @@ A backdrop for the navigation menu popup. Renders a `<div>` element.
 
 **Backdrop Props:**
 
-| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                              |
-| :-------- | :----------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: NavigationMenuBackdropState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenuBackdropState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                              |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: NavigationMenu.Backdrop.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Backdrop.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Backdrop Data Attributes:**
 
@@ -141,45 +176,18 @@ A backdrop for the navigation menu popup. Renders a `<div>` element.
 | data-starting-style | -    | Present when the popup is animating in.  |
 | data-ending-style   | -    | Present when the popup is animating out. |
 
-### Arrow
+### Backdrop.Props
 
-Displays an element pointing toward the navigation menu's current anchor. Renders a `<div>` element.
+Re-export of [Backdrop](#backdrop) props.
 
-**Arrow Props:**
+### Backdrop.State
 
-| Prop      | Type                                                                                    | Default | Description                                                                                                                                                                              |
-| :-------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: NavigationMenuArrowState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenuArrowState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Arrow Data Attributes:**
-
-| Attribute       | Type                                                                       | Description                                                           |
-| :-------------- | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-open       | -                                                                          | Present when the popup is open.                                       |
-| data-closed     | -                                                                          | Present when the popup is closed.                                     |
-| data-uncentered | -                                                                          | Present when the popup arrow is uncentered.                           |
-| data-align      | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-side       | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-
-### Link
-
-A link in the navigation menu that can be used to navigate to a different page or section. Renders an `<a>` element.
-
-**Link Props:**
-
-| Prop         | Type                                                                                   | Default | Description                                                                                                                                                                              |
-| :----------- | :------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| closeOnClick | `boolean`                                                                              | `false` | Whether to close the navigation menu when the link is clicked.                                                                                                                           |
-| active       | `boolean`                                                                              | `false` | Whether the link is the currently active page.                                                                                                                                           |
-| className    | `string \| ((state: NavigationMenuLinkState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: NavigationMenuLinkState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Link Data Attributes:**
-
-| Attribute   | Type | Description                                         |
-| :---------- | :--- | :-------------------------------------------------- |
-| data-active | -    | Present when the link is the currently active page. |
+```typescript
+type NavigationMenuBackdropState = {
+  open: boolean;
+  transitionStatus: TransitionStatus;
+};
+```
 
 ### Positioner
 
@@ -201,8 +209,8 @@ Positions the navigation menu against the currently active trigger. Renders a `<
 | sticky             | `boolean`                                                                                                      | `false`                | Whether to maintain the popup in the viewport after the anchor element was scrolled out of view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | positionMethod     | `'fixed' \| 'absolute'`                                                                                        | `'absolute'`           | Determines which CSS `position` property to use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | trackAnchor        | `boolean`                                                                                                      | `true`                 | Whether the popup tracks any layout shift of its positioning anchor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| className          | `string \| ((state: NavigationMenuPositionerState) => string)`                                                 | -                      | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| render             | `ReactElement \| ((props: HTMLProps, state: NavigationMenuPositionerState) => ReactElement)`                   | -                      | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| className          | `string \| ((state: NavigationMenu.Positioner.State) => string)`                                               | -                      | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| render             | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Positioner.State) => ReactElement)`                 | -                      | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 **Positioner Data Attributes:**
 
@@ -227,16 +235,32 @@ Positions the navigation menu against the currently active trigger. Renders a `<
 | `--positioner-width`  | `number` | The fixed width of the positioner element.                                             |
 | `--transform-origin`  | `string` | The coordinates that this element is anchored to. Used for animations and transitions. |
 
+### Positioner.Props
+
+Re-export of [Positioner](#positioner) props.
+
+### Positioner.State
+
+```typescript
+type NavigationMenuPositionerState = {
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+  instant: boolean;
+};
+```
+
 ### Popup
 
 A container for the navigation menu contents. Renders a `<nav>` element.
 
 **Popup Props:**
 
-| Prop      | Type                                                                                    | Default | Description                                                                                                                                                                              |
-| :-------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: NavigationMenuPopupState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenuPopupState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                              |
+| :-------- | :---------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: NavigationMenu.Popup.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Popup.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Popup Data Attributes:**
 
@@ -255,3 +279,130 @@ A container for the navigation menu contents. Renders a `<nav>` element.
 | :--------------- | :------- | :------------------------------------- |
 | `--popup-height` | `number` | The fixed height of the popup element. |
 | `--popup-width`  | `number` | The fixed width of the popup element.  |
+
+### Popup.Props
+
+Re-export of [Popup](#popup) props.
+
+### Popup.State
+
+```typescript
+type NavigationMenuPopupState = {
+  open: boolean;
+  transitionStatus: TransitionStatus;
+};
+```
+
+### Arrow
+
+Displays an element pointing toward the navigation menu's current anchor. Renders a `<div>` element.
+
+**Arrow Props:**
+
+| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                              |
+| :-------- | :---------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: NavigationMenu.Arrow.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Arrow.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Arrow Data Attributes:**
+
+| Attribute       | Type                                                                       | Description                                                           |
+| :-------------- | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| data-open       | -                                                                          | Present when the popup is open.                                       |
+| data-closed     | -                                                                          | Present when the popup is closed.                                     |
+| data-uncentered | -                                                                          | Present when the popup arrow is uncentered.                           |
+| data-align      | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
+| data-side       | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+
+### Arrow\.Props
+
+Re-export of [Arrow](#arrow) props.
+
+### Arrow\.State
+
+```typescript
+type NavigationMenuArrowState = {
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+};
+```
+
+### Item
+
+An individual navigation menu item. Renders a `<li>` element.
+
+**Item Props:**
+
+| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                                |
+| :-------- | :--------------------------------------------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value     | `any`                                                                                    | -       | A unique value that identifies this navigation menu item. If no value is provided, a unique ID will be generated automatically. Use when controlling the navigation menu programmatically. |
+| className | `string \| ((state: NavigationMenu.Item.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                       |
+| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Item.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.   |
+
+### Item.Props
+
+Re-export of [Item](#item) props.
+
+### Item.State
+
+```typescript
+type NavigationMenuItemState = {};
+```
+
+### Content
+
+A container for the content of the navigation menu item that is moved into the popup when the item is active. Renders a `<div>` element.
+
+**Content Props:**
+
+| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                              |
+| :-------- | :------------------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: NavigationMenu.Content.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Content.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Content Data Attributes:**
+
+| Attribute                 | Type | Description                                         |
+| :------------------------ | :--- | :-------------------------------------------------- |
+| data-open                 | -    | Present when the popup is open.                     |
+| data-closed               | -    | Present when the popup is closed.                   |
+| data-activation-direction | -    | Which direction another trigger was activated from. |
+| data-starting-style       | -    | Present when the content is animating in.           |
+| data-ending-style         | -    | Present when the content is animating out.          |
+
+### Content.Props
+
+Re-export of [Content](#content) props.
+
+### Content.State
+
+```typescript
+type NavigationMenuContentState = {
+  open: boolean;
+  transitionStatus: TransitionStatus;
+  activationDirection: 'left' | 'right' | 'up' | 'down' | null;
+};
+```
+
+### Viewport
+
+The clipping viewport of the navigation menu's current content. Renders a `<div>` element.
+
+**Viewport Props:**
+
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                              |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: NavigationMenu.Viewport.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Viewport.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Viewport.Props
+
+Re-export of [Viewport](#viewport) props.
+
+### Viewport.State
+
+```typescript
+type NavigationMenuViewportState = {};
+```

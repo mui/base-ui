@@ -4,29 +4,32 @@
 
 ## API Reference
 
-### Value
+### Icon
 
-A text label of the currently selected item. Renders a `<span>` element.
+An icon that indicates that the trigger button opens a select popup. Renders a `<span>` element.
 
-**Value Props:**
+**Icon Props:**
 
-| Prop      | Type                                                                            | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children  | `ReactNode \| ((value: any) => ReactNode)`                                      | -       | Accepts a function that returns a `ReactNode` to format the selected value.                                                                                                              |
-| className | `string \| ((state: SelectValueState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: SelectValueState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                             | Default | Description                                                                                                                                                                              |
+| :-------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.Icon.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Icon.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
-### Portal
+**Icon Data Attributes:**
 
-A portal element that moves the popup to a different part of the DOM. By default, the portal element is appended to `<body>`. Renders a `<div>` element.
+| Attribute       | Type | Description                                   |
+| :-------------- | :--- | :-------------------------------------------- |
+| data-popup-open | -    | Present when the corresponding popup is open. |
 
-**Portal Props:**
+### Icon.Props
 
-| Prop      | Type                                                                                | Default | Description                                                                                                                                                                              |
-| :-------- | :---------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| container | `HTMLElement \| ShadowRoot \| RefObject<HTMLElement \| ShadowRoot \| null> \| null` | -       | A parent element to render the portal element into.                                                                                                                                      |
-| className | `string \| ((state: Select.Portal.State) => string)`                                | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: Select.Portal.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+Re-export of [Icon](#icon) props.
+
+### Icon.State
+
+```typescript
+type SelectIconState = { open: boolean };
+```
 
 ### List
 
@@ -34,56 +37,20 @@ A container for the select items. Renders a `<div>` element.
 
 **List Props:**
 
-| Prop      | Type                                                                           | Default | Description                                                                                                                                                                              |
-| :-------- | :----------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: SelectListState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: SelectListState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                             | Default | Description                                                                                                                                                                              |
+| :-------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.List.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.List.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
-### ItemIndicator
+### List.Props
 
-Indicates whether the select item is selected. Renders a `<span>` element.
+Re-export of [List](#list) props.
 
-**ItemIndicator Props:**
+### List.State
 
-| Prop        | Type                                                                                    | Default | Description                                                                                                                                                                              |
-| :---------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children    | `ReactNode`                                                                             | -       | -                                                                                                                                                                                        |
-| className   | `string \| ((state: SelectItemIndicatorState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| keepMounted | `boolean`                                                                               | -       | Whether to keep the HTML element in the DOM when the item is not selected.                                                                                                               |
-| render      | `ReactElement \| ((props: HTMLProps, state: SelectItemIndicatorState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### ItemText
-
-A text label of the select item. Renders a `<div>` element.
-
-**ItemText Props:**
-
-| Prop      | Type                                                                               | Default | Description                                                                                                                                                                              |
-| :-------- | :--------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: SelectItemTextState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: SelectItemTextState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Group
-
-Groups related select items with the corresponding label. Renders a `<div>` element.
-
-**Group Props:**
-
-| Prop      | Type                                                                            | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: SelectGroupState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: SelectGroupState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### GroupLabel
-
-An accessible label that is automatically associated with its parent group. Renders a `<div>` element.
-
-**GroupLabel Props:**
-
-| Prop      | Type                                                                                 | Default | Description                                                                                                                                                                              |
-| :-------- | :----------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: SelectGroupLabelState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: SelectGroupLabelState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+```typescript
+type SelectListState = {};
+```
 
 ### Separator
 
@@ -91,11 +58,21 @@ A separator element accessible to screen readers. Renders a `<div>` element.
 
 **Separator Props:**
 
-| Prop        | Type                                                                          | Default        | Description                                                                                                                                                                              |
-| :---------- | :---------------------------------------------------------------------------- | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation | `Orientation`                                                                 | `'horizontal'` | The orientation of the separator.                                                                                                                                                        |
-| className   | `string \| ((state: SeparatorState) => string)`                               | -              | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render      | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)` | -              | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                           | Default        | Description                                                                                                                                                                              |
+| :---------- | :----------------------------------------------------------------------------- | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation | `Orientation`                                                                  | `'horizontal'` | The orientation of the separator.                                                                                                                                                        |
+| className   | `string \| ((state: Separator.State) => string)`                               | -              | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render      | `ReactElement \| ((props: HTMLProps, state: Separator.State) => ReactElement)` | -              | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Separator.Props
+
+Re-export of [Separator](#separator) props.
+
+### Separator.State
+
+```typescript
+type SeparatorState = { orientation: Orientation };
+```
 
 ### Root
 
@@ -103,29 +80,41 @@ Groups all parts of the select. Doesn’t render its own HTML element.
 
 **Root Props:**
 
-| Prop                 | Type                                                                                                                                                                                | Default | Description                                                                                                                                                                                                                                                                                    |
-| :------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name                 | `string`                                                                                                                                                                            | -       | Identifies the field when a form is submitted.                                                                                                                                                                                                                                                 |
-| defaultValue         | `Value[] \| Value \| null`                                                                                                                                                          | `null`  | The uncontrolled value of the select when it’s initially rendered.To render a controlled select, use the `value` prop instead.                                                                                                                                                                 |
-| value                | `Value[] \| Value`                                                                                                                                                                  | -       | The value of the select. Use when controlled.                                                                                                                                                                                                                                                  |
-| onValueChange        | `((value: Value[] \| Value, eventDetails: SelectRootChangeEventDetails) => void) \| ((value: Value[] \| Value \| any \| null, eventDetails: SelectRootChangeEventDetails) => void)` | -       | Event handler called when the value of the select changes.                                                                                                                                                                                                                                     |
-| defaultOpen          | `boolean`                                                                                                                                                                           | `false` | Whether the select popup is initially open.To render a controlled select popup, use the `open` prop instead.                                                                                                                                                                                   |
-| open                 | `boolean`                                                                                                                                                                           | -       | Whether the select popup is currently open.                                                                                                                                                                                                                                                    |
-| onOpenChange         | `((open: boolean, eventDetails: SelectRootChangeEventDetails) => void)`                                                                                                             | -       | Event handler called when the select popup is opened or closed.                                                                                                                                                                                                                                |
-| actionsRef           | `RefObject<SelectRootActions>`                                                                                                                                                      | -       | A ref to imperative actions.`unmount`: When specified, the select will not be unmounted when closed. Instead, the `unmount` function must be called to unmount the select manually. Useful when the select's animation is controlled by an external library.                                   |
-| isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                                                                                                                     | -       | Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially. Defaults to `Object.is` comparison.                                                                                   |
-| itemToStringLabel    | `((itemValue: Value) => string)`                                                                                                                                                    | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger. If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop. |
-| itemToStringValue    | `((itemValue: Value) => string)`                                                                                                                                                    | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for form submission. If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.        |
-| items                | `Record<string, ReactNode> \| ({ label: ReactNode, value: Value })[]`                                                                                                               | -       | Data structure of the items rendered in the select popup. When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.                                                                                                                                    |
-| modal                | `boolean`                                                                                                                                                                           | `true`  | Determines if the select enters a modal state when open.`true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled., `false`: user interaction with the rest of the document is allowed.                  |
-| multiple             | `boolean \| undefined`                                                                                                                                                              | `false` | Whether multiple items can be selected.                                                                                                                                                                                                                                                        |
-| onOpenChangeComplete | `((open: boolean) => void)`                                                                                                                                                         | -       | Event handler called after any animations complete when the select popup is opened or closed.                                                                                                                                                                                                  |
-| disabled             | `boolean`                                                                                                                                                                           | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                                                                          |
-| readOnly             | `boolean`                                                                                                                                                                           | `false` | Whether the user should be unable to choose a different option from the select popup.                                                                                                                                                                                                          |
-| required             | `boolean`                                                                                                                                                                           | `false` | Whether the user must choose a value before submitting a form.                                                                                                                                                                                                                                 |
-| inputRef             | `Ref<HTMLInputElement>`                                                                                                                                                             | -       | A ref to access the hidden input element.                                                                                                                                                                                                                                                      |
-| id                   | `string`                                                                                                                                                                            | -       | The id of the Select.                                                                                                                                                                                                                                                                          |
-| children             | `ReactNode`                                                                                                                                                                         | -       | -                                                                                                                                                                                                                                                                                              |
+| Prop                 | Type                                                                                                                                                                                    | Default | Description                                                                                                                                                                                                                                                                                    |
+| :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name                 | `string`                                                                                                                                                                                | -       | Identifies the field when a form is submitted.                                                                                                                                                                                                                                                 |
+| defaultValue         | `Value[] \| Value \| null`                                                                                                                                                              | `null`  | The uncontrolled value of the select when it’s initially rendered.To render a controlled select, use the `value` prop instead.                                                                                                                                                                 |
+| value                | `Value[] \| Value`                                                                                                                                                                      | -       | The value of the select. Use when controlled.                                                                                                                                                                                                                                                  |
+| onValueChange        | `((value: Value[] \| Value, eventDetails: Select.Root.ChangeEventDetails) => void) \| ((value: Value[] \| Value \| any \| null, eventDetails: Select.Root.ChangeEventDetails) => void)` | -       | Event handler called when the value of the select changes.                                                                                                                                                                                                                                     |
+| defaultOpen          | `boolean`                                                                                                                                                                               | `false` | Whether the select popup is initially open.To render a controlled select popup, use the `open` prop instead.                                                                                                                                                                                   |
+| open                 | `boolean`                                                                                                                                                                               | -       | Whether the select popup is currently open.                                                                                                                                                                                                                                                    |
+| onOpenChange         | `((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => void)`                                                                                                               | -       | Event handler called when the select popup is opened or closed.                                                                                                                                                                                                                                |
+| actionsRef           | `RefObject<Select.Root.Actions>`                                                                                                                                                        | -       | A ref to imperative actions.`unmount`: When specified, the select will not be unmounted when closed. Instead, the `unmount` function must be called to unmount the select manually. Useful when the select's animation is controlled by an external library.                                   |
+| isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                                                                                                                         | -       | Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially. Defaults to `Object.is` comparison.                                                                                   |
+| itemToStringLabel    | `((itemValue: Value) => string)`                                                                                                                                                        | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger. If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop. |
+| itemToStringValue    | `((itemValue: Value) => string)`                                                                                                                                                        | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for form submission. If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.        |
+| items                | `Record<string, ReactNode> \| ({ label: ReactNode, value: Value })[]`                                                                                                                   | -       | Data structure of the items rendered in the select popup. When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.                                                                                                                                    |
+| modal                | `boolean`                                                                                                                                                                               | `true`  | Determines if the select enters a modal state when open.`true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled., `false`: user interaction with the rest of the document is allowed.                  |
+| multiple             | `boolean \| undefined`                                                                                                                                                                  | `false` | Whether multiple items can be selected.                                                                                                                                                                                                                                                        |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                                                                                                                             | -       | Event handler called after any animations complete when the select popup is opened or closed.                                                                                                                                                                                                  |
+| disabled             | `boolean`                                                                                                                                                                               | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                                                                          |
+| readOnly             | `boolean`                                                                                                                                                                               | `false` | Whether the user should be unable to choose a different option from the select popup.                                                                                                                                                                                                          |
+| required             | `boolean`                                                                                                                                                                               | `false` | Whether the user must choose a value before submitting a form.                                                                                                                                                                                                                                 |
+| inputRef             | `Ref<HTMLInputElement>`                                                                                                                                                                 | -       | A ref to access the hidden input element.                                                                                                                                                                                                                                                      |
+| id                   | `string`                                                                                                                                                                                | -       | The id of the Select.                                                                                                                                                                                                                                                                          |
+| children             | `ReactNode`                                                                                                                                                                             | -       | -                                                                                                                                                                                                                                                                                              |
+
+### Root.State
+
+```typescript
+type SelectRootState = {};
+```
+
+### Root.Actions
+
+```typescript
+type SelectRootActions = { unmount: () => void };
+```
 
 ### Trigger
 
@@ -133,13 +122,13 @@ A button that opens the select popup. Renders a `<div>` element.
 
 **Trigger Props:**
 
-| Prop         | Type                                                                              | Default | Description                                                                                                                                                                              |
-| :----------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                         | `false` | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `true` if the rendered element is a native button.                             |
-| disabled     | `boolean`                                                                         | -       | Whether the component should ignore user interaction.                                                                                                                                    |
-| children     | `ReactNode`                                                                       | -       | -                                                                                                                                                                                        |
-| className    | `string \| ((state: SelectTriggerState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: SelectTriggerState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop         | Type                                                                                | Default | Description                                                                                                                                                                              |
+| :----------- | :---------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                           | `false` | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `true` if the rendered element is a native button.                             |
+| disabled     | `boolean`                                                                           | -       | Whether the component should ignore user interaction.                                                                                                                                    |
+| children     | `ReactNode`                                                                         | -       | -                                                                                                                                                                                        |
+| className    | `string \| ((state: Select.Trigger.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render       | `ReactElement \| ((props: HTMLProps, state: Select.Trigger.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Trigger Data Attributes:**
 
@@ -157,22 +146,63 @@ A button that opens the select popup. Renders a `<div>` element.
 | data-filled     | -    | Present when the select has a value (when wrapped in Field.Root).         |
 | data-focused    | -    | Present when the select trigger is focused (when wrapped in Field.Root).  |
 
-### Icon
+### Trigger.Props
 
-An icon that indicates that the trigger button opens a select popup. Renders a `<span>` element.
+Re-export of [Trigger](#trigger) props.
 
-**Icon Props:**
+### Trigger.State
 
-| Prop      | Type                                                                           | Default | Description                                                                                                                                                                              |
-| :-------- | :----------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: SelectIconState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: SelectIconState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+```typescript
+type SelectTriggerState = {
+  open: boolean;
+  readOnly: boolean;
+  value: any;
+  disabled: boolean;
+  touched: boolean;
+  dirty: boolean;
+  valid: boolean | null;
+  filled: boolean;
+  focused: boolean;
+};
+```
 
-**Icon Data Attributes:**
+### Value
 
-| Attribute       | Type | Description                                   |
-| :-------------- | :--- | :-------------------------------------------- |
-| data-popup-open | -    | Present when the corresponding popup is open. |
+A text label of the currently selected item. Renders a `<span>` element.
+
+**Value Props:**
+
+| Prop      | Type                                                                              | Default | Description                                                                                                                                                                              |
+| :-------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `ReactNode \| ((value: any) => ReactNode)`                                        | -       | Accepts a function that returns a `ReactNode` to format the selected value.                                                                                                              |
+| className | `string \| ((state: Select.Value.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Value.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Value.Props
+
+Re-export of [Value](#value) props.
+
+### Value.State
+
+```typescript
+type SelectValueState = { value: any };
+```
+
+### Portal
+
+A portal element that moves the popup to a different part of the DOM. By default, the portal element is appended to `<body>`. Renders a `<div>` element.
+
+**Portal Props:**
+
+| Prop      | Type                                                                                | Default | Description                                                                                                                                                                              |
+| :-------- | :---------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| container | `HTMLElement \| ShadowRoot \| RefObject<HTMLElement \| ShadowRoot \| null> \| null` | -       | A parent element to render the portal element into.                                                                                                                                      |
+| className | `string \| ((state: Select.Portal.State) => string)`                                | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Portal.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Portal.Props
+
+Re-export of [Portal](#portal) props.
 
 ### Backdrop
 
@@ -180,10 +210,10 @@ An overlay displayed beneath the menu popup. Renders a `<div>` element.
 
 **Backdrop Props:**
 
-| Prop      | Type                                                                               | Default | Description                                                                                                                                                                              |
-| :-------- | :--------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: SelectBackdropState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: SelectBackdropState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                 | Default | Description                                                                                                                                                                              |
+| :-------- | :----------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.Backdrop.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Backdrop.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Backdrop Data Attributes:**
 
@@ -194,118 +224,15 @@ An overlay displayed beneath the menu popup. Renders a `<div>` element.
 | data-starting-style | -    | Present when the select is animating in.  |
 | data-ending-style   | -    | Present when the select is animating out. |
 
-### Popup
+### Backdrop.Props
 
-A container for the select list. Renders a `<div>` element.
+Re-export of [Backdrop](#backdrop) props.
 
-**Popup Props:**
+### Backdrop.State
 
-| Prop      | Type                                                                            | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children  | `ReactNode`                                                                     | -       | -                                                                                                                                                                                        |
-| className | `string \| ((state: SelectPopupState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: SelectPopupState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Popup Data Attributes:**
-
-| Attribute           | Type                                                                                 | Description                                                           |
-| :------------------ | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-open           | -                                                                                    | Present when the select is open.                                      |
-| data-closed         | -                                                                                    | Present when the select is closed.                                    |
-| data-align          | `'start' \| 'center' \| 'end'`                                                       | Indicates how the popup is aligned relative to specified side.        |
-| data-side           | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                                    | Present when the select is animating in.                              |
-| data-ending-style   | -                                                                                    | Present when the select is animating out.                             |
-
-### Item
-
-An individual option in the select popup. Renders a `<div>` element.
-
-**Item Props:**
-
-| Prop         | Type                                                                           | Default | Description                                                                                                                                                                              |
-| :----------- | :----------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                       | -       | Specifies the text label to use when the item is matched during keyboard text navigation.Defaults to the item text content if not provided.                                              |
-| value        | `any`                                                                          | `null`  | A unique value that identifies this select item.                                                                                                                                         |
-| nativeButton | `boolean`                                                                      | `false` | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `true` if the rendered element is a native button.                             |
-| disabled     | `boolean`                                                                      | `false` | Whether the component should ignore user interaction.                                                                                                                                    |
-| children     | `ReactNode`                                                                    | -       | -                                                                                                                                                                                        |
-| className    | `string \| ((state: SelectItemState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: SelectItemState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Item Data Attributes:**
-
-| Attribute        | Type | Description                                  |
-| :--------------- | :--- | :------------------------------------------- |
-| data-selected    | -    | Present when the select item is selected.    |
-| data-highlighted | -    | Present when the select item is highlighted. |
-| data-disabled    | -    | Present when the select item is disabled.    |
-
-### Arrow
-
-Displays an element positioned against the select popup anchor. Renders a `<div>` element.
-
-**Arrow Props:**
-
-| Prop      | Type                                                                            | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: SelectArrowState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: SelectArrowState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Arrow Data Attributes:**
-
-| Attribute          | Type                                                                                 | Description                                                           |
-| :----------------- | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-open          | -                                                                                    | Present when the select popup is open.                                |
-| data-closed        | -                                                                                    | Present when the select popup is closed.                              |
-| data-uncentered    | -                                                                                    | Present when the select arrow is uncentered.                          |
-| data-anchor-hidden | -                                                                                    | Present when the anchor is hidden.                                    |
-| data-align         | `'start' \| 'center' \| 'end'`                                                       | Indicates how the popup is aligned relative to specified side.        |
-| data-side          | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-
-### ScrollDownArrow
-
-An element that scrolls the select popup down when hovered. Does not render when using touch input. Renders a `<div>` element.
-
-**ScrollDownArrow Props:**
-
-| Prop        | Type                                                                                      | Default | Description                                                                                                                                                                              |
-| :---------- | :---------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className   | `string \| ((state: SelectScrollDownArrowState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| keepMounted | `boolean`                                                                                 | `false` | Whether to keep the HTML element in the DOM while the select popup is not scrollable.                                                                                                    |
-| render      | `ReactElement \| ((props: HTMLProps, state: SelectScrollDownArrowState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**ScrollDownArrow Data Attributes:**
-
-| Attribute           | Type                                                                                 | Description                                                           |
-| :------------------ | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-direction      | `'down'`                                                                             | Indicates the direction of the scroll arrow.                          |
-| data-side           | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-visible        | -                                                                                    | Present when the scroll arrow is visible.                             |
-| data-starting-style | -                                                                                    | Present when the scroll arrow is animating in.                        |
-| data-ending-style   | -                                                                                    | Present when the scroll arrow is animating out.                       |
-
-### ScrollUpArrow
-
-An element that scrolls the select popup up when hovered. Does not render when using touch input. Renders a `<div>` element.
-
-**ScrollUpArrow Props:**
-
-| Prop        | Type                                                                                    | Default | Description                                                                                                                                                                              |
-| :---------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className   | `string \| ((state: SelectScrollUpArrowState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| keepMounted | `boolean`                                                                               | `false` | Whether to keep the HTML element in the DOM while the select popup is not scrollable.                                                                                                    |
-| render      | `ReactElement \| ((props: HTMLProps, state: SelectScrollUpArrowState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**ScrollUpArrow Data Attributes:**
-
-| Attribute           | Type                                                                                 | Description                                                           |
-| :------------------ | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-direction      | `'up'`                                                                               | Indicates the direction of the scroll arrow.                          |
-| data-side           | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-visible        | -                                                                                    | Present when the scroll arrow is visible.                             |
-| data-starting-style | -                                                                                    | Present when the scroll arrow is animating in.                        |
-| data-ending-style   | -                                                                                    | Present when the scroll arrow is animating out.                       |
+```typescript
+type SelectBackdropState = { open: boolean; transitionStatus: TransitionStatus };
+```
 
 ### Positioner
 
@@ -328,8 +255,8 @@ Positions the select popup. Renders a `<div>` element.
 | sticky               | `boolean`                                                                                                      | `false`                | Whether to maintain the popup in the viewport after the anchor element was scrolled out of view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | positionMethod       | `'fixed' \| 'absolute'`                                                                                        | `'absolute'`           | Determines which CSS `position` property to use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | trackAnchor          | `boolean`                                                                                                      | `true`                 | Whether the popup tracks any layout shift of its positioning anchor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| className            | `string \| ((state: SelectPositionerState) => string)`                                                         | -                      | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| render               | `ReactElement \| ((props: HTMLProps, state: SelectPositionerState) => ReactElement)`                           | -                      | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| className            | `string \| ((state: Select.Positioner.State) => string)`                                                       | -                      | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| render               | `ReactElement \| ((props: HTMLProps, state: Select.Positioner.State) => ReactElement)`                         | -                      | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 **Positioner Data Attributes:**
 
@@ -350,3 +277,284 @@ Positions the select popup. Renders a `<div>` element.
 | `--available-height` | `number` | The available height between the trigger and the edge of the viewport.                 |
 | `--available-width`  | `number` | The available width between the trigger and the edge of the viewport.                  |
 | `--transform-origin` | `string` | The coordinates that this element is anchored to. Used for animations and transitions. |
+
+### Positioner.Props
+
+Re-export of [Positioner](#positioner) props.
+
+### Positioner.State
+
+```typescript
+type SelectPositionerState = {
+  open: boolean;
+  side: 'none' | Side;
+  align: Align;
+  anchorHidden: boolean;
+};
+```
+
+### Popup
+
+A container for the select list. Renders a `<div>` element.
+
+**Popup Props:**
+
+| Prop      | Type                                                                              | Default | Description                                                                                                                                                                              |
+| :-------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `ReactNode`                                                                       | -       | -                                                                                                                                                                                        |
+| className | `string \| ((state: Select.Popup.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Popup.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Popup Data Attributes:**
+
+| Attribute           | Type                                                                                 | Description                                                           |
+| :------------------ | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| data-open           | -                                                                                    | Present when the select is open.                                      |
+| data-closed         | -                                                                                    | Present when the select is closed.                                    |
+| data-align          | `'start' \| 'center' \| 'end'`                                                       | Indicates how the popup is aligned relative to specified side.        |
+| data-side           | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+| data-starting-style | -                                                                                    | Present when the select is animating in.                              |
+| data-ending-style   | -                                                                                    | Present when the select is animating out.                             |
+
+### Popup.Props
+
+Re-export of [Popup](#popup) props.
+
+### Popup.State
+
+```typescript
+type SelectPopupState = {
+  side: 'none' | Side;
+  align: Align;
+  open: boolean;
+  transitionStatus: TransitionStatus;
+};
+```
+
+### Arrow
+
+Displays an element positioned against the select popup anchor. Renders a `<div>` element.
+
+**Arrow Props:**
+
+| Prop      | Type                                                                              | Default | Description                                                                                                                                                                              |
+| :-------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.Arrow.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Arrow.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Arrow Data Attributes:**
+
+| Attribute          | Type                                                                                 | Description                                                           |
+| :----------------- | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| data-open          | -                                                                                    | Present when the select popup is open.                                |
+| data-closed        | -                                                                                    | Present when the select popup is closed.                              |
+| data-uncentered    | -                                                                                    | Present when the select arrow is uncentered.                          |
+| data-anchor-hidden | -                                                                                    | Present when the anchor is hidden.                                    |
+| data-align         | `'start' \| 'center' \| 'end'`                                                       | Indicates how the popup is aligned relative to specified side.        |
+| data-side          | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+
+### Arrow\.Props
+
+Re-export of [Arrow](#arrow) props.
+
+### Arrow\.State
+
+```typescript
+type SelectArrowState = {
+  open: boolean;
+  side: 'none' | Side;
+  align: Align;
+  uncentered: boolean;
+};
+```
+
+### Item
+
+An individual option in the select popup. Renders a `<div>` element.
+
+**Item Props:**
+
+| Prop         | Type                                                                             | Default | Description                                                                                                                                                                              |
+| :----------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| label        | `string`                                                                         | -       | Specifies the text label to use when the item is matched during keyboard text navigation.Defaults to the item text content if not provided.                                              |
+| value        | `any`                                                                            | `null`  | A unique value that identifies this select item.                                                                                                                                         |
+| nativeButton | `boolean`                                                                        | `false` | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `true` if the rendered element is a native button.                             |
+| disabled     | `boolean`                                                                        | `false` | Whether the component should ignore user interaction.                                                                                                                                    |
+| children     | `ReactNode`                                                                      | -       | -                                                                                                                                                                                        |
+| className    | `string \| ((state: Select.Item.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render       | `ReactElement \| ((props: HTMLProps, state: Select.Item.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Item Data Attributes:**
+
+| Attribute        | Type | Description                                  |
+| :--------------- | :--- | :------------------------------------------- |
+| data-selected    | -    | Present when the select item is selected.    |
+| data-highlighted | -    | Present when the select item is highlighted. |
+| data-disabled    | -    | Present when the select item is disabled.    |
+
+### Item.Props
+
+Re-export of [Item](#item) props.
+
+### Item.State
+
+```typescript
+type SelectItemState = {
+  disabled: boolean;
+  selected: boolean;
+  highlighted: boolean;
+};
+```
+
+### Group
+
+Groups related select items with the corresponding label. Renders a `<div>` element.
+
+**Group Props:**
+
+| Prop      | Type                                                                              | Default | Description                                                                                                                                                                              |
+| :-------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.Group.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Group.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Group.Props
+
+Re-export of [Group](#group) props.
+
+### Group.State
+
+```typescript
+type SelectGroupState = {};
+```
+
+### GroupLabel
+
+An accessible label that is automatically associated with its parent group. Renders a `<div>` element.
+
+**GroupLabel Props:**
+
+| Prop      | Type                                                                                   | Default | Description                                                                                                                                                                              |
+| :-------- | :------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.Group.LabelState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Group.LabelState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### GroupLabel.Props
+
+Re-export of [GroupLabel](#grouplabel) props.
+
+### GroupLabel.State
+
+```typescript
+type SelectGroupLabelState = {};
+```
+
+### ItemText
+
+A text label of the select item. Renders a `<div>` element.
+
+**ItemText Props:**
+
+| Prop      | Type                                                                                 | Default | Description                                                                                                                                                                              |
+| :-------- | :----------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.Item.TextState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Item.TextState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### ItemText.Props
+
+Re-export of [ItemText](#itemtext) props.
+
+### ItemText.State
+
+```typescript
+type SelectItemTextState = {};
+```
+
+### ItemIndicator
+
+Indicates whether the select item is selected. Renders a `<span>` element.
+
+**ItemIndicator Props:**
+
+| Prop        | Type                                                                                      | Default | Description                                                                                                                                                                              |
+| :---------- | :---------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children    | `ReactNode`                                                                               | -       | -                                                                                                                                                                                        |
+| className   | `string \| ((state: Select.Item.IndicatorState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| keepMounted | `boolean`                                                                                 | -       | Whether to keep the HTML element in the DOM when the item is not selected.                                                                                                               |
+| render      | `ReactElement \| ((props: HTMLProps, state: Select.Item.IndicatorState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### ItemIndicator.Props
+
+Re-export of [ItemIndicator](#itemindicator) props.
+
+### ItemIndicator.State
+
+```typescript
+type SelectItemIndicatorState = {
+  selected: boolean;
+  transitionStatus: TransitionStatus;
+};
+```
+
+### ScrollUpArrow
+
+An element that scrolls the select popup up when hovered. Does not render when using touch input. Renders a `<div>` element.
+
+**ScrollUpArrow Props:**
+
+| Prop        | Type                                                                                      | Default | Description                                                                                                                                                                              |
+| :---------- | :---------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className   | `string \| ((state: SelectScrollUp.Arrow.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| keepMounted | `boolean`                                                                                 | `false` | Whether to keep the HTML element in the DOM while the select popup is not scrollable.                                                                                                    |
+| render      | `ReactElement \| ((props: HTMLProps, state: SelectScrollUp.Arrow.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**ScrollUpArrow Data Attributes:**
+
+| Attribute           | Type                                                                                 | Description                                                           |
+| :------------------ | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| data-direction      | `'up'`                                                                               | Indicates the direction of the scroll arrow.                          |
+| data-side           | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+| data-visible        | -                                                                                    | Present when the scroll arrow is visible.                             |
+| data-starting-style | -                                                                                    | Present when the scroll arrow is animating in.                        |
+| data-ending-style   | -                                                                                    | Present when the scroll arrow is animating out.                       |
+
+### ScrollUpArrow\.Props
+
+Re-export of [ScrollUpArrow](#scrolluparrow) props.
+
+### ScrollUpArrow\.State
+
+```typescript
+type SelectScrollUpArrowState = {};
+```
+
+### ScrollDownArrow
+
+An element that scrolls the select popup down when hovered. Does not render when using touch input. Renders a `<div>` element.
+
+**ScrollDownArrow Props:**
+
+| Prop        | Type                                                                                        | Default | Description                                                                                                                                                                              |
+| :---------- | :------------------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className   | `string \| ((state: SelectScrollDown.Arrow.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| keepMounted | `boolean`                                                                                   | `false` | Whether to keep the HTML element in the DOM while the select popup is not scrollable.                                                                                                    |
+| render      | `ReactElement \| ((props: HTMLProps, state: SelectScrollDown.Arrow.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**ScrollDownArrow Data Attributes:**
+
+| Attribute           | Type                                                                                 | Description                                                           |
+| :------------------ | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| data-direction      | `'down'`                                                                             | Indicates the direction of the scroll arrow.                          |
+| data-side           | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+| data-visible        | -                                                                                    | Present when the scroll arrow is visible.                             |
+| data-starting-style | -                                                                                    | Present when the scroll arrow is animating in.                        |
+| data-ending-style   | -                                                                                    | Present when the scroll arrow is animating out.                       |
+
+### ScrollDownArrow\.Props
+
+Re-export of [ScrollDownArrow](#scrolldownarrow) props.
+
+### ScrollDownArrow\.State
+
+```typescript
+type SelectScrollDownArrowState = {};
+```

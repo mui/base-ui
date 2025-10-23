@@ -10,19 +10,19 @@ Groups all parts of the accordion. Renders a `<div>` element.
 
 **Root Props:**
 
-| Prop             | Type                                                                              | Default      | Description                                                                                                                                                                                            |
-| :--------------- | :-------------------------------------------------------------------------------- | :----------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue     | `any[]`                                                                           | -            | The uncontrolled value of the item(s) that should be initially expanded.To render a controlled accordion, use the `value` prop instead.                                                                |
-| value            | `any[]`                                                                           | -            | The controlled value of the item(s) that should be expanded.To render an uncontrolled accordion, use the `defaultValue` prop instead.                                                                  |
-| onValueChange    | `((value: any[], eventDetails: AccordionRootChangeEventDetails) => void)`         | -            | Event handler called when an accordion item is expanded or collapsed. Provides the new value as an argument.                                                                                           |
-| hiddenUntilFound | `boolean`                                                                         | `false`      | Allows the browser’s built-in page search to find and expand the panel contents.Overrides the `keepMounted` prop and uses `hidden="until-found"` to hide the element without removing it from the DOM. |
-| multiple         | `boolean`                                                                         | `true`       | Whether multiple items can be open at the same time.                                                                                                                                                   |
-| disabled         | `boolean`                                                                         | `false`      | Whether the component should ignore user interaction.                                                                                                                                                  |
-| loop             | `boolean`                                                                         | `true`       | Whether to loop keyboard focus back to the first item when the end of the list is reached while using the arrow keys.                                                                                  |
-| orientation      | `Orientation`                                                                     | `'vertical'` | The visual orientation of the accordion. Controls whether roving focus uses left/right or up/down arrow keys.                                                                                          |
-| className        | `string \| ((state: AccordionRootState) => string)`                               | -            | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                   |
-| keepMounted      | `boolean`                                                                         | `false`      | Whether to keep the element in the DOM while the panel is closed. This prop is ignored when `hiddenUntilFound` is used.                                                                                |
-| render           | `ReactElement \| ((props: HTMLProps, state: AccordionRootState) => ReactElement)` | -            | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.               |
+| Prop             | Type                                                                                | Default      | Description                                                                                                                                                                                            |
+| :--------------- | :---------------------------------------------------------------------------------- | :----------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue     | `any[]`                                                                             | -            | The uncontrolled value of the item(s) that should be initially expanded.To render a controlled accordion, use the `value` prop instead.                                                                |
+| value            | `any[]`                                                                             | -            | The controlled value of the item(s) that should be expanded.To render an uncontrolled accordion, use the `defaultValue` prop instead.                                                                  |
+| onValueChange    | `((value: any[], eventDetails: Accordion.Root.ChangeEventDetails) => void)`         | -            | Event handler called when an accordion item is expanded or collapsed. Provides the new value as an argument.                                                                                           |
+| hiddenUntilFound | `boolean`                                                                           | `false`      | Allows the browser’s built-in page search to find and expand the panel contents.Overrides the `keepMounted` prop and uses `hidden="until-found"` to hide the element without removing it from the DOM. |
+| multiple         | `boolean`                                                                           | `true`       | Whether multiple items can be open at the same time.                                                                                                                                                   |
+| disabled         | `boolean`                                                                           | `false`      | Whether the component should ignore user interaction.                                                                                                                                                  |
+| loop             | `boolean`                                                                           | `true`       | Whether to loop keyboard focus back to the first item when the end of the list is reached while using the arrow keys.                                                                                  |
+| orientation      | `Orientation`                                                                       | `'vertical'` | The visual orientation of the accordion. Controls whether roving focus uses left/right or up/down arrow keys.                                                                                          |
+| className        | `string \| ((state: Accordion.Root.State) => string)`                               | -            | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                   |
+| keepMounted      | `boolean`                                                                           | `false`      | Whether to keep the element in the DOM while the panel is closed. This prop is ignored when `hiddenUntilFound` is used.                                                                                |
+| render           | `ReactElement \| ((props: HTMLProps, state: Accordion.Root.State) => ReactElement)` | -            | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.               |
 
 **Root Data Attributes:**
 
@@ -31,19 +31,56 @@ Groups all parts of the accordion. Renders a `<div>` element.
 | data-orientation | -    | Indicates the orientation of the accordion. |
 | data-disabled    | -    | Present when the accordion is disabled.     |
 
+### Root.Props
+
+Re-export of [Root](#root) props.
+
+### Root.State
+
+```typescript
+type AccordionRootState = {
+  value: any[];
+  disabled: boolean;
+  orientation: Orientation;
+};
+```
+
+### Trigger
+
+A button that opens and closes the corresponding panel. Renders a `<button>` element.
+
+**Trigger Props:**
+
+| Prop         | Type                                                                                | Default | Description                                                                                                                                                                              |
+| :----------- | :---------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                           | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
+| className    | `string \| ((state: Accordion.Item.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render       | `ReactElement \| ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Trigger Data Attributes:**
+
+| Attribute       | Type | Description                                  |
+| :-------------- | :--- | :------------------------------------------- |
+| data-panel-open | -    | Present when the accordion panel is open.    |
+| data-disabled   | -    | Present when the accordion item is disabled. |
+
+### Trigger.Props
+
+Re-export of [Trigger](#trigger) props.
+
 ### Item
 
 Groups an accordion header with the corresponding panel. Renders a `<div>` element.
 
 **Item Props:**
 
-| Prop         | Type                                                                              | Default | Description                                                                                                                                                                                                     |
-| :----------- | :-------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value        | `any`                                                                             | -       | A unique value that identifies this accordion item. If no value is provided, a unique ID will be generated automatically. Use when controlling the accordion programmatically, or to set an initial open state. |
-| onOpenChange | `((open: boolean, eventDetails: Accordion.Item.ChangeEventDetails) => void)`      | -       | Event handler called when the panel is opened or closed.                                                                                                                                                        |
-| disabled     | `boolean`                                                                         | `false` | Whether the component should ignore user interaction.                                                                                                                                                           |
-| className    | `string \| ((state: AccordionItemState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                            |
-| render       | `ReactElement \| ((props: HTMLProps, state: AccordionItemState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                        |
+| Prop         | Type                                                                                | Default | Description                                                                                                                                                                                                     |
+| :----------- | :---------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value        | `any`                                                                               | -       | A unique value that identifies this accordion item. If no value is provided, a unique ID will be generated automatically. Use when controlling the accordion programmatically, or to set an initial open state. |
+| onOpenChange | `((open: boolean, eventDetails: Accordion.Item.ChangeEventDetails) => void)`        | -       | Event handler called when the panel is opened or closed.                                                                                                                                                        |
+| disabled     | `boolean`                                                                           | `false` | Whether the component should ignore user interaction.                                                                                                                                                           |
+| className    | `string \| ((state: Accordion.Item.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                            |
+| render       | `ReactElement \| ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                        |
 
 **Item Data Attributes:**
 
@@ -53,16 +90,32 @@ Groups an accordion header with the corresponding panel. Renders a `<div>` eleme
 | data-disabled | -        | Present when the accordion item is disabled. |
 | data-index    | `number` | Indicates the index of the accordion item.   |
 
+### Item.Props
+
+Re-export of [Item](#item) props.
+
+### Item.State
+
+```typescript
+type AccordionItemState = {
+  index: number;
+  open: boolean;
+  value: any[];
+  disabled: boolean;
+  orientation: Orientation;
+};
+```
+
 ### Header
 
 A heading that labels the corresponding panel. Renders an `<h3>` element.
 
 **Header Props:**
 
-| Prop      | Type                                                                              | Default | Description                                                                                                                                                                              |
-| :-------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: AccordionItemState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: AccordionItemState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                | Default | Description                                                                                                                                                                              |
+| :-------- | :---------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Accordion.Item.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Header Data Attributes:**
 
@@ -72,24 +125,9 @@ A heading that labels the corresponding panel. Renders an `<h3>` element.
 | data-disabled | -        | Present when the accordion item is disabled. |
 | data-index    | `number` | Indicates the index of the accordion item.   |
 
-### Trigger
+### Header.Props
 
-A button that opens and closes the corresponding panel. Renders a `<button>` element.
-
-**Trigger Props:**
-
-| Prop         | Type                                                                              | Default | Description                                                                                                                                                                              |
-| :----------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                         | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| className    | `string \| ((state: AccordionItemState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: AccordionItemState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Trigger Data Attributes:**
-
-| Attribute       | Type | Description                                  |
-| :-------------- | :--- | :------------------------------------------- |
-| data-panel-open | -    | Present when the accordion panel is open.    |
-| data-disabled   | -    | Present when the accordion item is disabled. |
+Re-export of [Header](#header) props.
 
 ### Panel
 
@@ -97,12 +135,12 @@ A collapsible panel with the accordion item contents. Renders a `<div>` element.
 
 **Panel Props:**
 
-| Prop             | Type                                                                               | Default | Description                                                                                                                                                                                            |
-| :--------------- | :--------------------------------------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| hiddenUntilFound | `boolean`                                                                          | `false` | Allows the browser’s built-in page search to find and expand the panel contents.Overrides the `keepMounted` prop and uses `hidden="until-found"` to hide the element without removing it from the DOM. |
-| className        | `string \| ((state: AccordionPanelState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                   |
-| keepMounted      | `boolean`                                                                          | `false` | Whether to keep the element in the DOM while the panel is closed. This prop is ignored when `hiddenUntilFound` is used.                                                                                |
-| render           | `ReactElement \| ((props: HTMLProps, state: AccordionPanelState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.               |
+| Prop             | Type                                                                                 | Default | Description                                                                                                                                                                                            |
+| :--------------- | :----------------------------------------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| hiddenUntilFound | `boolean`                                                                            | `false` | Allows the browser’s built-in page search to find and expand the panel contents.Overrides the `keepMounted` prop and uses `hidden="until-found"` to hide the element without removing it from the DOM. |
+| className        | `string \| ((state: Accordion.Panel.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                   |
+| keepMounted      | `boolean`                                                                            | `false` | Whether to keep the element in the DOM while the panel is closed. This prop is ignored when `hiddenUntilFound` is used.                                                                                |
+| render           | `ReactElement \| ((props: HTMLProps, state: Accordion.Panel.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.               |
 
 **Panel Data Attributes:**
 
@@ -121,3 +159,20 @@ A collapsible panel with the accordion item contents. Renders a `<div>` element.
 | :------------------------- | :------- | :---------------------------- |
 | `--accordion-panel-height` | `number` | The accordion panel's height. |
 | `--accordion-panel-width`  | `number` | The accordion panel's width.  |
+
+### Panel.Props
+
+Re-export of [Panel](#panel) props.
+
+### Panel.State
+
+```typescript
+type AccordionPanelState = {
+  transitionStatus: TransitionStatus;
+  index: number;
+  open: boolean;
+  value: any[];
+  disabled: boolean;
+  orientation: Orientation;
+};
+```

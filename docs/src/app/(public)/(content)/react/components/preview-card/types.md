@@ -21,6 +21,49 @@ Groups all parts of the preview card. Doesn’t render its own HTML element.
 | closeDelay           | `number`                                                                       | `300`   | How long to wait before closing the preview card. Specified in milliseconds.                                                                                                                                                                                                   |
 | children             | `ReactNode`                                                                    | -       | -                                                                                                                                                                                                                                                                              |
 
+### Root.Props
+
+Re-export of [Root](#root) props.
+
+### Root.State
+
+```typescript
+type PreviewCardRootState = {};
+```
+
+### Root.Actions
+
+```typescript
+type PreviewCardRootActions = { unmount: () => void };
+```
+
+### Trigger
+
+A link that opens the preview card. Renders an `<a>` element.
+
+**Trigger Props:**
+
+| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                              |
+| :-------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: PreviewCard.Trigger.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: PreviewCard.Trigger.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Trigger Data Attributes:**
+
+| Attribute       | Type | Description                                          |
+| :-------------- | :--- | :--------------------------------------------------- |
+| data-popup-open | -    | Present when the corresponding preview card is open. |
+
+### Trigger.Props
+
+Re-export of [Trigger](#trigger) props.
+
+### Trigger.State
+
+```typescript
+type PreviewCardTriggerState = { open: boolean };
+```
+
 ### Portal
 
 A portal element that moves the popup to a different part of the DOM. By default, the portal element is appended to `<body>`. Renders a `<div>` element.
@@ -34,66 +77,9 @@ A portal element that moves the popup to a different part of the DOM. By default
 | keepMounted | `boolean`                                                                               | `false` | Whether to keep the portal mounted in the DOM while the popup is hidden.                                                                                                                 |
 | render      | `ReactElement \| ((props: HTMLProps, state: PreviewCard.Portal.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
-### Trigger
+### Portal.Props
 
-A link that opens the preview card. Renders an `<a>` element.
-
-**Trigger Props:**
-
-| Prop      | Type                                                                                   | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: PreviewCardTriggerState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: PreviewCardTriggerState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Trigger Data Attributes:**
-
-| Attribute       | Type | Description                                          |
-| :-------------- | :--- | :--------------------------------------------------- |
-| data-popup-open | -    | Present when the corresponding preview card is open. |
-
-### Popup
-
-A container for the preview card contents. Renders a `<div>` element.
-
-**Popup Props:**
-
-| Prop      | Type                                                                                 | Default | Description                                                                                                                                                                              |
-| :-------- | :----------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: PreviewCardPopupState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: PreviewCardPopupState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Popup Data Attributes:**
-
-| Attribute           | Type                                                                       | Description                                                           |
-| :------------------ | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-open           | -                                                                          | Present when the preview card is open.                                |
-| data-closed         | -                                                                          | Present when the preview card is closed.                              |
-| data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the preview card is animating in.                        |
-| data-ending-style   | -                                                                          | Present when the preview card is animating out.                       |
-
-### Arrow
-
-Displays an element positioned against the preview card anchor. Renders a `<div>` element.
-
-**Arrow Props:**
-
-| Prop      | Type                                                                                 | Default | Description                                                                                                                                                                              |
-| :-------- | :----------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: PreviewCardArrowState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: PreviewCardArrowState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Arrow Data Attributes:**
-
-| Attribute          | Type                                                                       | Description                                                           |
-| :----------------- | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-open          | -                                                                          | Present when the preview card is open.                                |
-| data-closed        | -                                                                          | Present when the preview card is closed.                              |
-| data-uncentered    | -                                                                          | Present when the preview card arrow is uncentered.                    |
-| data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                    |
-| data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+Re-export of [Portal](#portal) props.
 
 ### Backdrop
 
@@ -101,10 +87,10 @@ An overlay displayed beneath the popup. Renders a `<div>` element.
 
 **Backdrop Props:**
 
-| Prop      | Type                                                                                    | Default | Description                                                                                                                                                                              |
-| :-------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: PreviewCardBackdropState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: PreviewCardBackdropState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                              |
+| :-------- | :---------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: PreviewCard.Backdrop.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: PreviewCard.Backdrop.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Backdrop Data Attributes:**
 
@@ -114,6 +100,19 @@ An overlay displayed beneath the popup. Renders a `<div>` element.
 | data-closed         | -    | Present when the preview card is closed.        |
 | data-starting-style | -    | Present when the preview card is animating in.  |
 | data-ending-style   | -    | Present when the preview card is animating out. |
+
+### Backdrop.Props
+
+Re-export of [Backdrop](#backdrop) props.
+
+### Backdrop.State
+
+```typescript
+type PreviewCardBackdropState = {
+  open: boolean;
+  transitionStatus: TransitionStatus;
+};
+```
 
 ### Positioner
 
@@ -135,8 +134,8 @@ Positions the popup against the trigger. Renders a `<div>` element.
 | sticky             | `boolean`                                                                                                      | `false`                | Whether to maintain the popup in the viewport after the anchor element was scrolled out of view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | positionMethod     | `'fixed' \| 'absolute'`                                                                                        | `'absolute'`           | Determines which CSS `position` property to use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | trackAnchor        | `boolean`                                                                                                      | `true`                 | Whether the popup tracks any layout shift of its positioning anchor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| className          | `string \| ((state: PreviewCardPositionerState) => string)`                                                    | -                      | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| render             | `ReactElement \| ((props: HTMLProps, state: PreviewCardPositionerState) => ReactElement)`                      | -                      | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| className          | `string \| ((state: PreviewCard.Positioner.State) => string)`                                                  | -                      | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| render             | `ReactElement \| ((props: HTMLProps, state: PreviewCard.Positioner.State) => ReactElement)`                    | -                      | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 **Positioner Data Attributes:**
 
@@ -157,3 +156,92 @@ Positions the popup against the trigger. Renders a `<div>` element.
 | `--available-height` | `number` | The available height between the trigger and the edge of the viewport.                 |
 | `--available-width`  | `number` | The available width between the trigger and the edge of the viewport.                  |
 | `--transform-origin` | `string` | The coordinates that this element is anchored to. Used for animations and transitions. |
+
+### Positioner.Props
+
+Re-export of [Positioner](#positioner) props.
+
+### Positioner.State
+
+```typescript
+type PreviewCardPositionerState = {
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+};
+```
+
+### Popup
+
+A container for the preview card contents. Renders a `<div>` element.
+
+**Popup Props:**
+
+| Prop      | Type                                                                                   | Default | Description                                                                                                                                                                              |
+| :-------- | :------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: PreviewCard.Popup.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: PreviewCard.Popup.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Popup Data Attributes:**
+
+| Attribute           | Type                                                                       | Description                                                           |
+| :------------------ | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| data-open           | -                                                                          | Present when the preview card is open.                                |
+| data-closed         | -                                                                          | Present when the preview card is closed.                              |
+| data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
+| data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+| data-starting-style | -                                                                          | Present when the preview card is animating in.                        |
+| data-ending-style   | -                                                                          | Present when the preview card is animating out.                       |
+
+### Popup.Props
+
+Re-export of [Popup](#popup) props.
+
+### Popup.State
+
+```typescript
+type PreviewCardPopupState = {
+  open: boolean;
+  side: Side;
+  align: Align;
+  transitionStatus: TransitionStatus;
+};
+```
+
+### Arrow
+
+Displays an element positioned against the preview card anchor. Renders a `<div>` element.
+
+**Arrow Props:**
+
+| Prop      | Type                                                                                   | Default | Description                                                                                                                                                                              |
+| :-------- | :------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: PreviewCard.Arrow.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: PreviewCard.Arrow.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Arrow Data Attributes:**
+
+| Attribute          | Type                                                                       | Description                                                           |
+| :----------------- | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| data-open          | -                                                                          | Present when the preview card is open.                                |
+| data-closed        | -                                                                          | Present when the preview card is closed.                              |
+| data-uncentered    | -                                                                          | Present when the preview card arrow is uncentered.                    |
+| data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                    |
+| data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
+| data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+
+### Arrow\.Props
+
+Re-export of [Arrow](#arrow) props.
+
+### Arrow\.State
+
+```typescript
+type PreviewCardArrowState = {
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+};
+```

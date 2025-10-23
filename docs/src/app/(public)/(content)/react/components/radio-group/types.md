@@ -10,21 +10,39 @@ Provides a shared state to a series of radio buttons. Renders a `<div>` element.
 
 **RadioGroup Props:**
 
-| Prop          | Type                                                                           | Default | Description                                                                                                                                                                              |
-| :------------ | :----------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name          | `string`                                                                       | -       | Identifies the field when a form is submitted.                                                                                                                                           |
-| defaultValue  | `unknown`                                                                      | -       | The uncontrolled value of the radio button that should be initially selected.To render a controlled radio group, use the `value` prop instead.                                           |
-| value         | `unknown`                                                                      | -       | The controlled value of the radio item that should be currently selected.To render an uncontrolled radio group, use the `defaultValue` prop instead.                                     |
-| onValueChange | `((value: unknown, eventDetails: RadioGroup.ChangeEventDetails) => void)`      | -       | Callback fired when the value changes.                                                                                                                                                   |
-| disabled      | `boolean`                                                                      | `false` | Whether the component should ignore user interaction.                                                                                                                                    |
-| readOnly      | `boolean`                                                                      | `false` | Whether the user should be unable to select a different radio button in the group.                                                                                                       |
-| required      | `boolean`                                                                      | `false` | Whether the user must choose a value before submitting a form.                                                                                                                           |
-| inputRef      | `Ref<HTMLInputElement>`                                                        | -       | A ref to access the hidden input element.                                                                                                                                                |
-| className     | `string \| ((state: RadioGroupState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render        | `ReactElement \| ((props: HTMLProps, state: RadioGroupState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop          | Type                                                                            | Default | Description                                                                                                                                                                              |
+| :------------ | :------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name          | `string`                                                                        | -       | Identifies the field when a form is submitted.                                                                                                                                           |
+| defaultValue  | `unknown`                                                                       | -       | The uncontrolled value of the radio button that should be initially selected.To render a controlled radio group, use the `value` prop instead.                                           |
+| value         | `unknown`                                                                       | -       | The controlled value of the radio item that should be currently selected.To render an uncontrolled radio group, use the `defaultValue` prop instead.                                     |
+| onValueChange | `((value: unknown, eventDetails: RadioGroup.ChangeEventDetails) => void)`       | -       | Callback fired when the value changes.                                                                                                                                                   |
+| disabled      | `boolean`                                                                       | `false` | Whether the component should ignore user interaction.                                                                                                                                    |
+| readOnly      | `boolean`                                                                       | `false` | Whether the user should be unable to select a different radio button in the group.                                                                                                       |
+| required      | `boolean`                                                                       | `false` | Whether the user must choose a value before submitting a form.                                                                                                                           |
+| inputRef      | `Ref<HTMLInputElement>`                                                         | -       | A ref to access the hidden input element.                                                                                                                                                |
+| className     | `string \| ((state: RadioGroup.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render        | `ReactElement \| ((props: HTMLProps, state: RadioGroup.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **RadioGroup Data Attributes:**
 
 | Attribute     | Type | Description                               |
 | :------------ | :--- | :---------------------------------------- |
 | data-disabled | -    | Present when the radio group is disabled. |
+
+### RadioGroup.Props
+
+Re-export of [RadioGroup](#radiogroup) props.
+
+### RadioGroup.State
+
+```typescript
+type RadioGroupState = {
+  readOnly: boolean | undefined;
+  disabled: boolean;
+  touched: boolean;
+  dirty: boolean;
+  valid: boolean | null;
+  filled: boolean;
+  focused: boolean;
+};
+```

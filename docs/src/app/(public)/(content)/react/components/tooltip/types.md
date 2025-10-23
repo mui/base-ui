@@ -4,32 +4,6 @@
 
 ## API Reference
 
-### Provider
-
-Provides a shared delay for multiple tooltips. The grouping logic ensures that once a tooltip becomes visible, the adjacent tooltips will be shown instantly.
-
-**Provider Props:**
-
-| Prop       | Type        | Default | Description                                                                                                           |
-| :--------- | :---------- | :------ | :-------------------------------------------------------------------------------------------------------------------- |
-| delay      | `number`    | -       | How long to wait before opening a tooltip. Specified in milliseconds.                                                 |
-| closeDelay | `number`    | -       | How long to wait before closing a tooltip. Specified in milliseconds.                                                 |
-| timeout    | `number`    | `400`   | Another tooltip will open instantly if the previous tooltip is closed within this timeout. Specified in milliseconds. |
-| children   | `ReactNode` | -       | -                                                                                                                     |
-
-### Portal
-
-A portal element that moves the popup to a different part of the DOM. By default, the portal element is appended to `<body>`. Renders a `<div>` element.
-
-**Portal Props:**
-
-| Prop        | Type                                                                                | Default | Description                                                                                                                                                                              |
-| :---------- | :---------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| container   | `HTMLElement \| ShadowRoot \| RefObject<HTMLElement \| ShadowRoot \| null> \| null` | -       | A parent element to render the portal element into.                                                                                                                                      |
-| className   | `string \| ((state: Tooltip.Portal.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| keepMounted | `boolean`                                                                           | `false` | Whether to keep the portal mounted in the DOM while the popup is hidden.                                                                                                                 |
-| render      | `ReactElement \| ((props: HTMLProps, state: Tooltip.Portal.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
 ### Root
 
 Groups all parts of the tooltip. Doesn’t render its own HTML element.
@@ -50,16 +24,49 @@ Groups all parts of the tooltip. Doesn’t render its own HTML element.
 | hoverable            | `boolean`                                                                  | `true`   | Whether the tooltip contents can be hovered without closing the tooltip.                                                                                                                                                                                        |
 | children             | `ReactNode`                                                                | -        | -                                                                                                                                                                                                                                                               |
 
+### Root.Props
+
+Re-export of [Root](#root) props.
+
+### Root.State
+
+```typescript
+type TooltipRootState = {};
+```
+
+### Root.Actions
+
+```typescript
+type TooltipRootActions = { unmount: () => void };
+```
+
+### Provider
+
+Provides a shared delay for multiple tooltips. The grouping logic ensures that once a tooltip becomes visible, the adjacent tooltips will be shown instantly.
+
+**Provider Props:**
+
+| Prop       | Type        | Default | Description                                                                                                           |
+| :--------- | :---------- | :------ | :-------------------------------------------------------------------------------------------------------------------- |
+| delay      | `number`    | -       | How long to wait before opening a tooltip. Specified in milliseconds.                                                 |
+| closeDelay | `number`    | -       | How long to wait before closing a tooltip. Specified in milliseconds.                                                 |
+| timeout    | `number`    | `400`   | Another tooltip will open instantly if the previous tooltip is closed within this timeout. Specified in milliseconds. |
+| children   | `ReactNode` | -       | -                                                                                                                     |
+
+### Provider.Props
+
+Re-export of [Provider](#provider) props.
+
 ### Trigger
 
 An element to attach the tooltip to. Renders a `<button>` element.
 
 **Trigger Props:**
 
-| Prop      | Type                                                                               | Default | Description                                                                                                                                                                              |
-| :-------- | :--------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: TooltipTriggerState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: TooltipTriggerState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                 | Default | Description                                                                                                                                                                              |
+| :-------- | :----------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Tooltip.Trigger.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Tooltip.Trigger.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Trigger Data Attributes:**
 
@@ -67,50 +74,32 @@ An element to attach the tooltip to. Renders a `<button>` element.
 | :-------------- | :--- | :---------------------------------------------- |
 | data-popup-open | -    | Present when the corresponding tooltip is open. |
 
-### Popup
+### Trigger.Props
 
-A container for the tooltip contents. Renders a `<div>` element.
+Re-export of [Trigger](#trigger) props.
 
-**Popup Props:**
+### Trigger.State
 
-| Prop      | Type                                                                             | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: TooltipPopupState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: TooltipPopupState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+```typescript
+type TooltipTriggerState = { open: boolean };
+```
 
-**Popup Data Attributes:**
+### Portal
 
-| Attribute           | Type                                                                       | Description                                                           |
-| :------------------ | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-open           | -                                                                          | Present when the tooltip is open.                                     |
-| data-closed         | -                                                                          | Present when the tooltip is closed.                                   |
-| data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-instant        | `'delay' \| 'dismiss' \| 'focus'`                                          | Present if animations should be instant.                              |
-| data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the tooltip is animating in.                             |
-| data-ending-style   | -                                                                          | Present when the tooltip is animating out.                            |
+A portal element that moves the popup to a different part of the DOM. By default, the portal element is appended to `<body>`. Renders a `<div>` element.
 
-### Arrow
+**Portal Props:**
 
-Displays an element positioned against the tooltip anchor. Renders a `<div>` element.
+| Prop        | Type                                                                                | Default | Description                                                                                                                                                                              |
+| :---------- | :---------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| container   | `HTMLElement \| ShadowRoot \| RefObject<HTMLElement \| ShadowRoot \| null> \| null` | -       | A parent element to render the portal element into.                                                                                                                                      |
+| className   | `string \| ((state: Tooltip.Portal.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| keepMounted | `boolean`                                                                           | `false` | Whether to keep the portal mounted in the DOM while the popup is hidden.                                                                                                                 |
+| render      | `ReactElement \| ((props: HTMLProps, state: Tooltip.Portal.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
-**Arrow Props:**
+### Portal.Props
 
-| Prop      | Type                                                                             | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: TooltipArrowState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: TooltipArrowState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Arrow Data Attributes:**
-
-| Attribute          | Type                                                                       | Description                                                           |
-| :----------------- | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-open          | -                                                                          | Present when the tooltip is open.                                     |
-| data-closed        | -                                                                          | Present when the tooltip is closed.                                   |
-| data-uncentered    | -                                                                          | Present when the tooltip arrow is uncentered.                         |
-| data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                    |
-| data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+Re-export of [Portal](#portal) props.
 
 ### Positioner
 
@@ -132,8 +121,8 @@ Positions the tooltip against the trigger. Renders a `<div>` element.
 | sticky             | `boolean`                                                                                                      | `false`                | Whether to maintain the popup in the viewport after the anchor element was scrolled out of view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | positionMethod     | `'fixed' \| 'absolute'`                                                                                        | `'absolute'`           | Determines which CSS `position` property to use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | trackAnchor        | `boolean`                                                                                                      | `true`                 | Whether the popup tracks any layout shift of its positioning anchor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| className          | `string \| ((state: TooltipPositionerState) => string)`                                                        | -                      | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| render             | `ReactElement \| ((props: HTMLProps, state: TooltipPositionerState) => ReactElement)`                          | -                      | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| className          | `string \| ((state: Tooltip.Positioner.State) => string)`                                                      | -                      | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| render             | `ReactElement \| ((props: HTMLProps, state: Tooltip.Positioner.State) => ReactElement)`                        | -                      | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 **Positioner Data Attributes:**
 
@@ -154,3 +143,94 @@ Positions the tooltip against the trigger. Renders a `<div>` element.
 | `--available-height` | `number` | The available height between the trigger and the edge of the viewport.                 |
 | `--available-width`  | `number` | The available width between the trigger and the edge of the viewport.                  |
 | `--transform-origin` | `string` | The coordinates that this element is anchored to. Used for animations and transitions. |
+
+### Positioner.Props
+
+Re-export of [Positioner](#positioner) props.
+
+### Positioner.State
+
+```typescript
+type TooltipPositionerState = {
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+};
+```
+
+### Popup
+
+A container for the tooltip contents. Renders a `<div>` element.
+
+**Popup Props:**
+
+| Prop      | Type                                                                               | Default | Description                                                                                                                                                                              |
+| :-------- | :--------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Tooltip.Popup.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Tooltip.Popup.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Popup Data Attributes:**
+
+| Attribute           | Type                                                                       | Description                                                           |
+| :------------------ | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| data-open           | -                                                                          | Present when the tooltip is open.                                     |
+| data-closed         | -                                                                          | Present when the tooltip is closed.                                   |
+| data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
+| data-instant        | `'delay' \| 'dismiss' \| 'focus'`                                          | Present if animations should be instant.                              |
+| data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+| data-starting-style | -                                                                          | Present when the tooltip is animating in.                             |
+| data-ending-style   | -                                                                          | Present when the tooltip is animating out.                            |
+
+### Popup.Props
+
+Re-export of [Popup](#popup) props.
+
+### Popup.State
+
+```typescript
+type TooltipPopupState = {
+  open: boolean;
+  side: Side;
+  align: Align;
+  instant: 'delay' | 'focus' | 'dismiss' | undefined;
+  transitionStatus: TransitionStatus;
+};
+```
+
+### Arrow
+
+Displays an element positioned against the tooltip anchor. Renders a `<div>` element.
+
+**Arrow Props:**
+
+| Prop      | Type                                                                               | Default | Description                                                                                                                                                                              |
+| :-------- | :--------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Tooltip.Arrow.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Tooltip.Arrow.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Arrow Data Attributes:**
+
+| Attribute          | Type                                                                       | Description                                                           |
+| :----------------- | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| data-open          | -                                                                          | Present when the tooltip is open.                                     |
+| data-closed        | -                                                                          | Present when the tooltip is closed.                                   |
+| data-uncentered    | -                                                                          | Present when the tooltip arrow is uncentered.                         |
+| data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                    |
+| data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
+| data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
+
+### Arrow\.Props
+
+Re-export of [Arrow](#arrow) props.
+
+### Arrow\.State
+
+```typescript
+type TooltipArrowState = {
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+};
+```
