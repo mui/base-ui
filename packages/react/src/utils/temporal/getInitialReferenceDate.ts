@@ -45,12 +45,10 @@ export function getInitialReferenceDate(
 
   if (adapter.isValid(externalDate)) {
     referenceDate = externalDate;
-    // return externalDate;
   }
 
   if (adapter.isValid(externalReferenceDate)) {
     referenceDate = externalReferenceDate;
-    // return externalReferenceDate;
   }
   if (!referenceDate) {
     referenceDate = roundDate(adapter, precision, getCurrentDate(adapter, timezone, false));
