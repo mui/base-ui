@@ -241,7 +241,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
   );
 
   useIsoLayoutEffect(() => {
-    store.apply({
+    store.update({
       adapter,
       manager,
       timezoneProp,
