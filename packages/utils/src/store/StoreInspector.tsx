@@ -189,7 +189,7 @@ export function StoreInspectorPanel({ store, title, additionalData, open, onClos
       state: store.state,
     };
 
-    if (store instanceof ReactStore && Object.keys((store as any).context ?? {}).length > 0) {
+    if (Object.keys((store as any).context ?? {}).length > 0) {
       data.context = (store as any).context;
     }
 
@@ -217,7 +217,7 @@ export function StoreInspectorPanel({ store, title, additionalData, open, onClos
     >
       <h3>State</h3>
       <pre>{JSON.stringify(store.state, getStringifyReplacer(), 2)}</pre>
-      {store instanceof ReactStore && Object.keys((store as any).context ?? {}).length > 0 && (
+      {Object.keys((store as any).context ?? {}).length > 0 && (
         <React.Fragment>
           <h3>Context</h3>
           <pre>{JSON.stringify((store as any).context, getStringifyReplacer(), 2)}</pre>
