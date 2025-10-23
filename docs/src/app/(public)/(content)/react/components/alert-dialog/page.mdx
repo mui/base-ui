@@ -96,7 +96,7 @@ For simple, one-off interactions, place the `<AlertDialog.Trigger>` inside `<Ale
 However, if defining the alert dialog's content next to its trigger is not practical, you can use a detached trigger.
 This involves placing the `<AlertDialog.Trigger>` outside of `<AlertDialog.Root>` and linking them with a `handle` created by the `AlertDialog.createHandle()` function.
 
-```jsx title="Detached triggers"
+```jsx title="Detached triggers" {3,5} "handle={demoDialog}"
 const demoAlertDialog = AlertDialog.createHandle();
 
 <AlertDialog.Trigger handle={demoAlertDialog}>Open</AlertDialog.Trigger>
@@ -125,9 +125,7 @@ You can achieve this by using the same `handle` for several detached triggers, o
 const demoAlertDialog = AlertDialog.createHandle();
 
 <AlertDialog.Trigger handle={demoAlertDialog}>Trigger 1</AlertDialog.Trigger>
-
 <AlertDialog.Trigger handle={demoAlertDialog}>Trigger 2</AlertDialog.Trigger>
-
 <AlertDialog.Root handle={demoAlertDialog}>
   ...
 </AlertDialog.Root>
@@ -138,7 +136,7 @@ This is achieved by passing a `payload` to the `<AlertDialog.Trigger>` and using
 
 The payload can be strongly typed by providing a type argument to the `createHandle()` function:
 
-```jsx title="Detached triggers with payload"
+```jsx title="Detached triggers with payload" {1,3,7,12}
 const demoAlertDialog = AlertDialog.createHandle<{ message: string }>();
 
 <AlertDialog.Trigger handle={demoAlertDialog} payload={{ message: 'Trigger 1' }}>

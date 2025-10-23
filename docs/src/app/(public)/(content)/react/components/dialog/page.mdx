@@ -159,7 +159,7 @@ For simple, one-off interactions, place the `<Dialog.Trigger>` inside `<Dialog.R
 However, if defining the dialog's content next to its trigger is not practical, you can use a detached trigger.
 This involves placing the `<Dialog.Trigger>` outside of `<Dialog.Root>` and linking them with a `handle` created by the `Dialog.createHandle()` function.
 
-```jsx title="Detached triggers"
+```jsx title="Detached triggers" {3,5} "handle={demoDialog}"
 const demoDialog = Dialog.createHandle();
 
 <Dialog.Trigger handle={demoDialog}>Open</Dialog.Trigger>
@@ -188,9 +188,7 @@ You can achieve this by using the same `handle` for several detached triggers, o
 const demoDialog = Dialog.createHandle();
 
 <Dialog.Trigger handle={demoDialog}>Trigger 1</Dialog.Trigger>
-
 <Dialog.Trigger handle={demoDialog}>Trigger 2</Dialog.Trigger>
-
 <Dialog.Root handle={demoDialog}>
   ...
 </Dialog.Root>
@@ -201,7 +199,7 @@ This is achieved by passing a `payload` to the `<Dialog.Trigger>` and using the 
 
 The payload can be strongly typed by providing a type argument to the `createHandle()` function:
 
-```jsx title="Detached triggers with payload"
+```jsx title="Detached triggers with payload" {1,3,7,12}
 const demoDialog = Dialog.createHandle<{ text: string }>();
 
 <Dialog.Trigger handle={demoDialog} payload={{ text: 'Trigger 1' }}>
