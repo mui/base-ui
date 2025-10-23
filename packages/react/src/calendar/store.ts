@@ -163,9 +163,9 @@ const isSetMonthButtonDisabledSelector = createSelector(
     adapter: TemporalAdapter,
     targetDate: TemporalSupportedObject,
     validationProps: validateDate.ValidationProps,
-    isForcedDisabled: boolean | undefined,
+    isForceDisabled: boolean | undefined,
   ) => {
-    if (isForcedDisabled) {
+    if (isForceDisabled) {
       return true;
     }
 
