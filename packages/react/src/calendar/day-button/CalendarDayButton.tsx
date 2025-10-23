@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useStore } from '@base-ui-components/utils/store';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CalendarDayButtonDataAttributes } from './CalendarDayButtonDataAttributes';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
@@ -156,17 +156,13 @@ export namespace CalendarDayButton {
     outsideMonth: boolean;
   }
 
-  export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'value'> {
+  export interface Props
+    extends Omit<BaseUIComponentProps<'button', State>, 'value'>,
+      NativeButtonProps {
     /**
      * The format used to display the day.
      * @default adapter.formats.dayOfMonth
      */
     format?: string;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 }

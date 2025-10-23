@@ -4,7 +4,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { TemporalSupportedObject } from '../../types/temporal';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
@@ -75,17 +75,10 @@ export namespace CalendarSetMonth {
     disabled: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {
+  export interface Props extends BaseUIComponentProps<'button', State>, NativeButtonProps {
     /**
      * The month to navigate to.
      */
     target: TemporalSupportedObject;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 }

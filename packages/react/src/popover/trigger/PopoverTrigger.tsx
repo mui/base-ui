@@ -267,13 +267,6 @@ export interface PopoverTriggerState {
 export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
   BaseUIComponentProps<'button', PopoverTriggerState> & {
     /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
-    /**
      * A handle to associate the trigger with a popover.
      */
     handle?: PopoverStore<Payload>;

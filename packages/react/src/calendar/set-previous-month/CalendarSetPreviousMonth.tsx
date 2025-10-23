@@ -4,7 +4,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { selectors } from '../store';
@@ -72,13 +72,5 @@ export namespace CalendarSetPreviousMonth {
     disabled: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'button', State>, NativeButtonProps {}
 }
