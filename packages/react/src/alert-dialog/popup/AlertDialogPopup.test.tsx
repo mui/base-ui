@@ -23,7 +23,7 @@ describe('<AlertDialog.Popup />', () => {
   }));
 
   it('should have role="alertdialog"', async () => {
-    const { getByTestId } = await render(
+    await render(
       <AlertDialog.Root open>
         <AlertDialog.Backdrop />
         <AlertDialog.Portal>
@@ -32,13 +32,13 @@ describe('<AlertDialog.Popup />', () => {
       </AlertDialog.Root>,
     );
 
-    const dialog = getByTestId('test-alert-dialog');
+    const dialog = screen.getByTestId('test-alert-dialog');
     expect(dialog).to.have.attribute('role', 'alertdialog');
   });
 
   describe('prop: initialFocus', () => {
     it('should focus the first focusable element within the popup by default', async () => {
-      const { getByText, getByTestId } = await render(
+      await render(
         <div>
           <input />
           <AlertDialog.Root>
@@ -55,13 +55,13 @@ describe('<AlertDialog.Popup />', () => {
         </div>,
       );
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
       await waitFor(() => {
-        const dialogInput = getByTestId('dialog-input');
+        const dialogInput = screen.getByTestId('dialog-input');
         expect(dialogInput).to.toHaveFocus();
       });
     });
@@ -89,15 +89,15 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
       await waitFor(() => {
-        const input2 = getByTestId('input-2');
+        const input2 = screen.getByTestId('input-2');
         expect(input2).to.toHaveFocus();
       });
     });
@@ -128,15 +128,15 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
       await waitFor(() => {
-        const input2 = getByTestId('input-2');
+        const input2 = screen.getByTestId('input-2');
         expect(input2).to.toHaveFocus();
       });
     });
@@ -158,8 +158,8 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
       await waitFor(() => {
         expect(trigger).toHaveFocus();
@@ -183,10 +183,10 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
-      await user.click(getByText('Open'));
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByText('Open'));
       await waitFor(() => {
-        expect(getByTestId('input-1')).toHaveFocus();
+        expect(screen.getByTestId('input-1')).toHaveFocus();
       });
     });
 
@@ -207,17 +207,17 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
-      await user.click(getByText('Open'));
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByText('Open'));
       await waitFor(() => {
-        expect(getByTestId('input-1')).toHaveFocus();
+        expect(screen.getByTestId('input-1')).toHaveFocus();
       });
     });
   });
 
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {
-      const { getByText, user } = await render(
+      const { user } = await render(
         <div>
           <input />
           <AlertDialog.Root>
@@ -233,10 +233,10 @@ describe('<AlertDialog.Popup />', () => {
         </div>,
       );
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
 
-      const closeButton = getByText('Close');
+      const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       await waitFor(() => {
@@ -266,15 +266,15 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
 
-      const closeButton = getByText('Close');
+      const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
-      const inputToFocus = getByTestId('input-to-focus');
+      const inputToFocus = screen.getByTestId('input-to-focus');
 
       await waitFor(() => {
         expect(inputToFocus).toHaveFocus();
@@ -301,11 +301,11 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
-      await user.click(getByText('Open'));
-      await user.click(getByText('Close'));
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByText('Open'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
-        expect(getByTestId('input-to-focus')).toHaveFocus();
+        expect(screen.getByTestId('input-to-focus')).toHaveFocus();
       });
     });
 
@@ -326,10 +326,10 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).not.toHaveFocus();
       });
@@ -352,10 +352,10 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
@@ -378,10 +378,10 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
@@ -447,6 +447,155 @@ describe('<AlertDialog.Popup />', () => {
 
       expect(parentDialog).to.have.attribute('data-nested-dialog-open');
       expect(nestedDialog).not.to.have.attribute('data-nested-dialog-open');
+    });
+  });
+
+  describe('--nested-dialogs variable', () => {
+    it('increments/decrements for nested alert dialogs', async () => {
+      const { user } = await render(
+        <AlertDialog.Root>
+          <AlertDialog.Trigger>Trigger 0</AlertDialog.Trigger>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup data-testid="popup0">
+              <AlertDialog.Root>
+                <AlertDialog.Trigger>Trigger 1</AlertDialog.Trigger>
+                <AlertDialog.Portal>
+                  <AlertDialog.Popup data-testid="popup1">
+                    <AlertDialog.Root>
+                      <AlertDialog.Trigger>Trigger 2</AlertDialog.Trigger>
+                      <AlertDialog.Portal>
+                        <AlertDialog.Popup data-testid="popup2">
+                          <AlertDialog.Close>Close 2</AlertDialog.Close>
+                        </AlertDialog.Popup>
+                      </AlertDialog.Portal>
+                    </AlertDialog.Root>
+                    <AlertDialog.Close>Close 1</AlertDialog.Close>
+                  </AlertDialog.Popup>
+                </AlertDialog.Portal>
+              </AlertDialog.Root>
+              <AlertDialog.Close>Close 0</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
+      await waitFor(() => expect(screen.getByTestId('popup0')).not.to.equal(null));
+
+      const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await waitFor(() => expect(screen.getByTestId('popup1')).not.to.equal(null));
+      await waitFor(() => {
+        expect(
+          getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs'),
+        ).to.equal('1');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
+      await waitFor(() => expect(screen.getByTestId('popup2')).not.to.equal(null));
+      await waitFor(() => {
+        expect(
+          getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs'),
+        ).to.equal('2');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close 2' }));
+      await waitFor(() => {
+        expect(
+          getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs'),
+        ).to.equal('1');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close 1' }));
+      await waitFor(() => {
+        expect(
+          getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs'),
+        ).to.equal('0');
+      });
+    });
+
+    it('decrements when an open nested alert dialog is unmounted', async () => {
+      function App() {
+        const [showNested, setShowNested] = React.useState(true);
+        return (
+          <React.Fragment>
+            <button onClick={() => setShowNested(!showNested)}>toggle</button>
+            <AlertDialog.Root>
+              <AlertDialog.Trigger>Trigger 0</AlertDialog.Trigger>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="popup0">
+                  {showNested && (
+                    <AlertDialog.Root>
+                      <AlertDialog.Trigger>Trigger 1</AlertDialog.Trigger>
+                      <AlertDialog.Portal>
+                        <AlertDialog.Popup data-testid="popup1">
+                          <AlertDialog.Close>Close 1</AlertDialog.Close>
+                        </AlertDialog.Popup>
+                      </AlertDialog.Portal>
+                    </AlertDialog.Root>
+                  )}
+                  <AlertDialog.Close>Close 0</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
+      await waitFor(() => expect(screen.getByTestId('popup0')).not.to.equal(null));
+
+      const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await waitFor(() => expect(screen.getByTestId('popup1')).not.to.equal(null));
+      await waitFor(() => {
+        expect(
+          getComputedStyle(screen.getByTestId('popup0')).getPropertyValue('--nested-dialogs'),
+        ).to.equal('1');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'toggle', hidden: true }));
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+    });
+
+    it('does not change when a closed nested alert dialog is unmounted', async () => {
+      function App() {
+        const [showNested, setShowNested] = React.useState(true);
+        return (
+          <AlertDialog.Root>
+            <AlertDialog.Trigger>Trigger 0</AlertDialog.Trigger>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup data-testid="popup0">
+                {showNested && (
+                  <AlertDialog.Root>
+                    <AlertDialog.Trigger />
+                    <AlertDialog.Portal>
+                      <AlertDialog.Popup />
+                    </AlertDialog.Portal>
+                  </AlertDialog.Root>
+                )}
+                <button onClick={() => setShowNested(!showNested)}>toggle</button>
+                <AlertDialog.Close>Close 0</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
+      await waitFor(() => expect(screen.getByTestId('popup0')).not.to.equal(null));
+
+      const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+
+      await user.click(screen.getByRole('button', { name: 'toggle' }));
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
     });
   });
 });

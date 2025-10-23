@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
@@ -15,8 +14,10 @@ describe('<Popover.Backdrop />', () => {
 
   it('sets `pointer-events: none` style on backdrop if opened by hover', async () => {
     const { user } = await render(
-      <Popover.Root delay={0} openOnHover>
-        <Popover.Trigger>Open</Popover.Trigger>
+      <Popover.Root>
+        <Popover.Trigger delay={0} openOnHover>
+          Open
+        </Popover.Trigger>
         <Popover.Portal>
           <Popover.Backdrop data-testid="backdrop" />
           <Popover.Positioner>
@@ -33,8 +34,8 @@ describe('<Popover.Backdrop />', () => {
 
   it('does not set `pointer-events: none` style on backdrop if opened by click', async () => {
     const { user } = await render(
-      <Popover.Root openOnHover>
-        <Popover.Trigger>Open</Popover.Trigger>
+      <Popover.Root>
+        <Popover.Trigger openOnHover>Open</Popover.Trigger>
         <Popover.Portal>
           <Popover.Backdrop data-testid="backdrop" />
           <Popover.Positioner>

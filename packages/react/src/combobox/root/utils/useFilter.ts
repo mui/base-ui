@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './index';
 
-interface FilterOptions extends Intl.CollatorOptions {
+export interface UseFilterOptions extends Intl.CollatorOptions {
   /**
    * The locale to use for string comparison.
    * Defaults to the user's runtime locale.
@@ -18,7 +18,7 @@ export interface Filter {
 
 const filterCache = new Map<string, Filter>();
 
-function getFilter(options: FilterOptions = {}): Filter {
+function getFilter(options: UseFilterOptions = {}): Filter {
   const mergedOptions: Intl.CollatorOptions = {
     usage: 'search',
     sensitivity: 'base',
@@ -78,7 +78,7 @@ function getFilter(options: FilterOptions = {}): Filter {
  */
 export const useCoreFilter = getFilter;
 
-export type UseComboboxFilterOptions = FilterOptions & {
+export interface UseComboboxFilterOptions extends UseFilterOptions {
   /**
    * Whether the combobox is in multiple selection mode.
    * @default false
@@ -88,7 +88,7 @@ export type UseComboboxFilterOptions = FilterOptions & {
    * The current value of the combobox.
    */
   value?: any;
-};
+}
 
 /**
  * Matches items against a query using `Intl.Collator` for robust string matching.

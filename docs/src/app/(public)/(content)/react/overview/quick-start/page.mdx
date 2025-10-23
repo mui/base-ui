@@ -38,9 +38,9 @@ To make portalled components always appear on top of the entire page, add the fo
 This style creates a separate stacking context for your application's `.root` element.
 This way, popups will always appear above the page contents, and any `z-index` property in your styles won't interfere with them.
 
-### iOS Safari
+### iOS 26+ Safari
 
-Backdrops must use `position: absolute` instead of `position: fixed` in order to cover the entire visible viewport on iOS 26. For this to work after scrolling, `position: relative` must be set on the `<body>`.
+Starting with iOS 26, Safari allows content beneath the UI chrome to be visible. Backdrops such as those used by dialogs must use `position: absolute` instead of `position: fixed` to cover the entire visual viewport. For this to work after the page was scrolled, the following style must be added to your global styles:
 
 ```css title="styles.css"
 body {

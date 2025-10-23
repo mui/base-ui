@@ -15,19 +15,16 @@
     },
     "disabled": {
       "type": "boolean",
-      "default": "false",
       "description": "Whether the component should ignore user interaction.",
       "detailedType": "boolean | undefined"
     },
     "readOnly": {
       "type": "boolean",
-      "default": "false",
       "description": "Whether the user should be unable to select the radio button.",
       "detailedType": "boolean | undefined"
     },
     "required": {
       "type": "boolean",
-      "default": "false",
       "description": "Whether the user must choose a value before submitting a form.",
       "detailedType": "boolean | undefined"
     },

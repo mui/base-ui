@@ -4,7 +4,6 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { EMPTY_OBJECT } from '../../utils/constants';
 import { CompositeListContext } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
@@ -14,7 +13,9 @@ export type CompositeMetadata<CustomMetadata> = { index?: number | null } & Cust
  * @internal
  */
 export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
-  const { children, elementsRef, labelsRef, onMapChange } = props;
+  const { children, elementsRef, labelsRef, onMapChange: onMapChangeProp } = props;
+
+  const onMapChange = useEventCallback(onMapChangeProp);
 
   const nextIndexRef = React.useRef(0);
   const listeners = useRefWithInit(createListeners).current;
@@ -28,18 +29,19 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   // information for list navigation.
 
   const map = useRefWithInit(createMap<Metadata>).current;
-  const [mapTick, setMapTick] = React.useState(EMPTY_OBJECT);
+  // `mapTick` uses a counter rather than objects for low precision-loss risk and better memory efficiency
+  const [mapTick, setMapTick] = React.useState(0);
   const lastTickRef = React.useRef(mapTick);
 
   const register = useEventCallback((node: Element, metadata: Metadata) => {
     map.set(node, metadata ?? null);
-    lastTickRef.current = {};
+    lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
   });
 
   const unregister = useEventCallback((node: Element) => {
     map.delete(node);
-    lastTickRef.current = {};
+    lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
   });
 
@@ -71,7 +73,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
         entry.addedNodes.forEach(updateDiff);
       });
       if (diff.size === 0) {
-        lastTickRef.current = {};
+        lastTickRef.current += 1;
         setMapTick(lastTickRef.current);
       }
     });
@@ -99,8 +101,22 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
       nextIndexRef.current = sortedMap.size;
     }
 
-    onMapChange?.(sortedMap);
+    onMapChange(sortedMap);
   }, [onMapChange, sortedMap, elementsRef, labelsRef, mapTick]);
+
+  useIsoLayoutEffect(() => {
+    return () => {
+      elementsRef.current = [];
+    };
+  }, [elementsRef]);
+
+  useIsoLayoutEffect(() => {
+    return () => {
+      if (labelsRef) {
+        labelsRef.current = [];
+      }
+    };
+  }, [labelsRef]);
 
   const subscribeMapChange = useEventCallback((fn) => {
     listeners.add(fn);
@@ -150,19 +166,21 @@ function sortByDocumentPosition(a: Element, b: Element) {
 
 function disableEslintWarning(_: any) {}
 
+export interface CompositeListProps<Metadata> {
+  children: React.ReactNode;
+  /**
+   * A ref to the list of HTML elements, ordered by their index.
+   * `useListNavigation`'s `listRef` prop.
+   */
+  elementsRef: React.RefObject<Array<HTMLElement | null>>;
+  /**
+   * A ref to the list of element labels, ordered by their index.
+   * `useTypeahead`'s `listRef` prop.
+   */
+  labelsRef?: React.RefObject<Array<string | null>>;
+  onMapChange?: (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void;
+}
+
 export namespace CompositeList {
-  export interface Props<Metadata> {
-    children: React.ReactNode;
-    /**
-     * A ref to the list of HTML elements, ordered by their index.
-     * `useListNavigation`'s `listRef` prop.
-     */
-    elementsRef: React.RefObject<Array<HTMLElement | null>>;
-    /**
-     * A ref to the list of element labels, ordered by their index.
-     * `useTypeahead`'s `listRef` prop.
-     */
-    labelsRef?: React.RefObject<Array<string | null>>;
-    onMapChange?: (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void;
-  }
+  export type Props<Metadata> = CompositeListProps<Metadata>;
 }

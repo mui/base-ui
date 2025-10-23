@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { stopEvent } from '../utils';
 
 import type { ElementProps, FloatingRootContext } from '../types';
+import { EMPTY_ARRAY } from '../../utils/constants';
 
 export interface UseTypeaheadProps {
   /**
@@ -68,11 +68,11 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     listRef,
     activeIndex,
     onMatch: onMatchProp,
-    onTypingChange: onTypingChangeProp,
+    onTypingChange,
     enabled = true,
     findMatch = null,
     resetMs = 750,
-    ignoreKeys = [],
+    ignoreKeys = EMPTY_ARRAY,
     selectedIndex = null,
   } = props;
 
@@ -80,12 +80,6 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
   const stringRef = React.useRef('');
   const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
   const matchIndexRef = React.useRef<number | null>(null);
-
-  const onMatch = useEventCallback(onMatchProp);
-  const onTypingChange = useEventCallback(onTypingChangeProp);
-
-  const findMatchRef = useLatestRef(findMatch);
-  const ignoreKeysRef = useLatestRef(ignoreKeys);
 
   useIsoLayoutEffect(() => {
     if (open) {
@@ -106,11 +100,11 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     if (value) {
       if (!dataRef.current.typing) {
         dataRef.current.typing = value;
-        onTypingChange(value);
+        onTypingChange?.(value);
       }
     } else if (dataRef.current.typing) {
       dataRef.current.typing = value;
-      onTypingChange(value);
+      onTypingChange?.(value);
     }
   });
 
@@ -120,8 +114,8 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
       orderedList: Array<string | null>,
       string: string,
     ) {
-      const str = findMatchRef.current
-        ? findMatchRef.current(orderedList, string)
+      const str = findMatch
+        ? findMatch(orderedList, string)
         : orderedList.find(
             (text) => text?.toLocaleLowerCase().indexOf(string.toLocaleLowerCase()) === 0,
           );
@@ -141,7 +135,7 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
 
     if (
       listContent == null ||
-      ignoreKeysRef.current.includes(event.key) ||
+      ignoreKeys.includes(event.key) ||
       // Character key.
       event.key.length !== 1 ||
       // Modifier key.
@@ -186,7 +180,7 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     );
 
     if (index !== -1) {
-      onMatch(index);
+      onMatchProp?.(index);
       matchIndexRef.current = index;
     } else if (event.key !== ' ') {
       stringRef.current = '';

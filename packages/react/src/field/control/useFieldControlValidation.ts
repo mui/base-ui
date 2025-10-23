@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
@@ -37,16 +39,16 @@ export function useFieldControlValidation() {
   const {
     setValidityData,
     validate,
-    messageIds,
     validityData,
     validationMode,
     validationDebounceTime,
     invalid,
     markedDirtyRef,
-    controlId,
     state,
     name,
   } = useFieldRootContext();
+
+  const { controlId, getDescriptionProps } = useLabelableContext();
 
   const { formRef, clearErrors } = useFormContext();
 
@@ -215,13 +217,11 @@ export function useFieldControlValidation() {
   const getValidationProps = React.useCallback(
     (externalProps = {}) =>
       mergeProps<any>(
-        {
-          ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
-          ...(state.valid === false && { 'aria-invalid': true }),
-        },
+        getDescriptionProps,
+        state.valid === false ? { 'aria-invalid': true } : EMPTY_OBJECT,
         externalProps,
       ),
-    [messageIds, state.valid],
+    [getDescriptionProps, state.valid],
   );
 
   const getInputValidationProps = React.useCallback(
@@ -289,11 +289,13 @@ export function useFieldControlValidation() {
   );
 }
 
+export interface UseFieldControlValidationReturnValue {
+  getValidationProps: (props?: HTMLProps) => HTMLProps;
+  getInputValidationProps: (props?: HTMLProps) => HTMLProps;
+  inputRef: React.MutableRefObject<any>;
+  commitValidation: (value: unknown, revalidate?: boolean) => void;
+}
+
 export namespace useFieldControlValidation {
-  export interface ReturnValue {
-    getValidationProps: (props?: HTMLProps) => HTMLProps;
-    getInputValidationProps: (props?: HTMLProps) => HTMLProps;
-    inputRef: React.MutableRefObject<any>;
-    commitValidation: (value: unknown, revalidate?: boolean) => void;
-  }
+  export type ReturnValue = UseFieldControlValidationReturnValue;
 }

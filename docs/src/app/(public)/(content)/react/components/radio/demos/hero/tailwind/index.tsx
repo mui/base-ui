@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Radio } from '@base-ui-components/react/radio';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
 

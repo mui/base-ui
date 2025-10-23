@@ -13,6 +13,7 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useFormContext } from '../form/FormContext';
 import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
+import { useLabelableContext } from '../labelable-provider/LabelableContext';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRoot } from '../field/root/FieldRoot';
@@ -49,7 +50,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   } = componentProps;
 
   const {
-    labelId,
     setTouched: setFieldTouched,
     setFocused,
     validationMode,
@@ -57,6 +57,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     disabled: fieldDisabled,
     state: fieldState,
   } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
   const fieldControlValidation = useFieldControlValidation();
   const { clearErrors } = useFormContext();
 
@@ -188,6 +189,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       ...fieldState,
       checkedValue,
       disabled,
+      fieldControlValidation,
       name,
       onValueChange,
       readOnly,
@@ -200,6 +202,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     [
       checkedValue,
       disabled,
+      fieldControlValidation,
       fieldState,
       name,
       onValueChange,
@@ -236,63 +239,69 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
         stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
-        stopEventPropagation
       />
       <input {...inputProps} />
     </RadioGroupContext.Provider>
   );
 });
 
+export interface RadioGroupState extends FieldRoot.State {
+  /**
+   * Whether the user should be unable to select a different radio button in the group.
+   */
+  readOnly: boolean | undefined;
+}
+
+export interface RadioGroupProps
+  extends Omit<BaseUIComponentProps<'div', RadioGroup.State>, 'value'> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Whether the user should be unable to select a different radio button in the group.
+   * @default false
+   */
+  readOnly?: boolean;
+  /**
+   * Whether the user must choose a value before submitting a form.
+   * @default false
+   */
+  required?: boolean;
+  /**
+   * Identifies the field when a form is submitted.
+   */
+  name?: string;
+  /**
+   * The controlled value of the radio item that should be currently selected.
+   *
+   * To render an uncontrolled radio group, use the `defaultValue` prop instead.
+   */
+  value?: unknown;
+  /**
+   * The uncontrolled value of the radio button that should be initially selected.
+   *
+   * To render a controlled radio group, use the `value` prop instead.
+   */
+  defaultValue?: unknown;
+  /**
+   * Callback fired when the value changes.
+   */
+  onValueChange?: (value: unknown, eventDetails: RadioGroup.ChangeEventDetails) => void;
+  /**
+   * A ref to access the hidden input element.
+   */
+  inputRef?: React.Ref<HTMLInputElement>;
+}
+
+export type RadioGroupChangeEventReason = 'none';
+
+export type RadioGroupChangeEventDetails = BaseUIChangeEventDetails<RadioGroup.ChangeEventReason>;
+
 export namespace RadioGroup {
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the user should be unable to select a different radio button in the group.
-     */
-    readOnly: boolean | undefined;
-  }
-
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'value'> {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Whether the user should be unable to select a different radio button in the group.
-     * @default false
-     */
-    readOnly?: boolean;
-    /**
-     * Whether the user must choose a value before submitting a form.
-     * @default false
-     */
-    required?: boolean;
-    /**
-     * Identifies the field when a form is submitted.
-     */
-    name?: string;
-    /**
-     * The controlled value of the radio item that should be currently selected.
-     *
-     * To render an uncontrolled radio group, use the `defaultValue` prop instead.
-     */
-    value?: unknown;
-    /**
-     * The uncontrolled value of the radio button that should be initially selected.
-     *
-     * To render a controlled radio group, use the `value` prop instead.
-     */
-    defaultValue?: unknown;
-    /**
-     * Callback fired when the value changes.
-     */
-    onValueChange?: (value: unknown, eventDetails: ChangeEventDetails) => void;
-    /**
-     * A ref to access the hidden input element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
-  }
-
-  export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type State = RadioGroupState;
+  export type Props = RadioGroupProps;
+  export type ChangeEventReason = RadioGroupChangeEventReason;
+  export type ChangeEventDetails = RadioGroupChangeEventDetails;
 }

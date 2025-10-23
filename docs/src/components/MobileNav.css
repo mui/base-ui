@@ -1,6 +1,6 @@
 @layer components {
   .MobileNavBackdrop {
-    position: absolute;
+    position: fixed;
     inset: 0;
     min-height: 100dvh;
 
@@ -9,6 +9,11 @@
     transition-timing-function: var(--ease-out-fast);
     backdrop-filter: blur(1.5px);
     background-image: linear-gradient(to bottom, transparent 2rem, rgb(0 0 0 / 5%) 50%);
+
+    /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
+    @supports (-webkit-touch-callout: none) {
+      position: absolute;
+    }
 
     @media (prefers-color-scheme: dark) {
       background-image: linear-gradient(to bottom, transparent, rgb(0 0 0 / 25%) 6rem);
