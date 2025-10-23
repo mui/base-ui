@@ -1145,7 +1145,8 @@ describe('<Dialog.Root />', () => {
     });
 
     it('keeps the payload reactive', async () => {
-      const testDialog = Dialog.createHandle<number>();
+      type NumberAccessorPayload = { payload: (() => number) | undefined };
+      const testDialog = Dialog.createHandle<() => number>();
       function Triggers() {
         // Setting up triggers in a separate component so payload is in their local state
         // and updating it does not cause the Dialog.Root to re-render automatically.
@@ -1154,10 +1155,10 @@ describe('<Dialog.Root />', () => {
 
         return (
           <div>
-            <Dialog.Trigger id="trigger-1" payload={payloads[0]} handle={testDialog}>
+            <Dialog.Trigger id="trigger-1" payload={() => payloads[0]} handle={testDialog}>
               Dialog 1
             </Dialog.Trigger>
-            <Dialog.Trigger id="trigger-2" payload={payloads[1]} handle={testDialog}>
+            <Dialog.Trigger id="trigger-2" payload={() => payloads[1]} handle={testDialog}>
               Dialog 2
             </Dialog.Trigger>
             <button type="button" onClick={() => setPayloads([8, 16])}>
@@ -1172,10 +1173,10 @@ describe('<Dialog.Root />', () => {
           <div>
             <Triggers />
             <Dialog.Root modal={false} dismissible={false} handle={testDialog}>
-              {({ payload }: NumberPayload) => (
+              {({ payload }: NumberAccessorPayload) => (
                 <Dialog.Portal>
                   <Dialog.Popup>
-                    <span data-testid="content">{payload}</span>
+                    <span data-testid="content">{payload?.()}</span>
                   </Dialog.Popup>
                 </Dialog.Portal>
               )}
