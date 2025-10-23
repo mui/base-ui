@@ -11,7 +11,7 @@ export function useTriggerRegistration<State extends { triggers: PopupTriggerMap
   id: string | undefined,
   store: Store<State>,
 ) {
-  const registeredId = React.useRef<string>(null);
+  const registeredIdRef = React.useRef<string>(null);
 
   return React.useCallback(
     (triggerElement: HTMLElement | null) => {
@@ -23,10 +23,10 @@ export function useTriggerRegistration<State extends { triggers: PopupTriggerMap
       if (triggerElement != null) {
         triggers.set(id, triggerElement);
         // Keeping track of the registered id in case it changes.
-        registeredId.current = id;
-      } else if (registeredId.current != null) {
-        triggers.delete(registeredId.current);
-        registeredId.current = null;
+        registeredIdRef.current = id;
+      } else if (registeredIdRef.current != null) {
+        triggers.delete(registeredIdRef.current);
+        registeredIdRef.current = null;
       }
       store.set('triggers', triggers);
     },
