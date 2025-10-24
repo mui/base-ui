@@ -14,6 +14,23 @@ import { AccordionPanelCssVars } from './AccordionPanelCssVars';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { AccordionPanelDataAttributes } from './AccordionPanelDataAttributes';
+
+const stateAttributesMapping: StateAttributesMapping<AccordionPanel.State> = {
+  ...accordionStateAttributesMapping,
+  open: (open) => {
+    const hidden = !open;
+    const itemMapping = accordionStateAttributesMapping.open?.(open) ?? {};
+    if (hidden) {
+      return {
+        ...itemMapping,
+        [AccordionPanelDataAttributes.hidden]: '',
+      };
+    }
+    return itemMapping;
+  },
+};
 
 /**
  * A collapsible panel with the accordion item contents.
@@ -132,9 +149,8 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     () => ({
       ...state,
       transitionStatus,
-      hidden: !open,
     }),
-    [state, transitionStatus, open],
+    [state, transitionStatus],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -154,7 +170,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
       },
       elementProps,
     ],
-    stateAttributesMapping: accordionStateAttributesMapping,
+    stateAttributesMapping,
   });
 
   const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);

@@ -6,12 +6,18 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
-import { collapsibleStateAttributesMapping } from '../root/stateAttributesMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { panelOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
+const stateAttributesMapping: StateAttributesMapping<CollapsiblePanel.State> = {
+  ...panelOpenStateMapping,
+  ...transitionStatusMapping,
+};
 /**
  * A panel with the collapsible contents.
  * Renders a `<div>` element.
@@ -124,10 +130,9 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   const panelState: CollapsiblePanel.State = React.useMemo(
     () => ({
       ...state,
-      hidden: !open,
       transitionStatus,
     }),
-    [state, transitionStatus, open],
+    [state, transitionStatus],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -145,7 +150,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
       },
       elementProps,
     ],
-    stateAttributesMapping: collapsibleStateAttributesMapping,
+    stateAttributesMapping,
   });
 
   const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
@@ -159,7 +164,6 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 
 export interface CollapsiblePanelState extends CollapsibleRoot.State {
   transitionStatus: TransitionStatus;
-  hidden: boolean;
 }
 
 export interface CollapsiblePanelProps extends BaseUIComponentProps<'div', CollapsiblePanel.State> {
