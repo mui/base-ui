@@ -6,3 +6,4 @@ export { AlertDialogPortal as Portal } from './portal/AlertDialogPortal';
 export { AlertDialogRoot as Root } from './root/AlertDialogRoot';
 export { AlertDialogTitle as Title } from './title/AlertDialogTitle';
 export { AlertDialogTrigger as Trigger } from './trigger/AlertDialogTrigger';
+export { createDialogHandle as createHandle } from '../dialog/store/DialogHandle';

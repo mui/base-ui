@@ -23,9 +23,9 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
   const id = useBaseUiId(elementProps.id);
 
   useIsoLayoutEffect(() => {
-    store.set('titleId', id);
+    store.set('titleElementId', id);
     return () => {
-      store.set('titleId', undefined);
+      store.set('titleElementId', undefined);
     };
   }, [store, id]);
 
