@@ -81,6 +81,7 @@ function ReactHookForm() {
           </Field.Root>
         )}
       />
+
       <Controller
         name="region"
         control={control}
@@ -127,6 +128,7 @@ function ReactHookForm() {
           </Field.Root>
         )}
       />
+
       <Controller
         name="containerImage"
         control={control}
@@ -175,6 +177,7 @@ function ReactHookForm() {
           </Field.Root>
         )}
       />
+
       <Controller
         name="serverType"
         control={control}
@@ -219,6 +222,7 @@ function ReactHookForm() {
           </Field.Root>
         )}
       />
+
       <Controller
         name="numOfInstances"
         control={control}
@@ -246,6 +250,7 @@ function ReactHookForm() {
           </Field.Root>
         )}
       />
+
       <Controller
         name="scalingThreshold"
         control={control}
@@ -286,6 +291,7 @@ function ReactHookForm() {
           </Field.Root>
         )}
       />
+
       <Controller
         name="storageType"
         control={control}
@@ -321,6 +327,7 @@ function ReactHookForm() {
           </Field.Root>
         )}
       />
+
       <Controller
         name="restartOnFailure"
         control={control}
@@ -343,6 +350,7 @@ function ReactHookForm() {
           </Field.Root>
         )}
       />
+
       <Controller
         name="backupSchedule"
         control={control}
@@ -375,6 +383,7 @@ function ReactHookForm() {
           </Field.Root>
         )}
       />
+
       <Button type="submit" className="mt-3">
         Launch server
       </Button>

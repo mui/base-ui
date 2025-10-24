@@ -384,7 +384,7 @@ Use the `<form.Field>` component from the form instance to integrate with Base U
 
 ```tsx {7-9, 11-14, 18-20, 24} title="Integrating TanStack Form fields with Base UI components" "field.name" "value" "isValid" "isDirty" "isTouched" "handleChange" "handleBlur"
 import { useForm } from '@tanstack/react-form';
-import { Field } from '@base-ui-components/react/Field';
+import { Field } from '@base-ui-components/react/field';
 
 const form = useForm(/* defaultValues, other parameters */)
 
@@ -449,9 +449,9 @@ const form = useForm({
       }
 
       if (!formValues.email) {
-        errors.username = 'Email is required.';
-      } else if (!checkEmailRegex(formValues.email)) {
-        errors.username = 'Invalid email format.';
+        errors.email = 'Email is required.';
+      } else if (!isValidEmail(formValues.email)) {
+        errors.email = 'Invalid email address.';
       }
 
       return { fields: errors };
@@ -465,7 +465,7 @@ const form = useForm({
 Additional validator functions can be passed to individual `<form.Field>`s to add validations on top of the form-level validators:
 
 ```tsx {8-16} title="Field-level validation with TanStack Form"
-import { Field } from '@base-ui-components/react/Field';
+import { Field } from '@base-ui-components/react/field';
 import { useForm } from '@tanstack/react-form';
 
 const form = useForm();

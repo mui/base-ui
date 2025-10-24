@@ -112,6 +112,7 @@ function TanstackForm() {
           );
         }}
       />
+
       <form.Field
         name="region"
         children={(field) => {
@@ -165,6 +166,7 @@ function TanstackForm() {
           );
         }}
       />
+
       <form.Field
         name="containerImage"
         children={(field) => {
@@ -214,6 +216,7 @@ function TanstackForm() {
           );
         }}
       />
+
       <form.Field
         name="serverType"
         children={(field) => {
@@ -264,6 +267,7 @@ function TanstackForm() {
           );
         }}
       />
+
       <form.Field
         name="numOfInstances"
         children={(field) => {
@@ -298,6 +302,7 @@ function TanstackForm() {
           );
         }}
       />
+
       <form.Field
         name="scalingThreshold"
         children={(field) => {
@@ -344,6 +349,7 @@ function TanstackForm() {
           );
         }}
       />
+
       <form.Field
         name="storageType"
         children={(field) => {
@@ -382,6 +388,7 @@ function TanstackForm() {
           );
         }}
       />
+
       <form.Field
         name="restartOnFailure"
         children={(field) => {
@@ -409,6 +416,7 @@ function TanstackForm() {
           );
         }}
       />
+
       <form.Field
         name="backupSchedule"
         children={(field) => {
@@ -447,6 +455,7 @@ function TanstackForm() {
           );
         }}
       />
+
       <Button type="submit" className="mt-3">
         Launch server
       </Button>

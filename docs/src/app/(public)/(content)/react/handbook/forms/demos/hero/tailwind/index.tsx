@@ -47,6 +47,7 @@ function ExampleForm() {
         <Field.Description>Must be 3 or more characters long</Field.Description>
         <Field.Error />
       </Field.Root>
+
       <Field.Root name="region">
         <Combobox.Root items={REGIONS} required>
           <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
@@ -81,6 +82,7 @@ function ExampleForm() {
         </Combobox.Root>
         <Field.Error />
       </Field.Root>
+
       <Field.Root name="containerImage">
         <Autocomplete.Root
           items={IMAGES}
@@ -112,6 +114,7 @@ function ExampleForm() {
         </Autocomplete.Root>
         <Field.Error />
       </Field.Root>
+
       <Field.Root name="serverType">
         <Field.Label>Server type</Field.Label>
         <Select.Root items={SERVER_TYPES} required>
@@ -144,6 +147,7 @@ function ExampleForm() {
         </Select.Root>
         <Field.Error />
       </Field.Root>
+
       <Field.Root name="numOfInstances">
         <NumberField.Root defaultValue={undefined} min={1} max={64} required>
           <Field.Label>Number of instances</Field.Label>
@@ -159,6 +163,7 @@ function ExampleForm() {
         </NumberField.Root>
         <Field.Error />
       </Field.Root>
+
       <Field.Root name="scalingThreshold">
         <Fieldset.Root
           render={
@@ -188,6 +193,7 @@ function ExampleForm() {
           </Slider.Control>
         </Fieldset.Root>
       </Field.Root>
+
       <Field.Root name="storageType">
         <Fieldset.Root render={<RadioGroup className="gap-4" defaultValue="ssd" />}>
           <Fieldset.Legend className="-mt-px">Storage type</Fieldset.Legend>
@@ -205,6 +211,7 @@ function ExampleForm() {
           </Field.Label>
         </Fieldset.Root>
       </Field.Root>
+
       <Field.Root name="restartOnFailure">
         <Field.Label className="gap-4">
           Restart on failure
@@ -213,6 +220,7 @@ function ExampleForm() {
           </Switch.Root>
         </Field.Label>
       </Field.Root>
+
       <Field.Root name="backupSchedule">
         <Fieldset.Root render={<CheckboxGroup />}>
           <Fieldset.Legend className="mb-2">Backup schedule</Fieldset.Legend>
@@ -232,6 +240,7 @@ function ExampleForm() {
           </div>
         </Fieldset.Root>
       </Field.Root>
+
       <Button type="submit" className="mt-3">
         Launch server
       </Button>
