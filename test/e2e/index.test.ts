@@ -68,41 +68,43 @@ describe('e2e', () => {
     describe('validationMode=onChange', () => {
       it('<Field.Control />', async () => {
         await renderFixture('field/validate-on-change/Input');
-        await expect(await page.getByTestId('error')).toBeHidden();
+
+        const error = await page.getByTestId('error');
+        await expect(error).toBeHidden();
 
         const input = page.getByRole('textbox');
 
         await input.press('a');
         await expect(page.getByText('tooShort error')).toBeVisible();
-        expect(await page.getByTestId('error').count()).toEqual(1);
+        expect(error).toHaveCount(1);
 
         // clear the input
         await input.press('Backspace');
         await expect(page.getByText('valueMissing error')).toBeVisible();
-        expect(await page.getByTestId('error').count()).toEqual(1);
+        expect(error).toHaveCount(1);
 
         await input.pressSequentially('abc');
         await expect(input).toHaveValue('abc');
-        await expect(await page.getByTestId('error')).toBeHidden();
+        await expect(error).toBeHidden();
 
         await input.press('d');
         await expect(input).toHaveValue('abcd');
         await expect(page.getByText('custom error')).toBeVisible();
-        expect(await page.getByTestId('error').count()).toEqual(1);
+        expect(error).toHaveCount(1);
 
         await input.press('Backspace');
         await expect(input).toHaveValue('abc');
-        await expect(await page.getByTestId('error')).toBeHidden();
+        await expect(error).toBeHidden();
 
         await input.press('Backspace');
         await expect(input).toHaveValue('ab');
-        expect(await page.getByTestId('error').count()).toEqual(1);
+        expect(error).toHaveCount(1);
         await expect(page.getByText('tooShort error')).toBeVisible();
 
         await input.press('Backspace');
         await input.press('Backspace');
         await expect(input).toHaveValue('');
-        expect(await page.getByTestId('error').count()).toEqual(1);
+        expect(error).toHaveCount(1);
         await expect(page.getByText('valueMissing error')).toBeVisible();
       });
 
@@ -111,35 +113,40 @@ describe('e2e', () => {
         // options two and four are valid
         // the field is required
         await renderFixture('field/validate-on-change/Select');
-        await expect(await page.getByTestId('error')).toBeHidden();
 
-        const trigger = page.getByRole('combobox');
+        const error = await page.getByTestId('error');
+        await expect(error).toBeHidden();
+
+        const trigger = await page.getByRole('combobox');
         await expect(trigger).toHaveText('select');
 
+        const options = page.getByRole('option');
+
         await trigger.click();
-        await page.getByRole('option', { name: 'one' }).click();
+        await options.filter({ hasText: 'one' }).click();
         await expect(trigger).toHaveText('one');
-        await expect(await page.getByTestId('error')).toHaveText('error one');
+        await expect(error).toHaveText('error one');
 
-        await page.getByRole('combobox').click();
-        await page.getByRole('option', { name: 'two' }).click();
-        await expect(page.getByRole('combobox')).toHaveText('two');
-        await expect(await page.getByTestId('error')).toBeHidden();
+        await trigger.click();
+        await options.filter({ hasText: 'two' }).click();
+        await expect(trigger).toHaveText('two');
+        await expect(error).toBeHidden();
 
-        await page.getByRole('combobox').click();
-        await page.getByRole('option', { name: 'select' }).click();
-        await expect(page.getByRole('combobox')).toHaveText('select');
-        await expect(await page.getByTestId('error')).toHaveText('valueMissing error');
+        await trigger.click();
+        // clear the value
+        await options.filter({ hasText: 'select' }).click();
+        await expect(trigger).toHaveText('select');
+        await expect(error).toHaveText('valueMissing error');
 
-        await page.getByRole('combobox').click();
-        await page.getByRole('option', { name: 'three' }).click();
-        await expect(page.getByRole('combobox')).toHaveText('three');
-        await expect(await page.getByTestId('error')).toHaveText('error three');
+        await trigger.click();
+        await options.filter({ hasText: 'three' }).click();
+        await expect(trigger).toHaveText('three');
+        await expect(error).toHaveText('error three');
 
-        await page.getByRole('combobox').click();
-        await page.getByRole('option', { name: 'four' }).click();
-        await expect(page.getByRole('combobox')).toHaveText('four');
-        await expect(await page.getByTestId('error')).toBeHidden();
+        await trigger.click();
+        await options.filter({ hasText: 'four' }).click();
+        await expect(trigger).toHaveText('four');
+        await expect(error).toBeHidden();
       });
     });
   });

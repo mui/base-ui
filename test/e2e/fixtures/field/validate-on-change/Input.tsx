@@ -8,7 +8,6 @@ export default function InputValidateOnChange() {
       validate={(val) => (val === 'abcd' ? 'custom error' : null)}
       className="flex flex-col items-start gap-1"
     >
-      <Field.Label className="text-sm font-medium text-gray-900">Homepage</Field.Label>
       <Field.Control
         required
         minLength={3}
