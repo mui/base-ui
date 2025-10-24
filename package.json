@@ -65,7 +65,7 @@
     "@octokit/rest": "^22.0.0",
     "@playwright/test": "1.56.1",
     "@tailwindcss/postcss": "4.1.14",
-    "@types/node": "^22.18.11",
+    "@types/node": "^22.18.12",
     "@types/react": "^19.2.2",
     "@types/yargs": "^17.0.33",
     "@vitejs/plugin-react": "^5.0.4",
@@ -115,7 +115,7 @@
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/types": "^7.28.4",
-    "@types/node": "^22.18.11",
+    "@types/node": "^22.18.12",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2"
   }
