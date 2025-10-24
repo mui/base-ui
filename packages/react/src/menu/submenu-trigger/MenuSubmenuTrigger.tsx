@@ -39,7 +39,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const open = store.useState('open');
   const parent = store.useState('parent');
   const disabled = store.useState('disabled');
-  const highlighted = store.useState('isActive', listItem.index);
 
   if (parent.type !== 'menu') {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
@@ -47,6 +46,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const parentMenuStore = parent.store;
   const itemProps = parentMenuStore.useState('itemProps');
+  const highlighted = parentMenuStore.useState('isActive', listItem.index);
 
   const itemMetadata = React.useMemo(
     () => ({
