@@ -2,12 +2,12 @@ import * as React from 'react';
 import { ReactStore, createSelector } from '@base-ui-components/utils/store';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
-import { type FloatingRootContext } from '../floating-ui-react';
-import { type TransitionStatus } from '../utils/useTransitionStatus';
-import { type HTMLProps } from '../utils/types';
-import { getEmptyContext } from '../floating-ui-react/hooks/useFloatingRootContext';
-import { PopoverRoot } from './root/PopoverRoot';
-import { PopupTriggerMap } from '../utils/popupStoreUtils';
+import { type FloatingRootContext } from '../../floating-ui-react';
+import { type TransitionStatus } from '../../utils/useTransitionStatus';
+import { type HTMLProps } from '../../utils/types';
+import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { PopoverRoot } from './../root/PopoverRoot';
+import { PopupTriggerMap } from '../../utils/popupStoreUtils';
 
 export type State<Payload> = {
   open: boolean;
@@ -125,10 +125,6 @@ export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, S
   ) {
     this.state.floatingRootContext.events.emit('setOpen', { open, eventDetails });
   }
-}
-
-export function createPopoverHandle<Payload>(): PopoverStore<Payload> {
-  return new PopoverStore<Payload>();
 }
 
 type Selectors = typeof selectors;

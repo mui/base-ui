@@ -18,7 +18,8 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
-import { PopoverStore } from '../PopoverStore';
+import { PopoverStore } from '../store/PopoverStore';
+import { PopoverHandle } from '../store/PopoverHandle';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
@@ -44,7 +45,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
   const store = useRefWithInit(() => {
     return (
-      handle ||
+      handle?.store ??
       new PopoverStore<Payload>({
         open: openProp ?? defaultOpenProp,
         modal,
@@ -347,7 +348,7 @@ export interface PopoverRootProps<Payload = unknown> {
    * A handle to associate the popover with a trigger.
    * If specified, allows external triggers to control the popover's open state.
    */
-  handle?: PopoverStore<Payload>;
+  handle?: PopoverHandle<Payload>;
   /**
    * The content of the popover.
    * This can be a regular React node or a render function that receives the `payload` of the active trigger.
