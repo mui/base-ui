@@ -461,7 +461,7 @@ export interface ComboboxInputState extends FieldRoot.State {
    */
   open: boolean;
   /**
-   * Indicates which side the corresponding popup is positioned relative to the input.
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
    */
   popupSide: Side | null;
   /**

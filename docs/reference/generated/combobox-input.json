@@ -56,7 +56,7 @@
       "description": "Present when the corresponding items list is empty."
     },
     "data-popup-side": {
-      "description": "Indicates which side the corresponding popup is positioned on the input.",
+      "description": "Indicates which side the corresponding popup is positioned relative to its anchor.",
       "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null"
     }
   },
