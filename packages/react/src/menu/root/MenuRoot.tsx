@@ -190,7 +190,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     setMounted(false);
     setStickIfOpen(true);
 
-    store.apply({
+    store.update({
       mounted: false,
       allowMouseEnter: false,
     });
