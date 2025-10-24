@@ -209,8 +209,8 @@ importers:
         specifier: ^1.40.0
         version: 1.40.0
       estree-util-value-to-estree:
-        specifier: ^3.4.0
-        version: 3.4.0
+        specifier: ^3.4.1
+        version: 3.4.1
       globby:
         specifier: ^15.0.0
         version: 15.0.0
@@ -5806,8 +5806,8 @@ packages:
   estree-util-to-js@2.0.0:
     resolution: {integrity: sha512-WDF+xj5rRWmD5tj6bIqRi6CkLIXbbNQUcxQHzGysQzvHmdYG2G7p/Tf0J0gpxGgkeMZNTIjT/AoSvC9Xehcgdg==}
 
-  estree-util-value-to-estree@3.4.0:
-    resolution: {integrity: sha512-Zlp+gxis+gCfK12d3Srl2PdX2ybsEA8ZYy6vQGVQTNNYLEGRQQ56XB64bjemN8kxIKXP1nC9ip4Z+ILy9LGzvQ==}
+  estree-util-value-to-estree@3.4.1:
+    resolution: {integrity: sha512-E4fEc8KLhDXnbyDa5XrbdT9PbgSMt0AGZPFUsGFok8N2Q7DTO+F6xAFJjIdw71EkidRg186I1mQCKzZ1ZbEsCw==}
 
   estree-util-visit@2.0.0:
     resolution: {integrity: sha512-m5KgiH85xAhhW8Wta0vShLcUvOsh3LLPI2YVwcbio1l7E09NTLL1EyMZFM1OyWowoH0skScNbhOPl4kcBgzTww==}
@@ -13887,7 +13887,7 @@ snapshots:
   '@stefanprobst/rehype-extract-toc@3.0.0':
     dependencies:
       estree-util-is-identifier-name: 3.0.0
-      estree-util-value-to-estree: 3.4.0
+      estree-util-value-to-estree: 3.4.1
       hast-util-heading-rank: 3.0.0
       hast-util-to-string: 3.0.1
       unist-util-visit: 5.0.0
@@ -15925,7 +15925,7 @@ snapshots:
       astring: 1.9.0
       source-map: 0.7.6
 
-  estree-util-value-to-estree@3.4.0:
+  estree-util-value-to-estree@3.4.1:
     dependencies:
       '@types/estree': 1.0.8
 
@@ -19167,7 +19167,7 @@ snapshots:
   remark-mdx-frontmatter@5.2.0:
     dependencies:
       '@types/mdast': 4.0.4
-      estree-util-value-to-estree: 3.4.0
+      estree-util-value-to-estree: 3.4.1
       toml: 3.0.0
       unified: 11.0.5
       unist-util-mdx-define: 1.1.2
