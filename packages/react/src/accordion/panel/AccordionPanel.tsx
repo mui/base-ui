@@ -132,8 +132,9 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     () => ({
       ...state,
       transitionStatus,
+      hidden: !open,
     }),
-    [state, transitionStatus],
+    [state, transitionStatus, open],
   );
 
   const element = useRenderElement('div', componentProps, {

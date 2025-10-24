@@ -124,9 +124,10 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   const panelState: CollapsiblePanel.State = React.useMemo(
     () => ({
       ...state,
+      hidden: !open,
       transitionStatus,
     }),
-    [state, transitionStatus],
+    [state, transitionStatus, open],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -158,6 +159,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 
 export interface CollapsiblePanelState extends CollapsibleRoot.State {
   transitionStatus: TransitionStatus;
+  hidden: boolean;
 }
 
 export interface CollapsiblePanelProps extends BaseUIComponentProps<'div', CollapsiblePanel.State> {
