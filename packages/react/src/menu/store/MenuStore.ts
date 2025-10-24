@@ -98,9 +98,11 @@ const writeInterceptors = {
   },
 };
 
+let unsubscribe: (() => void) | null = null;
 function registerParent(store: ReactStore<any, Context, any>, parent: MenuParent) {
   if (parent.type === 'menu') {
-    parent.store.subscribe(() => {
+    unsubscribe?.();
+    unsubscribe = parent.store.subscribe(() => {
       // Propagate changes from parent menu
       store.notifyAll();
     });
@@ -108,6 +110,11 @@ function registerParent(store: ReactStore<any, Context, any>, parent: MenuParent
     store.context.allowMouseUpTriggerRef = parent.store.context.allowMouseUpTriggerRef;
   } else if (parent.type !== undefined) {
     store.context.allowMouseUpTriggerRef = parent.context.allowMouseUpTriggerRef;
+    unsubscribe?.();
+    unsubscribe = null;
+  } else {
+    unsubscribe?.();
+    unsubscribe = null;
   }
 }
 
