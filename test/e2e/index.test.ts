@@ -64,11 +64,11 @@ describe('e2e', () => {
     await browser.close();
   });
 
-  describe('<Field.Control />', () => {
+  describe('<Field />', () => {
     describe('validationMode=onChange', () => {
-      it('updates the validity state based on the latest value', async () => {
-        await renderFixture('InputValidateOnChange');
-        expect(await page.getByTestId('error').count()).toEqual(0);
+      it('<Field.Control />', async () => {
+        await renderFixture('field/validate-on-change/Input');
+        await expect(await page.getByTestId('error')).toBeHidden();
 
         const input = page.getByRole('textbox');
 
@@ -83,7 +83,7 @@ describe('e2e', () => {
 
         await input.pressSequentially('abc');
         await expect(input).toHaveValue('abc');
-        expect(await page.getByTestId('error').count()).toEqual(0);
+        await expect(await page.getByTestId('error')).toBeHidden();
 
         await input.press('d');
         await expect(input).toHaveValue('abcd');
@@ -92,7 +92,7 @@ describe('e2e', () => {
 
         await input.press('Backspace');
         await expect(input).toHaveValue('abc');
-        expect(await page.getByTestId('error').count()).toEqual(0);
+        await expect(await page.getByTestId('error')).toBeHidden();
 
         await input.press('Backspace');
         await expect(input).toHaveValue('ab');
@@ -104,6 +104,42 @@ describe('e2e', () => {
         await expect(input).toHaveValue('');
         expect(await page.getByTestId('error').count()).toEqual(1);
         await expect(page.getByText('valueMissing error')).toBeVisible();
+      });
+
+      it('<Select />', async () => {
+        // options one & three returns errors
+        // options two and four are valid
+        // the field is required
+        await renderFixture('field/validate-on-change/Select');
+        await expect(await page.getByTestId('error')).toBeHidden();
+
+        const trigger = page.getByRole('combobox');
+        await expect(trigger).toHaveText('select');
+
+        await trigger.click();
+        await page.getByRole('option', { name: 'one' }).click();
+        await expect(trigger).toHaveText('one');
+        await expect(await page.getByTestId('error')).toHaveText('error one');
+
+        await page.getByRole('combobox').click();
+        await page.getByRole('option', { name: 'two' }).click();
+        await expect(page.getByRole('combobox')).toHaveText('two');
+        await expect(await page.getByTestId('error')).toBeHidden();
+
+        await page.getByRole('combobox').click();
+        await page.getByRole('option', { name: 'select' }).click();
+        await expect(page.getByRole('combobox')).toHaveText('select');
+        await expect(await page.getByTestId('error')).toHaveText('valueMissing error');
+
+        await page.getByRole('combobox').click();
+        await page.getByRole('option', { name: 'three' }).click();
+        await expect(page.getByRole('combobox')).toHaveText('three');
+        await expect(await page.getByTestId('error')).toHaveText('error three');
+
+        await page.getByRole('combobox').click();
+        await page.getByRole('option', { name: 'four' }).click();
+        await expect(page.getByRole('combobox')).toHaveText('four');
+        await expect(await page.getByTestId('error')).toBeHidden();
       });
     });
   });

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 
-export default function ValidateOnChange() {
+export default function InputValidateOnChange() {
   return (
     <Field.Root
       validationMode="onChange"
