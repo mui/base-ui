@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
+import { inertValue } from '@base-ui-components/utils/inertValue';
 import { FloatingPortal } from '../../floating-ui-react';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { AlertDialogPortalContext } from './AlertDialogPortalContext';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -19,6 +21,7 @@ export const AlertDialogPortal = React.forwardRef(function AlertDialogPortal(
 
   const { store } = useDialogRootContext();
   const mounted = store.useState('mounted');
+  const modal = store.useState('modal');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
@@ -27,7 +30,12 @@ export const AlertDialogPortal = React.forwardRef(function AlertDialogPortal(
 
   return (
     <AlertDialogPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps} />
+      <FloatingPortal ref={forwardedRef} {...portalProps}>
+        {mounted && modal === true && (
+          <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
+        )}
+        {props.children}
+      </FloatingPortal>
     </AlertDialogPortalContext.Provider>
   );
 });

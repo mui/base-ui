@@ -13,6 +13,7 @@ const INITIAL_STATE = {
   dismissible: true,
   nested: false,
   popupElement: null,
+  viewportElement: null,
   triggerElement: null,
   modal: true,
   descriptionElementId: undefined,
