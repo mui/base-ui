@@ -11,9 +11,14 @@
       "description": "Callback fired when the `value` changes. Use when controlled.",
       "detailedType": "| ((\n    value: string,\n    eventDetails: Field.Control.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Input.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Input.State) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: Input.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Input.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Input.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Input.State) => ReactElement)",
@@ -26,22 +31,22 @@
       "description": "Present when the input is disabled."
     },
     "data-valid": {
-      "description": "Present when the input is in valid state."
+      "description": "Present when the input is in valid state (when wrapped in Field.Root)."
     },
     "data-invalid": {
-      "description": "Present when the input is in invalid state."
+      "description": "Present when the input is in invalid state (when wrapped in Field.Root)."
     },
     "data-dirty": {
-      "description": "Present when the input's value has changed."
+      "description": "Present when the input's value has changed (when wrapped in Field.Root)."
     },
     "data-touched": {
-      "description": "Present when the input has been touched."
+      "description": "Present when the input has been touched (when wrapped in Field.Root)."
     },
     "data-filled": {
-      "description": "Present when the input is filled."
+      "description": "Present when the input is filled (when wrapped in Field.Root)."
     },
     "data-focused": {
-      "description": "Present when the input is focused."
+      "description": "Present when the input is focused (when wrapped in Field.Root)."
     }
   },
   "cssVariables": {}

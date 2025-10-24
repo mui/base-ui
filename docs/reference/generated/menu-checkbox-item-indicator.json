@@ -2,10 +2,14 @@
   "name": "MenuCheckboxItemIndicator",
   "description": "Indicates whether the checkbox item is ticked.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Menu.CheckboxItemIndicator.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Menu.CheckboxItemIndicator.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: Menu.CheckboxItemIndicator.State) => string)",
+      "type": "string | ((state: Menu.CheckboxItemIndicator.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Menu.CheckboxItemIndicator.State) => string)"
+      "detailedType": "| string\n| ((\n    state: Menu.CheckboxItemIndicator.State,\n  ) => string | undefined)"
     },
     "keepMounted": {
       "type": "boolean",

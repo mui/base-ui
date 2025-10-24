@@ -99,7 +99,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       store.state.setInputValue('', createChangeEventDetails('none'));
     }
 
-    store.apply({
+    store.update({
       inputElement: element,
       inputInsidePopup: hasPositionerParent,
     });

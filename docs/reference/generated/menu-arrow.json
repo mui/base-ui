@@ -2,9 +2,14 @@
   "name": "MenuArrow",
   "description": "Displays an element positioned against the menu anchor.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Menu.Arrow.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.Arrow.State) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: Menu.Arrow.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Menu.Arrow.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Menu.Arrow.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.Arrow.State) => ReactElement)",
