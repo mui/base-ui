@@ -56,7 +56,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const openState = store.useState('open');
   const triggerElement = store.useState('triggerElement');
   const positionerElement = store.useState('positionerElement');
-  const instantTypeState = store.useState('instantType');
+  const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
 
   const open = !disabled && openState;
@@ -107,12 +107,16 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   // 2) Closing because another tooltip opened (reason === 'none')
   // Otherwise, allow the animation to play. In particular, do not disable animations
   // during the 'ending' phase unless it's due to a sibling opening.
-  let instantType: 'dismiss' | 'focus' | 'delay' | undefined;
-  if (transitionStatus === 'ending') {
-    instantType = lastOpenChangeReason === 'none' ? 'delay' : instantTypeState;
-  } else {
-    instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
-  }
+  const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
+  useIsoLayoutEffect(() => {
+    if ((transitionStatus === 'ending' && lastOpenChangeReason === 'none') || isInstantPhase) {
+      previousInstantTypeRef.current = instantType;
+      store.set('instantType', 'delay');
+    } else if (previousInstantTypeRef.current !== null) {
+      store.set('instantType', previousInstantTypeRef.current);
+      previousInstantTypeRef.current = null;
+    }
+  }, [transitionStatus, isInstantPhase, lastOpenChangeReason, instantType, store]);
 
   const hover = useHover(floatingRootContext, {
     enabled: !disabled,
@@ -169,7 +173,6 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     trackCursorAxis,
     hoverable,
     floatingRootContext,
-    instantType,
     triggerProps: getReferenceProps(),
     popupProps: getFloatingProps(),
   });
