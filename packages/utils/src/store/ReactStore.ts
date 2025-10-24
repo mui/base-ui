@@ -8,20 +8,20 @@ import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { NOOP } from '../empty';
 
 /**
- * A Store that supports controlled state keys.
- *
- * - Keys registered through {@link useControlledProp} become controlled when a non-undefined
- *   value is provided. Controlled keys mirror the incoming value and ignore local writes
- *   (via {@link set}, {@link update}, or {@link setState}).
- * - When a key is uncontrolled, an optional default value is written once on first render.
- * - Use {@link useSyncedValue} and {@link useSyncedValues} to synchronize external values/props into the
- *   store during a layout phase using {@link useIsoLayoutEffect}.
+ * A Store that supports controlled state keys, non-reactive values and provides utility methods for React.
  */
 export class ReactStore<
-  State,
+  State extends object,
   Context = Record<string, never>,
-  Selectors extends Record<string, (state: State) => any> = Record<string, never>,
+  Selectors extends Record<string, SelectorFunction<State>> = Record<string, never>,
 > extends Store<State> {
+  /**
+   * Creates a new ReactStore instance.
+   *
+   * @param state Initial state of the store.
+   * @param context Non-reactive context values.
+   * @param selectors Optional selectors for use with `useState`.
+   */
   constructor(state: State, context: Context = {} as Context, selectors?: Selectors) {
     super(state);
     this.context = context;
@@ -113,16 +113,28 @@ export class ReactStore<
       this.controlledValues.set(key, isControlled);
 
       if (!isControlled && !Object.is(this.state[key], defaultValue)) {
-        super.setState({ ...(this.state as State), [key]: defaultValue } as State);
+        super.setState({ ...this.state, [key]: defaultValue });
       }
     }
 
     useIsoLayoutEffect(() => {
       if (isControlled && !Object.is(this.state[key], controlled)) {
         // Set the internal state to match the controlled value.
-        super.setState({ ...(this.state as State), [key]: controlled } as State);
+        super.setState({ ...this.state, [key]: controlled });
       }
     }, [key, controlled, defaultValue, isControlled]);
+  }
+
+  /** Gets the current value from the store using a selector with the provided key. */
+  public select<Key extends keyof Selectors>(
+    key: Key,
+    ...args: SelectorArgs<Selectors[Key]>
+  ): ReturnType<Selectors[Key]> {
+    if (!this.selectors || !this.selectors[key]) {
+      throw new Error(`Base UI: Selector for key "${String(key)}" is not defined.`);
+    }
+
+    return this.selectors[key](this.state, ...args);
   }
 
   /**
@@ -151,9 +163,14 @@ export class ReactStore<
   public update(values: Partial<State>): void {
     const newValues = { ...values };
     for (const key in newValues) {
+      if (!Object.hasOwn(newValues, key)) {
+        continue;
+      }
+
       if (this.controlledValues.get(key) === true) {
         // Ignore updates to controlled values
         delete newValues[key];
+        continue;
       }
     }
 
@@ -169,9 +186,14 @@ export class ReactStore<
   public setState(newState: State) {
     const newValues = { ...newState };
     for (const key in newValues) {
+      if (!Object.hasOwn(newValues, key)) {
+        continue;
+      }
+
       if (this.controlledValues.get(key) === true) {
         // Ignore updates to controlled values
         delete newValues[key];
+        continue;
       }
     }
 
@@ -185,14 +207,21 @@ export class ReactStore<
    *
    * @param key Key of the selector to use.
    */
-  public useState<Key extends keyof Selectors>(key: Key): ReturnType<Selectors[Key]> {
+  public useState<Key extends keyof Selectors>(
+    key: Key,
+    ...args: SelectorArgs<Selectors[Key]>
+  ): ReturnType<Selectors[Key]> {
     if (!this.selectors) {
       throw new Error('Base UI: selectors are required to call useState.');
     }
-    return useStore<State, ReturnType<Selectors[Key]>>(
-      this,
-      this.selectors[key] as (state: State) => ReturnType<Selectors[Key]>,
-    );
+    const selector = this.selectors[key];
+    if (!selector) {
+      throw new Error(`Base UI: Selector for key "${String(key)}" is not defined.`);
+    }
+
+    // Cast avoids emitting runtime branches and sidesteps TypeScript's overload checks,
+    // which do not accept spreading a generic tuple into `useStore`.
+    return (useStore as any)(this, selector, ...args) as ReturnType<Selectors[Key]>;
   }
 
   /**
@@ -223,6 +252,27 @@ export class ReactStore<
       [key],
     );
   }
+
+  /**
+   * Observes changes derived from the store's selectors and calls the listener when the selected value changes.
+   */
+  public observe<Key extends keyof State>(
+    key: Key,
+    listener: (newValue: State[Key], oldValue: State[Key], store: this) => void,
+  ) {
+    let prevValue = this.state[key];
+
+    listener(prevValue, prevValue, this);
+
+    return this.subscribe((nextState) => {
+      const nextValue = nextState[key];
+      if (!Object.is(prevValue, nextValue)) {
+        const oldValue = prevValue;
+        prevValue = nextValue;
+        listener(nextValue, oldValue, this);
+      }
+    });
+  }
 }
 
 type MaybeCallable = (...args: any[]) => any;
@@ -236,3 +286,11 @@ type ContextFunction<Context, Key extends keyof Context> = Extract<Context[Key],
 type KeysAllowingUndefined<State> = {
   [Key in keyof State]-?: undefined extends State[Key] ? Key : never;
 }[keyof State];
+
+type SelectorFunction<State> = (state: State, ...args: any[]) => any;
+
+type Tail<T extends readonly any[]> = T extends readonly [any, ...infer Rest] ? Rest : [];
+
+type SelectorArgs<Selector> = Selector extends (...params: infer Params) => any
+  ? Tail<Params>
+  : never;

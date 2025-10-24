@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, createRenderer } from '@mui/internal-test-utils';
+import { act, createRenderer, screen } from '@mui/internal-test-utils';
 import { ReactStore } from './ReactStore';
 import { useRefWithInit } from '../useRefWithInit';
 
 type TestState = { value: number; label: string };
 
-function useStableStore<State>(initial: State) {
+function useStableStore<State extends object>(initial: State) {
   return useRefWithInit(() => new ReactStore<State>(initial)).current;
 }
 
@@ -226,5 +226,92 @@ describe('ReactStore', () => {
     });
 
     expect(store.state.element).to.equal(null);
+  });
+
+  it('supports nested stores as state values', async () => {
+    type ParentState = { count: number };
+    type ChildState = { count: number; parent?: ReactStore<ParentState> };
+
+    const parentSelectors = { count: (state: ParentState) => state.count };
+    const childSelectors = {
+      count: (state: ChildState) => state.parent?.state.count ?? state.count,
+      parent: (state: ChildState) => state.parent,
+    };
+
+    const parentStore = new ReactStore<ParentState, Record<string, never>, typeof parentSelectors>(
+      { count: 0 },
+      undefined,
+      parentSelectors,
+    );
+
+    const childStore = new ReactStore<ChildState, Record<string, never>, typeof childSelectors>(
+      { count: 10 },
+      undefined,
+      childSelectors,
+    );
+
+    let unsubscribeParentHandler: () => void;
+    const onParentUpdated = (
+      newParent: ReactStore<ParentState> | undefined,
+      _: ReactStore<ParentState> | undefined,
+      store: ReactStore<ChildState, any, any>,
+    ) => {
+      if (!newParent) {
+        unsubscribeParentHandler?.();
+        return;
+      }
+
+      unsubscribeParentHandler = newParent.subscribe(() => {
+        store.notifyAll();
+      });
+    };
+
+    const onCountUpdated = (
+      newCount: number,
+      _: number,
+      store: ReactStore<ChildState, any, any>,
+    ) => {
+      store.state.parent?.set('count', newCount);
+    };
+
+    childStore.observe('parent', onParentUpdated);
+    childStore.observe('count', onCountUpdated);
+
+    function Test() {
+      const count = childStore.useState('count');
+      return <output data-testid="output">{count}</output>;
+    }
+
+    render(<Test />);
+    const output = screen.getByTestId('output');
+
+    await act(async () => {
+      childStore.set('count', 5);
+    });
+    expect(childStore.state.count).to.equal(5);
+    expect(output.textContent).to.equal('5');
+
+    await act(async () => {
+      childStore.set('parent', parentStore);
+    });
+    expect(childStore.state.count).to.equal(5);
+    expect(childStore.select('count')).to.equal(0);
+    expect(output.textContent).to.equal('0');
+
+    await act(async () => {
+      childStore.set('count', 20);
+    });
+    expect(childStore.state.count).to.equal(20);
+    expect(parentStore.state.count).to.equal(20);
+    expect(childStore.select('count')).to.equal(20);
+    expect(output.textContent).to.equal('20');
+
+    await act(async () => {
+      parentStore.set('count', 15);
+    });
+    expect(parentStore.state.count).to.equal(15);
+    expect(childStore.state.count).to.equal(20);
+    expect(childStore.select('count')).to.equal(15);
+    expect(output.textContent).to.equal('15');
   });
 });
