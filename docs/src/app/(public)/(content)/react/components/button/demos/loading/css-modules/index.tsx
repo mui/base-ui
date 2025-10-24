@@ -8,7 +8,8 @@ export default function ExampleButton() {
   return (
     <Button
       className={styles.Button}
-      disabled={loading ? 'focusable' : false}
+      disabled={loading}
+      focusableWhenDisabled
       onClick={() => {
         setLoading(true);
         setTimeout(() => {

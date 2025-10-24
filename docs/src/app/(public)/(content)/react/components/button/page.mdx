@@ -1,11 +1,11 @@
 # Button
 
 <Subtitle>
-  A button component that can be rendered as another tag or disabled while still being focusable.
+  A button component that can be rendered as another tag or focusable when disabled.
 </Subtitle>
 <Meta
   name="description"
-  content="A high-quality, unstyled React button component that can be rendered as another tag or disabled while still being focusable."
+  content="A high-quality, unstyled React button component that can be rendered as another tag or focusable when disabled."
 />
 
 <Demo path="./demos/hero" />
@@ -43,6 +43,6 @@ import { Button } from '@base-ui-components/react/button';
 
 ### Displaying a loading state
 
-For loading states, the `disabled` prop can accept a `"focusable"` string to disable the button but keep it focusable. This prevents the button from losing focus after clicking it so the tab order isn't temporarily disrupted.
+For buttons that enter a loading state after being clicked, combine `disabled` with `focusableWhenDisabled` to keep focus on the button and avoid disrupting the tab order.
 
 <Demo path="./demos/loading" compact />

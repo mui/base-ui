@@ -18,6 +18,7 @@ export const Button = React.forwardRef(function Button(
     render,
     className,
     disabled: disabledProp = false,
+    focusableWhenDisabled = false,
     nativeButton = true,
     ...elementProps
   } = componentProps;
@@ -26,7 +27,7 @@ export const Button = React.forwardRef(function Button(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    focusableWhenDisabled: disabledProp === 'focusable',
+    focusableWhenDisabled,
     native: nativeButton,
   });
 
@@ -54,11 +55,13 @@ export interface ButtonState {
 interface ButtonCommonProps {
   /**
    * Whether the button should ignore user interaction.
-   *
-   * `'focusable'` disables the button but keeps it focusable.
-   * Use for loading states to prevent the button from losing focus.
    */
-  disabled?: boolean | 'focusable';
+  disabled?: boolean;
+  /**
+   * Whether the button should be focusable when disabled.
+   * @default false
+   */
+  focusableWhenDisabled?: boolean;
 }
 
 type NonNativeAttributeKeys =
