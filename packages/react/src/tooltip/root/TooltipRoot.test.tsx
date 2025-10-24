@@ -318,8 +318,8 @@ describe('<Tooltip.Root />', () => {
 
     it('should open after rest delay', async () => {
       await render(
-        <Root delay={100}>
-          <Tooltip.Trigger />
+        <Root>
+          <Tooltip.Trigger delay={100} />
           <Tooltip.Portal>
             <Tooltip.Positioner>
               <Tooltip.Popup>Content</Tooltip.Popup>
@@ -350,8 +350,8 @@ describe('<Tooltip.Root />', () => {
 
     it('should close after delay', async () => {
       await render(
-        <Root closeDelay={100}>
-          <Tooltip.Trigger />
+        <Root>
+          <Tooltip.Trigger closeDelay={100} />
           <Tooltip.Portal>
             <Tooltip.Positioner>
               <Tooltip.Popup>Content</Tooltip.Popup>
@@ -633,8 +633,10 @@ describe('<Tooltip.Root />', () => {
         <Tooltip.Provider>
           {/* eslint-disable-next-line react/no-danger */}
           <style dangerouslySetInnerHTML={{ __html: style }} />
-          <Tooltip.Root delay={0}>
-            <Tooltip.Trigger data-testid="trigger-1">First</Tooltip.Trigger>
+          <Tooltip.Root>
+            <Tooltip.Trigger data-testid="trigger-1" delay={0}>
+              First
+            </Tooltip.Trigger>
             <Tooltip.Portal>
               <Tooltip.Positioner>
                 <Tooltip.Popup className="tooltip" data-testid="popup-1">
@@ -643,8 +645,10 @@ describe('<Tooltip.Root />', () => {
               </Tooltip.Positioner>
             </Tooltip.Portal>
           </Tooltip.Root>
-          <Tooltip.Root delay={0}>
-            <Tooltip.Trigger data-testid="trigger-2">Second</Tooltip.Trigger>
+          <Tooltip.Root>
+            <Tooltip.Trigger data-testid="trigger-2" delay={0}>
+              Second
+            </Tooltip.Trigger>
             <Tooltip.Portal>
               <Tooltip.Positioner>
                 <Tooltip.Popup className="tooltip" data-testid="popup-2">
@@ -683,8 +687,8 @@ describe('<Tooltip.Root />', () => {
   describe('prop: disabled', () => {
     it('should not open when disabled', async () => {
       await render(
-        <Root disabled delay={0}>
-          <Tooltip.Trigger />
+        <Root disabled>
+          <Tooltip.Trigger delay={0} />
           <Tooltip.Portal>
             <Tooltip.Positioner>
               <Tooltip.Popup>Content</Tooltip.Popup>
@@ -713,8 +717,8 @@ describe('<Tooltip.Root />', () => {
         const [disabled, setDisabled] = React.useState(false);
         return (
           <div>
-            <Root defaultOpen disabled={disabled} delay={0}>
-              <Tooltip.Trigger />
+            <Root defaultOpen disabled={disabled}>
+              <Tooltip.Trigger delay={0} />
               <Tooltip.Portal>
                 <Tooltip.Positioner>
                   <Tooltip.Popup>Content</Tooltip.Popup>
@@ -759,8 +763,8 @@ describe('<Tooltip.Root />', () => {
   describe('prop: hoverable', () => {
     it('applies pointer-events: none to the positioner when not hoverable', async () => {
       await render(
-        <Root delay={0} hoverable={false}>
-          <Tooltip.Trigger />
+        <Root hoverable={false}>
+          <Tooltip.Trigger delay={0} />
           <Tooltip.Portal>
             <Tooltip.Positioner data-testid="positioner">
               <Tooltip.Popup>Content</Tooltip.Popup>
@@ -782,8 +786,8 @@ describe('<Tooltip.Root />', () => {
 
     it('does not apply pointer-events: none to the positioner when hoverable', async () => {
       await render(
-        <Root delay={0} hoverable>
-          <Tooltip.Trigger />
+        <Root hoverable>
+          <Tooltip.Trigger delay={0} />
           <Tooltip.Portal>
             <Tooltip.Positioner data-testid="positioner">
               <Tooltip.Popup>Content</Tooltip.Popup>
@@ -808,14 +812,13 @@ describe('<Tooltip.Root />', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       await render(
         <Root
-          delay={0}
           onOpenChange={(nextOpen, eventDetails) => {
             if (nextOpen) {
               eventDetails.cancel();
             }
           }}
         >
-          <Tooltip.Trigger />
+          <Tooltip.Trigger delay={0} />
           <Tooltip.Portal>
             <Tooltip.Positioner>
               <Tooltip.Popup>Content</Tooltip.Popup>
@@ -840,13 +843,13 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root
           defaultOpen
-          delay={0}
           onOpenChange={(nextOpen, eventDetails) => {
             if (!nextOpen && eventDetails.reason === 'escape-key') {
               eventDetails.allowPropagation();
             }
           }}
         >
+          <Tooltip.Trigger delay={0} />
           <Tooltip.Portal>
             <Tooltip.Positioner>
               <Tooltip.Popup>Content</Tooltip.Popup>
