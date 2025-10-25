@@ -208,7 +208,11 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
         (nextTabbable !== null && contains(positionerElement, nextTabbable)) ||
         nextTabbable?.hasAttribute('aria-hidden')
       ) {
+        const prevTabbable = nextTabbable;
         nextTabbable = getNextTabbable(nextTabbable);
+        if (nextTabbable === prevTabbable) {
+          break;
+        }
       }
 
       nextTabbable?.focus();
