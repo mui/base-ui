@@ -93,6 +93,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     inputRef: inputRefProp,
     grid = false,
     items,
+    filteredItems: filteredItemsProp,
     filter: filterProp,
     openOnInputClick = true,
     autoHighlight = false,
@@ -203,6 +204,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [items, isGrouped]);
 
   const filteredItems: Value[] | Group<Value>[] = React.useMemo(() => {
+    if (filteredItemsProp) {
+      return filteredItemsProp as Value[] | Group<Value>[];
+    }
+
     if (!items) {
       return [];
     }
@@ -262,7 +267,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     return limitedItems;
-  }, [items, flatItems, query, filter, isGrouped, itemToStringLabel, limit]);
+  }, [filteredItemsProp, items, isGrouped, query, limit, filter, itemToStringLabel, flatItems]);
 
   const flatFilteredItems: Value[] = React.useMemo(() => {
     if (isGrouped) {
@@ -955,9 +960,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // Floating UI tests don't require `role="row"` wrappers, so retains the number API.
     cols: grid ? 2 : 1,
     orientation: grid ? 'horizontal' : undefined,
-    disabledIndices: virtualized
-      ? (index) => index < 0 || index >= flatFilteredItems.length
-      : (EMPTY_ARRAY as number[]),
+    disabledIndices: EMPTY_ARRAY as number[],
     onNavigate(nextActiveIndex, event) {
       const isClosing = !open || transitionStatus === 'ending';
 
@@ -1320,6 +1323,12 @@ interface ComboboxRootProps<ItemValue> {
    * Can be either a flat array of items or an array of groups with items.
    */
   items?: readonly any[] | readonly Group<any>[];
+  /**
+   * Filtered items to display in the list.
+   * When provided, the list will use these items instead of filtering the `items` prop internally.
+   * Use when you want to control filtering logic externally with the `useFilter()` hook.
+   */
+  filteredItems?: readonly any[] | readonly Group<any>[];
   /**
    * Filter function used to match items vs input query.
    */
