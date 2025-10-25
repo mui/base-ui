@@ -14,10 +14,6 @@ export enum TabsTabDataAttributes {
    */
   disabled = 'data-disabled',
   /**
-   * Present when the tab is highlighted.
-   */
-  highlighted = 'data-highlighted',
-  /**
    * Present when the tab is selected.
    */
   selected = 'data-selected',

@@ -26,7 +26,7 @@ export default function TabsExperiment() {
           onValueChange={(val) => setValue(val)}
           orientation={settings.orientation}
         >
-          <Tabs.List className={classes.list} activateOnFocus={settings.activateOnFocus}>
+          <Tabs.List className={classes.list} selectOnFocus={settings.selectOnFocus}>
             <Tabs.Tab className={classes.tab} value={0}>
               Code
             </Tabs.Tab>
@@ -70,7 +70,7 @@ export default function TabsExperiment() {
 interface Settings {
   direction: 'ltr' | 'rtl';
   orientation: 'horizontal' | 'vertical';
-  activateOnFocus: boolean;
+  selectOnFocus: boolean;
   elasticIndicator: boolean;
 }
 
@@ -87,9 +87,9 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     options: ['horizontal', 'vertical'],
     default: 'horizontal',
   },
-  activateOnFocus: {
+  selectOnFocus: {
     type: 'boolean',
-    label: 'Activate on focus',
+    label: 'Select on focus',
     default: true,
   },
   elasticIndicator: {

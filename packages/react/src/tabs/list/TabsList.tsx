@@ -22,13 +22,7 @@ export const TabsList = React.forwardRef(function TabsList(
   componentProps: TabsList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    activateOnFocus = true,
-    className,
-    loop = true,
-    render,
-    ...elementProps
-  } = componentProps;
+  const { selectOnFocus = true, className, loop = true, render, ...elementProps } = componentProps;
 
   const {
     getTabElementBySelectedValue,
@@ -75,7 +69,7 @@ export const TabsList = React.forwardRef(function TabsList(
 
   const tabsListContextValue: TabsListContext = React.useMemo(
     () => ({
-      activateOnFocus,
+      selectOnFocus,
       highlightedTabIndex,
       onTabActivation,
       setHighlightedTabIndex,
@@ -83,7 +77,7 @@ export const TabsList = React.forwardRef(function TabsList(
       value,
     }),
     [
-      activateOnFocus,
+      selectOnFocus,
       highlightedTabIndex,
       onTabActivation,
       setHighlightedTabIndex,
@@ -139,13 +133,13 @@ function useActivationDirectionDetector(
       return;
     }
 
-    const activeTab = getTabElement(selectedTabValue);
-    if (activeTab == null) {
+    const selectedTab = getTabElement(selectedTabValue);
+    if (selectedTab == null) {
       previousTabEdge.current = null;
       return;
     }
 
-    const { left, top } = getInset(activeTab, tabsListRef.current);
+    const { left, top } = getInset(selectedTab, tabsListRef.current);
     previousTabEdge.current = orientation === 'horizontal' ? left : top;
   }, [orientation, getTabElement, tabsListRef, selectedTabValue]);
 
@@ -200,11 +194,11 @@ export interface TabsListState extends TabsRoot.State {}
 
 export interface TabsListProps extends BaseUIComponentProps<'div', TabsList.State> {
   /**
-   * Whether to automatically change the active tab on arrow key focus.
-   * Otherwise, tabs will be activated using Enter or Spacebar key press.
+   * Whether to automatically change the selected tab on arrow key focus.
+   * Otherwise, tabs will be selected using Enter or Spacebar key press.
    * @default true
    */
-  activateOnFocus?: boolean;
+  selectOnFocus?: boolean;
   /**
    * Whether to loop keyboard focus back to the first item
    * when the end of the list is reached while using the arrow keys.

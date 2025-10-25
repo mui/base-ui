@@ -20,7 +20,7 @@ const stateAttributesMapping = {
 };
 
 /**
- * A visual indicator that can be styled to match the position of the currently active tab.
+ * A visual indicator that can be styled to match the position of the currently selected tab.
  * Renders a `<span>` element.
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
@@ -37,7 +37,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   const { tabsListRef } = useTabsListContext();
 
   const [isMounted, setIsMounted] = React.useState(false);
-  const { value: activeTabValue } = useTabsRootContext();
+  const { value: selectedTabValue } = useTabsRootContext();
 
   const direction = useDirection();
 
@@ -124,12 +124,12 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     }
 
     return {
-      [TabsIndicatorCssVars.activeTabLeft]: `${left}px`,
-      [TabsIndicatorCssVars.activeTabRight]: `${right}px`,
-      [TabsIndicatorCssVars.activeTabTop]: `${top}px`,
-      [TabsIndicatorCssVars.activeTabBottom]: `${bottom}px`,
-      [TabsIndicatorCssVars.activeTabWidth]: `${width}px`,
-      [TabsIndicatorCssVars.activeTabHeight]: `${height}px`,
+      [TabsIndicatorCssVars.selectedTabLeft]: `${left}px`,
+      [TabsIndicatorCssVars.selectedTabRight]: `${right}px`,
+      [TabsIndicatorCssVars.selectedTabTop]: `${top}px`,
+      [TabsIndicatorCssVars.selectedTabBottom]: `${bottom}px`,
+      [TabsIndicatorCssVars.selectedTabWidth]: `${width}px`,
+      [TabsIndicatorCssVars.selectedTabHeight]: `${height}px`,
     } as React.CSSProperties;
   }, [left, right, top, bottom, width, height, isTabSelected]);
 
@@ -162,7 +162,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     stateAttributesMapping,
   });
 
-  if (activeTabValue == null) {
+  if (selectedTabValue == null) {
     return null;
   }
 

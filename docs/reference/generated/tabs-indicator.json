@@ -1,6 +1,6 @@
 {
   "name": "TabsIndicator",
-  "description": "A visual indicator that can be styled to match the position of the currently active tab.\nRenders a `<span>` element.",
+  "description": "A visual indicator that can be styled to match the position of the currently selected tab.\nRenders a `<span>` element.",
   "props": {
     "renderBeforeHydration": {
       "type": "boolean",
@@ -34,28 +34,28 @@
     }
   },
   "cssVariables": {
-    "--active-tab-bottom": {
-      "description": "Indicates the distance on the bottom side from the parent's container if the tab is active.",
+    "--selected-tab-bottom": {
+      "description": "Indicates the distance on the bottom side from the parent's container if the tab is selected.",
       "type": "number"
     },
-    "--active-tab-height": {
-      "description": "Indicates the width of the tab if it is active.",
+    "--selected-tab-height": {
+      "description": "Indicates the width of the tab if it is selected.",
       "type": "number"
     },
-    "--active-tab-left": {
-      "description": "Indicates the distance on the left side from the parent's container if the tab is active.",
+    "--selected-tab-left": {
+      "description": "Indicates the distance on the left side from the parent's container if the tab is selected.",
       "type": "number"
     },
-    "--active-tab-right": {
-      "description": "Indicates the distance on the right side from the parent's container if the tab is active.",
+    "--selected-tab-right": {
+      "description": "Indicates the distance on the right side from the parent's container if the tab is selected.",
       "type": "number"
     },
-    "--active-tab-top": {
-      "description": "Indicates the distance on the top side from the parent's container if the tab is active.",
+    "--selected-tab-top": {
+      "description": "Indicates the distance on the top side from the parent's container if the tab is selected.",
       "type": "number"
     },
-    "--active-tab-width": {
-      "description": "Indicates the width of the tab if it is active.",
+    "--selected-tab-width": {
+      "description": "Indicates the width of the tab if it is selected.",
       "type": "number"
     }
   }

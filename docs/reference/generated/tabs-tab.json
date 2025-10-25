@@ -31,9 +31,6 @@
     "data-selected": {
       "description": "Present when the tab is selected."
     },
-    "data-highlighted": {
-      "description": "Present when the tab is highlighted."
-    },
     "data-orientation": {
       "description": "Indicates the orientation of the tabs.",
       "type": "'horizontal' | 'vertical'"

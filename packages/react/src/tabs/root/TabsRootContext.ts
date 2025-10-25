@@ -37,7 +37,7 @@ export interface TabsRootContext {
   getTabPanelIdByTabValueOrIndex: (tabValue: any, index: number) => string | undefined;
   setTabMap: (map: Map<Node, (TabsTab.Metadata & { index?: number | null }) | null>) => void;
   /**
-   * The position of the active tab relative to the previously active tab.
+   * The position of the selected tab relative to the previously selected tab.
    */
   tabActivationDirection: TabsTab.ActivationDirection;
 }

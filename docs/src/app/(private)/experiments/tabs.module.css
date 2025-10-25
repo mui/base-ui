@@ -85,10 +85,10 @@
   position: absolute;
   z-index: -1;
   /* easier to debug than a single `inset:` */
-  top: var(--active-tab-top);
-  right: var(--active-tab-right);
-  bottom: var(--active-tab-bottom);
-  left: var(--active-tab-left);
+  top: var(--selected-tab-top);
+  right: var(--selected-tab-right);
+  bottom: var(--selected-tab-bottom);
+  left: var(--selected-tab-left);
   border-radius: 0.25rem;
   background-color: var(--color-gray-100);
   transition-property: left, right, top, bottom;
@@ -101,7 +101,7 @@
       the indicator could be incorrectly sized when arrow keys change the tab
       and scroll the container at the same time
     */
-    height: var(--active-tab-height);
+    height: var(--selected-tab-height);
   }
 
   &.elastic {

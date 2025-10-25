@@ -266,12 +266,12 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.firstCall.args[0]).to.equal(1);
     });
 
-    it('when `activateOnFocus = false` should not call onValueChange if an unselected tab gets focused', async () => {
+    it('when `selectOnFocus = false` should not call onValueChange if an unselected tab gets focused', async () => {
       const handleChange = spy();
 
       await render(
         <Tabs.Root value={1} onValueChange={handleChange}>
-          <Tabs.List activateOnFocus={false}>
+          <Tabs.List selectOnFocus={false}>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
           </Tabs.List>
@@ -315,10 +315,10 @@ describe('<Tabs.Root />', () => {
   });
 
   describe('pointer navigation', () => {
-    it('activates the clicked tab', async () => {
+    it('selects the clicked tab', async () => {
       const { user } = await render(
         <Tabs.Root defaultValue={0}>
-          <Tabs.List activateOnFocus={false}>
+          <Tabs.List selectOnFocus={false}>
             <Tabs.Tab value={0}>Tab 1</Tabs.Tab>
             <Tabs.Tab value={1}>Tab 2</Tabs.Tab>
             <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
@@ -339,10 +339,10 @@ describe('<Tabs.Root />', () => {
       expect(panels[2]).to.have.attribute('hidden');
     });
 
-    it('does not activate the clicked disabled tab', async () => {
+    it('does not select the clicked disabled tab', async () => {
       const { user } = await render(
         <Tabs.Root defaultValue={0}>
-          <Tabs.List activateOnFocus={false}>
+          <Tabs.List selectOnFocus={false}>
             <Tabs.Tab value={0}>Tab 1</Tabs.Tab>
             <Tabs.Tab disabled value={1}>
               Tab 2
@@ -378,8 +378,8 @@ describe('<Tabs.Root />', () => {
         `when focus is on a tab element in a ${orientation} ${direction ?? ''} tablist`,
         () => {
           describe(previousItemKey ?? '', () => {
-            describe('with `activateOnFocus = false`', () => {
-              it('moves focus to the last tab without activating it if focus is on the first tab', async () => {
+            describe('with `selectOnFocus = false`', () => {
+              it('moves focus to the last tab without selecting it if focus is on the first tab', async () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
 
@@ -390,7 +390,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={0}
                     >
-                      <Tabs.List activateOnFocus={false} onKeyDown={handleKeyDown}>
+                      <Tabs.List selectOnFocus={false} onKeyDown={handleKeyDown}>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} />
                         <Tabs.Tab value={2} />
@@ -413,7 +413,7 @@ describe('<Tabs.Root />', () => {
                 expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
               });
 
-              it('moves focus to the previous tab without activating it', async () => {
+              it('moves focus to the previous tab without selecting it', async () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
 
@@ -424,7 +424,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={1}
                     >
-                      <Tabs.List activateOnFocus={false} onKeyDown={handleKeyDown}>
+                      <Tabs.List selectOnFocus={false} onKeyDown={handleKeyDown}>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} />
                         <Tabs.Tab value={2} />
@@ -447,7 +447,7 @@ describe('<Tabs.Root />', () => {
                 expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
               });
 
-              it('moves focus to a disabled tab without activating it', async () => {
+              it('moves focus to a disabled tab without selecting it', async () => {
                 const handleKeyDown = spy();
 
                 await render(
@@ -456,7 +456,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={2}
                     >
-                      <Tabs.List activateOnFocus={false} onKeyDown={handleKeyDown}>
+                      <Tabs.List selectOnFocus={false} onKeyDown={handleKeyDown}>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} disabled />
                         <Tabs.Tab value={2} />
@@ -479,8 +479,8 @@ describe('<Tabs.Root />', () => {
               });
             });
 
-            describe('with `activateOnFocus = true`', () => {
-              it('moves focus to the last tab while activating it if focus is on the first tab', async () => {
+            describe('with `selectOnFocus = true`', () => {
+              it('moves focus to the last tab while selecting it if focus is on the first tab', async () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
 
@@ -515,7 +515,7 @@ describe('<Tabs.Root />', () => {
                 expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
               });
 
-              it('moves focus to the previous tab while activating it', async () => {
+              it('moves focus to the previous tab while selecting it', async () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
 
@@ -551,7 +551,7 @@ describe('<Tabs.Root />', () => {
               });
             });
 
-            it('moves focus to a disabled tab without activating it', async () => {
+            it('moves focus to a disabled tab without selecting it', async () => {
               const handleKeyDown = spy();
 
               await render(
@@ -581,8 +581,8 @@ describe('<Tabs.Root />', () => {
           });
 
           describe(nextItemKey ?? '', () => {
-            describe('with `activateOnFocus = false`', () => {
-              it('moves focus to the first tab without activating it if focus is on the last tab', async () => {
+            describe('with `selectOnFocus = false`', () => {
+              it('moves focus to the first tab without selecting it if focus is on the last tab', async () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
 
@@ -593,7 +593,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={2}
                     >
-                      <Tabs.List activateOnFocus={false} onKeyDown={handleKeyDown}>
+                      <Tabs.List selectOnFocus={false} onKeyDown={handleKeyDown}>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} />
                         <Tabs.Tab value={2} />
@@ -616,7 +616,7 @@ describe('<Tabs.Root />', () => {
                 expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
               });
 
-              it('moves focus to the next tab without activating it', async () => {
+              it('moves focus to the next tab without selecting it', async () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
 
@@ -627,7 +627,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={1}
                     >
-                      <Tabs.List activateOnFocus={false} onKeyDown={handleKeyDown}>
+                      <Tabs.List selectOnFocus={false} onKeyDown={handleKeyDown}>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} />
                         <Tabs.Tab value={2} />
@@ -650,7 +650,7 @@ describe('<Tabs.Root />', () => {
                 expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
               });
 
-              it('moves focus to a disabled tab without activating it', async () => {
+              it('moves focus to a disabled tab without selecting it', async () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
 
@@ -661,7 +661,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={0}
                     >
-                      <Tabs.List activateOnFocus={false} onKeyDown={handleKeyDown}>
+                      <Tabs.List selectOnFocus={false} onKeyDown={handleKeyDown}>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} disabled />
                         <Tabs.Tab value={2} />
@@ -689,8 +689,8 @@ describe('<Tabs.Root />', () => {
               });
             });
 
-            describe('with `activateOnFocus = true`', () => {
-              it('moves focus to the first tab while activating it if focus is on the last tab', async () => {
+            describe('with `selectOnFocus = true`', () => {
+              it('moves focus to the first tab while selecting it if focus is on the last tab', async () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
 
@@ -725,7 +725,7 @@ describe('<Tabs.Root />', () => {
                 expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
               });
 
-              it('moves focus to the next tab while activating it', async () => {
+              it('moves focus to the next tab while selecting it', async () => {
                 const handleChange = spy();
                 const handleKeyDown = spy();
 
@@ -761,7 +761,7 @@ describe('<Tabs.Root />', () => {
               });
             });
 
-            it('moves focus to a disabled tab without activating it', async () => {
+            it('moves focus to a disabled tab without selecting it', async () => {
               const handleChange = spy();
               const handleKeyDown = spy();
 
@@ -844,13 +844,13 @@ describe('<Tabs.Root />', () => {
 
     describe('when focus is on a tab regardless of orientation', () => {
       describe('Home', () => {
-        it('when `activateOnFocus = false`, moves focus to the first tab without activating it', async () => {
+        it('when `selectOnFocus = false`, moves focus to the first tab without selecting it', async () => {
           const handleChange = spy();
           const handleKeyDown = spy();
 
           await render(
             <Tabs.Root onValueChange={handleChange} value={2}>
-              <Tabs.List activateOnFocus={false} onKeyDown={handleKeyDown}>
+              <Tabs.List selectOnFocus={false} onKeyDown={handleKeyDown}>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
                 <Tabs.Tab value={2} />
@@ -872,7 +872,7 @@ describe('<Tabs.Root />', () => {
           expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
         });
 
-        it('when `activateOnFocus = true`, moves focus to the first tab while activating it', async () => {
+        it('when `selectOnFocus = true`, moves focus to the first tab while selecting it', async () => {
           const handleChange = spy();
           const handleKeyDown = spy();
 
@@ -901,14 +901,14 @@ describe('<Tabs.Root />', () => {
           expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
         });
 
-        [false, true].forEach((activateOnFocusProp) => {
-          it(`when \`activateOnFocus = ${activateOnFocusProp}\`, moves focus to a disabled tab without activating it`, async () => {
+        [false, true].forEach((selectOnFocusProp) => {
+          it(`when \`selectOnFocus = ${selectOnFocusProp}\`, moves focus to a disabled tab without selecting it`, async () => {
             const handleChange = spy();
             const handleKeyDown = spy();
 
             await render(
               <Tabs.Root onValueChange={handleChange} value={2}>
-                <Tabs.List activateOnFocus={activateOnFocusProp} onKeyDown={handleKeyDown}>
+                <Tabs.List selectOnFocus={selectOnFocusProp} onKeyDown={handleKeyDown}>
                   <Tabs.Tab value={0} disabled />
                   <Tabs.Tab value={1} />
                   <Tabs.Tab value={2} />
@@ -933,13 +933,13 @@ describe('<Tabs.Root />', () => {
       });
 
       describe('End', () => {
-        it('when `activateOnFocus = false`, moves focus to the last tab without activating it', async () => {
+        it('when `selectOnFocus = false`, moves focus to the last tab without selecting it', async () => {
           const handleChange = spy();
           const handleKeyDown = spy();
 
           await render(
             <Tabs.Root onValueChange={handleChange} value={0}>
-              <Tabs.List activateOnFocus={false} onKeyDown={handleKeyDown}>
+              <Tabs.List selectOnFocus={false} onKeyDown={handleKeyDown}>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
                 <Tabs.Tab value={2} />
@@ -961,7 +961,7 @@ describe('<Tabs.Root />', () => {
           expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
         });
 
-        it('when `activateOnFocus = true`, moves focus to the last tab while activating it', async () => {
+        it('when `selectOnFocus = true`, moves focus to the last tab while selecting it', async () => {
           const handleChange = spy();
           const handleKeyDown = spy();
 
@@ -990,14 +990,14 @@ describe('<Tabs.Root />', () => {
           expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
         });
 
-        [false, true].forEach((activateOnFocusProp) => {
-          it(`when \`activateOnFocus = ${activateOnFocusProp}\`, moves focus to a disabled tab without activating it`, async () => {
+        [false, true].forEach((selectOnFocusProp) => {
+          it(`when \`selectOnFocus = ${selectOnFocusProp}\`, moves focus to a disabled tab without selecting it`, async () => {
             const handleChange = spy();
             const handleKeyDown = spy();
 
             await render(
               <Tabs.Root onValueChange={handleChange} value={0}>
-                <Tabs.List activateOnFocus={activateOnFocusProp} onKeyDown={handleKeyDown}>
+                <Tabs.List selectOnFocus={selectOnFocusProp} onKeyDown={handleKeyDown}>
                   <Tabs.Tab value={0} />
                   <Tabs.Tab value={1} />
                   <Tabs.Tab value={2} disabled />
@@ -1022,7 +1022,7 @@ describe('<Tabs.Root />', () => {
       });
     });
 
-    it('should allow to focus first tab when there are no active tabs', async () => {
+    it('should allow to focus first tab when there are no selected tabs', async () => {
       await render(
         <Tabs.Root defaultValue={0}>
           <Tabs.List>
@@ -1186,7 +1186,7 @@ describe('<Tabs.Root />', () => {
     it('when focus is outside the tablist, highlight follows the new selected tab (tabIndex=0 moves)', async () => {
       const { setProps } = await render(
         <Tabs.Root value={0}>
-          <Tabs.List activateOnFocus={false}>
+          <Tabs.List selectOnFocus={false}>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
             <Tabs.Tab value={2} />
@@ -1216,7 +1216,7 @@ describe('<Tabs.Root />', () => {
     it('when focus is inside the tablist, highlight stays put on external change and arrow keys continue from the focused tab', async () => {
       const { setProps } = await render(
         <Tabs.Root value={0}>
-          <Tabs.List activateOnFocus={false}>
+          <Tabs.List selectOnFocus={false}>
             <Tabs.Tab value={0}>Tab 1</Tabs.Tab>
             <Tabs.Tab value={1}>Tab 2</Tabs.Tab>
             <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
@@ -1246,7 +1246,7 @@ describe('<Tabs.Root />', () => {
       await flushMicrotasks();
 
       expect(secondTab).toHaveFocus();
-      // Selection remains the externally-set tab since activateOnFocus=false
+      // Selection remains the externally-set tab since selectOnFocus=false
       expect(thirdTab).to.have.attribute('aria-selected', 'true');
       expect(secondTab).to.have.attribute('aria-selected', 'false');
     });

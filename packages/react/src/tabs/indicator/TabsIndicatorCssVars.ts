@@ -1,32 +1,32 @@
 export enum TabsIndicatorCssVars {
   /**
-   * Indicates the distance on the left side from the parent's container if the tab is active.
+   * Indicates the distance on the left side from the parent's container if the tab is selected.
    * @type {number}
    */
-  activeTabLeft = '--active-tab-left',
+  selectedTabLeft = '--selected-tab-left',
   /**
-   * Indicates the distance on the right side from the parent's container if the tab is active.
+   * Indicates the distance on the right side from the parent's container if the tab is selected.
    * @type {number}
    */
-  activeTabRight = '--active-tab-right',
+  selectedTabRight = '--selected-tab-right',
   /**
-   * Indicates the distance on the top side from the parent's container if the tab is active.
+   * Indicates the distance on the top side from the parent's container if the tab is selected.
    * @type {number}
    */
-  activeTabTop = '--active-tab-top',
+  selectedTabTop = '--selected-tab-top',
   /**
-   * Indicates the distance on the bottom side from the parent's container if the tab is active.
+   * Indicates the distance on the bottom side from the parent's container if the tab is selected.
    * @type {number}
    */
-  activeTabBottom = '--active-tab-bottom',
+  selectedTabBottom = '--selected-tab-bottom',
   /**
-   * Indicates the width of the tab if it is active.
+   * Indicates the width of the tab if it is selected.
    * @type {number}
    */
-  activeTabWidth = '--active-tab-width',
+  selectedTabWidth = '--selected-tab-width',
   /**
-   * Indicates the width of the tab if it is active.
+   * Indicates the width of the tab if it is selected.
    * @type {number}
    */
-  activeTabHeight = '--active-tab-height',
+  selectedTabHeight = '--selected-tab-height',
 }

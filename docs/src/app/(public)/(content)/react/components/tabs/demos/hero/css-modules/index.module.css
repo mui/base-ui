@@ -62,8 +62,8 @@
   z-index: -1;
   left: 0;
   top: 50%;
-  translate: var(--active-tab-left) -50%;
-  width: var(--active-tab-width);
+  translate: var(--selected-tab-left) -50%;
+  width: var(--selected-tab-width);
   height: 1.5rem;
   border-radius: 0.25rem;
   background-color: var(--color-gray-100);
