@@ -371,11 +371,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     </SliderRootContext.Provider>
   );
 }) as {
-  <Value extends number | readonly number[]>(
-    props: SliderRoot.Props<Value> & {
-      ref?: React.RefObject<HTMLDivElement>;
-    },
-  ): React.JSX.Element;
+  <Value extends number | readonly number[]>(props: SliderRoot.Props<Value>): React.JSX.Element;
 };
 
 export interface SliderRootState extends FieldRoot.State {
