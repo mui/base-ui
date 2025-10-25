@@ -19,8 +19,9 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { open } = useMenuRootContext();
+  const { store } = useMenuRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
+  const open = store.useState('open');
 
   const state: MenuArrow.State = React.useMemo(
     () => ({

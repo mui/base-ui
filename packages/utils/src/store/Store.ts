@@ -78,7 +78,7 @@ export class Store<State> {
   public update(changes: Partial<State>) {
     for (const key in changes) {
       if (!Object.is(this.state[key], changes[key])) {
-        this.setState({ ...this.state, ...changes });
+        Store.prototype.setState.call(this, { ...this.state, ...changes });
         return;
       }
     }
@@ -92,7 +92,15 @@ export class Store<State> {
    */
   public set<T>(key: keyof State, value: T) {
     if (!Object.is(this.state[key], value)) {
-      this.setState({ ...this.state, [key]: value });
+      Store.prototype.setState.call(this, { ...this.state, [key]: value });
     }
+  }
+
+  /**
+   * Gives the state a new reference and updates all registered listeners.
+   */
+  public notifyAll() {
+    const newState = { ...this.state };
+    Store.prototype.setState.call(this, newState);
   }
 }
