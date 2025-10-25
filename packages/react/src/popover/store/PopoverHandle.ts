@@ -23,7 +23,7 @@ export class PopoverHandle<Payload> {
       ? (this.store.state.triggers.get(triggerId) ?? undefined)
       : undefined;
 
-    if (process.env.NODE_ENV !== 'production' && triggerId && !triggerElement) {
+    if (triggerId && !triggerElement) {
       throw new Error(`Base UI: PopoverHandle.open: No trigger found with id "${triggerId}".`);
     }
 
