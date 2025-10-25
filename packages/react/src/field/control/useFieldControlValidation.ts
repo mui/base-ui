@@ -36,21 +36,21 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
 }
 
 export function useFieldControlValidation() {
+  const { formRef, clearErrors } = useFormContext();
+
   const {
     setValidityData,
     validate,
     validityData,
-    validationMode,
     validationDebounceTime,
     invalid,
     markedDirtyRef,
     state,
     name,
+    shouldValidateOnChange,
   } = useFieldRootContext();
 
   const { controlId, getDescriptionProps } = useLabelableContext();
-
-  const { formRef, clearErrors } = useFormContext();
 
   const timeout = useTimeout();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -236,7 +236,7 @@ export function useFieldControlValidation() {
 
             clearErrors(name);
 
-            if (validationMode !== 'onChange') {
+            if (!shouldValidateOnChange()) {
               commitValidation(event.currentTarget.value, true);
               return;
             }
@@ -273,8 +273,8 @@ export function useFieldControlValidation() {
       timeout,
       commitValidation,
       invalid,
-      validationMode,
       validationDebounceTime,
+      shouldValidateOnChange,
     ],
   );
 

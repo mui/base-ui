@@ -55,6 +55,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     validityData,
     setFilled,
     setFocused,
+    shouldValidateOnChange,
     validationMode,
     disabled: fieldDisabled,
     name: fieldName,
@@ -179,7 +180,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
             setFilled(nextChecked);
             setCheckedState(nextChecked);
 
-            if (validationMode === 'onChange') {
+            if (shouldValidateOnChange()) {
               commitValidation(nextChecked);
             } else {
               commitValidation(nextChecked, true);
@@ -202,7 +203,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       setCheckedState,
       setDirty,
       setFilled,
-      validationMode,
+      shouldValidateOnChange,
       validityData.initialValue,
     ],
   );
