@@ -1,9 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   useDismiss,
@@ -15,7 +12,6 @@ import {
 } from '../../floating-ui-react';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
@@ -24,7 +20,6 @@ import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
-import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
@@ -40,19 +35,11 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     defaultTriggerId: defaultTriggerIdProp = null,
   } = props;
 
-  const nested = useFloatingParentNodeId() != null;
-
-  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
-  const store = useRefWithInit(() => {
-    return (
-      handle?.store ??
-      new PopoverStore<Payload>({
-        open: openProp ?? defaultOpenProp,
-        modal,
-        activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
-      })
-    );
-  }).current;
+  const store = PopoverStore.useStore(handle?.store, {
+    open: openProp ?? defaultOpenProp,
+    modal,
+    activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+  });
 
   store.useControlledProp('open', openProp, defaultOpenProp);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
@@ -67,7 +54,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const openMethod = store.useState('openMethod');
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  const stickIfOpenTimeout = useTimeout();
 
   let resolvedTriggerId: string | null = null;
   if (mounted === true && triggerIdProp === undefined && triggerElements.size === 1) {
@@ -76,6 +62,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     resolvedTriggerId = activeTriggerId ?? null;
   }
 
+  store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   useIsoLayoutEffect(() => {
@@ -101,92 +88,26 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     referenceElement: positionerElement,
   });
 
-  const preventUnmountingRef = React.useRef(false);
-
   React.useEffect(() => {
     if (!open) {
-      stickIfOpenTimeout.clear();
+      store.context.stickIfOpenTimeout.clear();
     }
-  }, [stickIfOpenTimeout, open]);
+  }, [store, open]);
 
-  function createPopoverEventDetails(reason: PopoverRoot.ChangeEventReason) {
-    const details: PopoverRoot.ChangeEventDetails =
-      createChangeEventDetails<PopoverRoot.ChangeEventReason>(
-        reason,
-      ) as PopoverRoot.ChangeEventDetails;
-    details.preventUnmountOnClose = () => {
-      preventUnmountingRef.current = true;
-    };
+  const createPopoverEventDetails = React.useCallback(
+    (reason: PopoverRoot.ChangeEventReason) => {
+      const details: PopoverRoot.ChangeEventDetails =
+        createChangeEventDetails<PopoverRoot.ChangeEventReason>(
+          reason,
+        ) as PopoverRoot.ChangeEventDetails;
+      details.preventUnmountOnClose = () => {
+        store.context.preventUnmountingRef.current = true;
+      };
 
-    return details;
-  }
-
-  const setOpen = useStableCallback(function setOpen(
-    nextOpen: boolean,
-    eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-  ) {
-    const isHover = eventDetails.reason === 'trigger-hover';
-    const isKeyboardClick =
-      eventDetails.reason === 'trigger-press' && (eventDetails.event as MouseEvent).detail === 0;
-    const isDismissClose =
-      !nextOpen && (eventDetails.reason === 'escape-key' || eventDetails.reason == null);
-
-    (eventDetails as PopoverRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-      preventUnmountingRef.current = true;
-    };
-
-    onOpenChange?.(nextOpen, eventDetails as PopoverRoot.ChangeEventDetails);
-
-    if (eventDetails.isCanceled) {
-      return;
-    }
-
-    const details: FloatingUIOpenChangeDetails = {
-      open: nextOpen,
-      nativeEvent: eventDetails.event,
-      reason: eventDetails.reason,
-      nested,
-      triggerElement: eventDetails.trigger,
-    };
-
-    floatingEvents?.emit('openchange', details);
-
-    function changeState() {
-      store.set('open', nextOpen);
-
-      if (nextOpen) {
-        store.set('openReason', eventDetails.reason ?? null);
-      }
-
-      // If a popup is closing, the `trigger` may be null.
-      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-      const newTriggerId = eventDetails.trigger?.id ?? null;
-      if (newTriggerId || nextOpen) {
-        store.set('activeTriggerId', newTriggerId);
-      }
-    }
-
-    if (isHover) {
-      // Only allow "patient" clicks to close the popover if it's open.
-      // If they clicked within 500ms of the popover opening, keep it open.
-      store.set('stickIfOpen', true);
-      stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
-        store.set('stickIfOpen', false);
-      });
-
-      ReactDOM.flushSync(changeState);
-    } else {
-      changeState();
-    }
-
-    if (isKeyboardClick || isDismissClose) {
-      store.set('instantType', isKeyboardClick ? 'click' : 'dismiss');
-    } else if (eventDetails.reason === 'focus-out') {
-      store.set('instantType', 'focus');
-    } else {
-      store.set('instantType', undefined);
-    }
-  });
+      return details;
+    },
+    [store],
+  );
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
@@ -195,11 +116,11 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   });
 
   const handleImperativeClose = React.useCallback(() => {
-    setOpen(false, createPopoverEventDetails('imperative-action'));
-  }, [setOpen]);
+    store.setOpen(false, createPopoverEventDetails('imperative-action'));
+  }, [store, createPopoverEventDetails]);
 
   useOpenChangeComplete({
-    enabled: !preventUnmountingRef.current,
+    enabled: !store.context.preventUnmountingRef.current,
     open,
     ref: store.context.popupRef,
     onComplete() {
@@ -222,26 +143,8 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       triggers: Array.from(triggerElements.values()),
     },
     open,
-    onOpenChange: setOpen,
+    onOpenChange: store.setOpen,
   });
-
-  floatingEvents = floatingContext.events;
-
-  React.useEffect(() => {
-    const handleSetOpenEvent = ({
-      open: nextOpen,
-      eventDetails,
-    }: {
-      open: boolean;
-      eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>;
-    }) => setOpen(nextOpen, eventDetails);
-
-    floatingEvents.on('setOpen', handleSetOpenEvent);
-
-    return () => {
-      floatingEvents?.off('setOpen', handleSetOpenEvent);
-    };
-  }, [floatingEvents, setOpen]);
 
   const dismiss = useDismiss(floatingContext, {
     outsidePressEvent: {
@@ -262,6 +165,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     inactiveTriggerProps: getTriggerProps(),
     popupProps: getFloatingProps(),
     floatingRootContext: floatingContext,
+    nested: useFloatingParentNodeId() != null,
   });
 
   const popoverContext: PopoverRootContext<Payload> = React.useMemo(
