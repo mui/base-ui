@@ -25,7 +25,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 ) {
   const {
     className,
-    defaultValue = 0,
+    defaultValue,
     onValueChange: onValueChangeProp,
     orientation = 'horizontal',
     render,
