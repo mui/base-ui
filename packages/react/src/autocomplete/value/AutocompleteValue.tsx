@@ -8,20 +8,21 @@ import { useComboboxInputValueContext } from '../../combobox/root/ComboboxRootCo
  *
  * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
  */
-export function AutocompleteValue(props: AutocompleteValue.Props) {
+export function AutocompleteValue(props: AutocompleteValue.Props): React.ReactElement {
   const { children } = props;
 
   const inputValue = useComboboxInputValueContext();
 
+  let returnValue = null;
   if (typeof children === 'function') {
-    return children(String(inputValue));
+    returnValue = children(String(inputValue));
+  } else if (children != null) {
+    returnValue = children;
+  } else {
+    returnValue = inputValue;
   }
 
-  if (children != null) {
-    return children;
-  }
-
-  return inputValue;
+  return <React.Fragment>{returnValue}</React.Fragment>;
 }
 
 export interface AutocompleteValueState {}
