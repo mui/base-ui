@@ -154,10 +154,15 @@ export function useFieldControlValidation() {
 
     let defaultValidationMessage;
 
-    if (element.validationMessage) {
+    if (element.validationMessage && validationMode !== 'onChange') {
+      // not validating on change, if there is a `validationMessage` from
+      // native validity, set errors and skip calling the custom validate fn
       defaultValidationMessage = element.validationMessage;
       validationErrors = [element.validationMessage];
     } else {
+      // call the validate function because either
+      // - validating on change, or
+      // - native constraint validations passed, custom validity check is next
       const formValues = Array.from(formRef.current.fields.values()).reduce(
         (acc, field) => {
           if (field.name && field.getValueRef) {
@@ -189,6 +194,16 @@ export function useFieldControlValidation() {
         } else if (result) {
           validationErrors = [result];
           element.setCustomValidity(result);
+        }
+      } else if (validationMode === 'onChange') {
+        // validate function returned no errors, if validating on change
+        // we need to clear the custom validity state
+        element.setCustomValidity('');
+        nextState.customError = false;
+
+        if (element.validationMessage) {
+          defaultValidationMessage = element.validationMessage;
+          validationErrors = [element.validationMessage];
         }
       }
     }
