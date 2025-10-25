@@ -4,22 +4,6 @@
 
 ## API Reference
 
-### Image
-
-The image to be displayed in the avatar. Renders an `<img>` element.
-
-**Image Props:**
-
-| Prop                  | Type                                                                             | Default | Description                                                                                                                                                                              |
-| :-------------------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| onLoadingStatusChange | `((status: Image.LoadingStatus) => void)`                                        | -       | Callback fired when the loading status changes.                                                                                                                                          |
-| className             | `string \| ((state: Avatar.Root.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render                | `ReactElement \| ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Image.Props
-
-Re-export of [Image](#image) props.
-
 ### Root
 
 Displays a user's profile picture, initials, or fallback icon. Renders a `<span>` element.
@@ -40,6 +24,22 @@ Re-export of [Root](#root) props.
 ```typescript
 type AvatarRootState = { imageLoadingStatus: ImageLoadingStatus };
 ```
+
+### Image
+
+The image to be displayed in the avatar. Renders an `<img>` element.
+
+**Image Props:**
+
+| Prop                  | Type                                                                             | Default | Description                                                                                                                                                                              |
+| :-------------------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| onLoadingStatusChange | `((status: ImageLoadingStatus) => void)`                                         | -       | Callback fired when the loading status changes.                                                                                                                                          |
+| className             | `string \| ((state: Avatar.Root.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render                | `ReactElement \| ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Image.Props
+
+Re-export of [Image](#image) props.
 
 ### Fallback
 

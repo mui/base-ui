@@ -4,48 +4,6 @@
 
 ## API Reference
 
-### RadioGroup
-
-Groups related radio items. Renders a `<div>` element.
-
-**RadioGroup Props:**
-
-| Prop          | Type                                                                                 | Default | Description                                                                                                                                                                              |
-| :------------ | :----------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue  | `any`                                                                                | -       | The uncontrolled value of the radio item that should be initially selected.To render a controlled radio group, use the `value` prop instead.                                             |
-| value         | `any`                                                                                | -       | The controlled value of the radio item that should be currently selected.To render an uncontrolled radio group, use the `defaultValue` prop instead.                                     |
-| onValueChange | `((value: any, eventDetails: Menu.RadioGroup.ChangeEventDetails) => void)`           | -       | Function called when the selected value changes.                                                                                                                                         |
-| disabled      | `boolean`                                                                            | `false` | Whether the component should ignore user interaction.                                                                                                                                    |
-| children      | `ReactNode`                                                                          | -       | The content of the component.                                                                                                                                                            |
-| className     | `string \| ((state: MenuRadio.Group.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render        | `ReactElement \| ((props: HTMLProps, state: MenuRadio.Group.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### RadioGroup.Props
-
-Re-export of [RadioGroup](#radiogroup) props.
-
-### Separator
-
-A separator element accessible to screen readers. Renders a `<div>` element.
-
-**Separator Props:**
-
-| Prop        | Type                                                                           | Default        | Description                                                                                                                                                                              |
-| :---------- | :----------------------------------------------------------------------------- | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation | `Orientation`                                                                  | `'horizontal'` | The orientation of the separator.                                                                                                                                                        |
-| className   | `string \| ((state: Separator.State) => string)`                               | -              | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render      | `ReactElement \| ((props: HTMLProps, state: Separator.State) => ReactElement)` | -              | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Separator.Props
-
-Re-export of [Separator](#separator) props.
-
-### Separator.State
-
-```typescript
-type SeparatorState = { orientation: Orientation };
-```
-
 ### Root
 
 Groups all parts of the menu. Doesn’t render its own HTML element.
@@ -342,8 +300,8 @@ An accessible label that is automatically associated with its parent group. Rend
 
 | Prop      | Type                                                                                 | Default | Description                                                                                                                                                                              |
 | :-------- | :----------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Menu.Group.LabelState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: Menu.Group.LabelState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| className | `string \| ((state: Menu.GroupLabel.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: Menu.GroupLabel.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### GroupLabel.Props
 
@@ -354,6 +312,18 @@ Re-export of [GroupLabel](#grouplabel) props.
 ```typescript
 type MenuGroupLabelState = {};
 ```
+
+### Separator
+
+A separator element accessible to screen readers. Renders a `<div>` element.
+
+**Separator Props:**
+
+| Prop        | Type                                                                                | Default        | Description                                                                                                                                                                              |
+| :---------- | :---------------------------------------------------------------------------------- | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation | `Orientation`                                                                       | `'horizontal'` | The orientation of the separator.                                                                                                                                                        |
+| className   | `string \| ((state: Menu.Separator.State) => string)`                               | -              | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render      | `ReactElement \| ((props: HTMLProps, state: Menu.Separator.State) => ReactElement)` | -              | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### SubmenuTrigger
 
@@ -368,8 +338,8 @@ A menu item that opens a submenu. Renders a `<div>` element.
 | nativeButton | `boolean`                                                                                | `false` | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `true` if the rendered element is a native button.                             |
 | id           | `string`                                                                                 | -       | -                                                                                                                                                                                        |
 | children     | `ReactNode`                                                                              | -       | -                                                                                                                                                                                        |
-| className    | `string \| ((state: MenuSubmenu.Trigger.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: MenuSubmenu.Trigger.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| className    | `string \| ((state: Menu.SubmenuTrigger.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render       | `ReactElement \| ((props: HTMLProps, state: Menu.SubmenuTrigger.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **SubmenuTrigger Data Attributes:**
 
@@ -391,6 +361,26 @@ type MenuSubmenuTriggerState = {
 };
 ```
 
+### RadioGroup
+
+Groups related radio items. Renders a `<div>` element.
+
+**RadioGroup Props:**
+
+| Prop          | Type                                                                                 | Default | Description                                                                                                                                                                              |
+| :------------ | :----------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue  | `any`                                                                                | -       | The uncontrolled value of the radio item that should be initially selected.To render a controlled radio group, use the `value` prop instead.                                             |
+| value         | `any`                                                                                | -       | The controlled value of the radio item that should be currently selected.To render an uncontrolled radio group, use the `defaultValue` prop instead.                                     |
+| onValueChange | `((value: any, eventDetails: Menu.RadioGroup.ChangeEventDetails) => void)`           | -       | Function called when the selected value changes.                                                                                                                                         |
+| disabled      | `boolean`                                                                            | `false` | Whether the component should ignore user interaction.                                                                                                                                    |
+| children      | `ReactNode`                                                                          | -       | The content of the component.                                                                                                                                                            |
+| className     | `string \| ((state: Menu.RadioGroup.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render        | `ReactElement \| ((props: HTMLProps, state: Menu.RadioGroup.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### RadioGroup.Props
+
+Re-export of [RadioGroup](#radiogroup) props.
+
 ### RadioItem
 
 A menu item that works like a radio button in a given group. Renders a `<div>` element.
@@ -407,8 +397,8 @@ A menu item that works like a radio button in a given group. Renders a `<div>` e
 | disabled     | `boolean`                                                                           | `false` | Whether the component should ignore user interaction.                                                                                                                                    |
 | id           | `string`                                                                            | -       | -                                                                                                                                                                                        |
 | children     | `ReactNode`                                                                         | -       | -                                                                                                                                                                                        |
-| className    | `string \| ((state: MenuRadio.Item.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: MenuRadio.Item.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| className    | `string \| ((state: Menu.RadioItem.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render       | `ReactElement \| ((props: HTMLProps, state: Menu.RadioItem.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **RadioItem Data Attributes:**
 
@@ -431,9 +421,9 @@ Indicates whether the radio item is selected. Renders a `<div>` element.
 
 | Prop        | Type                                                                                         | Default | Description                                                                                                                                                                              |
 | :---------- | :------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className   | `string \| ((state: MenuRadio.Item.IndicatorState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| className   | `string \| ((state: Menu.RadioItemIndicator.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
 | keepMounted | `boolean`                                                                                    | `false` | Whether to keep the HTML element in the DOM when the radio item is inactive.                                                                                                             |
-| render      | `ReactElement \| ((props: HTMLProps, state: MenuRadio.Item.IndicatorState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| render      | `ReactElement \| ((props: HTMLProps, state: Menu.RadioItemIndicator.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **RadioItemIndicator Data Attributes:**
 
@@ -501,9 +491,9 @@ Indicates whether the checkbox item is ticked. Renders a `<div>` element.
 
 | Prop        | Type                                                                                            | Default | Description                                                                                                                                                                              |
 | :---------- | :---------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className   | `string \| ((state: Menu.CheckboxItem.IndicatorState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| className   | `string \| ((state: Menu.CheckboxItemIndicator.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
 | keepMounted | `boolean`                                                                                       | `false` | Whether to keep the HTML element in the DOM when the checkbox item is not checked.                                                                                                       |
-| render      | `ReactElement \| ((props: HTMLProps, state: Menu.CheckboxItem.IndicatorState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| render      | `ReactElement \| ((props: HTMLProps, state: Menu.CheckboxItemIndicator.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **CheckboxItemIndicator Data Attributes:**
 
@@ -528,4 +518,22 @@ type MenuCheckboxItemIndicatorState = {
   highlighted: boolean;
   transitionStatus: TransitionStatus;
 };
+```
+
+### Separator..Props
+
+```typescript
+type SeparatorProps = {
+  orientation?: Orientation;
+  className?: string | ((state: { orientation: Orientation }) => string);
+  render?:
+    | ReactElement
+    | ((props: HTMLProps, state: { orientation: Orientation }) => ReactElement);
+};
+```
+
+### Separator..State
+
+```typescript
+type SeparatorState = { orientation: Orientation };
 ```

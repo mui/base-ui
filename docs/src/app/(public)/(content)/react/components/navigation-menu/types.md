@@ -4,77 +4,6 @@
 
 ## API Reference
 
-### Icon
-
-An icon that indicates that the trigger button opens a menu.
-
-**Icon Props:**
-
-| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                              |
-| :-------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: NavigationMenu.Icon.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Icon.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Icon.Props
-
-Re-export of [Icon](#icon) props.
-
-### Icon.State
-
-```typescript
-type NavigationMenuIconState = { open: boolean };
-```
-
-### Link
-
-A link in the navigation menu that can be used to navigate to a different page or section. Renders an `<a>` element.
-
-**Link Props:**
-
-| Prop         | Type                                                                                     | Default | Description                                                                                                                                                                              |
-| :----------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| closeOnClick | `boolean`                                                                                | `false` | Whether to close the navigation menu when the link is clicked.                                                                                                                           |
-| active       | `boolean`                                                                                | `false` | Whether the link is the currently active page.                                                                                                                                           |
-| className    | `string \| ((state: NavigationMenu.Link.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Link.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Link Data Attributes:**
-
-| Attribute   | Type | Description                                         |
-| :---------- | :--- | :-------------------------------------------------- |
-| data-active | -    | Present when the link is the currently active page. |
-
-### Link.Props
-
-Re-export of [Link](#link) props.
-
-### Link.State
-
-```typescript
-type NavigationMenuLinkState = { active: boolean };
-```
-
-### List
-
-Contains a list of navigation menu items. Renders a `<ul>` element.
-
-**List Props:**
-
-| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                              |
-| :-------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: NavigationMenu.List.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.List.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-### List.Props
-
-Re-export of [List](#list) props.
-
-### List.State
-
-```typescript
-type NavigationMenuListState = { open: boolean };
-```
-
 ### Root
 
 Groups all parts of the navigation menu. Renders a `<nav>` element at the root, or `<div>` element when nested.
@@ -137,6 +66,48 @@ Re-export of [Trigger](#trigger) props.
 
 ```typescript
 type NavigationMenuTriggerState = { open: boolean };
+```
+
+### Icon
+
+An icon that indicates that the trigger button opens a menu.
+
+**Icon Props:**
+
+| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                              |
+| :-------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: NavigationMenu.Icon.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Icon.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Icon.Props
+
+Re-export of [Icon](#icon) props.
+
+### Icon.State
+
+```typescript
+type NavigationMenuIconState = { open: boolean };
+```
+
+### List
+
+Contains a list of navigation menu items. Renders a `<ul>` element.
+
+**List Props:**
+
+| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                              |
+| :-------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: NavigationMenu.List.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.List.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### List.Props
+
+Re-export of [List](#list) props.
+
+### List.State
+
+```typescript
+type NavigationMenuListState = { open: boolean };
 ```
 
 ### Portal
@@ -405,4 +376,33 @@ Re-export of [Viewport](#viewport) props.
 
 ```typescript
 type NavigationMenuViewportState = {};
+```
+
+### Link
+
+A link in the navigation menu that can be used to navigate to a different page or section. Renders an `<a>` element.
+
+**Link Props:**
+
+| Prop         | Type                                                                                     | Default | Description                                                                                                                                                                              |
+| :----------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| closeOnClick | `boolean`                                                                                | `false` | Whether to close the navigation menu when the link is clicked.                                                                                                                           |
+| active       | `boolean`                                                                                | `false` | Whether the link is the currently active page.                                                                                                                                           |
+| className    | `string \| ((state: NavigationMenu.Link.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render       | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Link.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Link Data Attributes:**
+
+| Attribute   | Type | Description                                         |
+| :---------- | :--- | :-------------------------------------------------- |
+| data-active | -    | Present when the link is the currently active page. |
+
+### Link.Props
+
+Re-export of [Link](#link) props.
+
+### Link.State
+
+```typescript
+type NavigationMenuLinkState = { active: boolean };
 ```

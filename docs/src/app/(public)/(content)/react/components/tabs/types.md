@@ -4,39 +4,6 @@
 
 ## API Reference
 
-### List
-
-Groups the individual tab buttons. Renders a `<div>` element.
-
-**List Props:**
-
-| Prop            | Type                                                                           | Default | Description                                                                                                                                                                              |
-| :-------------- | :----------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| activateOnFocus | `boolean`                                                                      | `true`  | Whether to automatically change the active tab on arrow key focus. Otherwise, tabs will be activated using Enter or Spacebar key press.                                                  |
-| loop            | `boolean`                                                                      | `true`  | Whether to loop keyboard focus back to the first item when the end of the list is reached while using the arrow keys.                                                                    |
-| className       | `string \| ((state: Tabs.List.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render          | `ReactElement \| ((props: HTMLProps, state: Tabs.List.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
-
-**List Data Attributes:**
-
-| Attribute                 | Type                                            | Description                                                                     |
-| :------------------------ | :---------------------------------------------- | :------------------------------------------------------------------------------ |
-| data-orientation          | `'horizontal' \| 'vertical'`                    | Indicates the orientation of the tabs.                                          |
-| data-activation-direction | `'left' \| 'right' \| 'up' \| 'down' \| 'none'` | Indicates the direction of the activation (based on the previous selected tab). |
-
-### List.Props
-
-Re-export of [List](#list) props.
-
-### List.State
-
-```typescript
-type TabsListState = {
-  orientation: TabsRootOrientation;
-  tabActivationDirection: TabsTabActivationDirection;
-};
-```
-
 ### Root
 
 Groups the tabs and the corresponding panels. Renders a `<div>` element.
@@ -67,8 +34,41 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type TabsRootState = {
-  orientation: TabsRootOrientation;
-  tabActivationDirection: TabsTabActivationDirection;
+  orientation: Tabs.Root.Orientation;
+  tabActivationDirection: Tabs.Tab.ActivationDirection;
+};
+```
+
+### List
+
+Groups the individual tab buttons. Renders a `<div>` element.
+
+**List Props:**
+
+| Prop            | Type                                                                           | Default | Description                                                                                                                                                                              |
+| :-------------- | :----------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| activateOnFocus | `boolean`                                                                      | `true`  | Whether to automatically change the active tab on arrow key focus. Otherwise, tabs will be activated using Enter or Spacebar key press.                                                  |
+| loop            | `boolean`                                                                      | `true`  | Whether to loop keyboard focus back to the first item when the end of the list is reached while using the arrow keys.                                                                    |
+| className       | `string \| ((state: Tabs.List.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render          | `ReactElement \| ((props: HTMLProps, state: Tabs.List.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**List Data Attributes:**
+
+| Attribute                 | Type                                            | Description                                                                     |
+| :------------------------ | :---------------------------------------------- | :------------------------------------------------------------------------------ |
+| data-orientation          | `'horizontal' \| 'vertical'`                    | Indicates the orientation of the tabs.                                          |
+| data-activation-direction | `'left' \| 'right' \| 'up' \| 'down' \| 'none'` | Indicates the direction of the activation (based on the previous selected tab). |
+
+### List.Props
+
+Re-export of [List](#list) props.
+
+### List.State
+
+```typescript
+type TabsListState = {
+  orientation: Tabs.Root.Orientation;
+  tabActivationDirection: Tabs.Tab.ActivationDirection;
 };
 ```
 
@@ -103,15 +103,9 @@ Re-export of [Panel](#panel) props.
 ```typescript
 type TabsPanelState = {
   hidden: boolean;
-  orientation: TabsRootOrientation;
-  tabActivationDirection: TabsTabActivationDirection;
+  orientation: Tabs.Root.Orientation;
+  tabActivationDirection: Tabs.Tab.ActivationDirection;
 };
-```
-
-### Panel.Metadata
-
-```typescript
-type TabsPanelMetadata = { id?: string; value: TabsTabValue };
 ```
 
 ### Indicator
@@ -159,8 +153,8 @@ type TabsIndicatorState = {
     bottom: number;
   } | null;
   selectedTabSize: { width: number; height: number } | null;
-  orientation: TabsRootOrientation;
-  tabActivationDirection: TabsTabActivationDirection;
+  orientation: Tabs.Root.Orientation;
+  tabActivationDirection: Tabs.Tab.ActivationDirection;
 };
 ```
 
@@ -170,12 +164,12 @@ An individual interactive tab button that toggles the corresponding panel. Rende
 
 **Tab Props:**
 
-| Prop         | Type                                                                        | Default | Description                                                                                                                                                                              |
-| :----------- | :-------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value        | `Tabs.Tab.Value`                                                            | -       | The value of the Tab. When not specified, the value is the child position index.                                                                                                         |
-| nativeButton | `boolean`                                                                   | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| className    | `string \| ((state: TabsTabState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: TabsTabState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop         | Type                                                                          | Default | Description                                                                                                                                                                              |
+| :----------- | :---------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value        | `Tabs.Tab.Value`                                                              | -       | The value of the Tab. When not specified, the value is the child position index.                                                                                                         |
+| nativeButton | `boolean`                                                                     | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
+| className    | `string \| ((state: Tabs.Tab.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render       | `ReactElement \| ((props: HTMLProps, state: Tabs.Tab.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Tab Data Attributes:**
 
@@ -197,8 +191,14 @@ Re-export of [Tab](#tab) props.
 type TabsTabState = {
   disabled: boolean;
   selected: boolean;
-  orientation: TabsRootOrientation;
+  orientation: Tabs.Root.Orientation;
 };
+```
+
+### Panel.Metadata
+
+```typescript
+type TabsPanelMetadata = { id?: string; value: Tabs.Tab.Value };
 ```
 
 ### Tab.Metadata

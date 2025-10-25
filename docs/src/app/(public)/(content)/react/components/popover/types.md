@@ -332,11 +332,11 @@ A viewport for displaying content transitions. This component is only required i
 
 **Viewport Props:**
 
-| Prop      | Type                                                                                  | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children  | `ReactNode`                                                                           | -       | The content to render inside the transition container.                                                                                                                                   |
-| className | `string \| ((state: Popover.Viewport.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: Popover.Viewport.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                | Default | Description                                                                                                                                                                              |
+| :-------- | :---------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `ReactNode`                                                                         | -       | The content to render inside the transition container.                                                                                                                                   |
+| className | `string \| ((state: PopoverViewportState) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: HTMLProps, state: PopoverViewportState) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Viewport Data Attributes:**
 
