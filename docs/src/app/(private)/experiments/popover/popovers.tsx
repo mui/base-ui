@@ -177,6 +177,15 @@ export default function Popovers() {
         >
           Open externally (2nd trigger)
         </button>
+        <button
+          type="button"
+          className={styles.Button}
+          onClick={() => {
+            popover2.open('detached-second-trigger');
+          }}
+        >
+          Open via handle (2nd trigger)
+        </button>
       </div>
     </div>
   );
@@ -210,12 +219,12 @@ function StyledPopover(props: StyledPopoverProps<number>) {
 
   return (
     <Popover.Root handle={handle} open={open} onOpenChange={onOpenChange} triggerId={triggerId}>
-      {({ payload }) => payload !== undefined && renderPopoverContent(payload, settings)}
+      {({ payload }) => renderPopoverContent(payload, settings)}
     </Popover.Root>
   );
 }
 
-function renderPopoverContent(contentIndex: number, settings: Settings) {
+function renderPopoverContent(contentIndex: number | undefined, settings: Settings) {
   return (
     <Popover.Portal keepMounted={settings.keepMounted}>
       <Popover.Positioner sideOffset={8} className={demoStyles.Positioner} side={settings.side}>
@@ -224,14 +233,20 @@ function renderPopoverContent(contentIndex: number, settings: Settings) {
             <ArrowSvg />
           </Popover.Arrow>
           <Popover.Viewport className={demoStyles.Viewport}>
-            <Popover.Title className={demoStyles.Title}>Popover {contentIndex}</Popover.Title>
-            <div>
-              <div className={styles.PopoverSection}>{contents[contentIndex]}</div>
+            {contentIndex !== undefined ? (
+              <React.Fragment>
+                <Popover.Title className={demoStyles.Title}>Popover {contentIndex}</Popover.Title>
+                <div>
+                  <div className={styles.PopoverSection}>{contents[contentIndex]}</div>
 
-              <div className={styles.PopoverSection}>
-                <StatefulComponent key={contentIndex} />
-              </div>
-            </div>
+                  <div className={styles.PopoverSection}>
+                    <StatefulComponent key={contentIndex} />
+                  </div>
+                </div>
+              </React.Fragment>
+            ) : (
+              <p className={styles.PopoverSection}>No content for this trigger.</p>
+            )}
           </Popover.Viewport>
         </Popover.Popup>
       </Popover.Positioner>

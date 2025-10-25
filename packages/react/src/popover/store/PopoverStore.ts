@@ -1,13 +1,19 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { ReactStore, createSelector } from '@base-ui-components/utils/store';
+import { Timeout } from '@base-ui-components/utils/useTimeout';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
-import { type FloatingRootContext } from '../floating-ui-react';
-import { type TransitionStatus } from '../utils/useTransitionStatus';
-import { type HTMLProps } from '../utils/types';
-import { getEmptyContext } from '../floating-ui-react/hooks/useFloatingRootContext';
-import { PopoverRoot } from './root/PopoverRoot';
-import { PopupTriggerMap } from '../utils/popupStoreUtils';
+import { type FloatingRootContext } from '../../floating-ui-react';
+import { type TransitionStatus } from '../../utils/useTransitionStatus';
+import { FloatingUIOpenChangeDetails, type HTMLProps } from '../../utils/types';
+import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { PopoverRoot } from './../root/PopoverRoot';
+import { PopupTriggerMap } from '../../utils/popupStoreUtils';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 export type State<Payload> = {
   open: boolean;
@@ -18,6 +24,7 @@ export type State<Payload> = {
   openMethod: InteractionType | null;
   openReason: PopoverRoot.ChangeEventReason | null;
   stickIfOpen: boolean;
+  nested: boolean;
 
   titleElementId: string | undefined;
   descriptionElementId: string | undefined;
@@ -43,6 +50,8 @@ type Context = {
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
+  preventUnmountingRef: React.RefObject<boolean>;
+  stickIfOpenTimeout: Timeout;
 };
 
 function createInitialState<Payload>(): State<Payload> {
@@ -66,6 +75,7 @@ function createInitialState<Payload>(): State<Payload> {
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
     stickIfOpen: true,
+    nested: false,
   };
 }
 
@@ -114,21 +124,96 @@ export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, S
         onOpenChangeComplete: undefined,
         triggerFocusTargetRef: React.createRef<HTMLElement>(),
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
+        preventUnmountingRef: { current: false },
+        stickIfOpenTimeout: new Timeout(),
       },
       selectors,
     );
   }
 
-  setOpen(
-    open: boolean,
+  setOpen = (
+    nextOpen: boolean,
     eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-  ) {
-    this.state.floatingRootContext.events.emit('setOpen', { open, eventDetails });
-  }
-}
+  ) => {
+    const isHover = eventDetails.reason === 'trigger-hover';
+    const isKeyboardClick =
+      eventDetails.reason === 'trigger-press' && (eventDetails.event as MouseEvent).detail === 0;
+    const isDismissClose =
+      !nextOpen && (eventDetails.reason === 'escape-key' || eventDetails.reason == null);
 
-export function createPopoverHandle<Payload>(): PopoverStore<Payload> {
-  return new PopoverStore<Payload>();
+    (eventDetails as PopoverRoot.ChangeEventDetails).preventUnmountOnClose = () => {
+      this.context.preventUnmountingRef.current = true;
+    };
+
+    this.context.onOpenChange?.(nextOpen, eventDetails as PopoverRoot.ChangeEventDetails);
+
+    if (eventDetails.isCanceled) {
+      return;
+    }
+
+    const details: FloatingUIOpenChangeDetails = {
+      open: nextOpen,
+      nativeEvent: eventDetails.event,
+      reason: eventDetails.reason,
+      nested: this.state.nested,
+      triggerElement: eventDetails.trigger,
+    };
+
+    const floatingEvents = this.state.floatingRootContext.events;
+    floatingEvents?.emit('openchange', details);
+
+    const changeState = () => {
+      this.set('open', nextOpen);
+
+      if (nextOpen) {
+        this.set('openReason', eventDetails.reason ?? null);
+      }
+
+      // If a popup is closing, the `trigger` may be null.
+      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
+      const newTriggerId = eventDetails.trigger?.id ?? null;
+      if (newTriggerId || nextOpen) {
+        this.set('activeTriggerId', newTriggerId);
+      }
+    };
+
+    if (isHover) {
+      // Only allow "patient" clicks to close the popover if it's open.
+      // If they clicked within 500ms of the popover opening, keep it open.
+      this.set('stickIfOpen', true);
+      this.context.stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+        this.set('stickIfOpen', false);
+      });
+
+      ReactDOM.flushSync(changeState);
+    } else {
+      changeState();
+    }
+
+    if (isKeyboardClick || isDismissClose) {
+      this.set('instantType', isKeyboardClick ? 'click' : 'dismiss');
+    } else if (eventDetails.reason === 'focus-out') {
+      this.set('instantType', 'focus');
+    } else {
+      this.set('instantType', undefined);
+    }
+  };
+
+  public static useStore<Payload>(
+    externalStore: PopoverStore<Payload> | undefined,
+    initialState: Partial<State<Payload>>,
+  ) {
+    const store = useRefWithInit(() => {
+      return externalStore ?? new PopoverStore<Payload>(initialState);
+    }).current;
+
+    useOnMount(store.disposeEffect);
+    return store;
+  }
+
+  private disposeEffect = () => {
+    return this.context.stickIfOpenTimeout.disposeEffect();
+  };
 }
 
 type Selectors = typeof selectors;
