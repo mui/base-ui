@@ -704,7 +704,7 @@ describe('<Autocomplete.Root />', () => {
       expect(submitted).to.equal(0);
     });
 
-    it('alwaysSubmitOnEnter forces submit and commits value before submit', async () => {
+    it('clicking with pointer submits the owning form', async () => {
       let submitValue: string | null = null;
 
       const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
@@ -716,7 +716,92 @@ describe('<Autocomplete.Root />', () => {
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
           <Field.Root name="q">
-            <Autocomplete.Root items={['alpha', 'alpine']} autoHighlight alwaysSubmitOnEnter>
+            <Autocomplete.Root items={['alpha', 'alpine']} submitOnClick>
+              <Autocomplete.Input />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      {(item) => (
+                        <Autocomplete.Item key={item} value={item}>
+                          {item}
+                        </Autocomplete.Item>
+                      )}
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </Field.Root>
+        </Form>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.type(input, 'al');
+
+      const alphaButton = screen.getByRole('option', { name: 'alpha' });
+      await user.click(alphaButton);
+
+      expect(submitValue).to.equal('alpha');
+    });
+
+    it('pressing Enter in the Input submits the owning form when an item is highlighted', async () => {
+      let submitValue: string | null = null;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        submitValue = (data.get('q') as string) ?? null;
+      };
+
+      const { user } = await render(
+        <Form onSubmit={handleSubmit}>
+          <Field.Root name="q">
+            <Autocomplete.Root items={['alpha', 'alpine']} submitOnClick>
+              <Autocomplete.Input />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      {(item) => (
+                        <Autocomplete.Item key={item} value={item}>
+                          {item}
+                        </Autocomplete.Item>
+                      )}
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </Field.Root>
+        </Form>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.type(input, 'al');
+      await user.keyboard('{ArrowDown}');
+
+      const alphaButton = screen.getByRole('option', { name: 'alpha' });
+      expect(alphaButton).to.have.attribute('data-highlighted');
+
+      await user.keyboard('{Enter}');
+
+      expect(submitValue).to.equal('alpha');
+    });
+
+    it('pressing Enter in the Input submits the owning form when no item is highlighted', async () => {
+      let submitValue: string | null = null;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        submitValue = (data.get('q') as string) ?? null;
+      };
+
+      const { user } = await render(
+        <Form onSubmit={handleSubmit}>
+          <Field.Root name="q">
+            <Autocomplete.Root items={['alpha', 'alpine']} submitOnClick>
               <Autocomplete.Input />
               <Autocomplete.Portal>
                 <Autocomplete.Positioner>
@@ -738,8 +823,57 @@ describe('<Autocomplete.Root />', () => {
       );
 
       const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.type(input, 'xyz');
+      await user.keyboard('{Enter}');
+
+      expect(submitValue).to.equal('xyz');
+    });
+
+    it('pressing Enter in the List when it has focus submits the owning form', async () => {
+      let submitValue: string | null = null;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        submitValue = (data.get('q') as string) ?? null;
+      };
+
+      const { user } = await render(
+        <Form onSubmit={handleSubmit}>
+          <Field.Root name="q">
+            <Autocomplete.Root items={['alpha', 'alpine']} submitOnClick>
+              <Autocomplete.Input />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      {(item) => (
+                        <Autocomplete.Item key={item} value={item}>
+                          {item}
+                        </Autocomplete.Item>
+                      )}
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </Field.Root>
+        </Form>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
       await user.type(input, 'al');
-      // With autoHighlight, first match is highlighted. Enter should submit, not select-only.
+      await user.keyboard('{ArrowDown}');
+
+      const alphaButton = screen.getByRole('option', { name: 'alpha' });
+      expect(alphaButton).to.have.attribute('data-highlighted');
+
+      const list = screen.getByRole('listbox');
+      act(() => {
+        list.focus();
+      });
+
       await user.keyboard('{Enter}');
 
       expect(submitValue).to.equal('alpha');
