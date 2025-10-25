@@ -659,8 +659,8 @@ importers:
         specifier: ^5.102.1
         version: 5.102.1
       yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
+        specifier: ^18.0.0
+        version: 18.0.0
 
   test/bundle-size:
     dependencies:
