@@ -3,12 +3,12 @@ import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui-components/utils/store';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import {
   ElementProps,
   useDismiss,
@@ -347,6 +347,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         listElement: null,
         triggerElement: null,
         inputElement: null,
+        popupSide: null,
         openMethod: null,
         inputInsidePopup: true,
         onOpenChangeComplete: onOpenChangeCompleteProp || NOOP,
@@ -364,8 +365,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }),
   ).current;
 
-  const onItemHighlighted = useEventCallback(onItemHighlightedProp);
-  const onOpenChangeComplete = useEventCallback(onOpenChangeCompleteProp);
+  const onItemHighlighted = useStableCallback(onItemHighlightedProp);
+  const onOpenChangeComplete = useStableCallback(onOpenChangeCompleteProp);
 
   const activeIndex = useStore(store, selectors.activeIndex);
   const selectedIndex = useStore(store, selectors.selectedIndex);
@@ -379,7 +380,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const queryRef = React.useRef(query);
   const selectedValueRef = React.useRef(selectedValue);
   const inputValueRef = React.useRef(inputValue);
-  const triggerRef = useLatestRef(triggerElement);
+  const triggerRef = useValueAsRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const {
@@ -388,7 +389,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  const forceMount = useEventCallback(() => {
+  const forceMount = useStableCallback(() => {
     if (items) {
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) =>
@@ -591,13 +592,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
 
-  const setIndices = useEventCallback(
+  const setIndices = useStableCallback(
     (options: {
       activeIndex?: number | null;
       selectedIndex?: number | null;
       type?: 'none' | 'keyboard' | 'pointer';
     }) => {
-      store.apply(options);
+      store.update(options);
       const type: AriaCombobox.HighlightEventReason = options.type || 'none';
 
       if (options.activeIndex === undefined) {
@@ -622,7 +623,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const setInputValue = useEventCallback(
+  const setInputValue = useStableCallback(
     (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
       hadInputClearRef.current = eventDetails.reason === 'input-clear';
 
@@ -651,7 +652,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const setOpen = useEventCallback(
+  const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => {
       if (open === nextOpen) {
         return;
@@ -687,7 +688,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const setSelectedValue = useEventCallback(
+  const setSelectedValue = useStableCallback(
     (nextValue: Value | Value[], eventDetails: AriaCombobox.ChangeEventDetails) => {
       // Cast to `any` due to conditional value type (single vs. multiple).
       // The runtime implementation already ensures the correct value shape.
@@ -721,7 +722,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const syncSelectedIndex = useEventCallback(() => {
+  const syncSelectedIndex = useStableCallback(() => {
     if (selectionMode === 'none') {
       return;
     }
@@ -745,7 +746,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [open, selectedValue, syncSelectedIndex]);
 
-  const handleSelection = useEventCallback(
+  const handleSelection = useStableCallback(
     (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
       let value = passedValue;
       if (value === undefined) {
@@ -799,7 +800,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const handleUnmount = useEventCallback(() => {
+  const handleUnmount = useStableCallback(() => {
     setMounted(false);
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
@@ -999,7 +1000,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   ]);
 
   useOnFirstRender(() => {
-    store.apply({
+    store.update({
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
@@ -1016,7 +1017,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   useIsoLayoutEffect(() => {
-    store.apply({
+    store.update({
       id,
       selectedValue,
       open,

@@ -56,6 +56,10 @@ function getShortPropType(name: string, type: string | undefined) {
     return { type: 'string | function', detailedType: true };
   }
 
+  if (name === 'style') {
+    return { type: 'React.CSSProperties | function', detailedType: true };
+  }
+
   if (name === 'render') {
     return { type: 'ReactElement | function', detailedType: true };
   }

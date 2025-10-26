@@ -5,11 +5,15 @@ import { Dialog } from '@base-ui-components/react/dialog';
 // eslint-disable-next-line no-restricted-imports
 import { useTransitionStatus } from '@base-ui-components/react/utils/useTransitionStatus';
 import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
-import classes from './dialog.module.css';
+import {
+  SettingsMetadata,
+  useExperimentSettings,
+} from 'docs/src/components/Experiments/SettingsPanel';
+import classes from './nested.module.css';
 
 const NESTED_DIALOGS = 8;
 
-interface DemoProps {
+interface Settings {
   keepMounted: boolean;
   modal: boolean;
   dismissible: boolean;
@@ -63,7 +67,7 @@ function renderContent(
   );
 }
 
-function CssTransitionDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
+function CssTransitionDialogDemo({ keepMounted, modal, dismissible }: Settings) {
   return (
     <span className={classes.demo}>
       <Dialog.Root modal={modal} dismissible={dismissible}>
@@ -86,7 +90,7 @@ function CssTransitionDialogDemo({ keepMounted, modal, dismissible }: DemoProps)
   );
 }
 
-function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
+function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: Settings) {
   return (
     <span className={classes.demo}>
       <Dialog.Root modal={modal} dismissible={dismissible}>
@@ -177,41 +181,39 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
 }
 
 export default function DialogExperiment() {
-  const [keepMounted, setKeepMounted] = React.useState(false);
-  const [modal, setModal] = React.useState(true);
-  const [dismissible, setDismissible] = React.useState(false);
+  const { settings } = useExperimentSettings<Settings>();
 
   return (
     <div className={classes.page}>
-      <h1>Dialog</h1>
-      <CssTransitionDialogDemo keepMounted={keepMounted} modal={modal} dismissible={dismissible} />
-      <CssAnimationDialogDemo keepMounted={keepMounted} modal={modal} dismissible={dismissible} />
-
-      <h2>Options</h2>
-      <label>
-        <input
-          type="checkbox"
-          checked={keepMounted}
-          onChange={(event) => setKeepMounted(event.target.checked)}
-        />{' '}
-        Keep mounted
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          checked={modal}
-          onChange={(event) => setModal(event.target.checked)}
-        />{' '}
-        Modal
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          checked={dismissible}
-          onChange={(event) => setDismissible(event.target.checked)}
-        />{' '}
-        Soft-close
-      </label>
+      <h1>Nested dialogs</h1>
+      <CssTransitionDialogDemo
+        keepMounted={settings.keepMounted}
+        modal={settings.modal}
+        dismissible={settings.dismissible}
+      />
+      <CssAnimationDialogDemo
+        keepMounted={settings.keepMounted}
+        modal={settings.modal}
+        dismissible={settings.dismissible}
+      />
     </div>
   );
 }
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  modal: {
+    type: 'boolean',
+    label: 'Modal',
+    default: true,
+  },
+  dismissible: {
+    type: 'boolean',
+    label: 'Dismissible',
+    default: true,
+  },
+  keepMounted: {
+    type: 'boolean',
+    label: 'Keep mounted',
+    default: false,
+  },
+};
