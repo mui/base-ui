@@ -105,8 +105,3 @@ export type Simplify<T> = T extends Function ? T : { [K in keyof T]: T[K] };
 export type RequiredExcept<T, K extends keyof T> = Required<Omit<T, K>> & Pick<T, K>;
 
 export type Orientation = 'horizontal' | 'vertical';
-
-export type PopupTriggerMap<Payload = unknown> = Map<
-  string,
-  { element: HTMLElement; getPayload?: (() => Payload) | undefined }
->;

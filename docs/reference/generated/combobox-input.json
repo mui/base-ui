@@ -56,6 +56,13 @@
     },
     "data-focused": {
       "description": "Present when the input is focused (when wrapped in Field.Root)."
+    },
+    "data-list-empty": {
+      "description": "Present when the corresponding items list is empty."
+    },
+    "data-popup-side": {
+      "description": "Indicates which side the corresponding popup is positioned relative to its anchor.",
+      "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null"
     }
   },
   "cssVariables": {}
