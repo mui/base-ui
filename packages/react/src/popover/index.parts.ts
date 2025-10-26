@@ -9,4 +9,4 @@ export { PopoverTitle as Title } from './title/PopoverTitle';
 export { PopoverDescription as Description } from './description/PopoverDescription';
 export { PopoverClose as Close } from './close/PopoverClose';
 export { PopoverViewport as Viewport } from './viewport/PopoverViewport';
-export { createPopoverHandle as createHandle } from './store';
+export { createPopoverHandle as createHandle } from './PopoverStore';
