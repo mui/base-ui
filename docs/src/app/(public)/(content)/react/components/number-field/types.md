@@ -10,44 +10,44 @@ Groups all parts of the number field and manages its state. Renders a `<div>` el
 
 **Root Props:**
 
-| Prop             | Type                                                                                   | Default | Description                                                                                                                                                                                                                                                                                                                                                                   |
-| :--------------- | :------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name             | `string`                                                                               | -       | Identifies the field when a form is submitted.                                                                                                                                                                                                                                                                                                                                |
-| defaultValue     | `number`                                                                               | -       | The uncontrolled value of the field when it’s initially rendered.To render a controlled number field, use the `value` prop instead.                                                                                                                                                                                                                                           |
-| value            | `number \| null`                                                                       | -       | The raw numeric value of the field.                                                                                                                                                                                                                                                                                                                                           |
-| onValueChange    | `((value: number \| null, eventDetails: NumberField.Root.ChangeEventDetails) => void)` | -       | Callback fired when the number value changes.                                                                                                                                                                                                                                                                                                                                 |
-| onValueCommitted | `((value: number \| null, eventDetails: NumberField.Root.CommitEventDetails) => void)` | -       | Callback function that is fired when the value is committed. It runs later than `onValueChange`, when:The input is blurred after typing a value., The pointer is released after scrubbing or pressing the increment/decrement buttons.It runs simultaneously with `onValueChange` when interacting with the keyboard.**Warning**: This is a generic event not a change event. |
-| locale           | `IntlLocalesArgument`                                                                  | -       | The locale of the input element. Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                       |
-| snapOnStep       | `boolean`                                                                              | `false` | Whether the value should snap to the nearest step when incrementing or decrementing.                                                                                                                                                                                                                                                                                          |
-| step             | `number`                                                                               | `1`     | Amount to increment and decrement with the buttons and arrow keys, or to scrub with pointer movement in the scrub area.                                                                                                                                                                                                                                                       |
-| smallStep        | `number`                                                                               | `0.1`   | The small step value of the input element when incrementing while the meta key is held. Snaps to multiples of this value.                                                                                                                                                                                                                                                     |
-| largeStep        | `number`                                                                               | `10`    | The large step value of the input element when incrementing while the shift key is held. Snaps to multiples of this value.                                                                                                                                                                                                                                                    |
-| min              | `number`                                                                               | -       | The minimum value of the input element.                                                                                                                                                                                                                                                                                                                                       |
-| max              | `number`                                                                               | -       | The maximum value of the input element.                                                                                                                                                                                                                                                                                                                                       |
-| allowWheelScrub  | `boolean`                                                                              | `false` | Whether to allow the user to scrub the input value with the mouse wheel while focused and hovering over the input.                                                                                                                                                                                                                                                            |
-| format           | `IntlNumberFormatOptions`                                                              | -       | Options to format the input value.                                                                                                                                                                                                                                                                                                                                            |
-| disabled         | `boolean`                                                                              | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                                                                         |
-| readOnly         | `boolean`                                                                              | `false` | Whether the user should be unable to change the field value.                                                                                                                                                                                                                                                                                                                  |
-| required         | `boolean`                                                                              | `false` | Whether the user must enter a value before submitting a form.                                                                                                                                                                                                                                                                                                                 |
-| inputRef         | `Ref<HTMLInputElement>`                                                                | -       | A ref to access the hidden input element.                                                                                                                                                                                                                                                                                                                                     |
-| id               | `string`                                                                               | -       | The id of the input element.                                                                                                                                                                                                                                                                                                                                                  |
-| className        | `string \| ((state: NumberField.Root.State) => string)`                                | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                          |
-| render           | `ReactElement \| ((props: HTMLProps, state: NumberField.Root.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                      |
+| Prop                  | Type                                                                                    | Default   | Description                                                                                                                                                                                                                                                                                                                                                                   |
+| :-------------------- | :-------------------------------------------------------------------------------------- | :-------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name                  | `string`                                                                                | -         | Identifies the field when a form is submitted.                                                                                                                                                                                                                                                                                                                                |
+| defaultValue          | `number`                                                                                | -         | The uncontrolled value of the field when it’s initially rendered.To render a controlled number field, use the `value` prop instead.                                                                                                                                                                                                                                           |
+| value                 | `number \| null`                                                                        | -         | The raw numeric value of the field.                                                                                                                                                                                                                                                                                                                                           |
+| onValueChange         | `((value: number \| null, eventDetails: NumberField.Root.ChangeEventDetails) => void)`  | -         | Callback fired when the number value changes.                                                                                                                                                                                                                                                                                                                                 |
+| onValueCommitted      | `((value: number \| null, eventDetails: NumberField.Root.CommitEventDetails) => void)`  | -         | Callback function that is fired when the value is committed. It runs later than `onValueChange`, when:The input is blurred after typing a value., The pointer is released after scrubbing or pressing the increment/decrement buttons.It runs simultaneously with `onValueChange` when interacting with the keyboard.**Warning**: This is a generic event not a change event. |
+| locale                | `IntlLocalesArgument`                                                                   | -         | The locale of the input element. Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                       |
+| snapOnStep            | `boolean`                                                                               | `false`   | Whether the value should snap to the nearest step when incrementing or decrementing.                                                                                                                                                                                                                                                                                          |
+| step                  | `number`                                                                                | `1`       | Amount to increment and decrement with the buttons and arrow keys, or to scrub with pointer movement in the scrub area.                                                                                                                                                                                                                                                       |
+| smallStep             | `number`                                                                                | `0.1`     | The small step value of the input element when incrementing while the meta key is held. Snaps to multiples of this value.                                                                                                                                                                                                                                                     |
+| largeStep             | `number`                                                                                | `10`      | The large step value of the input element when incrementing while the shift key is held. Snaps to multiples of this value.                                                                                                                                                                                                                                                    |
+| min                   | `number`                                                                                | -         | The minimum value of the input element.                                                                                                                                                                                                                                                                                                                                       |
+| max                   | `number`                                                                                | -         | The maximum value of the input element.                                                                                                                                                                                                                                                                                                                                       |
+| allowWheelScrub       | `boolean`                                                                               | `false`   | Whether to allow the user to scrub the input value with the mouse wheel while focused and hovering over the input.                                                                                                                                                                                                                                                            |
+| format                | `IntlNumberFormatOptions`                                                               | -         | Options to format the input value.                                                                                                                                                                                                                                                                                                                                            |
+| disabled              | `boolean`                                                                               | `false`   | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                                                                         |
+| readOnly              | `boolean`                                                                               | `false`   | Whether the user should be unable to change the field value.                                                                                                                                                                                                                                                                                                                  |
+| required              | `boolean`                                                                               | `false`   | Whether the user must enter a value before submitting a form.                                                                                                                                                                                                                                                                                                                 |
+| inputRef              | `Ref<HTMLInputElement>`                                                                 | -         | A ref to access the hidden input element.                                                                                                                                                                                                                                                                                                                                     |
+| id                    | `string`                                                                                | -         | The id of the input element.                                                                                                                                                                                                                                                                                                                                                  |
+| className             | `string \| ((state: NumberField.Root.State) => string)`                                 | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                          |
+| render                | `ReactElement \| ((props: HTMLProps, state: NumberField.Root.State) => ReactElement)`   | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                      |
 
 **Root Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type    | Description                                                                          |
+| :------------- | :------ | :----------------------------------------------------------------------------------- |
+| data-disabled  | -       | Present when the number field is disabled.                                           |
+| data-readonly  | -       | Present when the number field is readonly.                                           |
+| data-required  | -       | Present when the number field is required.                                           |
+| data-valid     | -       | Present when the number field is in valid state (when wrapped in Field.Root).        |
+| data-invalid   | -       | Present when the number field is in invalid state (when wrapped in Field.Root).      |
+| data-dirty     | -       | Present when the number field's value has changed (when wrapped in Field.Root).      |
+| data-touched   | -       | Present when the number field has been touched (when wrapped in Field.Root).         |
+| data-filled    | -       | Present when the number field is filled (when wrapped in Field.Root).                |
+| data-focused   | -       | Present when the number field is focused (when wrapped in Field.Root).               |
+| data-scrubbing | -       | Present while scrubbing.                                                             |
 
 ### Root.Props
 
@@ -77,26 +77,26 @@ The native input control in the number field. Renders an `<input>` element.
 
 **Input Props:**
 
-| Prop                 | Type                                                                                   | Default          | Description                                                                                                                                                                              |
-| :------------------- | :------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| aria-roledescription | `string`                                                                               | `'Number field'` | A string value that provides a user-friendly name for the role of the input.                                                                                                             |
-| className            | `string \| ((state: NumberField.Input.State) => string)`                               | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render               | `ReactElement \| ((props: HTMLProps, state: NumberField.Input.State) => ReactElement)` | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                                    | Default          | Description                                                                                                                                                                              |
+| :-------------------- | :-------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| aria-roledescription  | `string`                                                                                | `'Number field'` | A string value that provides a user-friendly name for the role of the input.                                                                                                             |
+| className             | `string \| ((state: NumberField.Input.State) => string)`                                | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render                | `ReactElement \| ((props: HTMLProps, state: NumberField.Input.State) => ReactElement)`  | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type    | Description                                                                          |
+| :------------- | :------ | :----------------------------------------------------------------------------------- |
+| data-disabled  | -       | Present when the number field is disabled.                                           |
+| data-readonly  | -       | Present when the number field is readonly.                                           |
+| data-required  | -       | Present when the number field is required.                                           |
+| data-valid     | -       | Present when the number field is in valid state (when wrapped in Field.Root).        |
+| data-invalid   | -       | Present when the number field is in invalid state (when wrapped in Field.Root).      |
+| data-dirty     | -       | Present when the number field's value has changed (when wrapped in Field.Root).      |
+| data-touched   | -       | Present when the number field has been touched (when wrapped in Field.Root).         |
+| data-filled    | -       | Present when the number field is filled (when wrapped in Field.Root).                |
+| data-focused   | -       | Present when the number field is focused (when wrapped in Field.Root).               |
+| data-scrubbing | -       | Present while scrubbing.                                                             |
 
 ### Input.Props
 
@@ -126,25 +126,25 @@ Groups the input with the increment and decrement buttons. Renders a `<div>` ele
 
 **Group Props:**
 
-| Prop      | Type                                                                                   | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: NumberField.Group.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: NumberField.Group.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                    | Default | Description                                                                                                                                                                              |
+| :------------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: NumberField.Group.State) => string)`                                | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: NumberField.Group.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Group Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type    | Description                                                                          |
+| :------------- | :------ | :----------------------------------------------------------------------------------- |
+| data-disabled  | -       | Present when the number field is disabled.                                           |
+| data-readonly  | -       | Present when the number field is readonly.                                           |
+| data-required  | -       | Present when the number field is required.                                           |
+| data-valid     | -       | Present when the number field is in valid state (when wrapped in Field.Root).        |
+| data-invalid   | -       | Present when the number field is in invalid state (when wrapped in Field.Root).      |
+| data-dirty     | -       | Present when the number field's value has changed (when wrapped in Field.Root).      |
+| data-touched   | -       | Present when the number field has been touched (when wrapped in Field.Root).         |
+| data-filled    | -       | Present when the number field is filled (when wrapped in Field.Root).                |
+| data-focused   | -       | Present when the number field is focused (when wrapped in Field.Root).               |
+| data-scrubbing | -       | Present while scrubbing.                                                             |
 
 ### Group.Props
 
@@ -174,28 +174,28 @@ An interactive area where the user can click and drag to change the field value.
 
 **ScrubArea Props:**
 
-| Prop             | Type                                                                                       | Default        | Description                                                                                                                                                                              |
-| :--------------- | :----------------------------------------------------------------------------------------- | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| direction        | `'horizontal' \| 'vertical'`                                                               | `'horizontal'` | Cursor movement direction in the scrub area.                                                                                                                                             |
-| pixelSensitivity | `number`                                                                                   | `2`            | Determines how many pixels the cursor must move before the value changes. A higher value will make scrubbing less sensitive.                                                             |
-| teleportDistance | `number`                                                                                   | -              | If specified, determines the distance that the cursor may move from the center of the scrub area before it will loop back around.                                                        |
-| className        | `string \| ((state: NumberField.ScrubArea.State) => string)`                               | -              | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render           | `ReactElement \| ((props: HTMLProps, state: NumberField.ScrubArea.State) => ReactElement)` | -              | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                                           | Default          | Description                                                                                                                                                                              |
+| :-------------------- | :--------------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| direction             | `'horizontal' \| 'vertical'`                                                                   | `'horizontal'`   | Cursor movement direction in the scrub area.                                                                                                                                             |
+| pixelSensitivity      | `number`                                                                                       | `2`              | Determines how many pixels the cursor must move before the value changes. A higher value will make scrubbing less sensitive.                                                             |
+| teleportDistance      | `number`                                                                                       | -                | If specified, determines the distance that the cursor may move from the center of the scrub area before it will loop back around.                                                        |
+| className             | `string \| ((state: NumberField.ScrubArea.State) => string)`                                   | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render                | `ReactElement \| ((props: HTMLProps, state: NumberField.ScrubArea.State) => ReactElement)`     | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **ScrubArea Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type    | Description                                                                          |
+| :------------- | :------ | :----------------------------------------------------------------------------------- |
+| data-disabled  | -       | Present when the number field is disabled.                                           |
+| data-readonly  | -       | Present when the number field is readonly.                                           |
+| data-required  | -       | Present when the number field is required.                                           |
+| data-valid     | -       | Present when the number field is in valid state (when wrapped in Field.Root).        |
+| data-invalid   | -       | Present when the number field is in invalid state (when wrapped in Field.Root).      |
+| data-dirty     | -       | Present when the number field's value has changed (when wrapped in Field.Root).      |
+| data-touched   | -       | Present when the number field has been touched (when wrapped in Field.Root).         |
+| data-filled    | -       | Present when the number field is filled (when wrapped in Field.Root).                |
+| data-focused   | -       | Present when the number field is focused (when wrapped in Field.Root).               |
+| data-scrubbing | -       | Present while scrubbing.                                                             |
 
 ### ScrubArea.Props
 
@@ -227,25 +227,25 @@ This component uses the [Pointer Lock API](https://developer.mozilla.org/en-US/d
 
 **ScrubAreaCursor Props:**
 
-| Prop      | Type                                                                                             | Default | Description                                                                                                                                                                              |
-| :-------- | :----------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: NumberField.ScrubAreaCursor.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: NumberField.ScrubAreaCursor.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                                  | Default | Description                                                                                                                                                                              |
+| :------------- | :---------------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: NumberField.ScrubAreaCursor.State) => string)`                                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: NumberField.ScrubAreaCursor.State) => ReactElement)`      | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **ScrubAreaCursor Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type    | Description                                                                          |
+| :------------- | :------ | :----------------------------------------------------------------------------------- |
+| data-disabled  | -       | Present when the number field is disabled.                                           |
+| data-readonly  | -       | Present when the number field is readonly.                                           |
+| data-required  | -       | Present when the number field is required.                                           |
+| data-valid     | -       | Present when the number field is in valid state (when wrapped in Field.Root).        |
+| data-invalid   | -       | Present when the number field is in invalid state (when wrapped in Field.Root).      |
+| data-dirty     | -       | Present when the number field's value has changed (when wrapped in Field.Root).      |
+| data-touched   | -       | Present when the number field has been touched (when wrapped in Field.Root).         |
+| data-filled    | -       | Present when the number field is filled (when wrapped in Field.Root).                |
+| data-focused   | -       | Present when the number field is focused (when wrapped in Field.Root).               |
+| data-scrubbing | -       | Present while scrubbing.                                                             |
 
 ### ScrubAreaCursor.Props
 
@@ -275,26 +275,26 @@ A stepper button that decreases the field value when clicked. Renders an `<butto
 
 **Decrement Props:**
 
-| Prop         | Type                                                                                       | Default | Description                                                                                                                                                                              |
-| :----------- | :----------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                                  | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| className    | `string \| ((state: NumberField.Decrement.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: NumberField.Decrement.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                           | Default   | Description                                                                                                                                                                              |
+| :------------- | :--------------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton   | `boolean`                                                                                      | `true`    | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
+| className      | `string \| ((state: NumberField.Decrement.State) => string)`                                   | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: NumberField.Decrement.State) => ReactElement)`     | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Decrement Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type    | Description                                                                          |
+| :------------- | :------ | :----------------------------------------------------------------------------------- |
+| data-disabled  | -       | Present when the number field is disabled.                                           |
+| data-readonly  | -       | Present when the number field is readonly.                                           |
+| data-required  | -       | Present when the number field is required.                                           |
+| data-valid     | -       | Present when the number field is in valid state (when wrapped in Field.Root).        |
+| data-invalid   | -       | Present when the number field is in invalid state (when wrapped in Field.Root).      |
+| data-dirty     | -       | Present when the number field's value has changed (when wrapped in Field.Root).      |
+| data-touched   | -       | Present when the number field has been touched (when wrapped in Field.Root).         |
+| data-filled    | -       | Present when the number field is filled (when wrapped in Field.Root).                |
+| data-focused   | -       | Present when the number field is focused (when wrapped in Field.Root).               |
+| data-scrubbing | -       | Present while scrubbing.                                                             |
 
 ### Decrement.Props
 
@@ -324,26 +324,26 @@ A stepper button that increases the field value when clicked. Renders an `<butto
 
 **Increment Props:**
 
-| Prop         | Type                                                                                       | Default | Description                                                                                                                                                                              |
-| :----------- | :----------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                                  | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| className    | `string \| ((state: NumberField.Increment.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: NumberField.Increment.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                           | Default   | Description                                                                                                                                                                              |
+| :------------- | :--------------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton   | `boolean`                                                                                      | `true`    | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
+| className      | `string \| ((state: NumberField.Increment.State) => string)`                                   | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: NumberField.Increment.State) => ReactElement)`     | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Increment Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type    | Description                                                                          |
+| :------------- | :------ | :----------------------------------------------------------------------------------- |
+| data-disabled  | -       | Present when the number field is disabled.                                           |
+| data-readonly  | -       | Present when the number field is readonly.                                           |
+| data-required  | -       | Present when the number field is required.                                           |
+| data-valid     | -       | Present when the number field is in valid state (when wrapped in Field.Root).        |
+| data-invalid   | -       | Present when the number field is in invalid state (when wrapped in Field.Root).      |
+| data-dirty     | -       | Present when the number field's value has changed (when wrapped in Field.Root).      |
+| data-touched   | -       | Present when the number field has been touched (when wrapped in Field.Root).         |
+| data-filled    | -       | Present when the number field is filled (when wrapped in Field.Root).                |
+| data-focused   | -       | Present when the number field is focused (when wrapped in Field.Root).               |
+| data-scrubbing | -       | Present while scrubbing.                                                             |
 
 ### Increment.Props
 

@@ -10,30 +10,30 @@ Groups all parts of the field. Renders a `<div>` element.
 
 **Root Props:**
 
-| Prop                   | Type                                                                                                                           | Default    | Description                                                                                                                                                                              |
-| :--------------------- | :----------------------------------------------------------------------------------------------------------------------------- | :--------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name                   | `string`                                                                                                                       | -          | Identifies the field when a form is submitted. Takes precedence over the `name` prop on the `<Field.Control>` component.                                                                 |
-| dirty                  | `boolean`                                                                                                                      | -          | Whether the field's value has been changed from its initial value. Useful when the field state is controlled by an external library.                                                     |
-| touched                | `boolean`                                                                                                                      | -          | Whether the field has been touched. Useful when the field state is controlled by an external library.                                                                                    |
-| disabled               | `boolean`                                                                                                                      | `false`    | Whether the component should ignore user interaction. Takes precedence over the `disabled` prop on the `<Field.Control>` component.                                                      |
-| invalid                | `boolean`                                                                                                                      | -          | Whether the field is invalid. Useful when the field state is controlled by an external library.                                                                                          |
-| validate               | `((value: unknown, formValues: Record<string, unknown>) => string \| string[] \| Promise<string \| string[] \| null> \| null)` | -          | A function for custom validation. Return a string or an array of strings with the error message(s) if the value is invalid, or `null` if the value is valid.                             |
-| validationMode         | `'onBlur' \| 'onChange'`                                                                                                       | `'onBlur'` | Determines when the field should be validated.**onBlur** triggers validation when the control loses focus, **onChange** triggers validation on every change to the control value         |
-| validationDebounceTime | `number`                                                                                                                       | `0`        | How long to wait between `validate` callbacks if `validationMode="onChange"` is used. Specified in milliseconds.                                                                         |
-| className              | `string \| ((state: Field.Root.State) => string)`                                                                              | -          | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render                 | `ReactElement \| ((props: HTMLProps, state: Field.Root.State) => ReactElement)`                                                | -          | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                         | Type                                                                                                                           | Default          | Description                                                                                                                                                                              |
+| :--------------------------- | :----------------------------------------------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name                         | `string`                                                                                                                       | -                | Identifies the field when a form is submitted. Takes precedence over the `name` prop on the `<Field.Control>` component.                                                                 |
+| dirty                        | `boolean`                                                                                                                      | -                | Whether the field's value has been changed from its initial value. Useful when the field state is controlled by an external library.                                                     |
+| touched                      | `boolean`                                                                                                                      | -                | Whether the field has been touched. Useful when the field state is controlled by an external library.                                                                                    |
+| disabled                     | `boolean`                                                                                                                      | `false`          | Whether the component should ignore user interaction. Takes precedence over the `disabled` prop on the `<Field.Control>` component.                                                      |
+| invalid                      | `boolean`                                                                                                                      | -                | Whether the field is invalid. Useful when the field state is controlled by an external library.                                                                                          |
+| validate                     | `((value: unknown, formValues: Record<string, unknown>) => string \| string[] \| Promise<string \| string[] \| null> \| null)` | -                | A function for custom validation. Return a string or an array of strings with the error message(s) if the value is invalid, or `null` if the value is valid.                             |
+| validationMode               | `'onBlur' \| 'onChange'`                                                                                                       | `'onBlur'`       | Determines when the field should be validated.**onBlur** triggers validation when the control loses focus, **onChange** triggers validation on every change to the control value         |
+| validationDebounceTime       | `number`                                                                                                                       | `0`              | How long to wait between `validate` callbacks if `validationMode="onChange"` is used. Specified in milliseconds.                                                                         |
+| className                    | `string \| ((state: Field.Root.State) => string)`                                                                              | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render                       | `ReactElement \| ((props: HTMLProps, state: Field.Root.State) => ReactElement)`                                                | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
-| Attribute     | Type | Description                                 |
-| :------------ | :--- | :------------------------------------------ |
-| data-disabled | -    | Present when the field is disabled.         |
-| data-valid    | -    | Present when the field is valid.            |
-| data-invalid  | -    | Present when the field is invalid.          |
-| data-dirty    | -    | Present when the field's value has changed. |
-| data-touched  | -    | Present when the field has been touched.    |
-| data-filled   | -    | Present when the field is filled.           |
-| data-focused  | -    | Present when the field control is focused.  |
+| Attribute      | Type    | Description                                       |
+| :------------- | :------ | :------------------------------------------------ |
+| data-disabled  | -       | Present when the field is disabled.               |
+| data-valid     | -       | Present when the field is valid.                  |
+| data-invalid   | -       | Present when the field is invalid.                |
+| data-dirty     | -       | Present when the field's value has changed.       |
+| data-touched   | -       | Present when the field has been touched.          |
+| data-filled    | -       | Present when the field is filled.                 |
+| data-focused   | -       | Present when the field control is focused.        |
 
 ### Root.Props
 
@@ -58,22 +58,22 @@ A paragraph with additional information about the field. Renders a `<p>` element
 
 **Description Props:**
 
-| Prop      | Type                                                                            | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Field.Root.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: Field.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                             | Default | Description                                                                                                                                                                              |
+| :------------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: Field.Root.State) => string)`                                | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: Field.Root.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Description Data Attributes:**
 
-| Attribute     | Type | Description                                 |
-| :------------ | :--- | :------------------------------------------ |
-| data-disabled | -    | Present when the field is disabled.         |
-| data-valid    | -    | Present when the field is in valid state.   |
-| data-invalid  | -    | Present when the field is in invalid state. |
-| data-dirty    | -    | Present when the field's value has changed. |
-| data-touched  | -    | Present when the field has been touched.    |
-| data-filled   | -    | Present when the field is filled.           |
-| data-focused  | -    | Present when the field control is focused.  |
+| Attribute      | Type    | Description                                       |
+| :------------- | :------ | :------------------------------------------------ |
+| data-disabled  | -       | Present when the field is disabled.               |
+| data-valid     | -       | Present when the field is in valid state.         |
+| data-invalid   | -       | Present when the field is in invalid state.       |
+| data-dirty     | -       | Present when the field's value has changed.       |
+| data-touched   | -       | Present when the field has been touched.          |
+| data-filled    | -       | Present when the field is filled.                 |
+| data-focused   | -       | Present when the field control is focused.        |
 
 ### Description.Props
 
@@ -87,24 +87,24 @@ You can omit this part and use any Base UI input component instead. For example,
 
 **Control Props:**
 
-| Prop          | Type                                                                            | Default | Description                                                                                                                                                                              |
-| :------------ | :------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue  | `string \| number \| string[]`                                                  | -       | -                                                                                                                                                                                        |
-| onValueChange | `((value: string, eventDetails: Field.Control.ChangeEventDetails) => void)`     | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                            |
-| className     | `string \| ((state: Field.Root.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render        | `ReactElement \| ((props: HTMLProps, state: Field.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                             | Default | Description                                                                                                                                                                              |
+| :------------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue   | `string \| number \| string[]`                                                   | -       | -                                                                                                                                                                                        |
+| onValueChange  | `((value: string, eventDetails: Field.Control.ChangeEventDetails) => void)`      | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                            |
+| className      | `string \| ((state: Field.Root.State) => string)`                                | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: Field.Root.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Control Data Attributes:**
 
-| Attribute     | Type | Description                                 |
-| :------------ | :--- | :------------------------------------------ |
-| data-disabled | -    | Present when the field is disabled.         |
-| data-valid    | -    | Present when the field is in valid state.   |
-| data-invalid  | -    | Present when the field is in invalid state. |
-| data-dirty    | -    | Present when the field's value has changed. |
-| data-touched  | -    | Present when the field has been touched.    |
-| data-filled   | -    | Present when the field is filled.           |
-| data-focused  | -    | Present when the field control is focused.  |
+| Attribute      | Type    | Description                                       |
+| :------------- | :------ | :------------------------------------------------ |
+| data-disabled  | -       | Present when the field is disabled.               |
+| data-valid     | -       | Present when the field is in valid state.         |
+| data-invalid   | -       | Present when the field is in invalid state.       |
+| data-dirty     | -       | Present when the field's value has changed.       |
+| data-touched   | -       | Present when the field has been touched.          |
+| data-filled    | -       | Present when the field is filled.                 |
+| data-focused   | -       | Present when the field control is focused.        |
 
 ### Control.Props
 
@@ -116,22 +116,22 @@ An accessible label that is automatically associated with the field control. Ren
 
 **Label Props:**
 
-| Prop      | Type                                                                            | Default | Description                                                                                                                                                                              |
-| :-------- | :------------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Field.Root.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: Field.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                             | Default | Description                                                                                                                                                                              |
+| :------------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: Field.Root.State) => string)`                                | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: Field.Root.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Label Data Attributes:**
 
-| Attribute     | Type | Description                                 |
-| :------------ | :--- | :------------------------------------------ |
-| data-disabled | -    | Present when the field is disabled.         |
-| data-valid    | -    | Present when the field is in valid state.   |
-| data-invalid  | -    | Present when the field is in invalid state. |
-| data-dirty    | -    | Present when the field's value has changed. |
-| data-touched  | -    | Present when the field has been touched.    |
-| data-filled   | -    | Present when the field is filled.           |
-| data-focused  | -    | Present when the field control is focused.  |
+| Attribute      | Type    | Description                                       |
+| :------------- | :------ | :------------------------------------------------ |
+| data-disabled  | -       | Present when the field is disabled.               |
+| data-valid     | -       | Present when the field is in valid state.         |
+| data-invalid   | -       | Present when the field is in invalid state.       |
+| data-dirty     | -       | Present when the field's value has changed.       |
+| data-touched   | -       | Present when the field has been touched.          |
+| data-filled    | -       | Present when the field is filled.                 |
+| data-focused   | -       | Present when the field control is focused.        |
 
 ### Label.Props
 
@@ -143,23 +143,23 @@ An error message displayed if the field control fails validation. Renders a `<di
 
 **Error Props:**
 
-| Prop      | Type                                                                                                                                                                                             | Default | Description                                                                                                                                                                                                                                                      |
-| :-------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| match     | `boolean \| 'valid' \| 'badInput' \| 'customError' \| 'patternMismatch' \| 'rangeOverflow' \| 'rangeUnderflow' \| 'stepMismatch' \| 'tooLong' \| 'tooShort' \| 'typeMismatch' \| 'valueMissing'` | -       | Determines whether to show the error message according to the field’s [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState). Specifying `true` will always show the error message, and lets external libraries control the visibility. |
-| className | `string \| ((state: Field.Root.State) => string)`                                                                                                                                                | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Field.Root.State) => ReactElement)`                                                                                                                  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                         |
+| Prop           | Type                                                                                                                                                                                                | Default | Description                                                                                                                                                                                                                                                       |
+| :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| match          | `boolean \| 'valid' \| 'badInput' \| 'customError' \| 'patternMismatch' \| 'rangeOverflow' \| 'rangeUnderflow' \| 'stepMismatch' \| 'tooLong' \| 'tooShort' \| 'typeMismatch' \| 'valueMissing'`    | -       | Determines whether to show the error message according to the field’s [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState). Specifying `true` will always show the error message, and lets external libraries control the visibility.  |
+| className      | `string \| ((state: Field.Root.State) => string)`                                                                                                                                                   | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                              |
+| render         | `ReactElement \| ((props: HTMLProps, state: Field.Root.State) => ReactElement)`                                                                                                                     | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                          |
 
 **Error Data Attributes:**
 
-| Attribute     | Type | Description                                 |
-| :------------ | :--- | :------------------------------------------ |
-| data-disabled | -    | Present when the field is disabled.         |
-| data-valid    | -    | Present when the field is in valid state.   |
-| data-invalid  | -    | Present when the field is in invalid state. |
-| data-dirty    | -    | Present when the field's value has changed. |
-| data-touched  | -    | Present when the field has been touched.    |
-| data-filled   | -    | Present when the field is filled.           |
-| data-focused  | -    | Present when the field control is focused.  |
+| Attribute      | Type    | Description                                       |
+| :------------- | :------ | :------------------------------------------------ |
+| data-disabled  | -       | Present when the field is disabled.               |
+| data-valid     | -       | Present when the field is in valid state.         |
+| data-invalid   | -       | Present when the field is in invalid state.       |
+| data-dirty     | -       | Present when the field's value has changed.       |
+| data-touched   | -       | Present when the field has been touched.          |
+| data-filled    | -       | Present when the field is filled.                 |
+| data-focused   | -       | Present when the field control is focused.        |
 
 ### Error.Props
 
@@ -171,9 +171,9 @@ Used to display a custom message based on the field’s validity. Requires `chil
 
 **Validity Props:**
 
-| Prop     | Type                                           | Default | Description                                                                                                                                            |
-| :------- | :--------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children | `((state: Field.Validity.State) => ReactNode)` | -       | A function that accepts the field validity state as an argument.`<Field.Validity>
+| Prop           | Type                                                | Default | Description                                                                                                                                                  |
+| :------------- | :-------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children       | `((state: Field.Validity.State) => ReactNode)`      | -       | A function that accepts the field validity state as an argument.      `<Field.Validity>
   {(validity) => {
     return <div>...</div>
   }} </Field.Validity>` |

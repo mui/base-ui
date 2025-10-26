@@ -10,21 +10,21 @@ A container for grouping a set of controls, such as buttons, toggle groups, or m
 
 **Root Props:**
 
-| Prop        | Type                                                                              | Default        | Description                                                                                                                                                                              |
-| :---------- | :-------------------------------------------------------------------------------- | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| cols        | `number`                                                                          | `1`            | The number of columns. When greater than 1, the toolbar is arranged into a grid.                                                                                                         |
-| disabled    | `boolean`                                                                         | -              | -                                                                                                                                                                                        |
-| loop        | `boolean`                                                                         | `true`         | If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.                                                                            |
-| orientation | `Toolbar.Root.Orientation`                                                        | `'horizontal'` | The orientation of the toolbar.                                                                                                                                                          |
-| className   | `string \| ((state: Toolbar.Root.State) => string)`                               | -              | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render      | `ReactElement \| ((props: HTMLProps, state: Toolbar.Root.State) => ReactElement)` | -              | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                    | Default          | Description                                                                                                                                                                              |
+| :------------- | :-------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| cols           | `number`                                                                                | `1`              | The number of columns. When greater than 1, the toolbar is arranged into a grid.                                                                                                         |
+| disabled       | `boolean`                                                                               | -                | -                                                                                                                                                                                        |
+| loop           | `boolean`                                                                               | `true`           | If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.                                                                            |
+| orientation    | `Toolbar.Root.Orientation`                                                              | `'horizontal'`   | The orientation of the toolbar.                                                                                                                                                          |
+| className      | `string \| ((state: Toolbar.Root.State) => string)`                                     | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: Toolbar.Root.State) => ReactElement)`       | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
-| Attribute        | Type                         | Description                               |
-| :--------------- | :--------------------------- | :---------------------------------------- |
-| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the toolbar. |
-| data-disabled    | -                            | Present when the toolbar is disabled.     |
+| Attribute             | Type                            | Description                                |
+| :-------------------- | :------------------------------ | :----------------------------------------- |
+| data-orientation      | `'horizontal' \| 'vertical'`    | Indicates the orientation of the toolbar.  |
+| data-disabled         | -                               | Present when the toolbar is disabled.      |
 
 ### Root.Props
 
@@ -42,22 +42,22 @@ A native input element that integrates with Toolbar keyboard navigation. Renders
 
 **Input Props:**
 
-| Prop                  | Type                                                                               | Default | Description                                                                                                                                                                              |
-| :-------------------- | :--------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue          | `string \| number \| string[]`                                                     | -       | -                                                                                                                                                                                        |
-| focusableWhenDisabled | `boolean`                                                                          | `true`  | When `true` the item remains focuseable when disabled.                                                                                                                                   |
-| disabled              | `boolean`                                                                          | `false` | When `true` the item is disabled.                                                                                                                                                        |
-| className             | `string \| ((state: Toolbar.Input.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render                | `ReactElement \| ((props: HTMLProps, state: Toolbar.Input.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                                    | Default   | Description                                                                                                                                                                              |
+| :-------------------- | :-------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue          | `string \| number \| string[]`                                                          | -         | -                                                                                                                                                                                        |
+| focusableWhenDisabled | `boolean`                                                                               | `true`    | When `true` the item remains focuseable when disabled.                                                                                                                                   |
+| disabled              | `boolean`                                                                               | `false`   | When `true` the item is disabled.                                                                                                                                                        |
+| className             | `string \| ((state: Toolbar.Input.State) => string)`                                    | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render                | `ReactElement \| ((props: HTMLProps, state: Toolbar.Input.State) => ReactElement)`      | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
-| Attribute        | Type                         | Description                                               |
-| :--------------- | :--------------------------- | :-------------------------------------------------------- |
-| data-highlighted | -                            | Present when the input is the active item in the toolbar. |
-| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the toolbar.                 |
-| data-disabled    | -                            | Present when the input is disabled.                       |
-| data-focusable   | -                            | Present when the input remains focusable when disabled.   |
+| Attribute             | Type                            | Description                                                     |
+| :-------------------- | :------------------------------ | :-------------------------------------------------------------- |
+| data-highlighted      | -                               | Present when the input is the active item in the toolbar.       |
+| data-orientation      | `'horizontal' \| 'vertical'`    | Indicates the orientation of the toolbar.                       |
+| data-disabled         | -                               | Present when the input is disabled.                             |
+| data-focusable        | -                               | Present when the input remains focusable when disabled.         |
 
 ### Input.Props
 
@@ -79,18 +79,18 @@ Groups several toolbar items or toggles. Renders a `<div>` element.
 
 **Group Props:**
 
-| Prop      | Type                                                                              | Default | Description                                                                                                                                                                              |
-| :-------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| disabled  | `boolean`                                                                         | `false` | When `true` all toolbar items in the group are disabled.                                                                                                                                 |
-| className | `string \| ((state: Toolbar.Root.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: Toolbar.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                    | Default   | Description                                                                                                                                                                              |
+| :------------- | :-------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| disabled       | `boolean`                                                                               | `false`   | When `true` all toolbar items in the group are disabled.                                                                                                                                 |
+| className      | `string \| ((state: Toolbar.Root.State) => string)`                                     | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: Toolbar.Root.State) => ReactElement)`       | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Group Data Attributes:**
 
-| Attribute        | Type                         | Description                               |
-| :--------------- | :--------------------------- | :---------------------------------------- |
-| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the toolbar. |
-| data-disabled    | -                            | Present when the group is disabled.       |
+| Attribute             | Type                            | Description                                |
+| :-------------------- | :------------------------------ | :----------------------------------------- |
+| data-orientation      | `'horizontal' \| 'vertical'`    | Indicates the orientation of the toolbar.  |
+| data-disabled         | -                               | Present when the group is disabled.        |
 
 ### Group.Props
 
@@ -102,17 +102,17 @@ A separator element accessible to screen readers. Renders a `<div>` element.
 
 **Separator Props:**
 
-| Prop        | Type                                                                          | Default        | Description                                                                                                                                                                              |
-| :---------- | :---------------------------------------------------------------------------- | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation | `Orientation`                                                                 | `'horizontal'` | The orientation of the separator.                                                                                                                                                        |
-| className   | `string \| ((state: SeparatorState) => string)`                               | -              | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render      | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)` | -              | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                             | Default          | Description                                                                                                                                                                              |
+| :------------- | :------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation    | `Orientation`                                                                    | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
+| className      | `string \| ((state: SeparatorState) => string)`                                  | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)`    | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Separator Data Attributes:**
 
-| Attribute        | Type                         | Description                               |
-| :--------------- | :--------------------------- | :---------------------------------------- |
-| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the toolbar. |
+| Attribute             | Type                            | Description                                |
+| :-------------------- | :------------------------------ | :----------------------------------------- |
+| data-orientation      | `'horizontal' \| 'vertical'`    | Indicates the orientation of the toolbar.  |
 
 ### Separator.Props
 
@@ -124,22 +124,22 @@ A button that can be used as-is or as a trigger for other components. Renders a 
 
 **Button Props:**
 
-| Prop                  | Type                                                                                | Default | Description                                                                                                                                                                              |
-| :-------------------- | :---------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| focusableWhenDisabled | `boolean`                                                                           | `true`  | When `true` the item remains focuseable when disabled.                                                                                                                                   |
-| nativeButton          | `boolean`                                                                           | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| disabled              | `boolean`                                                                           | `false` | When `true` the item is disabled.                                                                                                                                                        |
-| className             | `string \| ((state: Toolbar.Button.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render                | `ReactElement \| ((props: HTMLProps, state: Toolbar.Button.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                                    | Default   | Description                                                                                                                                                                              |
+| :-------------------- | :-------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| focusableWhenDisabled | `boolean`                                                                               | `true`    | When `true` the item remains focuseable when disabled.                                                                                                                                   |
+| nativeButton          | `boolean`                                                                               | `true`    | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
+| disabled              | `boolean`                                                                               | `false`   | When `true` the item is disabled.                                                                                                                                                        |
+| className             | `string \| ((state: Toolbar.Button.State) => string)`                                   | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render                | `ReactElement \| ((props: HTMLProps, state: Toolbar.Button.State) => ReactElement)`     | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Button Data Attributes:**
 
-| Attribute        | Type                         | Description                                                |
-| :--------------- | :--------------------------- | :--------------------------------------------------------- |
-| data-highlighted | -                            | Present when the button is the active item in the toolbar. |
-| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the toolbar.                  |
-| data-disabled    | -                            | Present when the button is disabled.                       |
-| data-focusable   | -                            | Present when the button remains focusable when disabled.   |
+| Attribute             | Type                            | Description                                                     |
+| :-------------------- | :------------------------------ | :-------------------------------------------------------------- |
+| data-highlighted      | -                               | Present when the button is the active item in the toolbar.      |
+| data-orientation      | `'horizontal' \| 'vertical'`    | Indicates the orientation of the toolbar.                       |
+| data-disabled         | -                               | Present when the button is disabled.                            |
+| data-focusable        | -                               | Present when the button remains focusable when disabled.        |
 
 ### Button.Props
 
@@ -161,17 +161,17 @@ A link component. Renders an `<a>` element.
 
 **Link Props:**
 
-| Prop      | Type                                                                              | Default | Description                                                                                                                                                                              |
-| :-------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Toolbar.Link.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render    | `ReactElement \| ((props: HTMLProps, state: Toolbar.Link.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                    | Default | Description                                                                                                                                                                              |
+| :------------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: Toolbar.Link.State) => string)`                                     | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: Toolbar.Link.State) => ReactElement)`       | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Link Data Attributes:**
 
-| Attribute        | Type                         | Description                                              |
-| :--------------- | :--------------------------- | :------------------------------------------------------- |
-| data-highlighted | -                            | Present when the link is the active item in the toolbar. |
-| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the toolbar.                |
+| Attribute             | Type                            | Description                                              |
+| :-------------------- | :------------------------------ | :------------------------------------------------------- |
+| data-highlighted      | -                               | Present when the link is the active item in the toolbar. |
+| data-orientation      | `'horizontal' \| 'vertical'`    | Indicates the orientation of the toolbar.                |
 
 ### Link.Props
 

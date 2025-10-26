@@ -10,24 +10,24 @@ A native input element that automatically works with [Field](https://base-ui.com
 
 **Input Props:**
 
-| Prop          | Type                                                                       | Default | Description                                                                                                                                                                              |
-| :------------ | :------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue  | `string \| number \| string[]`                                             | -       | -                                                                                                                                                                                        |
-| onValueChange | `((value: string, eventDetails: FieldControlChangeEventDetails) => void)`  | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                            |
-| className     | `string \| ((state: Input.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render        | `ReactElement \| ((props: HTMLProps, state: Input.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                             | Default | Description                                                                                                                                                                              |
+| :------------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue   | `string \| number \| string[]`                                                   | -       | -                                                                                                                                                                                        |
+| onValueChange  | `((value: string, eventDetails: FieldControlChangeEventDetails) => void)`        | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                            |
+| className      | `string \| ((state: Input.State) => string)`                                     | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: Input.State) => ReactElement)`       | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
-| Attribute     | Type | Description                                 |
-| :------------ | :--- | :------------------------------------------ |
-| data-disabled | -    | Present when the input is disabled.         |
-| data-valid    | -    | Present when the input is in valid state.   |
-| data-invalid  | -    | Present when the input is in invalid state. |
-| data-dirty    | -    | Present when the input's value has changed. |
-| data-touched  | -    | Present when the input has been touched.    |
-| data-filled   | -    | Present when the input is filled.           |
-| data-focused  | -    | Present when the input is focused.          |
+| Attribute      | Type    | Description                                       |
+| :------------- | :------ | :------------------------------------------------ |
+| data-disabled  | -       | Present when the input is disabled.               |
+| data-valid     | -       | Present when the input is in valid state.         |
+| data-invalid   | -       | Present when the input is in invalid state.       |
+| data-dirty     | -       | Present when the input's value has changed.       |
+| data-touched   | -       | Present when the input has been touched.          |
+| data-filled    | -       | Present when the input is filled.                 |
+| data-focused   | -       | Present when the input is focused.                |
 
 ### Input.Props
 

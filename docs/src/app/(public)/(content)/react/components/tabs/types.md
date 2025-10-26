@@ -10,21 +10,21 @@ Groups the tabs and the corresponding panels. Renders a `<div>` element.
 
 **Root Props:**
 
-| Prop          | Type                                                                                                                                                                                                                                                                                              | Default        | Description                                                                                                                                                                              |
-| :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue  | `Tabs.Tab.Value`                                                                                                                                                                                                                                                                                  | `0`            | The default value. Use when the component is not controlled. When the value is `null`, no Tab will be selected.                                                                          |
-| value         | `Tabs.Tab.Value`                                                                                                                                                                                                                                                                                  | -              | The value of the currently selected `Tab`. Use when the component is controlled. When the value is `null`, no Tab will be selected.                                                      |
-| onValueChange | `((value: Tabs.Tab.Value, eventDetails?: { reason: 'none', event: ReasonToEvent, cancel: (() => void), allowPropagation: (() => void), isCanceled: boolean, isPropagationAllowed: boolean, trigger: HTMLElement \| undefined } & { activationDirection: Tabs.Tab.ActivationDirection }) => void)` | -              | Callback invoked when new value is being set.                                                                                                                                            |
-| orientation   | `Tabs.Root.Orientation`                                                                                                                                                                                                                                                                           | `'horizontal'` | The component orientation (layout flow direction).                                                                                                                                       |
-| className     | `string \| ((state: Tabs.Root.State) => string)`                                                                                                                                                                                                                                                  | -              | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render        | `ReactElement \| ((props: HTMLProps, state: Tabs.Root.State) => ReactElement)`                                                                                                                                                                                                                    | -              | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                                                                                                                                                                                                                               | Default          | Description                                                                                                                                                                              |
+| :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue   | `Tabs.Tab.Value`                                                                                                                                                                                                                                                                                   | `0`              | The default value. Use when the component is not controlled. When the value is `null`, no Tab will be selected.                                                                          |
+| value          | `Tabs.Tab.Value`                                                                                                                                                                                                                                                                                   | -                | The value of the currently selected `Tab`. Use when the component is controlled. When the value is `null`, no Tab will be selected.                                                      |
+| onValueChange  | `((value: Tabs.Tab.Value, eventDetails?: { reason: 'none', event: ReasonToEvent, cancel: (() => void), allowPropagation: (() => void), isCanceled: boolean, isPropagationAllowed: boolean, trigger: HTMLElement \| undefined } & { activationDirection: Tabs.Tab.ActivationDirection }) => void)`  | -                | Callback invoked when new value is being set.                                                                                                                                            |
+| orientation    | `Tabs.Root.Orientation`                                                                                                                                                                                                                                                                            | `'horizontal'`   | The component orientation (layout flow direction).                                                                                                                                       |
+| className      | `string \| ((state: Tabs.Root.State) => string)`                                                                                                                                                                                                                                                   | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: Tabs.Root.State) => ReactElement)`                                                                                                                                                                                                                     | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
-| Attribute                 | Type                                            | Description                                                                     |
-| :------------------------ | :---------------------------------------------- | :------------------------------------------------------------------------------ |
-| data-orientation          | `'horizontal' \| 'vertical'`                    | Indicates the orientation of the tabs.                                          |
-| data-activation-direction | `'left' \| 'right' \| 'up' \| 'down' \| 'none'` | Indicates the direction of the activation (based on the previous selected tab). |
+| Attribute                    | Type                                             | Description                                                                          |
+| :--------------------------- | :----------------------------------------------- | :----------------------------------------------------------------------------------- |
+| data-orientation             | `'horizontal' \| 'vertical'`                     | Indicates the orientation of the tabs.                                               |
+| data-activation-direction    | `'left' \| 'right' \| 'up' \| 'down' \| 'none'`  | Indicates the direction of the activation (based on the previous selected tab).      |
 
 ### Root.Props
 
@@ -45,19 +45,19 @@ Groups the individual tab buttons. Renders a `<div>` element.
 
 **List Props:**
 
-| Prop            | Type                                                                           | Default | Description                                                                                                                                                                              |
-| :-------------- | :----------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| activateOnFocus | `boolean`                                                                      | `true`  | Whether to automatically change the active tab on arrow key focus. Otherwise, tabs will be activated using Enter or Spacebar key press.                                                  |
-| loop            | `boolean`                                                                      | `true`  | Whether to loop keyboard focus back to the first item when the end of the list is reached while using the arrow keys.                                                                    |
-| className       | `string \| ((state: Tabs.List.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render          | `ReactElement \| ((props: HTMLProps, state: Tabs.List.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                             | Default   | Description                                                                                                                                                                              |
+| :-------------------- | :------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| activateOnFocus       | `boolean`                                                                        | `true`    | Whether to automatically change the active tab on arrow key focus. Otherwise, tabs will be activated using Enter or Spacebar key press.                                                  |
+| loop                  | `boolean`                                                                        | `true`    | Whether to loop keyboard focus back to the first item when the end of the list is reached while using the arrow keys.                                                                    |
+| className             | `string \| ((state: Tabs.List.State) => string)`                                 | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render                | `ReactElement \| ((props: HTMLProps, state: Tabs.List.State) => ReactElement)`   | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **List Data Attributes:**
 
-| Attribute                 | Type                                            | Description                                                                     |
-| :------------------------ | :---------------------------------------------- | :------------------------------------------------------------------------------ |
-| data-orientation          | `'horizontal' \| 'vertical'`                    | Indicates the orientation of the tabs.                                          |
-| data-activation-direction | `'left' \| 'right' \| 'up' \| 'down' \| 'none'` | Indicates the direction of the activation (based on the previous selected tab). |
+| Attribute                    | Type                                             | Description                                                                          |
+| :--------------------------- | :----------------------------------------------- | :----------------------------------------------------------------------------------- |
+| data-orientation             | `'horizontal' \| 'vertical'`                     | Indicates the orientation of the tabs.                                               |
+| data-activation-direction    | `'left' \| 'right' \| 'up' \| 'down' \| 'none'`  | Indicates the direction of the activation (based on the previous selected tab).      |
 
 ### List.Props
 
@@ -78,21 +78,21 @@ A panel displayed when the corresponding tab is active. Renders a `<div>` elemen
 
 **Panel Props:**
 
-| Prop        | Type                                                                            | Default | Description                                                                                                                                                                                                                                                                   |
-| :---------- | :------------------------------------------------------------------------------ | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value       | `Tabs.Tab.Value`                                                                | -       | The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected. If not provided, it will fall back to the index of the panel. It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server. |
-| className   | `string \| ((state: Tabs.Panel.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                          |
-| keepMounted | `boolean`                                                                       | `false` | Whether to keep the HTML element in the DOM while the panel is hidden.                                                                                                                                                                                                        |
-| render      | `ReactElement \| ((props: HTMLProps, state: Tabs.Panel.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                      |
+| Prop           | Type                                                                             | Default   | Description                                                                                                                                                                                                                                                                       |
+| :------------- | :------------------------------------------------------------------------------- | :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value          | `Tabs.Tab.Value`                                                                 | -         | The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected. If not provided, it will fall back to the index of the panel. It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.     |
+| className      | `string \| ((state: Tabs.Panel.State) => string)`                                | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                              |
+| keepMounted    | `boolean`                                                                        | `false`   | Whether to keep the HTML element in the DOM while the panel is hidden.                                                                                                                                                                                                            |
+| render         | `ReactElement \| ((props: HTMLProps, state: Tabs.Panel.State) => ReactElement)`  | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                          |
 
 **Panel Data Attributes:**
 
-| Attribute                 | Type                                            | Description                                                                     |
-| :------------------------ | :---------------------------------------------- | :------------------------------------------------------------------------------ |
-| data-orientation          | `'horizontal' \| 'vertical'`                    | Indicates the orientation of the tabs.                                          |
-| data-activation-direction | `'left' \| 'right' \| 'up' \| 'down' \| 'none'` | Indicates the direction of the activation (based on the previous selected tab). |
-| data-hidden               | -                                               | Present when the panel is hidden.                                               |
-| data-index                | -                                               | Indicates the index of the tab panel.                                           |
+| Attribute                    | Type                                             | Description                                                                          |
+| :--------------------------- | :----------------------------------------------- | :----------------------------------------------------------------------------------- |
+| data-orientation             | `'horizontal' \| 'vertical'`                     | Indicates the orientation of the tabs.                                               |
+| data-activation-direction    | `'left' \| 'right' \| 'up' \| 'down' \| 'none'`  | Indicates the direction of the activation (based on the previous selected tab).      |
+| data-hidden                  | -                                                | Present when the panel is hidden.                                                    |
+| data-index                   | -                                                | Indicates the index of the tab panel.                                                |
 
 ### Panel.Props
 
@@ -114,29 +114,29 @@ A visual indicator that can be styled to match the position of the currently act
 
 **Indicator Props:**
 
-| Prop                  | Type                                                                                | Default | Description                                                                                                                                                                              |
-| :-------------------- | :---------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| renderBeforeHydration | `boolean`                                                                           | `false` | Whether to render itself before React hydrates. This minimizes the time that the indicator isn’t visible after server-side rendering.                                                    |
-| className             | `string \| ((state: Tabs.Indicator.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render                | `ReactElement \| ((props: HTMLProps, state: Tabs.Indicator.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                                    | Default   | Description                                                                                                                                                                              |
+| :-------------------- | :-------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| renderBeforeHydration | `boolean`                                                                               | `false`   | Whether to render itself before React hydrates. This minimizes the time that the indicator isn’t visible after server-side rendering.                                                    |
+| className             | `string \| ((state: Tabs.Indicator.State) => string)`                                   | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render                | `ReactElement \| ((props: HTMLProps, state: Tabs.Indicator.State) => ReactElement)`     | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Indicator Data Attributes:**
 
-| Attribute                 | Type                                            | Description                                                                     |
-| :------------------------ | :---------------------------------------------- | :------------------------------------------------------------------------------ |
-| data-orientation          | `'horizontal' \| 'vertical'`                    | Indicates the orientation of the tabs.                                          |
-| data-activation-direction | `'left' \| 'right' \| 'up' \| 'down' \| 'none'` | Indicates the direction of the activation (based on the previous selected tab). |
+| Attribute                    | Type                                             | Description                                                                          |
+| :--------------------------- | :----------------------------------------------- | :----------------------------------------------------------------------------------- |
+| data-orientation             | `'horizontal' \| 'vertical'`                     | Indicates the orientation of the tabs.                                               |
+| data-activation-direction    | `'left' \| 'right' \| 'up' \| 'down' \| 'none'`  | Indicates the direction of the activation (based on the previous selected tab).      |
 
 **Indicator CSS Variables:**
 
-| Variable              | Type     | Description                                                                                 |
-| :-------------------- | :------- | :------------------------------------------------------------------------------------------ |
-| `--active-tab-bottom` | `number` | Indicates the distance on the bottom side from the parent's container if the tab is active. |
-| `--active-tab-height` | `number` | Indicates the width of the tab if it is active.                                             |
-| `--active-tab-left`   | `number` | Indicates the distance on the left side from the parent's container if the tab is active.   |
-| `--active-tab-right`  | `number` | Indicates the distance on the right side from the parent's container if the tab is active.  |
-| `--active-tab-top`    | `number` | Indicates the distance on the top side from the parent's container if the tab is active.    |
-| `--active-tab-width`  | `number` | Indicates the width of the tab if it is active.                                             |
+| Variable                | Type      | Description                                                                                 |
+| :---------------------- | :-------- | :------------------------------------------------------------------------------------------ |
+| `--active-tab-bottom`   | `number`  | Indicates the distance on the bottom side from the parent's container if the tab is active. |
+| `--active-tab-height`   | `number`  | Indicates the width of the tab if it is active.                                             |
+| `--active-tab-left`     | `number`  | Indicates the distance on the left side from the parent's container if the tab is active.   |
+| `--active-tab-right`    | `number`  | Indicates the distance on the right side from the parent's container if the tab is active.  |
+| `--active-tab-top`      | `number`  | Indicates the distance on the top side from the parent's container if the tab is active.    |
+| `--active-tab-width`    | `number`  | Indicates the width of the tab if it is active.                                             |
 
 ### Indicator.Props
 
@@ -164,22 +164,22 @@ An individual interactive tab button that toggles the corresponding panel. Rende
 
 **Tab Props:**
 
-| Prop         | Type                                                                          | Default | Description                                                                                                                                                                              |
-| :----------- | :---------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value        | `Tabs.Tab.Value`                                                              | -       | The value of the Tab. When not specified, the value is the child position index.                                                                                                         |
-| nativeButton | `boolean`                                                                     | `true`  | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| className    | `string \| ((state: Tabs.Tab.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render       | `ReactElement \| ((props: HTMLProps, state: Tabs.Tab.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                             | Default   | Description                                                                                                                                                                              |
+| :------------- | :------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value          | `Tabs.Tab.Value`                                                                 | -         | The value of the Tab. When not specified, the value is the child position index.                                                                                                         |
+| nativeButton   | `boolean`                                                                        | `true`    | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
+| className      | `string \| ((state: Tabs.Tab.State) => string)`                                  | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: Tabs.Tab.State) => ReactElement)`    | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Tab Data Attributes:**
 
-| Attribute                 | Type                                            | Description                                                                     |
-| :------------------------ | :---------------------------------------------- | :------------------------------------------------------------------------------ |
-| data-selected             | -                                               | Present when the tab is selected.                                               |
-| data-highlighted          | -                                               | Present when the tab is highlighted.                                            |
-| data-orientation          | `'horizontal' \| 'vertical'`                    | Indicates the orientation of the tabs.                                          |
-| data-disabled             | -                                               | Present when the tab is disabled.                                               |
-| data-activation-direction | `'left' \| 'right' \| 'up' \| 'down' \| 'none'` | Indicates the direction of the activation (based on the previous selected tab). |
+| Attribute                    | Type                                             | Description                                                                          |
+| :--------------------------- | :----------------------------------------------- | :----------------------------------------------------------------------------------- |
+| data-selected                | -                                                | Present when the tab is selected.                                                    |
+| data-highlighted             | -                                                | Present when the tab is highlighted.                                                 |
+| data-orientation             | `'horizontal' \| 'vertical'`                     | Indicates the orientation of the tabs.                                               |
+| data-disabled                | -                                                | Present when the tab is disabled.                                                    |
+| data-activation-direction    | `'left' \| 'right' \| 'up' \| 'down' \| 'none'`  | Indicates the direction of the activation (based on the previous selected tab).      |
 
 ### Tab.Props
 

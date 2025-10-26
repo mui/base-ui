@@ -10,10 +10,10 @@ Enables RTL behavior for Base UI components.
 
 **DirectionProvider Props:**
 
-| Prop      | Type            | Default | Description                       |
-| :-------- | :-------------- | :------ | :-------------------------------- |
-| direction | `TextDirection` | `'ltr'` | The reading direction of the text |
-| children  | `ReactNode`     | -       | -                                 |
+| Prop           | Type             | Default   | Description                         |
+| :------------- | :--------------- | :-------- | :---------------------------------- |
+| direction      | `TextDirection`  | `'ltr'`   | The reading direction of the text   |
+| children       | `ReactNode`      | -         | -                                   |
 
 ### DirectionProvider.Props
 

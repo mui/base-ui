@@ -10,21 +10,21 @@ Provides a shared state to a series of checkboxes.
 
 **CheckboxGroup Props:**
 
-| Prop          | Type                                                                               | Default | Description                                                                                                                                                                              |
-| :------------ | :--------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue  | `string[]`                                                                         | -       | Names of the checkboxes in the group that should be initially ticked.To render a controlled checkbox group, use the `value` prop instead.                                                |
-| value         | `string[]`                                                                         | -       | Names of the checkboxes in the group that should be ticked.To render an uncontrolled checkbox group, use the `defaultValue` prop instead.                                                |
-| onValueChange | `((value: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => void)`      | -       | Event handler called when a checkbox in the group is ticked or unticked. Provides the new value as an argument.                                                                          |
-| allValues     | `string[]`                                                                         | -       | Names of all checkboxes in the group. Use this when creating a parent checkbox.                                                                                                          |
-| disabled      | `boolean`                                                                          | `false` | Whether the component should ignore user interaction.                                                                                                                                    |
-| className     | `string \| ((state: CheckboxGroup.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render        | `ReactElement \| ((props: HTMLProps, state: CheckboxGroup.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                    | Default   | Description                                                                                                                                                                              |
+| :------------- | :-------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue   | `string[]`                                                                              | -         | Names of the checkboxes in the group that should be initially ticked.To render a controlled checkbox group, use the `value` prop instead.                                                |
+| value          | `string[]`                                                                              | -         | Names of the checkboxes in the group that should be ticked.To render an uncontrolled checkbox group, use the `defaultValue` prop instead.                                                |
+| onValueChange  | `((value: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => void)`           | -         | Event handler called when a checkbox in the group is ticked or unticked. Provides the new value as an argument.                                                                          |
+| allValues      | `string[]`                                                                              | -         | Names of all checkboxes in the group. Use this when creating a parent checkbox.                                                                                                          |
+| disabled       | `boolean`                                                                               | `false`   | Whether the component should ignore user interaction.                                                                                                                                    |
+| className      | `string \| ((state: CheckboxGroup.State) => string)`                                    | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: CheckboxGroup.State) => ReactElement)`      | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **CheckboxGroup Data Attributes:**
 
-| Attribute     | Type | Description                                  |
-| :------------ | :--- | :------------------------------------------- |
-| data-disabled | -    | Present when the checkbox group is disabled. |
+| Attribute      | Type    | Description                                       |
+| :------------- | :------ | :------------------------------------------------ |
+| data-disabled  | -       | Present when the checkbox group is disabled.      |
 
 ### CheckboxGroup.Props
 
