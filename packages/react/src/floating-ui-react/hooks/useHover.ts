@@ -4,7 +4,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { contains, getDocument, isMouseLikePointerType } from '../utils';
+import { contains, getDocument, getTarget, isMouseLikePointerType } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type {
@@ -262,7 +262,7 @@ export function useHover(
   });
 
   const handleInteractInside = useStableCallback((event: PointerEvent) => {
-    const target = event.target as Element | null;
+    const target = getTarget(event) as Element | null;
     if (!isInteractiveElement(target)) {
       interactedInsideRef.current = false;
       return;
