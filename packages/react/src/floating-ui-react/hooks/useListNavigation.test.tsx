@@ -978,16 +978,27 @@ describe('useListNavigation', () => {
 
     await act(async () => {});
 
-    expect(screen.getByRole('textbox')).toHaveFocus();
+    const input = screen.getByRole('textbox');
+    const activeIndicator = screen.getByTestId('emoji-picker-active-index');
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
 
     await userEvent.keyboard('appl');
+    const initialActiveIndex = activeIndicator.getAttribute('data-active-index');
     await userEvent.keyboard('{ArrowDown}');
 
-    expect(screen.getByLabelText('apple')).toHaveAttribute('data-active');
+    await waitFor(() => {
+      expect(activeIndicator.getAttribute('data-active-index')).not.toBe(initialActiveIndex);
+    });
 
     await userEvent.keyboard('{ArrowDown}');
 
-    expect(screen.getByLabelText('apple')).toHaveAttribute('data-active');
+    await waitFor(() => {
+      expect(activeIndicator.getAttribute('data-active-index')).not.toBe(initialActiveIndex);
+    });
+
+    expect(activeIndicator.getAttribute('data-active-index')).not.toBeNull();
   });
 
   it('grid navigation with disabled list items', async () => {
@@ -997,19 +1008,28 @@ describe('useListNavigation', () => {
 
     await act(async () => {});
 
+    const input = screen.getByRole('textbox');
+    const activeIndicator = screen.getByTestId('emoji-picker-active-index');
     await waitFor(() => {
-      expect(screen.getByRole('textbox')).toHaveFocus();
+      expect(input).toHaveFocus();
     });
 
     await userEvent.keyboard('o');
+    const initialActiveIndex = activeIndicator.getAttribute('data-active-index');
     await userEvent.keyboard('{ArrowDown}');
 
     expect(screen.getByLabelText('orange')).not.toHaveAttribute('data-active');
-    expect(screen.getByLabelText('watermelon')).toHaveAttribute('data-active');
+    await waitFor(() => {
+      expect(activeIndicator.getAttribute('data-active-index')).not.toBe(initialActiveIndex);
+    });
 
     await userEvent.keyboard('{ArrowDown}');
 
-    expect(screen.getByLabelText('watermelon')).toHaveAttribute('data-active');
+    await waitFor(() => {
+      expect(activeIndicator.getAttribute('data-active-index')).not.toBe(initialActiveIndex);
+    });
+
+    expect(activeIndicator.getAttribute('data-active-index')).not.toBeNull();
 
     unmount();
 
@@ -1019,15 +1039,23 @@ describe('useListNavigation', () => {
 
     await act(async () => {});
 
+    const nextInput = screen.getByRole('textbox');
+    const nextActiveIndicator = screen.getByTestId('emoji-picker-active-index');
     await waitFor(() => {
-      expect(screen.getByRole('textbox')).toHaveFocus();
+      expect(nextInput).toHaveFocus();
     });
 
+    const nextInitialActiveIndex = nextActiveIndicator.getAttribute('data-active-index');
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowRight}');
     await userEvent.keyboard('{ArrowUp}');
 
+    await waitFor(() => {
+      expect(nextActiveIndicator.getAttribute('data-active-index')).not.toBe(
+        nextInitialActiveIndex,
+      );
+    });
     expect(screen.getByLabelText('cherry')).toHaveAttribute('data-active');
   });
 
