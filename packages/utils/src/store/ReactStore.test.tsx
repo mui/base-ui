@@ -45,14 +45,14 @@ describe('ReactStore', () => {
     expect(store.state.value).to.equal(1);
 
     act(() => {
-      store.apply({ value: 3, label: 'y' });
+      store.update({ value: 3, label: 'y' });
     });
     expect(store.state.value).to.equal(1);
     // Non-controlled keys still update
     expect(store.state.label).to.equal('y');
 
     act(() => {
-      store.update({ value: 4, label: 'x' });
+      store.setState({ value: 4, label: 'x' });
     });
     expect(store.state.value).to.equal(1);
     // Non-controlled keys still update
@@ -83,12 +83,12 @@ describe('ReactStore', () => {
     expect(store.state.value).to.equal(2);
 
     act(() => {
-      store.apply({ value: 3 });
+      store.update({ value: 3 });
     });
     expect(store.state.value).to.equal(3);
 
     act(() => {
-      store.update({ value: 4, label: 'updated' });
+      store.setState({ value: 4, label: 'updated' });
     });
     expect(store.state.value).to.equal(4);
     expect(store.state.label).to.equal('updated');
