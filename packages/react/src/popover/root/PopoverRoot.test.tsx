@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
+import { Combobox } from '@base-ui-components/react/combobox';
 import { Menu } from '@base-ui-components/react/menu';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
@@ -1585,5 +1586,170 @@ describe('<Popover.Root />', () => {
 
       expect(screen.getByTestId('popup').textContent).to.equal('2');
     });
+  });
+
+  describe.skipIf(isJSDOM)('imperative actions on the handle', () => {
+    it('opens and closes the dialog', async () => {
+      const popover = Popover.createHandle();
+      await render(
+        <div>
+          <Popover.Trigger handle={popover} id="trigger">
+            Trigger
+          </Popover.Trigger>
+          <Popover.Root handle={popover}>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="content">Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(screen.queryByRole('dialog')).to.equal(null);
+
+      await act(() => popover.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      expect(screen.getByTestId('content').textContent).to.equal('Content');
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
+
+      await act(() => popover.close());
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+
+      expect(trigger).to.have.attribute('aria-expanded', 'false');
+    });
+
+    it('sets the payload assosiated with the trigger', async () => {
+      const popover = Popover.createHandle<number>();
+      await render(
+        <div>
+          <Popover.Trigger handle={popover} id="trigger1" payload={1}>
+            Trigger 1
+          </Popover.Trigger>
+          <Popover.Trigger handle={popover} id="trigger2" payload={2}>
+            Trigger 2
+          </Popover.Trigger>
+          <Popover.Root handle={popover}>
+            {({ payload }: { payload: number | undefined }) => (
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="content">{payload}</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            )}
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      expect(screen.queryByRole('dialog')).to.equal(null);
+
+      await act(() => popover.open('trigger2'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(trigger2).to.have.attribute('aria-expanded', 'true');
+      expect(trigger1).not.to.have.attribute('aria-expanded', 'true');
+
+      await act(() => popover.close());
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+
+      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+    });
+  });
+
+  describe('nested popup interactions', () => {
+    it.skipIf(isJSDOM)(
+      'should not close popover when scrolling nested popup on touch',
+      async () => {
+        const fruits = Array.from({ length: 50 }, (_, i) => i);
+        await render(
+          <Popover.Root defaultOpen>
+            <Popover.Trigger>Toggle</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popover-popup">
+                  <Combobox.Root items={fruits} defaultOpen>
+                    <Combobox.Input placeholder="Choose a fruit" />
+                    <Combobox.Portal>
+                      <Combobox.Positioner>
+                        <Combobox.Popup
+                          data-testid="combobox-popup"
+                          style={{ maxHeight: 200, overflow: 'auto' }}
+                        >
+                          <Combobox.List>
+                            {(item: string) => (
+                              <Combobox.Item key={item} value={item} style={{ height: 100 }}>
+                                {item}
+                              </Combobox.Item>
+                            )}
+                          </Combobox.List>
+                        </Combobox.Popup>
+                      </Combobox.Positioner>
+                    </Combobox.Portal>
+                  </Combobox.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>,
+        );
+
+        const popoverPopup = screen.getByTestId('popover-popup');
+        expect(popoverPopup).not.to.equal(null);
+
+        await flushMicrotasks();
+
+        const comboboxPopup = screen.getByTestId('combobox-popup');
+        expect(comboboxPopup).not.to.equal(null);
+
+        // Simulate touch scroll: touchstart + touchmove on the scrollable list
+        const touch1 = new Touch({
+          identifier: 1,
+          target: comboboxPopup,
+          clientX: 100,
+          clientY: 100,
+        });
+
+        fireEvent.touchStart(comboboxPopup, {
+          touches: [touch1],
+        });
+
+        // Wait for the markInsideReactTree timeout to finish
+        await new Promise((resolve) => {
+          setTimeout(resolve);
+        });
+
+        const touch2 = new Touch({
+          identifier: 1,
+          target: comboboxPopup,
+          clientX: 100,
+          clientY: 50,
+        });
+
+        fireEvent.touchMove(comboboxPopup, {
+          touches: [touch2],
+        });
+
+        fireEvent.touchEnd(comboboxPopup, {
+          changedTouches: [touch2],
+        });
+
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+        expect(screen.queryByTestId('combobox-popup')).not.to.equal(null);
+      },
+    );
   });
 });
