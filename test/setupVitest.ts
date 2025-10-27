@@ -3,7 +3,6 @@ import { beforeAll, afterAll } from 'vitest';
 import * as chai from 'chai';
 import chaiDom from 'chai-dom';
 import chaiPlugin from '@mui/internal-test-utils/chaiPlugin';
-import { cleanup } from '@mui/internal-test-utils';
 
 import '@testing-library/jest-dom/vitest';
 
@@ -63,7 +62,8 @@ if (isVitestJsdom) {
 }
 
 if (typeof window !== 'undefined') {
-  afterEach(() => {
+  afterEach(async () => {
+    const { cleanup } = await import('@mui/internal-test-utils');
     cleanup();
   });
 }
