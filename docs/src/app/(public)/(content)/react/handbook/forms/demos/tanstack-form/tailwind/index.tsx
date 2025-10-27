@@ -82,6 +82,7 @@ function TanstackForm() {
     <form
       aria-label="Launch new cloud server"
       className="flex w-full max-w-3xs sm:max-w-[20rem] flex-col gap-5"
+      noValidate
       onSubmit={(event) => {
         event.preventDefault();
         form.handleSubmit();
