@@ -159,7 +159,7 @@ export function useDismiss(
     dismissOnMouseDown: boolean;
   } | null>(null);
   const cancelDismissOnEndTimeout = useTimeout();
-  const insideReactTreeTimeout = useTimeout();
+  const insideReactTreeEventRef = React.useRef<Event | null>(null);
 
   const isComposingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
@@ -233,6 +233,26 @@ export function useDismiss(
     );
   });
 
+  const markInsideReactTree = useStableCallback((event: React.SyntheticEvent) => {
+    insideReactTreeEventRef.current = event.nativeEvent;
+    dataRef.current.insideReactTree = true;
+  });
+
+  const clearInsideReactTree = useStableCallback(() => {
+    insideReactTreeEventRef.current = null;
+    dataRef.current.insideReactTree = false;
+  });
+
+  const shouldSkipInsideReactTreeEvent = useStableCallback((event: Event) => {
+    if (!dataRef.current.insideReactTree) {
+      return false;
+    }
+
+    const isSameEvent = insideReactTreeEventRef.current === event;
+    clearInsideReactTree();
+    return isSameEvent;
+  });
+
   const closeOnEscapeKeyDownCapture = useStableCallback((event: KeyboardEvent) => {
     const callback = () => {
       closeOnEscapeKeyDown(event);
@@ -244,19 +264,15 @@ export function useDismiss(
   const closeOnPressOutside = useStableCallback(
     (event: MouseEvent, endedOrStartedInside = false) => {
       if (shouldIgnoreEvent(event)) {
+        clearInsideReactTree();
         return;
       }
 
-      // Given developers can stop the propagation of the synthetic event,
-      // we can only be confident with a positive value.
-      const insideReactTree = dataRef.current.insideReactTree;
-      dataRef.current.insideReactTree = false;
+      if (shouldSkipInsideReactTreeEvent(event)) {
+        return;
+      }
 
       if (getOutsidePressEvent() === 'intentional' && endedOrStartedInside) {
-        return;
-      }
-
-      if (insideReactTree) {
         return;
       }
 
@@ -407,6 +423,11 @@ export function useDismiss(
     endedOrStartedInsideRef.current = false;
 
     if (shouldIgnoreEvent(event)) {
+      clearInsideReactTree();
+      return;
+    }
+
+    if (shouldSkipInsideReactTreeEvent(event)) {
       return;
     }
 
@@ -624,9 +645,7 @@ export function useDismiss(
     trackPointerType,
   ]);
 
-  React.useEffect(() => {
-    dataRef.current.insideReactTree = false;
-  }, [dataRef, outsidePress]);
+  React.useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
 
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
@@ -653,24 +672,17 @@ export function useDismiss(
     endedOrStartedInsideRef.current = true;
   });
 
-  const handleCaptureInside = useStableCallback(() => {
-    dataRef.current.insideReactTree = true;
-    insideReactTreeTimeout.start(0, () => {
-      dataRef.current.insideReactTree = false;
-    });
-  });
-
   const floating: ElementProps['floating'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
       onMouseDown: handlePressedInside,
       onMouseUp: handlePressedInside,
-      onPointerDownCapture: handleCaptureInside,
-      onMouseDownCapture: handleCaptureInside,
-      onClickCapture: handleCaptureInside,
-      onMouseUpCapture: handleCaptureInside,
+      onPointerDownCapture: markInsideReactTree,
+      onMouseDownCapture: markInsideReactTree,
+      onClickCapture: markInsideReactTree,
+      onMouseUpCapture: markInsideReactTree,
     }),
-    [closeOnEscapeKeyDown, handlePressedInside, handleCaptureInside],
+    [closeOnEscapeKeyDown, handlePressedInside, markInsideReactTree],
   );
 
   return React.useMemo(
