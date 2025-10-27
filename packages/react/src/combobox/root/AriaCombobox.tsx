@@ -844,7 +844,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   useValueChanged(items, () => {
-    if (selectionMode !== 'single' || hasInputValue || inputInsidePopup) {
+    if (selectionMode !== 'single' || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
       return;
     }
 
