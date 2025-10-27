@@ -1588,6 +1588,87 @@ describe('<Popover.Root />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('imperative actions on the handle', () => {
+    it('opens and closes the dialog', async () => {
+      const popover = Popover.createHandle();
+      await render(
+        <div>
+          <Popover.Trigger handle={popover} id="trigger">
+            Trigger
+          </Popover.Trigger>
+          <Popover.Root handle={popover}>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="content">Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(screen.queryByRole('dialog')).to.equal(null);
+
+      await act(() => popover.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      expect(screen.getByTestId('content').textContent).to.equal('Content');
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
+
+      await act(() => popover.close());
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+
+      expect(trigger).to.have.attribute('aria-expanded', 'false');
+    });
+
+    it('sets the payload assosiated with the trigger', async () => {
+      const popover = Popover.createHandle<number>();
+      await render(
+        <div>
+          <Popover.Trigger handle={popover} id="trigger1" payload={1}>
+            Trigger 1
+          </Popover.Trigger>
+          <Popover.Trigger handle={popover} id="trigger2" payload={2}>
+            Trigger 2
+          </Popover.Trigger>
+          <Popover.Root handle={popover}>
+            {({ payload }: { payload: number | undefined }) => (
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="content">{payload}</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            )}
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      expect(screen.queryByRole('dialog')).to.equal(null);
+
+      await act(() => popover.open('trigger2'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(trigger2).to.have.attribute('aria-expanded', 'true');
+      expect(trigger1).not.to.have.attribute('aria-expanded', 'true');
+
+      await act(() => popover.close());
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+
+      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+    });
+  });
+
   describe('nested popup interactions', () => {
     it.skipIf(isJSDOM)(
       'should not close popover when scrolling nested popup on touch',

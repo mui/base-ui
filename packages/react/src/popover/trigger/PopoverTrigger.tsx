@@ -17,7 +17,7 @@ import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { PopoverStore } from '../PopoverStore';
+import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
@@ -56,15 +56,10 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const rootContext = usePopoverRootContext(true);
 
-  let store: PopoverStore<unknown>;
-
-  if (handle) {
-    store = handle;
-  } else if (rootContext) {
-    store = rootContext.store;
-  } else {
+  const store = handle?.store ?? rootContext?.store;
+  if (!store) {
     throw new Error(
-      'Base UI: PopoverTrigger must be either used within a PopoverRoot component or have the `handle` prop set.',
+      'Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.',
     );
   }
 
@@ -261,7 +256,7 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
     /**
      * A handle to associate the trigger with a popover.
      */
-    handle?: PopoverStore<Payload>;
+    handle?: PopoverHandle<Payload>;
     /**
      * A payload to pass to the popover when it is opened.
      */
