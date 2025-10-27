@@ -11,6 +11,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
+import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -33,9 +34,14 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const { side, align } = useTooltipPositionerContext();
 
   const open = store.useState('open');
+  const mounted = store.useState('mounted');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const popupProps = store.useState('popupProps');
+  const triggers = store.useState('triggers');
+  const payload = store.useState('payload');
+  const popupElement = store.useState('popupElement');
+  const positionerElement = store.useState('positionerElement');
 
   useOpenChangeComplete({
     open,
@@ -45,6 +51,18 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
         store.context.onOpenChangeComplete?.(true);
       }
     },
+  });
+
+  // If there's just one trigger, we can skip the auto-resize logic as
+  // the popover will always be anchored to the same position.
+  const autoresizeEnabled = triggers.size > 1;
+
+  usePopupAutoResize({
+    popupElement,
+    positionerElement,
+    mounted,
+    content: payload,
+    enabled: autoresizeEnabled,
   });
 
   const state: TooltipPopup.State = React.useMemo(
@@ -60,7 +78,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef],
+    ref: [forwardedRef, store.context.popupRef, store.getElementSetter('popupElement')],
     props: [
       popupProps,
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,

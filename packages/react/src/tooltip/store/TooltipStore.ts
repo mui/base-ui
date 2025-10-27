@@ -27,6 +27,7 @@ export type State<Payload> = {
   readonly inactiveTriggerProps: HTMLProps;
   readonly payload: Payload | undefined;
   readonly popupProps: HTMLProps;
+  readonly popupElement: HTMLElement | null;
   readonly positionerElement: HTMLElement | null;
 };
 
@@ -58,6 +59,7 @@ const selectors = {
   inactiveTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
   payload: createSelector((state: State<unknown>) => state.payload),
   popupProps: createSelector((state: State<unknown>) => state.popupProps),
+  popupElement: createSelector((state: State<unknown>) => state.popupElement),
   positionerElement: createSelector((state: State<unknown>) => state.positionerElement),
 };
 
@@ -139,6 +141,7 @@ function createInitialState<Payload>(): State<Payload> {
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
+    popupElement: null,
     positionerElement: null,
   };
 }

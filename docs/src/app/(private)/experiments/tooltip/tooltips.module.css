@@ -92,6 +92,24 @@
   }
 }
 
+.Positioner {
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --animation-duration: 0.35s;
+
+  width: var(--positioner-width);
+  height: var(--positioner-height);
+  max-width: var(--available-width);
+
+  transition-property: top, left, right, bottom, transform;
+  transition-timing-function: var(--easing);
+  transition-duration: var(--animation-duration);
+
+  /* Disable transitions when data-instant is set (used for the initial positioning of the popup) */
+  &[data-instant] {
+    transition: none;
+  }
+}
+
 .Popup {
   box-sizing: border-box;
   font-size: 0.875rem;
@@ -103,8 +121,14 @@
   background-color: canvas;
   transform-origin: var(--transform-origin);
   transition:
+    width 150ms,
+    height 150ms,
     transform 150ms,
     opacity 150ms;
+
+  /* These are required to make the size animations work */
+  width: var(--popup-width, auto);
+  height: var(--popup-height, auto);
 
   &[data-starting-style],
   &[data-ending-style] {

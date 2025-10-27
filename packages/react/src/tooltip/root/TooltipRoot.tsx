@@ -38,12 +38,18 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     onOpenChangeComplete,
     handle,
     triggerId: triggerIdProp,
+    defaultTriggerId: defaultTriggerIdProp = null,
     children,
   } = props;
 
-  const store = TooltipStore.useStore<Payload>(handle?.store);
+  const store = TooltipStore.useStore<Payload>(handle?.store, {
+    open: openProp ?? defaultOpen,
+    activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+  });
 
   store.useControlledProp('open', openProp, defaultOpen);
+  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
+
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
@@ -79,12 +85,6 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   useIsoLayoutEffect(() => {
     if (open) {
       store.set('activeTriggerId', resolvedTriggerId);
-    }
-  }, [store, resolvedTriggerId, open]);
-
-  useIsoLayoutEffect(() => {
-    if (open) {
-      store.set('activeTriggerId', resolvedTriggerId);
       if (resolvedTriggerId == null) {
         store.set('payload', undefined);
       }
@@ -93,7 +93,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    store.set('mounted', false);
+    store.update({ activeTriggerId: null, mounted: false });
     store.context.onOpenChangeComplete?.(false);
   });
 

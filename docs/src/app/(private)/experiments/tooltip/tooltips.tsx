@@ -134,7 +134,7 @@ export default function TooltipsExperiment() {
             setControlledWithinRootTriggerId('within-root-italic');
           }}
         >
-          Open externally (Italic trigger)
+          Open externally (Italic)
         </button>
       </div>
 
@@ -204,7 +204,7 @@ export default function TooltipsExperiment() {
             setControlledDetachedTriggerId('detached-italic-trigger');
           }}
         >
-          Open externally (Italic trigger)
+          Open externally (Italic)
         </button>
         <button
           type="button"
@@ -213,7 +213,7 @@ export default function TooltipsExperiment() {
             tooltip2Handle.open('detached-italic-trigger');
           }}
         >
-          Open via handle (Italic trigger)
+          Open via handle (Italic)
         </button>
       </div>
     </div>
@@ -228,7 +228,7 @@ function TooltipContent(props: Tooltip.Popup.Props) {
   const { children, ...otherProps } = props;
   return (
     <Tooltip.Portal>
-      <Tooltip.Positioner sideOffset={10}>
+      <Tooltip.Positioner sideOffset={10} className={styles.Positioner}>
         <Tooltip.Popup className={styles.Popup} {...otherProps}>
           <Tooltip.Arrow className={styles.Arrow}>
             <ArrowSvg />
