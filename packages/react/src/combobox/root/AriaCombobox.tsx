@@ -390,9 +390,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const inline = useStore(store, selectors.inline);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
 
-  const queryRef = React.useRef(query);
-  const selectedValueRef = React.useRef(selectedValue);
-  const inputValueRef = React.useRef(inputValue);
   const triggerRef = useValueAsRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -436,188 +433,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     name,
     getValue: () => formValue,
   });
-
-  useIsoLayoutEffect(() => {
-    if (items) {
-      valuesRef.current = flatFilteredItems;
-      listRef.current.length = flatFilteredItems.length;
-    }
-  }, [items, flatFilteredItems]);
-
-  useIsoLayoutEffect(() => {
-    const pendingHighlight = pendingQueryHighlightRef.current;
-    if (pendingHighlight) {
-      if (pendingHighlight.hasQuery) {
-        if (autoHighlightEnabled) {
-          store.set('activeIndex', 0);
-        }
-      } else if (autoHighlightBehavior === 'always') {
-        store.set('activeIndex', 0);
-      }
-      pendingQueryHighlightRef.current = null;
-    }
-
-    if (!open && !inline) {
-      return;
-    }
-
-    const candidateItems = items ? flatFilteredItems : valuesRef.current;
-    const storeActiveIndex = store.state.activeIndex;
-
-    if (storeActiveIndex == null) {
-      if (autoHighlightBehavior === 'always' && candidateItems.length > 0) {
-        store.set('activeIndex', 0);
-        return;
-      }
-      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
-        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
-        store.state.onItemHighlighted(
-          undefined,
-          createGenericEventDetails('none', undefined, { index: -1 }),
-        );
-      }
-      return;
-    }
-
-    if (storeActiveIndex >= candidateItems.length) {
-      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
-        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
-        store.state.onItemHighlighted(
-          undefined,
-          createGenericEventDetails('none', undefined, { index: -1 }),
-        );
-      }
-      store.set('activeIndex', null);
-      return;
-    }
-
-    const nextActiveValue = candidateItems[storeActiveIndex];
-    const lastHighlightedValue = lastHighlightRef.current.value;
-    const isSameItem =
-      lastHighlightedValue !== NO_ACTIVE_VALUE &&
-      store.state.isItemEqualToValue(nextActiveValue, lastHighlightedValue);
-
-    if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
-      lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
-      store.state.onItemHighlighted(
-        nextActiveValue,
-        createGenericEventDetails('none', undefined, { index: storeActiveIndex }),
-      );
-    }
-  }, [
-    activeIndex,
-    autoHighlightBehavior,
-    autoHighlightEnabled,
-    flatFilteredItems,
-    inline,
-    items,
-    open,
-    store,
-    valuesRef,
-  ]);
-
-  // When the available items change, ensure the selected value(s) remain valid.
-  // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
-  // - Multiple: drop any removed selections.
-  useIsoLayoutEffect(() => {
-    if (!items || selectionMode === 'none') {
-      return;
-    }
-
-    const registry = flatItems;
-
-    if (multiple) {
-      const current = Array.isArray(selectedValue) ? selectedValue : EMPTY_ARRAY;
-      const next = current.filter((v) => itemIncludes(registry, v, store.state.isItemEqualToValue));
-      if (next.length !== current.length) {
-        setSelectedValueUnwrapped(next);
-      }
-      return;
-    }
-
-    const isStillPresent =
-      selectedValue == null
-        ? true
-        : itemIncludes(registry, selectedValue, store.state.isItemEqualToValue);
-    if (isStillPresent) {
-      return;
-    }
-
-    let fallback = null;
-    if (
-      defaultSelectedValue != null &&
-      itemIncludes(registry, defaultSelectedValue, store.state.isItemEqualToValue)
-    ) {
-      fallback = defaultSelectedValue;
-    }
-    setSelectedValueUnwrapped(fallback);
-
-    // Keep the input text in sync when the input is rendered outside the popup.
-    if (!store.state.inputInsidePopup) {
-      const stringVal = stringifyAsLabel(fallback, itemToStringLabel);
-      if (inputRef.current && inputRef.current.value !== stringVal) {
-        setInputValueUnwrapped(stringVal);
-      }
-    }
-  }, [
-    items,
-    flatItems,
-    multiple,
-    selectionMode,
-    selectedValue,
-    defaultSelectedValue,
-    setSelectedValueUnwrapped,
-    setInputValueUnwrapped,
-    itemToStringLabel,
-    store,
-  ]);
-
-  useValueChanged(queryRef, query, () => {
-    if (!open || query === '' || query === String(initialDefaultInputValue)) {
-      return;
-    }
-    setQueryChangedAfterOpen(true);
-  });
-
-  useValueChanged(selectedValueRef, selectedValue, () => {
-    if (selectionMode === 'none') {
-      return;
-    }
-
-    clearErrors(name);
-    commitValidation?.(selectedValue, true);
-
-    if (validationMode === 'onChange') {
-      commitValidation?.(selectedValue);
-    }
-
-    updateValue(selectedValue);
-  });
-
-  useValueChanged(inputValueRef, inputValue, () => {
-    if (selectionMode !== 'none') {
-      return;
-    }
-
-    clearErrors(name);
-    commitValidation?.(inputValue, true);
-
-    if (validationMode === 'onChange') {
-      commitValidation?.(inputValue);
-    }
-
-    updateValue(inputValue);
-  });
-
-  useIsoLayoutEffect(() => {
-    if (selectionMode === 'none') {
-      setFilled(String(inputValue) !== '');
-    } else {
-      setFilled(
-        multiple ? Array.isArray(selectedValue) && selectedValue.length > 0 : selectedValue != null,
-      );
-    }
-  }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
 
   const setIndices = useStableCallback(
     (options: {
@@ -749,30 +564,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const syncSelectedIndex = useStableCallback(() => {
-    if (selectionMode === 'none') {
-      return;
-    }
-
-    const registry = items ? flatItems : allValuesRef.current;
-
-    if (multiple) {
-      const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
-      const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-      setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
-    } else {
-      const index = findItemIndex(registry, selectedValue, isItemEqualToValue);
-      setIndices({ selectedIndex: index === -1 ? null : index });
-    }
-  });
-
-  useIsoLayoutEffect(() => {
-    if (!open) {
-      syncSelectedIndex();
-    }
-  }, [open, selectedValue, syncSelectedIndex]);
-
   const handleSelection = useStableCallback(
     (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
       let value = passedValue;
@@ -883,6 +674,238 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+
+  useIsoLayoutEffect(
+    function syncSelectedIndex() {
+      if (open || selectionMode === 'none') {
+        return;
+      }
+
+      const registry = items ? flatItems : allValuesRef.current;
+
+      if (multiple) {
+        const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
+        const lastValue = currentValue[currentValue.length - 1];
+        const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
+        setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
+      } else {
+        const index = findItemIndex(registry, selectedValue, isItemEqualToValue);
+        setIndices({ selectedIndex: index === -1 ? null : index });
+      }
+    },
+    [
+      open,
+      selectedValue,
+      items,
+      selectionMode,
+      flatItems,
+      multiple,
+      isItemEqualToValue,
+      setIndices,
+    ],
+  );
+
+  useIsoLayoutEffect(() => {
+    if (items) {
+      valuesRef.current = flatFilteredItems;
+      listRef.current.length = flatFilteredItems.length;
+    }
+  }, [items, flatFilteredItems]);
+
+  useIsoLayoutEffect(() => {
+    const pendingHighlight = pendingQueryHighlightRef.current;
+    if (pendingHighlight) {
+      if (pendingHighlight.hasQuery) {
+        if (autoHighlightEnabled) {
+          store.set('activeIndex', 0);
+        }
+      } else if (autoHighlightBehavior === 'always') {
+        store.set('activeIndex', 0);
+      }
+      pendingQueryHighlightRef.current = null;
+    }
+
+    if (!open && !inline) {
+      return;
+    }
+
+    const candidateItems = items ? flatFilteredItems : valuesRef.current;
+    const storeActiveIndex = store.state.activeIndex;
+
+    if (storeActiveIndex == null) {
+      if (autoHighlightBehavior === 'always' && candidateItems.length > 0) {
+        store.set('activeIndex', 0);
+        return;
+      }
+      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+        store.state.onItemHighlighted(
+          undefined,
+          createGenericEventDetails('none', undefined, { index: -1 }),
+        );
+      }
+      return;
+    }
+
+    if (storeActiveIndex >= candidateItems.length) {
+      if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
+        lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
+        store.state.onItemHighlighted(
+          undefined,
+          createGenericEventDetails('none', undefined, { index: -1 }),
+        );
+      }
+      store.set('activeIndex', null);
+      return;
+    }
+
+    const nextActiveValue = candidateItems[storeActiveIndex];
+    const lastHighlightedValue = lastHighlightRef.current.value;
+    const isSameItem =
+      lastHighlightedValue !== NO_ACTIVE_VALUE &&
+      store.state.isItemEqualToValue(nextActiveValue, lastHighlightedValue);
+
+    if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
+      lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
+      store.state.onItemHighlighted(
+        nextActiveValue,
+        createGenericEventDetails('none', undefined, { index: storeActiveIndex }),
+      );
+    }
+  }, [
+    activeIndex,
+    autoHighlightBehavior,
+    autoHighlightEnabled,
+    flatFilteredItems,
+    inline,
+    items,
+    open,
+    store,
+    valuesRef,
+  ]);
+
+  // When the available items change, ensure the selected value(s) remain valid.
+  // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
+  // - Multiple: drop any removed selections.
+  useIsoLayoutEffect(() => {
+    if (!items || selectionMode === 'none') {
+      return;
+    }
+
+    const registry = flatItems;
+
+    if (multiple) {
+      const current = Array.isArray(selectedValue) ? selectedValue : EMPTY_ARRAY;
+      const next = current.filter((v) => itemIncludes(registry, v, store.state.isItemEqualToValue));
+      if (next.length !== current.length) {
+        setSelectedValueUnwrapped(next);
+      }
+      return;
+    }
+
+    const isStillPresent =
+      selectedValue == null
+        ? true
+        : itemIncludes(registry, selectedValue, store.state.isItemEqualToValue);
+    if (isStillPresent) {
+      return;
+    }
+
+    let fallback = null;
+    if (
+      defaultSelectedValue != null &&
+      itemIncludes(registry, defaultSelectedValue, store.state.isItemEqualToValue)
+    ) {
+      fallback = defaultSelectedValue;
+    }
+    setSelectedValueUnwrapped(fallback);
+
+    // Keep the input text in sync when the input is rendered outside the popup.
+    if (!store.state.inputInsidePopup) {
+      const stringVal = stringifyAsLabel(fallback, itemToStringLabel);
+      if (inputRef.current && inputRef.current.value !== stringVal) {
+        setInputValue(stringVal, createChangeEventDetails('none'));
+      }
+    }
+  }, [
+    items,
+    flatItems,
+    multiple,
+    selectionMode,
+    selectedValue,
+    defaultSelectedValue,
+    setSelectedValueUnwrapped,
+    itemToStringLabel,
+    store,
+    setInputValue,
+  ]);
+
+  useValueChanged(query, () => {
+    if (!open || query === '' || query === String(initialDefaultInputValue)) {
+      return;
+    }
+    setQueryChangedAfterOpen(true);
+  });
+
+  useValueChanged(selectedValue, () => {
+    if (selectionMode === 'none') {
+      return;
+    }
+
+    clearErrors(name);
+    commitValidation?.(selectedValue, true);
+
+    if (validationMode === 'onChange') {
+      commitValidation?.(selectedValue);
+    }
+
+    updateValue(selectedValue);
+
+    if (selectionMode === 'single' && !hasInputValue && !inputInsidePopup) {
+      const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
+
+      if (inputValue !== nextInputValue) {
+        setInputValue(nextInputValue, createChangeEventDetails('none'));
+      }
+    }
+  });
+
+  useValueChanged(items, () => {
+    if (selectionMode !== 'single' || hasInputValue || inputInsidePopup) {
+      return;
+    }
+
+    const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
+
+    if (inputValue !== nextInputValue) {
+      setInputValue(nextInputValue, createChangeEventDetails('none'));
+    }
+  });
+
+  useValueChanged(inputValue, () => {
+    if (selectionMode !== 'none') {
+      return;
+    }
+
+    clearErrors(name);
+    commitValidation?.(inputValue, true);
+
+    if (validationMode === 'onChange') {
+      commitValidation?.(inputValue);
+    }
+
+    updateValue(inputValue);
+  });
+
+  useIsoLayoutEffect(() => {
+    if (selectionMode === 'none') {
+      setFilled(String(inputValue) !== '');
+    } else {
+      setFilled(
+        multiple ? Array.isArray(selectedValue) && selectedValue.length > 0 : selectedValue != null,
+      );
+    }
+  }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
 
   // Ensures that the active index is not set to 0 when the list is empty.
   // This avoids needing to press ArrowDown twice under certain conditions.
