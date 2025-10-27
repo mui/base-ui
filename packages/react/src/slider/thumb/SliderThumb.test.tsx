@@ -596,15 +596,23 @@ describe('<Slider.Thumb />', () => {
             createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
           );
           fireEvent.touchMove(
-            document.body,
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 500, clientY: 0 }]),
+          );
+          fireEvent.touchMove(
+            sliderControl,
             createTouches([{ identifier: 1, clientX: 550, clientY: 0 }]),
+          );
+          fireEvent.touchMove(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 800, clientY: 0 }]),
           );
           fireEvent.touchEnd(
-            document.body,
-            createTouches([{ identifier: 1, clientX: 550, clientY: 0 }]),
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 800, clientY: 0 }]),
           );
 
-          expect(getSliderValues()).to.deep.equal([40, 55, 65]);
+          expect(getSliderValues()).to.deep.equal([30, 50, 80]);
         });
       });
     });

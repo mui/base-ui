@@ -4,6 +4,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
 import { clamp } from '../../utils/clamp';
@@ -125,6 +126,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   // The offset amount to each side of the control for inset sliders.
   // This value should be equal to the radius or half the width/height of the thumb.
   const insetThumbOffsetRef = React.useRef(0);
+  const latestValuesRef = useValueAsRef(values);
 
   const updatePressedThumb = useStableCallback((nextIndex: number) => {
     if (pressedThumbIndexRef.current !== nextIndex) {
@@ -186,6 +188,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
     const collisionResult = resolveThumbCollision({
       behavior: thumbCollisionBehavior,
       values,
+      currentValues: latestValuesRef.current ?? values,
+      initialValues: pressedValuesRef.current,
       pressedIndex: thumbIndex,
       nextValue: newValue,
       min,
@@ -204,7 +208,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const startPressing = useStableCallback((fingerCoords: Coords) => {
-    pressedValuesRef.current = null;
+    pressedValuesRef.current = range ? values.slice() : null;
+    latestValuesRef.current = values;
 
     const pressedThumbIndex = pressedThumbIndexRef.current;
     let closestThumbIndex = pressedThumbIndex;
@@ -288,6 +293,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
       setValue(finger.value, finger.thumbIndex, nativeEvent);
 
+      latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
+
       if (finger.didSwap) {
         focusThumb(finger.thumbIndex);
       }
@@ -350,6 +357,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
       focusThumb(finger.thumbIndex);
       setValue(finger.value, finger.thumbIndex, nativeEvent);
+
+      latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
 
       if (finger.didSwap) {
         focusThumb(finger.thumbIndex);
@@ -446,6 +455,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
             const pressedOnAnyThumb = pressedThumbCenterOffsetRef.current != null;
             if (!pressedOnAnyThumb) {
               setValue(finger.value, finger.thumbIndex, event.nativeEvent);
+
+              latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
 
               if (finger.didSwap) {
                 focusThumb(finger.thumbIndex);
