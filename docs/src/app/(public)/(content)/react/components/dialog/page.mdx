@@ -150,3 +150,89 @@ This example shows a nested confirmation dialog that opens if the text entered i
 To implement this, both dialogs should be controlled. The confirmation dialog may be opened when `onOpenChange` callback of the parent dialog receives a request to close. This way, the confirmation is automatically shown when the user clicks the backdrop, presses the Esc key, or clicks a close button.
 
 <Demo compact path="./demos/close-confirmation" />
+
+### Detached triggers
+
+A dialog can be controlled by a trigger located either inside or outside the `<Dialog.Root>` component.
+For simple, one-off interactions, place the `<Dialog.Trigger>` inside `<Dialog.Root>`, as shown in the example at the top of this page.
+
+However, if defining the dialog's content next to its trigger is not practical, you can use a detached trigger.
+This involves placing the `<Dialog.Trigger>` outside of `<Dialog.Root>` and linking them with a `handle` created by the `Dialog.createHandle()` function.
+
+```jsx title="Detached triggers" {3,5} "handle={demoDialog}"
+const demoDialog = Dialog.createHandle();
+
+<Dialog.Trigger handle={demoDialog}>Open</Dialog.Trigger>
+
+<Dialog.Root handle={demoDialog}>
+  ...
+</Dialog.Root>
+```
+
+<Demo path="./demos/detached-triggers-simple" />
+
+### Multiple triggers
+
+A single dialog can be opened by multiple trigger elements.
+You can achieve this by using the same `handle` for several detached triggers, or by placing multiple `<Dialog.Trigger>` components inside a single `<Dialog.Root>`.
+
+```jsx title="Multiple triggers within the Root part"
+<Dialog.Root>
+  <Dialog.Trigger>Trigger 1</Dialog.Trigger>
+  <Dialog.Trigger>Trigger 2</Dialog.Trigger>
+  ...
+</Dialog.Root>
+```
+
+```jsx title="multiple detached triggers"
+const demoDialog = Dialog.createHandle();
+
+<Dialog.Trigger handle={demoDialog}>Trigger 1</Dialog.Trigger>
+<Dialog.Trigger handle={demoDialog}>Trigger 2</Dialog.Trigger>
+<Dialog.Root handle={demoDialog}>
+  ...
+</Dialog.Root>
+```
+
+The dialog can render different content depending on which trigger opened it.
+This is achieved by passing a `payload` to the `<Dialog.Trigger>` and using the function-as-a-child pattern in `<Dialog.Root>`.
+
+The payload can be strongly typed by providing a type argument to the `createHandle()` function:
+
+```jsx title="Detached triggers with payload" {1,3,7,12}
+const demoDialog = Dialog.createHandle<{ text: string }>();
+
+<Dialog.Trigger handle={demoDialog} payload={{ text: 'Trigger 1' }}>
+  Trigger 1
+</Dialog.Trigger>
+
+<Dialog.Trigger handle={demoDialog} payload={{ text: 'Trigger 2' }}>
+  Trigger 2
+</Dialog.Trigger>
+
+<Dialog.Root handle={demoDialog}>
+  {({ payload }) => (
+    <Dialog.Portal>
+      <Dialog.Popup>
+        <Dialog.Title>Dialog</Dialog.Title>
+        {payload !== undefined && (
+          <Dialog.Description>
+            This has been opened by {payload.text}
+          </Dialog.Description>
+        )}
+      </Dialog.Popup>
+    </Dialog.Portal>
+  )}
+</Dialog.Root>
+```
+
+### Controlled mode with multiple triggers
+
+You can control the dialog's open state externally using the `open` and `onOpenChange` props on `<Dialog.Root>`.
+This allows you to manage the dialog's visibility based on your application's state.
+When using multiple triggers, you have to manage which trigger is active with the `triggerId` prop on `<Dialog.Root>` and the `id` prop on each `<Dialog.Trigger>`.
+
+Note that there is no separate `onTriggerIdChange` prop.
+Instead, the `onOpenChange` callback receives an additional argument, `eventDetails`, which contains the trigger element that initiated the state change.
+
+<Demo path="./demos/detached-triggers-controlled" />
