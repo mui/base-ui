@@ -3,8 +3,9 @@ import type { InteractionType } from '@base-ui-components/utils/useEnhancedClick
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import type { useFieldControlValidation } from '../field/control/useFieldControlValidation';
-import type { AriaCombobox } from './root/AriaCombobox';
+import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../utils/itemEquality';
+import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
   id: string | undefined;
@@ -16,7 +17,6 @@ export type State = {
   items: readonly any[] | undefined;
 
   selectedValue: any;
-  inputValue: React.ComponentProps<'input'>['value'];
 
   open: boolean;
   mounted: boolean;
@@ -37,6 +37,7 @@ export type State = {
   listElement: HTMLElement | null;
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
+  popupSide: Side | null;
 
   openMethod: InteractionType | null;
 
@@ -98,7 +99,6 @@ export const selectors = {
   items: createSelector((state: State) => state.items),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
-  inputValue: createSelector((state: State) => state.inputValue),
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
@@ -130,6 +130,7 @@ export const selectors = {
   listElement: createSelector((state: State) => state.listElement),
   triggerElement: createSelector((state: State) => state.triggerElement),
   inputElement: createSelector((state: State) => state.inputElement),
+  popupSide: createSelector((state: State) => state.popupSide),
 
   openMethod: createSelector((state: State) => state.openMethod),
 

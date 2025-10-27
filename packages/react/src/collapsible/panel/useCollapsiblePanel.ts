@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
@@ -63,7 +63,7 @@ export function useCollapsiblePanel(
    * time it opens. If the panel is in the middle of a close transition that is
    * interrupted and re-opens, this won't run as the panel was not unmounted.
    */
-  const handlePanelRef = useEventCallback((element: HTMLElement) => {
+  const handlePanelRef = useStableCallback((element: HTMLElement) => {
     if (!element) {
       return undefined;
     }
@@ -113,17 +113,8 @@ export function useCollapsiblePanel(
       return undefined;
     }
 
-    /**
-     * Explicitly set `display` to ensure the panel is actually rendered before
-     * measuring anything. `!important` is to needed to override a conflicting
-     * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
-     * https://github.com/tailwindlabs/tailwindcss/blob/cd154a4f471e7a63cc27cad15dada650de89d52b/packages/tailwindcss/preflight.css#L320-L326
-     */
-    element.style.setProperty('display', getComputedStyle(element).display || 'block', 'important');
-
     if (height === undefined || width === undefined) {
       setDimensions({ height: element.scrollHeight, width: element.scrollWidth });
-      element.style.removeProperty('display');
 
       if (shouldCancelInitialOpenTransitionRef.current) {
         element.style.setProperty('transition-duration', '0s');
@@ -183,7 +174,6 @@ export function useCollapsiblePanel(
       };
 
       /* opening */
-      panel.style.setProperty('display', getComputedStyle(panel).display || 'block', 'important');
       Object.keys(originalLayoutStyles).forEach((key) => {
         panel.style.setProperty(key, 'initial', 'important');
       });
@@ -202,7 +192,6 @@ export function useCollapsiblePanel(
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
       resizeFrame = AnimationFrame.request(() => {
-        panel.style.removeProperty('display');
         Object.entries(originalLayoutStyles).forEach(([key, value]) => {
           if (value === '') {
             panel.style.removeProperty(key);
@@ -212,6 +201,10 @@ export function useCollapsiblePanel(
         });
       });
     } else {
+      if (panel.scrollHeight === 0 && panel.scrollWidth === 0) {
+        return undefined;
+      }
+
       /* closing */
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
@@ -225,7 +218,6 @@ export function useCollapsiblePanel(
           runOnceAnimationsFinish(() => {
             setDimensions({ height: 0, width: 0 });
             panel.style.removeProperty('content-visibility');
-            panel.style.removeProperty('display');
             setMounted(false);
             abortControllerRef.current = null;
           }, signal);

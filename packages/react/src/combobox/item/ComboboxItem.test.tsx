@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { spy } from 'sinon';

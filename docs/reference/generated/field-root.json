@@ -7,6 +7,20 @@
       "description": "Identifies the field when a form is submitted.\nTakes precedence over the `name` prop on the `<Field.Control>` component.",
       "detailedType": "string | undefined"
     },
+    "dirty": {
+      "type": "boolean",
+      "description": "Whether the field's value has been changed from its initial value.\nUseful when the field state is controlled by an external library.",
+      "detailedType": "boolean | undefined"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Field.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Field.Root.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "touched": {
+      "type": "boolean",
+      "description": "Whether the field has been touched.\nUseful when the field state is controlled by an external library.",
+      "detailedType": "boolean | undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -15,7 +29,7 @@
     },
     "invalid": {
       "type": "boolean",
-      "description": "Whether the field is forcefully marked as invalid.",
+      "description": "Whether the field is invalid.\nUseful when the field state is controlled by an external library.",
       "detailedType": "boolean | undefined"
     },
     "validate": {
@@ -36,8 +50,9 @@
       "detailedType": "number | undefined"
     },
     "className": {
-      "type": "string | ((state: Field.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Field.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Field.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",

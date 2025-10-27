@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -44,7 +44,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor = true,
+    trackAnchor,
     alignItemWithTrigger = true,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     ...elementProps
@@ -115,7 +115,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor: trackAnchor ?? !alignItemWithTriggerActive,
+    trackAnchor:
+      trackAnchor === undefined && alignItemWithTriggerActive
+        ? false
+        : (trackAnchor ?? !alignItemWithTriggerActive),
     collisionAvoidance,
     keepMounted: true,
   });
@@ -150,7 +153,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     [open, renderedSide, positioning.align, positioning.anchorHidden],
   );
 
-  const setPositionerElement = useEventCallback((element) => {
+  const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
   });
 
@@ -163,7 +166,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const prevMapSizeRef = React.useRef(0);
 
-  const onMapChange = useEventCallback((map: Map<Element, { index?: number | null } | null>) => {
+  const onMapChange = useStableCallback((map: Map<Element, { index?: number | null } | null>) => {
     if (map.size === 0 && prevMapSizeRef.current === 0) {
       return;
     }
@@ -203,7 +206,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     }
 
     if (open && alignItemWithTriggerActive) {
-      store.apply({
+      store.update({
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
       });

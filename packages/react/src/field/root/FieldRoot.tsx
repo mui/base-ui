@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../../form/FormContext';
+import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -27,6 +28,8 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     name,
     disabled: disabledProp = false,
     invalid: invalidProp,
+    dirty: dirtyProp,
+    touched: touchedProp,
     ...elementProps
   } = componentProps;
 
@@ -34,27 +37,37 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const { errors } = useFormContext();
 
-  const validate = useEventCallback(validateProp || (() => null));
+  const validate = useStableCallback(validateProp || (() => null));
 
   const disabled = disabledFieldset || disabledProp;
 
-  const [controlId, setControlId] = React.useState<string | null | undefined>(undefined);
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
-  const [messageIds, setMessageIds] = React.useState<string[]>([]);
-
-  const [touched, setTouched] = React.useState(false);
-  const [dirty, setDirtyUnwrapped] = React.useState(false);
+  const [touchedState, setTouchedUnwrapped] = React.useState(false);
+  const [dirtyState, setDirtyUnwrapped] = React.useState(false);
   const [filled, setFilled] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
 
+  const dirty = dirtyProp ?? dirtyState;
+  const touched = touchedProp ?? touchedState;
+
   const markedDirtyRef = React.useRef(false);
 
-  const setDirty: typeof setDirtyUnwrapped = React.useCallback((value) => {
+  const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
+    if (dirtyProp !== undefined) {
+      return;
+    }
+
     if (value) {
       markedDirtyRef.current = true;
     }
     setDirtyUnwrapped(value);
-  }, []);
+  });
+
+  const setTouched: typeof setTouchedUnwrapped = useStableCallback((value) => {
+    if (touchedProp !== undefined) {
+      return;
+    }
+    setTouchedUnwrapped(value);
+  });
 
   const invalid = Boolean(
     invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
@@ -85,12 +98,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
       invalid,
-      controlId,
-      setControlId,
-      labelId,
-      setLabelId,
-      messageIds,
-      setMessageIds,
       name,
       validityData,
       setValidityData,
@@ -111,13 +118,11 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     }),
     [
       invalid,
-      controlId,
-      labelId,
-      messageIds,
       name,
       validityData,
       disabled,
       touched,
+      setTouched,
       dirty,
       setDirty,
       filled,
@@ -138,7 +143,11 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     stateAttributesMapping: fieldValidityMapping,
   });
 
-  return <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>;
+  return (
+    <LabelableProvider>
+      <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>
+    </LabelableProvider>
+  );
 });
 
 export interface FieldValidityData {
@@ -206,9 +215,20 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.St
    */
   validationDebounceTime?: number;
   /**
-   * Whether the field is forcefully marked as invalid.
+   * Whether the field is invalid.
+   * Useful when the field state is controlled by an external library.
    */
   invalid?: boolean;
+  /**
+   * Whether the field's value has been changed from its initial value.
+   * Useful when the field state is controlled by an external library.
+   */
+  dirty?: boolean;
+  /**
+   * Whether the field has been touched.
+   * Useful when the field state is controlled by an external library.
+   */
+  touched?: boolean;
 }
 
 export namespace FieldRoot {

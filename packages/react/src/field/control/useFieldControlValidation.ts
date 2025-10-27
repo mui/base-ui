@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
@@ -37,23 +39,23 @@ export function useFieldControlValidation() {
   const {
     setValidityData,
     validate,
-    messageIds,
     validityData,
     validationMode,
     validationDebounceTime,
     invalid,
     markedDirtyRef,
-    controlId,
     state,
     name,
   } = useFieldRootContext();
+
+  const { controlId, getDescriptionProps } = useLabelableContext();
 
   const { formRef, clearErrors } = useFormContext();
 
   const timeout = useTimeout();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
-  const commitValidation = useEventCallback(async (value: unknown, revalidate = false) => {
+  const commitValidation = useStableCallback(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;
     if (!element) {
       return;
@@ -152,10 +154,15 @@ export function useFieldControlValidation() {
 
     let defaultValidationMessage;
 
-    if (element.validationMessage) {
+    if (element.validationMessage && validationMode !== 'onChange') {
+      // not validating on change, if there is a `validationMessage` from
+      // native validity, set errors and skip calling the custom validate fn
       defaultValidationMessage = element.validationMessage;
       validationErrors = [element.validationMessage];
     } else {
+      // call the validate function because either
+      // - validating on change, or
+      // - native constraint validations passed, custom validity check is next
       const formValues = Array.from(formRef.current.fields.values()).reduce(
         (acc, field) => {
           if (field.name && field.getValueRef) {
@@ -188,6 +195,16 @@ export function useFieldControlValidation() {
           validationErrors = [result];
           element.setCustomValidity(result);
         }
+      } else if (validationMode === 'onChange') {
+        // validate function returned no errors, if validating on change
+        // we need to clear the custom validity state
+        element.setCustomValidity('');
+        nextState.customError = false;
+
+        if (element.validationMessage) {
+          defaultValidationMessage = element.validationMessage;
+          validationErrors = [element.validationMessage];
+        }
       }
     }
 
@@ -215,13 +232,11 @@ export function useFieldControlValidation() {
   const getValidationProps = React.useCallback(
     (externalProps = {}) =>
       mergeProps<any>(
-        {
-          ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
-          ...(state.valid === false && { 'aria-invalid': true }),
-        },
+        getDescriptionProps,
+        state.valid === false ? { 'aria-invalid': true } : EMPTY_OBJECT,
         externalProps,
       ),
-    [messageIds, state.valid],
+    [getDescriptionProps, state.valid],
   );
 
   const getInputValidationProps = React.useCallback(

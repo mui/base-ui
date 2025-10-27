@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';

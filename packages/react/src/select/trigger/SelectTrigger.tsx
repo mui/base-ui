@@ -2,13 +2,14 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -47,7 +48,14 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     ...elementProps
   } = componentProps;
 
-  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
+  const {
+    setTouched,
+    setFocused,
+    validationMode,
+    state: fieldState,
+    disabled: fieldDisabled,
+  } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
   const {
     store,
     setOpen,
@@ -67,9 +75,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
 
-  const positionerRef = useLatestRef(positionerElement);
-
-  const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
+  const positionerRef = useValueAsRef(positionerElement);
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const timeoutFocus = useTimeout();
@@ -80,7 +86,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     native: nativeButton,
   });
 
-  const setTriggerElement = useEventCallback((element) => {
+  const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);
   });
 

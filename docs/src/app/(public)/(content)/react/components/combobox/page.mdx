@@ -72,7 +72,9 @@ import { Combobox } from '@base-ui-components/react/combobox';
 
 ## useFilter
 
-Matches items against a query using `Intl.Collator` for robust string matching. This hook is used when externally filtering items. Pass the result to the `filter` prop of `Combobox.Root`.
+Matches items against a query using `Intl.Collator` for robust string matching.
+This hook is used when externally filtering items.
+Pass the result to the `filter` prop of `<Combobox.Root>`.
 
 ### Input parameters
 
@@ -119,21 +121,30 @@ Accepts all `Intl.CollatorOptions`, plus the following options:
 
 ## TypeScript inference
 
-Combobox infers the item type from the `defaultValue` or `value` props passed to `Combobox.Root`. When using `itemToStringLabel` or `itemToStringValue`, `Combobox.Item`'s `value` prop must match the type passed to `defaultValue` or `value`. When not specifying value props, the parameter's type must be explicitly specified.
+Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
+When using `itemToStringLabel` or `itemToStringValue`, the `value` prop on the `<Combobox.Item>` must match the type passed to `defaultValue` or `value`.
+When not specifying value props, the parameter's type must be explicitly specified.
 
 ## Examples
 
 ### Multiple select
 
-The combobox can allow multiple selections by adding the `multiple` prop to `Combobox.Root`. Selection chips are rendered with `Combobox.Chip` inside the input that can be removed.
+The combobox can allow multiple selections by adding the `multiple` prop to `<Combobox.Root>`.
+Selection chips are rendered with `<Combobox.Chip>` inside the input that can be removed.
 
 <Demo path="./demos/multiple" compact />
 
 ### Input inside popup
 
-`Combobox.Input` can be rendered inside `Combobox.Popup` to create a searchable select popup.
+`<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
 
 <Demo path="./demos/input-inside-popup" compact />
+
+### Grouped
+
+Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to add section headings inside the popup.
+
+<Demo path="./demos/grouped" compact />
 
 ### Async search
 
@@ -149,7 +160,7 @@ Load items from a remote source by fetching on input changes while supporting mu
 
 ### Creatable
 
-Create a new item when the filter matches no items, opening a creation `Dialog`.
+Create a new item when the filter matches no items, opening a creation `<Dialog>`.
 
 <Demo path="./demos/creatable" compact />
 

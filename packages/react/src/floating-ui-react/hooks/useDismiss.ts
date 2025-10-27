@@ -9,7 +9,7 @@ import {
   isWebKit,
 } from '@floating-ui/utils/dom';
 import { Timeout, useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import {
   contains,
   getDocument,
@@ -142,7 +142,7 @@ export function useDismiss(
   } = props;
 
   const tree = useFloatingTree();
-  const outsidePressFn = useEventCallback(
+  const outsidePressFn = useStableCallback(
     typeof outsidePressProp === 'function' ? outsidePressProp : () => false,
   );
   const outsidePress = typeof outsidePressProp === 'function' ? outsidePressFn : outsidePressProp;
@@ -159,16 +159,16 @@ export function useDismiss(
     dismissOnMouseDown: boolean;
   } | null>(null);
   const cancelDismissOnEndTimeout = useTimeout();
-  const insideReactTreeTimeout = useTimeout();
+  const insideReactTreeEventRef = React.useRef<Event | null>(null);
 
   const isComposingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
-  const trackPointerType = useEventCallback((event: PointerEvent) => {
+  const trackPointerType = useStableCallback((event: PointerEvent) => {
     currentPointerTypeRef.current = event.pointerType;
   });
 
-  const getOutsidePressEvent = useEventCallback(() => {
+  const getOutsidePressEvent = useStableCallback(() => {
     const type = currentPointerTypeRef.current as 'pen' | 'mouse' | 'touch' | '';
     const computedType = type === 'pen' || !type ? 'mouse' : type;
 
@@ -182,7 +182,7 @@ export function useDismiss(
     return resolved[computedType];
   });
 
-  const closeOnEscapeKeyDown = useEventCallback(
+  const closeOnEscapeKeyDown = useStableCallback(
     (event: React.KeyboardEvent<Element> | KeyboardEvent) => {
       if (!open || !enabled || !escapeKey || event.key !== 'Escape') {
         return;
@@ -225,7 +225,7 @@ export function useDismiss(
     },
   );
 
-  const shouldIgnoreEvent = useEventCallback((event: Event) => {
+  const shouldIgnoreEvent = useStableCallback((event: Event) => {
     const computedOutsidePressEvent = getOutsidePressEvent();
     return (
       (computedOutsidePressEvent === 'intentional' && event.type !== 'click') ||
@@ -233,7 +233,27 @@ export function useDismiss(
     );
   });
 
-  const closeOnEscapeKeyDownCapture = useEventCallback((event: KeyboardEvent) => {
+  const markInsideReactTree = useStableCallback((event: React.SyntheticEvent) => {
+    insideReactTreeEventRef.current = event.nativeEvent;
+    dataRef.current.insideReactTree = true;
+  });
+
+  const clearInsideReactTree = useStableCallback(() => {
+    insideReactTreeEventRef.current = null;
+    dataRef.current.insideReactTree = false;
+  });
+
+  const shouldSkipInsideReactTreeEvent = useStableCallback((event: Event) => {
+    if (!dataRef.current.insideReactTree) {
+      return false;
+    }
+
+    const isSameEvent = insideReactTreeEventRef.current === event;
+    clearInsideReactTree();
+    return isSameEvent;
+  });
+
+  const closeOnEscapeKeyDownCapture = useStableCallback((event: KeyboardEvent) => {
     const callback = () => {
       closeOnEscapeKeyDown(event);
       getTarget(event)?.removeEventListener('keydown', callback);
@@ -241,22 +261,18 @@ export function useDismiss(
     getTarget(event)?.addEventListener('keydown', callback);
   });
 
-  const closeOnPressOutside = useEventCallback(
+  const closeOnPressOutside = useStableCallback(
     (event: MouseEvent, endedOrStartedInside = false) => {
       if (shouldIgnoreEvent(event)) {
+        clearInsideReactTree();
         return;
       }
 
-      // Given developers can stop the propagation of the synthetic event,
-      // we can only be confident with a positive value.
-      const insideReactTree = dataRef.current.insideReactTree;
-      dataRef.current.insideReactTree = false;
+      if (shouldSkipInsideReactTreeEvent(event)) {
+        return;
+      }
 
       if (getOutsidePressEvent() === 'intentional' && endedOrStartedInside) {
-        return;
-      }
-
-      if (insideReactTree) {
         return;
       }
 
@@ -366,7 +382,7 @@ export function useDismiss(
     },
   );
 
-  const handlePointerDown = useEventCallback((event: PointerEvent) => {
+  const handlePointerDown = useStableCallback((event: PointerEvent) => {
     if (
       getOutsidePressEvent() !== 'sloppy' ||
       !open ||
@@ -398,7 +414,7 @@ export function useDismiss(
     closeOnPressOutside(event);
   });
 
-  const closeOnPressOutsideCapture = useEventCallback((event: PointerEvent | MouseEvent) => {
+  const closeOnPressOutsideCapture = useStableCallback((event: PointerEvent | MouseEvent) => {
     // When click outside is lazy (`up` event), handle dragging.
     // Don't close if:
     // - The click started inside the floating element.
@@ -407,6 +423,11 @@ export function useDismiss(
     endedOrStartedInsideRef.current = false;
 
     if (shouldIgnoreEvent(event)) {
+      clearInsideReactTree();
+      return;
+    }
+
+    if (shouldSkipInsideReactTreeEvent(event)) {
       return;
     }
 
@@ -431,7 +452,7 @@ export function useDismiss(
     getTarget(event)?.addEventListener(event.type, callback);
   });
 
-  const handlePointerMove = useEventCallback((event: PointerEvent) => {
+  const handlePointerMove = useStableCallback((event: PointerEvent) => {
     if (
       getOutsidePressEvent() !== 'sloppy' ||
       event.pointerType !== 'touch' ||
@@ -457,7 +478,7 @@ export function useDismiss(
     }
   });
 
-  const handlePointerUp = useEventCallback((event: PointerEvent) => {
+  const handlePointerUp = useStableCallback((event: PointerEvent) => {
     if (
       getOutsidePressEvent() !== 'sloppy' ||
       event.pointerType !== 'touch' ||
@@ -624,9 +645,7 @@ export function useDismiss(
     trackPointerType,
   ]);
 
-  React.useEffect(() => {
-    dataRef.current.insideReactTree = false;
-  }, [dataRef, outsidePress]);
+  React.useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
 
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
@@ -645,7 +664,7 @@ export function useDismiss(
     [closeOnEscapeKeyDown, onOpenChange, referencePress, referencePressEvent],
   );
 
-  const handlePressedInside = useEventCallback((event: React.MouseEvent) => {
+  const handlePressedInside = useStableCallback((event: React.MouseEvent) => {
     const target = getTarget(event.nativeEvent) as Element | null;
     if (!contains(elements.floating, target) || event.button !== 0) {
       return;
@@ -653,24 +672,17 @@ export function useDismiss(
     endedOrStartedInsideRef.current = true;
   });
 
-  const handleCaptureInside = useEventCallback(() => {
-    dataRef.current.insideReactTree = true;
-    insideReactTreeTimeout.start(0, () => {
-      dataRef.current.insideReactTree = false;
-    });
-  });
-
   const floating: ElementProps['floating'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
       onMouseDown: handlePressedInside,
       onMouseUp: handlePressedInside,
-      onPointerDownCapture: handleCaptureInside,
-      onMouseDownCapture: handleCaptureInside,
-      onClickCapture: handleCaptureInside,
-      onMouseUpCapture: handleCaptureInside,
+      onPointerDownCapture: markInsideReactTree,
+      onMouseDownCapture: markInsideReactTree,
+      onClickCapture: markInsideReactTree,
+      onMouseUpCapture: markInsideReactTree,
     }),
-    [closeOnEscapeKeyDown, handlePressedInside, handleCaptureInside],
+    [closeOnEscapeKeyDown, handlePressedInside, markInsideReactTree],
   );
 
   return React.useMemo(

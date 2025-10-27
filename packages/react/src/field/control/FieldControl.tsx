@@ -1,15 +1,16 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { fieldValidityMapping } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useField } from '../useField';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldControlValidation } from './useFieldControlValidation';
 import {
   BaseUIChangeEventDetails,
@@ -55,28 +56,13 @@ export const FieldControl = React.forwardRef(function FieldControl(
     [fieldState, disabled],
   );
 
-  const {
-    setControlId,
-    labelId,
-    setTouched,
-    setDirty,
-    validityData,
-    setFocused,
-    setFilled,
-    validationMode,
-  } = useFieldRootContext();
+  const { setTouched, setDirty, validityData, setFocused, setFilled, validationMode } =
+    useFieldRootContext();
+  const { labelId } = useLabelableContext();
 
-  const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
-    useFieldControlValidation();
+  const { getInputValidationProps, commitValidation, inputRef } = useFieldControlValidation();
 
-  const id = useBaseUiId(idProp);
-
-  useIsoLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
+  const id = useLabelableId({ id: idProp });
 
   useIsoLayoutEffect(() => {
     const hasExternalValue = valueProp != null;
@@ -96,7 +82,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const isControlled = valueProp !== undefined;
 
-  const setValue = useEventCallback(
+  const setValue = useStableCallback(
     (nextValue: string, eventDetails: FieldControl.ChangeEventDetails) => {
       onValueChange?.(nextValue, eventDetails);
 
@@ -152,7 +138,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
           }
         },
       },
-      getValidationProps(),
       getInputValidationProps(),
       elementProps,
     ],

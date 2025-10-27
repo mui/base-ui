@@ -661,7 +661,7 @@ describe('<Popover.Root />', () => {
     it('uses intentional outside press with user backdrop (mouse): closes on click, not on mousedown', async () => {
       const handleOpenChange = spy();
 
-      const { queryByRole } = await render(
+      await render(
         <Popover.Root defaultOpen onOpenChange={handleOpenChange}>
           <Popover.Trigger />
           <Popover.Portal>
@@ -676,12 +676,12 @@ describe('<Popover.Root />', () => {
       const backdrop = screen.getByTestId('backdrop');
 
       fireEvent.mouseDown(backdrop);
-      expect(queryByRole('dialog')).not.to.equal(null);
+      expect(screen.queryByRole('dialog')).not.to.equal(null);
       expect(handleOpenChange.callCount).to.equal(0);
 
       fireEvent.click(backdrop);
       await waitFor(() => {
-        expect(queryByRole('dialog')).to.equal(null);
+        expect(screen.queryByRole('dialog')).to.equal(null);
       });
       expect(handleOpenChange.callCount).to.equal(1);
     });
@@ -689,7 +689,7 @@ describe('<Popover.Root />', () => {
     it('uses intentional outside press with internal backdrop (modal=true): closes on click, not on mousedown', async () => {
       const handleOpenChange = spy();
 
-      const { queryByRole } = await render(
+      await render(
         <Popover.Root defaultOpen onOpenChange={handleOpenChange} modal>
           <Popover.Trigger>Open</Popover.Trigger>
           <Popover.Portal>
@@ -703,12 +703,12 @@ describe('<Popover.Root />', () => {
       const internalBackdrop = document.querySelector('[role="presentation"]') as HTMLElement;
 
       fireEvent.mouseDown(internalBackdrop);
-      expect(queryByRole('dialog')).not.to.equal(null);
+      expect(screen.queryByRole('dialog')).not.to.equal(null);
       expect(handleOpenChange.callCount).to.equal(0);
 
       fireEvent.click(internalBackdrop);
       await waitFor(() => {
-        expect(queryByRole('dialog')).to.equal(null);
+        expect(screen.queryByRole('dialog')).to.equal(null);
       });
       expect(handleOpenChange.callCount).to.equal(1);
     });

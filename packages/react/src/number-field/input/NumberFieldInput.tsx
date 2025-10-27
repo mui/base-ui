@@ -7,6 +7,9 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../../field/utils/constants';
+import { useField } from '../../field/useField';
+import { useFormContext } from '../../form/FormContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { DEFAULT_STEP } from '../utils/constants';
 import {
   ARABIC_DETECT_RE,
@@ -22,8 +25,6 @@ import {
 } from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../utils/stateAttributesMapping';
-import { useField } from '../../field/useField';
-import { useFormContext } from '../../form/FormContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
   createChangeEventDetails,
@@ -86,11 +87,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
-  const { labelId, validationMode, setTouched, setFocused, invalid } = useFieldRootContext();
+  const { validationMode, setTouched, setFocused, invalid } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
 
   const {
     getInputValidationProps,
-    getValidationProps,
     commitValidation,
     inputRef: inputValidationRef,
   } = useFieldControlValidation();
@@ -426,7 +427,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef, inputValidationRef],
     state,
-    props: [inputProps, getInputValidationProps(), getValidationProps(), elementProps],
+    props: [inputProps, getInputValidationProps(), elementProps],
     stateAttributesMapping,
   });
 
