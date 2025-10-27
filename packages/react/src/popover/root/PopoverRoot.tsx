@@ -18,15 +18,17 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
-import { PopoverStore } from '../store';
+import { PopoverStore } from '../PopoverStore';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
+import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
+    children,
     open: openProp,
     defaultOpen: defaultOpenProp = false,
     onOpenChange,
@@ -84,15 +86,12 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   useIsoLayoutEffect(() => {
     if (open) {
-      if (resolvedTriggerId != null) {
-        store.set('activeTriggerId', resolvedTriggerId);
-        const triggerMetadata = triggerElements.get(resolvedTriggerId);
-        store.set('payload', triggerMetadata?.getPayload?.() ?? undefined);
-      } else {
+      store.set('activeTriggerId', resolvedTriggerId);
+      if (resolvedTriggerId == null) {
         store.set('payload', undefined);
       }
     }
-  }, [store, resolvedTriggerId, triggerElements, open]);
+  }, [store, resolvedTriggerId, open]);
 
   useScrollLock({
     enabled: open && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch',
@@ -190,7 +189,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    store.apply({ stickIfOpen: true, openReason: null, activeTriggerId: null, mounted: false });
+    store.update({ stickIfOpen: true, openReason: null, activeTriggerId: null, mounted: false });
     onOpenChangeComplete?.(false);
   });
 
@@ -219,9 +218,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     elements: {
       reference: activeTriggerElement,
       floating: positionerElement,
-      triggers: Array.from(triggerElements.values()).map(
-        (triggerMetadata) => triggerMetadata.element,
-      ),
+      triggers: Array.from(triggerElements.values()),
     },
     open,
     onOpenChange: setOpen,
@@ -266,7 +263,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     floatingRootContext: floatingContext,
   });
 
-  const popoverContext: PopoverRootContext = React.useMemo(
+  const popoverContext: PopoverRootContext<Payload> = React.useMemo(
     () => ({
       store,
     }),
@@ -274,8 +271,8 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   );
 
   return (
-    <PopoverRootContext.Provider value={popoverContext}>
-      {typeof props.children === 'function' ? props.children({ payload }) : props.children}
+    <PopoverRootContext.Provider value={popoverContext as PopoverRootContext<unknown>}>
+      {typeof children === 'function' ? children({ payload }) : children}
     </PopoverRootContext.Provider>
   );
 }
@@ -355,17 +352,13 @@ export interface PopoverRootProps<Payload = unknown> {
    * The content of the popover.
    * This can be a regular React node or a render function that receives the `payload` of the active trigger.
    */
-  children?: React.ReactNode | PopoverRoot.ChildRenderFunction<Payload>;
+  children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
 }
 
 export interface PopoverRootActions {
   unmount: () => void;
   close: () => void;
 }
-
-export type PopoverRootChildRenderFunction<Payload> = (arg: {
-  payload: Payload | undefined;
-}) => React.ReactNode;
 
 export type PopoverRootChangeEventReason =
   | 'trigger-hover'
@@ -388,5 +381,4 @@ export namespace PopoverRoot {
   export type Actions = PopoverRootActions;
   export type ChangeEventReason = PopoverRootChangeEventReason;
   export type ChangeEventDetails = PopoverRootChangeEventDetails;
-  export type ChildRenderFunction<Payload> = PopoverRootChildRenderFunction<Payload>;
 }
