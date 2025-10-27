@@ -87,8 +87,8 @@ export default function ExampleAsyncCombobox() {
           return;
         }
 
-        abortControllerRef.current?.abort();
         const controller = new AbortController();
+        abortControllerRef.current?.abort();
         abortControllerRef.current = controller;
 
         startTransition(async () => {

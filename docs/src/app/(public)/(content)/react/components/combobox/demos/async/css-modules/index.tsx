@@ -78,8 +78,8 @@ export default function ExampleAsyncCombobox() {
       onInputValueChange={(nextSearchValue, { reason }) => {
         setSearchValue(nextSearchValue);
 
-        abortControllerRef.current?.abort();
         const controller = new AbortController();
+        abortControllerRef.current?.abort();
         abortControllerRef.current = controller;
 
         if (nextSearchValue === '') {

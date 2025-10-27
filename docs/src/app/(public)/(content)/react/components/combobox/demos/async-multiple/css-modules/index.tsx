@@ -6,7 +6,6 @@ export default function ExampleAsyncMultipleCombobox() {
   const id = React.useId();
 
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const openRef = React.useRef(false);
 
   const [searchResults, setSearchResults] = React.useState<DirectoryUser[]>([]);
   const [selectedValues, setSelectedValues] = React.useState<DirectoryUser[]>([]);
@@ -78,9 +77,6 @@ export default function ExampleAsyncMultipleCombobox() {
       itemToStringLabel={(user: DirectoryUser) => user.name}
       multiple
       filter={null}
-      onOpenChange={(open) => {
-        openRef.current = open;
-      }}
       onOpenChangeComplete={(open) => {
         if (!open) {
           setSearchResults(selectedValuesRef.current);
