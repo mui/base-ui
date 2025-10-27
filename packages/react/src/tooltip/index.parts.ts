@@ -5,4 +5,5 @@ export { TooltipPositioner as Positioner } from './positioner/TooltipPositioner'
 export { TooltipPopup as Popup } from './popup/TooltipPopup';
 export { TooltipArrow as Arrow } from './arrow/TooltipArrow';
 export { TooltipProvider as Provider } from './provider/TooltipProvider';
+export { TooltipViewport as Viewport } from './viewport/TooltipViewport';
 export { createTooltipHandle as createHandle } from './store/TooltipHandle';
