@@ -72,7 +72,7 @@ function TanstackForm() {
           errors.serverName = 'At least 3 characters.';
         }
 
-        return { fields: errors };
+        return { form: errors, fields: errors };
       },
     },
   });
