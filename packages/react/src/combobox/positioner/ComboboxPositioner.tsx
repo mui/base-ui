@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import {
@@ -113,6 +114,10 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     }),
     [open, positioning.side, positioning.align, positioning.anchorHidden, empty],
   );
+
+  useIsoLayoutEffect(() => {
+    store.set('popupSide', positioning.side);
+  }, [store, positioning.side]);
 
   const contextValue: ComboboxPositionerContext = React.useMemo(
     () => ({
