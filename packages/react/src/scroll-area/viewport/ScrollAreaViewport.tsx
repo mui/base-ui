@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -229,7 +229,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     });
   }
 
-  const computeThumbPosition = useEventCallback(() => {
+  const computeThumbPosition = useStableCallback(() => {
     ReactDOM.flushSync(computeThumbPositionHandler);
   });
 

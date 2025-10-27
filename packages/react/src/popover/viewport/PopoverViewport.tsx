@@ -3,7 +3,7 @@ import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { usePreviousValue } from '@base-ui-components/utils/usePreviousValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -82,7 +82,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     capturedNodeRef.current = wrapper;
   });
 
-  const handleMeasureLayout = useEventCallback(() => {
+  const handleMeasureLayout = useStableCallback(() => {
     currentContainerRef.current?.style.setProperty('animation', 'none');
     currentContainerRef.current?.style.setProperty('transition', 'none');
 
@@ -94,7 +94,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     nextDimensions: Dimensions;
   };
 
-  const handleMeasureLayoutComplete = useEventCallback((data: MeasureLayoutCompleteData) => {
+  const handleMeasureLayoutComplete = useStableCallback((data: MeasureLayoutCompleteData) => {
     currentContainerRef.current?.style.removeProperty('animation');
     currentContainerRef.current?.style.removeProperty('transition');
 

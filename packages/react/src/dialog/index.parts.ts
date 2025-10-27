@@ -7,3 +7,4 @@ export { DialogRoot as Root } from './root/DialogRoot';
 export { DialogViewport as Viewport } from './viewport/DialogViewport';
 export { DialogTitle as Title } from './title/DialogTitle';
 export { DialogTrigger as Trigger } from './trigger/DialogTrigger';
+export { createDialogHandle as createHandle } from './store/DialogHandle';

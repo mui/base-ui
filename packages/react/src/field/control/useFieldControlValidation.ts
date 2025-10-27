@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
@@ -37,23 +39,23 @@ export function useFieldControlValidation() {
   const {
     setValidityData,
     validate,
-    messageIds,
     validityData,
     validationMode,
     validationDebounceTime,
     invalid,
     markedDirtyRef,
-    controlId,
     state,
     name,
   } = useFieldRootContext();
+
+  const { controlId, getDescriptionProps } = useLabelableContext();
 
   const { formRef, clearErrors } = useFormContext();
 
   const timeout = useTimeout();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
-  const commitValidation = useEventCallback(async (value: unknown, revalidate = false) => {
+  const commitValidation = useStableCallback(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;
     if (!element) {
       return;
@@ -215,13 +217,11 @@ export function useFieldControlValidation() {
   const getValidationProps = React.useCallback(
     (externalProps = {}) =>
       mergeProps<any>(
-        {
-          ...(messageIds.length && { 'aria-describedby': messageIds.join(' ') }),
-          ...(state.valid === false && { 'aria-invalid': true }),
-        },
+        getDescriptionProps,
+        state.valid === false ? { 'aria-invalid': true } : EMPTY_OBJECT,
         externalProps,
       ),
-    [messageIds, state.valid],
+    [getDescriptionProps, state.valid],
   );
 
   const getInputValidationProps = React.useCallback(

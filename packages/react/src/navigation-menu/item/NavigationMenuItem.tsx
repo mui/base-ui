@@ -7,7 +7,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 
 /**
  * An individual navigation menu item.
- * Renders a `<div>` element.
+ * Renders a `<li>` element.
  *
  * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
  */

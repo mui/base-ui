@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
@@ -17,6 +16,8 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../types';
 
@@ -49,8 +50,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const { clearErrors } = useFormContext();
   const {
     state: fieldState,
-    labelId,
-    setControlId,
     setTouched,
     setDirty,
     validityData,
@@ -60,6 +59,8 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     disabled: fieldDisabled,
     name: fieldName,
   } = useFieldRootContext();
+
+  const { labelId } = useLabelableContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -71,31 +72,18 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     commitValidation,
   } = useFieldControlValidation();
 
-  const onCheckedChange = useEventCallback(onCheckedChangeProp);
+  const onCheckedChange = useStableCallback(onCheckedChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const handleInputRef = useMergedRefs(inputRef, externalInputRef, inputValidationRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
 
-  const id = useBaseUiId(idProp);
-
-  useIsoLayoutEffect(() => {
-    const element = switchRef.current;
-    if (!element) {
-      return undefined;
-    }
-
-    if (element.closest('label') != null) {
-      setControlId(idProp ?? null);
-    } else {
-      setControlId(id);
-    }
-
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, idProp, setControlId]);
+  const id = useLabelableId({
+    id: idProp,
+    implicit: true,
+    controlRef: switchRef,
+  });
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -152,6 +140,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         return;
       }
 
+      event.preventDefault();
       inputRef?.current?.click();
     },
   };

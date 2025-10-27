@@ -54,7 +54,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        store.context.openChangeComplete?.(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
