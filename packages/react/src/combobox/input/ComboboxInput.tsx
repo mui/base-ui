@@ -410,28 +410,20 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             const nativeEvent = event.nativeEvent;
 
             if (activeIndex === null) {
+              // Allow form submission when no item is highlighted.
               store.state.setOpen(false, createChangeEventDetails('none', nativeEvent));
               return;
             }
 
-            const selectActiveItem = () => {
-              const listItem = store.state.listRef.current[activeIndex];
+            stopEvent(event);
 
-              if (listItem) {
-                store.state.selectionEventRef.current = nativeEvent;
-                listItem.click();
-                store.state.selectionEventRef.current = null;
-                return;
-              }
+            const listItem = store.state.listRef.current[activeIndex];
 
-              store.state.handleSelection(nativeEvent);
-            };
-
-            if (!store.state.submitOnItemClick) {
-              stopEvent(event);
+            if (listItem) {
+              store.state.selectionEventRef.current = nativeEvent;
+              listItem.click();
+              store.state.selectionEventRef.current = null;
             }
-
-            selectActiveItem();
           }
         },
         onPointerMove() {

@@ -362,6 +362,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           return {};
         },
         forceMount: NOOP,
+        requestSubmit: NOOP,
       }),
   ).current;
 
@@ -800,6 +801,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
+  const requestSubmit = useStableCallback(() => {
+    if (!store.state.submitOnItemClick) {
+      return;
+    }
+
+    const form = store.state.inputElement?.form;
+    if (form && typeof form.requestSubmit === 'function') {
+      form.requestSubmit();
+    }
+  });
+
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
     onOpenChangeComplete?.(false);
@@ -1013,6 +1025,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       onItemHighlighted,
       handleSelection,
       forceMount,
+      requestSubmit,
     });
   });
 
@@ -1047,6 +1060,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       isItemEqualToValue,
       submitOnItemClick,
       hasInputValue,
+      requestSubmit,
     });
   }, [
     store,
@@ -1079,6 +1093,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     isItemEqualToValue,
     submitOnItemClick,
     hasInputValue,
+    requestSubmit,
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);

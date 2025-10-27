@@ -117,7 +117,7 @@
     "submitOnItemClick": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether clicking an item should submit the autocomplete's owning form.\nBy default, clicking an item via a pointer or Enter key does not submit the owning form.",
+      "description": "Whether clicking an item should submit the autocomplete's owning form.\nBy default, clicking an item via a pointer or <kbd>Enter</kbd> key does not submit the owning form.\nUseful when the autocomplete is used as a single-field form search input.",
       "detailedType": "boolean | undefined"
     },
     "virtualized": {

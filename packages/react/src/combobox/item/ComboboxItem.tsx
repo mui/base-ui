@@ -168,10 +168,7 @@ export const ComboboxItem = React.memo(
 
         if (store.state.submitOnItemClick) {
           ReactDOM.flushSync(selectItem);
-          const form = store.state.inputElement?.form;
-          if (form && typeof form.requestSubmit === 'function') {
-            form.requestSubmit();
-          }
+          store.state.requestSubmit();
         } else {
           selectItem();
         }
