@@ -62,6 +62,8 @@ if (isVitestJsdom) {
   };
 }
 
-afterEach(() => {
-  cleanup();
-});
+if (typeof window !== 'undefined') {
+  afterEach(() => {
+    cleanup();
+  });
+}
