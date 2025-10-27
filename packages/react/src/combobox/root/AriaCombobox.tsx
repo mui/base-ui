@@ -105,7 +105,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     limit = -1,
     autoComplete = 'list',
     locale,
-    submitOnClick = false,
+    submitOnItemClick = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -331,7 +331,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         isItemEqualToValue,
         modal,
         autoHighlight,
-        submitOnClick,
+        submitOnItemClick,
         hasInputValue,
         mounted: false,
         forceMounted: false,
@@ -1044,7 +1044,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       modal,
       autoHighlight,
       isItemEqualToValue,
-      submitOnClick,
+      submitOnItemClick,
       hasInputValue,
     });
   }, [
@@ -1076,7 +1076,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     modal,
     autoHighlight,
     isItemEqualToValue,
-    submitOnClick,
+    submitOnItemClick,
     hasInputValue,
   ]);
 
@@ -1380,7 +1380,7 @@ interface ComboboxRootProps<ItemValue> {
    * By default, clicking an item via a pointer or Enter key does not submit the owning form.
    * @default false
    */
-  submitOnClick?: boolean;
+  submitOnItemClick?: boolean;
   /**
    * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
    */

@@ -42,7 +42,7 @@ type ComboboxRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
   AriaCombobox.Props<Value, ModeFromMultiple<Multiple>>,
   | 'fillInputOnItemPress'
   | 'autoComplete'
-  | 'submitOnClick'
+  | 'submitOnItemClick'
   | 'itemToStringLabel'
   | 'itemToStringValue'
   | 'isItemEqualToValue'

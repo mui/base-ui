@@ -83,7 +83,7 @@ export type State = {
   isItemEqualToValue: (item: any, value: any) => boolean;
   modal: boolean;
   autoHighlight: boolean;
-  submitOnClick: boolean;
+  submitOnItemClick: boolean;
   hasInputValue: boolean;
 };
 
@@ -158,5 +158,5 @@ export const selectors = {
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
-  submitOnClick: createSelector((state: State) => state.submitOnClick),
+  submitOnItemClick: createSelector((state: State) => state.submitOnItemClick),
 };

@@ -201,7 +201,7 @@ export interface AutocompleteRootProps<ItemValue>
    * By default, clicking an item via a pointer or Enter key does not submit the owning form.
    * @default false
    */
-  submitOnClick?: AriaCombobox.Props<ItemValue, 'none'>['submitOnClick'];
+  submitOnItemClick?: AriaCombobox.Props<ItemValue, 'none'>['submitOnItemClick'];
   /**
    * When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.

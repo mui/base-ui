@@ -411,7 +411,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               store.state.handleSelection(nativeEvent);
             };
 
-            if (!store.state.submitOnClick) {
+            if (!store.state.submitOnItemClick) {
               stopEvent(event);
             }
 

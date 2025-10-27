@@ -716,7 +716,7 @@ describe('<Autocomplete.Root />', () => {
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
           <Field.Root name="q">
-            <Autocomplete.Root items={['alpha', 'alpine']} submitOnClick>
+            <Autocomplete.Root items={['alpha', 'alpine']} submitOnItemClick>
               <Autocomplete.Input />
               <Autocomplete.Portal>
                 <Autocomplete.Positioner>
@@ -757,7 +757,7 @@ describe('<Autocomplete.Root />', () => {
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
           <Field.Root name="q">
-            <Autocomplete.Root items={['alpha', 'alpine']} submitOnClick>
+            <Autocomplete.Root items={['alpha', 'alpine']} submitOnItemClick>
               <Autocomplete.Input />
               <Autocomplete.Portal>
                 <Autocomplete.Positioner>
@@ -801,7 +801,7 @@ describe('<Autocomplete.Root />', () => {
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
           <Field.Root name="q">
-            <Autocomplete.Root items={['alpha', 'alpine']} submitOnClick>
+            <Autocomplete.Root items={['alpha', 'alpine']} submitOnItemClick>
               <Autocomplete.Input />
               <Autocomplete.Portal>
                 <Autocomplete.Positioner>
@@ -842,7 +842,7 @@ describe('<Autocomplete.Root />', () => {
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
           <Field.Root name="q">
-            <Autocomplete.Root items={['alpha', 'alpine']} submitOnClick>
+            <Autocomplete.Root items={['alpha', 'alpine']} submitOnItemClick>
               <Autocomplete.Input />
               <Autocomplete.Portal>
                 <Autocomplete.Positioner>

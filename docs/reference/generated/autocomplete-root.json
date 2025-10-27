@@ -114,7 +114,7 @@
       "description": "Whether the popup opens when clicking the input.",
       "detailedType": "boolean | undefined"
     },
-    "submitOnClick": {
+    "submitOnItemClick": {
       "type": "boolean",
       "default": "false",
       "description": "Whether clicking an item should submit the autocomplete's owning form.\nBy default, clicking an item via a pointer or Enter key does not submit the owning form.",
