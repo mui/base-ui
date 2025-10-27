@@ -551,30 +551,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  const syncSelectedIndex = useStableCallback(() => {
-    if (selectionMode === 'none') {
-      return;
-    }
-
-    const registry = items ? flatItems : allValuesRef.current;
-
-    if (multiple) {
-      const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
-      const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-      setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
-    } else {
-      const index = findItemIndex(registry, selectedValue, isItemEqualToValue);
-      setIndices({ selectedIndex: index === -1 ? null : index });
-    }
-  });
-
-  useIsoLayoutEffect(() => {
-    if (!open) {
-      syncSelectedIndex();
-    }
-  }, [open, selectedValue, syncSelectedIndex]);
-
   const handleSelection = useStableCallback(
     (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
       let value = passedValue;
@@ -685,6 +661,36 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+
+  useIsoLayoutEffect(
+    function syncSelectedIndex() {
+      if (open || selectionMode === 'none') {
+        return;
+      }
+
+      const registry = items ? flatItems : allValuesRef.current;
+
+      if (multiple) {
+        const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
+        const lastValue = currentValue[currentValue.length - 1];
+        const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
+        setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
+      } else {
+        const index = findItemIndex(registry, selectedValue, isItemEqualToValue);
+        setIndices({ selectedIndex: index === -1 ? null : index });
+      }
+    },
+    [
+      open,
+      selectedValue,
+      items,
+      selectionMode,
+      flatItems,
+      multiple,
+      isItemEqualToValue,
+      setIndices,
+    ],
+  );
 
   useIsoLayoutEffect(() => {
     if (items) {
