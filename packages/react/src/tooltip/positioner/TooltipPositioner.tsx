@@ -7,7 +7,11 @@ import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import {
+  POPUP_COLLISION_AVOIDANCE,
+  DISABLED_TRANSITIONS_STYLE,
+  EMPTY_OBJECT,
+} from '../../utils/constants';
 
 /**
  * Positions the tooltip against the trigger.
@@ -45,6 +49,8 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const trackCursorAxis = store.useState('trackCursorAxis');
   const hoverable = store.useState('hoverable');
   const floatingRootContext = store.useState('floatingRootContext');
+  const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -95,8 +101,9 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
       side: positioner.side,
       align: positioner.align,
       anchorHidden: positioner.anchorHidden,
+      instant: instantType,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden],
+    [open, positioner.side, positioner.align, positioner.anchorHidden, instantType],
   );
 
   const contextValue: TooltipPositionerContext = React.useMemo(
@@ -111,7 +118,11 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    props: [positioner.props, elementProps],
+    props: [
+      positioner.props,
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
+      elementProps,
+    ],
     ref: [forwardedRef, store.getElementSetter('positionerElement')],
     stateAttributesMapping: popupStateMapping,
   });
@@ -131,6 +142,10 @@ export interface TooltipPositionerState {
   side: Side;
   align: Align;
   anchorHidden: boolean;
+  /**
+   * Whether CSS transitions should be disabled.
+   */
+  instant: string | undefined;
 }
 
 export interface TooltipPositionerProps

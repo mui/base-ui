@@ -42,6 +42,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const payload = store.useState('payload');
   const popupElement = store.useState('popupElement');
   const positionerElement = store.useState('positionerElement');
+  const floatingContext = store.useState('floatingRootContext');
 
   useOpenChangeComplete({
     open,
@@ -53,6 +54,20 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     },
   });
 
+  function handleMeasureLayout() {
+    floatingContext.events.emit('measure-layout');
+  }
+
+  function handleMeasureLayoutComplete(
+    previousDimensions: { width: number; height: number } | null,
+    nextDimensions: { width: number; height: number },
+  ) {
+    floatingContext.events.emit('measure-layout-complete', {
+      previousDimensions,
+      nextDimensions,
+    });
+  }
+
   // If there's just one trigger, we can skip the auto-resize logic as
   // the popover will always be anchored to the same position.
   const autoresizeEnabled = triggers.size > 1;
@@ -63,6 +78,8 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     mounted,
     content: payload,
     enabled: autoresizeEnabled,
+    onMeasureLayout: handleMeasureLayout,
+    onMeasureLayoutComplete: handleMeasureLayoutComplete,
   });
 
   const state: TooltipPopup.State = React.useMemo(
