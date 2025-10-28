@@ -23,7 +23,9 @@ describe('<Tooltip.Root />', () => {
   });
 
   afterEach(async () => {
-    await act(async () => document.body.focus());
+    await act(async () => {
+      document.body.click();
+    });
   });
 
   const { render, clock } = createRenderer();
