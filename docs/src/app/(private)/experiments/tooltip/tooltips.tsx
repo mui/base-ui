@@ -97,13 +97,25 @@ export default function TooltipsExperiment() {
             <Tooltip.Root hoverable={settings.hoverable} trackCursorAxis={settings.trackCursorAxis}>
               {({ payload }) => (
                 <React.Fragment>
-                  <TooltipTriggerButton payload="Bold" delay={settings.delay} closeDelay={settings.closeDelay}>
+                  <TooltipTriggerButton
+                    payload="Bold"
+                    delay={settings.delay}
+                    closeDelay={settings.closeDelay}
+                  >
                     <BoldIcon />
                   </TooltipTriggerButton>
-                  <TooltipTriggerButton payload="Italic" delay={settings.delay} closeDelay={settings.closeDelay}>
+                  <TooltipTriggerButton
+                    payload="Italic"
+                    delay={settings.delay}
+                    closeDelay={settings.closeDelay}
+                  >
                     <ItalicIcon />
                   </TooltipTriggerButton>
-                  <TooltipTriggerButton payload="Underline" delay={settings.delay} closeDelay={settings.closeDelay}>
+                  <TooltipTriggerButton
+                    payload="Underline"
+                    delay={settings.delay}
+                    closeDelay={settings.closeDelay}
+                  >
                     <UnderlineIcon />
                   </TooltipTriggerButton>
                   <TooltipContent>{payload as string}</TooltipContent>
@@ -130,13 +142,28 @@ export default function TooltipsExperiment() {
             >
               {({ payload }) => (
                 <React.Fragment>
-                  <TooltipTriggerButton payload="Bold" id="within-root-bold" delay={settings.delay} closeDelay={settings.closeDelay}>
+                  <TooltipTriggerButton
+                    payload="Bold"
+                    id="within-root-bold"
+                    delay={settings.delay}
+                    closeDelay={settings.closeDelay}
+                  >
                     <BoldIcon />
                   </TooltipTriggerButton>
-                  <TooltipTriggerButton payload="Italic" id="within-root-italic" delay={settings.delay} closeDelay={settings.closeDelay}>
+                  <TooltipTriggerButton
+                    payload="Italic"
+                    id="within-root-italic"
+                    delay={settings.delay}
+                    closeDelay={settings.closeDelay}
+                  >
                     <ItalicIcon />
                   </TooltipTriggerButton>
-                  <TooltipTriggerButton payload="Underline" id="within-root-underline" delay={settings.delay} closeDelay={settings.closeDelay}>
+                  <TooltipTriggerButton
+                    payload="Underline"
+                    id="within-root-underline"
+                    delay={settings.delay}
+                    closeDelay={settings.closeDelay}
+                  >
                     <UnderlineIcon />
                   </TooltipTriggerButton>
                   <TooltipContent>{payload as string}</TooltipContent>
@@ -162,19 +189,38 @@ export default function TooltipsExperiment() {
         <StoreInspector store={tooltip1Handle.store} />
         <Tooltip.Provider>
           <div className={styles.Panel}>
-            <TooltipTriggerButton payload="Bold" handle={tooltip1Handle} delay={settings.delay} closeDelay={settings.closeDelay}>
+            <TooltipTriggerButton
+              payload="Bold"
+              handle={tooltip1Handle}
+              delay={settings.delay}
+              closeDelay={settings.closeDelay}
+            >
               <BoldIcon />
             </TooltipTriggerButton>
-            <TooltipTriggerButton payload="Italic" handle={tooltip1Handle} delay={settings.delay} closeDelay={settings.closeDelay}>
+            <TooltipTriggerButton
+              payload="Italic"
+              handle={tooltip1Handle}
+              delay={settings.delay}
+              closeDelay={settings.closeDelay}
+            >
               <ItalicIcon />
             </TooltipTriggerButton>
-            <TooltipTriggerButton payload="Underline" handle={tooltip1Handle} delay={settings.delay} closeDelay={settings.closeDelay}>
+            <TooltipTriggerButton
+              payload="Underline"
+              handle={tooltip1Handle}
+              delay={settings.delay}
+              closeDelay={settings.closeDelay}
+            >
               <UnderlineIcon />
             </TooltipTriggerButton>
           </div>
         </Tooltip.Provider>
 
-        <Tooltip.Root handle={tooltip1Handle} hoverable={settings.hoverable} trackCursorAxis={settings.trackCursorAxis}>
+        <Tooltip.Root
+          handle={tooltip1Handle}
+          hoverable={settings.hoverable}
+          trackCursorAxis={settings.trackCursorAxis}
+        >
           {({ payload }) => <TooltipContent>{payload as string}</TooltipContent>}
         </Tooltip.Root>
       </div>
@@ -183,7 +229,13 @@ export default function TooltipsExperiment() {
         <h2>Controlled, detached triggers</h2>
         <Tooltip.Provider>
           <div className={styles.Panel}>
-            <TooltipTriggerButton payload="Bold" handle={tooltip2Handle} id="detached-bold-trigger" delay={settings.delay} closeDelay={settings.closeDelay}>
+            <TooltipTriggerButton
+              payload="Bold"
+              handle={tooltip2Handle}
+              id="detached-bold-trigger"
+              delay={settings.delay}
+              closeDelay={settings.closeDelay}
+            >
               <BoldIcon />
             </TooltipTriggerButton>
             <TooltipTriggerButton
