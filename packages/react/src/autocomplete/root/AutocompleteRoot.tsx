@@ -166,6 +166,9 @@ export interface AutocompleteRootProps<ItemValue>
     | 'autoComplete' // mode
     | 'itemToStringLabel' // itemToStringValue
     // Custom JSDoc
+    | 'autoHighlight'
+    | 'keepHighlight'
+    | 'highlightItemOnHover'
     | 'actionsRef'
     | 'onOpenChange'
     | 'onInputValueChange'
@@ -179,6 +182,23 @@ export interface AutocompleteRootProps<ItemValue>
    * @default 'list'
    */
   mode?: 'list' | 'both' | 'inline' | 'none';
+  /**
+   * Whether the first matching item is highlighted automatically.
+   * - `true`: highlight after the user types and keep the highlight while the query changes.
+   * - `'always'`: always highlight the first item.
+   * @default false
+   */
+  autoHighlight?: boolean | 'always';
+  /**
+   * Whether the highlighted item should be preserved when the pointer leaves the list.
+   * @default false
+   */
+  keepHighlight?: boolean;
+  /**
+   * Whether moving the pointer over items should highlight them.
+   * @default true
+   */
+  highlightItemOnHover?: boolean;
   /**
    * The uncontrolled input value of the autocomplete when it's initially rendered.
    *

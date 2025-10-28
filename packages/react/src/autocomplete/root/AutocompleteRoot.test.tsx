@@ -269,6 +269,70 @@ describe('<Autocomplete.Root />', () => {
         expect(input).to.have.attribute('aria-activedescendant');
       });
     });
+
+    it('retains highlight when clearing the query with autoHighlight enabled', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['apple', 'banana', 'cherry']} autoHighlight openOnInputClick>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.click(input);
+      await user.type(input, 'ban');
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      expect(input).to.have.attribute('aria-activedescendant');
+
+      const highlightedBefore = input.getAttribute('aria-activedescendant');
+      expect(highlightedBefore).to.not.equal(null);
+
+      await user.clear(input);
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      expect(input.getAttribute('aria-activedescendant')).to.equal(highlightedBefore);
+    });
+
+    it('highlights the first item immediately when behavior is "always"', async () => {
+      await render(
+        <Autocomplete.Root items={['alpha', 'beta', 'gamma']} autoHighlight="always" defaultOpen>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      const firstOption = screen.getByRole('option', { name: 'alpha' });
+
+      expect(input).to.have.attribute('aria-activedescendant', firstOption.id);
+      expect(firstOption).to.have.attribute('data-highlighted');
+    });
   });
 
   describe('prop: mode', () => {

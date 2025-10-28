@@ -71,7 +71,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const openOnInputClick = useStore(store, selectors.openOnInputClick);
   const name = useStore(store, selectors.name);
   const selectionMode = useStore(store, selectors.selectionMode);
-  const autoHighlight = useStore(store, selectors.autoHighlight);
+  const autoHighlightMode = useStore(store, selectors.autoHighlight);
   const inputProps = useStore(store, selectors.inputProps);
   const triggerProps = useStore(store, selectors.triggerProps);
   const open = useStore(store, selectors.open);
@@ -86,6 +86,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   // https://github.com/mui/base-ui/issues/2703
   const inputValue = useComboboxInputValueContext();
 
+  const autoHighlightEnabled = Boolean(autoHighlightMode);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = filteredItems.length === 0;
@@ -237,14 +238,16 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               );
             }
 
+            const trimmed = nextVal.trim();
+            const shouldMaintainHighlight = autoHighlightEnabled && trimmed !== '';
+
             if (!readOnly && !disabled) {
-              const trimmed = nextVal.trim();
               if (trimmed !== '') {
                 store.state.setOpen(
                   true,
                   createChangeEventDetails('input-change', event.nativeEvent),
                 );
-                if (!autoHighlight) {
+                if (!autoHighlightEnabled) {
                   store.state.setIndices({
                     activeIndex: null,
                     selectedIndex: null,
@@ -254,11 +257,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               }
             }
 
-            if (
-              open &&
-              store.state.activeIndex !== null &&
-              !(autoHighlight && nextVal.trim() !== '')
-            ) {
+            if (open && store.state.activeIndex !== null && !shouldMaintainHighlight) {
               store.state.setIndices({
                 activeIndex: null,
                 selectedIndex: null,
@@ -287,15 +286,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             }
           }
 
+          const trimmed = event.currentTarget.value.trim();
           if (!readOnly && !disabled) {
-            const trimmed = event.currentTarget.value.trim();
             if (trimmed !== '') {
               store.state.setOpen(
                 true,
                 createChangeEventDetails('input-change', event.nativeEvent),
               );
               // When autoHighlight is enabled, keep the highlight (will be set to 0 in root).
-              if (!autoHighlight) {
+              if (!autoHighlightEnabled) {
                 store.state.setIndices({
                   activeIndex: null,
                   selectedIndex: null,
@@ -308,11 +307,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           // When the user types, ensure the list resets its highlight so that
           // virtual focus returns to the input (aria-activedescendant is
           // cleared).
-          if (
-            open &&
-            store.state.activeIndex !== null &&
-            !(autoHighlight && event.currentTarget.value.trim() !== '')
-          ) {
+          if (open && store.state.activeIndex !== null && !autoHighlightEnabled) {
             store.state.setIndices({
               activeIndex: null,
               selectedIndex: null,
