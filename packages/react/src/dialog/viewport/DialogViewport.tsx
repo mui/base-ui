@@ -22,7 +22,7 @@ const stateAttributesMapping: StateAttributesMapping<DialogViewport.State> = {
 };
 
 /**
- * A scrollable container for the dialog popup.
+ * A positioning container for the dialog popup that can be made scrollable.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
