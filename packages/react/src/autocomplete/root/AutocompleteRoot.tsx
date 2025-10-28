@@ -183,7 +183,7 @@ export interface AutocompleteRootProps<ItemValue>
    */
   mode?: 'list' | 'both' | 'inline' | 'none';
   /**
-   * Controls whether the first matching item is highlighted automatically.
+   * Whether the first matching item is highlighted automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
    * - `'always'`: always highlight the first item.
    * @default false

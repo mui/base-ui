@@ -1328,7 +1328,7 @@ interface ComboboxRootProps<ItemValue> {
    */
   openOnInputClick?: boolean;
   /**
-   * Controls whether the first matching item is highlighted automatically.
+   * Whether the first matching item is highlighted automatically.
    * - `false`: do not highlight automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
    * - `'always'`: highlight the first item as soon as the list opens.

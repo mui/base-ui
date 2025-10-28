@@ -141,9 +141,9 @@ Limit the number of visible items using the `limit` prop and guide users to refi
 
 ### Auto highlight
 
-Automatically highlight the first matching option as the user types by adding the `autoHighlight` prop.
+The first matching item can be automatically highlighted as the user types by specifying the `autoHighlight` prop on `<Autocomplete.Root>`. Set the prop's value to `"always"` if the highlight should always be present, such as when the list is rendered inline within a dialog.
 
-Set to `"always"` if the highlight should always be present, such as when the list is rendered inline within a dialog, and combine with the `keepHighlight` and `highlightItemOnHover` props to configure how the highlight behaves during mouse interactions.
+The prop can be combined with the `keepHighlight` and `highlightItemOnHover` props to configure how the highlight behaves during mouse interactions.
 
 <Demo path="./demos/auto-highlight" compact />
 

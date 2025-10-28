@@ -66,7 +66,7 @@ type ComboboxRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
    */
   multiple?: Multiple;
   /**
-   * Controls whether the first matching item is highlighted automatically while filtering.
+   * Whether the first matching item is highlighted automatically while filtering.
    * @default false
    */
   autoHighlight?: boolean;

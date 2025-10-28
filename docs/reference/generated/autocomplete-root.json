@@ -52,7 +52,7 @@
     "autoHighlight": {
       "type": "boolean | 'always'",
       "default": "false",
-      "description": "Controls whether the first matching item is highlighted automatically.\n- `true`: highlight after the user types and keep the highlight while the query changes.\n- `'always'`: always highlight the first item.",
+      "description": "Whether the first matching item is highlighted automatically.\n- `true`: highlight after the user types and keep the highlight while the query changes.\n- `'always'`: always highlight the first item.",
       "detailedType": "boolean | 'always' | undefined"
     },
     "filter": {

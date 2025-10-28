@@ -294,16 +294,17 @@ describe('<Autocomplete.Root />', () => {
 
       await user.click(input);
       await user.type(input, 'ban');
+
       await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
-      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant'));
+      expect(input).to.have.attribute('aria-activedescendant');
+
       const highlightedBefore = input.getAttribute('aria-activedescendant');
       expect(highlightedBefore).to.not.equal(null);
 
       await user.clear(input);
+
       await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
-      await waitFor(() =>
-        expect(input.getAttribute('aria-activedescendant')).to.equal(highlightedBefore),
-      );
+      expect(input.getAttribute('aria-activedescendant')).to.equal(highlightedBefore);
     });
 
     it('highlights the first item immediately when behavior is "always"', async () => {
