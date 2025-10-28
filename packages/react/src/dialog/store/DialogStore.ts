@@ -22,6 +22,7 @@ export type State<Payload> = {
   readonly descriptionElementId: string | undefined;
   readonly activeTriggerId: string | null;
   readonly popupElement: HTMLElement | null;
+  readonly viewportElement: HTMLElement | null;
   readonly triggers: PopupTriggerMap;
   readonly floatingRootContext: FloatingRootContext;
   readonly payload: Payload | undefined;
@@ -63,6 +64,7 @@ const selectors = {
   ),
   triggers: createSelector((state: State<unknown>) => state.triggers),
   popupElement: createSelector((state: State<unknown>) => state.popupElement),
+  viewportElement: createSelector((state: State<unknown>) => state.viewportElement),
   payload: createSelector((state: State<unknown>) => state.payload),
   activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
   inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
@@ -125,6 +127,7 @@ function createInitialState<Payload>(): State<Payload> {
     dismissible: true,
     nested: false,
     popupElement: null,
+    viewportElement: null,
     activeTriggerId: null,
     modal: true,
     descriptionElementId: undefined,

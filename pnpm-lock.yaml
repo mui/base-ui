@@ -592,8 +592,8 @@ importers:
         specifier: ^4.20.6
         version: 4.20.6
       typescript-api-extractor:
-        specifier: 1.0.0-alpha.8
-        version: 1.0.0-alpha.8(typescript@5.9.3)
+        specifier: 1.0.0-alpha.9
+        version: 1.0.0-alpha.9(typescript@5.9.3)
       yargs:
         specifier: ^18.0.0
         version: 18.0.0
@@ -9168,8 +9168,8 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-api-extractor@1.0.0-alpha.8:
-    resolution: {integrity: sha512-xYxfwZJY69gIHSsfBxTmHj2ezXZe6DYV6NA5uLjvjHbW4f3pQ4ad7M0uiWXMC/rBx+rrx84UNxvn9HD4ZBlquw==}
+  typescript-api-extractor@1.0.0-alpha.9:
+    resolution: {integrity: sha512-ZGnWrJakEV7J3g9ylJv8AXNq+mKkUXcKM/1jJNWcsVWcjD+g+eHCqmrSA7XJmNp76rSyMEq+qPpVYYttnDIF7Q==}
     engines: {node: '>=22'}
     peerDependencies:
       typescript: ^5.8
@@ -20184,9 +20184,9 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-api-extractor@1.0.0-alpha.8(typescript@5.9.3):
+  typescript-api-extractor@1.0.0-alpha.9(typescript@5.9.3):
     dependencies:
-      lodash: 4.17.21
+      es-toolkit: 1.40.0
       typescript: 5.9.3
 
   typescript-eslint@8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3):

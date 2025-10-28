@@ -21,11 +21,13 @@ import { Dialog } from '@base-ui-components/react/dialog';
   <Dialog.Trigger />
   <Dialog.Portal>
     <Dialog.Backdrop />
-    <Dialog.Popup>
-      <Dialog.Title />
-      <Dialog.Description />
-      <Dialog.Close />
-    </Dialog.Popup>
+    <Dialog.Viewport>
+      <Dialog.Popup>
+        <Dialog.Title />
+        <Dialog.Description />
+        <Dialog.Close />
+      </Dialog.Popup>
+    </Dialog.Viewport>
   </Dialog.Portal>
 </Dialog.Root>;
 ```
@@ -34,7 +36,7 @@ import { Dialog } from '@base-ui-components/react/dialog';
 
 <Reference
   component="Dialog"
-  parts="Root, Trigger, Portal, Backdrop, Popup, Title, Description, Close"
+  parts="Root, Trigger, Portal, Backdrop, Viewport, Popup, Title, Description, Close"
 />
 
 ## Examples
@@ -156,6 +158,20 @@ To implement this, both dialogs should be controlled. The confirmation dialog ma
 import { DemoDialogCloseConfirmation } from './demos/close-confirmation';
 
 <DemoDialogCloseConfirmation compact />
+
+### Outside scroll dialog
+
+The dialog can be made scrollable by using `<Dialog.Viewport>` as an outer scrollable container for `<Dialog.Popup>` while the popup can extend past the bottom edge. The scrollable area uses the [Scroll Area component](/react/components/scroll-area) to provide custom scrollbars.
+
+When adding elements that should appear "outside" the colored popup area, continue to place them inside `<Dialog.Popup>`, but create a child element that has the popup styles. This ensures they are kept in the tab order and announced correctly by screen readers.
+
+<Demo path="./demos/outside-scroll" compact />
+
+### Inside scroll dialog
+
+The dialog can be made scrollable by making an inner container scrollable while the popup stays fully on screen. `<Dialog.Viewport>` is used as a positioning container for `<Dialog.Popup>`, while an inner scrollable area is created using the [Scroll Area component](/react/components/scroll-area).
+
+<Demo path="./demos/inside-scroll" compact />
 
 ### Detached triggers
 

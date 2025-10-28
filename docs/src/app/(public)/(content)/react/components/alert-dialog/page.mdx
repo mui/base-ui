@@ -21,11 +21,13 @@ import { AlertDialog } from '@base-ui-components/react/alert-dialog';
   <AlertDialog.Trigger />
   <AlertDialog.Portal>
     <AlertDialog.Backdrop />
-    <AlertDialog.Popup>
-      <AlertDialog.Title />
-      <AlertDialog.Description />
-      <AlertDialog.Close />
-    </AlertDialog.Popup>
+    <AlertDialog.Viewport>
+      <AlertDialog.Popup>
+        <AlertDialog.Title />
+        <AlertDialog.Description />
+        <AlertDialog.Close />
+      </AlertDialog.Popup>
+    </AlertDialog.Viewport>
   </AlertDialog.Portal>
 </AlertDialog.Root>;
 ```
@@ -34,7 +36,7 @@ import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 
 <Reference
   component="AlertDialog"
-  parts="Root, Trigger, Portal, Backdrop, Popup, Title, Description, Close"
+  parts="Root, Trigger, Portal, Backdrop, Viewport, Popup, Title, Description, Close"
 />
 
 ## Examples
