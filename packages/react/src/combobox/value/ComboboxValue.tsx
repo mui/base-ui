@@ -11,7 +11,7 @@ import { selectors } from '../store';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxValue(props: ComboboxValue.Props) {
+export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
   const { children: childrenProp } = props;
 
   const store = useComboboxRootContext();
@@ -20,15 +20,16 @@ export function ComboboxValue(props: ComboboxValue.Props) {
   const selectedValue = useStore(store, selectors.selectedValue);
   const items = useStore(store, selectors.items);
 
+  let returnValue = null;
   if (typeof childrenProp === 'function') {
-    return childrenProp(selectedValue);
+    returnValue = childrenProp(selectedValue);
+  } else if (childrenProp != null) {
+    returnValue = childrenProp;
+  } else {
+    returnValue = resolveSelectedLabel(selectedValue, items, itemToStringLabel);
   }
 
-  if (childrenProp != null) {
-    return childrenProp;
-  }
-
-  return resolveSelectedLabel(selectedValue, items, itemToStringLabel);
+  return <React.Fragment>{returnValue}</React.Fragment>;
 }
 
 export interface ComboboxValueState {}

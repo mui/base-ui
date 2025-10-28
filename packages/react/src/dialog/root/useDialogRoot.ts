@@ -125,7 +125,12 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       };
     },
     outsidePress(event) {
-      if (event.button !== 0) {
+      // For mouse events, only accept left button (button 0)
+      // For touch events, a single touch is equivalent to left button
+      if ('button' in event && event.button !== 0) {
+        return false;
+      }
+      if ('touches' in event && event.touches.length !== 1) {
         return false;
       }
       const target = getTarget(event) as Element | null;
