@@ -98,9 +98,16 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
       side: positioner.side,
       align: positioner.align,
       anchorHidden: positioner.anchorHidden,
-      instant: instantType,
+      instant: trackCursorAxis !== 'none' ? 'tracking-cursor' : instantType,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden, instantType],
+    [
+      open,
+      positioner.side,
+      positioner.align,
+      positioner.anchorHidden,
+      trackCursorAxis,
+      instantType,
+    ],
   );
 
   const contextValue: TooltipPositionerContext = React.useMemo(
