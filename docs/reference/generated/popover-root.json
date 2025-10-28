@@ -29,7 +29,7 @@
       "detailedType": "string | null | undefined"
     },
     "handle": {
-      "type": "PopoverStore<Payload>",
+      "type": "PopoverHandle<Payload>",
       "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.",
       "detailedType": "{} | undefined"
     },
@@ -50,7 +50,7 @@
       "detailedType": "string | null | undefined"
     },
     "children": {
-      "type": "ReactNode | Popover.Root.ChildRenderFunction<Payload>",
+      "type": "ReactNode | PayloadChildRenderFunction<Payload>",
       "description": "The content of the popover.\nThis can be a regular React node or a render function that receives the `payload` of the active trigger.",
       "detailedType": "| React.ReactNode\n| ((arg: { payload: Payload | undefined }) => ReactNode)"
     }

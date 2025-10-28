@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { inertValue } from '@base-ui-components/utils/inertValue';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -12,7 +11,6 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { AlertDialogPopupCssVars } from './AlertDialogPopupCssVars';
 import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes';
-import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../composite/composite';
@@ -56,7 +54,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        store.context.openChangeComplete?.(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
@@ -111,19 +109,14 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   });
 
   return (
-    <React.Fragment>
-      {mounted && (
-        <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
-      )}
-      <FloatingFocusManager
-        context={floatingRootContext}
-        disabled={!mounted}
-        initialFocus={resolvedInitialFocus}
-        returnFocus={finalFocus}
-      >
-        {element}
-      </FloatingFocusManager>
-    </React.Fragment>
+    <FloatingFocusManager
+      context={floatingRootContext}
+      disabled={!mounted}
+      initialFocus={resolvedInitialFocus}
+      returnFocus={finalFocus}
+    >
+      {element}
+    </FloatingFocusManager>
   );
 });
 

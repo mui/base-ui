@@ -6,11 +6,11 @@
   },
   "devDependencies": {
     "@base-ui-components/react": "workspace:*",
-    "@mui/internal-test-utils": "^2.0.10",
+    "@mui/internal-test-utils": "^2.0.14",
     "@playwright/test": "1.56.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
-    "@types/chai": "^5.2.2",
+    "@types/chai": "^5.2.3",
     "@types/chai-dom": "^1.11.3",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
@@ -21,10 +21,10 @@
     "is-wsl": "^3.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router": "^7.8.0",
+    "react-router": "^7.9.4",
     "sinon": "^21.0.0",
     "util": "^0.12.5",
     "webpack": "^5.102.1",
-    "yargs": "^17.7.2"
+    "yargs": "^18.0.0"
   }
 }

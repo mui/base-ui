@@ -17,7 +17,7 @@ import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { PopoverStore } from '../store';
+import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
@@ -28,6 +28,7 @@ import {
   isOutsideEvent,
 } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { useTriggerRegistration } from '../../utils/popupStoreUtils';
 
 /**
  * A button that opens the popover.
@@ -55,15 +56,10 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const rootContext = usePopoverRootContext(true);
 
-  let store: PopoverStore<unknown>;
-
-  if (handle) {
-    store = handle;
-  } else if (rootContext) {
-    store = rootContext.store;
-  } else {
+  const store = handle?.store ?? rootContext?.store;
+  if (!store) {
     throw new Error(
-      'Base UI: PopoverTrigger must be either used within a PopoverRoot component or have the `handle` prop set.',
+      'Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.',
     );
   }
 
@@ -118,33 +114,13 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const localProps = useInteractions([click, hover]);
 
-  const getPayload = useStableCallback(() => {
-    return payload;
-  });
+  const registerTrigger = useTriggerRegistration(id, store);
 
-  const registeredId = React.useRef<string>(null);
-  const registerTrigger = React.useCallback(
-    (element: HTMLElement | null) => {
-      if (id == null) {
-        throw new Error('Base UI: PopoverTrigger must have an `id` prop specified.');
-      }
-
-      if (element != null) {
-        store.registerTrigger(id, element, getPayload);
-        setTriggerElement(element);
-        // Keeping track of the registered id in case it changes.
-        registeredId.current = id;
-      } else {
-        if (registeredId.current != null) {
-          store.unregisterTrigger(registeredId.current);
-          registeredId.current = null;
-        }
-
-        setTriggerElement(null);
-      }
-    },
-    [getPayload, store, id],
-  );
+  useIsoLayoutEffect(() => {
+    if (isTriggerActive) {
+      store.set('payload', payload);
+    }
+  }, [isTriggerActive, payload, store]);
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
@@ -174,7 +150,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, registerTrigger],
+    ref: [buttonRef, forwardedRef, registerTrigger, setTriggerElement],
     props: [
       localProps.getReferenceProps(),
       isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
@@ -227,7 +203,11 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
         (nextTabbable !== null && contains(positionerElement, nextTabbable)) ||
         nextTabbable?.hasAttribute('aria-hidden')
       ) {
+        const prevTabbable = nextTabbable;
         nextTabbable = getNextTabbable(nextTabbable);
+        if (nextTabbable === prevTabbable) {
+          break;
+        }
       }
 
       nextTabbable?.focus();
@@ -245,9 +225,9 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   }
 
   return element;
-}) as ComponentType;
+}) as PopoverTrigger;
 
-interface ComponentType {
+export interface PopoverTrigger {
   <Payload>(
     componentProps: PopoverTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
@@ -276,7 +256,7 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
     /**
      * A handle to associate the trigger with a popover.
      */
-    handle?: PopoverStore<Payload>;
+    handle?: PopoverHandle<Payload>;
     /**
      * A payload to pass to the popover when it is opened.
      */

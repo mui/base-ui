@@ -72,7 +72,11 @@
   "71": "Base UI: TooltipPositionerContext is missing. TooltipPositioner parts must be placed within <Tooltip.Positioner>.",
   "72": "Base UI: TooltipRootContext is missing. Tooltip parts must be placed within <Tooltip.Root>.",
   "73": "Base UI: useToastManager must be used within <Toast.Provider>.",
-  "74": "Base UI: PopoverTrigger must be either used within a PopoverRoot component or have the `handle` prop set.",
+  "74": "Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.",
   "75": "Base UI: PopoverTrigger must have an `id` prop specified.",
-  "76": "Base UI: selectors are required to call useState."
+  "76": "Base UI: selectors are required to call useState.",
+  "77": "Base UI: Trigger must have an `id` prop specified.",
+  "78": "Base UI: <AlertDialog.Trigger> must be used within <AlertDialog.Root> or provided with a handle.",
+  "79": "Base UI: <Dialog.Trigger> must be used within <Dialog.Root> or provided with a handle.",
+  "80": "Base UI: PopoverHandle.open: No trigger found with id \"%s\"."
 }

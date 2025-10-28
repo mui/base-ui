@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { generateId } from '@base-ui-components/utils/generateId';
 import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -37,7 +36,6 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   const { tabsListRef } = useTabsListContext();
 
-  const [instanceId] = React.useState(() => generateId('tab'));
   const [isMounted, setIsMounted] = React.useState(false);
   const { value: activeTabValue } = useTabsRootContext();
 
@@ -158,9 +156,6 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
       },
       elementProps,
       {
-        ['data-instance-id' as string]: !(isMounted && renderBeforeHydration)
-          ? instanceId
-          : undefined,
         suppressHydrationWarning: true,
       },
     ],

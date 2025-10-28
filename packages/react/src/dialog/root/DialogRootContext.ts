@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { DialogStore } from '../store';
+import { DialogStore } from '../store/DialogStore';
 
-export interface DialogRootContext {
-  store: DialogStore;
+export interface DialogRootContext<Payload = unknown> {
+  store: DialogStore<Payload>;
 }
 
 export const DialogRootContext = React.createContext<DialogRootContext | undefined>(undefined);
