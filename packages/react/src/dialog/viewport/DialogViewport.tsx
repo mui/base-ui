@@ -63,6 +63,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
     stateAttributesMapping,
     props: [
       {
+        role: 'presentation',
         hidden: !mounted,
         children,
       },

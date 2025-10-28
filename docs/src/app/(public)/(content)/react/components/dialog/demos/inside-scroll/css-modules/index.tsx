@@ -9,7 +9,7 @@ export default function InsideScrollDialog() {
       <Dialog.Trigger className={styles.Button}>Open dialog</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
-        <div className={styles.Viewport}>
+        <Dialog.Viewport className={styles.Viewport}>
           <Dialog.Popup className={styles.Popup}>
             <div className={styles.PopupHeader}>
               <Dialog.Title className={styles.Title}>Dialog</Dialog.Title>
@@ -33,10 +33,10 @@ export default function InsideScrollDialog() {
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>
             <div className={styles.Actions}>
-              <Dialog.Close className={styles.CloseAction}>Close</Dialog.Close>
+              <Dialog.Close className={styles.Button}>Close</Dialog.Close>
             </div>
           </Dialog.Popup>
-        </div>
+        </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
   );

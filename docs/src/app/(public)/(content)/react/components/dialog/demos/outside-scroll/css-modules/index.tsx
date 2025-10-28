@@ -75,7 +75,7 @@ const CONTENT_SECTIONS = [
   },
   {
     title: 'Anatomy at a glance',
-    body: 'Root, Trigger, Portal, Backdrop, Popup, Title/Description, Close. Keep the title short and the first paragraph specific so screen readers announce something meaningful.',
+    body: 'Root, Trigger, Portal, Backdrop, Viewport, Popup, Title, Description, Close. Keep the title short and the first paragraph specific so screen readers announce something meaningful.',
   },
   {
     title: 'Opening and closing',

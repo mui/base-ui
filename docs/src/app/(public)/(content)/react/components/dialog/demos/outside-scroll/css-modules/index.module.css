@@ -92,12 +92,8 @@
   justify-content: center;
   border-radius: 1rem;
   opacity: 0;
-  transition: opacity 150ms;
+  transition: opacity 250ms;
   pointer-events: none;
-
-  [data-ending-style] & {
-    opacity: 0;
-  }
 
   &:hover,
   &[data-scrolling] {
@@ -105,6 +101,11 @@
     transition-duration: 75ms;
     transition-delay: 0ms;
     pointer-events: auto;
+  }
+
+  [data-ending-style] & {
+    transition-duration: 250ms;
+    opacity: 0;
   }
 
   @media (min-width: 768px) {
@@ -215,7 +216,7 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);
-    outline-offset: 1px;
+    outline-offset: -1px;
   }
 }
 

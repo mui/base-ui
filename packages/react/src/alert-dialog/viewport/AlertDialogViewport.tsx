@@ -63,6 +63,7 @@ export const AlertDialogViewport = React.forwardRef(function AlertDialogViewport
     stateAttributesMapping,
     props: [
       {
+        role: 'presentation',
         hidden: !mounted,
         children,
       },

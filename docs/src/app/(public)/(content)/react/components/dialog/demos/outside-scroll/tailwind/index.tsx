@@ -11,17 +11,17 @@ export default function OutsideScrollDialog() {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/5%)_0,rgb(0_0_0/10%)_50%)] opacity-100 transition-[backdrop-filter,opacity] duration-[600ms] ease-[var(--ease-out-fast)] backdrop-blur-[1.5px] data-[starting-style]:backdrop-blur-0 data-[starting-style]:opacity-0 data-[ending-style]:backdrop-blur-0 data-[ending-style]:opacity-0 data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
-        <Dialog.Viewport className="group fixed inset-0">
+        <Dialog.Viewport className="group/dialog fixed inset-0">
           <ScrollArea.Root
             style={{ position: undefined }}
-            className="h-full overscroll-contain group-data-[ending-style]:pointer-events-none"
+            className="h-full overscroll-contain group-data-[ending-style]/dialog:pointer-events-none"
           >
-            <ScrollArea.Viewport className="h-full overscroll-contain data-[ending-style]:pointer-events-none">
+            <ScrollArea.Viewport className="h-full overscroll-contain group-data-[ending-style]/dialog:pointer-events-none">
               <ScrollArea.Content className="flex min-h-full items-center justify-center">
                 <Dialog.Popup
                   ref={popupRef}
                   initialFocus={popupRef}
-                  className="outline-0 relative mx-auto my-18 w-[min(40rem,calc(100vw-2rem))] rounded-lg bg-[var(--color-gray-50)] p-8 text-[var(--color-gray-900)] shadow-[0_10px_64px_-10px_rgba(36,40,52,0.2),0_0.25px_0_1px_var(--color-gray-200)] transition-transform duration-[700ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:translate-y-[100dvh] data-[ending-style]:translate-y-[max(100dvh,100%)] data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] dark:outline dark:outline-1 dark:outline-[var(--color-gray-300)] motion-reduce:transition-none"
+                  className="outline-0 relative mx-auto my-18 w-[min(40rem,calc(100vw-2rem))] rounded-lg bg-gray-50 p-8 text-gray-900 shadow-[0_10px_64px_-10px_rgba(36,40,52,0.2),0_0.25px_0_1px_rgba(229,231,235,1)] transition-transform duration-[700ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:translate-y-[100dvh] data-[ending-style]:translate-y-[max(100dvh,100%)] data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] dark:outline dark:outline-1 dark:outline-gray-300 motion-reduce:transition-none"
                 >
                   <div className="mb-4 flex items-start justify-between gap-3">
                     <Dialog.Title className="m-0 text-xl font-semibold leading-[1.875rem]">
@@ -29,13 +29,13 @@ export default function OutsideScrollDialog() {
                     </Dialog.Title>
                     <Dialog.Close
                       aria-label="Close"
-                      className="relative -right-2 -top-2 inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-gray-200)] bg-[var(--color-gray-50)] text-[var(--color-gray-600)] outline-none transition-colors duration-[120ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] [@media(hover:hover)]:hover:bg-[var(--color-gray-100)] [@media(hover:hover)]:hover:text-[var(--color-gray-900)] active:bg-[var(--color-gray-100)] focus-visible:outline-2 focus-visible:outline-[var(--color-blue)] focus-visible:outline-offset-[1px]"
+                      className="relative top-[-0.5rem] right-[-0.5rem] flex items-center justify-center rounded-md border border-gray-200 bg-gray-50 w-[2.25rem] h-[2.25rem] text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100"
                     >
                       <XIcon className="h-[1.1rem] w-[1.1rem]" />
                     </Dialog.Close>
                   </div>
 
-                  <Dialog.Description className="m-0 mb-6 text-base leading-[1.6rem] text-[var(--color-gray-600)]">
+                  <Dialog.Description className="m-0 mb-6 text-base leading-[1.6rem] text-gray-600">
                     This layout keeps an outer container scrollable while the dialog can extend past
                     the bottom edge.
                   </Dialog.Description>
@@ -46,7 +46,7 @@ export default function OutsideScrollDialog() {
                         <h3 className="m-0 mb-[0.4rem] text-base font-semibold leading-6">
                           {item.title}
                         </h3>
-                        <p className="m-0 text-[0.95rem] leading-[1.55rem] text-[var(--color-gray-700)]">
+                        <p className="m-0 text-[0.95rem] leading-[1.55rem] text-gray-700">
                           {item.body}
                         </p>
                       </section>
@@ -55,8 +55,8 @@ export default function OutsideScrollDialog() {
                 </Dialog.Popup>
               </ScrollArea.Content>
             </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar className="pointer-events-none absolute m-[0.4rem] flex w-[0.25rem] justify-center rounded-[1rem] opacity-0 transition-opacity duration-[150ms] group-data-[ending-style]:opacity-0 data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-[75ms] data-[scrolling]:delay-[0ms] hover:pointer-events-auto hover:opacity-100 hover:duration-[75ms] hover:delay-[0ms] md:w-[0.4375rem]">
-              <ScrollArea.Thumb className="w-full rounded-[inherit] bg-[var(--color-gray-500)] before:absolute before:content-[''] before:top-1/2 before:left-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2" />
+            <ScrollArea.Scrollbar className="pointer-events-none absolute m-[0.4rem] flex w-[0.25rem] justify-center rounded-[1rem] opacity-0 transition-opacity duration-[250ms] data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-[75ms] data-[scrolling]:delay-[0ms] hover:pointer-events-auto hover:opacity-100 hover:duration-[75ms] hover:delay-[0ms] md:w-[0.4375rem] group-data-[ending-style]/dialog:opacity-0 group-data-[ending-style]/dialog:duration-300">
+              <ScrollArea.Thumb className="w-full rounded-[inherit] bg-gray-500 before:absolute before:content-[''] before:top-1/2 before:left-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2" />
             </ScrollArea.Scrollbar>
           </ScrollArea.Root>
         </Dialog.Viewport>
@@ -92,7 +92,7 @@ const CONTENT_SECTIONS = [
   },
   {
     title: 'Anatomy at a glance',
-    body: 'Root, Trigger, Portal, Backdrop, Popup, Title/Description, Close. Keep the title short and the first paragraph specific so screen readers announce something meaningful.',
+    body: 'Root, Trigger, Portal, Backdrop, Viewport, Popup, Title, Description, Close. Keep the title short and the first paragraph specific so screen readers announce something meaningful.',
   },
   {
     title: 'Opening and closing',
