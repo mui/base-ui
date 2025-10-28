@@ -217,6 +217,13 @@ export interface AutocompleteRootProps<ItemValue>
    */
   onValueChange?: (value: string, eventDetails: AutocompleteRootChangeEventDetails) => void;
   /**
+   * Whether clicking an item should submit the autocomplete's owning form.
+   * By default, clicking an item via a pointer or <kbd>Enter</kbd> key does not submit the owning form.
+   * Useful when the autocomplete is used as a single-field form search input.
+   * @default false
+   */
+  submitOnItemClick?: AriaCombobox.Props<ItemValue, 'none'>['submitOnItemClick'];
+  /**
    * When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
    */

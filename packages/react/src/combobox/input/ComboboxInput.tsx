@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { isAndroid, isFirefox } from '@base-ui-components/utils/detectBrowser';
@@ -406,31 +405,20 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             const nativeEvent = event.nativeEvent;
 
             if (activeIndex === null) {
+              // Allow form submission when no item is highlighted.
               store.state.setOpen(false, createChangeEventDetails('none', nativeEvent));
               return;
             }
 
-            const selectActiveItem = () => {
-              const listItem = store.state.listRef.current[activeIndex];
-
-              if (listItem) {
-                store.state.selectionEventRef.current = nativeEvent;
-                listItem.click();
-                store.state.selectionEventRef.current = null;
-                return;
-              }
-
-              store.state.handleSelection(nativeEvent);
-            };
-
-            if (store.state.alwaysSubmitOnEnter) {
-              // Commit the input value update synchronously so the form reads the committed value.
-              ReactDOM.flushSync(selectActiveItem);
-              return;
-            }
-
             stopEvent(event);
-            selectActiveItem();
+
+            const listItem = store.state.listRef.current[activeIndex];
+
+            if (listItem) {
+              store.state.selectionEventRef.current = nativeEvent;
+              listItem.click();
+              store.state.selectionEventRef.current = null;
+            }
           }
         },
         onPointerMove() {

@@ -107,7 +107,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     limit = -1,
     autoComplete = 'list',
     locale,
-    alwaysSubmitOnEnter = false,
+    submitOnItemClick = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -344,7 +344,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         isItemEqualToValue,
         modal,
         autoHighlight: autoHighlightMode,
-        alwaysSubmitOnEnter,
+        submitOnItemClick,
         hasInputValue,
         mounted: false,
         forceMounted: false,
@@ -375,6 +375,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           return {};
         },
         forceMount: NOOP,
+        requestSubmit: NOOP,
       }),
   ).current;
 
@@ -617,6 +618,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
     },
   );
+
+  const requestSubmit = useStableCallback(() => {
+    if (!store.state.submitOnItemClick) {
+      return;
+    }
+
+    const form = store.state.inputElement?.form;
+    if (form && typeof form.requestSubmit === 'function') {
+      form.requestSubmit();
+    }
+  });
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
@@ -1073,6 +1085,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       onItemHighlighted,
       handleSelection,
       forceMount,
+      requestSubmit,
     });
   });
 
@@ -1105,8 +1118,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       modal,
       autoHighlight: autoHighlightMode,
       isItemEqualToValue,
-      alwaysSubmitOnEnter,
+      submitOnItemClick,
       hasInputValue,
+      requestSubmit,
     });
   }, [
     store,
@@ -1136,8 +1150,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     itemToStringLabel,
     modal,
     isItemEqualToValue,
-    alwaysSubmitOnEnter,
+    submitOnItemClick,
     hasInputValue,
+    requestSubmit,
     autoHighlightMode,
   ]);
 
@@ -1450,11 +1465,10 @@ interface ComboboxRootProps<ItemValue> {
    */
   locale?: Intl.LocalesArgument;
   /**
-   * Whether pressing Enter in the input should always allow forms to submit.
-   * By default, pressing Enter in the input will stop form submission if an item is highlighted.
+   * Whether clicking an item should submit the owning form.
    * @default false
    */
-  alwaysSubmitOnEnter?: boolean;
+  submitOnItemClick?: boolean;
   /**
    * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
    */
