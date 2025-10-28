@@ -202,7 +202,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       setValueUnwrapped(newValue as Value);
       clearErrors(name);
-      fieldControlValidation.commitValidation(newValue, true);
+      if (shouldValidateOnChange()) {
+        fieldControlValidation.commitValidation(newValue);
+      } else {
+        fieldControlValidation.commitValidation(newValue, true);
+      }
     },
   );
 

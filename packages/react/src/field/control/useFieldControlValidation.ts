@@ -205,6 +205,8 @@ export function useFieldControlValidation() {
         if (element.validationMessage) {
           defaultValidationMessage = element.validationMessage;
           validationErrors = [element.validationMessage];
+        } else if (element.validity.valid && !nextState.valid) {
+          nextState.valid = true;
         }
       }
     }
