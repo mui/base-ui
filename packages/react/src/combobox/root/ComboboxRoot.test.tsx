@@ -2153,7 +2153,7 @@ describe('<Combobox.Root />', () => {
       expect(input).to.have.attribute('aria-activedescendant', alpha.id);
     });
 
-    it('clears highlight when query is cleared back to empty', async () => {
+    it('retains highlight when query is cleared back to empty', async () => {
       const { user } = await render(
         <Combobox.Root items={['apple', 'banana', 'cherry']} autoHighlight>
           <Combobox.Input />
@@ -2179,9 +2179,46 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).not.to.equal(null);
       });
-      await user.clear(input);
+      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant'));
 
-      expect(input).not.to.have.attribute('aria-activedescendant');
+      await user.clear(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant'));
+    });
+
+    it('retains highlight when clearing the query with input-change behavior', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} autoHighlight>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      await user.type(input, 'ban');
+      await screen.findByRole('option', { name: 'banana' });
+      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant'));
+      const highlightedBefore = input.getAttribute('aria-activedescendant');
+      expect(highlightedBefore).to.not.equal(null);
+
+      await user.clear(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant'));
     });
 
     it('highlights the first matching item after typing (multiple mode)', async () => {
@@ -3823,6 +3860,105 @@ describe('<Combobox.Root />', () => {
       compare.getCalls().forEach((call) => {
         expect(call.args[1]).not.to.equal(null);
       });
+    });
+  });
+
+  describe('prop: keepHighlight', () => {
+    it('keeps the current highlight when the pointer leaves the list', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana']} autoHighlight keepHighlight>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await user.type(input, 'ap');
+
+      const apple = await screen.findByRole('option', { name: 'apple' });
+      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
+
+      const outside = document.createElement('div');
+      document.body.appendChild(outside);
+      fireEvent.pointerLeave(apple, { pointerType: 'mouse', relatedTarget: outside });
+
+      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
+      outside.remove();
+    });
+  });
+
+  describe('prop: highlightItemOnHover', () => {
+    it('highlights an item on mouse move by default', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+
+      const banana = screen.getByRole('option', { name: 'banana' });
+      fireEvent.mouseMove(banana, { pointerType: 'mouse' });
+
+      await waitFor(() => expect(banana).to.have.attribute('data-highlighted'));
+      expect(input.getAttribute('aria-activedescendant')).to.equal(banana.id);
+    });
+
+    it('does not highlight items from mouse movement when disabled', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} highlightItemOnHover={false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+
+      const banana = screen.getByRole('option', { name: 'banana' });
+      fireEvent.mouseMove(banana, { pointerType: 'mouse' });
+
+      await waitFor(() => expect(input).not.to.have.attribute('aria-activedescendant'));
+      expect(banana).not.to.have.attribute('data-highlighted');
     });
   });
 
