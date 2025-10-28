@@ -3,13 +3,13 @@
 <Subtitle>A guide to building forms with Base UI components.</Subtitle>
 <Meta name="description" content="A guide to buildling forms with Base UI components." />
 
-Base UI form control components extend the native [constraint validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api) to enable building forms for collecting user input or providing control over an interface.
+Base UI form control components extend the native [constraint validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api) so you can build forms for collecting user input or providing control over an interface.
 
 <Demo path="./demos/hero" showExtraSandboxLink />
 
 ## Naming form controls
 
-Form controls must have an accessible name in order to be recognized by assistive technologies. `<Field.Label>` and `<Field.Description>` will automatically assign the accessible name and description to their associated control:
+Form controls must have an accessible name in order to be recognized by assistive technologies. `<Field.Label>` and `<Field.Description>` automatically assign the accessible name and description to their associated control:
 
 ```tsx {8-9, 14-15} title="Labeling select and slider"
 import { Form } from '@base-ui-components/react/form';
@@ -32,7 +32,7 @@ import { Slider } from '@base-ui-components/react/slider';
 </Form>;
 ```
 
-`<Checkbox>`, `<Radio>` and `<Switch>` components can be implicitly labelled by enclosing them with `<Field.Label>`:
+You can implicitly label `<Checkbox>`, `<Radio>` and `<Switch>` components by enclosing them with `<Field.Label>`:
 
 ```tsx title="Implicitly labeling a switch"
 import { Field } from '@base-ui-components/react/field';
@@ -47,7 +47,7 @@ import { Switch } from '@base-ui-components/react/switch';
 </Field.Root>;
 ```
 
-Compose `<Fieldset>` with components that contain multiple `<input>` elements such as `<CheckboxGroup>`, `<RadioGroup>` and multi-thumb `<Slider>`s, using `<Fieldset.Legend>` to label the group:
+Compose `<Fieldset>` with components that contain multiple `<input>` elements, such as `<CheckboxGroup>`, `<RadioGroup>`, and multi-thumb `<Slider>`s, using `<Fieldset.Legend>` to label the group:
 
 ```tsx {10-11, 18, 22-23, 26} title="Composing range slider and radio group with fieldset"
 import { Form } from '@base-ui-components/react/form';
@@ -80,7 +80,7 @@ import { Slider } from '@base-ui-components/react/slider';
 </Form>;
 ```
 
-Optionally use `<Field.Item>` in checkbox or radio groups to individually label each control when not implicitly labelled:
+Optionally use `<Field.Item>` in checkbox or radio groups to individually label each control when not implicitly labeled:
 
 ```tsx {10,14-15,19} title="Explicitly labeling checkboxes in a checkbox group"
 import { Form } from '@base-ui-components/react/form';
@@ -108,7 +108,7 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 
 ## Building form fields
 
-Pass the `name` prop to `<Field.Root>` and the wrapped control's value will be included when a parent form is submitted:
+Pass the `name` prop to `<Field.Root>` to include the wrapped control's value when a parent form is submitted:
 
 ```tsx {6} title="Assigning field name to combobox" "name"
 import { Form } from '@base-ui-components/react/form';
@@ -143,14 +143,14 @@ import { Field } from '@base-ui-components/react/field';
 
 ## Custom validation
 
-Custom validation logic can be added by passing a synchronous or asynchronous validation function to the `validate` prop, which runs after native validations have passed.
+You can add custom validation logic by passing a synchronous or asynchronous validation function to the `validate` prop, which runs after native validations have passed.
 
-The `validationMode` prop can be used to configure when validation is performed:
+Use the `validationMode` prop to configure when validation is performed:
 
 - `onBlur` (default) validates the field when focus moves away.
-- `onChange` validates the field when the value changes, e.g. after each keypress in a text field or when a checkbox is checked or unchecked.
+- `onChange` validates the field when the value changes, for example, after each keypress in a text field or when a checkbox is checked or unchecked.
 
-`validationDebounceTime` can be used to debouncing the function in use-cases such as asynchronous requests or text fields that validate `onChange`.
+`validationDebounceTime` can be used to debouncing the function in use cases such as asynchronous requests or text fields that validate `onChange`.
 
 ```tsx {5-7} title="Text input using custom asynchronous validation"
 import { Field } from '@base-ui-components/react/field';
@@ -204,7 +204,7 @@ import { Form } from '@base-ui-components/react/form';
     event.preventDefault();
     // Create a FormData object
     const formData = new FormData(event.currentTarget);
-    // Process the data, e.g. send the FormData instance in a fetch request
+    // Process the data, for example send the FormData instance in a fetch request
     try {
       await fetch('https://api.example.com', {
         method: 'POST',
@@ -219,7 +219,7 @@ import { Form } from '@base-ui-components/react/form';
 
 ## React Hook Form
 
-[React Hook Form](https://react-hook-form.com) is a popular library that can be integrated with Base UI to externally manage form and field state for your existing components.
+[React Hook Form](https://react-hook-form.com) is a popular library that you can integrate with Base UI to externally manage form and field state for your existing components.
 
 <Demo path="./demos/react-hook-form" showExtraSandboxLink />
 
@@ -240,7 +240,7 @@ const { control, handleSubmit } = useForm<FormValues>({
 
 ### Integrating Base UI components
 
-Use the `<Controller>` component to integrate with any `<Field>` component, forwarding `name` and `field`, `fieldState` render props to the appropriate part:
+Use the `<Controller>` component to integrate with any `<Field>` component, forwarding the `name`, `field`, and `fieldState` render props to the appropriate part:
 
 ```tsx {11-17,22-26} title="Integrating React Hook Form's controller component with Base UI field" "ref" "value" "onBlur" "onChange" "invalid" "isTouched" "isDirty" "error"
 import { useForm, Controller } from "react-hook-form"
@@ -279,7 +279,7 @@ const { control, handleSubmit} = useForm({
 />
 ```
 
-In order for React Hook Form to focus invalid fields when performing validation, ensure any wrapping components are forwarding `ref`s to the underlying Base UI component, typically using the `inputRef` prop.
+For React Hook Form to focus invalid fields when performing validation, you must ensure that any wrapping components forward `ref`s to the underlying Base UI component. You can typically accomplish this using the `inputRef` prop, or directly as the `ref` for components that render an input element like `<NumberField.Input>`.
 
 ### Field validation
 
@@ -351,7 +351,7 @@ async function submitForm(data: FormValues) {
 
 ## TanStack Form
 
-[TanStack Form](https://tanstack.com/form/v1/docs/overview) is a newer library also supported by Base UI, and uses a function-based API to orchestrate validations.
+Base UI also supports [TanStack Form](https://tanstack.com/form/v1/docs/overview), which uses a function-based API to orchestrate validations.
 
 <Demo path="./demos/tanstack-form" showExtraSandboxLink />
 
@@ -421,8 +421,8 @@ The Base UI `<Form>` component is not needed when using TanStack Form.
 
 To configure a native `<form>`-like validation strategy:
 
-1. Use the additional `revalidateLogic` hook and pass it to `useForm`
-2. Pass a validation function to the `validators.onDynamic` prop on `<form.Field>` that returns an error object with keys corresponding to the field `name`s
+1. Use the additional `revalidateLogic` hook and pass it to `useForm`.
+2. Pass a validation function to the `validators.onDynamic` prop on `<form.Field>` that returns an error object with keys corresponding to the field `name`s.
 
 This validates all fields when the first submission is attempted, and revalidates any invalid fields when their values change again.
 
@@ -462,7 +462,7 @@ const form = useForm({
 
 ### Field validators
 
-Additional validator functions can be passed to individual `<form.Field>`s to add validations on top of the form-level validators:
+You can pass additional validator functions to individual `<form.Field>`s to add validations on top of the form-level validators:
 
 ```tsx {8-16} title="Field-level validation with TanStack Form"
 import { Field } from '@base-ui-components/react/field';
@@ -491,8 +491,8 @@ const form = useForm();
 
 To submit the form:
 
-1. Pass a submit handler function to the `onSubmit` parameter of `useForm`
-2. Call `form.handleSubmit()` from an event handler, e.g. form `onSubmit` or `onClick` on a button
+1. Pass a submit handler function to the `onSubmit` parameter of `useForm`.
+2. Call `form.handleSubmit()` from an event handler such as form `onSubmit` or `onClick` on a button.
 
 ```tsx {4-7, 13, 17} title="Form submission with TanStack Form" "form.handleSubmit()"
 import { useForm } from '@tanstack/form';
