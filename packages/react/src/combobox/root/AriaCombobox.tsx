@@ -1465,8 +1465,7 @@ interface ComboboxRootProps<ItemValue> {
    */
   locale?: Intl.LocalesArgument;
   /**
-   * Whether clicking an item should submit the autocomplete's owning form.
-   * By default, clicking an item via a pointer or <kbd>Enter</kbd> key does not submit the owning form.
+   * Whether clicking an item should submit the owning form.
    * @default false
    */
   submitOnItemClick?: boolean;
