@@ -125,7 +125,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   }, [value, inputValue, name, clearErrors, shouldValidateOnChange, commitValidation]);
 
   useIsoLayoutEffect(() => {
-    if (prevValueRef.current === value || validationMode === 'onChange') {
+    if (prevValueRef.current === value || shouldValidateOnChange()) {
       return;
     }
 
@@ -134,7 +134,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       return;
     }
     commitValidation(value, true);
-  }, [commitValidation, validationMode, value]);
+  }, [commitValidation, shouldValidateOnChange, value]);
 
   useIsoLayoutEffect(() => {
     prevValueRef.current = value;

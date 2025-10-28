@@ -595,7 +595,12 @@ describe('<Checkbox.Root />', () => {
       );
 
       const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).not.to.have.attribute('aria-invalid');
 
+      fireEvent.click(checkbox);
+      expect(checkbox).to.have.attribute('data-checked', '');
+      fireEvent.click(checkbox);
+      expect(checkbox).to.have.attribute('data-unchecked', '');
       expect(checkbox).not.to.have.attribute('aria-invalid');
 
       fireEvent.click(screen.getByText('submit'));
@@ -606,8 +611,12 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).not.to.have.attribute('aria-invalid');
 
       fireEvent.click(checkbox);
-      expect(checkbox).to.have.attribute('data-unchecked');
+      expect(checkbox).to.have.attribute('data-unchecked', '');
       expect(checkbox).to.have.attribute('aria-invalid');
+
+      fireEvent.click(checkbox);
+      expect(checkbox).to.have.attribute('data-checked', '');
+      expect(checkbox).not.to.have.attribute('aria-invalid');
     });
 
     it('props: validationMode=onChange', async () => {

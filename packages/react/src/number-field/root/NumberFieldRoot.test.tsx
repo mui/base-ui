@@ -1050,83 +1050,107 @@ describe('<NumberField />', () => {
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
 
-    it('prop: validationMode=onSubmit', async () => {
-      await render(
-        <Form>
-          <Field.Root validate={(value) => (value === 1 ? 'error' : null)}>
+    describe('prop: validationMode', () => {
+      it('onSubmit', async () => {
+        await render(
+          <Form>
+            <Field.Root validate={(value) => (value === 1 ? 'custom error' : null)}>
+              <NumberFieldBase.Root required>
+                <NumberFieldBase.Input data-testid="input" />
+              </NumberFieldBase.Root>
+              <Field.Error data-testid="error" match="valueMissing">
+                valueMissing error
+              </Field.Error>
+              <Field.Error data-testid="error" match="customError" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        const input = screen.getByRole('textbox');
+        expect(input).not.to.have.attribute('aria-invalid');
+
+        fireEvent.change(input, { target: { value: '1' } });
+        fireEvent.blur(input);
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
+
+        fireEvent.change(input, { target: { value: '' } });
+        fireEvent.blur(input);
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
+
+        fireEvent.click(screen.getByText('submit'));
+        expect(input).to.have.attribute('aria-invalid', 'true');
+        expect(screen.queryByTestId('error')).to.have.text('valueMissing error');
+
+        fireEvent.change(input, { target: { value: '2' } });
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
+        // re-invalidate the field value
+        fireEvent.change(input, { target: { value: '1' } });
+        expect(input).to.have.attribute('aria-invalid', 'true');
+        expect(screen.queryByTestId('error')).to.have.text('custom error');
+
+        fireEvent.change(input, { target: { value: '3' } });
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
+
+        fireEvent.change(input, { target: { value: '' } });
+        expect(input).to.have.attribute('aria-invalid', 'true');
+        expect(screen.queryByTestId('error')).to.have.text('valueMissing error');
+      });
+
+      it('onChange', async () => {
+        await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => {
+              return value === 1 ? 'error' : null;
+            }}
+          >
+            <NumberFieldBase.Root>
+              <NumberFieldBase.Input data-testid="input" />
+            </NumberFieldBase.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        expect(input).not.to.have.attribute('aria-invalid');
+
+        fireEvent.change(input, { target: { value: '1' } });
+
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('onBlur', async () => {
+        await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              return value === 1 ? 'error' : null;
+            }}
+          >
             <NumberFieldBase.Root required>
               <NumberFieldBase.Input data-testid="input" />
             </NumberFieldBase.Root>
-          </Field.Root>
-          <button type="submit">submit</button>
-        </Form>,
-      );
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
 
-      const input = screen.getByRole('textbox');
-      expect(input).not.to.have.attribute('aria-invalid');
+        const input = screen.getByTestId('input');
+        expect(input).not.to.have.attribute('aria-invalid');
 
-      fireEvent.click(screen.getByText('submit'));
-      expect(input).to.have.attribute('aria-invalid', 'true');
-
-      fireEvent.change(input, { target: { value: '2' } });
-      expect(input).not.to.have.attribute('aria-invalid');
-      // re-invalidate the field value
-      fireEvent.change(input, { target: { value: '1' } });
-      expect(input).to.have.attribute('aria-invalid', 'true');
-
-      fireEvent.change(input, { target: { value: '3' } });
-      expect(input).not.to.have.attribute('aria-invalid');
-
-      fireEvent.change(input, { target: { value: '' } });
-      expect(input).to.have.attribute('aria-invalid', 'true');
-    });
-
-    it('prop: validationMode=onChange', async () => {
-      await render(
-        <Field.Root
-          validationMode="onChange"
-          validate={(value) => {
-            return value === 1 ? 'error' : null;
-          }}
-        >
-          <NumberFieldBase.Root>
-            <NumberFieldBase.Input data-testid="input" />
-          </NumberFieldBase.Root>
-        </Field.Root>,
-      );
-
-      const input = screen.getByTestId('input');
-
-      expect(input).not.to.have.attribute('aria-invalid');
-
-      fireEvent.change(input, { target: { value: '1' } });
-
-      expect(input).to.have.attribute('aria-invalid', 'true');
-    });
-
-    it('prop: validationMode=onBlur', async () => {
-      await render(
-        <Field.Root
-          validationMode="onBlur"
-          validate={(value) => {
-            return value === 1 ? 'error' : null;
-          }}
-        >
-          <NumberFieldBase.Root>
-            <NumberFieldBase.Input data-testid="input" />
-          </NumberFieldBase.Root>
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
-
-      const input = screen.getByTestId('input');
-
-      expect(input).not.to.have.attribute('aria-invalid');
-
-      fireEvent.change(input, { target: { value: '1' } });
-      fireEvent.blur(input);
-
-      expect(input).to.have.attribute('aria-invalid', 'true');
+        fireEvent.change(input, { target: { value: '1' } });
+        expect(input).not.to.have.attribute('aria-invalid');
+        fireEvent.blur(input);
+        expect(input).to.have.attribute('aria-invalid', 'true');
+        // revalidation
+        fireEvent.change(input, { target: { value: '2' } });
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
+      });
     });
 
     it('disables the input when disabled=true', async () => {
