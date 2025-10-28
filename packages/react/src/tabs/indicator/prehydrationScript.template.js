@@ -9,7 +9,7 @@
     return;
   }
 
-  const activeTab = list.querySelector('[data-selected]');
+  const activeTab = list.querySelector('[data-active]');
   if (!activeTab) {
     return;
   }
