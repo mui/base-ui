@@ -20,6 +20,7 @@ export type State<Payload> = {
   readonly trackCursorAxis: 'none' | 'x' | 'y' | 'both';
   readonly transitionStatus: TransitionStatus;
   readonly hoverable: boolean;
+  readonly preventUnmountingOnClose: boolean;
   readonly lastOpenChangeReason: TooltipRoot.ChangeEventReason | null;
   readonly triggers: PopupTriggerMap;
   readonly activeTriggerId: string | null;
@@ -47,6 +48,9 @@ const selectors = {
   trackCursorAxis: createSelector((state: State<unknown>) => state.trackCursorAxis),
   transitionStatus: createSelector((state: State<unknown>) => state.transitionStatus),
   hoverable: createSelector((state: State<unknown>) => state.hoverable),
+  preventUnmountingOnClose: createSelector(
+    (state: State<unknown>) => state.preventUnmountingOnClose,
+  ),
   lastOpenChangeReason: createSelector((state: State<unknown>) => state.lastOpenChangeReason),
   triggers: createSelector((state: State<unknown>) => state.triggers),
   activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
@@ -76,14 +80,21 @@ export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, t
     );
   }
 
-  public setOpen = (nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) => {
+  public setOpen = (
+    nextOpen: boolean,
+    eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
+  ) => {
     const reason = eventDetails.reason;
 
     const isHover = reason === 'trigger-hover';
     const isFocusOpen = nextOpen && reason === 'trigger-focus';
     const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
 
-    this.context.onOpenChange?.(nextOpen, eventDetails);
+    (eventDetails as TooltipRoot.ChangeEventDetails).preventUnmountOnClose = () => {
+      this.set('preventUnmountingOnClose', true);
+    };
+
+    this.context.onOpenChange?.(nextOpen, eventDetails as TooltipRoot.ChangeEventDetails);
 
     if (eventDetails.isCanceled) {
       return;
@@ -134,6 +145,7 @@ function createInitialState<Payload>(): State<Payload> {
     trackCursorAxis: 'none',
     transitionStatus: 'idle',
     hoverable: true,
+    preventUnmountingOnClose: false,
     lastOpenChangeReason: null,
     triggers: new Map(),
     payload: undefined,

@@ -397,11 +397,17 @@ describe('<Tooltip.Root />', () => {
       const actionsRef = {
         current: {
           unmount: spy(),
+          close: spy(),
         },
       };
 
       const { user } = await render(
-        <Root actionsRef={actionsRef}>
+        <Root
+          actionsRef={actionsRef}
+          onOpenChange={(open, details) => {
+            details.preventUnmountOnClose();
+          }}
+        >
           <Tooltip.Trigger data-testid="trigger" />
           <Tooltip.Portal>
             <Tooltip.Positioner data-testid="positioner">

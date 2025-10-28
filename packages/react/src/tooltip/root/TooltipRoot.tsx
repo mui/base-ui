@@ -62,6 +62,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   const activeTriggerId = store.useState('activeTriggerId');
   const payload = store.useState('payload') as Payload | undefined;
   const isInstantPhase = store.useState('isInstantPhase');
+  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
 
   const open = !disabled && openState;
 
@@ -97,8 +98,27 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     store.context.onOpenChangeComplete?.(false);
   });
 
+  const createTooltipEventDetails = React.useCallback(
+    (reason: TooltipRoot.ChangeEventReason) => {
+      const details: TooltipRoot.ChangeEventDetails =
+        createChangeEventDetails<TooltipRoot.ChangeEventReason>(
+          reason,
+        ) as TooltipRoot.ChangeEventDetails;
+      details.preventUnmountOnClose = () => {
+        store.set('preventUnmountingOnClose', true);
+      };
+
+      return details;
+    },
+    [store],
+  );
+
+  const handleImperativeClose = React.useCallback(() => {
+    store.setOpen(false, createTooltipEventDetails('imperative-action'));
+  }, [store, createTooltipEventDetails]);
+
   useOpenChangeComplete({
-    enabled: !actionsRef,
+    enabled: !preventUnmountingOnClose,
     open,
     ref: store.context.popupRef,
     onComplete() {
@@ -108,7 +128,11 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     },
   });
 
-  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({ unmount: handleUnmount, close: handleImperativeClose }),
+    [handleUnmount, handleImperativeClose],
+  );
 
   const floatingRootContext = useFloatingRootContext({
     elements: {
@@ -260,8 +284,13 @@ export type TooltipRootChangeEventReason =
   | 'outside-press'
   | 'escape-key'
   | 'disabled'
+  | 'imperative-action'
   | 'none';
-export type TooltipRootChangeEventDetails = BaseUIChangeEventDetails<TooltipRoot.ChangeEventReason>;
+
+export type TooltipRootChangeEventDetails =
+  BaseUIChangeEventDetails<TooltipRoot.ChangeEventReason> & {
+    preventUnmountOnClose(): void;
+  };
 
 export namespace TooltipRoot {
   export type State = TooltipRootState;
