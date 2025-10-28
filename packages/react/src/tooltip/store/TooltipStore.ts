@@ -101,8 +101,10 @@ export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, t
     }
 
     const changeState = () => {
-      if (isFocusOpen || isDismissClose) {
-        this.set('instantType', isFocusOpen ? 'focus' : 'dismiss');
+      if (isFocusOpen) {
+        this.set('instantType', 'focus');
+      } else if (isDismissClose) {
+        this.set('instantType', 'dismiss');
       } else if (reason === 'trigger-hover') {
         this.set('instantType', undefined);
       }

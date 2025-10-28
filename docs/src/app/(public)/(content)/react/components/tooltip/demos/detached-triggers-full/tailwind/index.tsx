@@ -9,16 +9,16 @@ export default function TooltipDetachedTriggersFullDemo() {
     <Tooltip.Provider>
       <div className="flex">
         <Tooltip.Trigger
-          className={`
-            box-border flex
-            size-10 items-center justify-center
-            rounded-l-md border border-gray-200
+          className="
+            box-border flex size-10 items-center justify-center
+            border border-gray-200 rounded-l-md
             bg-gray-50
             text-base font-bold text-gray-900
             select-none
-            hover:bg-gray-100 focus-visible:outline-2
-            focus-visible:-outline-offset-1
-            focus-visible:outline-blue-600 active:bg-gray-100 data-popup-open:bg-gray-100`}
+            data-popup-open:bg-gray-100
+            focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600
+            hover:bg-gray-100
+            active:bg-gray-100"
           handle={demoTooltip}
           payload={InfoContent}
         >
@@ -26,16 +26,16 @@ export default function TooltipDetachedTriggersFullDemo() {
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
-          className={`
-            box-border flex
-            size-10 items-center justify-center
+          className="
+            box-border flex size-10 items-center justify-center
             border-y border-r border-gray-200
             bg-gray-50
             text-base font-bold text-gray-900
             select-none
-            hover:bg-gray-100 focus-visible:outline-2
-            focus-visible:-outline-offset-1
-            focus-visible:outline-blue-600 active:bg-gray-100 data-popup-open:bg-gray-100`}
+            data-popup-open:bg-gray-100
+            focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600
+            hover:bg-gray-100
+            active:bg-gray-100"
           handle={demoTooltip}
           payload={HelpContent}
         >
@@ -43,16 +43,16 @@ export default function TooltipDetachedTriggersFullDemo() {
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
-          className={`
-            box-border flex
-            size-10 items-center justify-center
-            rounded-r-md border-y border-r border-gray-200
+          className="
+            box-border flex size-10 items-center justify-center
+            border-y border-r border-gray-200 rounded-r-md
             bg-gray-50
             text-base font-bold text-gray-900
             select-none
-            hover:bg-gray-100 focus-visible:outline-2
-            focus-visible:-outline-offset-1
-            focus-visible:outline-blue-600 active:bg-gray-100 data-popup-open:bg-gray-100`}
+            data-popup-open:bg-gray-100
+            focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600
+            hover:bg-gray-100
+            active:bg-gray-100"
           handle={demoTooltip}
           payload={AlertContent}
         >
@@ -65,52 +65,52 @@ export default function TooltipDetachedTriggersFullDemo() {
           <Tooltip.Portal>
             <Tooltip.Positioner
               sideOffset={10}
-              className={`
+              className="
                 h-(--positioner-height) w-(--positioner-width)
                 max-w-(--available-width)
                 transition-[top,left,right,bottom,transform]
                 duration-[0.35s]
                 ease-[cubic-bezier(0.22,1,0.36,1)]
-                data-instant:transition-none`}
+                data-instant:transition-none"
             >
               <Tooltip.Popup
-                className={`
-                  relative h-(--popup-height,auto) w-(--popup-width,auto)
-                  max-w-[500px] origin-(--transform-origin)
-                  rounded-md bg-[canvas] px-2 py-1 text-sm
-                  shadow-lg
-                  shadow-gray-200
-                  outline-1
-                  outline-gray-200
+                className="
+                  relative
+                  h-(--popup-height,auto) w-(--popup-width,auto)
+                  max-w-[500px]
+                  px-2 py-1
+                  rounded-md
+                  bg-[canvas]
+                  text-sm
+                  origin-(--transform-origin)
+                  shadow-lg shadow-gray-200 outline-1 outline-gray-200
                   transition-[width,height,opacity,scale]
                   duration-[0.35s]
                   ease-[cubic-bezier(0.22,1,0.36,1)]
-                  data-ending-style:scale-90
-                  data-ending-style:opacity-0 data-instant:transition-none
-                  data-starting-style:scale-90
-                  data-starting-style:opacity-0
-                  dark:shadow-none
-                  dark:-outline-offset-1
-                  dark:outline-gray-300`}
+                  data-ending-style:opacity-0 data-ending-style:scale-90
+                  data-instant:transition-none
+                  data-starting-style:opacity-0 data-starting-style:scale-90
+                  dark:shadow-none dark:outline-gray-300 dark:-outline-offset-1"
               >
                 <Tooltip.Arrow
-                  className={`
+                  className="
                     flex
-                    transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]
-                    data-[side=bottom]:top-[-8px]
-                    data-[side=left]:right-[-13px]
-                    data-[side=left]:rotate-90
-                    data-[side=right]:left-[-13px]
-                    data-[side=right]:-rotate-90
-                    data-[side=top]:bottom-[-8px]
-                    data-[side=top]:rotate-180`}
+                    transition-[left]
+                    duration-[0.35s]
+                    ease-[cubic-bezier(0.22,1,0.36,1)]
+                    data-[side=bottom]:-top-2 data-[side=bottom]:rotate-0
+                    data-[side=left]:right-[-13px] data-[side=left]:rotate-90
+                    data-[side=right]:left-[-13px] data-[side=right]:-rotate-90
+                    data-[side=top]:-bottom-2 data-[side=top]:rotate-180"
                 >
                   <ArrowSvg />
                 </Tooltip.Arrow>
 
                 <Tooltip.Viewport
-                  className={`
-                    relative h-full w-full overflow-clip
+                  className="
+                    relative
+                    h-full w-full
+                    overflow-clip
                     [&_[data-current]]:w-[calc(var(--popup-width)-1rem)]
                     [&_[data-current]]:translate-x-0
                     [&_[data-current]]:opacity-100
@@ -130,7 +130,7 @@ export default function TooltipDetachedTriggersFullDemo() {
                     data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:translate-x-1/2
                     data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:opacity-0
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-1/2
-                    data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0`}
+                    data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0"
                 >
                   {Payload !== undefined && <Payload />}
                 </Tooltip.Viewport>

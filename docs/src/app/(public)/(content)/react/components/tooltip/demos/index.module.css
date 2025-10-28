@@ -82,7 +82,7 @@
   }
 
   &[data-instant] {
-    transition-duration: 0ms;
+    transition: none;
   }
 
   @media (prefers-color-scheme: light) {
