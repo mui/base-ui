@@ -109,8 +109,16 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   // during the 'ending' phase unless it's due to a sibling opening.
   const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
   useIsoLayoutEffect(() => {
-    if ((transitionStatus === 'ending' && lastOpenChangeReason === 'none') || isInstantPhase) {
-      previousInstantTypeRef.current = instantType;
+    if (
+      (transitionStatus === 'ending' && lastOpenChangeReason === 'none') ||
+      (transitionStatus !== 'ending' && isInstantPhase)
+    ) {
+      // Capture the current instant type so we can restore it later
+      // and set to 'delay' to disable animations while moving from one trigger to another
+      // within a delay group.
+      if (instantType !== 'delay') {
+        previousInstantTypeRef.current = instantType;
+      }
       store.set('instantType', 'delay');
     } else if (previousInstantTypeRef.current !== null) {
       store.set('instantType', previousInstantTypeRef.current);
