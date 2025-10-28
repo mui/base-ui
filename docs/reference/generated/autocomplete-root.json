@@ -70,6 +70,7 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the list is rendered inline without using the popup.",
+      "detailedType": "boolean | undefined"
     },
     "itemToStringValue": {
       "type": "((itemValue: any) => string) | ((itemValue: ItemValue) => string)",
