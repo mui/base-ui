@@ -165,13 +165,17 @@ The dialog can be made scrollable by using `<Dialog.Viewport>` as an outer scrol
 
 When adding elements that should appear "outside" the colored popup area, continue to place them inside `<Dialog.Popup>`, but create a child element that has the popup styles. This ensures they are kept in the tab order and announced correctly by screen readers.
 
-<Demo path="./demos/outside-scroll" compact />
+import { DemoDialogOutsideScroll } from './demos/outside-scroll';
+
+<DemoDialogOutsideScroll compact />
 
 ### Inside scroll dialog
 
 The dialog can be made scrollable by making an inner container scrollable while the popup stays fully on screen. `<Dialog.Viewport>` is used as a positioning container for `<Dialog.Popup>`, while an inner scrollable area is created using the [Scroll Area component](/react/components/scroll-area).
 
-<Demo path="./demos/inside-scroll" compact />
+import { DemoDialogInsideScroll } from './demos/inside-scroll';
+
+<DemoDialogInsideScroll compact />
 
 ### Detached triggers
 
