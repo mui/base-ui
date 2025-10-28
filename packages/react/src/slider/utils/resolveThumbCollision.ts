@@ -145,7 +145,6 @@ export function resolveThumbCollision({
         max,
         step,
         minStepsBetweenValues,
-        initialValues: baselineValues,
       });
 
       return {

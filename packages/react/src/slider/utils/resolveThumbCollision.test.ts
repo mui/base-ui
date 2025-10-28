@@ -36,6 +36,43 @@ describe('resolveThumbCollision', () => {
     expect(result.didSwap).to.equal(false);
   });
 
+  it('keeps pushed thumbs in place when moving backward in push mode', () => {
+    const startValues = [20, 40];
+
+    const pushed = resolveThumbCollision({
+      behavior: 'push',
+      values: startValues,
+      currentValues: startValues,
+      initialValues: startValues,
+      pressedIndex: 0,
+      nextValue: 70,
+      min: 0,
+      max: 100,
+      step: 1,
+      minStepsBetweenValues: 0,
+    });
+
+    const nextValues = pushed.value as number[];
+    expect(nextValues).to.deep.equal([70, 70]);
+
+    const movedBack = resolveThumbCollision({
+      behavior: 'push',
+      values: nextValues,
+      currentValues: nextValues,
+      initialValues: startValues,
+      pressedIndex: 0,
+      nextValue: 30,
+      min: 0,
+      max: 100,
+      step: 1,
+      minStepsBetweenValues: 0,
+    });
+
+    expect(movedBack.value).to.deep.equal([30, 70]);
+    expect(movedBack.thumbIndex).to.equal(0);
+    expect(movedBack.didSwap).to.equal(false);
+  });
+
   it('swaps thumbs when behavior is "swap"', () => {
     const result = resolveThumbCollision({
       behavior: 'swap',
