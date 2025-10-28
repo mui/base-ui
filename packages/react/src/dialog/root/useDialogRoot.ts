@@ -8,7 +8,7 @@ import {
   useInteractions,
   useRole,
 } from '../../floating-ui-react';
-import { getTarget } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -142,7 +142,8 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
         if (modal) {
           return store.context.internalBackdropRef.current || store.context.backdropRef.current
             ? store.context.internalBackdropRef.current === eventTarget ||
-                store.context.backdropRef.current === eventTarget
+                store.context.backdropRef.current === eventTarget ||
+                contains(eventTarget, popupElement)
             : true;
         }
         return true;

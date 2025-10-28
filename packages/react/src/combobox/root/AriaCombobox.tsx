@@ -96,6 +96,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     filter: filterProp,
     openOnInputClick = true,
     autoHighlight = false,
+    keepHighlight = false,
+    highlightItemOnHover = true,
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
@@ -105,7 +107,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     limit = -1,
     autoComplete = 'list',
     locale,
-    alwaysSubmitOnEnter = false,
+    submitOnItemClick = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -125,6 +127,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const multiple = selectionMode === 'multiple';
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const commitValidation = fieldControlValidation.commitValidation;
+
+  let autoHighlightMode: false | 'input-change' | 'always';
+  if (autoHighlight === 'always') {
+    autoHighlightMode = 'always';
+  } else {
+    autoHighlightMode = autoHighlight ? 'input-change' : false;
+  }
+  const autoHighlightEnabled = autoHighlightMode !== false;
+  const autoHighlightBehavior = autoHighlightMode;
+  const keepHighlightOnPointerLeave = keepHighlight;
+  const highlightOnHoverOption = highlightItemOnHover;
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
     controlled: selectedValueProp,
@@ -330,8 +343,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         itemToStringLabel,
         isItemEqualToValue,
         modal,
-        autoHighlight,
-        alwaysSubmitOnEnter,
+        autoHighlight: autoHighlightMode,
+        submitOnItemClick,
         hasInputValue,
         mounted: false,
         forceMounted: false,
@@ -362,6 +375,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           return {};
         },
         forceMount: NOOP,
+        requestSubmit: NOOP,
       }),
   ).current;
 
@@ -472,7 +486,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         // Defer index updates until after the filtered items have been derived to ensure
         // `onItemHighlighted` receives the latest item.
         pendingQueryHighlightRef.current = { hasQuery };
-        if (hasQuery && autoHighlight && store.state.activeIndex == null) {
+        if (hasQuery && autoHighlightBehavior && store.state.activeIndex == null) {
           store.set('activeIndex', 0);
         }
       }
@@ -605,6 +619,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
+  const requestSubmit = useStableCallback(() => {
+    if (!store.state.submitOnItemClick) {
+      return;
+    }
+
+    const form = store.state.inputElement?.form;
+    if (form && typeof form.requestSubmit === 'function') {
+      form.requestSubmit();
+    }
+  });
+
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
     onOpenChangeComplete?.(false);
@@ -703,11 +728,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
       if (pendingHighlight.hasQuery) {
-        if (autoHighlight) {
+        if (autoHighlightEnabled) {
           store.set('activeIndex', 0);
         }
-      } else if (autoHighlight) {
-        store.set('activeIndex', null);
+      } else if (autoHighlightBehavior === 'always') {
+        store.set('activeIndex', 0);
       }
       pendingQueryHighlightRef.current = null;
     }
@@ -720,6 +745,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
+      if (autoHighlightBehavior === 'always' && candidateItems.length > 0) {
+        store.set('activeIndex', 0);
+        return;
+      }
       if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
         lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
         store.state.onItemHighlighted(
@@ -755,7 +784,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         createGenericEventDetails('none', undefined, { index: storeActiveIndex }),
       );
     }
-  }, [activeIndex, autoHighlight, flatFilteredItems, inline, items, open, store, valuesRef]);
+  }, [
+    activeIndex,
+    autoHighlightBehavior,
+    autoHighlightEnabled,
+    flatFilteredItems,
+    inline,
+    items,
+    open,
+    store,
+    valuesRef,
+  ]);
 
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
@@ -883,10 +922,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   // Ensures that the active index is not set to 0 when the list is empty.
   // This avoids needing to press ArrowDown twice under certain conditions.
   React.useEffect(() => {
-    if (hasItems && autoHighlight && flatFilteredItems.length === 0) {
+    if (hasItems && autoHighlightBehavior && flatFilteredItems.length === 0) {
       setIndices({ activeIndex: null });
     }
-  }, [hasItems, autoHighlight, flatFilteredItems.length, setIndices]);
+  }, [hasItems, autoHighlightBehavior, flatFilteredItems.length, setIndices]);
 
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
@@ -969,9 +1008,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     selectedIndex,
     virtual: true,
     loop: true,
-    allowEscape: !autoHighlight,
+    allowEscape: !autoHighlightEnabled,
     focusItemOnOpen:
-      queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlight) ? false : 'auto',
+      queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightEnabled) ? false : 'auto',
+    focusItemOnHover: highlightOnHoverOption,
     // `cols` > 1 enables grid navigation.
     // Since <Combobox.Row> infers column sizes (and is required when building a grid),
     // it works correctly even with a value of `2`.
@@ -986,6 +1026,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       // Retain the highlight only while actually transitioning out or closed.
       if (nextActiveIndex === null && !inline && isClosing) {
+        return;
+      }
+
+      if (
+        keepHighlightOnPointerLeave &&
+        nextActiveIndex === null &&
+        event &&
+        event.type === 'pointerleave'
+      ) {
         return;
       }
 
@@ -1036,6 +1085,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       onItemHighlighted,
       handleSelection,
       forceMount,
+      requestSubmit,
     });
   });
 
@@ -1066,10 +1116,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       openOnInputClick,
       itemToStringLabel,
       modal,
-      autoHighlight,
+      autoHighlight: autoHighlightMode,
       isItemEqualToValue,
-      alwaysSubmitOnEnter,
+      submitOnItemClick,
       hasInputValue,
+      requestSubmit,
     });
   }, [
     store,
@@ -1098,10 +1149,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     openOnInputClick,
     itemToStringLabel,
     modal,
-    autoHighlight,
     isItemEqualToValue,
-    alwaysSubmitOnEnter,
+    submitOnItemClick,
     hasInputValue,
+    requestSubmit,
+    autoHighlightMode,
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
@@ -1291,10 +1343,23 @@ interface ComboboxRootProps<ItemValue> {
    */
   openOnInputClick?: boolean;
   /**
-   * Whether to automatically highlight the first item while filtering.
+   * Whether the first matching item is highlighted automatically.
+   * - `false`: do not highlight automatically.
+   * - `true`: highlight after the user types and keep the highlight while the query changes.
+   * - `'always'`: highlight the first item as soon as the list opens.
    * @default false
    */
-  autoHighlight?: boolean;
+  autoHighlight?: boolean | 'always';
+  /**
+   * Whether the highlighted item should be preserved when the pointer leaves the list.
+   * @default false
+   */
+  keepHighlight?: boolean;
+  /**
+   * Whether moving the pointer over items should highlight them.
+   * @default true
+   */
+  highlightItemOnHover?: boolean;
   /**
    * The input value of the combobox. Use when controlled.
    */
@@ -1400,11 +1465,10 @@ interface ComboboxRootProps<ItemValue> {
    */
   locale?: Intl.LocalesArgument;
   /**
-   * Whether pressing Enter in the input should always allow forms to submit.
-   * By default, pressing Enter in the input will stop form submission if an item is highlighted.
+   * Whether clicking an item should submit the owning form.
    * @default false
    */
-  alwaysSubmitOnEnter?: boolean;
+  submitOnItemClick?: boolean;
   /**
    * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
    */
