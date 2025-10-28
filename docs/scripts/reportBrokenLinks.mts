@@ -5,21 +5,9 @@ async function main() {
     startCommand: 'pnpm serve --no-request-logging -p 3001',
     host: 'http://localhost:3001/',
     // Target paths to ignore during link checking
-    ignoredPaths: [
-      // Internal links not on this server
-      // TODO: Seed crawler with stored links from e.g. mui.com/x/link-structure.json
-      // /^\/(x|base-ui|joy-ui|store|toolpad)(\/|$)/,
-    ],
+    ignoredPaths: [],
     // CSS selectors for content to ignore during link checking
-    ignoredContent: [
-      // Links used in demos under MemoryRouter
-      // TODO: Create an easier way to identify content under MemoryRouter
-      // (e.g. a class or an option on the demo)
-      // '[id^="demo-"] a[href^="/inbox"]',
-      // '[id^="demo-"] a[href^="/trash"]',
-      // '[id^="demo-"] a[href^="/spam"]',
-      // '[id^="demo-"] a[href^="/drafts"]',
-    ],
+    ignoredContent: [],
   });
 
   process.exit(issues.length);
