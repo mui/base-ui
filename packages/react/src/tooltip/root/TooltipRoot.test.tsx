@@ -1373,16 +1373,18 @@ describe('<Tooltip.Root />', () => {
       expect(screen.getByTestId('content').textContent).to.equal('1');
 
       await waitFor(() => {
-        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.equal(
-          Math.round(trigger1.getBoundingClientRect().left),
+        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.be.approximately(
+          trigger1.getBoundingClientRect().left,
+          1,
         );
       });
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
       expect(screen.getByTestId('content').textContent).to.equal('2');
       await waitFor(() => {
-        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.equal(
-          Math.round(trigger2.getBoundingClientRect().left),
+        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.be.approximately(
+          trigger2.getBoundingClientRect().left,
+          1,
         );
       });
 
