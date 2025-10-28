@@ -38,6 +38,7 @@ export function Demo({ defaultOpen = false, compact = false, className, ...demoP
     defaultOpen,
     export: exportOpts,
     exportCodeSandbox,
+    fileHashMode: 'read',
   });
 
   return (
