@@ -102,10 +102,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
               store.state.selectionEventRef.current = nativeEvent;
               listItem.click();
               store.state.selectionEventRef.current = null;
-              return;
             }
-
-            store.state.handleSelection(nativeEvent);
           }
         },
         onKeyDownCapture() {

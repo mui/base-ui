@@ -70,6 +70,7 @@ export type State = {
   getItemProps: (
     props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>;
+  requestSubmit: () => void;
 
   name: string | undefined;
   disabled: boolean;
@@ -84,8 +85,8 @@ export type State = {
   itemToStringLabel?: (item: any) => string;
   isItemEqualToValue: (item: any, value: any) => boolean;
   modal: boolean;
-  autoHighlight: boolean;
-  alwaysSubmitOnEnter: boolean;
+  autoHighlight: false | 'always' | 'input-change';
+  submitOnItemClick: boolean;
   hasInputValue: boolean;
 };
 
@@ -161,5 +162,5 @@ export const selectors = {
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
-  alwaysSubmitOnEnter: createSelector((state: State) => state.alwaysSubmitOnEnter),
+  submitOnItemClick: createSelector((state: State) => state.submitOnItemClick),
 };

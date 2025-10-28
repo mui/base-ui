@@ -2,6 +2,8 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { fireEvent, screen, flushMicrotasks, act, within, waitFor } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
+import { Dialog } from '@base-ui-components/react/dialog';
+import { Popover } from '@base-ui-components/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { OPEN_DELAY } from '../utils/constants';
@@ -126,6 +128,84 @@ function TestInlineNestedNavigationMenu() {
           <NavigationMenu.Trigger data-testid="trigger-2">Item 2</NavigationMenu.Trigger>
           <NavigationMenu.Content data-testid="popup-2">
             <NavigationMenu.Link href="#link-3">Link 3</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner>
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
+function TestNavigationMenuWithDialog() {
+  return (
+    <NavigationMenu.Root>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+
+          <NavigationMenu.Content data-testid="popup-1">
+            <Dialog.Root>
+              <Dialog.Trigger data-testid="dialog-trigger">Open dialog</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup
+                  data-testid="dialog-popup"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                  }}
+                >
+                  <button type="button" data-testid="dialog-button">
+                    Dialog button
+                  </button>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner>
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
+function TestNavigationMenuWithPopover() {
+  return (
+    <NavigationMenu.Root>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+
+          <NavigationMenu.Content data-testid="popup-1">
+            <Popover.Root>
+              <Popover.Trigger data-testid="popover-trigger">Open popover</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup
+                    data-testid="popover-popup"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                    }}
+                  >
+                    <button type="button" data-testid="popover-button">
+                      Popover button
+                    </button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
           </NavigationMenu.Content>
         </NavigationMenu.Item>
       </NavigationMenu.List>
@@ -565,6 +645,56 @@ describe('<NavigationMenu.Root />', () => {
       await user.tab({ shift: true }); // first
 
       expect(screen.queryByTestId('popup-1')).to.equal(null);
+    });
+  });
+
+  describe('nested popups', () => {
+    it('keeps the menu open when interacting with a nested dialog', async () => {
+      const { user } = await render(<TestNavigationMenuWithDialog />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      });
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
+
+      const dialogTrigger = screen.getByTestId('dialog-trigger');
+      await user.click(dialogTrigger);
+
+      expect(await screen.findByTestId('dialog-popup')).not.to.equal(null);
+
+      await user.click(screen.getByTestId('dialog-button'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      });
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
+    });
+
+    it('keeps the menu open when interacting with a nested popover', async () => {
+      const { user } = await render(<TestNavigationMenuWithPopover />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      });
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
+
+      const popoverTrigger = screen.getByTestId('popover-trigger');
+      await user.click(popoverTrigger);
+
+      expect(await screen.findByTestId('popover-popup')).not.to.equal(null);
+
+      await user.click(screen.getByTestId('popover-button'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      });
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
     });
   });
 
