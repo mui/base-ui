@@ -39,6 +39,7 @@ import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHande
 import { mergeProps } from '../../merge-props';
 import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
 import { MenuStore } from '../store/MenuStore';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 
 /**
  * Groups all parts of the menu.
@@ -491,12 +492,14 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     return referenceProps;
   }, [getReferenceProps, mixedToggleHandlers, store, interactionTypeProps]);
 
+  const disableHoverTimeout = useAnimationFrame();
+
   const popupProps = React.useMemo(
     () =>
       getFloatingProps({
         onMouseEnter() {
           if (!openOnHover || parent.type === 'menu') {
-            store.set('hoverEnabled', false);
+            disableHoverTimeout.request(() => store.set('hoverEnabled', false));
           }
         },
         onMouseMove() {
@@ -508,7 +511,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
           }
         },
       }),
-    [getFloatingProps, openOnHover, parent.type, store],
+    [getFloatingProps, openOnHover, parent.type, disableHoverTimeout, store],
   );
 
   const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
