@@ -30,6 +30,10 @@
     "data-current": {
       "description": "Applied to the direct child of the viewport when no transitions are present or the new content when it's entering."
     },
+    "data-instant": {
+      "description": "Present if animations should be instant.",
+      "type": "'delay' | 'dismiss' | 'focus'"
+    },
     "data-previous": {
       "description": "Applied to the direct child of the viewport that contains the exiting content when transitions are present."
     },
