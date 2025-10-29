@@ -147,7 +147,8 @@ You can add custom validation logic by passing a synchronous or asynchronous val
 
 Use the `validationMode` prop to configure when validation is performed:
 
-- `onBlur` (default) validates the field when focus moves away.
+- `onSubmit` (default) validates all fields when the containing `<Form>` is submitted, afterwards invalid fields revalidate when their value changes.
+- `onBlur` validates the field when focus moves away.
 - `onChange` validates the field when the value changes, for example, after each keypress in a text field or when a checkbox is checked or unchecked.
 
 `validationDebounceTime` can be used to debounce the function in use cases such as asynchronous requests or text fields that validate `onChange`.
