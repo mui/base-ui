@@ -86,13 +86,13 @@ export default function ExampleAsyncAutocomplete() {
         <Autocomplete.Portal>
           <Autocomplete.Positioner className="outline-none" sideOffset={4} align="start">
             <Autocomplete.Popup
-              className="w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
+              className="w-[var(--anchor-width)] max-h-[min(23rem,var(--available-height))] max-w-[var(--available-width)] overflow-y-auto overscroll-contain scroll-pt-2 scroll-pb-2 py-2 rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
               aria-busy={isLoading || undefined}
             >
               <Autocomplete.Status className="flex items-center gap-2 py-1 pl-4 pr-8 text-sm text-gray-600">
                 {status}
               </Autocomplete.Status>
-              <Autocomplete.List>
+              <Autocomplete.List className="box-border flex flex-col data-[empty]:p-0">
                 {(movie: Movie) => (
                   <Autocomplete.Item
                     key={movie.id}

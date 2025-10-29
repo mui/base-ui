@@ -38,7 +38,7 @@
   background-color: canvas;
   color: var(--color-gray-900);
   width: var(--anchor-width);
-  max-height: min(22rem, var(--available-height));
+  max-height: 22rem;
   max-width: var(--available-width);
 
   @media (prefers-color-scheme: light) {
@@ -57,7 +57,7 @@
 .Scroller {
   box-sizing: border-box;
   height: min(22rem, var(--total-size));
-  max-height: var(--available-height);
+  max-height: min(22rem, var(--available-height));
   overflow: auto;
   overscroll-behavior: contain;
   scroll-padding-block: 0.5rem;

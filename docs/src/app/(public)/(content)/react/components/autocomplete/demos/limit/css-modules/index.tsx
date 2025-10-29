@@ -33,7 +33,7 @@ export default function ExampleAutocompleteLimit() {
               No results found for "{value}"
             </Autocomplete.Empty>
 
-            <Autocomplete.List>
+            <Autocomplete.List className={styles.List}>
               {(tag: Tag) => (
                 <Autocomplete.Item key={tag.id} className={styles.Item} value={tag}>
                   {tag.value}
