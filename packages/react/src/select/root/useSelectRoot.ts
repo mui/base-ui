@@ -51,6 +51,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const { clearErrors } = useFormContext();
   const {
     setDirty,
+    shouldValidateOnChange,
     validityData,
     validationMode,
     setFilled,
@@ -197,9 +198,9 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
-    commitValidation(value, validationMode !== 'onChange');
+    commitValidation(value, !shouldValidateOnChange());
 
-    if (validationMode === 'onChange') {
+    if (shouldValidateOnChange()) {
       commitValidation(value);
     }
   }, [
@@ -207,6 +208,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     commitValidation,
     clearErrors,
     name,
+    shouldValidateOnChange,
     validationMode,
     store,
     setDirty,

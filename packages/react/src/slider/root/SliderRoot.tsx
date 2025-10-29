@@ -99,7 +99,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setTouched,
     setDirty,
     validityData,
-    validationMode,
+    shouldValidateOnChange,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
 
@@ -202,7 +202,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       setValueUnwrapped(newValue as Value);
       clearErrors(name);
-      fieldControlValidation.commitValidation(newValue, true);
+      if (shouldValidateOnChange()) {
+        fieldControlValidation.commitValidation(newValue);
+      } else {
+        fieldControlValidation.commitValidation(newValue, true);
+      }
     },
   );
 
@@ -220,7 +224,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         onValueCommitted(nextValue, createGenericEventDetails('none', event.nativeEvent));
         clearErrors(name);
 
-        if (validationMode === 'onChange') {
+        if (shouldValidateOnChange()) {
           fieldControlValidation.commitValidation(nextValue ?? newValue);
         } else {
           fieldControlValidation.commitValidation(nextValue ?? newValue, true);
