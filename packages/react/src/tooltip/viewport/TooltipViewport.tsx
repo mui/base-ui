@@ -39,6 +39,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   const activeTrigger = store.useState('activeTriggerElement');
   const open = store.useState('open');
   const floatingContext = store.useState('floatingRootContext');
+  const instantType = store.useState('instantType');
 
   const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
 
@@ -205,8 +206,9 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     return {
       activationDirection: getActivationDirection(newTriggerOffset),
       transitioning: isTransitioning,
+      instant: instantType,
     };
-  }, [newTriggerOffset, isTransitioning]);
+  }, [newTriggerOffset, isTransitioning, instantType]);
 
   return useRenderElement('div', componentProps, {
     state,

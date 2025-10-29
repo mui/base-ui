@@ -123,6 +123,10 @@
   display: flex;
   transition: left 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 
+  &[data-instant] {
+    transition: none;
+  }
+
   &[data-side='top'] {
     bottom: -8px;
     rotate: 180deg;
@@ -192,6 +196,11 @@
     transition:
       translate 350ms cubic-bezier(0.22, 1, 0.36, 1),
       opacity 175ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  [data-instant] & [data-previous],
+  [data-instant] & [data-current] {
+    transition: none;
   }
 
   &[data-activation-direction~='left'] [data-previous][data-ending-style] {

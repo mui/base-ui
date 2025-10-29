@@ -47,7 +47,7 @@ function InfoContent() {
 }
 
 function HelpContent() {
-  return <span>Need help? Check the documentation</span>;
+  return <span>Need help?</span>;
 }
 
 function AlertContent() {

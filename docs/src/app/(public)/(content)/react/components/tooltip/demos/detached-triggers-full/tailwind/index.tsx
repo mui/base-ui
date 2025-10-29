@@ -98,6 +98,7 @@ export default function TooltipDetachedTriggersFullDemo() {
                     transition-[left]
                     duration-[0.35s]
                     ease-[cubic-bezier(0.22,1,0.36,1)]
+                    data-instant:transition-none
                     data-[side=bottom]:-top-2 data-[side=bottom]:rotate-0
                     data-[side=left]:right-[-13px] data-[side=left]:rotate-90
                     data-[side=right]:left-[-13px] data-[side=right]:-rotate-90
@@ -127,6 +128,8 @@ export default function TooltipDetachedTriggersFullDemo() {
                     [&_[data-previous]]:transition-[translate,opacity]
                     [&_[data-previous]]:duration-[350ms,175ms]
                     [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)]
+                    [[data-instant]_&_[data-previous]]:transition-none
+                    [[data-instant]_&_[data-current]]:transition-none
                     data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:translate-x-1/2
                     data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:opacity-0
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-1/2
@@ -148,7 +151,7 @@ function InfoContent() {
 }
 
 function HelpContent() {
-  return <span>Need help? Check the documentation</span>;
+  return <span>Need help?</span>;
 }
 
 function AlertContent() {

@@ -18,4 +18,9 @@ export enum TooltipViewportDataAttributes {
    * Indicates that the viewport is currently transitioning between old and new content.
    */
   transitioning = 'data-transitioning',
+  /**
+   * Present if animations should be instant.
+   * @type {'delay' | 'dismiss' | 'focus'}
+   */
+  instant = 'data-instant',
 }
