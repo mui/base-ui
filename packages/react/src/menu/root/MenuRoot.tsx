@@ -6,6 +6,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useId } from '@base-ui-components/utils/useId';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
 import {
   FloatingTree,
@@ -39,7 +40,6 @@ import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHande
 import { mergeProps } from '../../merge-props';
 import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
 import { MenuStore } from '../store/MenuStore';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 
 /**
  * Groups all parts of the menu.
