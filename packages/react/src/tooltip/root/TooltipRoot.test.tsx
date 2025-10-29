@@ -903,6 +903,7 @@ describe('<Tooltip.Root />', () => {
       const popupId = randomStringValue();
       const { user } = await render(
         <Tooltip.Root>
+          <input type="text" aria-label="Initial focus" autoFocus />
           <Tooltip.Trigger delay={0}>Trigger 1</Tooltip.Trigger>
           <Tooltip.Trigger delay={0}>Trigger 2</Tooltip.Trigger>
           <Tooltip.Trigger delay={0}>Trigger 3</Tooltip.Trigger>
