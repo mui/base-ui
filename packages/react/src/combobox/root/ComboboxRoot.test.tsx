@@ -4,6 +4,7 @@ import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Combobox } from '@base-ui-components/react/combobox';
+import { Popover } from '@base-ui-components/react/popover';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
@@ -85,44 +86,209 @@ describe('<Combobox.Root />', () => {
     combobox: true,
   });
 
-  it('does not focus input when closing via trigger click (input inside popup)', async () => {
-    const { user } = await render(
-      <Combobox.Root items={['One', 'Two', 'Three']}>
-        <Combobox.Trigger data-testid="trigger">
-          <Combobox.Value />
-        </Combobox.Trigger>
-        <Combobox.Portal>
-          <Combobox.Positioner>
-            <Combobox.Popup aria-label="Demo">
-              <Combobox.Input data-testid="input" />
-              <Combobox.List>
-                {(item: string) => (
-                  <Combobox.Item key={item} value={item}>
-                    {item}
-                  </Combobox.Item>
-                )}
-              </Combobox.List>
-            </Combobox.Popup>
-          </Combobox.Positioner>
-        </Combobox.Portal>
-      </Combobox.Root>,
-    );
+  describe('focus management', () => {
+    it('does not focus input when closing via trigger click (input inside popup)', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['One', 'Two', 'Three']}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup aria-label="Demo">
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
 
-    const trigger = screen.getByTestId('trigger');
-    await user.click(trigger);
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
 
-    expect(await screen.findByRole('listbox')).not.to.equal(null);
+      expect(await screen.findByRole('listbox')).not.to.equal(null);
 
-    const input = await waitFor(() =>
-      screen.getAllByRole('combobox').find((element) => element.tagName === 'INPUT'),
-    );
-    await waitFor(() => {
-      expect(input).toHaveFocus();
+      const input = await waitFor(() =>
+        screen.getAllByRole('combobox').find((element) => element.tagName === 'INPUT'),
+      );
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
     });
 
-    await user.click(trigger);
-    await waitFor(() => {
-      expect(trigger).toHaveFocus();
+    it('applies aria-hidden to outside nodes when the input renders outside the popup', async () => {
+      await render(
+        <div>
+          <button data-testid="before">before</button>
+          <Combobox.Root defaultOpen>
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="apple">Apple</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+          <button data-testid="after">after</button>
+        </div>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('before').closest('[aria-hidden="true"]')).not.to.equal(null);
+        expect(screen.getByTestId('after').closest('[aria-hidden="true"]')).not.to.equal(null);
+      });
+      expect(screen.getByRole('listbox')).not.to.have.attribute('aria-hidden');
+    });
+
+    it('does not apply aria-hidden to outside nodes when the input renders inside the popup', async () => {
+      await render(
+        <div>
+          <button data-testid="before">before</button>
+          <Combobox.Root defaultOpen>
+            <Combobox.Trigger>Toggle</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input />
+                  <Combobox.List>
+                    <Combobox.Item value="apple">Apple</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+          <button data-testid="after">after</button>
+        </div>,
+      );
+
+      expect(screen.getByTestId('before')).not.to.have.attribute('aria-hidden', 'true');
+      expect(screen.getByTestId('after')).not.to.have.attribute('aria-hidden', 'true');
+      expect(screen.getByRole('listbox')).not.to.have.attribute('aria-hidden');
+    });
+
+    it('applies aria-hidden to outside nodes when the input renders inside the popup and is modal', async () => {
+      await render(
+        <div>
+          <button data-testid="before">before</button>
+          <Combobox.Root modal defaultOpen>
+            <Combobox.Trigger>Toggle</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input />
+                  <Combobox.List>
+                    <Combobox.Item value="apple">Apple</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+          <button data-testid="after">after</button>
+        </div>,
+      );
+
+      expect(screen.getByTestId('before').closest('[aria-hidden="true"]')).not.to.equal(null);
+      expect(screen.getByTestId('after').closest('[aria-hidden="true"]')).not.to.equal(null);
+      expect(screen.getByRole('listbox')).not.to.have.attribute('aria-hidden');
+    });
+
+    it('closes when tabbing forward from the last tabbable element inside a popover', async () => {
+      const { user } = await render(
+        <React.Fragment>
+          <Popover.Root defaultOpen>
+            <Popover.Trigger>Toggle</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <Combobox.Root defaultOpen>
+                    <Combobox.Input />
+                    <Combobox.Portal>
+                      <Combobox.Positioner>
+                        <Combobox.Popup data-testid="combobox-popup">
+                          <Combobox.List>
+                            <Combobox.Item value="apple">Apple</Combobox.Item>
+                          </Combobox.List>
+                        </Combobox.Popup>
+                      </Combobox.Positioner>
+                    </Combobox.Portal>
+                  </Combobox.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button data-testid="after" />
+        </React.Fragment>,
+      );
+
+      await flushMicrotasks();
+
+      const input = screen.getByRole('combobox');
+      expect(screen.queryByTestId('combobox-popup')).not.to.equal(null);
+
+      await user.click(input);
+      await user.tab();
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('combobox-popup')).to.equal(null);
+      });
+      expect(screen.getByTestId('after')).toHaveFocus();
+    });
+
+    it('closes when tabbing backward from the first tabbable element inside a popover', async () => {
+      const { user } = await render(
+        <React.Fragment>
+          <button data-testid="before" />
+          <Popover.Root defaultOpen>
+            <Popover.Trigger data-testid="trigger">Toggle</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <Combobox.Root defaultOpen>
+                    <Combobox.Input />
+                    <Combobox.Portal>
+                      <Combobox.Positioner>
+                        <Combobox.Popup data-testid="combobox-popup">
+                          <Combobox.List>
+                            <Combobox.Item value="apple">Apple</Combobox.Item>
+                          </Combobox.List>
+                        </Combobox.Popup>
+                      </Combobox.Positioner>
+                    </Combobox.Portal>
+                  </Combobox.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>,
+      );
+
+      await flushMicrotasks();
+
+      const input = screen.getByRole('combobox');
+      expect(screen.queryByTestId('combobox-popup')).not.to.equal(null);
+
+      await user.click(input);
+      await user.tab({ shift: true });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('combobox-popup')).to.equal(null);
+      });
+      expect(screen.getByTestId('trigger')).toHaveFocus();
     });
   });
 

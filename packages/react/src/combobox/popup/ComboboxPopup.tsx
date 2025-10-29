@@ -44,6 +44,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const mounted = useStore(store, selectors.mounted);
   const open = useStore(store, selectors.open);
   const openMethod = useStore(store, selectors.openMethod);
+  const modal = useStore(store, selectors.modal);
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
@@ -117,7 +118,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     <FloatingFocusManager
       context={floatingRootContext}
       disabled={!mounted}
-      modal={!inputInsidePopup}
+      modal={inputInsidePopup ? modal : false}
       openInteractionType={openMethod}
       initialFocus={resolvedInitialFocus}
       returnFocus={resolvedFinalFocus}
