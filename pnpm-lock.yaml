@@ -31,8 +31,8 @@ importers:
         specifier: workspace:*
         version: link:test
       '@mui/internal-code-infra':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@f0f583d
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@f0f583d(@next/eslint-plugin-next@15.5.6)(@types/node@22.18.12)(eslint@9.38.0(jiti@2.6.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@3f3707b
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@3f3707b(@next/eslint-plugin-next@15.5.6)(@types/node@22.18.12)(eslint@9.38.0(jiti@2.6.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)
       '@mui/internal-netlify-cache':
         specifier: ^0.0.2-canary.1
         version: 0.0.2-canary.1
@@ -2250,22 +2250,22 @@ packages:
       '@types/react': ^19.2.2
       react: '>=16'
 
-  '@mui/internal-babel-plugin-display-name@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@f0f583de33114f84e30fbb2f7bcc590bf1c4b8fe':
-    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@f0f583de33114f84e30fbb2f7bcc590bf1c4b8fe}
+  '@mui/internal-babel-plugin-display-name@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@3f3707b842452e07aabb5a6f1f7673bea76c2714':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@3f3707b842452e07aabb5a6f1f7673bea76c2714}
     version: 1.0.2
     peerDependencies:
       '@babel/core': ^7.28.4
       '@babel/preset-react': ^7.27.1
 
-  '@mui/internal-babel-plugin-minify-errors@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@f0f583de33114f84e30fbb2f7bcc590bf1c4b8fe':
-    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@f0f583de33114f84e30fbb2f7bcc590bf1c4b8fe}
+  '@mui/internal-babel-plugin-minify-errors@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@3f3707b842452e07aabb5a6f1f7673bea76c2714':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@3f3707b842452e07aabb5a6f1f7673bea76c2714}
     version: 2.0.6
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@babel/core': ^7.28.4
 
-  '@mui/internal-babel-plugin-resolve-imports@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@f0f583de33114f84e30fbb2f7bcc590bf1c4b8fe':
-    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@f0f583de33114f84e30fbb2f7bcc590bf1c4b8fe}
+  '@mui/internal-babel-plugin-resolve-imports@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@3f3707b842452e07aabb5a6f1f7673bea76c2714':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@3f3707b842452e07aabb5a6f1f7673bea76c2714}
     version: 2.0.5
     peerDependencies:
       '@babel/core': ^7.28.4
@@ -2274,8 +2274,8 @@ packages:
     resolution: {integrity: sha512-XjlTFsacsqUdU/Gtn9DvKlbJb3QQbN2QN7Y87na7kTuyCBqx1kxriihAMVYstfyI9gAQo1EFr9j78WmYGE4f2A==}
     hasBin: true
 
-  '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@f0f583d':
-    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@f0f583d}
+  '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@3f3707b':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@3f3707b}
     version: 0.0.2
     hasBin: true
     peerDependencies:
@@ -11883,7 +11883,7 @@ snapshots:
       '@types/react': 19.2.2
       react: 19.2.0
 
-  '@mui/internal-babel-plugin-display-name@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@f0f583de33114f84e30fbb2f7bcc590bf1c4b8fe(@babel/core@7.28.4)(@babel/preset-react@7.27.1(@babel/core@7.28.4))':
+  '@mui/internal-babel-plugin-display-name@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@3f3707b842452e07aabb5a6f1f7673bea76c2714(@babel/core@7.28.4)(@babel/preset-react@7.27.1(@babel/core@7.28.4))':
     dependencies:
       '@babel/core': 7.28.4
       '@babel/helper-module-imports': 7.27.1
@@ -11892,7 +11892,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mui/internal-babel-plugin-minify-errors@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@f0f583de33114f84e30fbb2f7bcc590bf1c4b8fe(@babel/core@7.28.4)':
+  '@mui/internal-babel-plugin-minify-errors@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@3f3707b842452e07aabb5a6f1f7673bea76c2714(@babel/core@7.28.4)':
     dependencies:
       '@babel/core': 7.28.4
       '@babel/helper-module-imports': 7.27.1
@@ -11900,7 +11900,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mui/internal-babel-plugin-resolve-imports@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@f0f583de33114f84e30fbb2f7bcc590bf1c4b8fe(@babel/core@7.28.4)':
+  '@mui/internal-babel-plugin-resolve-imports@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@3f3707b842452e07aabb5a6f1f7673bea76c2714(@babel/core@7.28.4)':
     dependencies:
       '@babel/core': 7.28.4
       resolve: 1.22.11
@@ -11935,7 +11935,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@f0f583d(@next/eslint-plugin-next@15.5.6)(@types/node@22.18.12)(eslint@9.38.0(jiti@2.6.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)':
+  '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@3f3707b(@next/eslint-plugin-next@15.5.6)(@types/node@22.18.12)(eslint@9.38.0(jiti@2.6.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
       '@argos-ci/core': 4.3.1
       '@babel/cli': 7.28.3(@babel/core@7.28.4)
@@ -11951,9 +11951,9 @@ snapshots:
       '@eslint/json': 0.13.2
       '@inquirer/confirm': 5.1.19(@types/node@22.18.12)
       '@inquirer/select': 4.4.0(@types/node@22.18.12)
-      '@mui/internal-babel-plugin-display-name': https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@f0f583de33114f84e30fbb2f7bcc590bf1c4b8fe(@babel/core@7.28.4)(@babel/preset-react@7.27.1(@babel/core@7.28.4))
-      '@mui/internal-babel-plugin-minify-errors': https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@f0f583de33114f84e30fbb2f7bcc590bf1c4b8fe(@babel/core@7.28.4)
-      '@mui/internal-babel-plugin-resolve-imports': https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@f0f583de33114f84e30fbb2f7bcc590bf1c4b8fe(@babel/core@7.28.4)
+      '@mui/internal-babel-plugin-display-name': https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@3f3707b842452e07aabb5a6f1f7673bea76c2714(@babel/core@7.28.4)(@babel/preset-react@7.27.1(@babel/core@7.28.4))
+      '@mui/internal-babel-plugin-minify-errors': https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@3f3707b842452e07aabb5a6f1f7673bea76c2714(@babel/core@7.28.4)
+      '@mui/internal-babel-plugin-resolve-imports': https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@3f3707b842452e07aabb5a6f1f7673bea76c2714(@babel/core@7.28.4)
       '@napi-rs/keyring': 1.2.0
       '@next/eslint-plugin-next': 15.5.6
       '@octokit/auth-action': 6.0.1
