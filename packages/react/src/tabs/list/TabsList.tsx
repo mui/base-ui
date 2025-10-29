@@ -125,7 +125,7 @@ function getInset(tab: HTMLElement, tabsList: HTMLElement) {
 
 function useActivationDirectionDetector(
   // the old value
-  selectedTabValue: any,
+  activeTabValue: any,
   orientation: TabsRoot.Orientation,
   tabsListRef: React.RefObject<HTMLElement | null>,
   getTabElement: (selectedValue: any) => HTMLElement | null,
@@ -134,12 +134,12 @@ function useActivationDirectionDetector(
 
   useIsoLayoutEffect(() => {
     // Whenever orientation changes, reset the state.
-    if (selectedTabValue == null || tabsListRef.current == null) {
+    if (activeTabValue == null || tabsListRef.current == null) {
       previousTabEdge.current = null;
       return;
     }
 
-    const activeTab = getTabElement(selectedTabValue);
+    const activeTab = getTabElement(activeTabValue);
     if (activeTab == null) {
       previousTabEdge.current = null;
       return;
@@ -147,11 +147,11 @@ function useActivationDirectionDetector(
 
     const { left, top } = getInset(activeTab, tabsListRef.current);
     previousTabEdge.current = orientation === 'horizontal' ? left : top;
-  }, [orientation, getTabElement, tabsListRef, selectedTabValue]);
+  }, [orientation, getTabElement, tabsListRef, activeTabValue]);
 
   return React.useCallback(
     (newValue: any) => {
-      if (newValue === selectedTabValue) {
+      if (newValue === activeTabValue) {
         return 'none';
       }
 
@@ -161,10 +161,10 @@ function useActivationDirectionDetector(
       }
 
       if (newValue != null && tabsListRef.current != null) {
-        const selectedTabElement = getTabElement(newValue);
+        const activeTabElement = getTabElement(newValue);
 
-        if (selectedTabElement != null) {
-          const { left, top } = getInset(selectedTabElement, tabsListRef.current);
+        if (activeTabElement != null) {
+          const { left, top } = getInset(activeTabElement, tabsListRef.current);
 
           if (previousTabEdge.current == null) {
             previousTabEdge.current = orientation === 'horizontal' ? left : top;
@@ -192,7 +192,7 @@ function useActivationDirectionDetector(
 
       return 'none';
     },
-    [getTabElement, orientation, previousTabEdge, tabsListRef, selectedTabValue],
+    [getTabElement, orientation, previousTabEdge, tabsListRef, activeTabValue],
   );
 }
 
