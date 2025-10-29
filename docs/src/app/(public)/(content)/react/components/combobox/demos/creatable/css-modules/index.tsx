@@ -15,6 +15,32 @@ export default function ExampleCreatableCombobox() {
   const createInputRef = React.useRef<HTMLInputElement | null>(null);
   const comboboxInputRef = React.useRef<HTMLInputElement | null>(null);
   const pendingQueryRef = React.useRef('');
+  const highlightedItemRef = React.useRef<LabelItem | undefined>(undefined);
+
+  function handleInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== 'Enter' || highlightedItemRef.current) {
+      return;
+    }
+
+    const currentTrimmed = query.trim();
+    if (currentTrimmed === '') {
+      return;
+    }
+
+    const normalized = currentTrimmed.toLocaleLowerCase();
+    const existing = labels.find((label) => label.value.trim().toLocaleLowerCase() === normalized);
+
+    if (existing) {
+      setSelected((prev) =>
+        prev.some((item) => item.id === existing.id) ? prev : [...prev, existing],
+      );
+      setQuery('');
+      return;
+    }
+
+    pendingQueryRef.current = currentTrimmed;
+    setOpenDialog(true);
+  }
 
   function handleCreate() {
     const input = createInputRef.current || comboboxInputRef.current;
@@ -76,9 +102,12 @@ export default function ExampleCreatableCombobox() {
         items={itemsForView}
         multiple
         onValueChange={(next) => {
-          const last = next[next.length - 1];
-          if (last && last.creatable) {
-            pendingQueryRef.current = last.creatable;
+          const creatableSelection = next.find(
+            (item) => item.creatable && !selected.some((current) => current.id === item.id),
+          );
+
+          if (creatableSelection && creatableSelection.creatable) {
+            pendingQueryRef.current = creatableSelection.creatable;
             setOpenDialog(true);
             return;
           }
@@ -89,28 +118,8 @@ export default function ExampleCreatableCombobox() {
         value={selected}
         inputValue={query}
         onInputValueChange={setQuery}
-        onOpenChange={(open, details) => {
-          if ('key' in details.event && details.event.key === 'Enter') {
-            // When pressing Enter:
-            // - If the typed value exactly matches an existing item, add that item to the selected chips
-            // - Otherwise, create a new item
-            if (trimmed === '') {
-              return;
-            }
-
-            const existing = labels.find((l) => l.value.trim().toLocaleLowerCase() === lowered);
-
-            if (existing) {
-              setSelected((prev) =>
-                prev.some((i) => i.id === existing.id) ? prev : [...prev, existing],
-              );
-              setQuery('');
-              return;
-            }
-
-            pendingQueryRef.current = trimmed;
-            setOpenDialog(true);
-          }
+        onItemHighlighted={(item) => {
+          highlightedItemRef.current = item;
         }}
       >
         <div className={styles.Container}>
@@ -134,6 +143,7 @@ export default function ExampleCreatableCombobox() {
                     id={id}
                     placeholder={value.length > 0 ? '' : 'e.g. bug'}
                     className={styles.Input}
+                    onKeyDown={handleInputKeyDown}
                   />
                 </React.Fragment>
               )}

@@ -42,7 +42,10 @@ const schema = z.object({
   autocomplete: z.string().min(1, 'Please input a framework'),
 });
 
-interface Settings extends Record<string, boolean> {}
+interface Settings {
+  native: boolean;
+  validationMode: Form.Props['validationMode'];
+}
 
 const frameworks = ['React', 'Vue', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Gatsby', 'Remix'];
 
@@ -55,6 +58,12 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     type: 'boolean',
     label: 'Native validation',
     default: true,
+  },
+  validationMode: {
+    type: 'string',
+    label: 'Validation mode',
+    options: ['onSubmit', 'onBlur', 'onChange'],
+    default: 'onSubmit',
   },
 };
 
@@ -121,6 +130,7 @@ export default function Page() {
           );
           setErrors(response.errors);
         }}
+        validationMode={settings.validationMode}
       >
         <Field.Root name="input" className={styles.Field}>
           <Field.Label className={styles.Label}>Local hostname</Field.Label>
@@ -146,7 +156,7 @@ export default function Page() {
           </Field.Label>
         </Field.Root>
 
-        <Field.Root name="required-checkbox" validationMode="onChange" className={styles.Field}>
+        <Field.Root name="required-checkbox" className={styles.Field}>
           <Field.Label className={styles.Label}>
             <Checkbox.Root required={native} className={styles.Checkbox}>
               <Checkbox.Indicator className={styles.CheckboxIndicator}>

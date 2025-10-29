@@ -52,6 +52,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   const {
     setTouched: setFieldTouched,
     setFocused,
+    shouldValidateOnChange,
     validationMode,
     name: fieldName,
     disabled: fieldDisabled,
@@ -111,12 +112,19 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
 
     clearErrors(name);
 
-    if (validationMode === 'onChange') {
+    if (shouldValidateOnChange()) {
       fieldControlValidation.commitValidation(checkedValue);
     } else {
       fieldControlValidation.commitValidation(checkedValue, true);
     }
-  }, [name, clearErrors, validationMode, checkedValue, fieldControlValidation]);
+  }, [
+    name,
+    clearErrors,
+    shouldValidateOnChange,
+    validationMode,
+    checkedValue,
+    fieldControlValidation,
+  ]);
 
   useIsoLayoutEffect(() => {
     prevValueRef.current = checkedValue;

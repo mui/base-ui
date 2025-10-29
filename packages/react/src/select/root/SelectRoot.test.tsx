@@ -1487,7 +1487,7 @@ describe('<Select.Root />', () => {
 
     it('prop: validate', async () => {
       await render(
-        <Field.Root validate={() => 'error'}>
+        <Field.Root validationMode="onBlur" validate={() => 'error'}>
           <Select.Root>
             <Select.Trigger data-testid="trigger" />
             <Select.Portal>
@@ -1507,6 +1507,51 @@ describe('<Select.Root />', () => {
       await flushMicrotasks();
 
       expect(trigger).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('prop: validateMode=onSubmit', async () => {
+      const { user } = await render(
+        <Form>
+          <Field.Root validate={(val) => (val === '2' ? 'error' : null)}>
+            <Select.Root required>
+              <Select.Trigger />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="1">Option 1</Select.Item>
+                    <Select.Item value="2">Option 2</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+      expect(trigger).not.to.have.attribute('aria-invalid');
+
+      await user.click(screen.getByText('submit'));
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+
+      // Arrow Down to focus Option 1 (valid)
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+      expect(trigger).not.to.have.attribute('aria-invalid');
+
+      await user.click(trigger);
+      // Arrow Down to focus Option 2 (invalid)
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+
+      await user.click(trigger);
+      // Arrow Down to focus Option 1 (valid)
+      await user.keyboard('{ArrowUp}');
+      await user.keyboard('{Enter}');
+      await flushMicrotasks();
+      expect(trigger).to.not.have.attribute('aria-invalid');
     });
 
     // flaky in real browser

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { NOOP } from '../../utils/noop';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { FieldRoot, FieldValidityData } from './FieldRoot';
+import type { Form } from '../../form';
 
 export interface FieldRootContext {
   invalid: boolean | undefined;
@@ -22,8 +23,9 @@ export interface FieldRootContext {
     value: unknown,
     formValues: Record<string, unknown>,
   ) => string | string[] | null | Promise<string | string[] | null>;
-  validationMode: 'onBlur' | 'onChange';
+  validationMode: Form.ValidationMode;
   validationDebounceTime: number;
+  shouldValidateOnChange: () => boolean;
   state: FieldRoot.State;
   markedDirtyRef: React.MutableRefObject<boolean>;
 }
@@ -49,8 +51,9 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   focused: false,
   setFocused: NOOP,
   validate: () => null,
-  validationMode: 'onBlur',
+  validationMode: 'onSubmit',
   validationDebounceTime: 0,
+  shouldValidateOnChange: () => false,
   state: {
     disabled: false,
     valid: null,

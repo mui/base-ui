@@ -1340,6 +1340,9 @@ describe('<Dialog.Root />', () => {
       const { user } = await render(<Test />);
 
       const removeButton = screen.getByTestId('remove');
+      await waitFor(() => {
+        expect(removeButton).toHaveFocus();
+      });
       fireEvent.pointerDown(removeButton);
 
       const popup = screen.getByTestId('popup');
