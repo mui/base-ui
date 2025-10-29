@@ -6,8 +6,9 @@ import { FloatingRootContext } from '../../floating-ui-react';
 import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
 import { TransitionStatus } from '../../utils/useTransitionStatus';
 import { HTMLProps } from '../../utils/types';
+import { PopupTriggerMap } from '../../utils/popupStoreUtils';
 
-export type State = {
+export type State<Payload> = {
   open: boolean;
   disabled: boolean;
   modal: boolean;
@@ -25,7 +26,10 @@ export type State = {
   floatingRootContext: FloatingRootContext;
   itemProps: HTMLProps;
   popupProps: HTMLProps;
-  triggerProps: HTMLProps;
+  payload: Payload | undefined;
+  triggers: PopupTriggerMap;
+  activeTriggerProps: HTMLProps;
+  inactiveTriggerProps: HTMLProps;
 };
 
 type Context = {
@@ -40,49 +44,53 @@ type Context = {
 };
 
 const selectors = {
-  open: createSelector((state: State) => state.open),
-  disabled: createSelector((state: State) =>
+  open: createSelector((state: State<unknown>) => state.open),
+  disabled: createSelector((state: State<unknown>) =>
     state.parent.type === 'menubar'
       ? state.parent.context.disabled || state.disabled
       : state.disabled,
   ),
 
   modal: createSelector(
-    (state: State) =>
+    (state: State<unknown>) =>
       (state.parent.type === undefined || state.parent.type === 'context-menu') &&
       (state.modal ?? true),
   ),
 
-  mounted: createSelector((state: State) => state.mounted),
-  allowMouseEnter: createSelector((state: State): boolean =>
+  mounted: createSelector((state: State<unknown>) => state.mounted),
+  allowMouseEnter: createSelector((state: State<unknown>): boolean =>
     state.parent.type === 'menu'
       ? state.parent.store.select('allowMouseEnter')
       : state.allowMouseEnter,
   ),
-  parent: createSelector((state: State) => state.parent),
-  rootId: createSelector((state: State): string | undefined => {
+  parent: createSelector((state: State<unknown>) => state.parent),
+  rootId: createSelector((state: State<unknown>): string | undefined => {
     if (state.parent.type === 'menu') {
       return state.parent.store.select('rootId');
     }
 
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
   }),
-  activeIndex: createSelector((state: State) => state.activeIndex),
-  isActive: createSelector((state: State, itemIndex: number) => state.activeIndex === itemIndex),
-  hoverEnabled: createSelector((state: State) => state.hoverEnabled),
-  triggerElement: createSelector((state: State) => state.triggerElement),
-  positionerElement: createSelector((state: State) => state.positionerElement),
-  transitionStatus: createSelector((state: State) => state.transitionStatus),
-  instantType: createSelector((state: State) => state.instantType),
-  lastOpenChangeReason: createSelector((state: State) => state.lastOpenChangeReason),
-  floatingRootContext: createSelector((state: State) => state.floatingRootContext),
-  itemProps: createSelector((state: State) => state.itemProps),
-  popupProps: createSelector((state: State) => state.popupProps),
-  triggerProps: createSelector((state: State) => state.triggerProps),
+  activeIndex: createSelector((state: State<unknown>) => state.activeIndex),
+  isActive: createSelector(
+    (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
+  ),
+  hoverEnabled: createSelector((state: State<unknown>) => state.hoverEnabled),
+  triggerElement: createSelector((state: State<unknown>) => state.triggerElement),
+  positionerElement: createSelector((state: State<unknown>) => state.positionerElement),
+  transitionStatus: createSelector((state: State<unknown>) => state.transitionStatus),
+  instantType: createSelector((state: State<unknown>) => state.instantType),
+  lastOpenChangeReason: createSelector((state: State<unknown>) => state.lastOpenChangeReason),
+  floatingRootContext: createSelector((state: State<unknown>) => state.floatingRootContext),
+  itemProps: createSelector((state: State<unknown>) => state.itemProps),
+  popupProps: createSelector((state: State<unknown>) => state.popupProps),
+  activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
+  inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
+  payload: createSelector((state: State<unknown>) => state.payload),
 };
 
-export class MenuStore extends ReactStore<State, Context, typeof selectors> {
-  constructor(initialState?: Partial<State>) {
+export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
+  constructor(initialState?: Partial<State<Payload>>) {
     super(
       { ...createInitialState(), ...initialState },
       {
@@ -135,7 +143,7 @@ export class MenuStore extends ReactStore<State, Context, typeof selectors> {
   private unsubscribeParentListener: (() => void) | null = null;
 }
 
-function createInitialState(): State {
+function createInitialState<Payload>(): State<Payload> {
   return {
     open: false,
     disabled: false,
@@ -156,6 +164,9 @@ function createInitialState(): State {
     floatingRootContext: getEmptyContext(),
     itemProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
-    triggerProps: EMPTY_OBJECT as HTMLProps,
+    activeTriggerProps: EMPTY_OBJECT as HTMLProps,
+    inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
+    payload: undefined,
+    triggers: new Map<string, HTMLElement>(),
   };
 }

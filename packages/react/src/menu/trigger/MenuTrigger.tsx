@@ -38,7 +38,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const { store } = useMenuRootContext();
 
-  const rootTriggerProps = store.useState('triggerProps');
+  const rootActiveTriggerProps = store.useState('activeTriggerProps');
   const menuDisabled = store.useState('disabled');
   const open = store.useState('open');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
@@ -153,7 +153,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   );
 
   const ref = [triggerRef, forwardedRef, buttonRef, store.useStateSetter('triggerElement')];
-  const props = [rootTriggerProps, elementProps, getTriggerProps];
+  const props = [rootActiveTriggerProps, elementProps, getTriggerProps];
 
   const element = useRenderElement('button', componentProps, {
     enabled: !isMenubar,

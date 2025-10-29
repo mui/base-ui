@@ -150,7 +150,7 @@ export interface UseMenuItemParameters {
    * The node id of the menu positioner.
    */
   nodeId: string | undefined;
-  store: MenuStore;
+  store: MenuStore<any>;
 }
 
 export type UseMenuItemMetadata =

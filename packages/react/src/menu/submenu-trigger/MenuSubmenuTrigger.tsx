@@ -35,7 +35,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const { events: menuEvents } = useFloatingTree()!;
 
   const { store } = useMenuRootContext();
-  const rootTriggerProps = store.useState('triggerProps');
+  const rootTriggerProps = store.useState('activeTriggerProps');
   const open = store.useState('open');
   const parent = store.useState('parent');
   const disabled = store.useState('disabled');

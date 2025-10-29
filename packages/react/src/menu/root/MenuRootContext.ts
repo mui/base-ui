@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { type MenuStore } from '../store/MenuStore';
 
-export interface MenuRootContext {
-  store: MenuStore;
+export interface MenuRootContext<Payload = unknown> {
+  store: MenuStore<Payload>;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);

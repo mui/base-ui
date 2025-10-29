@@ -519,7 +519,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
 
   store.useSyncedValues({
-    triggerProps,
+    activeTriggerProps: triggerProps,
     popupProps,
     itemProps,
   });
@@ -645,7 +645,7 @@ export type MenuRootOrientation = 'horizontal' | 'vertical';
 export type MenuParent =
   | {
       type: 'menu';
-      store: MenuStore;
+      store: MenuStore<unknown>;
     }
   | {
       type: 'menubar';
