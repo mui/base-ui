@@ -60,7 +60,7 @@
     "@babel/plugin-transform-react-constant-elements": "^7.27.1",
     "@base-ui-components/monorepo-tests": "workspace:*",
     "@mui/internal-netlify-cache": "^0.0.2-canary.1",
-    "@mui/internal-code-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@844c113",
+    "@mui/internal-code-infra": "^0.0.3-canary.40",
     "@mui/internal-test-utils": "^2.0.14",
     "@octokit/rest": "^22.0.0",
     "@playwright/test": "1.56.1",
