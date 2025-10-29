@@ -783,43 +783,13 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     }
 
     describe('outsidePress', () => {
-      test('false', async () => {
-        const user = userEvent.setup();
-
-        render(
-          <Overlay>
-            <NestedDialog id="outer" capture={{ outsidePress: false }}>
-              <NestedDialog id="inner" capture={{ outsidePress: false }}>
-                {null}
-              </NestedDialog>
-            </NestedDialog>
-          </Overlay>,
-        );
-
-        expect(screen.getByText('outer')).toBeInTheDocument();
-        expect(screen.getByText('inner')).toBeInTheDocument();
-
-        await user.click(screen.getByText('outer'));
-
-        expect(screen.getByText('outer')).toBeInTheDocument();
-        expect(screen.getByText('inner')).toBeInTheDocument();
-
-        await user.click(screen.getByText('outside'));
-
-        expect(screen.getByText('outer')).toBeInTheDocument();
-        expect(screen.getByText('inner')).toBeInTheDocument();
-        cleanup();
-      });
-
       test('true', async () => {
         const user = userEvent.setup();
 
         render(
           <Overlay>
-            <NestedDialog id="outer" capture={{ outsidePress: true }}>
-              <NestedDialog id="inner" capture={{ outsidePress: true }}>
-                {null}
-              </NestedDialog>
+            <NestedDialog id="outer">
+              <NestedDialog id="inner">{null}</NestedDialog>
             </NestedDialog>
           </Overlay>,
         );
@@ -846,38 +816,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         render(
           <Overlay>
-            <NestedDialog id="outer" capture={{ escapeKey: false }}>
-              <NestedDialog id="inner" capture={{ escapeKey: false }}>
-                {null}
-              </NestedDialog>
-            </NestedDialog>
-          </Overlay>,
-        );
-
-        expect(screen.getByText('outer')).toBeInTheDocument();
-        expect(screen.getByText('inner')).toBeInTheDocument();
-
-        await user.keyboard('{Escape}');
-
-        expect(screen.getByText('outer')).toBeInTheDocument();
-        expect(screen.queryByText('inner')).not.toBeInTheDocument();
-
-        await user.keyboard('{Escape}');
-
-        expect(screen.queryByText('outer')).not.toBeInTheDocument();
-        expect(screen.queryByText('inner')).not.toBeInTheDocument();
-        cleanup();
-      });
-
-      test('true', async () => {
-        const user = userEvent.setup();
-
-        render(
-          <Overlay>
-            <NestedDialog id="outer" capture={{ escapeKey: true }}>
-              <NestedDialog id="inner" capture={{ escapeKey: true }}>
-                {null}
-              </NestedDialog>
+            <NestedDialog id="outer">
+              <NestedDialog id="inner">{null}</NestedDialog>
             </NestedDialog>
           </Overlay>,
         );
@@ -931,14 +871,14 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
   });
 
-  test('nested floating elements with different portal roots', async () => {
+  test('nested floating elements with different portal containers', async () => {
     function ButtonWithFloating({
       children,
-      portalRoot,
+      portalContainer,
       triggerText,
     }: {
       children?: React.ReactNode;
-      portalRoot?: HTMLElement | null;
+      portalContainer?: HTMLElement | null;
       triggerText: string;
     }) {
       const [open, setOpen] = React.useState(false);
@@ -958,7 +898,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             {triggerText}
           </button>
           {open && (
-            <FloatingPortal root={portalRoot}>
+            <FloatingPortal container={portalContainer}>
               <FloatingFocusManager context={context} modal={false}>
                 <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                   {children}
@@ -978,8 +918,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
       return (
         <React.Fragment>
-          <ButtonWithFloating portalRoot={portal1} triggerText="open 1">
-            <ButtonWithFloating portalRoot={portal2} triggerText="open 2">
+          <ButtonWithFloating portalContainer={portal1} triggerText="open 1">
+            <ButtonWithFloating portalContainer={portal2} triggerText="open 2">
               <button>nested</button>
             </ButtonWithFloating>
           </ButtonWithFloating>

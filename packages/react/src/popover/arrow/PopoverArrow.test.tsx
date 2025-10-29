@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -10,6 +9,7 @@ describe('<Popover.Arrow />', () => {
     render(node) {
       return render(
         <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>{node}</Popover.Popup>

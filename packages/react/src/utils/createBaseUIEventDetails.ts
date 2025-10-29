@@ -8,7 +8,7 @@ export type ReasonToEvent<Reason extends string> = Reason extends 'trigger-press
   : Reason extends 'trigger-hover'
     ? MouseEvent
     : Reason extends 'outside-press'
-      ? MouseEvent | PointerEvent
+      ? MouseEvent | PointerEvent | TouchEvent
       : Reason extends 'item-press' | 'close-press'
         ? MouseEvent | KeyboardEvent | PointerEvent
         : Reason extends 'cancel-open'
@@ -51,6 +51,10 @@ export type BaseUIChangeEventDetails<
      * Indicates whether the event is allowed to propagate.
      */
     isPropagationAllowed: boolean;
+    /**
+     * The element that triggered the event, if applicable.
+     */
+    trigger: HTMLElement | undefined;
   } & CustomProperties;
 }[Reason];
 
@@ -82,6 +86,7 @@ export function createChangeEventDetails<
 >(
   reason: Reason,
   event?: ReasonToEvent<Reason>,
+  trigger?: HTMLElement,
   customProperties?: CustomProperties,
 ): BaseUIChangeEventDetails<Reason, CustomProperties> {
   let canceled = false;
@@ -102,6 +107,7 @@ export function createChangeEventDetails<
     get isPropagationAllowed() {
       return allowPropagation;
     },
+    trigger,
     ...custom,
   };
 }

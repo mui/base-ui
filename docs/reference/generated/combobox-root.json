@@ -8,19 +8,19 @@
       "detailedType": "string | undefined"
     },
     "defaultValue": {
-      "type": "SelectedValue[] | SelectedValue | null",
+      "type": "Value[] | Value | null",
       "description": "The uncontrolled selected value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `value` prop instead.",
-      "detailedType": "SelectedValue[] | SelectedValue | null | undefined"
+      "detailedType": "Value[] | Value | null | undefined"
     },
     "value": {
-      "type": "SelectedValue[] | SelectedValue",
+      "type": "Value[] | Value",
       "description": "The selected value of the combobox. Use when controlled.",
-      "detailedType": "SelectedValue[] | SelectedValue | undefined"
+      "detailedType": "Value[] | Value | undefined"
     },
     "onValueChange": {
-      "type": "((value: SelectedValue[] | SelectedValue, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
-      "description": "Callback fired when the selected value of the combobox changes.",
-      "detailedType": "| ((\n    value: SelectedValue[] | SelectedValue,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "type": "((value: Value[] | Value, eventDetails: Combobox.Root.ChangeEventDetails) => void) | ((value: Value[] | Value | any | null, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
+      "description": "Event handler called when the selected value of the combobox changes.",
+      "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {
       "type": "boolean",
@@ -41,12 +41,12 @@
     "actionsRef": {
       "type": "RefObject<Combobox.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<Combobox.Root.Actions>\n| undefined"
+      "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
     },
     "autoHighlight": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to automatically highlight the first item while filtering.",
+      "description": "Whether the first matching item is highlighted automatically while filtering.",
       "detailedType": "boolean | undefined"
     },
     "defaultInputValue": {
@@ -55,14 +55,20 @@
       "detailedType": "string | number | string[] | undefined"
     },
     "filter": {
-      "type": "((itemValue: any, query: string, itemToStringLabel: ((itemValue: any) => string) | undefined) => boolean) | null",
-      "description": "Filter function used to match items vs input query.\nThe `itemToStringLabel` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    itemValue: any,\n    query: string,\n    itemToStringLabel:\n      | ((itemValue: any) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "type": "((itemValue: Value, query: string, itemToString: ((itemValue: Value) => string) | undefined) => boolean) | null",
+      "description": "Filter function used to match items vs input query.",
+      "detailedType": "| ((\n    itemValue: Value,\n    query: string,\n    itemToString:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "grid": {
       "type": "boolean",
       "default": "false",
       "description": "Whether list items are presented in a grid layout.\nWhen enabled, arrow keys navigate across rows and columns inferred from DOM rows.",
+      "detailedType": "boolean | undefined"
+    },
+    "highlightItemOnHover": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether moving the pointer over items should highlight them.",
       "detailedType": "boolean | undefined"
     },
     "inputValue": {
@@ -71,24 +77,30 @@
       "detailedType": "string | number | string[] | undefined"
     },
     "isItemEqualToValue": {
-      "type": "((itemValue: SelectedValue, selectedValue: SelectedValue) => boolean) | ((itemValue: ItemValue, selectedValue: ItemValue) => boolean)",
+      "type": "((itemValue: Value, selectedValue: Value) => boolean)",
       "description": "Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.\nDefaults to `Object.is` comparison.",
-      "detailedType": "| ((\n    itemValue: SelectedValue,\n    selectedValue: SelectedValue,\n  ) => boolean)\n| ((\n    itemValue: ItemValue,\n    selectedValue: ItemValue,\n  ) => boolean)\n| undefined"
+      "detailedType": "| ((itemValue: Value, selectedValue: Value) => boolean)\n| undefined"
     },
     "itemToStringLabel": {
-      "type": "((itemValue: SelectedValue) => string) | ((itemValue: ItemValue) => string)",
+      "type": "((itemValue: Value) => string)",
       "description": "When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.\nIf the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.",
-      "detailedType": "| ((itemValue: SelectedValue) => string)\n| ((itemValue: ItemValue) => string)\n| undefined"
+      "detailedType": "((itemValue: Value) => string) | undefined"
     },
     "itemToStringValue": {
-      "type": "((itemValue: SelectedValue) => string) | ((itemValue: ItemValue) => string)",
+      "type": "((itemValue: Value) => string)",
       "description": "When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.\nIf the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.",
-      "detailedType": "| ((itemValue: SelectedValue) => string)\n| ((itemValue: ItemValue) => string)\n| undefined"
+      "detailedType": "((itemValue: Value) => string) | undefined"
     },
     "items": {
-      "type": "ItemValue[] | Group<ItemValue>[]",
+      "type": "any[] | Group[]",
       "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
-      "detailedType": "ItemValue[] | Group<ItemValue>[] | undefined"
+      "detailedType": "any[] | Group[] | undefined"
+    },
+    "keepHighlight": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the highlighted item should be preserved when the pointer leaves the list.",
+      "detailedType": "boolean | undefined"
     },
     "limit": {
       "type": "number",
@@ -114,14 +126,14 @@
       "detailedType": "boolean | undefined"
     },
     "onInputValueChange": {
-      "type": "((value: string, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
-      "description": "Callback fired when the input value of the combobox changes.",
-      "detailedType": "| ((\n    value: string,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "type": "((inputValue: string, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
+      "description": "Event handler called when the input value changes.",
+      "detailedType": "| ((\n    inputValue: string,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemHighlighted": {
-      "type": "((itemValue: any, eventDetails: Combobox.Root.HighlightEventDetails) => void)",
-      "description": "Callback fired when the user navigates the list and highlights an item.\nReceives the highlighted item value (or `undefined` when no highlight is present), and event details describing the navigation reason and highlighted index.",
-      "detailedType": "| ((\n    itemValue: any,\n    eventDetails: Combobox.Root.HighlightEventDetails,\n  ) => void)\n| undefined"
+      "type": "((highlightedValue: Value | undefined, eventDetails: Combobox.Root.HighlightEventDetails) => void)",
+      "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.\nThe `reason` can be:\n- `'keyboard'`: the highlight changed due to keyboard navigation.\n- `'pointer'`: the highlight changed due to pointer hovering.\n- `'none'`: the highlight changed programmatically.",
+      "detailedType": "| ((\n    highlightedValue: Value | undefined,\n    eventDetails: Combobox.Root.HighlightEventDetails,\n  ) => void)\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

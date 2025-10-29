@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
@@ -138,7 +138,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     },
   });
 
-  const recalculateHeight = useEventCallback(() => {
+  const recalculateHeight = useStableCallback(() => {
     const element = rootRef.current;
     if (!element) {
       return;
@@ -565,42 +565,34 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   return <ToastRootContext.Provider value={toastRoot}>{element}</ToastRootContext.Provider>;
 });
 
+export type ToastRootToastObject<Data extends object = any> = ToastObjectType<Data>;
+export interface ToastRootState {
+  transitionStatus: TransitionStatus;
+  /** Whether the toasts in the viewport are expanded. */
+  expanded: boolean;
+  /** Whether the toast was removed due to exceeding the limit. */
+  limited: boolean;
+  /** The type of the toast. */
+  type: string | undefined;
+  /** Whether the toast is being swiped. */
+  swiping: boolean;
+  /** The direction the toast is being swiped. */
+  swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
+}
+export interface ToastRootProps extends BaseUIComponentProps<'div', ToastRoot.State> {
+  /**
+   * The toast to render.
+   */
+  toast: ToastRootToastObject<any>;
+  /**
+   * Direction(s) in which the toast can be swiped to dismiss.
+   * @default ['down', 'right']
+   */
+  swipeDirection?: 'up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[];
+}
+
 export namespace ToastRoot {
-  export type ToastObject<Data extends object = any> = ToastObjectType<Data>;
-
-  export interface State {
-    transitionStatus: TransitionStatus;
-    /**
-     * Whether the toasts in the viewport are expanded.
-     */
-    expanded: boolean;
-    /**
-     * Whether the toast was removed due to exceeding the limit.
-     */
-    limited: boolean;
-    /**
-     * The type of the toast.
-     */
-    type: string | undefined;
-    /**
-     * Whether the toast is being swiped.
-     */
-    swiping: boolean;
-    /**
-     * The direction the toast is being swiped.
-     */
-    swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
-  }
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The toast to render.
-     */
-    toast: ToastObject<any>;
-    /**
-     * Direction(s) in which the toast can be swiped to dismiss.
-     * @default ['down', 'right']
-     */
-    swipeDirection?: 'up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[];
-  }
+  export type ToastObject<Data extends object = any> = ToastRootToastObject<Data>;
+  export type State = ToastRootState;
+  export type Props = ToastRootProps;
 }

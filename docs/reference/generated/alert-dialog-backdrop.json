@@ -8,10 +8,14 @@
       "description": "Whether the backdrop is forced to render even when nested.",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: AlertDialog.Backdrop.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: AlertDialog.Backdrop.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: AlertDialog.Backdrop.State) => string)",
+      "type": "string | ((state: AlertDialog.Backdrop.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: AlertDialog.Backdrop.State) => string)"
+      "detailedType": "| string\n| ((\n    state: AlertDialog.Backdrop.State,\n  ) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: AlertDialog.Backdrop.State) => ReactElement)",

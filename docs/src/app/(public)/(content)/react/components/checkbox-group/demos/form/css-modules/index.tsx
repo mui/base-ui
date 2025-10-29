@@ -6,7 +6,7 @@ import { Checkbox } from '@base-ui-components/react/checkbox';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import styles from './index.module.css';
 
-export default function ExampleCheckboxGroup() {
+export default function FormCheckboxGroup() {
   const [loading, setLoading] = React.useState(false);
   return (
     <Form
@@ -19,36 +19,46 @@ export default function ExampleCheckboxGroup() {
         setLoading(false);
       }}
     >
-      <Field.Root name="toppings" render={<Fieldset.Root />} className={styles.Fieldset}>
-        <Fieldset.Legend className={styles.Legend}>Extra toppings</Fieldset.Legend>
-        <CheckboxGroup defaultValue={[]} disabled={loading} className={styles.CheckboxGroup}>
-          <Field.Label className={styles.Item}>
-            <Checkbox.Root value="anchovies" className={styles.Checkbox}>
-              <Checkbox.Indicator className={styles.Indicator}>
-                <CheckIcon className={styles.Icon} />
-              </Checkbox.Indicator>
-            </Checkbox.Root>
-            Anchovies
-          </Field.Label>
+      <Field.Root name="toppings">
+        <Fieldset.Root
+          render={
+            <CheckboxGroup defaultValue={[]} disabled={loading} className={styles.CheckboxGroup} />
+          }
+        >
+          <Fieldset.Legend className={styles.Legend}>Extra toppings</Fieldset.Legend>
+          <Field.Item>
+            <Field.Label className={styles.Item}>
+              <Checkbox.Root value="anchovies" className={styles.Checkbox}>
+                <Checkbox.Indicator className={styles.Indicator}>
+                  <CheckIcon className={styles.Icon} />
+                </Checkbox.Indicator>
+              </Checkbox.Root>
+              Anchovies
+            </Field.Label>
+          </Field.Item>
 
-          <Field.Label className={styles.Item}>
-            <Checkbox.Root value="olives" className={styles.Checkbox}>
-              <Checkbox.Indicator className={styles.Indicator}>
-                <CheckIcon className={styles.Icon} />
-              </Checkbox.Indicator>
-            </Checkbox.Root>
-            Olives
-          </Field.Label>
+          <Field.Item>
+            <Field.Label className={styles.Item}>
+              <Checkbox.Root value="olives" className={styles.Checkbox}>
+                <Checkbox.Indicator className={styles.Indicator}>
+                  <CheckIcon className={styles.Icon} />
+                </Checkbox.Indicator>
+              </Checkbox.Root>
+              Olives
+            </Field.Label>
+          </Field.Item>
 
-          <Field.Label className={styles.Item}>
-            <Checkbox.Root value="jalapenos" className={styles.Checkbox}>
-              <Checkbox.Indicator className={styles.Indicator}>
-                <CheckIcon className={styles.Icon} />
-              </Checkbox.Indicator>
-            </Checkbox.Root>
-            Jalapeños
-          </Field.Label>
-        </CheckboxGroup>
+          <Field.Item>
+            <Field.Label className={styles.Item}>
+              <Checkbox.Root value="jalapenos" className={styles.Checkbox}>
+                <Checkbox.Indicator className={styles.Indicator}>
+                  <CheckIcon className={styles.Icon} />
+                </Checkbox.Indicator>
+              </Checkbox.Root>
+              Jalapeños
+            </Field.Label>
+          </Field.Item>
+        </Fieldset.Root>
       </Field.Root>
       <button type="submit" disabled={loading} className={styles.Button}>
         Add

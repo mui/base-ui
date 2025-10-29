@@ -200,7 +200,7 @@ describe('<Select.Root />', () => {
         { country: 'Australia', code: 'AU' },
       ];
 
-      const { container } = await render(
+      await render(
         <Select.Root
           name="country"
           defaultValue={items[0]}
@@ -224,7 +224,9 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
-      const hiddenInput = container.querySelector('input[name="country"]');
+      const hiddenInput = screen.getByRole('textbox', {
+        hidden: true,
+      });
       expect(hiddenInput).to.have.value('US');
     });
 
@@ -260,6 +262,7 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a type=hidden input
       const hiddenInputs = container.querySelectorAll('input[name="countries"]');
       expect(hiddenInputs).to.have.length(2);
       expect(hiddenInputs[0]).to.have.value('US');
@@ -534,7 +537,7 @@ describe('<Select.Root />', () => {
   });
 
   it('should handle browser autofill', async () => {
-    const { container, user } = await render(
+    const { user } = await render(
       <Select.Root name="select">
         <Select.Trigger data-testid="trigger">
           <Select.Value />
@@ -552,7 +555,11 @@ describe('<Select.Root />', () => {
 
     const trigger = screen.getByTestId('trigger');
 
-    fireEvent.change(container.querySelector('[name="select"]')!, { target: { value: 'b' } });
+    const selectInput = screen.getByRole('textbox', {
+      hidden: true,
+    });
+    expect(selectInput).to.have.attribute('name', 'select');
+    fireEvent.change(selectInput, { target: { value: 'b' } });
     await flushMicrotasks();
 
     await user.click(trigger);
@@ -568,7 +575,7 @@ describe('<Select.Root />', () => {
       { country: 'Canada', code: 'CA' },
     ];
 
-    const { container, user } = await render(
+    const { user } = await render(
       <Select.Root
         name="country"
         itemToStringLabel={(item: any) => item.country}
@@ -593,7 +600,11 @@ describe('<Select.Root />', () => {
 
     const trigger = screen.getByTestId('trigger');
 
-    fireEvent.change(container.querySelector('[name="country"]')!, { target: { value: 'CA' } });
+    const selectInput = screen.getByRole('textbox', {
+      hidden: true,
+    });
+    expect(selectInput).to.have.attribute('name', 'country');
+    fireEvent.change(selectInput, { target: { value: 'CA' } });
     await flushMicrotasks();
 
     await user.click(trigger);
@@ -1061,7 +1072,7 @@ describe('<Select.Root />', () => {
 
   describe('prop: id', () => {
     it('sets the id on the hidden input', async () => {
-      const { container } = await render(
+      await render(
         <Select.Root id="test-id">
           <Select.Trigger>
             <Select.Value />
@@ -1077,7 +1088,7 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
-      const input = container.querySelector('input');
+      const input = screen.getByRole('textbox', { hidden: true });
       expect(input).to.have.attribute('id', 'test-id');
     });
   });
@@ -1476,7 +1487,7 @@ describe('<Select.Root />', () => {
 
     it('prop: validate', async () => {
       await render(
-        <Field.Root validate={() => 'error'}>
+        <Field.Root validationMode="onBlur" validate={() => 'error'}>
           <Select.Root>
             <Select.Trigger data-testid="trigger" />
             <Select.Portal>
@@ -1496,6 +1507,51 @@ describe('<Select.Root />', () => {
       await flushMicrotasks();
 
       expect(trigger).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('prop: validateMode=onSubmit', async () => {
+      const { user } = await render(
+        <Form>
+          <Field.Root validate={(val) => (val === '2' ? 'error' : null)}>
+            <Select.Root required>
+              <Select.Trigger />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="1">Option 1</Select.Item>
+                    <Select.Item value="2">Option 2</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+      expect(trigger).not.to.have.attribute('aria-invalid');
+
+      await user.click(screen.getByText('submit'));
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+
+      // Arrow Down to focus Option 1 (valid)
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+      expect(trigger).not.to.have.attribute('aria-invalid');
+
+      await user.click(trigger);
+      // Arrow Down to focus Option 2 (invalid)
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+
+      await user.click(trigger);
+      // Arrow Down to focus Option 1 (valid)
+      await user.keyboard('{ArrowUp}');
+      await user.keyboard('{Enter}');
+      await flushMicrotasks();
+      expect(trigger).to.not.have.attribute('aria-invalid');
     });
 
     // flaky in real browser
@@ -1624,6 +1680,7 @@ describe('<Select.Root />', () => {
 
       const label = screen.getByTestId<HTMLLabelElement>('label');
       const trigger = screen.getByTestId('trigger');
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
       const hiddenInput = container.querySelector('input[type="text"]');
 
       expect(label).to.have.attribute('for', hiddenInput?.id);
@@ -2225,6 +2282,7 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
       const hiddenInputs = container.querySelectorAll(
         '[name="select"]',
       ) as NodeListOf<HTMLInputElement>;
@@ -2252,13 +2310,43 @@ describe('<Select.Root />', () => {
       );
 
       // In multiple mode with empty array, no hidden inputs with name should exist
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
       const namedHiddenInputs = container.querySelectorAll('[name="select"]');
       expect(namedHiddenInputs).to.have.length(0);
 
       // But the main input should have the serialized empty value for Field validation purposes
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
       const mainInput = container.querySelector<HTMLInputElement>('input[aria-hidden="true"]');
       expect(mainInput).not.to.equal(null);
       expect(mainInput?.value).to.equal('');
+    });
+
+    it('does not mark the hidden input as required when selection exists', async () => {
+      await render(
+        <Select.Root multiple required name="select" value={['a']}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput).not.to.have.attribute('required');
+    });
+
+    it('keeps the hidden input required when no selection exists', async () => {
+      await render(
+        <Select.Root multiple required name="select" value={[]}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput).to.have.attribute('required');
     });
 
     it('should not close popup when selecting items in multiple mode', async () => {

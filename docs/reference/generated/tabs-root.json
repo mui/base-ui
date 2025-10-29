@@ -12,9 +12,13 @@
       "description": "The value of the currently selected `Tab`. Use when the component is controlled.\nWhen the value is `null`, no Tab will be selected."
     },
     "onValueChange": {
-      "type": "((value: Tabs.Tab.Value, eventDetails: { reason: 'none', event: ReasonToEvent, cancel: (() => void), allowPropagation: (() => void), isCanceled: boolean, isPropagationAllowed: boolean } & { activationDirection: Tabs.Tab.ActivationDirection }) => void)",
+      "type": "((value: Tabs.Tab.Value, eventDetails: { reason: 'none', event: ReasonToEvent, cancel: (() => void), allowPropagation: (() => void), isCanceled: boolean, isPropagationAllowed: boolean, trigger: HTMLElement | undefined } & { activationDirection: Tabs.Tab.ActivationDirection }) => void)",
       "description": "Callback invoked when new value is being set.",
-      "detailedType": "| ((\n    value: Tabs.Tab.Value,\n    eventDetails: {\n      reason: 'none'\n      event: ReasonToEvent\n      cancel: () => void\n      allowPropagation: () => void\n      isCanceled: boolean\n      isPropagationAllowed: boolean\n    } & {\n      activationDirection: Tabs.Tab.ActivationDirection\n    },\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Tabs.Tab.Value,\n    eventDetails: {\n      reason: 'none'\n      event: ReasonToEvent\n      cancel: () => void\n      allowPropagation: () => void\n      isCanceled: boolean\n      isPropagationAllowed: boolean\n      trigger: HTMLElement | undefined\n    } & {\n      activationDirection: Tabs.Tab.ActivationDirection\n    },\n  ) => void)\n| undefined"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Tabs.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Tabs.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "orientation": {
       "type": "Tabs.Root.Orientation",
@@ -23,8 +27,9 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: Tabs.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Tabs.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Tabs.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Tabs.Root.State) => ReactElement)",

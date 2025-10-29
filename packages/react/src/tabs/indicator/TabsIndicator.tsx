@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { generateId } from '@base-ui-components/utils/generateId';
 import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -37,7 +36,6 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   const { tabsListRef } = useTabsListContext();
 
-  const [instanceId] = React.useState(() => generateId('tab'));
   const [isMounted, setIsMounted] = React.useState(false);
   const { value: activeTabValue } = useTabsRootContext();
 
@@ -158,9 +156,6 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
       },
       elementProps,
       {
-        ['data-instance-id' as string]: !(isMounted && renderBeforeHydration)
-          ? instanceId
-          : undefined,
         suppressHydrationWarning: true,
       },
     ],
@@ -185,19 +180,22 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   );
 });
 
-export namespace TabsIndicator {
-  export interface State extends TabsRoot.State {
-    selectedTabPosition: TabsTab.Position | null;
-    selectedTabSize: TabsTab.Size | null;
-    orientation: TabsRoot.Orientation;
-  }
+export interface TabsIndicatorState extends TabsRoot.State {
+  selectedTabPosition: TabsTab.Position | null;
+  selectedTabSize: TabsTab.Size | null;
+  orientation: TabsRoot.Orientation;
+}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    /**
-     * Whether to render itself before React hydrates.
-     * This minimizes the time that the indicator isn’t visible after server-side rendering.
-     * @default false
-     */
-    renderBeforeHydration?: boolean;
-  }
+export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsIndicator.State> {
+  /**
+   * Whether to render itself before React hydrates.
+   * This minimizes the time that the indicator isn’t visible after server-side rendering.
+   * @default false
+   */
+  renderBeforeHydration?: boolean;
+}
+
+export namespace TabsIndicator {
+  export type State = TabsIndicatorState;
+  export type Props = TabsIndicatorProps;
 }
