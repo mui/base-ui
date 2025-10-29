@@ -8,7 +8,7 @@
 
 <Demo path="./demos/hero" />
 
-## API reference
+## Anatomy
 
 Import the component and wrap it around your app:
 
@@ -21,4 +21,26 @@ import { DirectionProvider } from '@base-ui-components/react/direction-provider'
 </DirectionProvider>
 ```
 
+This only affects component interactions and behavior, you must additionally set `dir="rtl"` to affect HTML and CSS.
+
+## API reference
+
 <Reference component="DirectionProvider" />
+
+## useDirection
+
+Use this hook to read the current text direction. This is useful for wrapping portalled components that may be rendered outside your application root and are un-affected by the `dir` attribute set within.
+
+### Return value
+
+<PropsReferenceTable
+  type="return"
+  data={{
+    direction: {
+      type: 'TextDirection',
+      detailedType: "'ltr' | 'rtl' | undefined",
+      description: 'The current text direction.',
+      default: "'ltr'",
+    },
+  }}
+/>
