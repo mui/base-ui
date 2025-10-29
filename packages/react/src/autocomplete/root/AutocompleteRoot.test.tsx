@@ -14,6 +14,58 @@ describe('<Autocomplete.Root />', () => {
 
   const { render } = createRenderer();
 
+  describe('keyboard interactions', () => {
+    it('closes popup on Tab after selecting with Enter and typing again', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['alpha', 'alpine', 'beta']} autoHighlight>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+          <button />
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.click(input);
+      await user.type(input, 'al');
+
+      const firstOption = await screen.findByRole('option', { name: 'alpha' });
+      expect(firstOption).to.have.attribute('data-highlighted');
+
+      await user.keyboard('{Enter}');
+      expect(input.value).to.equal('alpha');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+
+      await user.clear(input);
+      await user.type(input, 'a');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      await user.tab();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+    });
+  });
+
   it('should handle browser autofill', async () => {
     await render(
       <Field.Root name="auto">
