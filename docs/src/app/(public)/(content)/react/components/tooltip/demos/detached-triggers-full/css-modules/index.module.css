@@ -87,7 +87,7 @@
   transform-origin: var(--transform-origin);
   border-radius: 0.375rem;
   background-color: canvas;
-  padding: 0.25rem 0.5rem;
+
   font-size: 0.875rem;
   line-height: 1.25rem;
   transition:
@@ -165,13 +165,16 @@
 }
 
 .Viewport {
+  --viewport-inline-padding: 0.5rem;
   position: relative;
   height: 100%;
   width: 100%;
   overflow: clip;
+  padding: 0.25rem var(--viewport-inline-padding);
 
+  & [data-previous],
   & [data-current] {
-    width: calc(var(--popup-width) - 1rem);
+    width: calc(var(--popup-width) - 2 * var(--viewport-inline-padding));
     translate: 0;
     opacity: 1;
     transition:
@@ -187,15 +190,6 @@
   &[data-activation-direction~='right'] [data-current][data-starting-style] {
     translate: 50% 0;
     opacity: 0;
-  }
-
-  & [data-previous] {
-    width: calc(var(--popup-width) - 1rem);
-    translate: 0;
-    opacity: 1;
-    transition:
-      translate 350ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 175ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   [data-instant] & [data-previous],

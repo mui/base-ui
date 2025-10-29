@@ -78,7 +78,6 @@ export default function TooltipDetachedTriggersFullDemo() {
                   relative
                   h-(--popup-height,auto) w-(--popup-width,auto)
                   max-w-[500px]
-                  px-2 py-1
                   rounded-md
                   bg-[canvas]
                   text-sm
@@ -109,10 +108,18 @@ export default function TooltipDetachedTriggersFullDemo() {
 
                 <Tooltip.Viewport
                   className="
+                    [--viewport-inline-padding:0.5rem]
                     relative
                     h-full w-full
                     overflow-clip
-                    [&_[data-current]]:w-[calc(var(--popup-width)-1rem)]
+                    px-[var(--viewport-inline-padding)] py-1
+                    [&_[data-previous]]:w-[calc(var(--popup-width)-2*var(--viewport-inline-padding))]
+                    [&_[data-previous]]:translate-x-0
+                    [&_[data-previous]]:opacity-100
+                    [&_[data-previous]]:transition-[translate,opacity]
+                    [&_[data-previous]]:duration-[350ms,175ms]
+                    [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)]
+                    [&_[data-current]]:w-[calc(var(--popup-width)-2*var(--viewport-inline-padding))]
                     [&_[data-current]]:translate-x-0
                     [&_[data-current]]:opacity-100
                     [&_[data-current]]:transition-[translate,opacity]
@@ -122,12 +129,6 @@ export default function TooltipDetachedTriggersFullDemo() {
                     data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:opacity-0
                     data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:translate-x-1/2
                     data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:opacity-0
-                    [&_[data-previous]]:w-[calc(var(--popup-width)-1rem)]
-                    [&_[data-previous]]:translate-x-0
-                    [&_[data-previous]]:opacity-100
-                    [&_[data-previous]]:transition-[translate,opacity]
-                    [&_[data-previous]]:duration-[350ms,175ms]
-                    [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)]
                     [[data-instant]_&_[data-previous]]:transition-none
                     [[data-instant]_&_[data-current]]:transition-none
                     data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:translate-x-1/2
