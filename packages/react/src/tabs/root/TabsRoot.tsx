@@ -200,7 +200,7 @@ export interface TabsRootState {
 
 export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.State> {
   /**
-   * The value of the currently selected `Tab`. Use when the component is controlled.
+   * The value of the currently active `Tab`. Use when the component is controlled.
    * When the value is `null`, no Tab will be active.
    */
   value?: TabsTab.Value;
