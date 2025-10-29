@@ -588,6 +588,53 @@ describe('<RadioGroup />', () => {
         expect(changeSpy.lastCall.returnValue).to.equal('banana');
       });
     });
+
+    describe('prop: validationMode', () => {
+      it('onSubmit', async () => {
+        const { user } = await render(
+          <Form>
+            <Field.Root
+              validate={(val) => {
+                if (val === 'a') {
+                  return 'custom error a';
+                }
+
+                if (val === 'c') {
+                  return 'custom error c';
+                }
+                return null;
+              }}
+            >
+              <RadioGroup>
+                <Radio.Root value="a" data-testid="item" />
+                <Radio.Root value="b" data-testid="item" />
+                <Radio.Root value="c" data-testid="item" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        const radioGroup = screen.getByRole('radiogroup');
+        const [radioA, radioB, radioC] = screen.getAllByTestId('item');
+        expect(radioGroup).to.not.have.attribute('aria-invalid');
+
+        await user.click(radioA);
+        expect(radioA).to.have.attribute('data-checked', '');
+        expect(radioGroup).to.not.have.attribute('aria-invalid');
+
+        await user.click(radioC);
+        expect(radioC).to.have.attribute('data-checked', '');
+        expect(radioGroup).to.not.have.attribute('aria-invalid');
+
+        await user.click(screen.getByText('submit'));
+        expect(radioGroup).to.have.attribute('aria-invalid');
+
+        await user.click(radioB);
+        expect(radioB).to.have.attribute('data-checked', '');
+        expect(radioGroup).to.not.have.attribute('aria-invalid');
+      });
+    });
   });
 
   describe('Form', () => {

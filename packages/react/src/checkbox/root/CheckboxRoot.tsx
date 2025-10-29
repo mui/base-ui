@@ -69,6 +69,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     state: fieldState,
     validationMode,
     validityData,
+    shouldValidateOnChange,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
   const { labelId, controlId, setControlId, getDescriptionProps } = useLabelableContext();
@@ -239,7 +240,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         if (!groupContext) {
           setFilled(nextChecked);
 
-          if (validationMode === 'onChange') {
+          if (shouldValidateOnChange()) {
             fieldControlValidation.commitValidation(nextChecked);
           } else {
             fieldControlValidation.commitValidation(nextChecked, true);
@@ -254,7 +255,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           setGroupValue(nextGroupValue, details);
           setFilled(nextGroupValue.length > 0);
 
-          if (validationMode === 'onChange') {
+          if (shouldValidateOnChange()) {
             fieldControlValidation.commitValidation(nextGroupValue);
           } else {
             fieldControlValidation.commitValidation(nextGroupValue, true);
