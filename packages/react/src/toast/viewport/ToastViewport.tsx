@@ -38,9 +38,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   } = useToastContext();
 
   const handlingFocusGuardRef = React.useRef(false);
+  const markedReadyForMouseLeaveRef = React.useRef(false);
+
   const numToasts = toasts.length;
   const frontmostHeight = toasts[0]?.height ?? 0;
-  const markedReadyForMouseLeave = React.useRef(false);
 
   const hasTransitioningToasts = React.useMemo(
     () => toasts.some((toast) => toast.transitionStatus === 'ending'),
@@ -134,9 +135,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     numToasts,
   ]);
 
-  const [x, setX] = React.useState(0);
-  React.useEffect(() => {}, [x, setX]);
-
   React.useEffect(() => {
     const viewportNode = viewportRef.current;
     if (!viewportNode || numToasts === 0) {
@@ -191,7 +189,11 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   React.useEffect(() => {
-    if (!windowFocusedRef.current || hasTransitioningToasts || !markedReadyForMouseLeave.current) {
+    if (
+      !windowFocusedRef.current ||
+      hasTransitioningToasts ||
+      !markedReadyForMouseLeaveRef.current
+    ) {
       return;
     }
 
@@ -200,20 +202,20 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     // collapse the viewport.
     resumeTimers();
     setHovering(false);
-    markedReadyForMouseLeave.current = false;
+    markedReadyForMouseLeaveRef.current = false;
   }, [hasTransitioningToasts, resumeTimers, setHovering, windowFocusedRef]);
 
   function handleMouseEnter() {
     pauseTimers();
     setHovering(true);
-    markedReadyForMouseLeave.current = false;
+    markedReadyForMouseLeaveRef.current = false;
   }
 
   function handleMouseLeave() {
     if (toasts.some((toast) => toast.transitionStatus === 'ending')) {
       // When swiping to dismiss, wait until the transitions have settled
       // to avoid the viewport collapsing while the user is interacting.
-      markedReadyForMouseLeave.current = true;
+      markedReadyForMouseLeaveRef.current = true;
     } else {
       resumeTimers();
       setHovering(false);

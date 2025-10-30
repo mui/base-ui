@@ -35,7 +35,7 @@
       "type": "'horizontal' | 'vertical'"
     },
     "data-activation-direction": {
-      "description": "Indicates the direction of the activation (based on the previous selected tab).",
+      "description": "Indicates the direction of the activation (based on the previous active tab).",
       "type": "'left' | 'right' | 'up' | 'down' | 'none'"
     }
   },
