@@ -78,5 +78,6 @@
   "77": "Base UI: Trigger must have an `id` prop specified.",
   "78": "Base UI: <AlertDialog.Trigger> must be used within <AlertDialog.Root> or provided with a handle.",
   "79": "Base UI: <Dialog.Trigger> must be used within <Dialog.Root> or provided with a handle.",
-  "80": "Base UI: PopoverHandle.open: No trigger found with id \"%s\"."
+  "80": "Base UI: PopoverHandle.open: No trigger found with id \"%s\".",
+  "81": "Base UI: ToastPositionerContext is missing. ToastPositioner parts must be placed within <Toast.Positioner>."
 }

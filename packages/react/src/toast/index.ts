@@ -9,3 +9,5 @@ export type * from './title/ToastTitle';
 export type * from './close/ToastClose';
 export type * from './action/ToastAction';
 export type * from './portal/ToastPortal';
+export type * from './positioner/ToastPositioner';
+export type * from './arrow/ToastArrow';
