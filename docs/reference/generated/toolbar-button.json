@@ -36,9 +36,6 @@
     }
   },
   "dataAttributes": {
-    "data-highlighted": {
-      "description": "Present when the button is the active item in the toolbar."
-    },
     "data-orientation": {
       "description": "Indicates the orientation of the toolbar.",
       "type": "'horizontal' | 'vertical'"
