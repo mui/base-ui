@@ -1,6 +1,6 @@
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form/FormContext';
 import { useFieldRootContext } from './root/FieldRootContext';
@@ -10,7 +10,7 @@ export function useField(params: useField.Parameters) {
   const { invalid, markedDirtyRef, validityData, setValidityData } = useFieldRootContext();
   const { enabled = true, value, id, name, controlRef, commitValidation } = params;
 
-  const getValueRef = useLatestRef(params.getValue);
+  const getValueRef = useValueAsRef(params.getValue);
 
   useIsoLayoutEffect(() => {
     if (!enabled) {
@@ -74,18 +74,20 @@ export function useField(params: useField.Parameters) {
   }, [formRef, id]);
 }
 
+export interface UseFieldParameters {
+  enabled?: boolean;
+  value: unknown;
+  getValue?: (() => unknown) | undefined;
+  id: string | undefined;
+  name?: string | undefined;
+  commitValidation: (value: unknown) => void;
+  /**
+   * A ref to a focusable element that receives focus when the field fails
+   * validation during form submission.
+   */
+  controlRef: React.RefObject<any>;
+}
+
 export namespace useField {
-  export interface Parameters {
-    enabled?: boolean;
-    value: unknown;
-    getValue?: (() => unknown) | undefined;
-    id: string | undefined;
-    name?: string | undefined;
-    commitValidation: (value: unknown) => void;
-    /**
-     * A ref to a focusable element that receives focus when the field fails
-     * validation during form submission.
-     */
-    controlRef: React.RefObject<any>;
-  }
+  export type Parameters = UseFieldParameters;
 }

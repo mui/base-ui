@@ -124,13 +124,18 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
   return element;
 });
 
-export namespace ComboboxChipRemove {
-  export interface State {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-  }
+export interface ComboboxChipRemoveState {
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface ComboboxChipRemoveProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ComboboxChipRemove.State> {}
+
+export namespace ComboboxChipRemove {
+  export type State = ComboboxChipRemoveState;
+  export type Props = ComboboxChipRemoveProps;
 }

@@ -18,9 +18,9 @@
       "detailedType": "number | number[] | undefined"
     },
     "onValueChange": {
-      "type": "((value: number | number[], eventDetails: { reason: 'none', event: ReasonToEvent, cancel: (() => void), allowPropagation: (() => void), isCanceled: boolean, isPropagationAllowed: boolean } & { activeThumbIndex: number }) => void)",
+      "type": "((value: number | number[], eventDetails: { reason: 'none', event: ReasonToEvent, cancel: (() => void), allowPropagation: (() => void), isCanceled: boolean, isPropagationAllowed: boolean, trigger: HTMLElement | undefined } & { activeThumbIndex: number }) => void)",
       "description": "Callback function that is fired when the slider's value changed.\nYou can pull out the new value by accessing `event.target.value` (any).",
-      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: {\n      reason: 'none'\n      event: ReasonToEvent\n      cancel: () => void\n      allowPropagation: () => void\n      isCanceled: boolean\n      isPropagationAllowed: boolean\n    } & { activeThumbIndex: number },\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: {\n      reason: 'none'\n      event: ReasonToEvent\n      cancel: () => void\n      allowPropagation: () => void\n      isCanceled: boolean\n      isPropagationAllowed: boolean\n      trigger: HTMLElement | undefined\n    } & { activeThumbIndex: number },\n  ) => void)\n| undefined"
     },
     "onValueCommitted": {
       "type": "((value: number | number[], eventDetails: Slider.Root.CommitEventDetails) => void)",
@@ -36,10 +36,14 @@
       "type": "RefObject<HTMLDivElement>",
       "detailedType": "React.RefObject<HTMLDivElement> | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Slider.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Slider.Root.State) => CSSProperties | undefined)\n| undefined"
+    },
     "thumbAlignment": {
       "type": "'center' | 'edge' | 'edge-client-only'",
       "default": "'center'",
-      "description": "How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`:\n- `center`: The center of the thumb is aligned with the control edges\n- `edge`: The thumb(s) are inset within the control such that thumb edges are aligned with the control edges\n- `edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return",
+      "description": "How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`:\n- `center`: The center of the thumb is aligned with the control edge\n- `edge`: The thumb is inset within the control such that its edge is aligned with the control edge\n- `edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return",
       "detailedType": "'center' | 'edge' | 'edge-client-only' | undefined"
     },
     "step": {
@@ -90,8 +94,9 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: Slider.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Slider.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Slider.Root.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Slider.Root.State) => ReactElement)",

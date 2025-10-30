@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   useComboboxRootContext,
@@ -70,7 +70,6 @@ export const ComboboxItem = React.memo(
     const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useLatestRef(index);
 
     const hasRegistered = listItem.index !== -1;
 
@@ -162,7 +161,17 @@ export const ComboboxItem = React.memo(
         if (disabled || readOnly) {
           return;
         }
-        store.state.handleSelection(event.nativeEvent, value);
+
+        function selectItem() {
+          store.state.handleSelection(event.nativeEvent, value);
+        }
+
+        if (store.state.submitOnItemClick) {
+          ReactDOM.flushSync(selectItem);
+          store.state.requestSubmit();
+        } else {
+          selectItem();
+        }
       },
     };
 
@@ -175,10 +184,9 @@ export const ComboboxItem = React.memo(
     const contextValue: ComboboxItemContext = React.useMemo(
       () => ({
         selected,
-        indexRef,
         textRef,
       }),
-      [selected, indexRef, textRef],
+      [selected, textRef],
     );
 
     return (
@@ -187,44 +195,47 @@ export const ComboboxItem = React.memo(
   }),
 );
 
-export namespace ComboboxItem {
-  export interface State {
-    /**
-     * Whether the item should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the item is selected.
-     */
-    selected: boolean;
-    /**
-     * Whether the item is highlighted.
-     */
-    highlighted: boolean;
-  }
+export interface ComboboxItemState {
+  /**
+   * Whether the item should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the item is selected.
+   */
+  selected: boolean;
+  /**
+   * Whether the item is highlighted.
+   */
+  highlighted: boolean;
+}
 
-  export interface Props
-    extends NonNativeButtonProps,
-      Omit<BaseUIComponentProps<'div', State>, 'id'> {
-    children?: React.ReactNode;
-    /**
-     * An optional click handler for the item when selected.
-     * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.
-     */
-    onClick?: React.MouseEventHandler<HTMLElement>;
-    /**
-     * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
-     */
-    index?: number;
-    /**
-     * A unique value that identifies this item.
-     * @default null
-     */
-    value?: any;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface ComboboxItemProps
+  extends NonNativeButtonProps,
+    Omit<BaseUIComponentProps<'div', ComboboxItem.State>, 'id'> {
+  children?: React.ReactNode;
+  /**
+   * An optional click handler for the item when selected.
+   * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.
+   */
+  onClick?: React.MouseEventHandler<HTMLElement>;
+  /**
+   * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
+   */
+  index?: number;
+  /**
+   * A unique value that identifies this item.
+   * @default null
+   */
+  value?: any;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+export namespace ComboboxItem {
+  export type State = ComboboxItemState;
+  export type Props = ComboboxItemProps;
 }

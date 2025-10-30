@@ -3,19 +3,10 @@ import * as React from 'react';
 import { NOOP } from '../../utils/noop';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { FieldRoot, FieldValidityData } from './FieldRoot';
+import type { Form } from '../../form';
 
 export interface FieldRootContext {
   invalid: boolean | undefined;
-  /**
-   * The `id` of the labelable element that corresponds to the `for` attribute of a `Field.Label`.
-   * When `null` the association is implicit.
-   */
-  controlId: string | null | undefined;
-  setControlId: React.Dispatch<React.SetStateAction<string | null | undefined>>;
-  labelId: string | undefined;
-  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  messageIds: string[];
-  setMessageIds: React.Dispatch<React.SetStateAction<string[]>>;
   name: string | undefined;
   validityData: FieldValidityData;
   setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
@@ -32,20 +23,15 @@ export interface FieldRootContext {
     value: unknown,
     formValues: Record<string, unknown>,
   ) => string | string[] | null | Promise<string | string[] | null>;
-  validationMode: 'onBlur' | 'onChange';
+  validationMode: Form.ValidationMode;
   validationDebounceTime: number;
+  shouldValidateOnChange: () => boolean;
   state: FieldRoot.State;
   markedDirtyRef: React.MutableRefObject<boolean>;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContext>({
   invalid: undefined,
-  controlId: undefined,
-  setControlId: NOOP,
-  labelId: undefined,
-  setLabelId: NOOP,
-  messageIds: [],
-  setMessageIds: NOOP,
   name: undefined,
   validityData: {
     state: DEFAULT_VALIDITY_STATE,
@@ -65,8 +51,9 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   focused: false,
   setFocused: NOOP,
   validate: () => null,
-  validationMode: 'onBlur',
+  validationMode: 'onSubmit',
   validationDebounceTime: 0,
+  shouldValidateOnChange: () => false,
   state: {
     disabled: false,
     valid: null,
@@ -81,7 +68,7 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
 export function useFieldRootContext(optional = true) {
   const context = React.useContext(FieldRootContext);
 
-  if (context.setControlId === NOOP && !optional) {
+  if (context.setValidityData === NOOP && !optional) {
     throw new Error(
       'Base UI: FieldRootContext is missing. Field parts must be placed within <Field.Root>.',
     );

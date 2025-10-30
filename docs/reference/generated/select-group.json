@@ -2,9 +2,14 @@
   "name": "SelectGroup",
   "description": "Groups related select items with the corresponding label.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Select.Group.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Select.Group.State) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: Select.Group.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Select.Group.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Select.Group.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Select.Group.State) => ReactElement)",

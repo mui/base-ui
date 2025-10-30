@@ -6,7 +6,7 @@
   }
 
   body {
-    position: relative; /* iOS 26 backdrops */
+    position: relative; /* iOS 26 `position: absolute` backdrops */
     min-width: 320px;
     line-height: 1.5;
     /* It's also the iOS footer overscroll background */

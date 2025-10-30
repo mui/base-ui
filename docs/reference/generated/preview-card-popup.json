@@ -2,10 +2,14 @@
   "name": "PreviewCardPopup",
   "description": "A container for the preview card contents.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: PreviewCard.Popup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: PreviewCard.Popup.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: PreviewCard.Popup.State) => string)",
+      "type": "string | ((state: PreviewCard.Popup.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: PreviewCard.Popup.State) => string)"
+      "detailedType": "| string\n| ((state: PreviewCard.Popup.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: PreviewCard.Popup.State) => ReactElement)",

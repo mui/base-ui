@@ -13,11 +13,56 @@ const objectItemsReadonly = [
   { value: 'c', label: 'cherry' },
 ] as const;
 
+const groupItemsReadonly = [
+  {
+    value: 'fruits',
+    items: [
+      { value: 'a', label: 'apple' },
+      { value: 'b', label: 'banana' },
+      { value: 'c', label: 'cherry' },
+    ],
+  },
+  {
+    value: 'vegetables',
+    items: [
+      { value: 'd', label: 'daikon' },
+      { value: 'e', label: 'endive' },
+      { value: 'f', label: 'fennel' },
+    ],
+  },
+] as const;
+
+<Combobox.Root
+  items={objectItems}
+  itemToStringValue={(item) => {
+    // @ts-expect-error - inference always comes from `value`/`defaultValue`
+    return item.value;
+  }}
+/>;
+
+<Combobox.Root
+  items={groupItemsReadonly}
+  itemToStringValue={(item) => {
+    // @ts-expect-error - inference always comes from `value`/`defaultValue`
+    return item.value;
+  }}
+/>;
+
+<Combobox.Root
+  items={groupItemsReadonly}
+  defaultValue={groupItemsReadonly[0].items[0]}
+  itemToStringValue={(item) => {
+    return item.label;
+  }}
+/>;
+
 <Combobox.Root
   items={objectItems}
   defaultValue="a"
   onValueChange={(value) => {
+    // @ts-expect-error - possibly null
     value.startsWith('a');
+    value?.startsWith('a');
   }}
 />;
 
@@ -25,7 +70,9 @@ const objectItemsReadonly = [
   items={objectItemsReadonly}
   defaultValue="a"
   onValueChange={(value) => {
+    // @ts-expect-error - possibly null
     value.startsWith('a');
+    value?.startsWith('a');
   }}
 />;
 
@@ -147,8 +194,18 @@ function App() {
 }
 
 <Combobox.Root
+  items={['a', 'b', 'c']}
+  onValueChange={(value) => {
+    // @ts-expect-error
+    value.length;
+  }}
+/>;
+
+<Combobox.Root
+  items={['a', 'b', 'c']}
   defaultValue="test"
   onValueChange={(value) => {
+    // @ts-expect-error
     value.length;
   }}
 />;

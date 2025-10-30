@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
@@ -40,10 +39,8 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     ...elementProps
   } = componentProps;
 
-  const formatOptionsRef = useLatestRef(format);
-
   const [labelId, setLabelId] = React.useState<string | undefined>();
-  const formattedValue = formatValue(valueProp, locale, formatOptionsRef.current);
+  const formattedValue = formatValue(valueProp, locale, format);
 
   let ariaValuetext = `${valueProp}%`;
   if (getAriaValueText) {
@@ -79,41 +76,42 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
 
   return <MeterRootContext.Provider value={contextValue}>{element}</MeterRootContext.Provider>;
 });
+export interface MeterRootState {}
+export interface MeterRootProps extends BaseUIComponentProps<'div', MeterRoot.State> {
+  /**
+   * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
+   */
+  'aria-valuetext'?: React.AriaAttributes['aria-valuetext'];
+  /**
+   * Options to format the value.
+   */
+  format?: Intl.NumberFormatOptions;
+  /**
+   * A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter.
+   */
+  getAriaValueText?: (formattedValue: string, value: number) => string;
+  /**
+   * The locale used by `Intl.NumberFormat` when formatting the value.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+  /**
+   * The maximum value
+   * @default 100
+   */
+  max?: number;
+  /**
+   * The minimum value
+   * @default 0
+   */
+  min?: number;
+  /**
+   * The current value.
+   */
+  value: number;
+}
 
 export namespace MeterRoot {
-  export interface State {}
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
-     */
-    'aria-valuetext'?: React.AriaAttributes['aria-valuetext'];
-    /**
-     * Options to format the value.
-     */
-    format?: Intl.NumberFormatOptions;
-    /**
-     * A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter.
-     */
-    getAriaValueText?: (formattedValue: string, value: number) => string;
-    /**
-     * The locale used by `Intl.NumberFormat` when formatting the value.
-     * Defaults to the user's runtime locale.
-     */
-    locale?: Intl.LocalesArgument;
-    /**
-     * The maximum value
-     * @default 100
-     */
-    max?: number;
-    /**
-     * The minimum value
-     * @default 0
-     */
-    min?: number;
-    /**
-     * The current value.
-     */
-    value: number;
-  }
+  export type State = MeterRootState;
+  export type Props = MeterRootProps;
 }

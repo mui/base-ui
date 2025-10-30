@@ -22,8 +22,16 @@ export const DialogClose = React.forwardRef(function DialogClose(
     nativeButton = true,
     ...elementProps
   } = componentProps;
-  const { open, setOpen } = useDialogRootContext();
-  const { getRootProps, ref } = useDialogClose({ disabled, open, setOpen, nativeButton });
+
+  const { store } = useDialogRootContext();
+  const open = store.useState('open');
+
+  const { getRootProps, ref } = useDialogClose({
+    disabled,
+    open,
+    setOpen: store.setOpen,
+    nativeButton,
+  });
 
   const state: DialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);
 
@@ -34,13 +42,18 @@ export const DialogClose = React.forwardRef(function DialogClose(
   });
 });
 
-export namespace DialogClose {
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface DialogCloseProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', DialogClose.State> {}
 
-  export interface State {
-    /**
-     * Whether the button is currently disabled.
-     */
-    disabled: boolean;
-  }
+export interface DialogCloseState {
+  /**
+   * Whether the button is currently disabled.
+   */
+  disabled: boolean;
+}
+
+export namespace DialogClose {
+  export type Props = DialogCloseProps;
+  export type State = DialogCloseState;
 }

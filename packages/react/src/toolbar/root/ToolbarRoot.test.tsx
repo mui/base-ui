@@ -1,10 +1,10 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { Toolbar } from '@base-ui-components/react/toolbar';
 import {
   DirectionProvider,
   type TextDirection,
 } from '@base-ui-components/react/direction-provider';
+import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { type Orientation } from '../../utils/types';
 
@@ -35,7 +35,7 @@ describe('<Toolbar.Root />', () => {
 
       describe(direction, () => {
         it(`orientation: ${orientation}`, async () => {
-          const { getAllByRole, getByRole, getByText, user } = await render(
+          const { user } = await render(
             <DirectionProvider direction={direction as TextDirection}>
               <Toolbar.Root dir={direction} orientation={orientation as Orientation}>
                 <Toolbar.Button />
@@ -48,9 +48,9 @@ describe('<Toolbar.Root />', () => {
               </Toolbar.Root>
             </DirectionProvider>,
           );
-          const [button1, groupedButton1, groupedButton2] = getAllByRole('button');
-          const link = getByText('Link');
-          const input = getByRole('textbox');
+          const [button1, groupedButton1, groupedButton2] = screen.getAllByRole('button');
+          const link = screen.getByText('Link');
+          const input = screen.getByRole('textbox');
 
           await user.keyboard('[Tab]');
           expect(button1).toHaveFocus();
@@ -83,7 +83,7 @@ describe('<Toolbar.Root />', () => {
 
   describe('prop: disabled', () => {
     it('disables all toolbar items except links', async () => {
-      const { getAllByRole, getByRole, getAllByText } = await render(
+      await render(
         <Toolbar.Root disabled>
           <Toolbar.Button />
           <Toolbar.Link href="https://base-ui.com">Link</Toolbar.Link>
@@ -96,14 +96,16 @@ describe('<Toolbar.Root />', () => {
         </Toolbar.Root>,
       );
 
-      [...getAllByRole('button'), ...getAllByRole('textbox')].forEach((toolbarItem) => {
-        expect(toolbarItem).to.have.attribute('aria-disabled', 'true');
-        expect(toolbarItem).to.have.attribute('data-disabled');
-      });
+      [...screen.getAllByRole('button'), ...screen.getAllByRole('textbox')].forEach(
+        (toolbarItem) => {
+          expect(toolbarItem).to.have.attribute('aria-disabled', 'true');
+          expect(toolbarItem).to.have.attribute('data-disabled');
+        },
+      );
 
-      expect(getByRole('group')).to.have.attribute('data-disabled');
+      expect(screen.getByRole('group')).to.have.attribute('data-disabled');
 
-      getAllByText('Link').forEach((link) => {
+      screen.getAllByText('Link').forEach((link) => {
         expect(link).to.not.have.attribute('data-disabled');
         expect(link).to.not.have.attribute('aria-disabled');
       });
@@ -118,7 +120,7 @@ describe('<Toolbar.Root />', () => {
     }
 
     it('toolbar items can be focused when disabled by default', async () => {
-      const { getAllByRole, getByRole, user } = await render(
+      const { user } = await render(
         <Toolbar.Root>
           <Toolbar.Button disabled />
           <Toolbar.Group>
@@ -129,8 +131,8 @@ describe('<Toolbar.Root />', () => {
         </Toolbar.Root>,
       );
 
-      const input = getByRole('textbox');
-      const buttons = getAllByRole('button');
+      const input = screen.getByRole('textbox');
+      const buttons = screen.getAllByRole('button');
       [input, ...buttons].forEach((item) => {
         expect(item).to.not.have.attribute('disabled');
       });
@@ -161,7 +163,7 @@ describe('<Toolbar.Root />', () => {
     });
 
     it('toolbar items can individually disable focusableWhenDisabled', async () => {
-      const { getAllByRole, getByRole, user } = await render(
+      const { user } = await render(
         <Toolbar.Root>
           <Toolbar.Button disabled />
           <Toolbar.Group>
@@ -172,8 +174,8 @@ describe('<Toolbar.Root />', () => {
         </Toolbar.Root>,
       );
 
-      const input = getByRole('textbox');
-      const buttons = getAllByRole('button');
+      const input = screen.getByRole('textbox');
+      const buttons = screen.getAllByRole('button');
       const focusableWhenDisabledButtons = buttons.filter(
         (button) => button.getAttribute('data-focusable') != null,
       );

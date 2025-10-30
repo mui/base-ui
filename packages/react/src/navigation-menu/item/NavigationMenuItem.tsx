@@ -7,7 +7,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 
 /**
  * An individual navigation menu item.
- * Renders a `<div>` element.
+ * Renders a `<li>` element.
  *
  * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
  */
@@ -30,15 +30,19 @@ export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
   );
 });
 
-export namespace NavigationMenuItem {
-  export interface State {}
+export interface NavigationMenuItemState {}
 
-  export interface Props extends BaseUIComponentProps<'li', State> {
-    /**
-     * A unique value that identifies this navigation menu item.
-     * If no value is provided, a unique ID will be generated automatically.
-     * Use when controlling the navigation menu programmatically.
-     */
-    value?: any;
-  }
+export interface NavigationMenuItemProps
+  extends BaseUIComponentProps<'li', NavigationMenuItem.State> {
+  /**
+   * A unique value that identifies this navigation menu item.
+   * If no value is provided, a unique ID will be generated automatically.
+   * Use when controlling the navigation menu programmatically.
+   */
+  value?: any;
+}
+
+export namespace NavigationMenuItem {
+  export type State = NavigationMenuItemState;
+  export type Props = NavigationMenuItemProps;
 }

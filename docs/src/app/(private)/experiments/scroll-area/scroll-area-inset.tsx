@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import styles from './scroll-area-inset.module.css';

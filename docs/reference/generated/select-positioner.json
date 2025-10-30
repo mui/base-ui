@@ -12,13 +12,17 @@
       "type": "CollisionAvoidance",
       "description": "Determines how to handle collisions when positioning the popup.",
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
-      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'shift' | 'none' | 'flip'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| {\n    side?: 'shift' | 'none'\n    align?: 'shift' | 'none'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| undefined"
+      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'none' | 'flip' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| {\n    side?: 'none' | 'shift'\n    align?: 'none' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| undefined"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Select.Positioner.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Select.Positioner.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "align": {
       "type": "Align",
       "default": "'center'",
       "description": "How to align the popup relative to the specified side.",
-      "detailedType": "'center' | 'start' | 'end' | undefined"
+      "detailedType": "'center' | 'end' | 'start' | undefined"
     },
     "alignOffset": {
       "type": "number | OffsetFunction",
@@ -31,7 +35,7 @@
       "type": "Side",
       "default": "'bottom'",
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions.",
-      "detailedType": "| 'top'\n| 'bottom'\n| 'left'\n| 'right'\n| 'inline-end'\n| 'inline-start'\n| undefined"
+      "detailedType": "| 'left'\n| 'right'\n| 'bottom'\n| 'top'\n| 'inline-end'\n| 'inline-start'\n| undefined"
     },
     "sideOffset": {
       "type": "number | OffsetFunction",
@@ -82,9 +86,9 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Select.Positioner.State) => string)",
+      "type": "string | ((state: Select.Positioner.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Select.Positioner.State) => string)"
+      "detailedType": "| string\n| ((state: Select.Positioner.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Select.Positioner.State) => ReactElement)",

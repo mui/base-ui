@@ -19,14 +19,14 @@ export function isIndexOutOfListBounds(
 
 export function getMinListIndex(
   listRef: React.RefObject<Array<HTMLElement | null>>,
-  disabledIndices: DisabledIndices | undefined,
+  disabledIndices?: DisabledIndices | undefined,
 ) {
   return findNonDisabledListIndex(listRef, { disabledIndices });
 }
 
 export function getMaxListIndex(
   listRef: React.RefObject<Array<HTMLElement | null>>,
-  disabledIndices: DisabledIndices | undefined,
+  disabledIndices?: DisabledIndices | undefined,
 ) {
   return findNonDisabledListIndex(listRef, {
     decrement: true,
@@ -433,9 +433,9 @@ export function isListIndexDisabled(
   }
 
   const element = listRef.current[index];
-  return (
-    element == null ||
-    element.hasAttribute('disabled') ||
-    element.getAttribute('aria-disabled') === 'true'
-  );
+  if (!element) {
+    return false;
+  }
+
+  return element.hasAttribute('disabled') || element.getAttribute('aria-disabled') === 'true';
 }

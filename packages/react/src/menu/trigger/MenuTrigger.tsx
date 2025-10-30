@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { contains } from '../../floating-ui-react/utils';
 import { useFloatingTree } from '../../floating-ui-react/index';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -67,7 +67,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }
   }, [allowMouseUpTriggerRef, open, parent.type]);
 
-  const handleDocumentMouseUp = useEventCallback((mouseEvent: MouseEvent) => {
+  const handleDocumentMouseUp = useStableCallback((mouseEvent: MouseEvent) => {
     if (!triggerRef.current) {
       return;
     }
@@ -184,20 +184,25 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   return element;
 });
 
-export namespace MenuTrigger {
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface MenuTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', MenuTrigger.State> {
+  children?: React.ReactNode;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+}
 
-  export type State = {
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-  };
+export type MenuTriggerState = {
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+};
+
+export namespace MenuTrigger {
+  export type Props = MenuTriggerProps;
+  export type State = MenuTriggerState;
 }

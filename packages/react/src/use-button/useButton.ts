@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { error } from '@base-ui-components/utils/error';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { makeEventPreventable, mergeProps } from '../merge-props';
@@ -21,7 +21,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
-  const isValidLink = useEventCallback(() => {
+  const isValidLink = useStableCallback(() => {
     const element = elementRef.current;
     return Boolean(element?.tagName === 'A' && (element as HTMLAnchorElement)?.href);
   });
@@ -175,7 +175,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink],
   );
 
-  const buttonRef = useEventCallback((element: HTMLElement | null) => {
+  const buttonRef = useStableCallback((element: HTMLElement | null) => {
     elementRef.current = element;
     updateDisabled();
   });
@@ -204,39 +204,42 @@ interface AdditionalButtonProps
     tabIndex?: number;
   }> {}
 
-export namespace useButton {
-  export interface Parameters {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Whether the button may receive focus even if it is disabled.
-     * @default false
-     */
-    focusableWhenDisabled?: boolean;
-    tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
-    /**
-     * Whether the component is being rendered as a native button.
-     * @default true
-     */
-    native?: boolean;
-  }
+export interface UseButtonParameters {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Whether the button may receive focus even if it is disabled.
+   * @default false
+   */
+  focusableWhenDisabled?: boolean;
+  tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
+  /**
+   * Whether the component is being rendered as a native button.
+   * @default true
+   */
+  native?: boolean;
+}
 
-  export interface ReturnValue {
-    /**
-     * Resolver for the button props.
-     * @param externalProps additional props for the button
-     * @returns props that should be spread on the button
-     */
-    getButtonProps: (
-      externalProps?: React.ComponentPropsWithRef<any>,
-    ) => React.ComponentPropsWithRef<any>;
-    /**
-     * A ref to the button DOM element. This ref should be passed to the rendered element.
-     * It is not a part of the props returned by `getButtonProps`.
-     */
-    buttonRef: React.Ref<HTMLElement>;
-  }
+export interface UseButtonReturnValue {
+  /**
+   * Resolver for the button props.
+   * @param externalProps additional props for the button
+   * @returns props that should be spread on the button
+   */
+  getButtonProps: (
+    externalProps?: React.ComponentPropsWithRef<any>,
+  ) => React.ComponentPropsWithRef<any>;
+  /**
+   * A ref to the button DOM element. This ref should be passed to the rendered element.
+   * It is not a part of the props returned by `getButtonProps`.
+   */
+  buttonRef: React.Ref<HTMLElement>;
+}
+
+export namespace useButton {
+  export type Parameters = UseButtonParameters;
+  export type ReturnValue = UseButtonReturnValue;
 }
