@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { act, createRenderer, screen } from '@mui/internal-test-utils';
 import { ReactStore } from './ReactStore';
 import { useRefWithInit } from '../useRefWithInit';
+import { createSelector } from './createSelector';
 
 type TestState = { value: number; label: string };
 
@@ -238,6 +239,8 @@ describe('ReactStore', () => {
       parent: (state: ChildState) => state.parent,
     };
 
+    const localCountSelector = createSelector((state: ChildState) => state.count);
+
     const parentStore = new ReactStore<ParentState, Record<string, never>, typeof parentSelectors>(
       { count: 0 },
       undefined,
@@ -274,8 +277,8 @@ describe('ReactStore', () => {
       store.state.parent?.set('count', newCount);
     };
 
-    childStore.observeState('parent', onParentUpdated);
-    childStore.observeState('count', onCountUpdated);
+    childStore.observeSelector('parent', onParentUpdated);
+    childStore.observeSelector(localCountSelector, onCountUpdated);
 
     function Test() {
       const count = childStore.useState('count');
@@ -314,158 +317,6 @@ describe('ReactStore', () => {
     expect(childStore.select('count')).to.equal(15);
     expect(output.textContent).to.equal('15');
   });
-
-  describe('observeState', () => {
-    it('calls listener immediately with current value on subscription', () => {
-      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
-      const calls: Array<{ newValue: number; oldValue: number }> = [];
-
-      store.observeState('value', (newValue, oldValue) => {
-        calls.push({ newValue, oldValue });
-      });
-
-      expect(calls).to.have.lengthOf(1);
-      expect(calls[0]).to.deep.equal({ newValue: 5, oldValue: 5 });
-    });
-
-    it('calls listener when observed state key changes', () => {
-      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
-      const calls: Array<{ newValue: number; oldValue: number }> = [];
-
-      store.observeState('value', (newValue, oldValue) => {
-        calls.push({ newValue, oldValue });
-      });
-
-      store.set('value', 10);
-      store.set('value', 15);
-
-      expect(calls).to.have.lengthOf(3);
-      expect(calls[1]).to.deep.equal({ newValue: 10, oldValue: 5 });
-      expect(calls[2]).to.deep.equal({ newValue: 15, oldValue: 10 });
-    });
-
-    it('does not call listener when non-observed state keys change', () => {
-      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
-      const calls: Array<{ newValue: number; oldValue: number }> = [];
-
-      store.observeState('value', (newValue, oldValue) => {
-        calls.push({ newValue, oldValue });
-      });
-
-      store.set('label', 'updated');
-
-      expect(calls).to.have.lengthOf(1); // Only initial call
-    });
-
-    it('does not call listener when value is set to same value (Object.is comparison)', () => {
-      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
-      const calls: Array<{ newValue: number; oldValue: number }> = [];
-
-      store.observeState('value', (newValue, oldValue) => {
-        calls.push({ newValue, oldValue });
-      });
-
-      store.set('value', 5);
-
-      expect(calls).to.have.lengthOf(1); // Only initial call
-    });
-
-    it('provides the store instance to the listener', () => {
-      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
-      let receivedStore!: ReactStore<TestState>;
-
-      store.observeState('value', (_, __, storeArg) => {
-        receivedStore = storeArg;
-      });
-
-      expect(receivedStore).to.equal(store);
-    });
-
-    it('returns an unsubscribe function that stops observing', () => {
-      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
-      const calls: Array<{ newValue: number; oldValue: number }> = [];
-
-      const unsubscribe = store.observeState('value', (newValue, oldValue) => {
-        calls.push({ newValue, oldValue });
-      });
-
-      store.set('value', 10);
-      expect(calls).to.have.lengthOf(2);
-
-      unsubscribe();
-
-      store.set('value', 15);
-      expect(calls).to.have.lengthOf(2); // No new calls after unsubscribe
-    });
-
-    it('supports multiple observers on the same key', () => {
-      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
-      const calls1: number[] = [];
-      const calls2: number[] = [];
-
-      store.observeState('value', (newValue) => {
-        calls1.push(newValue);
-      });
-
-      store.observeState('value', (newValue) => {
-        calls2.push(newValue);
-      });
-
-      store.set('value', 10);
-
-      expect(calls1).to.deep.equal([5, 10]);
-      expect(calls2).to.deep.equal([5, 10]);
-    });
-
-    it('supports observers on different keys', () => {
-      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
-      const valueCalls: number[] = [];
-      const labelCalls: string[] = [];
-
-      store.observeState('value', (newValue) => {
-        valueCalls.push(newValue);
-      });
-
-      store.observeState('label', (newValue) => {
-        labelCalls.push(newValue);
-      });
-
-      store.set('value', 10);
-      store.set('label', 'updated');
-
-      expect(valueCalls).to.deep.equal([5, 10]);
-      expect(labelCalls).to.deep.equal(['initial', 'updated']);
-    });
-
-    it('tracks changes made through update method', () => {
-      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
-      const calls: Array<{ newValue: number; oldValue: number }> = [];
-
-      store.observeState('value', (newValue, oldValue) => {
-        calls.push({ newValue, oldValue });
-      });
-
-      store.update({ value: 20, label: 'updated' });
-
-      expect(calls).to.have.lengthOf(2);
-      expect(calls[1]).to.deep.equal({ newValue: 20, oldValue: 5 });
-    });
-
-    it('tracks changes made through setState method', () => {
-      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
-      const calls: Array<{ newValue: number; oldValue: number }> = [];
-
-      store.observeState('value', (newValue, oldValue) => {
-        calls.push({ newValue, oldValue });
-      });
-
-      store.setState({ value: 25, label: 'new' });
-
-      expect(calls).to.have.lengthOf(2);
-      expect(calls[1]).to.deep.equal({ newValue: 25, oldValue: 5 });
-    });
-  });
-
   describe('observeSelector', () => {
     type CounterState = { count: number; multiplier: number };
     const selectors = {

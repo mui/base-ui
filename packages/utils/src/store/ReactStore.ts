@@ -248,30 +248,6 @@ export class ReactStore<
   }
 
   /**
-   * Observes changes in the state properties and calls the listener when the value changes.
-   *
-   * @param key Key of the state property to observe.
-   * @param listener Listener function called when the value changes.
-   */
-  public observeState<Key extends keyof State>(
-    key: Key,
-    listener: (newValue: State[Key], oldValue: State[Key], store: this) => void,
-  ) {
-    let prevValue = this.state[key];
-
-    listener(prevValue, prevValue, this);
-
-    return this.subscribe((nextState) => {
-      const nextValue = nextState[key];
-      if (!Object.is(prevValue, nextValue)) {
-        const oldValue = prevValue;
-        prevValue = nextValue;
-        listener(nextValue, oldValue, this);
-      }
-    });
-  }
-
-  /**
    * Observes changes derived from the store's selectors and calls the listener when the selected value changes.
    *
    * @param key Key of the selector to observe.
