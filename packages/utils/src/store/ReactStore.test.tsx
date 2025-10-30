@@ -199,7 +199,7 @@ describe('ReactStore', () => {
 
     function Test() {
       store = useStableStore<ElementState>({ element: null });
-      const setter = store.getElementSetter('element');
+      const setter = store.useStateSetter('element');
       lastSetter = setter;
       const [, setTick] = React.useState(0);
       forceUpdate = setTick;

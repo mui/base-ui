@@ -253,10 +253,10 @@ export class ReactStore<
    *
    * @param key Key of the state to set.
    */
-  public getElementSetter<Key extends keyof State, Value extends State[Key]>(key: keyof State) {
+  public useStateSetter<Key extends keyof State, Value extends State[Key]>(key: keyof State) {
     return React.useCallback(
-      (element: Value) => {
-        this.set(key, element);
+      (value: Value) => {
+        this.set(key, value);
       },
       [key],
     );

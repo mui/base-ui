@@ -95,7 +95,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef, store.getElementSetter('popupElement')],
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
     props: [
       popupProps,
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
