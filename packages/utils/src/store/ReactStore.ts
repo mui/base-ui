@@ -250,6 +250,7 @@ export class ReactStore<
   /**
    * Returns a stable setter function for a specific key in the store's state.
    * It's commonly used to pass as a ref callback to React elements.
+   *
    * @param key Key of the state to set.
    */
   public getElementSetter<Key extends keyof State, Value extends State[Key]>(key: keyof State) {
@@ -262,9 +263,12 @@ export class ReactStore<
   }
 
   /**
-   * Observes changes derived from the store's selectors and calls the listener when the selected value changes.
+   * Observes changes in the state properties and calls the listener when the value changes.
+   *
+   * @param key Key of the state property to observe.
+   * @param listener Listener function called when the value changes.
    */
-  public observe<Key extends keyof State>(
+  public observeState<Key extends keyof State>(
     key: Key,
     listener: (newValue: State[Key], oldValue: State[Key], store: this) => void,
   ) {
@@ -274,6 +278,38 @@ export class ReactStore<
 
     return this.subscribe((nextState) => {
       const nextValue = nextState[key];
+      if (!Object.is(prevValue, nextValue)) {
+        const oldValue = prevValue;
+        prevValue = nextValue;
+        listener(nextValue, oldValue, this);
+      }
+    });
+  }
+
+  /**
+   * Observes changes derived from the store's selectors and calls the listener when the selected value changes.
+   *
+   * @param key Key of the selector to observe.
+   * @param listener Listener function called when the selector result changes.
+   */
+  public observeSelector<Key extends keyof Selectors>(
+    key: Key,
+    listener: (
+      newValue: ReturnType<Selectors[Key]>,
+      oldValue: ReturnType<Selectors[Key]>,
+      store: this,
+    ) => void,
+  ) {
+    if (!this.selectors || !Object.hasOwn(this.selectors, key)) {
+      throw new Error(`Base UI: Selector for key "${key as string}" is not defined.`);
+    }
+
+    let prevValue = this.selectors[key]?.(this.state) as ReturnType<Selectors[Key]>;
+
+    listener(prevValue, prevValue, this);
+
+    return this.subscribe((nextState) => {
+      const nextValue = this.selectors![key](nextState);
       if (!Object.is(prevValue, nextValue)) {
         const oldValue = prevValue;
         prevValue = nextValue;

@@ -189,7 +189,7 @@ describe('ReactStore', () => {
     expect(store.state.node).to.equal(undefined);
   });
 
-  it('getElementSetter returns a stable callback that updates the store state', () => {
+  it('useStateSetter returns a stable callback that updates the store state', () => {
     type ElementState = { element: HTMLDivElement | null };
     let store!: ReactStore<ElementState>;
     let forceUpdate!: React.Dispatch<React.SetStateAction<number>>;
@@ -274,8 +274,8 @@ describe('ReactStore', () => {
       store.state.parent?.set('count', newCount);
     };
 
-    childStore.observe('parent', onParentUpdated);
-    childStore.observe('count', onCountUpdated);
+    childStore.observeState('parent', onParentUpdated);
+    childStore.observeState('count', onCountUpdated);
 
     function Test() {
       const count = childStore.useState('count');
@@ -313,5 +313,342 @@ describe('ReactStore', () => {
     expect(childStore.state.count).to.equal(20);
     expect(childStore.select('count')).to.equal(15);
     expect(output.textContent).to.equal('15');
+  });
+
+  describe('observeState', () => {
+    it('calls listener immediately with current value on subscription', () => {
+      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
+      const calls: Array<{ newValue: number; oldValue: number }> = [];
+
+      store.observeState('value', (newValue, oldValue) => {
+        calls.push({ newValue, oldValue });
+      });
+
+      expect(calls).to.have.lengthOf(1);
+      expect(calls[0]).to.deep.equal({ newValue: 5, oldValue: 5 });
+    });
+
+    it('calls listener when observed state key changes', () => {
+      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
+      const calls: Array<{ newValue: number; oldValue: number }> = [];
+
+      store.observeState('value', (newValue, oldValue) => {
+        calls.push({ newValue, oldValue });
+      });
+
+      store.set('value', 10);
+      store.set('value', 15);
+
+      expect(calls).to.have.lengthOf(3);
+      expect(calls[1]).to.deep.equal({ newValue: 10, oldValue: 5 });
+      expect(calls[2]).to.deep.equal({ newValue: 15, oldValue: 10 });
+    });
+
+    it('does not call listener when non-observed state keys change', () => {
+      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
+      const calls: Array<{ newValue: number; oldValue: number }> = [];
+
+      store.observeState('value', (newValue, oldValue) => {
+        calls.push({ newValue, oldValue });
+      });
+
+      store.set('label', 'updated');
+
+      expect(calls).to.have.lengthOf(1); // Only initial call
+    });
+
+    it('does not call listener when value is set to same value (Object.is comparison)', () => {
+      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
+      const calls: Array<{ newValue: number; oldValue: number }> = [];
+
+      store.observeState('value', (newValue, oldValue) => {
+        calls.push({ newValue, oldValue });
+      });
+
+      store.set('value', 5);
+
+      expect(calls).to.have.lengthOf(1); // Only initial call
+    });
+
+    it('provides the store instance to the listener', () => {
+      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
+      let receivedStore!: ReactStore<TestState>;
+
+      store.observeState('value', (_, __, storeArg) => {
+        receivedStore = storeArg;
+      });
+
+      expect(receivedStore).to.equal(store);
+    });
+
+    it('returns an unsubscribe function that stops observing', () => {
+      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
+      const calls: Array<{ newValue: number; oldValue: number }> = [];
+
+      const unsubscribe = store.observeState('value', (newValue, oldValue) => {
+        calls.push({ newValue, oldValue });
+      });
+
+      store.set('value', 10);
+      expect(calls).to.have.lengthOf(2);
+
+      unsubscribe();
+
+      store.set('value', 15);
+      expect(calls).to.have.lengthOf(2); // No new calls after unsubscribe
+    });
+
+    it('supports multiple observers on the same key', () => {
+      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
+      const calls1: number[] = [];
+      const calls2: number[] = [];
+
+      store.observeState('value', (newValue) => {
+        calls1.push(newValue);
+      });
+
+      store.observeState('value', (newValue) => {
+        calls2.push(newValue);
+      });
+
+      store.set('value', 10);
+
+      expect(calls1).to.deep.equal([5, 10]);
+      expect(calls2).to.deep.equal([5, 10]);
+    });
+
+    it('supports observers on different keys', () => {
+      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
+      const valueCalls: number[] = [];
+      const labelCalls: string[] = [];
+
+      store.observeState('value', (newValue) => {
+        valueCalls.push(newValue);
+      });
+
+      store.observeState('label', (newValue) => {
+        labelCalls.push(newValue);
+      });
+
+      store.set('value', 10);
+      store.set('label', 'updated');
+
+      expect(valueCalls).to.deep.equal([5, 10]);
+      expect(labelCalls).to.deep.equal(['initial', 'updated']);
+    });
+
+    it('tracks changes made through update method', () => {
+      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
+      const calls: Array<{ newValue: number; oldValue: number }> = [];
+
+      store.observeState('value', (newValue, oldValue) => {
+        calls.push({ newValue, oldValue });
+      });
+
+      store.update({ value: 20, label: 'updated' });
+
+      expect(calls).to.have.lengthOf(2);
+      expect(calls[1]).to.deep.equal({ newValue: 20, oldValue: 5 });
+    });
+
+    it('tracks changes made through setState method', () => {
+      const store = new ReactStore<TestState>({ value: 5, label: 'initial' });
+      const calls: Array<{ newValue: number; oldValue: number }> = [];
+
+      store.observeState('value', (newValue, oldValue) => {
+        calls.push({ newValue, oldValue });
+      });
+
+      store.setState({ value: 25, label: 'new' });
+
+      expect(calls).to.have.lengthOf(2);
+      expect(calls[1]).to.deep.equal({ newValue: 25, oldValue: 5 });
+    });
+  });
+
+  describe('observeSelector', () => {
+    type CounterState = { count: number; multiplier: number };
+    const selectors = {
+      count: (state: CounterState) => state.count,
+      doubled: (state: CounterState) => state.count * 2,
+      multiplied: (state: CounterState) => state.count * state.multiplier,
+    };
+
+    it('calls listener immediately with current selector result on subscription', () => {
+      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+        { count: 5, multiplier: 3 },
+        undefined,
+        selectors,
+      );
+      const calls: Array<{ newValue: number; oldValue: number }> = [];
+
+      store.observeSelector('doubled', (newValue: number, oldValue: number) => {
+        calls.push({ newValue, oldValue });
+      });
+
+      expect(calls).to.have.lengthOf(1);
+      expect(calls[0]).to.deep.equal({ newValue: 10, oldValue: 10 });
+    });
+
+    it('calls listener when selector result changes', () => {
+      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+        { count: 5, multiplier: 3 },
+        undefined,
+        selectors,
+      );
+      const calls: Array<{ newValue: number; oldValue: number }> = [];
+
+      store.observeSelector('doubled', (newValue: number, oldValue: number) => {
+        calls.push({ newValue, oldValue });
+      });
+
+      store.set('count', 10);
+      store.set('count', 7);
+
+      expect(calls).to.have.lengthOf(3);
+      expect(calls[1]).to.deep.equal({ newValue: 20, oldValue: 10 });
+      expect(calls[2]).to.deep.equal({ newValue: 14, oldValue: 20 });
+    });
+
+    it('does not call listener when selector result is unchanged', () => {
+      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+        { count: 5, multiplier: 3 },
+        undefined,
+        selectors,
+      );
+      const calls: Array<{ newValue: number; oldValue: number }> = [];
+
+      store.observeSelector('doubled', (newValue: number, oldValue: number) => {
+        calls.push({ newValue, oldValue });
+      });
+
+      store.set('multiplier', 5);
+
+      expect(calls).to.have.lengthOf(1); // Only initial call
+    });
+
+    it('calls listener when any dependency of the selector changes', () => {
+      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+        { count: 5, multiplier: 3 },
+        undefined,
+        selectors,
+      );
+      const calls: Array<{ newValue: number; oldValue: number }> = [];
+
+      store.observeSelector('multiplied', (newValue: number, oldValue: number) => {
+        calls.push({ newValue, oldValue });
+      });
+
+      store.set('count', 10);
+      store.set('multiplier', 2);
+
+      expect(calls).to.have.lengthOf(3);
+      expect(calls[0]).to.deep.equal({ newValue: 15, oldValue: 15 });
+      expect(calls[1]).to.deep.equal({ newValue: 30, oldValue: 15 });
+      expect(calls[2]).to.deep.equal({ newValue: 20, oldValue: 30 });
+    });
+
+    it('provides the store instance to the listener', () => {
+      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+        { count: 5, multiplier: 3 },
+        undefined,
+        selectors,
+      );
+      let receivedStore!: ReactStore<CounterState, Record<string, never>, typeof selectors>;
+
+      store.observeSelector('doubled', (_: number, __: number, storeArg) => {
+        receivedStore = storeArg;
+      });
+
+      expect(receivedStore).to.equal(store);
+    });
+
+    it('returns an unsubscribe function that stops observing', () => {
+      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+        { count: 5, multiplier: 3 },
+        undefined,
+        selectors,
+      );
+      const calls: Array<{ newValue: number; oldValue: number }> = [];
+
+      const unsubscribe = store.observeSelector('doubled', (newValue: number, oldValue: number) => {
+        calls.push({ newValue, oldValue });
+      });
+
+      store.set('count', 10);
+      expect(calls).to.have.lengthOf(2);
+
+      unsubscribe();
+
+      store.set('count', 15);
+      expect(calls).to.have.lengthOf(2); // No new calls after unsubscribe
+    });
+
+    it('throws error when selector key does not exist', () => {
+      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+        { count: 5, multiplier: 3 },
+        undefined,
+        selectors,
+      );
+
+      expect(() => {
+        store.observeSelector('nonexistent' as any, () => {});
+      }).to.throw('Base UI: Selector for key "nonexistent" is not defined.');
+    });
+
+    it('throws error when store has no selectors', () => {
+      const store = new ReactStore<CounterState>({ count: 5, multiplier: 3 });
+
+      expect(() => {
+        store.observeSelector('doubled' as any, () => {});
+      }).to.throw('Base UI: Selector for key "doubled" is not defined.');
+    });
+
+    it('supports multiple observers on the same selector', () => {
+      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+        { count: 5, multiplier: 3 },
+        undefined,
+        selectors,
+      );
+      const calls1: number[] = [];
+      const calls2: number[] = [];
+
+      store.observeSelector('doubled', (newValue: number) => {
+        calls1.push(newValue);
+      });
+
+      store.observeSelector('doubled', (newValue: number) => {
+        calls2.push(newValue);
+      });
+
+      store.set('count', 10);
+
+      expect(calls1).to.deep.equal([10, 20]);
+      expect(calls2).to.deep.equal([10, 20]);
+    });
+
+    it('supports observers on different selectors', () => {
+      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+        { count: 5, multiplier: 3 },
+        undefined,
+        selectors,
+      );
+      const doubledCalls: number[] = [];
+      const multipliedCalls: number[] = [];
+
+      store.observeSelector('doubled', (newValue: number) => {
+        doubledCalls.push(newValue);
+      });
+
+      store.observeSelector('multiplied', (newValue: number) => {
+        multipliedCalls.push(newValue);
+      });
+
+      store.set('count', 10);
+      store.set('multiplier', 2);
+
+      expect(doubledCalls).to.deep.equal([10, 20]);
+      expect(multipliedCalls).to.deep.equal([15, 30, 20]);
+    });
   });
 });
