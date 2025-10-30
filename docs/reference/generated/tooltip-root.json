@@ -25,7 +25,7 @@
     },
     "defaultTriggerId": {
       "type": "string | null",
-      "description": "ID of the trigger that the dialog is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.",
+      "description": "ID of the trigger that the tooltip is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open tooltip.",
       "detailedType": "string | null | undefined"
     },
     "handle": {
@@ -40,7 +40,7 @@
     },
     "triggerId": {
       "type": "string | null",
-      "description": "ID of the trigger that the dialog is associated with.\nThis is useful in conjuntion with the `open` prop to create a controlled dialog.\nThere's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).",
+      "description": "ID of the trigger that the tooltip is associated with.\nThis is useful in conjuntion with the `open` prop to create a controlled tooltip.\nThere's no need to specify this prop when the tooltip is uncontrolled (i.e. when the `open` prop is not set).",
       "detailedType": "string | null | undefined"
     },
     "trackCursorAxis": {
@@ -63,7 +63,7 @@
     },
     "children": {
       "type": "ReactNode | PayloadChildRenderFunction<Payload>",
-      "description": "The content of the dialog.\nThis can be a regular React node or a render function that receives the `payload` of the active trigger.",
+      "description": "The content of the tooltip.\nThis can be a regular React node or a render function that receives the `payload` of the active trigger.",
       "detailedType": "| React.ReactNode\n| ((arg: { payload: Payload | undefined }) => ReactNode)"
     }
   },
