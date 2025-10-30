@@ -63,7 +63,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const mounted = store.useState('mounted');
   const open = store.useState('open');
   const modal = store.useState('modal');
-  const triggerElement = store.useState('triggerElement');
+  const triggerElement = store.useState('activeTriggerElement');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
 
   let anchor = anchorProp;

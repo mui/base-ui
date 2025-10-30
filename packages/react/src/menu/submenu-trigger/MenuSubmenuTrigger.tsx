@@ -9,6 +9,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
+import { useTriggerRegistration } from '../../utils/popupStoreUtils';
 
 /**
  * A menu item that opens a submenu.
@@ -68,6 +69,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     nodeId: menuPositionerContext?.floatingContext.nodeId,
   });
 
+  const registerTrigger = useTriggerRegistration(id, store);
+
   const state: MenuSubmenuTrigger.State = React.useMemo(
     () => ({ disabled, highlighted, open }),
     [disabled, highlighted, open],
@@ -90,7 +93,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
         },
       },
     ],
-    ref: [forwardedRef, listItem.ref, itemRef, store.useStateSetter('triggerElement')],
+    ref: [forwardedRef, listItem.ref, itemRef, registerTrigger],
   });
 });
 

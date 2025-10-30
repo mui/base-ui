@@ -4,22 +4,19 @@ import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useId } from '@base-ui-components/utils/useId';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
+import { StoreInspector } from '@base-ui-components/utils/store';
 import {
   FloatingTree,
-  useClick,
   useDismiss,
   useFloatingRootContext,
   useFocus,
-  useHover,
   useInteractions,
   useListNavigation,
   useRole,
   useTypeahead,
-  safePolygon,
 } from '../../floating-ui-react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
@@ -41,6 +38,8 @@ import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHande
 import { mergeProps } from '../../merge-props';
 import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
 import { MenuStore } from '../store/MenuStore';
+import { MenuHandle } from '../store/MenuHandle';
+import { PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
 
 /**
  * Groups all parts of the menu.
@@ -48,7 +47,7 @@ import { MenuStore } from '../store/MenuStore';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
+export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const {
     children,
     open: openProp,
@@ -60,10 +59,10 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     loop = true,
     orientation = 'vertical',
     actionsRef,
-    openOnHover: openOnHoverProp,
-    delay = 100,
-    closeDelay = 0,
     closeParentOnEsc = true,
+    handle,
+    triggerId: triggerIdProp,
+    defaultTriggerId: defaultTriggerIdProp = null,
   } = props;
 
   const contextMenuContext = useContextMenuRootContext(true);
@@ -101,8 +100,11 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     };
   }, [contextMenuContext, parentContext, menubarContext, isSubmenu]);
 
-  const store = useRefWithInit(() => new MenuStore({ parent })).current;
+  const store = MenuStore.useStore(handle?.store, { parent });
+
   store.useControlledProp('open', openProp, defaultOpen);
+  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
+
   store.useSyncedValues({
     disabled: disabledProp,
     modal: modalProp,
@@ -112,16 +114,17 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
-  const triggerElement = store.useState('triggerElement');
+  const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const modal = store.useState('modal');
   const disabled = store.useState('disabled');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const allowMouseEnter = store.useState('allowMouseEnter');
-  const activeIndex = store.useState('activeIndex');
 
-  const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const activeIndex = store.useState('activeIndex');
+  const payload = store.useState('payload') as Payload | undefined;
+  const triggers = store.useState('triggers');
+
   const openEventRef = React.useRef<Event | null>(null);
   const stickIfOpenTimeout = useTimeout();
   const nested = useFloatingParentNodeId() != null;
@@ -135,10 +138,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       );
     }
   }
-
-  const openOnHover =
-    openOnHoverProp ??
-    (parent.type === 'menu' || (parent.type === 'menubar' && parent.context.hasSubmenuOpen));
 
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
@@ -191,11 +190,11 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    setStickIfOpen(true);
 
     store.update({
       mounted: false,
       allowMouseEnter: false,
+      stickIfOpen: true,
     });
 
     store.context.onOpenChangeComplete?.(false);
@@ -282,17 +281,23 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
       function changeState() {
-        store.set('open', nextOpen);
-        store.set('lastOpenChangeReason', reason ?? null);
+        store.update({ open: nextOpen, lastOpenChangeReason: reason ?? null });
         openEventRef.current = eventDetails.event ?? null;
+
+        // If a popup is closing, the `trigger` may be null.
+        // We want to keep the previous value so that exit animations are played and focus is returned correctly.
+        const newTriggerId = eventDetails.trigger?.id ?? null;
+        if (newTriggerId || nextOpen) {
+          store.set('activeTriggerId', newTriggerId);
+        }
       }
 
       if (reason === REASONS.triggerHover) {
         // Only allow "patient" clicks to close the menu if it's open.
         // If they clicked within 500ms of the menu opening, keep it open.
-        setStickIfOpen(true);
+        store.set('stickIfOpen', true);
         stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
-          setStickIfOpen(false);
+          store.set('stickIfOpen', false);
         });
 
         ReactDOM.flushSync(changeState);
@@ -340,8 +345,9 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const floatingRootContext = useFloatingRootContext({
     elements: {
-      reference: triggerElement,
+      reference: activeTriggerElement,
       floating: positionerElement,
+      triggers: Array.from(triggers.values()),
     },
     open,
     onOpenChange: setOpen,
@@ -367,24 +373,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     };
   }, [floatingEvents, setOpen]);
 
-  const hover = useHover(floatingRootContext, {
-    enabled:
-      hoverEnabled &&
-      openOnHover &&
-      !disabled &&
-      parent.type !== 'context-menu' &&
-      (parent.type !== 'menubar' || (parent.context.hasSubmenuOpen && !open)),
-    handleClose: safePolygon({ blockPointerEvents: true }),
-    mouseOnly: true,
-    move: parent.type === 'menu',
-    restMs:
-      parent.type === undefined || (parent.type === 'menu' && allowMouseEnter) ? delay : undefined,
-    delay:
-      parent.type === 'menu'
-        ? { open: allowMouseEnter ? delay : 10 ** 10, close: closeDelay }
-        : { close: closeDelay },
-  });
-
   const focus = useFocus(floatingRootContext, {
     enabled:
       !disabled &&
@@ -392,14 +380,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       parent.type === 'menubar' &&
       parent.context.hasSubmenuOpen &&
       !contextMenuContext,
-  });
-
-  const click = useClick(floatingRootContext, {
-    enabled: !disabled && parent.type !== 'context-menu',
-    event: open && parent.type === 'menubar' ? 'click' : 'mousedown',
-    toggle: !openOnHover || parent.type !== 'menu',
-    ignoreMouse: openOnHover && parent.type === 'menu',
-    stickIfOpen: parent.type === undefined ? stickIfOpen : false,
   });
 
   const dismiss = useDismiss(floatingRootContext, {
@@ -461,8 +441,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
-    hover,
-    click,
     dismiss,
     focus,
     role,
@@ -500,7 +478,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     () =>
       getFloatingProps({
         onMouseEnter() {
-          if (!openOnHover || parent.type === 'menu') {
+          // TODO: verify openOnHover behavior
+          if (parent.type === 'menu') {
             disableHoverTimeout.request(() => store.set('hoverEnabled', false));
           }
         },
@@ -508,12 +487,12 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
           store.set('allowMouseEnter', true);
         },
         onClick() {
-          if (openOnHover) {
+          if (store.select('hoverEnabled')) {
             store.set('hoverEnabled', false);
           }
         },
       }),
-    [getFloatingProps, openOnHover, parent.type, disableHoverTimeout, store],
+    [getFloatingProps, parent.type, disableHoverTimeout, store],
   );
 
   const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
@@ -524,14 +503,19 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     itemProps,
   });
 
-  const context = React.useMemo(
+  const context: MenuRootContext<Payload> = React.useMemo(
     () => ({
       store,
     }),
     [store],
   );
 
-  const content = <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
+  const content = (
+    <MenuRootContext.Provider value={context as MenuRootContext}>
+      {typeof children === 'function' ? children({ payload }) : children}
+      <StoreInspector store={store} />
+    </MenuRootContext.Provider>
+  );
 
   if (parent.type === undefined || parent.type === 'context-menu') {
     // set up a FloatingTree to provide the context to nested menus
@@ -539,10 +523,9 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   }
 
   return content;
-};
+}
 
-export interface MenuRootProps {
-  children: React.ReactNode;
+export interface MenuRootProps<Payload = unknown> {
   /**
    * Whether the menu is initially open.
    *
@@ -592,25 +575,7 @@ export interface MenuRootProps {
    * @default true
    */
   closeParentOnEsc?: boolean;
-  /**
-   * How long to wait before the menu may be opened on hover. Specified in milliseconds.
-   *
-   * Requires the `openOnHover` prop.
-   * @default 100
-   */
-  delay?: number;
-  /**
-   * How long to wait before closing the menu that was opened on hover.
-   * Specified in milliseconds.
-   *
-   * Requires the `openOnHover` prop.
-   * @default 0
-   */
-  closeDelay?: number;
-  /**
-   * Whether the menu should also open when the trigger is hovered.
-   */
-  openOnHover?: boolean;
+
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the menu will not be unmounted when closed.
@@ -618,6 +583,27 @@ export interface MenuRootProps {
    * Useful when the menu's animation is controlled by an external library.
    */
   actionsRef?: React.RefObject<MenuRoot.Actions>;
+  /**
+   * ID of the trigger that the popover is associated with.
+   * This is useful in conjuntion with the `open` prop to create a controlled popover.
+   * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
+   */
+  triggerId?: string | null;
+  /**
+   * ID of the trigger that the popover is associated with.
+   * This is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.
+   */
+  defaultTriggerId?: string | null;
+  /**
+   * A handle to associate the popover with a trigger.
+   * If specified, allows external triggers to control the popover's open state.
+   */
+  handle?: MenuHandle<Payload>;
+  /**
+   * The content of the popover.
+   * This can be a regular React node or a render function that receives the `payload` of the active trigger.
+   */
+  children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
 }
 
 export interface MenuRootActions {
@@ -665,7 +651,7 @@ export type MenuParent =
     };
 
 export namespace MenuRoot {
-  export type Props = MenuRootProps;
+  export type Props<Payload = unknown> = MenuRootProps<Payload>;
   export type Actions = MenuRootActions;
   export type ChangeEventReason = MenuRootChangeEventReason;
   export type ChangeEventDetails = MenuRootChangeEventDetails;
