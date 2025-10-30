@@ -276,10 +276,7 @@ export class ReactStore<
     if (typeof selector === 'function') {
       selectFn = selector;
     } else {
-      if (!this.selectors || !Object.hasOwn(this.selectors, selector)) {
-        throw new Error(`Base UI: Selector for key "${String(selector)}" is not defined.`);
-      }
-      selectFn = this.selectors[selector] as ObserveSelector<State>;
+      selectFn = this.selectors![selector] as ObserveSelector<State>;
     }
 
     let prevValue = selectFn(this.state);

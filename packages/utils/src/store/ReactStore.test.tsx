@@ -463,26 +463,6 @@ describe('ReactStore', () => {
       expect(calls).to.have.lengthOf(2); // No new calls after unsubscribe
     });
 
-    it('throws error when selector key does not exist', () => {
-      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
-        { count: 5, multiplier: 3 },
-        undefined,
-        selectors,
-      );
-
-      expect(() => {
-        store.observeSelector('nonexistent' as any, () => {});
-      }).to.throw('Base UI: Selector for key "nonexistent" is not defined.');
-    });
-
-    it('throws error when store has no selectors', () => {
-      const store = new ReactStore<CounterState>({ count: 5, multiplier: 3 });
-
-      expect(() => {
-        store.observeSelector('doubled' as any, () => {});
-      }).to.throw('Base UI: Selector for key "doubled" is not defined.');
-    });
-
     it('supports multiple observers on the same selector', () => {
       const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
         { count: 5, multiplier: 3 },
