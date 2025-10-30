@@ -1157,6 +1157,7 @@ describe('<Tooltip.Root />', () => {
 
     it('should open the tooltip with any trigger on hover', async () => {
       const testTooltip = Tooltip.createHandle();
+      const popupId = randomStringValue();
       const { user } = await render(
         <div>
           <Tooltip.Trigger handle={testTooltip} delay={0}>
@@ -1172,7 +1173,7 @@ describe('<Tooltip.Root />', () => {
           <Tooltip.Root handle={testTooltip}>
             <Tooltip.Portal>
               <Tooltip.Positioner>
-                <Tooltip.Popup>Tooltip Content</Tooltip.Popup>
+                <Tooltip.Popup data-testid={popupId}>Tooltip Content</Tooltip.Popup>
               </Tooltip.Positioner>
             </Tooltip.Portal>
           </Tooltip.Root>
@@ -1183,22 +1184,22 @@ describe('<Tooltip.Root />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
 
-      expect(screen.queryByText('Tooltip Content')).to.equal(null);
+      expect(screen.queryByTestId(popupId)).to.equal(null);
 
       await user.hover(trigger1);
-      expect(screen.getByText('Tooltip Content')).toBeVisible();
+      expect(screen.queryByTestId(popupId)).toBeVisible();
       await user.unhover(trigger1);
-      expect(screen.queryByText('Tooltip Content')).to.equal(null);
+      expect(screen.queryByTestId(popupId)).to.equal(null);
 
       await user.hover(trigger2);
-      expect(screen.getByText('Tooltip Content')).toBeVisible();
+      expect(screen.queryByTestId(popupId)).toBeVisible();
       await user.unhover(trigger2);
-      expect(screen.queryByText('Tooltip Content')).to.equal(null);
+      expect(screen.queryByTestId(popupId)).to.equal(null);
 
       await user.hover(trigger3);
-      expect(screen.getByText('Tooltip Content')).toBeVisible();
+      expect(screen.queryByTestId(popupId)).toBeVisible();
       await user.unhover(trigger3);
-      expect(screen.queryByText('Tooltip Content')).to.equal(null);
+      expect(screen.queryByTestId(popupId)).to.equal(null);
     });
 
     it('should open the tooltip with any trigger on focus', async () => {
