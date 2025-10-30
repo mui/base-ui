@@ -47,3 +47,27 @@ expectType<boolean, typeof isTextLongerThan7Reactive>(isTextLongerThan7Reactive)
 
 const isTextLengthBetween2And8Reactive = store.useState('textLengthBetween', 2, 8);
 expectType<boolean, typeof isTextLengthBetween2And8Reactive>(isTextLengthBetween2And8Reactive);
+
+// incorrect calls:
+
+// @ts-expect-error
+store.select();
+// @ts-expect-error
+store.select('count', 1);
+// @ts-expect-error
+store.select('textLongerThan');
+// @ts-expect-error
+store.select('textLengthBetween', 1);
+// @ts-expect-error
+store.select('textLongerThan', 2, 3);
+
+// @ts-expect-error
+store.useState();
+// @ts-expect-error
+store.useState('count', 1);
+// @ts-expect-error
+store.useState('textLongerThan');
+// @ts-expect-error
+store.useState('textLengthBetween', 1);
+// @ts-expect-error
+store.useState('textLongerThan', 2, 3);

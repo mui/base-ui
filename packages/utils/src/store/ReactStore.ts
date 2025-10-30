@@ -133,36 +133,6 @@ export class ReactStore<
     }, [key, controlled, defaultValue, isControlled]);
   }
 
-  /** Gets the current value from the store using a selector with the provided key. */
-  public select<Key extends keyof Selectors>(key: Key): ReturnType<Selectors[Key]>;
-
-  public select<Key extends keyof Selectors>(
-    key: Key,
-    a1: SelectorArgs<Selectors[Key]>[0],
-  ): ReturnType<Selectors[Key]>;
-
-  public select<Key extends keyof Selectors>(
-    key: Key,
-    a1: SelectorArgs<Selectors[Key]>[0],
-    a2: SelectorArgs<Selectors[Key]>[1],
-  ): ReturnType<Selectors[Key]>;
-
-  public select<Key extends keyof Selectors>(
-    key: Key,
-    a1: SelectorArgs<Selectors[Key]>[0],
-    a2: SelectorArgs<Selectors[Key]>[1],
-    a3: SelectorArgs<Selectors[Key]>[2],
-  ): ReturnType<Selectors[Key]>;
-
-  public select<Key extends keyof Selectors>(
-    key: Key,
-    a1?: SelectorArgs<Selectors[Key]>[0],
-    a2?: SelectorArgs<Selectors[Key]>[1],
-    a3?: SelectorArgs<Selectors[Key]>[2],
-  ): ReturnType<Selectors[Key]> {
-    return this.selectors![key](this.state, a1, a2, a3);
-  }
-
   /**
    * Sets a specific key in the store's state to a new value and notifies listeners if the value has changed.
    * If the key is controlled (registered via {@link useControlledProp} with a non-undefined value),
@@ -226,6 +196,15 @@ export class ReactStore<
     super.setState({ ...this.state, ...newValues });
   }
 
+  /** Gets the current value from the store using a selector with the provided key.
+   *
+   * @param key Key of the selector to use.
+   */
+  public select = ((key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) => {
+    const selector = this.selectors![key];
+    return selector(this.state, a1, a2, a3);
+  }) as ReactStoreSelectorMethod<Selectors>;
+
   /**
    * Returns a value from the store's state using a selector function.
    * Used to subscribe to specific parts of the state.
@@ -233,35 +212,10 @@ export class ReactStore<
    *
    * @param key Key of the selector to use.
    */
-  public useState<Key extends keyof Selectors>(key: Key): ReturnType<Selectors[Key]>;
-
-  public useState<Key extends keyof Selectors>(
-    key: Key,
-    a1: SelectorArgs<Selectors[Key]>[0],
-  ): ReturnType<Selectors[Key]>;
-
-  public useState<Key extends keyof Selectors>(
-    key: Key,
-    a1: SelectorArgs<Selectors[Key]>[0],
-    a2: SelectorArgs<Selectors[Key]>[1],
-  ): ReturnType<Selectors[Key]>;
-
-  public useState<Key extends keyof Selectors>(
-    key: Key,
-    a1: SelectorArgs<Selectors[Key]>[0],
-    a2: SelectorArgs<Selectors[Key]>[1],
-    a3: SelectorArgs<Selectors[Key]>[2],
-  ): ReturnType<Selectors[Key]>;
-
-  public useState<Key extends keyof Selectors>(
-    key: Key,
-    a1?: SelectorArgs<Selectors[Key]>[0],
-    a2?: SelectorArgs<Selectors[Key]>[1],
-    a3?: SelectorArgs<Selectors[Key]>[2],
-  ): ReturnType<Selectors[Key]> {
+  public useState = ((key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) => {
     const selector = this.selectors![key];
     return useStore(this, selector, a1, a2, a3);
-  }
+  }) as ReactStoreSelectorMethod<Selectors>;
 
   /**
    * Wraps a function with `useStableCallback` to ensure it has a stable reference
@@ -361,6 +315,13 @@ type ContextFunction<Context, Key extends keyof Context> = Extract<Context[Key],
 type KeysAllowingUndefined<State> = {
   [Key in keyof State]-?: undefined extends State[Key] ? Key : never;
 }[keyof State];
+
+type ReactStoreSelectorMethod<Selectors extends Record<PropertyKey, SelectorFunction<any>>> = <
+  Key extends keyof Selectors,
+>(
+  key: Key,
+  ...args: SelectorArgs<Selectors[Key]>
+) => ReturnType<Selectors[Key]>;
 
 type SelectorFunction<State> = (state: State, ...args: any[]) => any;
 
