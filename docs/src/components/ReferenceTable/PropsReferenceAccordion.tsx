@@ -236,9 +236,7 @@ export async function PropsReferenceAccordion({
 
                   {PropDescription != null && (
                     <DescriptionList.Item>
-                      <DescriptionList.Separator className="max-xs:pt-2">
-                        <DescriptionList.Term>Description</DescriptionList.Term>
-                      </DescriptionList.Separator>
+                      <DescriptionList.Term data-separator="">Description</DescriptionList.Term>
                       {/* one-off override of the default mt/mb on CodeBlock.Root */}
                       <DescriptionList.Details className="[&_[role='figure']]:mt-1 [&_[role='figure']]:mb-1">
                         <PropDescription />
@@ -247,9 +245,7 @@ export async function PropsReferenceAccordion({
                   )}
 
                   <DescriptionList.Item>
-                    <DescriptionList.Separator className="max-xs:pt-2">
-                      <DescriptionList.Term>Type</DescriptionList.Term>
-                    </DescriptionList.Separator>
+                    <DescriptionList.Term data-separator="">Type</DescriptionList.Term>
                     <DescriptionList.Details>
                       <PropDetailedType />
                     </DescriptionList.Details>
@@ -257,9 +253,7 @@ export async function PropsReferenceAccordion({
 
                   {prop.default !== undefined && (
                     <DescriptionList.Item>
-                      <DescriptionList.Separator className="max-xs:pt-2">
-                        <DescriptionList.Term>Default</DescriptionList.Term>
-                      </DescriptionList.Separator>
+                      <DescriptionList.Term data-separator="">Default</DescriptionList.Term>
                       <DescriptionList.Details>
                         <PropDefault />
                       </DescriptionList.Details>
@@ -268,9 +262,7 @@ export async function PropsReferenceAccordion({
 
                   {ExampleSnippet != null && (
                     <DescriptionList.Item>
-                      <DescriptionList.Separator className="max-xs:pt-2">
-                        <DescriptionList.Term>Example</DescriptionList.Term>
-                      </DescriptionList.Separator>
+                      <DescriptionList.Term data-separator="">Example</DescriptionList.Term>
                       <DescriptionList.Details className="*:my-0">
                         <ExampleSnippet />
                       </DescriptionList.Details>
