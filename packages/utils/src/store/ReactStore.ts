@@ -285,11 +285,7 @@ export class ReactStore<
       store: this,
     ) => void,
   ) {
-    if (!this.selectors || !Object.hasOwn(this.selectors, key)) {
-      throw new Error(`Base UI: Selector for key "${key as string}" is not defined.`);
-    }
-
-    let prevValue = this.selectors[key]?.(this.state) as ReturnType<Selectors[Key]>;
+    let prevValue = this.selectors![key](this.state) as ReturnType<Selectors[Key]>;
 
     listener(prevValue, prevValue, this);
 
