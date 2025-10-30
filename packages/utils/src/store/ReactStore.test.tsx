@@ -474,6 +474,34 @@ describe('ReactStore', () => {
       multiplied: (state: CounterState) => state.count * state.multiplier,
     };
 
+    it('accepts selector functions', () => {
+      const store = new ReactStore<CounterState>({ count: 0, multiplier: 1 });
+      const calls: Array<{ newValue: boolean; oldValue: boolean }> = [];
+
+      const unsubscribe = store.observeSelector(
+        (state) => state.count > 1,
+        (newValue, oldValue) => {
+          calls.push({ newValue, oldValue });
+        },
+      );
+
+      expect(calls).to.have.lengthOf(1);
+      expect(calls[0]).to.deep.equal({ newValue: false, oldValue: false });
+
+      store.set('count', 2);
+      expect(calls).to.have.lengthOf(2);
+      expect(calls[1]).to.deep.equal({ newValue: true, oldValue: false });
+
+      store.set('count', 1);
+      expect(calls).to.have.lengthOf(3);
+      expect(calls[2]).to.deep.equal({ newValue: false, oldValue: true });
+
+      unsubscribe();
+
+      store.set('count', 3);
+      expect(calls).to.have.lengthOf(3);
+    });
+
     it('calls listener immediately with current selector result on subscription', () => {
       const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
         { count: 5, multiplier: 3 },

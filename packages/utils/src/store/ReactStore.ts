@@ -278,19 +278,40 @@ export class ReactStore<
    * @param listener Listener function called when the selector result changes.
    */
   public observeSelector<Key extends keyof Selectors>(
-    key: Key,
+    selector: Key,
     listener: (
       newValue: ReturnType<Selectors[Key]>,
       oldValue: ReturnType<Selectors[Key]>,
       store: this,
     ) => void,
+  ): () => void;
+
+  public observeSelector<Selector extends ObserveSelector<State>>(
+    selector: Selector,
+    listener: (newValue: ReturnType<Selector>, oldValue: ReturnType<Selector>, store: this) => void,
+  ): () => void;
+
+  public observeSelector(
+    selector: keyof Selectors | ObserveSelector<State>,
+    listener: (newValue: any, oldValue: any, store: this) => void,
   ) {
-    let prevValue = this.selectors![key](this.state) as ReturnType<Selectors[Key]>;
+    let selectFn: ObserveSelector<State>;
+
+    if (typeof selector === 'function') {
+      selectFn = selector;
+    } else {
+      if (!this.selectors || !Object.hasOwn(this.selectors, selector)) {
+        throw new Error(`Base UI: Selector for key "${String(selector)}" is not defined.`);
+      }
+      selectFn = this.selectors[selector] as ObserveSelector<State>;
+    }
+
+    let prevValue = selectFn(this.state);
 
     listener(prevValue, prevValue, this);
 
     return this.subscribe((nextState) => {
-      const nextValue = this.selectors![key](nextState);
+      const nextValue = selectFn(nextState);
       if (!Object.is(prevValue, nextValue)) {
         const oldValue = prevValue;
         prevValue = nextValue;
@@ -318,6 +339,8 @@ type ReactStoreSelectorMethod<Selectors extends Record<PropertyKey, SelectorFunc
   key: Key,
   ...args: SelectorArgs<Selectors[Key]>
 ) => ReturnType<Selectors[Key]>;
+
+type ObserveSelector<State> = (state: State) => any;
 
 type SelectorFunction<State> = (state: State, ...args: any[]) => any;
 
