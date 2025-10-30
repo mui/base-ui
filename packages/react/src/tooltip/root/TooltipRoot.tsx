@@ -256,19 +256,19 @@ export interface TooltipRootProps<Payload = unknown> {
    */
   handle?: TooltipHandle<Payload>;
   /**
-   * The content of the dialog.
+   * The content of the tooltip.
    * This can be a regular React node or a render function that receives the `payload` of the active trigger.
    */
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
   /**
-   * ID of the trigger that the dialog is associated with.
-   * This is useful in conjuntion with the `open` prop to create a controlled dialog.
-   * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
+   * ID of the trigger that the tooltip is associated with.
+   * This is useful in conjuntion with the `open` prop to create a controlled tooltip.
+   * There's no need to specify this prop when the tooltip is uncontrolled (i.e. when the `open` prop is not set).
    */
   triggerId?: string | null;
   /**
-   * ID of the trigger that the dialog is associated with.
-   * This is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.
+   * ID of the trigger that the tooltip is associated with.
+   * This is useful in conjunction with the `defaultOpen` prop to create an initially open tooltip.
    */
   defaultTriggerId?: string | null;
 }

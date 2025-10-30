@@ -39,7 +39,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const store = handle?.store ?? rootContext?.store;
   if (!store) {
     throw new Error(
-      'Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.',
+      'Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.',
     );
   }
 
