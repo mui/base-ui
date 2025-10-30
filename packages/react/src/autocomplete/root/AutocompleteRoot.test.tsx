@@ -642,7 +642,7 @@ describe('<Autocomplete.Root />', () => {
       expect(submitCount).to.equal(1);
     });
 
-    it('when true, pressing Enter when focus is on List submits the owning form when an item is highlighted', async () => {
+    it('focusing the listbox should keep the input focused and maintain functionality', async () => {
       let submitValue: string | null = null;
       let submitCount = 0;
 
@@ -680,16 +680,16 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'al');
       await user.keyboard('{ArrowDown}');
 
-      const listbox = screen.getByTestId('listbox');
+      const listbox = screen.getByRole('listbox');
       const alphaOption = screen.getByRole('option', { name: 'alpha' });
       await waitFor(() => {
         expect(alphaOption).to.have.attribute('data-highlighted');
       });
 
-      act(() => {
+      await act(() => {
         listbox.focus();
       });
-      expect(listbox).toHaveFocus();
+      expect(input).toHaveFocus();
 
       await user.keyboard('{Enter}');
 
