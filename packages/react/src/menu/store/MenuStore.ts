@@ -98,11 +98,14 @@ export class MenuStore extends ReactStore<State, Context, typeof selectors> {
     );
 
     // Sync `allowMouseEnter` with parent menu if applicable.
-    this.observeSelector('allowMouseEnter', (allowMouseEnter) => {
-      if (this.state.parent.type === 'menu') {
-        this.state.parent.store.set('allowMouseEnter', allowMouseEnter);
-      }
-    });
+    this.observeSelector(
+      createSelector((state) => state.allowMouseEnter),
+      (allowMouseEnter) => {
+        if (this.state.parent.type === 'menu') {
+          this.state.parent.store.set('allowMouseEnter', allowMouseEnter);
+        }
+      },
+    );
 
     // Set up propagation of state from parent menu if applicable.
     this.unsubscribeParentListener = this.observeSelector('parent', (parent) => {
