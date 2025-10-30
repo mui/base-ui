@@ -134,15 +134,33 @@ export class ReactStore<
   }
 
   /** Gets the current value from the store using a selector with the provided key. */
+  public select<Key extends keyof Selectors>(key: Key): ReturnType<Selectors[Key]>;
+
   public select<Key extends keyof Selectors>(
     key: Key,
-    ...args: SelectorArgs<Selectors[Key]>
-  ): ReturnType<Selectors[Key]> {
-    if (!this.selectors || !this.selectors[key]) {
-      throw new Error(`Base UI: Selector for key "${String(key)}" is not defined.`);
-    }
+    a1: SelectorArgs<Selectors[Key]>[0],
+  ): ReturnType<Selectors[Key]>;
 
-    return this.selectors[key](this.state, ...args);
+  public select<Key extends keyof Selectors>(
+    key: Key,
+    a1: SelectorArgs<Selectors[Key]>[0],
+    a2: SelectorArgs<Selectors[Key]>[1],
+  ): ReturnType<Selectors[Key]>;
+
+  public select<Key extends keyof Selectors>(
+    key: Key,
+    a1: SelectorArgs<Selectors[Key]>[0],
+    a2: SelectorArgs<Selectors[Key]>[1],
+    a3: SelectorArgs<Selectors[Key]>[2],
+  ): ReturnType<Selectors[Key]>;
+
+  public select<Key extends keyof Selectors>(
+    key: Key,
+    a1?: SelectorArgs<Selectors[Key]>[0],
+    a2?: SelectorArgs<Selectors[Key]>[1],
+    a3?: SelectorArgs<Selectors[Key]>[2],
+  ): ReturnType<Selectors[Key]> {
+    return this.selectors![key](this.state, a1, a2, a3);
   }
 
   /**
@@ -215,21 +233,34 @@ export class ReactStore<
    *
    * @param key Key of the selector to use.
    */
+  public useState<Key extends keyof Selectors>(key: Key): ReturnType<Selectors[Key]>;
+
   public useState<Key extends keyof Selectors>(
     key: Key,
-    ...args: SelectorArgs<Selectors[Key]>
-  ): ReturnType<Selectors[Key]> {
-    if (!this.selectors) {
-      throw new Error('Base UI: selectors are required to call useState.');
-    }
-    const selector = this.selectors[key];
-    if (!selector) {
-      throw new Error(`Base UI: Selector for key "${String(key)}" is not defined.`);
-    }
+    a1: SelectorArgs<Selectors[Key]>[0],
+  ): ReturnType<Selectors[Key]>;
 
-    // Cast avoids emitting runtime branches and sidesteps TypeScript's overload checks,
-    // which do not accept spreading a generic tuple into `useStore`.
-    return (useStore as any)(this, selector, ...args) as ReturnType<Selectors[Key]>;
+  public useState<Key extends keyof Selectors>(
+    key: Key,
+    a1: SelectorArgs<Selectors[Key]>[0],
+    a2: SelectorArgs<Selectors[Key]>[1],
+  ): ReturnType<Selectors[Key]>;
+
+  public useState<Key extends keyof Selectors>(
+    key: Key,
+    a1: SelectorArgs<Selectors[Key]>[0],
+    a2: SelectorArgs<Selectors[Key]>[1],
+    a3: SelectorArgs<Selectors[Key]>[2],
+  ): ReturnType<Selectors[Key]>;
+
+  public useState<Key extends keyof Selectors>(
+    key: Key,
+    a1?: SelectorArgs<Selectors[Key]>[0],
+    a2?: SelectorArgs<Selectors[Key]>[1],
+    a3?: SelectorArgs<Selectors[Key]>[2],
+  ): ReturnType<Selectors[Key]> {
+    const selector = this.selectors![key];
+    return useStore(this, selector, a1, a2, a3);
   }
 
   /**
