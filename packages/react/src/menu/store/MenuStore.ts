@@ -81,43 +81,6 @@ const selectors = {
   triggerProps: createSelector((state: State) => state.triggerProps),
 };
 
-const writeInterceptors = {
-  allowMouseEnter: (value: boolean, store: ReactStore<State, Context, typeof selectors>) => {
-    // If this menu is a submenu, it should inherit `allowMouseEnter` from its
-    // parent. Otherwise it manages the state on its own.
-    if (store.state.parent.type === 'menu') {
-      store.state.parent.store.set('allowMouseEnter', value);
-    }
-
-    return value;
-  },
-
-  parent: (value: MenuParent, store: ReactStore<State, Context, typeof selectors>) => {
-    registerParent(store, value);
-    return value;
-  },
-};
-
-let unsubscribe: (() => void) | null = null;
-function registerParent(store: ReactStore<any, Context, any>, parent: MenuParent) {
-  if (parent.type === 'menu') {
-    unsubscribe?.();
-    unsubscribe = parent.store.subscribe(() => {
-      // Propagate changes from parent menu
-      store.notifyAll();
-    });
-
-    store.context.allowMouseUpTriggerRef = parent.store.context.allowMouseUpTriggerRef;
-  } else if (parent.type !== undefined) {
-    store.context.allowMouseUpTriggerRef = parent.context.allowMouseUpTriggerRef;
-    unsubscribe?.();
-    unsubscribe = null;
-  } else {
-    unsubscribe?.();
-    unsubscribe = null;
-  }
-}
-
 export class MenuStore extends ReactStore<State, Context, typeof selectors> {
   constructor(initialState?: Partial<State>) {
     super(
@@ -132,17 +95,41 @@ export class MenuStore extends ReactStore<State, Context, typeof selectors> {
         onOpenChangeComplete: undefined,
       },
       selectors,
-      writeInterceptors,
     );
 
-    if (initialState?.parent) {
-      registerParent(this as any, initialState.parent);
-    }
+    // Sync `allowMouseEnter` with parent menu if applicable.
+    this.observeSelector('allowMouseEnter', (allowMouseEnter) => {
+      if (this.state.parent.type === 'menu') {
+        this.state.parent.store.set('allowMouseEnter', allowMouseEnter);
+      }
+    });
+
+    // Set up propagation of state from parent menu if applicable.
+    this.unsubscribeParentListener = this.observeSelector('parent', (parent) => {
+      this.unsubscribeParentListener?.();
+
+      if (parent.type === 'menu') {
+        this.unsubscribeParentListener = parent.store.subscribe(() => {
+          this.notifyAll();
+        });
+
+        this.context.allowMouseUpTriggerRef = parent.store.context.allowMouseUpTriggerRef;
+        return;
+      }
+
+      if (parent.type !== undefined) {
+        this.context.allowMouseUpTriggerRef = parent.context.allowMouseUpTriggerRef;
+      }
+
+      this.unsubscribeParentListener = null;
+    });
   }
 
   setOpen(open: boolean, eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>) {
     this.state.floatingRootContext.events.emit('setOpen', { open, eventDetails });
   }
+
+  private unsubscribeParentListener: (() => void) | null = null;
 }
 
 function createInitialState(): State {

@@ -90,7 +90,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
         },
       },
     ],
-    ref: [forwardedRef, listItem.ref, itemRef, store.getElementSetter('triggerElement')],
+    ref: [forwardedRef, listItem.ref, itemRef, store.useStateSetter('triggerElement')],
   });
 });
 

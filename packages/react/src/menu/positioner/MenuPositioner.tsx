@@ -241,7 +241,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const element = useRenderElement('div', componentProps, {
     state,
     stateAttributesMapping: popupStateMapping,
-    ref: [forwardedRef, store.getElementSetter('positionerElement')],
+    ref: [forwardedRef, store.useStateSetter('positionerElement')],
     props: {
       ...positionerProps,
       ...elementProps,

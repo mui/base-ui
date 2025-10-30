@@ -151,7 +151,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     [disabled, open],
   );
 
-  const ref = [triggerRef, forwardedRef, buttonRef, store.getElementSetter('triggerElement')];
+  const ref = [triggerRef, forwardedRef, buttonRef, store.useStateSetter('triggerElement')];
   const props = [rootTriggerProps, elementProps, getTriggerProps];
 
   const element = useRenderElement('button', componentProps, {
