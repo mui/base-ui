@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui-components/react/tooltip';
 import { motion, AnimatePresence } from 'motion/react';
-import styles from './tooltip.module.css';
+import styles from './transitions.module.css';
 
 export function TooltipPopup({ children, ...props }: React.ComponentProps<typeof Tooltip.Popup>) {
   return (
