@@ -63,6 +63,52 @@ import { Combobox } from '@base-ui-components/react/combobox';
 </Combobox.Root>;
 ```
 
+## TypeScript inference
+
+Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
+When using `itemToStringLabel` or `itemToStringValue`, the `value` prop on the `<Combobox.Item>` must match the type passed to `defaultValue` or `value`.
+When not specifying value props, the parameter's type must be explicitly specified.
+
+## Examples
+
+### Multiple select
+
+The combobox can allow multiple selections by adding the `multiple` prop to `<Combobox.Root>`.
+Selection chips are rendered with `<Combobox.Chip>` inside the input that can be removed.
+
+<Demo path="./demos/multiple" compact />
+
+### Input inside popup
+
+`<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
+
+<Demo path="./demos/input-inside-popup" compact />
+
+### Grouped
+
+Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to add section headings inside the popup.
+
+<Demo path="./demos/grouped" compact />
+
+### Creatable
+
+Create a new item when the filter matches no items, opening a creation `<Dialog>`.
+
+<Demo path="./demos/creatable" compact />
+
+### Virtualized
+
+Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
+
+<Demo path="./demos/virtualized" compact />
+
+## API reference
+
+<Reference
+  component="Combobox"
+  parts="Root, Value, Icon, Input, Clear, Trigger, Chips, Chip, ChipRemove, List, Portal, Backdrop, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
+/>
+
 ## useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
@@ -110,50 +156,4 @@ Accepts all `Intl.CollatorOptions`, plus the following options:
       description: 'Returns whether the item ends with the query.',
     },
   }}
-/>
-
-## TypeScript inference
-
-Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
-When using `itemToStringLabel` or `itemToStringValue`, the `value` prop on the `<Combobox.Item>` must match the type passed to `defaultValue` or `value`.
-When not specifying value props, the parameter's type must be explicitly specified.
-
-## Examples
-
-### Multiple select
-
-The combobox can allow multiple selections by adding the `multiple` prop to `<Combobox.Root>`.
-Selection chips are rendered with `<Combobox.Chip>` inside the input that can be removed.
-
-<Demo path="./demos/multiple" compact />
-
-### Input inside popup
-
-`<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
-
-<Demo path="./demos/input-inside-popup" compact />
-
-### Grouped
-
-Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to add section headings inside the popup.
-
-<Demo path="./demos/grouped" compact />
-
-### Creatable
-
-Create a new item when the filter matches no items, opening a creation `<Dialog>`.
-
-<Demo path="./demos/creatable" compact />
-
-### Virtualized
-
-Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
-
-<Demo path="./demos/virtualized" compact />
-
-## API reference
-
-<Reference
-  component="Combobox"
-  parts="Root, Value, Icon, Input, Clear, Trigger, Chips, Chip, ChipRemove, List, Portal, Backdrop, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
 />
