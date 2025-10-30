@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import {
   useClientPoint,
@@ -22,6 +22,7 @@ import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { TooltipStore } from '../store/TooltipStore';
 
 /**
  * Groups all parts of the tooltip.
@@ -33,86 +34,53 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const {
     disabled = false,
     defaultOpen = false,
-    onOpenChange,
     open: openProp,
     delay,
     closeDelay,
     hoverable = true,
     trackCursorAxis = 'none',
     actionsRef,
+    onOpenChange,
     onOpenChangeComplete,
   } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
-  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
-  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
-  const [lastOpenChangeReason, setLastOpenChangeReason] =
-    React.useState<TooltipRoot.ChangeEventReason | null>(null);
+  const store = useRefWithInit(() => new TooltipStore()).current;
 
-  const popupRef = React.useRef<HTMLElement>(null);
+  store.useControlledProp('open', openProp, defaultOpen);
+  store.useContextCallback('onOpenChange', onOpenChange);
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
-  const [openState, setOpenState] = useControlled({
-    controlled: openProp,
-    default: defaultOpen,
-    name: 'Tooltip',
-    state: 'open',
-  });
+  const openState = store.useState('open');
+  const triggerElement = store.useState('triggerElement');
+  const positionerElement = store.useState('positionerElement');
+  const instantType = store.useState('instantType');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
 
   const open = !disabled && openState;
 
-  function setOpenUnwrapped(nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) {
-    const reason = eventDetails.reason;
-
-    const isHover = reason === 'trigger-hover';
-    const isFocusOpen = nextOpen && reason === 'trigger-focus';
-    const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
-
-    onOpenChange?.(nextOpen, eventDetails);
-
-    if (eventDetails.isCanceled) {
-      return;
+  useIsoLayoutEffect(() => {
+    if (openState && disabled) {
+      store.setOpen(false, createChangeEventDetails('disabled'));
     }
-
-    function changeState() {
-      if (isFocusOpen || isDismissClose) {
-        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else if (reason === 'trigger-hover') {
-        setInstantTypeState(undefined);
-      }
-
-      setOpenState(nextOpen);
-      setLastOpenChangeReason(reason);
-    }
-
-    if (isHover) {
-      // If a hover reason is provided, we need to flush the state synchronously. This ensures
-      // `node.getAnimations()` knows about the new state.
-      ReactDOM.flushSync(changeState);
-    } else {
-      changeState();
-    }
-  }
-
-  const setOpen = useStableCallback(setOpenUnwrapped);
-
-  if (openState && disabled) {
-    setOpenUnwrapped(false, createChangeEventDetails('disabled'));
-  }
+  }, [openState, disabled, store]);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
+  store.useSyncedValues({ mounted, transitionStatus });
+
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    onOpenChangeComplete?.(false);
+    store.set('mounted', false);
+    store.context.onOpenChangeComplete?.(false);
   });
 
   useOpenChangeComplete({
     enabled: !actionsRef,
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (!open) {
         handleUnmount();
@@ -128,7 +96,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       floating: positionerElement,
     },
     open,
-    onOpenChange: setOpen,
+    onOpenChange: store.setOpen,
   });
 
   const providerContext = useTooltipProviderContext();
@@ -139,12 +107,24 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   // 2) Closing because another tooltip opened (reason === 'none')
   // Otherwise, allow the animation to play. In particular, do not disable animations
   // during the 'ending' phase unless it's due to a sibling opening.
-  let instantType: 'dismiss' | 'focus' | 'delay' | undefined;
-  if (transitionStatus === 'ending') {
-    instantType = lastOpenChangeReason === 'none' ? 'delay' : instantTypeState;
-  } else {
-    instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
-  }
+  const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
+  useIsoLayoutEffect(() => {
+    if (
+      (transitionStatus === 'ending' && lastOpenChangeReason === 'none') ||
+      (transitionStatus !== 'ending' && isInstantPhase)
+    ) {
+      // Capture the current instant type so we can restore it later
+      // and set to 'delay' to disable animations while moving from one trigger to another
+      // within a delay group.
+      if (instantType !== 'delay') {
+        previousInstantTypeRef.current = instantType;
+      }
+      store.set('instantType', 'delay');
+    } else if (previousInstantTypeRef.current !== null) {
+      store.set('instantType', previousInstantTypeRef.current);
+      previousInstantTypeRef.current = null;
+    }
+  }, [transitionStatus, isInstantPhase, lastOpenChangeReason, instantType, store]);
 
   const hover = useHover(floatingRootContext, {
     enabled: !disabled,
@@ -195,50 +175,21 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     clientPoint,
   ]);
 
-  const tooltipRoot = React.useMemo(
-    () => ({
-      open,
-      setOpen,
-      mounted,
-      setMounted,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      triggerProps: getReferenceProps(),
-      popupProps: getFloatingProps(),
-      floatingRootContext,
-      instantType,
-      transitionStatus,
-      onOpenChangeComplete,
-    }),
-    [
-      open,
-      setOpen,
-      mounted,
-      setMounted,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      getReferenceProps,
-      getFloatingProps,
-      floatingRootContext,
-      instantType,
-      transitionStatus,
-      onOpenChangeComplete,
-    ],
-  );
+  store.useSyncedValues({
+    delay: delayWithDefault,
+    closeDelay: closeDelayWithDefault,
+    trackCursorAxis,
+    hoverable,
+    floatingRootContext,
+    triggerProps: getReferenceProps(),
+    popupProps: getFloatingProps(),
+  });
 
   const contextValue: TooltipRootContext = React.useMemo(
     () => ({
-      ...tooltipRoot,
-      delay: delayWithDefault,
-      closeDelay: closeDelayWithDefault,
-      trackCursorAxis,
-      hoverable,
+      store,
     }),
-    [tooltipRoot, delayWithDefault, closeDelayWithDefault, trackCursorAxis, hoverable],
+    [store],
   );
 
   return (

@@ -17,13 +17,16 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { open, setTriggerElement, triggerProps } = useTooltipRootContext();
+  const { store } = useTooltipRootContext();
+
+  const open = store.useState('open');
+  const triggerProps = store.useState('triggerProps');
 
   const state: TooltipTrigger.State = React.useMemo(() => ({ open }), [open]);
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, setTriggerElement],
+    ref: [forwardedRef, store.getElementSetter('triggerElement')],
     props: [triggerProps, elementProps],
     stateAttributesMapping: triggerOpenStateMapping,
   });

@@ -37,9 +37,14 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     ...elementProps
   } = componentProps;
 
-  const { open, setPositionerElement, mounted, floatingRootContext, trackCursorAxis, hoverable } =
-    useTooltipRootContext();
+  const { store } = useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
+
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const trackCursorAxis = store.useState('trackCursorAxis');
+  const hoverable = store.useState('hoverable');
+  const floatingRootContext = store.useState('floatingRootContext');
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -107,7 +112,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [positioner.props, elementProps],
-    ref: [forwardedRef, setPositionerElement],
+    ref: [forwardedRef, store.getElementSetter('positionerElement')],
     stateAttributesMapping: popupStateMapping,
   });
 
