@@ -25,10 +25,6 @@
       "type": "string",
       "detailedType": "string | undefined"
     },
-    "children": {
-      "type": "ReactNode",
-      "detailedType": "React.ReactNode"
-    },
     "className": {
       "type": "string | ((state: Menu.SubmenuTrigger.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
