@@ -3,99 +3,90 @@ import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import styles from './index.module.css';
 
 export default function ExampleAsyncAutocomplete() {
-  const [searchValue, setSearchValue] = React.useState('');
-  const [isLoading, setIsLoading] = React.useState(false);
   const [searchResults, setSearchResults] = React.useState<Movie[]>([]);
   const [error, setError] = React.useState<string | null>(null);
+  const [isPending, startTransition] = React.useTransition();
 
-  const { contains } = Autocomplete.useFilter({ sensitivity: 'base' });
+  const { contains } = Autocomplete.useFilter();
 
-  React.useEffect(() => {
-    if (!searchValue) {
-      setSearchResults([]);
-      setIsLoading(false);
-      return undefined;
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+
+  function getStatus(searchValue: string) {
+    if (isPending) {
+      return (
+        <React.Fragment>
+          <div className={styles.Spinner} aria-hidden />
+          Searching...
+        </React.Fragment>
+      );
     }
 
-    setIsLoading(true);
-    setError(null);
-
-    let ignore = false;
-
-    async function fetchMovies() {
-      try {
-        const results = await searchMovies(searchValue, contains);
-        if (!ignore) {
-          setSearchResults(results);
-        }
-      } catch (err) {
-        if (!ignore) {
-          setError('Failed to fetch movies. Please try again.');
-          setSearchResults([]);
-        }
-      } finally {
-        if (!ignore) {
-          setIsLoading(false);
-        }
-      }
+    if (error) {
+      return error;
     }
 
-    const timeoutId = setTimeout(fetchMovies, 300);
+    if (searchResults.length === 0 && searchValue) {
+      return `Movie or year "${searchValue}" does not exist in the Top 100 IMDb movies`;
+    }
 
-    return () => {
-      clearTimeout(timeoutId);
-      ignore = true;
-    };
-  }, [searchValue, contains]);
-
-  let status: React.ReactNode = `${searchResults.length} result${searchResults.length === 1 ? '' : 's'} found`;
-  if (isLoading) {
-    status = (
-      <React.Fragment>
-        <div className={styles.Spinner} aria-hidden />
-        Searching...
-      </React.Fragment>
-    );
-  } else if (error) {
-    status = error;
-  } else if (searchResults.length === 0 && searchValue) {
-    status = `Movie or year "${searchValue}" does not exist in the Top 100 IMDb movies`;
+    return `${searchResults.length} result${searchResults.length === 1 ? '' : 's'} found`;
   }
-
-  const shouldRenderPopup = searchValue !== '';
 
   return (
     <Autocomplete.Root
       items={searchResults}
-      value={searchValue}
-      onValueChange={setSearchValue}
       itemToStringValue={(item) => item.title}
       filter={null}
+      onValueChange={(nextSearchValue) => {
+        const abortController = new AbortController();
+        abortControllerRef.current?.abort();
+        abortControllerRef.current = abortController;
+
+        if (nextSearchValue === '') {
+          setSearchResults([]);
+          setError(null);
+          return;
+        }
+
+        startTransition(async () => {
+          setError(null);
+          const result = await searchMovies(nextSearchValue, contains);
+
+          if (abortController.signal.aborted) {
+            return;
+          }
+
+          startTransition(() => {
+            setSearchResults(result.movies);
+            setError(result.error);
+          });
+        });
+      }}
     >
       <label className={styles.Label}>
         Search movies by name or year
         <Autocomplete.Input placeholder="e.g. Pulp Fiction or 1994" className={styles.Input} />
       </label>
 
-      {shouldRenderPopup && (
-        <Autocomplete.Portal>
-          <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="start">
-            <Autocomplete.Popup className={styles.Popup} aria-busy={isLoading || undefined}>
-              <Autocomplete.Status className={styles.Status}>{status}</Autocomplete.Status>
-              <Autocomplete.List>
-                {(movie: Movie) => (
-                  <Autocomplete.Item key={movie.id} className={styles.Item} value={movie}>
-                    <div className={styles.MovieItem}>
-                      <div className={styles.MovieName}>{movie.title}</div>
-                      <div className={styles.MovieYear}>{movie.year}</div>
-                    </div>
-                  </Autocomplete.Item>
-                )}
-              </Autocomplete.List>
-            </Autocomplete.Popup>
-          </Autocomplete.Positioner>
-        </Autocomplete.Portal>
-      )}
+      <Autocomplete.Portal>
+        <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="start">
+          <Autocomplete.Popup className={styles.Popup} aria-busy={isPending || undefined}>
+            <Autocomplete.Status className={styles.Status}>
+              <Autocomplete.Value>{getStatus}</Autocomplete.Value>
+            </Autocomplete.Status>
+            <Autocomplete.List>
+              {(movie: Movie) => (
+                <Autocomplete.Item key={movie.id} className={styles.Item} value={movie}>
+                  <div className={styles.MovieItem}>
+                    <div className={styles.MovieName}>{movie.title}</div>
+                    <div className={styles.MovieYear}>{movie.year}</div>
+                  </div>
+                </Autocomplete.Item>
+              )}
+            </Autocomplete.List>
+          </Autocomplete.Popup>
+        </Autocomplete.Positioner>
+      </Autocomplete.Portal>
     </Autocomplete.Root>
   );
 }
@@ -103,7 +94,10 @@ export default function ExampleAsyncAutocomplete() {
 async function searchMovies(
   query: string,
   filter: (item: string, query: string) => boolean,
-): Promise<Movie[]> {
+): Promise<{
+  movies: Movie[];
+  error: string | null;
+}> {
   // Simulate network delay
   await new Promise((resolve) => {
     setTimeout(resolve, Math.random() * 500 + 100);
@@ -111,12 +105,18 @@ async function searchMovies(
 
   // Simulate occasional network errors (1% chance)
   if (Math.random() < 0.01 || query === 'will_error') {
-    throw new Error('Network error');
+    return {
+      movies: [],
+      error: 'Failed to fetch movies. Please try again.',
+    };
   }
 
-  return top100Movies.filter(
-    (movie) => filter(movie.title, query) || filter(movie.year.toString(), query),
-  );
+  return {
+    movies: top100Movies.filter(
+      (movie) => filter(movie.title, query) || filter(movie.year.toString(), query),
+    ),
+    error: null,
+  };
 }
 
 interface Movie {
