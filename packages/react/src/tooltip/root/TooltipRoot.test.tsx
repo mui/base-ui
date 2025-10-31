@@ -1187,19 +1187,31 @@ describe('<Tooltip.Root />', () => {
       expect(screen.queryByTestId(popupId)).to.equal(null);
 
       await user.hover(trigger1);
-      expect(screen.queryByTestId(popupId)).toBeVisible();
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBeVisible();
+      });
       await user.unhover(trigger1);
-      expect(screen.queryByTestId(popupId)).to.equal(null);
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).to.equal(null);
+      });
 
       await user.hover(trigger2);
-      expect(screen.queryByTestId(popupId)).toBeVisible();
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBeVisible();
+      });
       await user.unhover(trigger2);
-      expect(screen.queryByTestId(popupId)).to.equal(null);
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).to.equal(null);
+      });
 
       await user.hover(trigger3);
-      expect(screen.queryByTestId(popupId)).toBeVisible();
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBeVisible();
+      });
       await user.unhover(trigger3);
-      expect(screen.queryByTestId(popupId)).to.equal(null);
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).to.equal(null);
+      });
     });
 
     it('should open the tooltip with any trigger on focus', async () => {
