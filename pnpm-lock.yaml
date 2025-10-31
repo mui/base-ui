@@ -505,8 +505,8 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
       vitest-browser-react:
-        specifier: ^1.0.1
-        version: 1.0.1(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(@vitest/browser@3.2.4)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@3.2.4)
+        specifier: ^2.0.2
+        version: 2.0.2(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@3.2.4)
     publishDirectory: build
 
   packages/utils:
@@ -9390,16 +9390,14 @@ packages:
       yaml:
         optional: true
 
-  vitest-browser-react@1.0.1:
-    resolution: {integrity: sha512-LqiGFCdknrbMoSDWXTCTrPsED3SvdIXIgYOOZyYUNj2dkJusW2eF6NENOlBlxwq+FBQqzNK1X59b+b03pXFpAQ==}
-    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
+  vitest-browser-react@2.0.2:
+    resolution: {integrity: sha512-zuSgTe/CKODU3ip+w4ls6Qm4xZ9+A4OHmDf0obt/mwAqavpOtqtq2YcioZt8nfDQE50EWmhdnRfDmpS1jCsbTQ==}
     peerDependencies:
       '@types/react': ^19.2.2
       '@types/react-dom': ^19.2.2
-      '@vitest/browser': ^2.1.0 || ^3.0.0 || ^4.0.0-0
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
-      vitest: ^2.1.0 || ^3.0.0 || ^4.0.0-0
+      vitest: ^4.0.0
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -20393,9 +20391,8 @@ snapshots:
       tsx: 4.20.6
       yaml: 2.8.1
 
-  vitest-browser-react@1.0.1(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(@vitest/browser@3.2.4)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@3.2.4):
+  vitest-browser-react@2.0.2(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@3.2.4):
     dependencies:
-      '@vitest/browser': 3.2.4(playwright@1.56.1)(vite@7.1.12(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))(vitest@3.2.4)
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
       vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.18.12)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
