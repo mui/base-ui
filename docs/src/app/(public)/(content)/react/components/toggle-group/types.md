@@ -39,3 +39,23 @@ Re-export of [ToggleGroup](#togglegroup) props.
 ```typescript
 type ToggleGroupState = { disabled: boolean; multiple: boolean };
 ```
+
+### ToggleGroup.ChangeEventReason
+
+```typescript
+type ToggleGroupChangeEventReason = 'none';
+```
+
+### ToggleGroup.ChangeEventDetails
+
+```typescript
+type ToggleGroupChangeEventDetails = {
+  reason: 'none';
+  event: Event;
+  cancel: () => void;
+  allowPropagation: () => void;
+  isCanceled: boolean;
+  isPropagationAllowed: boolean;
+  trigger: HTMLElement | undefined;
+};
+```

@@ -42,3 +42,23 @@ type CheckboxGroupState = {
   focused: boolean;
 };
 ```
+
+### CheckboxGroup.ChangeEventReason
+
+```typescript
+type CheckboxGroupChangeEventReason = 'none';
+```
+
+### CheckboxGroup.ChangeEventDetails
+
+```typescript
+type CheckboxGroupChangeEventDetails = {
+  reason: 'none';
+  event: Event;
+  cancel: () => void;
+  allowPropagation: () => void;
+  isCanceled: boolean;
+  isPropagationAllowed: boolean;
+  trigger: HTMLElement | undefined;
+};
+```

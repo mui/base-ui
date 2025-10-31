@@ -40,6 +40,88 @@ type TooltipRootState = {};
 type TooltipRootActions = { unmount: () => void };
 ```
 
+### Root.ChangeEventReason
+
+```typescript
+type TooltipRootChangeEventReason =
+  | 'trigger-hover'
+  | 'trigger-focus'
+  | 'trigger-press'
+  | 'outside-press'
+  | 'escape-key'
+  | 'disabled'
+  | 'none';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type TooltipRootChangeEventDetails =
+  | {
+      reason: 'trigger-hover';
+      event: MouseEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'trigger-focus';
+      event: FocusEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'trigger-press';
+      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'outside-press';
+      event: MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'escape-key';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'disabled';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'none';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    };
+```
+
 ### Provider
 
 Provides a shared delay for multiple tooltips. The grouping logic ensures that once a tooltip becomes visible, the adjacent tooltips will be shown instantly.

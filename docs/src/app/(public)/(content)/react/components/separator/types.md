@@ -12,7 +12,7 @@ A separator element accessible to screen readers. Renders a `<div>` element.
 
 | Prop           | Type                                                                             | Default          | Description                                                                                                                                                                              |
 | :------------- | :------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation    | `Orientation`                                                                    | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
+| orientation    | `Separator.Orientation`                                                          | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
 | className      | `string \| ((state: Separator.State) => string)`                                 | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
 | render         | `ReactElement \| ((props: HTMLProps, state: Separator.State) => ReactElement)`   | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
@@ -23,5 +23,11 @@ Re-export of [Separator](#separator) props.
 ### Separator.State
 
 ```typescript
-type SeparatorState = { orientation: Orientation };
+type SeparatorState = { orientation: Separator.Orientation };
+```
+
+### Separator.Orientation
+
+```typescript
+type SeparatorOrientation = 'horizontal' | 'vertical';
 ```

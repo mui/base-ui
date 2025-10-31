@@ -31,6 +31,78 @@ Re-export of [Root](#root) props.
 type DialogRootActions = { unmount: () => void };
 ```
 
+### Root.ChangeEventReason
+
+```typescript
+type DialogRootChangeEventReason =
+  | 'none'
+  | 'trigger-press'
+  | 'outside-press'
+  | 'escape-key'
+  | 'close-press'
+  | 'focus-out';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type DialogRootChangeEventDetails =
+  | {
+      reason: 'none';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'trigger-press';
+      event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'outside-press';
+      event: MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'escape-key';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'close-press';
+      event: KeyboardEvent | MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'focus-out';
+      event: FocusEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    };
+```
+
 ### Trigger
 
 A button that opens the dialog. Renders a `<button>` element.

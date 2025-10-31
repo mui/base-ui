@@ -36,3 +36,23 @@ Re-export of [Toggle](#toggle) props.
 ```typescript
 type ToggleState = { pressed: boolean; disabled: boolean };
 ```
+
+### Toggle.ChangeEventReason
+
+```typescript
+type ToggleChangeEventReason = 'none';
+```
+
+### Toggle.ChangeEventDetails
+
+```typescript
+type ToggleChangeEventDetails = {
+  reason: 'none';
+  event: Event;
+  cancel: () => void;
+  allowPropagation: () => void;
+  isCanceled: boolean;
+  isPropagationAllowed: boolean;
+  trigger: HTMLElement | undefined;
+};
+```

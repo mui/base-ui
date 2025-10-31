@@ -61,6 +61,26 @@ type SwitchRootState = {
 };
 ```
 
+### Root.ChangeEventReason
+
+```typescript
+type SwitchRootChangeEventReason = 'none';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type SwitchRootChangeEventDetails = {
+  reason: 'none';
+  event: Event;
+  cancel: () => void;
+  allowPropagation: () => void;
+  isCanceled: boolean;
+  isPropagationAllowed: boolean;
+  trigger: HTMLElement | undefined;
+};
+```
+
 ### Thumb
 
 The movable part of the switch that indicates whether the switch is on or off. Renders a `<span>`.

@@ -71,6 +71,26 @@ type NumberFieldRootState = {
 };
 ```
 
+### Root.ChangeEventReason
+
+```typescript
+type NumberFieldRootChangeEventReason = 'none';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type NumberFieldRootChangeEventDetails = {
+  reason: 'none';
+  event: Event;
+  cancel: () => void;
+  allowPropagation: () => void;
+  isCanceled: boolean;
+  isPropagationAllowed: boolean;
+  trigger: HTMLElement | undefined;
+};
+```
+
 ### Input
 
 The native input control in the number field. Renders an `<input>` element.
@@ -365,4 +385,16 @@ type NumberFieldIncrementState = {
   filled: boolean;
   focused: boolean;
 };
+```
+
+### Root.CommitEventDetails
+
+```typescript
+type NumberFieldRootCommitEventDetails = { reason: 'none'; event: Event };
+```
+
+### Root.CommitEventReason
+
+```typescript
+type NumberFieldRootCommitEventReason = 'none';
 ```

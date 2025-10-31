@@ -65,6 +65,26 @@ type CheckboxRootState = {
 };
 ```
 
+### Root.ChangeEventReason
+
+```typescript
+type CheckboxRootChangeEventReason = 'none';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type CheckboxRootChangeEventDetails = {
+  reason: 'none';
+  event: Event;
+  cancel: () => void;
+  allowPropagation: () => void;
+  isCanceled: boolean;
+  isPropagationAllowed: boolean;
+  trigger: HTMLElement | undefined;
+};
+```
+
 ### Indicator
 
 Indicates whether the checkbox is ticked. Renders a `<span>` element.

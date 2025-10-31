@@ -39,6 +39,117 @@ type PopoverRootState = {};
 type PopoverRootActions = { unmount: () => void; close: () => void };
 ```
 
+### Root.ChangeEventReason
+
+```typescript
+type PopoverRootChangeEventReason =
+  | 'trigger-hover'
+  | 'trigger-focus'
+  | 'trigger-press'
+  | 'outside-press'
+  | 'escape-key'
+  | 'close-press'
+  | 'focus-out'
+  | 'imperative-action'
+  | 'none';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type PopoverRootChangeEventDetails =
+  | {
+      reason: 'trigger-hover';
+      event: MouseEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+      preventUnmountOnClose(): void;
+    }
+  | {
+      reason: 'trigger-focus';
+      event: FocusEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+      preventUnmountOnClose(): void;
+    }
+  | {
+      reason: 'trigger-press';
+      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+      preventUnmountOnClose(): void;
+    }
+  | {
+      reason: 'outside-press';
+      event: MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+      preventUnmountOnClose(): void;
+    }
+  | {
+      reason: 'escape-key';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+      preventUnmountOnClose(): void;
+    }
+  | {
+      reason: 'close-press';
+      event: MouseEvent | PointerEvent | KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+      preventUnmountOnClose(): void;
+    }
+  | {
+      reason: 'focus-out';
+      event: FocusEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+      preventUnmountOnClose(): void;
+    }
+  | {
+      reason: 'imperative-action';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+      preventUnmountOnClose(): void;
+    }
+  | {
+      reason: 'none';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+      preventUnmountOnClose(): void;
+    };
+```
+
 ### Trigger
 
 A button that opens the popover. Renders a `<button>` element.
@@ -63,6 +174,10 @@ A button that opens the popover. Renders a `<button>` element.
 | :-------------------- | :------ | :------------------------------------------------ |
 | data-popup-open       | -       | Present when the corresponding popover is open.   |
 | data-pressed          | -       | Present when the trigger is pressed.              |
+
+### Trigger.Props
+
+Re-export of [Trigger](#trigger) props.
 
 ### Trigger.State
 
@@ -353,6 +468,14 @@ A viewport for displaying content transitions. This component is only required i
 | :--------------- | :--- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `--popup-height` | ``   | The height of the parent popup. This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered. It can be used to freeze the dimensions of the popup when animating between different content.       |
 | `--popup-width`  | ``   | The width of the parent popup. This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered. It can be used to freeze the dimensions of the popup when animating between different content.         |
+
+### Root.ChildRenderFunction
+
+```typescript
+type PopoverRootChildRenderFunction<Payload> = (arg: {
+  payload: Payload | undefined;
+}) => React.ReactNode;
+```
 
 ### createHandle
 

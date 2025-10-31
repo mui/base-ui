@@ -46,3 +46,23 @@ type RadioGroupState = {
   focused: boolean;
 };
 ```
+
+### RadioGroup.ChangeEventReason
+
+```typescript
+type RadioGroupChangeEventReason = 'none';
+```
+
+### RadioGroup.ChangeEventDetails
+
+```typescript
+type RadioGroupChangeEventDetails = {
+  reason: 'none';
+  event: Event;
+  cancel: () => void;
+  allowPropagation: () => void;
+  isCanceled: boolean;
+  isPropagationAllowed: boolean;
+  trigger: HTMLElement | undefined;
+};
+```

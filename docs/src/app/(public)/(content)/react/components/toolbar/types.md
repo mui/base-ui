@@ -36,6 +36,18 @@ Re-export of [Root](#root) props.
 type ToolbarRootState = { disabled: boolean; orientation: Toolbar.Root.Orientation };
 ```
 
+### Root.Orientation
+
+```typescript
+type ToolbarRootOrientation = 'horizontal' | 'vertical';
+```
+
+### Root.ItemMetadata
+
+```typescript
+type ToolbarRootItemMetadata = { focusableWhenDisabled: boolean };
+```
+
 ### Input
 
 A native input element that integrates with Toolbar keyboard navigation. Renders an `<input>` element.
@@ -102,11 +114,11 @@ A separator element accessible to screen readers. Renders a `<div>` element.
 
 **Separator Props:**
 
-| Prop           | Type                                                                             | Default          | Description                                                                                                                                                                              |
-| :------------- | :------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation    | `Orientation`                                                                    | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
-| className      | `string \| ((state: SeparatorState) => string)`                                  | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render         | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)`    | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                    | Default | Description                                                                                                                                                                              |
+| :------------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation    | `Toolbar.Root.Orientation`                                                              | -       | -                                                                                                                                                                                        |
+| className      | `string \| ((state: Toolbar.Separator.State) => string)`                                | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: Toolbar.Separator.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Separator Data Attributes:**
 
@@ -117,6 +129,12 @@ A separator element accessible to screen readers. Renders a `<div>` element.
 ### Separator.Props
 
 Re-export of [Separator](#separator) props.
+
+### Separator.State
+
+```typescript
+type ToolbarSeparatorState = { orientation: Toolbar.Root.Orientation };
+```
 
 ### Button
 
@@ -181,10 +199,4 @@ Re-export of [Link](#link) props.
 
 ```typescript
 type ToolbarLinkState = { orientation: Toolbar.Root.Orientation };
-```
-
-### Root.ItemMetadata
-
-```typescript
-type ToolbarRootItemMetadata = { focusableWhenDisabled: boolean };
 ```

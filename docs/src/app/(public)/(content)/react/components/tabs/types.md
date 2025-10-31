@@ -39,6 +39,32 @@ type TabsRootState = {
 };
 ```
 
+### Root.ChangeEventReason
+
+```typescript
+type TabsRootChangeEventReason = 'none';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type TabsRootChangeEventDetails = {
+  reason: 'none';
+  event: Event;
+  cancel: () => void;
+  allowPropagation: () => void;
+  isCanceled: boolean;
+  isPropagationAllowed: boolean;
+  trigger: HTMLElement | undefined;
+} & { activationDirection: TabsTab.ActivationDirection };
+```
+
+### Root.Orientation
+
+```typescript
+type TabsRootOrientation = 'horizontal' | 'vertical';
+```
+
 ### List
 
 Groups the individual tab buttons. Renders a `<div>` element.
@@ -193,6 +219,18 @@ type TabsTabState = {
   selected: boolean;
   orientation: Tabs.Root.Orientation;
 };
+```
+
+### Tab.Value
+
+```typescript
+type TabsTabValue = any;
+```
+
+### Tab.ActivationDirection
+
+```typescript
+type TabsTabActivationDirection = 'none' | 'left' | 'right' | 'up' | 'down';
 ```
 
 ### Panel.Metadata

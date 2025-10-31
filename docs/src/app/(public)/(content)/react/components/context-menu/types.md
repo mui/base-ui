@@ -33,6 +33,12 @@ Re-export of [Root](#root) props.
 type ContextMenuRootState = {};
 ```
 
+### Root.Actions
+
+```typescript
+type MenuRootActions = { unmount: () => void };
+```
+
 ### Trigger
 
 An area that opens the menu on right click or long press. Renders a `<div>` element.

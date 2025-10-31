@@ -29,6 +29,36 @@ Re-export of [Root](#root) props.
 type CollapsibleRootState = { open: boolean; disabled: boolean };
 ```
 
+### Root.ChangeEventReason
+
+```typescript
+type CollapsibleRootChangeEventReason = 'trigger-press' | 'none';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type CollapsibleRootChangeEventDetails =
+  | {
+      reason: 'trigger-press';
+      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'none';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    };
+```
+
 ### Trigger
 
 A button that opens and closes the collapsible panel. Renders a `<button>` element.

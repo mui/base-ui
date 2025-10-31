@@ -45,6 +45,36 @@ type AccordionRootState = {
 };
 ```
 
+### Root.ChangeEventReason
+
+```typescript
+type AccordionRootChangeEventReason = 'trigger-press' | 'none';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type AccordionRootChangeEventDetails =
+  | {
+      reason: 'trigger-press';
+      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'none';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    };
+```
+
 ### Trigger
 
 A button that opens and closes the corresponding panel. Renders a `<button>` element.
@@ -104,6 +134,36 @@ type AccordionItemState = {
   disabled: boolean;
   orientation: Orientation;
 };
+```
+
+### Item.ChangeEventReason
+
+```typescript
+type AccordionItemChangeEventReason = 'trigger-press' | 'none';
+```
+
+### Item.ChangeEventDetails
+
+```typescript
+type AccordionItemChangeEventDetails =
+  | {
+      reason: 'trigger-press';
+      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'none';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    };
 ```
 
 ### Header

@@ -79,6 +79,19 @@ A paragraph with additional information about the field. Renders a `<p>` element
 
 Re-export of [Description](#description) props.
 
+### Description.State
+
+```typescript
+type FieldRootState = {
+  disabled: boolean;
+  touched: boolean;
+  dirty: boolean;
+  valid: boolean | null;
+  filled: boolean;
+  focused: boolean;
+};
+```
+
 ### Control
 
 The form control to label and validate. Renders an `<input>` element.
@@ -110,6 +123,39 @@ You can omit this part and use any Base UI input component instead. For example,
 
 Re-export of [Control](#control) props.
 
+### Control.State
+
+```typescript
+type FieldRootState = {
+  disabled: boolean;
+  touched: boolean;
+  dirty: boolean;
+  valid: boolean | null;
+  filled: boolean;
+  focused: boolean;
+};
+```
+
+### Control.ChangeEventReason
+
+```typescript
+type FieldControlChangeEventReason = 'none';
+```
+
+### Control.ChangeEventDetails
+
+```typescript
+type FieldControlChangeEventDetails = {
+  reason: 'none';
+  event: Event;
+  cancel: () => void;
+  allowPropagation: () => void;
+  isCanceled: boolean;
+  isPropagationAllowed: boolean;
+  trigger: HTMLElement | undefined;
+};
+```
+
 ### Label
 
 An accessible label that is automatically associated with the field control. Renders a `<label>` element.
@@ -136,6 +182,19 @@ An accessible label that is automatically associated with the field control. Ren
 ### Label.Props
 
 Re-export of [Label](#label) props.
+
+### Label.State
+
+```typescript
+type FieldRootState = {
+  disabled: boolean;
+  touched: boolean;
+  dirty: boolean;
+  valid: boolean | null;
+  filled: boolean;
+  focused: boolean;
+};
+```
 
 ### Error
 
@@ -164,6 +223,19 @@ An error message displayed if the field control fails validation. Renders a `<di
 ### Error.Props
 
 Re-export of [Error](#error) props.
+
+### Error.State
+
+```typescript
+type FieldRootState = {
+  disabled: boolean;
+  touched: boolean;
+  dirty: boolean;
+  valid: boolean | null;
+  filled: boolean;
+  focused: boolean;
+};
+```
 
 ### Validity
 

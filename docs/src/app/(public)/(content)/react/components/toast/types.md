@@ -56,6 +56,35 @@ type ToastRootState = {
 };
 ```
 
+### Root.ToastObject
+
+```typescript
+type ToastRootToastObject<Data extends object = any> = {
+  id: string;
+  ref?: React.RefObject<HTMLElement | null> | undefined;
+  title?: React.ReactNode;
+  type?: string | undefined;
+  description?: React.ReactNode;
+  timeout?: number | undefined;
+  priority?: 'low' | 'high' | undefined;
+  transitionStatus?: 'starting' | 'ending' | undefined;
+  limited?: boolean | undefined;
+  height?: number | undefined;
+  onClose?: (() => void) | undefined;
+  onRemove?: (() => void) | undefined;
+  actionProps?:
+    | Omit<
+        React.DetailedHTMLProps<
+          React.ButtonHTMLAttributes<HTMLButtonElement>,
+          HTMLButtonElement
+        >,
+        'ref'
+      >
+    | undefined;
+  data?: Data | undefined;
+};
+```
+
 ### Provider
 
 Provides a context for creating and managing toasts.
