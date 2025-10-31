@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@types/yargs": "^17.0.33",
+    "@types/yargs": "^17.0.34",
     "es-toolkit": "^1.40.0",
     "rimraf": "^6.0.1",
     "tsx": "^4.20.6",
