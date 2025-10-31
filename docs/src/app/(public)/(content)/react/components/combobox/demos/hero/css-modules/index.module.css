@@ -85,6 +85,11 @@
   width: var(--anchor-width);
   max-height: 23rem;
   max-width: var(--available-width);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-block: 0.5rem;
+  scroll-padding-block: 0.5rem;
+  outline: 0;
   transition:
     opacity 0.1s,
     transform 0.1s;
@@ -111,12 +116,8 @@
 
 .List {
   box-sizing: border-box;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-block: 0.5rem;
-  scroll-padding-block: 0.5rem;
-  outline: 0;
-  max-height: min(23rem, var(--available-height));
+  display: flex;
+  flex-direction: column;
 
   &[data-empty] {
     padding: 0;

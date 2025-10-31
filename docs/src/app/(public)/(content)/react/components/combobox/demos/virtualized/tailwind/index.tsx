@@ -74,7 +74,7 @@ export default function ExampleVirtualizedCombobox() {
 
       <Combobox.Portal>
         <Combobox.Positioner className="outline-none" sideOffset={4}>
-          <Combobox.Popup className="w-[var(--anchor-width)] max-h-[min(22rem,var(--available-height))] max-w-[var(--available-width)] rounded-md bg-[canvas] text-gray-900 outline-1 outline-gray-200 shadow-lg shadow-gray-200 dark:-outline-offset-1 dark:outline-gray-300">
+          <Combobox.Popup className="w-[var(--anchor-width)] max-h-[22rem] max-w-[var(--available-width)] rounded-md bg-[canvas] text-gray-900 outline-1 outline-gray-200 shadow-lg shadow-gray-200 dark:-outline-offset-1 dark:outline-gray-300">
             <Combobox.Empty className="px-4 py-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
               No items found.
             </Combobox.Empty>
@@ -83,7 +83,7 @@ export default function ExampleVirtualizedCombobox() {
                 <div
                   role="presentation"
                   ref={handleScrollElementRef}
-                  className="h-[min(22rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-p-2"
+                  className="h-[min(22rem,var(--total-size))] max-h-[min(22rem,var(--available-height))] overflow-auto overscroll-contain scroll-p-2"
                   style={{ '--total-size': totalSizePx } as React.CSSProperties}
                 >
                   <div

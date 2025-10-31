@@ -13,11 +13,11 @@ export default function ExampleGroupAutocomplete() {
 
       <Autocomplete.Portal>
         <Autocomplete.Positioner className="outline-none" sideOffset={4}>
-          <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),22.5rem)] max-w-[var(--available-width)] overflow-hidden rounded-lg bg-[canvas] text-gray-900 outline-1 outline-gray-200 shadow-lg shadow-gray-200 dark:outline-gray-300 dark:shadow-none">
+          <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[22.5rem] max-w-[var(--available-width)] overflow-y-auto scroll-pt-9 scroll-pb-2 overscroll-contain rounded-lg bg-[canvas] text-gray-900 outline-1 outline-gray-200 shadow-lg shadow-gray-200 dark:outline-gray-300 dark:shadow-none">
             <Autocomplete.Empty className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
               No tags found.
             </Autocomplete.Empty>
-            <Autocomplete.List className="outline-0 overflow-y-auto scroll-pt-[2.25rem] scroll-pb-[0.5rem] overscroll-contain max-h-[min(22.5rem,var(--available-height))]">
+            <Autocomplete.List className="box-border flex flex-col data-[empty]:p-0">
               {(group: TagGroup) => (
                 <Autocomplete.Group key={group.value} items={group.items} className="block pb-2">
                   <Autocomplete.GroupLabel className="sticky top-0 z-[1] mb-0 mr-2 mt-0 ml-0 w-[calc(100%-0.5rem)] bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider">

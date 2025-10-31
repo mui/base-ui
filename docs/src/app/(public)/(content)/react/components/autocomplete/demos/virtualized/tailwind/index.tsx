@@ -68,7 +68,7 @@ export default function ExampleVirtualizedAutocomplete() {
 
       <Autocomplete.Portal>
         <Autocomplete.Positioner className="outline-none" sideOffset={4}>
-          <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[min(22rem,var(--available-height))] max-w-[var(--available-width)] rounded-md bg-[canvas] text-gray-900 outline-1 outline-gray-200 shadow-lg shadow-gray-200 dark:-outline-offset-1 dark:outline-gray-300">
+          <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[22rem] max-w-[var(--available-width)] rounded-md bg-[canvas] text-gray-900 outline-1 outline-gray-200 shadow-lg shadow-gray-200 dark:-outline-offset-1 dark:outline-gray-300">
             <Autocomplete.Empty className="px-4 py-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
               No items found.
             </Autocomplete.Empty>
@@ -77,7 +77,7 @@ export default function ExampleVirtualizedAutocomplete() {
                 <div
                   role="presentation"
                   ref={handleScrollElementRef}
-                  className="h-[min(22rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-pt-2"
+                  className="h-[min(22rem,var(--total-size))] max-h-[min(22rem,var(--available-height))] overflow-auto overscroll-contain scroll-pt-2"
                   style={{ '--total-size': totalSizePx } as React.CSSProperties}
                 >
                   <div
