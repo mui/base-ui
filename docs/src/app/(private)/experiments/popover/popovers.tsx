@@ -48,6 +48,13 @@ const contents = [
   </React.Fragment>,
 ];
 
+function PopoverWithSettings<Payload>(
+  props: Popover.Root.Props<Payload> & React.RefAttributes<HTMLDivElement>,
+) {
+  const { settings } = useExperimentSettings<Settings>();
+  return <Popover.Root modal={settings.modal} {...props} />;
+}
+
 export default function Popovers() {
   const { settings } = useExperimentSettings<Settings>();
 
@@ -68,29 +75,29 @@ export default function Popovers() {
       <h1>Popovers</h1>
       <h2>Uncontrolled, single trigger</h2>
       <div className={styles.Container}>
-        <Popover.Root>
+        <PopoverWithSettings>
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
-        </Popover.Root>
-        <Popover.Root>
+        </PopoverWithSettings>
+        <PopoverWithSettings>
           <StyledTrigger />
           {renderPopoverContent(1, settings)}
-        </Popover.Root>
-        <Popover.Root>
+        </PopoverWithSettings>
+        <PopoverWithSettings>
           <StyledTrigger />
           {renderPopoverContent(2, settings)}
-        </Popover.Root>
+        </PopoverWithSettings>
       </div>
 
       <h2>Controlled, single trigger</h2>
       <div className={styles.Container}>
-        <Popover.Root
+        <PopoverWithSettings
           open={singleTriggerOpen}
           onOpenChange={(nextOpen) => setSingleTriggerOpen(nextOpen)}
         >
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
-        </Popover.Root>
+        </PopoverWithSettings>
         <button type="button" className={styles.Button} onClick={() => setSingleTriggerOpen(true)}>
           Open externally
         </button>
@@ -98,7 +105,7 @@ export default function Popovers() {
 
       <h2>Uncontrolled, multiple triggers within Root</h2>
       <div className={styles.Container}>
-        <Popover.Root>
+        <PopoverWithSettings>
           {({ payload }) => (
             <React.Fragment>
               <StyledTrigger payload={0} />
@@ -107,12 +114,12 @@ export default function Popovers() {
               {renderPopoverContent(payload as number, settings)}
             </React.Fragment>
           )}
-        </Popover.Root>
+        </PopoverWithSettings>
       </div>
 
       <h2>Controlled, multiple triggers within Root</h2>
       <div className={styles.Container}>
-        <Popover.Root
+        <PopoverWithSettings
           open={controlledWithinRootOpen}
           onOpenChange={(open, eventDetails) => {
             setControlledWithinRootOpen(open);
@@ -128,7 +135,7 @@ export default function Popovers() {
               {renderPopoverContent(payload as number, settings)}
             </React.Fragment>
           )}
-        </Popover.Root>
+        </PopoverWithSettings>
         <button
           type="button"
           className={styles.Button}
@@ -218,7 +225,13 @@ function StyledPopover(props: StyledPopoverProps<number>) {
   const { settings } = useExperimentSettings<Settings>();
 
   return (
-    <Popover.Root handle={handle} open={open} onOpenChange={onOpenChange} triggerId={triggerId}>
+    <Popover.Root
+      handle={handle}
+      open={open}
+      onOpenChange={onOpenChange}
+      triggerId={triggerId}
+      modal={settings.modal}
+    >
       {({ payload }) => renderPopoverContent(payload, settings)}
     </Popover.Root>
   );
