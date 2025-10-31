@@ -17,7 +17,7 @@
     "@types/sinon": "^17.0.4",
     "chai": "^6.2.0",
     "docs": "workspace:^",
-    "es-toolkit": "^1.40.0",
+    "es-toolkit": "^1.41.0",
     "is-wsl": "^3.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
