@@ -19,11 +19,21 @@ export default function getBabelConfig(api) {
         errorCodesPath,
       },
     ],
+    [
+      'babel-plugin-react-compiler',
+      /** @type {import('babel-plugin-react-compiler').PluginOptions} */ ({
+        compilationMode: 'infer',
+        // When targeting react v17 or v18, the packages also need to have
+        // "react-compiler-runtime" as a dependency.
+        target: '17',
+        enableReanimatedCheck: false,
+      }),
+    ],
   ];
 
   return {
     ...baseConfig,
-    plugins: [...baseConfig.plugins, ...plugins],
+    plugins: [...plugins, ...baseConfig.plugins],
     overrides: [
       {
         exclude: /\.test\.(js|ts|tsx)$/,
