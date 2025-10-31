@@ -1,5 +1,10 @@
 import * as React from 'react';
-import type { ToastObject, useToastManager } from '../useToastManager';
+import type {
+  ToastObject,
+  UseToastManagerAddOptions,
+  UseToastManagerPromiseOptions,
+  UseToastManagerUpdateOptions,
+} from '../useToastManager';
 
 export interface ToastContextValue<Data extends object> {
   toasts: ToastObject<Data>[];
@@ -9,11 +14,11 @@ export interface ToastContextValue<Data extends object> {
   focused: boolean;
   setFocused: React.Dispatch<React.SetStateAction<boolean>>;
   expanded: boolean;
-  add: (options: useToastManager.AddOptions<Data>) => string;
-  update: (id: string, options: useToastManager.UpdateOptions<Data>) => void;
+  add: (options: UseToastManagerAddOptions<Data>) => string;
+  update: (id: string, options: UseToastManagerUpdateOptions<Data>) => void;
   promise: <Value>(
     value: Promise<Value>,
-    options: useToastManager.PromiseOptions<Value, Data>,
+    options: UseToastManagerPromiseOptions<Value, Data>,
   ) => Promise<Value>;
   close: (id: string) => void;
   pauseTimers: () => void;
@@ -33,7 +38,7 @@ export const ToastContext = React.createContext<ToastContext<any> | undefined>(u
 export function useToastContext() {
   const context = React.useContext(ToastContext);
   if (!context) {
-    throw new Error('Base UI: useToast must be used within <Toast.Provider>.');
+    throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');
   }
   return context;
 }
