@@ -1,3 +1,4 @@
+'use client';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 
 export default function ExampleGroupAutocomplete() {

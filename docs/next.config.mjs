@@ -11,7 +11,6 @@ import { rehypeQuickNav } from 'docs/src/components/QuickNav/rehypeQuickNav.mjs'
 import { rehypeChangelog } from 'docs/src/components/QuickNav/rehypeChangelog.mjs';
 import { rehypeKbd } from 'docs/src/components/Kbd/rehypeKbd.mjs';
 import { rehypeReference } from 'docs/src/components/ReferenceTable/rehypeReference.mjs';
-import { rehypeDemos } from 'docs/src/components/Demo/rehypeDemos.mjs';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting/index.mjs';
 import { rehypeSlug } from 'docs/src/components/QuickNav/rehypeSlug.mjs';
 import { rehypeSubtitle } from 'docs/src/components/Subtitle/rehypeSubtitle.mjs';
@@ -23,7 +22,6 @@ const withMdx = nextMdx({
   options: {
     remarkPlugins: [remarkGfm, remarkTypography],
     rehypePlugins: [
-      rehypeDemos,
       rehypeReference,
       ...rehypeSyntaxHighlighting,
       rehypeSlug,
@@ -50,6 +48,37 @@ const rootPackage = loadPackageJson();
 const nextConfig = {
   trailingSlash: false,
   pageExtensions: ['mdx', 'tsx'],
+  turbopack: {
+    rules: {
+      './src/app/**/demos/*/index.ts': {
+        as: '*.ts',
+        loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter'],
+      },
+      './src/demo-data/*/index.ts': {
+        as: '*.ts',
+        loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter'],
+      },
+    },
+  },
+  webpack: (config, { defaultLoaders }) => {
+    // for production builds
+    config.module.rules.push({
+      test: /\/demos\/[^/]+\/index\.ts$/,
+      use: [
+        defaultLoaders.babel,
+        '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
+      ],
+    });
+    config.module.rules.push({
+      test: /\/src\/demo-data\/[^/]+\/index\.ts$/,
+      use: [
+        defaultLoaders.babel,
+        '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
+      ],
+    });
+
+    return config;
+  },
   env: {
     // docs-infra
     LIB_VERSION: rootPackage.version,

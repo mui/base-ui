@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';

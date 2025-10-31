@@ -6,7 +6,9 @@
   content="A high-quality, unstyled React combobox component that renders an input combined with a list of predefined items to select."
 />
 
-<Demo path="./demos/hero" />
+import { DemoComboboxHero } from './demos/hero';
+
+<DemoComboboxHero />
 
 ## Usage guidelines
 
@@ -132,28 +134,38 @@ When not specifying value props, the parameter's type must be explicitly specifi
 The combobox can allow multiple selections by adding the `multiple` prop to `<Combobox.Root>`.
 Selection chips are rendered with `<Combobox.Chip>` inside the input that can be removed.
 
-<Demo path="./demos/multiple" compact />
+import { DemoComboboxMultiple } from './demos/multiple';
+
+<DemoComboboxMultiple compact />
 
 ### Input inside popup
 
 `<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
 
-<Demo path="./demos/input-inside-popup" compact />
+import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
+
+<DemoComboboxInputInsidePopup compact />
 
 ### Grouped
 
 Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to add section headings inside the popup.
 
-<Demo path="./demos/grouped" compact />
+import { DemoComboboxGrouped } from './demos/grouped';
+
+<DemoComboboxGrouped compact />
 
 ### Creatable
 
 Create a new item when the filter matches no items, opening a creation `<Dialog>`.
 
-<Demo path="./demos/creatable" compact />
+import { DemoComboboxCreatable } from './demos/creatable';
+
+<DemoComboboxCreatable compact />
 
 ### Virtualized
 
 Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
 
-<Demo path="./demos/virtualized" compact />
+import { DemoComboboxVirtualized } from './demos/virtualized';
+
+<DemoComboboxVirtualized compact />
