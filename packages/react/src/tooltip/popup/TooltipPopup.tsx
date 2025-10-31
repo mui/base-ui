@@ -11,6 +11,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
+import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -29,18 +30,56 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { open, instantType, transitionStatus, popupProps, popupRef, onOpenChangeComplete } =
-    useTooltipRootContext();
+  const { store } = useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();
+
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
+  const popupProps = store.useState('popupProps');
+  const triggers = store.useState('triggers');
+  const payload = store.useState('payload');
+  const popupElement = store.useState('popupElement');
+  const positionerElement = store.useState('positionerElement');
+  const floatingContext = store.useState('floatingRootContext');
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
+  });
+
+  function handleMeasureLayout() {
+    floatingContext.events.emit('measure-layout');
+  }
+
+  function handleMeasureLayoutComplete(
+    previousDimensions: { width: number; height: number } | null,
+    nextDimensions: { width: number; height: number },
+  ) {
+    floatingContext.events.emit('measure-layout-complete', {
+      previousDimensions,
+      nextDimensions,
+    });
+  }
+
+  // If there's just one trigger, we can skip the auto-resize logic as
+  // the tooltip will always be anchored to the same position.
+  const autoresizeEnabled = triggers.size > 1;
+
+  usePopupAutoResize({
+    popupElement,
+    positionerElement,
+    mounted,
+    content: payload,
+    enabled: autoresizeEnabled,
+    onMeasureLayout: handleMeasureLayout,
+    onMeasureLayoutComplete: handleMeasureLayoutComplete,
   });
 
   const state: TooltipPopup.State = React.useMemo(
@@ -56,7 +95,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, popupRef],
+    ref: [forwardedRef, store.context.popupRef, store.getElementSetter('popupElement')],
     props: [
       popupProps,
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,

@@ -1,9 +1,17 @@
+.Container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
 .Panel {
   display: flex;
   border: 1px solid var(--color-gray-200);
   background-color: var(--color-gray-50);
   border-radius: 0.375rem;
   padding: 0.125rem;
+  width: max-content;
 }
 
 .Button {
@@ -48,6 +56,60 @@
   height: 1rem;
 }
 
+.ControlButton {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: 2.5rem;
+  padding: 0 0.875rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+  color: var(--color-gray-900);
+  user-select: none;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:active {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.Positioner {
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --animation-duration: 0.35s;
+
+  width: var(--positioner-width);
+  height: var(--positioner-height);
+  max-width: var(--available-width);
+
+  transition-property: top, left, right, bottom, transform;
+  transition-timing-function: var(--easing);
+  transition-duration: var(--animation-duration);
+
+  /* Disable transitions when data-instant is set (used for the initial positioning of the popup) */
+  &[data-instant] {
+    transition: none;
+  }
+}
+
 .Popup {
   box-sizing: border-box;
   font-size: 0.875rem;
@@ -59,8 +121,14 @@
   background-color: canvas;
   transform-origin: var(--transform-origin);
   transition:
+    width 150ms,
+    height 150ms,
     transform 150ms,
     opacity 150ms;
+
+  /* These are required to make the size animations work */
+  width: var(--popup-width, auto);
+  height: var(--popup-height, auto);
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -69,7 +137,7 @@
   }
 
   &[data-instant] {
-    transition: none;
+    transition-duration: 0ms;
   }
 
   @media (prefers-color-scheme: light) {
