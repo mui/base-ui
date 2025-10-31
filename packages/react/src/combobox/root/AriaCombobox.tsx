@@ -501,6 +501,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
+      // If the `Empty` component is not used, the positioner or popup should be hidden
+      // with CSS. In this case, allow the Escape key to bubble to close a parent popup
+      // if there are no items to show.
+      if (
+        eventDetails.reason === 'escape-key' &&
+        flatFilteredItems.length === 0 &&
+        positionerElement &&
+        typeof positionerElement.checkVisibility === 'function'
+      ) {
+        if (!positionerElement.checkVisibility() || !popupRef.current?.checkVisibility()) {
+          eventDetails.allowPropagation();
+        }
+      }
+
       props.onOpenChange?.(nextOpen, eventDetails);
 
       if (eventDetails.isCanceled) {
