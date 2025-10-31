@@ -10,10 +10,10 @@ export default function ExampleDecoratedInput() {
   return (
     <Combobox.Root
       items={people}
-      itemToStringLabel={(person) => person.name}
+      itemToStringLabel={(person: Person) => person.name}
       inputValue={inputValue}
       onInputValueChange={(next, eventDetails) => {
-        if (eventDetails.reason === 'item-press') {
+        if (eventDetails.reason === 'item-press' || eventDetails.reason === 'none') {
           // Keep the input blank to display the custom selected value text.
           setInputValue('');
           containerRef.current?.focus();
