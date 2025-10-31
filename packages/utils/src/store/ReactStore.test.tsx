@@ -277,8 +277,8 @@ describe('ReactStore', () => {
       store.state.parent?.set('count', newCount);
     };
 
-    childStore.observeSelector('parent', onParentUpdated);
-    childStore.observeSelector(localCountSelector, onCountUpdated);
+    childStore.observe('parent', onParentUpdated);
+    childStore.observe(localCountSelector, onCountUpdated);
 
     function Test() {
       const count = childStore.useState('count');
@@ -329,7 +329,7 @@ describe('ReactStore', () => {
       const store = new ReactStore<CounterState>({ count: 0, multiplier: 1 });
       const calls: Array<{ newValue: boolean; oldValue: boolean }> = [];
 
-      const unsubscribe = store.observeSelector(
+      const unsubscribe = store.observe(
         (state) => state.count > 1,
         (newValue, oldValue) => {
           calls.push({ newValue, oldValue });
@@ -361,7 +361,7 @@ describe('ReactStore', () => {
       );
       const calls: Array<{ newValue: number; oldValue: number }> = [];
 
-      store.observeSelector('doubled', (newValue: number, oldValue: number) => {
+      store.observe('doubled', (newValue: number, oldValue: number) => {
         calls.push({ newValue, oldValue });
       });
 
@@ -377,7 +377,7 @@ describe('ReactStore', () => {
       );
       const calls: Array<{ newValue: number; oldValue: number }> = [];
 
-      store.observeSelector('doubled', (newValue: number, oldValue: number) => {
+      store.observe('doubled', (newValue: number, oldValue: number) => {
         calls.push({ newValue, oldValue });
       });
 
@@ -397,7 +397,7 @@ describe('ReactStore', () => {
       );
       const calls: Array<{ newValue: number; oldValue: number }> = [];
 
-      store.observeSelector('doubled', (newValue: number, oldValue: number) => {
+      store.observe('doubled', (newValue: number, oldValue: number) => {
         calls.push({ newValue, oldValue });
       });
 
@@ -414,7 +414,7 @@ describe('ReactStore', () => {
       );
       const calls: Array<{ newValue: number; oldValue: number }> = [];
 
-      store.observeSelector('multiplied', (newValue: number, oldValue: number) => {
+      store.observe('multiplied', (newValue: number, oldValue: number) => {
         calls.push({ newValue, oldValue });
       });
 
@@ -435,7 +435,7 @@ describe('ReactStore', () => {
       );
       let receivedStore!: ReactStore<CounterState, Record<string, never>, typeof selectors>;
 
-      store.observeSelector('doubled', (_: number, __: number, storeArg) => {
+      store.observe('doubled', (_: number, __: number, storeArg) => {
         receivedStore = storeArg;
       });
 
@@ -450,7 +450,7 @@ describe('ReactStore', () => {
       );
       const calls: Array<{ newValue: number; oldValue: number }> = [];
 
-      const unsubscribe = store.observeSelector('doubled', (newValue: number, oldValue: number) => {
+      const unsubscribe = store.observe('doubled', (newValue: number, oldValue: number) => {
         calls.push({ newValue, oldValue });
       });
 
@@ -472,11 +472,11 @@ describe('ReactStore', () => {
       const calls1: number[] = [];
       const calls2: number[] = [];
 
-      store.observeSelector('doubled', (newValue: number) => {
+      store.observe('doubled', (newValue: number) => {
         calls1.push(newValue);
       });
 
-      store.observeSelector('doubled', (newValue: number) => {
+      store.observe('doubled', (newValue: number) => {
         calls2.push(newValue);
       });
 
@@ -495,11 +495,11 @@ describe('ReactStore', () => {
       const doubledCalls: number[] = [];
       const multipliedCalls: number[] = [];
 
-      store.observeSelector('doubled', (newValue: number) => {
+      store.observe('doubled', (newValue: number) => {
         doubledCalls.push(newValue);
       });
 
-      store.observeSelector('multiplied', (newValue: number) => {
+      store.observe('multiplied', (newValue: number) => {
         multipliedCalls.push(newValue);
       });
 

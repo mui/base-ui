@@ -253,7 +253,7 @@ export class ReactStore<
    * @param key Key of the selector to observe.
    * @param listener Listener function called when the selector result changes.
    */
-  public observeSelector<Key extends keyof Selectors>(
+  public observe<Key extends keyof Selectors>(
     selector: Key,
     listener: (
       newValue: ReturnType<Selectors[Key]>,
@@ -262,12 +262,12 @@ export class ReactStore<
     ) => void,
   ): () => void;
 
-  public observeSelector<Selector extends ObserveSelector<State>>(
+  public observe<Selector extends ObserveSelector<State>>(
     selector: Selector,
     listener: (newValue: ReturnType<Selector>, oldValue: ReturnType<Selector>, store: this) => void,
   ): () => void;
 
-  public observeSelector(
+  public observe(
     selector: keyof Selectors | ObserveSelector<State>,
     listener: (newValue: any, oldValue: any, store: this) => void,
   ) {

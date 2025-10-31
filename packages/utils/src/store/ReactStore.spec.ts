@@ -72,13 +72,13 @@ store.useState('textLengthBetween', 1);
 // @ts-expect-error
 store.useState('textLongerThan', 2, 3);
 
-const unsubscribeFromCount = store.observeSelector('count', (newValue, oldValue) => {
+const unsubscribeFromCount = store.observe('count', (newValue, oldValue) => {
   expectType<number | undefined, typeof newValue>(newValue);
   expectType<number | undefined, typeof oldValue>(oldValue);
 });
 expectType<() => void, typeof unsubscribeFromCount>(unsubscribeFromCount);
 
-const unsubscribeFromSelector = store.observeSelector(
+const unsubscribeFromSelector = store.observe(
   (state) => state.text.length,
   (newValue, oldValue) => {
     expectType<number, typeof newValue>(newValue);
@@ -88,7 +88,7 @@ const unsubscribeFromSelector = store.observeSelector(
 expectType<() => void, typeof unsubscribeFromSelector>(unsubscribeFromSelector);
 
 // @ts-expect-error listener must match selector return type
-store.observeSelector(
+store.observe(
   (state) => state.text.length,
   (newValue: string) => {
     expectType<string, typeof newValue>(newValue);
