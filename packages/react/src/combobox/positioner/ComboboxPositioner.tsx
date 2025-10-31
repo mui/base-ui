@@ -54,7 +54,6 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const modal = useStore(store, selectors.modal);
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
-  const openMethod = useStore(store, selectors.openMethod);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
@@ -82,7 +81,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   });
 
   useScrollLock({
-    enabled: open && modal && openMethod !== 'touch',
+    enabled: open && modal,
     mounted,
     open,
     referenceElement: triggerElement,
