@@ -79,7 +79,7 @@
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "docs": "workspace:^",
-    "es-toolkit": "^1.40.0",
+    "es-toolkit": "^1.41.0",
     "eslint": "^9.38.0",
     "execa": "^9.6.0",
     "globby": "^15.0.0",
