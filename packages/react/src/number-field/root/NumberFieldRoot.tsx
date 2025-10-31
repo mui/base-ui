@@ -1,35 +1,40 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useInterval } from '@base-ui-components/utils/useInterval';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isIOS } from '@base-ui-components/utils/detectBrowser';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
   getNumberLocaleDetails,
-  PERCENTAGES,
-  UNICODE_MINUS_SIGNS,
-  UNICODE_PLUS_SIGNS,
   PERMILLE,
-  FULLWIDTH_DECIMAL,
-  FULLWIDTH_GROUP,
+  PERCENTAGES,
+  SPACE_SEPARATOR_RE,
+  BASE_NON_NUMERIC_SYMBOLS,
+  MINUS_SIGNS_WITH_ASCII,
+  PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+  type BaseUIChangeEventDetails,
+  type BaseUIGenericEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { isReactEvent } from '../../floating-ui-react/utils';
 
 /**
@@ -56,6 +61,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     defaultValue,
     value: valueProp,
     onValueChange: onValueChangeProp,
+    onValueCommitted: onValueCommittedProp,
     allowWheelScrub = false,
     snapOnStep = false,
     format,
@@ -67,7 +73,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   } = componentProps;
 
   const {
-    setControlId,
     setDirty,
     validityData,
     setValidityData,
@@ -90,14 +95,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const id = useBaseUiId(idProp);
-
-  useIsoLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
+  const id = useLabelableId({ id: idProp });
 
   const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
     controlled: valueProp,
@@ -107,7 +105,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   });
 
   const value = valueUnwrapped ?? null;
-  const valueRef = useLatestRef(value);
+  const valueRef = useValueAsRef(value);
 
   useIsoLayoutEffect(() => {
     setFilled(value !== null);
@@ -115,15 +113,25 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const forceRender = useForcedRerendering();
 
-  const formatOptionsRef = useLatestRef(format);
-  const onValueChange = useEventCallback(onValueChangeProp);
+  const formatOptionsRef = useValueAsRef(format);
+
+  const hasPendingCommitRef = React.useRef(false);
+
+  const onValueCommitted = useStableCallback(
+    (nextValue: number | null, eventDetails: NumberFieldRoot.CommitEventDetails) => {
+      hasPendingCommitRef.current = false;
+      onValueCommittedProp?.(nextValue, eventDetails);
+    },
+  );
 
   const startTickTimeout = useTimeout();
   const tickInterval = useInterval();
   const intentionalTouchCheckTimeout = useTimeout();
+
   const isPressedRef = React.useRef(false);
   const movesAfterTouchRef = React.useRef(0);
   const allowInputSyncRef = React.useRef(true);
+  const lastChangedValueRef = React.useRef<number | null>(null);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
 
   useIsoLayoutEffect(() => {
@@ -144,34 +152,47 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   });
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
-  const getAllowedNonNumericKeys = useEventCallback(() => {
+  const getAllowedNonNumericKeys = useStableCallback(() => {
     const { decimal, group, currency } = getNumberLocaleDetails(locale, format);
 
-    const keys = new Set(['.', ',', decimal, group, FULLWIDTH_DECIMAL, FULLWIDTH_GROUP]);
-
-    // If the locale's group separator is a space-like character (e.g. NBSP, NNBSP),
-    // also allow a regular space from the keyboard.
-    if (group && /\p{Zs}/u.test(group)) {
-      keys.add(' ');
+    const keys = new Set<string>();
+    BASE_NON_NUMERIC_SYMBOLS.forEach((symbol) => keys.add(symbol));
+    if (decimal) {
+      keys.add(decimal);
+    }
+    if (group) {
+      keys.add(group);
+      if (SPACE_SEPARATOR_RE.test(group)) {
+        keys.add(' ');
+      }
     }
 
-    if (formatStyle === 'percent') {
+    const allowPercentSymbols =
+      formatStyle === 'percent' || (formatStyle === 'unit' && format?.unit === 'percent');
+    const allowPermilleSymbols =
+      formatStyle === 'percent' || (formatStyle === 'unit' && format?.unit === 'permille');
+
+    if (allowPercentSymbols) {
       PERCENTAGES.forEach((key) => keys.add(key));
     }
-    // Permille is supported by the parser regardless of format style
-    PERMILLE.forEach((key) => keys.add(key));
+    if (allowPermilleSymbols) {
+      PERMILLE.forEach((key) => keys.add(key));
+    }
 
     if (formatStyle === 'currency' && currency) {
       keys.add(currency);
     }
+
     // Allow plus sign in all cases; minus sign only when negatives are valid
-    ['+'].concat(UNICODE_PLUS_SIGNS).forEach((key) => keys.add(key));
-    (minWithDefault < 0 ? ['-'].concat(UNICODE_MINUS_SIGNS) : []).forEach((key) => keys.add(key));
+    PLUS_SIGNS_WITH_ASCII.forEach((key) => keys.add(key));
+    if (minWithDefault < 0) {
+      MINUS_SIGNS_WITH_ASCII.forEach((key) => keys.add(key));
+    }
 
     return keys;
   });
 
-  const getStepAmount = useEventCallback((event?: EventWithOptionalKeyState) => {
+  const getStepAmount = useStableCallback((event?: EventWithOptionalKeyState) => {
     if (event?.altKey) {
       return smallStep;
     }
@@ -181,12 +202,12 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     return step;
   });
 
-  const setValue = useEventCallback(
+  const setValue = useStableCallback(
     (unvalidatedValue: number | null, event?: React.MouseEvent | Event, dir?: 1 | -1) => {
       const eventWithOptionalKeyState = event as EventWithOptionalKeyState;
       const nativeEvent = event && isReactEvent(event) ? event.nativeEvent : event;
 
-      const details = createBaseUIEventDetails('none', nativeEvent);
+      const details = createChangeEventDetails('none', nativeEvent);
       const validatedValue = toValidatedNumber(unvalidatedValue, {
         step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
         format: formatOptionsRef.current,
@@ -200,10 +221,14 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       // Determine whether we should notify about a change even if the numeric value is unchanged.
       // This is needed when the user input is clamped/snapped to the same current value, or when
       // the source value differs but validation normalizes to the existing value.
-      const shouldFireChange = validatedValue !== value || unvalidatedValue !== value;
+      const shouldFireChange =
+        validatedValue !== value ||
+        unvalidatedValue !== value ||
+        allowInputSyncRef.current === false;
 
       if (shouldFireChange) {
-        onValueChange?.(validatedValue, details);
+        lastChangedValueRef.current = validatedValue;
+        onValueChangeProp?.(validatedValue, details);
 
         if (details.isCanceled) {
           return;
@@ -211,6 +236,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
         setValueUnwrapped(validatedValue);
         setDirty(validatedValue !== validityData.initialValue);
+        hasPendingCommitRef.current = true;
       }
 
       // Keep the visible input in sync immediately when programmatic changes occur
@@ -226,7 +252,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     },
   );
 
-  const incrementValue = useEventCallback(
+  const incrementValue = useStableCallback(
     (
       amount: number,
       dir: 1 | -1,
@@ -240,7 +266,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     },
   );
 
-  const stopAutoChange = useEventCallback(() => {
+  const stopAutoChange = useStableCallback(() => {
     intentionalTouchCheckTimeout.clear();
     startTickTimeout.clear();
     tickInterval.clear();
@@ -248,7 +274,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     movesAfterTouchRef.current = 0;
   });
 
-  const startAutoChange = useEventCallback(
+  const startAutoChange = useStableCallback(
     (isIncrement: boolean, triggerEvent?: React.MouseEvent | Event) => {
       stopAutoChange();
 
@@ -271,9 +297,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
       win.addEventListener(
         'pointerup',
-        () => {
+        (event) => {
           isPressedRef.current = false;
           stopAutoChange();
+          const committed = lastChangedValueRef.current ?? valueRef.current;
+          onValueCommitted(committed, createGenericEventDetails('none', event));
         },
         { once: true },
       );
@@ -408,6 +436,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       allowInputSyncRef,
       formatOptionsRef,
       valueRef,
+      lastChangedValueRef,
+      hasPendingCommitRef,
       isPressedRef,
       intentionalTouchCheckTimeout,
       movesAfterTouchRef,
@@ -423,6 +453,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       isScrubbing,
       setIsScrubbing,
       state,
+      onValueCommitted,
     }),
     [
       inputRef,
@@ -441,6 +472,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       allowInputSyncRef,
       formatOptionsRef,
       valueRef,
+      lastChangedValueRef,
+      hasPendingCommitRef,
       isPressedRef,
       intentionalTouchCheckTimeout,
       movesAfterTouchRef,
@@ -455,6 +488,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       locale,
       isScrubbing,
       state,
+      onValueCommitted,
     ],
   );
 
@@ -482,127 +516,144 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   );
 });
 
-export namespace NumberFieldRoot {
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'onChange'> {
-    /**
-     * The id of the input element.
-     */
-    id?: string;
-    /**
-     * The minimum value of the input element.
-     */
-    min?: number;
-    /**
-     * The maximum value of the input element.
-     */
-    max?: number;
-    /**
-     * The small step value of the input element when incrementing while the meta key is held. Snaps
-     * to multiples of this value.
-     * @default 0.1
-     */
-    smallStep?: number;
-    /**
-     * Amount to increment and decrement with the buttons and arrow keys,
-     * or to scrub with pointer movement in the scrub area.
-     * @default 1
-     */
-    step?: number;
-    /**
-     * The large step value of the input element when incrementing while the shift key is held. Snaps
-     * to multiples of this value.
-     * @default 10
-     */
-    largeStep?: number;
-    /**
-     * Whether the user must enter a value before submitting a form.
-     * @default false
-     */
-    required?: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Whether the user should be unable to change the field value.
-     * @default false
-     */
-    readOnly?: boolean;
-    /**
-     * Identifies the field when a form is submitted.
-     */
-    name?: string;
-    /**
-     * The raw numeric value of the field.
-     */
-    value?: number | null;
-    /**
-     * The uncontrolled value of the field when it’s initially rendered.
-     *
-     * To render a controlled number field, use the `value` prop instead.
-     */
-    defaultValue?: number;
-    /**
-     * Whether to allow the user to scrub the input value with the mouse wheel while focused and
-     * hovering over the input.
-     * @default false
-     */
-    allowWheelScrub?: boolean;
-    /**
-     * Whether the value should snap to the nearest step when incrementing or decrementing.
-     * @default false
-     */
-    snapOnStep?: boolean;
-    /**
-     * Options to format the input value.
-     */
-    format?: Intl.NumberFormatOptions;
-    /**
-     * Callback fired when the number value changes.
-     */
-    onValueChange?: (value: number | null, eventDetails: ChangeEventDetails) => void;
-    /**
-     * The locale of the input element.
-     * Defaults to the user's runtime locale.
-     */
-    locale?: Intl.LocalesArgument;
-    /**
-     * A ref to access the hidden input element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
-  }
-
-  export interface State extends FieldRoot.State {
-    /**
-     * The raw numeric value of the field.
-     */
-    value: number | null;
-    /**
-     * The formatted string value presented in the input element.
-     */
-    inputValue: string;
-    /**
-     * Whether the user must enter a value before submitting a form.
-     */
-    required: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the user should be unable to change the field value.
-     */
-    readOnly: boolean;
-    /**
-     * Whether the user is currently scrubbing the field.
-     */
-    scrubbing: boolean;
-  }
-
-  export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+export interface NumberFieldRootProps
+  extends Omit<BaseUIComponentProps<'div', NumberFieldRoot.State>, 'onChange'> {
+  /**
+   * The id of the input element.
+   */
+  id?: string;
+  /**
+   * The minimum value of the input element.
+   */
+  min?: number;
+  /**
+   * The maximum value of the input element.
+   */
+  max?: number;
+  /**
+   * The small step value of the input element when incrementing while the meta key is held. Snaps
+   * to multiples of this value.
+   * @default 0.1
+   */
+  smallStep?: number;
+  /**
+   * Amount to increment and decrement with the buttons and arrow keys,
+   * or to scrub with pointer movement in the scrub area.
+   * @default 1
+   */
+  step?: number;
+  /**
+   * The large step value of the input element when incrementing while the shift key is held. Snaps
+   * to multiples of this value.
+   * @default 10
+   */
+  largeStep?: number;
+  /**
+   * Whether the user must enter a value before submitting a form.
+   * @default false
+   */
+  required?: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Whether the user should be unable to change the field value.
+   * @default false
+   */
+  readOnly?: boolean;
+  /**
+   * Identifies the field when a form is submitted.
+   */
+  name?: string;
+  /**
+   * The raw numeric value of the field.
+   */
+  value?: number | null;
+  /**
+   * The uncontrolled value of the field when it’s initially rendered.
+   *
+   * To render a controlled number field, use the `value` prop instead.
+   */
+  defaultValue?: number;
+  /**
+   * Whether to allow the user to scrub the input value with the mouse wheel while focused and
+   * hovering over the input.
+   * @default false
+   */
+  allowWheelScrub?: boolean;
+  /**
+   * Whether the value should snap to the nearest step when incrementing or decrementing.
+   * @default false
+   */
+  snapOnStep?: boolean;
+  /**
+   * Options to format the input value.
+   */
+  format?: Intl.NumberFormatOptions;
+  /**
+   * Callback fired when the number value changes.
+   */
+  onValueChange?: (value: number | null, eventDetails: NumberFieldRoot.ChangeEventDetails) => void;
+  /**
+   * Callback function that is fired when the value is committed.
+   * It runs later than `onValueChange`, when:
+   * - The input is blurred after typing a value.
+   * - The pointer is released after scrubbing or pressing the increment/decrement buttons.
+   *
+   * It runs simultaneously with `onValueChange` when interacting with the keyboard.
+   *
+   * **Warning**: This is a generic event not a change event.
+   */
+  onValueCommitted?: (
+    value: number | null,
+    eventDetails: NumberFieldRoot.CommitEventDetails,
+  ) => void;
+  /**
+   * The locale of the input element.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+  /**
+   * A ref to access the hidden input element.
+   */
+  inputRef?: React.Ref<HTMLInputElement>;
 }
+export interface NumberFieldRootState extends FieldRoot.State {
+  /**
+   * The raw numeric value of the field.
+   */
+  value: number | null;
+  /**
+   * The formatted string value presented in the input element.
+   */
+  inputValue: string;
+  /**
+   * Whether the user must enter a value before submitting a form.
+   */
+  required: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the user should be unable to change the field value.
+   */
+  readOnly: boolean;
+  /**
+   * Whether the user is currently scrubbing the field.
+   */
+  scrubbing: boolean;
+}
+
+export type NumberFieldRootChangeEventReason = 'none';
+export type NumberFieldRootChangeEventDetails =
+  BaseUIChangeEventDetails<NumberFieldRoot.ChangeEventReason>;
+
+export type NumberFieldRootCommitEventReason = 'none';
+export type NumberFieldRootCommitEventDetails =
+  BaseUIGenericEventDetails<NumberFieldRoot.CommitEventReason>;
 
 function getControlledInputValue(
   value: number | null,
@@ -614,4 +665,13 @@ function getControlledInputValue(
   return explicitPrecision
     ? formatNumber(value, locale, format)
     : formatNumberMaxPrecision(value, locale, format);
+}
+
+export namespace NumberFieldRoot {
+  export type State = NumberFieldRootState;
+  export type Props = NumberFieldRootProps;
+  export type ChangeEventReason = NumberFieldRootChangeEventReason;
+  export type ChangeEventDetails = NumberFieldRootChangeEventDetails;
+  export type CommitEventReason = NumberFieldRootCommitEventReason;
+  export type CommitEventDetails = NumberFieldRootCommitEventDetails;
 }

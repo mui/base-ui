@@ -1,6 +1,5 @@
-import * as React from 'react';
 import { expect } from 'chai';
-import { screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -18,41 +17,86 @@ describe('<NavigationMenu.Link />', () => {
     },
   }));
 
-  it.skipIf(!isJSDOM)('closes the menu when clicking a link', async () => {
-    const { user } = await render(
-      <NavigationMenu.Root>
-        <NavigationMenu.List>
-          <NavigationMenu.Item value="item-1">
-            <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
-            <NavigationMenu.Content data-testid="popup-1">
-              <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
-            </NavigationMenu.Content>
-          </NavigationMenu.Item>
-        </NavigationMenu.List>
+  describe.skipIf(!isJSDOM)('prop: closeOnClick', () => {
+    it('closes the menu when clicking a link when true', async () => {
+      const { user } = await render(
+        <NavigationMenu.Root>
+          <NavigationMenu.List>
+            <NavigationMenu.Item value="item-1">
+              <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+              <NavigationMenu.Content data-testid="popup-1">
+                <NavigationMenu.Link href="#link-1" closeOnClick>
+                  Link 1
+                </NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
 
-        <NavigationMenu.Portal>
-          <NavigationMenu.Positioner>
-            <NavigationMenu.Popup>
-              <NavigationMenu.Viewport />
-            </NavigationMenu.Popup>
-          </NavigationMenu.Positioner>
-        </NavigationMenu.Portal>
-      </NavigationMenu.Root>,
-    );
+          <NavigationMenu.Portal>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup>
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>,
+      );
 
-    const trigger = screen.getByTestId('trigger-1');
+      const trigger = screen.getByTestId('trigger-1');
 
-    await user.click(trigger);
-    await flushMicrotasks();
+      await user.click(trigger);
 
-    expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-    expect(trigger).to.have.attribute('aria-expanded', 'true');
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      });
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
 
-    const link = screen.getByRole('link', { name: 'Link 1' });
-    await user.click(link);
+      const link = screen.getByRole('link', { name: 'Link 1' });
+      await user.click(link);
 
-    await waitFor(() => expect(screen.queryByTestId('popup-1')).to.equal(null));
-    expect(trigger).to.have.attribute('aria-expanded', 'false');
+      await waitFor(() => expect(screen.queryByTestId('popup-1')).to.equal(null));
+      expect(trigger).to.have.attribute('aria-expanded', 'false');
+    });
+
+    it('does not close the menu when clicking a link when false', async () => {
+      const { user } = await render(
+        <NavigationMenu.Root>
+          <NavigationMenu.List>
+            <NavigationMenu.Item value="item-1">
+              <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+              <NavigationMenu.Content data-testid="popup-1">
+                <NavigationMenu.Link href="#link-1" closeOnClick={false}>
+                  Link 1
+                </NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+
+          <NavigationMenu.Portal>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup>
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger-1');
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      });
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
+
+      const link = screen.getByRole('link', { name: 'Link 1' });
+      await user.click(link);
+
+      await waitFor(() => expect(screen.queryByTestId('popup-1')).not.to.equal(null));
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
+    });
   });
 
   describe('prop: active', () => {

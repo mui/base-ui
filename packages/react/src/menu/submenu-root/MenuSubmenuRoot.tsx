@@ -1,5 +1,4 @@
 'use client';
-import * as React from 'react';
 import { MenuRoot } from '../root/MenuRoot';
 import { MenuSubmenuRootContext } from './MenuSubmenuRootContext';
 
@@ -21,14 +20,27 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
   );
 }
 
-export namespace MenuSubmenuRoot {
-  export interface Props extends Omit<MenuRoot.Props, 'modal' | 'openOnHover'> {
-    /**
-     * Whether the submenu should open when the trigger is hovered.
-     * @default true
-     */
-    openOnHover?: MenuRoot.Props['openOnHover'];
-  }
+export interface MenuSubmenuRootProps
+  extends Omit<MenuRoot.Props, 'modal' | 'openOnHover' | 'onOpenChange'> {
+  /**
+   * Whether the submenu should open when the trigger is hovered.
+   * @default true
+   */
+  openOnHover?: MenuRoot.Props['openOnHover'];
+  /**
+   * Event handler called when the menu is opened or closed.
+   */
+  onOpenChange?: (open: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) => void;
+}
 
-  export interface State {}
+export interface MenuSubmenuRootState {}
+
+export type MenuSubmenuRootChangeEventReason = MenuRoot.ChangeEventReason;
+export type MenuSubmenuRootChangeEventDetails = MenuRoot.ChangeEventDetails;
+
+export namespace MenuSubmenuRoot {
+  export type Props = MenuSubmenuRootProps;
+  export type State = MenuSubmenuRootState;
+  export type ChangeEventReason = MenuSubmenuRootChangeEventReason;
+  export type ChangeEventDetails = MenuSubmenuRootChangeEventDetails;
 }

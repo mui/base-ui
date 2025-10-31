@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { type Dirent } from 'node:fs';

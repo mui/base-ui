@@ -12,6 +12,7 @@ describe('<Popover.Popup />', () => {
     render(node) {
       return render(
         <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
           <Popover.Portal>
             <Popover.Positioner>{node}</Popover.Positioner>
           </Popover.Portal>
@@ -23,6 +24,7 @@ describe('<Popover.Popup />', () => {
   it('should render the children', async () => {
     await render(
       <Popover.Root open>
+        <Popover.Trigger>Trigger</Popover.Trigger>
         <Popover.Portal>
           <Popover.Positioner>
             <Popover.Popup>Content</Popover.Popup>
@@ -36,7 +38,7 @@ describe('<Popover.Popup />', () => {
 
   describe('prop: initialFocus', () => {
     it('should focus the first focusable element within the popup by default', async () => {
-      const { getByText, getByTestId } = await render(
+      await render(
         <div>
           <input />
           <Popover.Root>
@@ -54,13 +56,13 @@ describe('<Popover.Popup />', () => {
         </div>,
       );
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
       await waitFor(() => {
-        const innerInput = getByTestId('popover-input');
+        const innerInput = screen.getByTestId('popover-input');
         expect(innerInput).to.toHaveFocus();
       });
     });
@@ -89,15 +91,15 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
       await waitFor(() => {
-        const input2 = getByTestId('input-2');
+        const input2 = screen.getByTestId('input-2');
         expect(input2).to.toHaveFocus();
       });
     });
@@ -129,13 +131,13 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
 
       await waitFor(() => {
-        const input2 = getByTestId('input-2');
+        const input2 = screen.getByTestId('input-2');
         expect(input2).to.toHaveFocus();
       });
     });
@@ -168,9 +170,9 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
 
       await waitFor(() => {
@@ -181,7 +183,7 @@ describe('<Popover.Popup />', () => {
       await user.keyboard('{Enter}');
 
       await waitFor(() => {
-        expect(getByTestId('input-2')).toHaveFocus();
+        expect(screen.getByTestId('input-2')).toHaveFocus();
       });
     });
 
@@ -203,8 +205,8 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
       await waitFor(() => {
         expect(trigger).toHaveFocus();
@@ -229,10 +231,10 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
-      await user.click(getByText('Open'));
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByText('Open'));
       await waitFor(() => {
-        expect(getByTestId('input-1')).toHaveFocus();
+        expect(screen.getByTestId('input-1')).toHaveFocus();
       });
     });
 
@@ -254,17 +256,17 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
-      await user.click(getByText('Open'));
+      const { user } = await render(<TestComponent />);
+      await user.click(screen.getByText('Open'));
       await waitFor(() => {
-        expect(getByTestId('input-1')).toHaveFocus();
+        expect(screen.getByTestId('input-1')).toHaveFocus();
       });
     });
   });
 
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {
-      const { getByText } = await render(
+      await render(
         <div>
           <input />
           <Popover.Root>
@@ -281,12 +283,12 @@ describe('<Popover.Popup />', () => {
         </div>,
       );
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
-      const closeButton = getByText('Close');
+      const closeButton = screen.getByText('Close');
       await act(async () => {
         closeButton.click();
       });
@@ -319,19 +321,19 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await act(async () => {
         trigger.click();
       });
 
-      const closeButton = getByText('Close');
+      const closeButton = screen.getByText('Close');
       await act(async () => {
         closeButton.click();
       });
 
-      const inputToFocus = getByTestId('input-to-focus');
+      const inputToFocus = screen.getByTestId('input-to-focus');
 
       await waitFor(() => {
         expect(inputToFocus).toHaveFocus();
@@ -359,16 +361,16 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
 
-      const closeButton = getByText('Close');
+      const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       await waitFor(() => {
-        expect(getByTestId('input-to-focus')).toHaveFocus();
+        expect(screen.getByTestId('input-to-focus')).toHaveFocus();
       });
     });
 
@@ -390,11 +392,11 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
 
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
 
       await waitFor(() => {
         expect(trigger).not.toHaveFocus();
@@ -419,11 +421,11 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
 
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
 
       await waitFor(() => {
         expect(trigger).toHaveFocus();
@@ -457,13 +459,13 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      const trigger = getByText('Open');
+      const trigger = screen.getByText('Open');
 
       // Close via pointer: true => default, should move focus to trigger
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
@@ -472,7 +474,7 @@ describe('<Popover.Popup />', () => {
       await user.click(trigger);
       await user.keyboard('{Escape}');
       await waitFor(() => {
-        expect(getByTestId('final-input')).toHaveFocus();
+        expect(screen.getByTestId('final-input')).toHaveFocus();
       });
     });
 
@@ -494,10 +496,10 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
+      const { user } = await render(<TestComponent />);
+      const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });

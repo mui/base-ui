@@ -3,8 +3,7 @@ import { existsSync, statSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import { basename, dirname, extname, resolve, join } from 'node:path';
 import type { DemoFile, DemoVariant } from 'docs/src/blocks/Demo';
-import camelCase from 'lodash/camelCase';
-import upperFirst from 'lodash/upperFirst';
+import { camelCase, upperFirst } from 'es-toolkit/string';
 import { highlighter } from 'docs/src/syntax-highlighting';
 import { Demo } from './Demo';
 
@@ -253,6 +252,21 @@ function resolveExtensionlessFile(filePath: string, preferTs: boolean): string {
   const extensions = preferTs
     ? ['.tsx', '.ts', '.jsx', '.js', '.json']
     : ['.jsx', '.js', '.tsx', '.ts', '.json'];
+
+  if (existsSync(filePath)) {
+    const stats = statSync(filePath);
+    if (stats.isFile()) {
+      return filePath;
+    }
+    if (stats.isDirectory()) {
+      for (const extension of extensions) {
+        const indexPath = join(filePath, `index${extension}`);
+        if (existsSync(indexPath)) {
+          return indexPath;
+        }
+      }
+    }
+  }
 
   for (const extension of extensions) {
     const fullPath = `${filePath}${extension}`;

@@ -1,7 +1,6 @@
 import { visit } from 'unist-util-visit';
 import { join, dirname } from 'path';
-import camelCase from 'lodash/camelCase.js';
-import upperFirst from 'lodash/upperFirst.js';
+import { camelCase, upperFirst } from 'es-toolkit/string';
 
 /**
  * Enhances `<Demo>` components in MDX:

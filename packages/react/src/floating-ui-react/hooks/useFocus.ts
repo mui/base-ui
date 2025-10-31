@@ -12,7 +12,7 @@ import {
 } from '../utils';
 
 import type { ElementProps, FloatingRootContext } from '../types';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
@@ -132,7 +132,14 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
           }
         }
 
-        onOpenChange(true, createBaseUIEventDetails('trigger-focus', event.nativeEvent));
+        onOpenChange(
+          true,
+          createChangeEventDetails(
+            'trigger-focus',
+            event.nativeEvent,
+            event.currentTarget as HTMLElement,
+          ),
+        );
       },
       onBlur(event) {
         blockFocusRef.current = false;
@@ -172,11 +179,18 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
             return;
           }
 
-          onOpenChange(false, createBaseUIEventDetails('trigger-focus', nativeEvent));
+          // If the next focused element is one of the triggers, do not close
+          // the floating element. The focus handler of that trigger will
+          // handle the open state.
+          if (elements.triggers?.includes(event.relatedTarget as Element)) {
+            return;
+          }
+
+          onOpenChange(false, createChangeEventDetails('trigger-focus', nativeEvent));
         });
       },
     }),
-    [dataRef, elements.domReference, onOpenChange, visibleOnly, timeout],
+    [dataRef, elements.domReference, elements.triggers, onOpenChange, visibleOnly, timeout],
   );
 
   return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);

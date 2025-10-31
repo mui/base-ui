@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Avatar } from '@base-ui-components/react/avatar';
 import styles from './index.module.css';
 

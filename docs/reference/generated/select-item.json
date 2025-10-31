@@ -1,6 +1,6 @@
 {
   "name": "SelectItem",
-  "description": "An individual option in the select menu.\nRenders a `<div>` element.",
+  "description": "An individual option in the select popup.\nRenders a `<div>` element.",
   "props": {
     "label": {
       "type": "string",
@@ -18,6 +18,10 @@
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button.",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Select.Item.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Select.Item.State) => CSSProperties | undefined)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -29,8 +33,9 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: Select.Item.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Select.Item.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Select.Item.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Select.Item.State) => ReactElement)",

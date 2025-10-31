@@ -1,14 +1,19 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxDerivedItemsContext,
+  useComboboxFloatingContext,
+  useComboboxRootContext,
+} from '../root/ComboboxRootContext';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
+import { CompositeList } from '../../composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
 
 /**
@@ -24,21 +29,27 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
+  const { filteredItems } = useComboboxDerivedItemsContext();
 
+  const items = useStore(store, selectors.items);
+  const labelsRef = useStore(store, selectors.labelsRef);
+  const listRef = useStore(store, selectors.listRef);
   const selectionMode = useStore(store, selectors.selectionMode);
-  const cols = useStore(store, selectors.cols);
+  const grid = useStore(store, selectors.grid);
   const popupRef = useStore(store, selectors.popupRef);
   const popupProps = useStore(store, selectors.popupProps);
   const disabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
+  const virtualized = useStore(store, selectors.virtualized);
 
   const multiple = selectionMode === 'multiple';
+  const empty = filteredItems.length === 0;
 
-  const setPositionerElement = useEventCallback((element) => {
+  const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
   });
 
-  const setListElement = useEventCallback((element) => {
+  const setListElement = useStableCallback((element) => {
     store.set('listElement', element);
   });
 
@@ -65,7 +76,15 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     return children;
   }, [children]);
 
-  return useRenderElement('div', componentProps, {
+  const state: ComboboxList.State = React.useMemo(
+    () => ({
+      empty,
+    }),
+    [empty],
+  );
+
+  const element = useRenderElement('div', componentProps, {
+    state,
     ref: [forwardedRef, setListElement, hasPositionerContext ? null : setPositionerElement],
     props: [
       popupProps,
@@ -73,16 +92,31 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         children: resolvedChildren,
         tabIndex: -1,
         id: floatingRootContext.floatingId,
-        role: cols > 1 ? 'grid' : 'listbox',
+        role: grid ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
         onKeyDown(event) {
           if (disabled || readOnly) {
             return;
           }
 
-          if (event.key === 'Enter' && store.state.activeIndex !== null) {
+          if (event.key === 'Enter') {
+            const activeIndex = store.state.activeIndex;
+
+            if (activeIndex == null) {
+              // Allow form submission when no item is highlighted.
+              return;
+            }
+
             stopEvent(event);
-            store.state.handleSelection(event.nativeEvent);
+
+            const nativeEvent = event.nativeEvent;
+            const listItem = store.state.listRef.current[activeIndex];
+
+            if (listItem) {
+              store.state.selectionEventRef.current = nativeEvent;
+              listItem.click();
+              store.state.selectionEventRef.current = null;
+            }
           }
         },
         onKeyDownCapture() {
@@ -95,12 +129,31 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
       elementProps,
     ],
   });
+
+  if (virtualized) {
+    return element;
+  }
+
+  return (
+    <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
+      {element}
+    </CompositeList>
+  );
 });
 
-export namespace ComboboxList {
-  export interface State {}
+export interface ComboboxListState {
+  /**
+   * Whether the list is empty.
+   */
+  empty: boolean;
+}
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'children'> {
-    children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
-  }
+export interface ComboboxListProps
+  extends Omit<BaseUIComponentProps<'div', ComboboxList.State>, 'children'> {
+  children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
+}
+
+export namespace ComboboxList {
+  export type State = ComboboxListState;
+  export type Props = ComboboxListProps;
 }

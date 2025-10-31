@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStore } from '@base-ui-components/utils/store';
@@ -15,10 +15,11 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { compareItemEquality, itemIncludes, removeItem } from '../../utils/itemEquality';
 
 /**
- * An individual option in the select menu.
+ * An individual option in the select popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -64,11 +65,13 @@ export const SelectItem = React.memo(
     const selected = useStore(store, selectors.isSelected, listItem.index, value);
     const rootValue = useStore(store, selectors.value);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
+    const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useLatestRef(listItem.index);
+    const index = listItem.index;
+    const indexRef = useValueAsRef(index);
 
-    const hasRegistered = listItem.index !== -1;
+    const hasRegistered = index !== -1;
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
@@ -76,25 +79,26 @@ export const SelectItem = React.memo(
       }
 
       const values = valuesRef.current;
-      values[listItem.index] = value;
+      values[index] = value;
 
       return () => {
-        delete values[listItem.index];
+        delete values[index];
       };
-    }, [hasRegistered, listItem.index, value, valuesRef]);
+    }, [hasRegistered, index, value, valuesRef]);
 
     useIsoLayoutEffect(() => {
       if (hasRegistered) {
         if (multiple) {
-          const isValueSelected = Array.isArray(rootValue) && rootValue.includes(value);
+          const isValueSelected =
+            Array.isArray(rootValue) && itemIncludes(rootValue, value, isItemEqualToValue);
           if (isValueSelected) {
-            registerItemIndex(listItem.index);
+            registerItemIndex(index);
           }
-        } else if (value === rootValue) {
-          registerItemIndex(listItem.index);
+        } else if (compareItemEquality(rootValue, value, isItemEqualToValue)) {
+          registerItemIndex(index);
         }
       }
-    }, [hasRegistered, listItem.index, registerItemIndex, value, rootValue, multiple]);
+    }, [hasRegistered, index, registerItemIndex, value, rootValue, multiple, isItemEqualToValue]);
 
     const state: SelectItem.State = React.useMemo(
       () => ({
@@ -125,28 +129,30 @@ export const SelectItem = React.memo(
       if (multiple) {
         const currentValue = Array.isArray(rootValue) ? rootValue : [];
         const nextValue = selected
-          ? currentValue.filter((v) => v !== value)
+          ? removeItem(currentValue, value, isItemEqualToValue)
           : [...currentValue, value];
-        setValue(nextValue, createBaseUIEventDetails('none', event));
+        setValue(nextValue, createChangeEventDetails('item-press', event));
       } else {
-        setValue(value, createBaseUIEventDetails('none', event));
-        setOpen(false, createBaseUIEventDetails('item-press', event));
+        setValue(value, createChangeEventDetails('item-press', event));
+        setOpen(false, createChangeEventDetails('item-press', event));
       }
     }
 
     const defaultProps: HTMLProps = {
+      role: 'option',
+      'aria-selected': selected,
       'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {
-        store.set('activeIndex', indexRef.current);
+        store.set('activeIndex', index);
       },
       onMouseEnter() {
         if (!keyboardActiveRef.current && store.state.selectedIndex === null) {
-          store.set('activeIndex', indexRef.current);
+          store.set('activeIndex', index);
         }
       },
       onMouseMove() {
-        store.set('activeIndex', indexRef.current);
+        store.set('activeIndex', index);
       },
       onMouseLeave(event) {
         if (keyboardActiveRef.current || isMouseWithinBounds(event)) {
@@ -154,7 +160,7 @@ export const SelectItem = React.memo(
         }
 
         highlightTimeout.start(0, () => {
-          if (store.state.activeIndex === indexRef.current) {
+          if (store.state.activeIndex === index) {
             store.set('activeIndex', null);
           }
         });
@@ -167,7 +173,7 @@ export const SelectItem = React.memo(
       },
       onKeyDown(event) {
         lastKeyRef.current = event.key;
-        store.set('activeIndex', indexRef.current);
+        store.set('activeIndex', index);
       },
       onClick(event) {
         didPointerDownRef.current = false;
@@ -240,41 +246,44 @@ export const SelectItem = React.memo(
   }),
 );
 
-export namespace SelectItem {
-  export interface State {
-    /**
-     * Whether the item should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the item is selected.
-     */
-    selected: boolean;
-    /**
-     * Whether the item is highlighted.
-     */
-    highlighted: boolean;
-  }
+export interface SelectItemState {
+  /**
+   * Whether the item should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the item is selected.
+   */
+  selected: boolean;
+  /**
+   * Whether the item is highlighted.
+   */
+  highlighted: boolean;
+}
 
-  export interface Props
-    extends NonNativeButtonProps,
-      Omit<BaseUIComponentProps<'div', State>, 'id'> {
-    children?: React.ReactNode;
-    /**
-     * A unique value that identifies this select item.
-     * @default null
-     */
-    value?: any;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Specifies the text label to use when the item is matched during keyboard text navigation.
-     *
-     * Defaults to the item text content if not provided.
-     */
-    label?: string;
-  }
+export interface SelectItemProps
+  extends NonNativeButtonProps,
+    Omit<BaseUIComponentProps<'div', SelectItem.State>, 'id'> {
+  children?: React.ReactNode;
+  /**
+   * A unique value that identifies this select item.
+   * @default null
+   */
+  value?: any;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Specifies the text label to use when the item is matched during keyboard text navigation.
+   *
+   * Defaults to the item text content if not provided.
+   */
+  label?: string;
+}
+
+export namespace SelectItem {
+  export type State = SelectItemState;
+  export type Props = SelectItemProps;
 }

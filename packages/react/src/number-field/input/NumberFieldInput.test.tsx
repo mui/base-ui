@@ -108,9 +108,9 @@ describe('<NumberField.Input />', () => {
     expect(input).to.have.value('10');
   });
 
-  it('allows unicode plus/minus, permille and fullwidth digits on keydown', async () => {
+  it('allows unicode plus/minus, permille and fullwidth digits on keydown when formatted as percent', async () => {
     await render(
-      <NumberField.Root>
+      <NumberField.Root format={{ style: 'percent' }}>
         <NumberField.Input />
       </NumberField.Root>,
     );
@@ -127,6 +127,25 @@ describe('<NumberField.Input />', () => {
     expect(dispatchKey('＋')).to.equal(true); // FULLWIDTH PLUS SIGN U+FF0B
     expect(dispatchKey('‰')).to.equal(true);
     expect(dispatchKey('１')).to.equal(true);
+  });
+
+  it('blocks percent and permille symbols on keydown when not formatted as percent', async () => {
+    await render(
+      <NumberField.Root>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    function dispatchKey(key: string) {
+      const evt = new window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      return input.dispatchEvent(evt);
+    }
+
+    expect(dispatchKey('%')).to.equal(false);
+    expect(dispatchKey('‰')).to.equal(false);
   });
 
   it('applies locale-aware decimal/group gating (de-DE)', async () => {

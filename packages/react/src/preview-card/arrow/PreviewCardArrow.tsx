@@ -42,16 +42,20 @@ export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   return element;
 });
 
-export namespace PreviewCardArrow {
-  export interface State {
-    /**
-     * Whether the preview card is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    uncentered: boolean;
-  }
+export interface PreviewCardArrowState {
+  /**
+   * Whether the preview card is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface PreviewCardArrowProps
+  extends BaseUIComponentProps<'div', PreviewCardArrow.State> {}
+
+export namespace PreviewCardArrow {
+  export type State = PreviewCardArrowState;
+  export type Props = PreviewCardArrowProps;
 }

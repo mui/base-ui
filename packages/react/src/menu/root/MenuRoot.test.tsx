@@ -38,9 +38,9 @@ describe('<Menu.Root />', () => {
     expectedPopupRole: 'menu',
   });
 
-  describe('BaseUIEventDetails', () => {
+  describe('BaseUIChangeEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
-      const { getByRole } = await render(
+      await render(
         <Menu.Root
           onOpenChange={(nextOpen, eventDetails) => {
             if (nextOpen) {
@@ -59,7 +59,7 @@ describe('<Menu.Root />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open menu' });
+      const trigger = screen.getByRole('button', { name: 'Open menu' });
       await userEvent.click(trigger);
 
       await waitFor(() => {
@@ -70,7 +70,7 @@ describe('<Menu.Root />', () => {
 
   describe('keyboard navigation', () => {
     it('changes the highlighted item using the arrow keys', async () => {
-      const { getByRole, getByTestId } = await render(
+      await render(
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal>
@@ -85,16 +85,16 @@ describe('<Menu.Root />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Toggle' });
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
       await act(async () => {
         trigger.focus();
       });
 
       await userEvent.keyboard('[Enter]');
 
-      const item1 = getByTestId('item-1');
-      const item2 = getByTestId('item-2');
-      const item3 = getByTestId('item-3');
+      const item1 = screen.getByTestId('item-1');
+      const item2 = screen.getByTestId('item-2');
+      const item3 = screen.getByTestId('item-3');
 
       await waitFor(() => {
         expect(item1).toHaveFocus();
@@ -117,7 +117,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('changes the highlighted item using the Home and End keys', async () => {
-      const { getByRole, getByTestId } = await render(
+      await render(
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal>
@@ -132,14 +132,14 @@ describe('<Menu.Root />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Toggle' });
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
       await act(async () => {
         trigger.focus();
       });
 
       await userEvent.keyboard('[Enter]');
-      const item1 = getByTestId('item-1');
-      const item3 = getByTestId('item-3');
+      const item1 = screen.getByTestId('item-1');
+      const item3 = screen.getByTestId('item-3');
 
       await waitFor(() => {
         expect(item1).toHaveFocus();
@@ -157,7 +157,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('includes disabled items during keyboard navigation', async () => {
-      const { getByRole, getByTestId } = await render(
+      await render(
         <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal>
@@ -173,15 +173,15 @@ describe('<Menu.Root />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Toggle' });
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
       await act(async () => {
         trigger.focus();
       });
 
       await userEvent.keyboard('[Enter]');
 
-      const item1 = getByTestId('item-1');
-      const item2 = getByTestId('item-2');
+      const item1 = screen.getByTestId('item-1');
+      const item2 = screen.getByTestId('item-2');
 
       await waitFor(() => {
         expect(item1).toHaveFocus();
@@ -204,7 +204,7 @@ describe('<Menu.Root />', () => {
           skip();
         }
 
-        const { getByText, getAllByRole, user } = await render(
+        const { user } = await render(
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
@@ -221,7 +221,7 @@ describe('<Menu.Root />', () => {
           </Menu.Root>,
         );
 
-        const items = getAllByRole('menuitem');
+        const items = screen.getAllByRole('menuitem');
 
         await act(async () => {
           items[0].focus();
@@ -229,17 +229,17 @@ describe('<Menu.Root />', () => {
 
         await user.keyboard('c');
         await waitFor(() => {
-          expect(getByText('Ca')).toHaveFocus();
+          expect(screen.getByText('Ca')).toHaveFocus();
         });
 
-        expect(getByText('Ca')).to.have.attribute('tabindex', '0');
+        expect(screen.getByText('Ca')).to.have.attribute('tabindex', '0');
 
         await user.keyboard('d');
         await waitFor(() => {
-          expect(getByText('Cd')).toHaveFocus();
+          expect(screen.getByText('Cd')).toHaveFocus();
         });
 
-        expect(getByText('Cd')).to.have.attribute('tabindex', '0');
+        expect(screen.getByText('Cd')).to.have.attribute('tabindex', '0');
       });
 
       it('changes the highlighted item using text navigation on label prop', async ({ skip }) => {
@@ -248,7 +248,7 @@ describe('<Menu.Root />', () => {
           skip();
         }
 
-        const { getByRole, getAllByRole, user } = await render(
+        const { user } = await render(
           <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
             <Menu.Portal>
@@ -264,9 +264,9 @@ describe('<Menu.Root />', () => {
           </Menu.Root>,
         );
 
-        const trigger = getByRole('button', { name: 'Toggle' });
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
         await user.click(trigger);
-        const items = getAllByRole('menuitem');
+        const items = screen.getAllByRole('menuitem');
         await flushMicrotasks();
 
         await user.keyboard('b');
@@ -304,7 +304,7 @@ describe('<Menu.Root />', () => {
           skip();
         }
 
-        const { getByText, getAllByRole, user } = await render(
+        const { user } = await render(
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
@@ -324,7 +324,7 @@ describe('<Menu.Root />', () => {
           </Menu.Root>,
         );
 
-        const items = getAllByRole('menuitem');
+        const items = screen.getAllByRole('menuitem');
 
         await act(async () => {
           items[0].focus();
@@ -332,15 +332,15 @@ describe('<Menu.Root />', () => {
 
         await user.keyboard('b');
         await waitFor(() => {
-          expect(getByText('Ba')).toHaveFocus();
+          expect(screen.getByText('Ba')).toHaveFocus();
         });
-        expect(getByText('Ba')).to.have.attribute('tabindex', '0');
+        expect(screen.getByText('Ba')).to.have.attribute('tabindex', '0');
 
         await user.keyboard('c');
         await waitFor(() => {
-          expect(getByText('Bc')).toHaveFocus();
+          expect(screen.getByText('Bc')).toHaveFocus();
         });
-        expect(getByText('Bc')).to.have.attribute('tabindex', '0');
+        expect(screen.getByText('Bc')).to.have.attribute('tabindex', '0');
       });
 
       it('navigate to options with diacritic characters', async ({ skip }) => {
@@ -350,7 +350,7 @@ describe('<Menu.Root />', () => {
           skip();
         }
 
-        const { getByText, getAllByRole, user } = await render(
+        const { user } = await render(
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
@@ -365,7 +365,7 @@ describe('<Menu.Root />', () => {
           </Menu.Root>,
         );
 
-        const items = getAllByRole('menuitem');
+        const items = screen.getAllByRole('menuitem');
 
         await act(async () => {
           items[0].focus();
@@ -373,15 +373,15 @@ describe('<Menu.Root />', () => {
 
         await user.keyboard('b');
         await waitFor(() => {
-          expect(getByText('Ba')).toHaveFocus();
+          expect(screen.getByText('Ba')).toHaveFocus();
         });
-        expect(getByText('Ba')).to.have.attribute('tabindex', '0');
+        expect(screen.getByText('Ba')).to.have.attribute('tabindex', '0');
 
         await user.keyboard('ą');
         await waitFor(() => {
-          expect(getByText('Bą')).toHaveFocus();
+          expect(screen.getByText('Bą')).toHaveFocus();
         });
-        expect(getByText('Bą')).to.have.attribute('tabindex', '0');
+        expect(screen.getByText('Bą')).to.have.attribute('tabindex', '0');
       });
 
       it('navigate to next options beginning with diacritic characters', async ({ skip }) => {
@@ -391,7 +391,7 @@ describe('<Menu.Root />', () => {
           skip();
         }
 
-        const { getByText, getAllByRole, user } = await render(
+        const { user } = await render(
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
@@ -406,7 +406,7 @@ describe('<Menu.Root />', () => {
           </Menu.Root>,
         );
 
-        const items = getAllByRole('menuitem');
+        const items = screen.getAllByRole('menuitem');
 
         await act(async () => {
           items[0].focus();
@@ -414,9 +414,9 @@ describe('<Menu.Root />', () => {
 
         await user.keyboard('ą');
         await waitFor(() => {
-          expect(getByText('ąa')).toHaveFocus();
+          expect(screen.getByText('ąa')).toHaveFocus();
         });
-        expect(getByText('ąa')).to.have.attribute('tabindex', '0');
+        expect(screen.getByText('ąa')).to.have.attribute('tabindex', '0');
       });
 
       it('does not trigger the onClick event when Space is pressed during text navigation', async ({
@@ -430,7 +430,7 @@ describe('<Menu.Root />', () => {
 
         const handleClick = spy();
 
-        const { getAllByRole, user } = await render(
+        const { user } = await render(
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
@@ -444,7 +444,7 @@ describe('<Menu.Root />', () => {
           </Menu.Root>,
         );
 
-        const items = getAllByRole('menuitem');
+        const items = screen.getAllByRole('menuitem');
 
         await act(async () => {
           items[0].focus();
@@ -530,7 +530,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('opens submenu on click when openOnHover is false', async () => {
-      const { getByRole, queryByTestId, findByTestId, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open Main</Menu.Trigger>
           <Menu.Portal>
@@ -553,21 +553,21 @@ describe('<Menu.Root />', () => {
         </Menu.Root>,
       );
 
-      const mainTrigger = getByRole('button', { name: 'Open Main' });
+      const mainTrigger = screen.getByRole('button', { name: 'Open Main' });
       await user.click(mainTrigger);
 
-      const submenu = await findByTestId('menu');
-      expect(queryByTestId('submenu')).to.equal(null);
+      const submenu = await screen.findByTestId('menu');
+      expect(screen.queryByTestId('submenu')).to.equal(null);
 
-      const submenuTrigger = await findByTestId('submenu-trigger');
+      const submenuTrigger = await screen.findByTestId('submenu-trigger');
       await user.click(submenuTrigger);
 
       expect(submenu).not.to.equal(null);
-      expect(await findByTestId('submenu-item')).to.have.text('Submenu Item');
+      expect(await screen.findByTestId('submenu-item')).to.have.text('Submenu Item');
     });
 
     it('closes submenus when focus is lost by shift-tabbing from a nested menu', async () => {
-      const { getByRole, queryByTestId, findByTestId, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open Main</Menu.Trigger>
           <Menu.Portal>
@@ -590,20 +590,20 @@ describe('<Menu.Root />', () => {
         </Menu.Root>,
       );
 
-      const mainTrigger = getByRole('button', { name: 'Open Main' });
+      const mainTrigger = screen.getByRole('button', { name: 'Open Main' });
       await user.click(mainTrigger);
 
-      await findByTestId('menu');
-      expect(queryByTestId('submenu')).to.equal(null);
+      await screen.findByTestId('menu');
+      expect(screen.queryByTestId('submenu')).to.equal(null);
 
-      const submenuTrigger = await findByTestId('submenu-trigger');
+      const submenuTrigger = await screen.findByTestId('submenu-trigger');
       await user.hover(submenuTrigger);
 
       await waitFor(() => {
-        expect(queryByTestId('submenu')).not.to.equal(null);
+        expect(screen.queryByTestId('submenu')).not.to.equal(null);
       });
 
-      const submenuItem = await findByTestId('submenu-item');
+      const submenuItem = await screen.findByTestId('submenu-item');
       await act(async () => {
         submenuItem.focus();
       });
@@ -616,7 +616,7 @@ describe('<Menu.Root />', () => {
       await user.keyboard('{Shift>}{Tab}{/Shift}');
 
       await waitFor(() => {
-        expect(queryByTestId('submenu')).to.equal(null);
+        expect(screen.queryByTestId('submenu')).to.equal(null);
       });
 
       expect(submenuTrigger).toHaveFocus();
@@ -642,16 +642,16 @@ describe('<Menu.Root />', () => {
     }
 
     it('focuses the first item after the menu is opened by keyboard', async () => {
-      const { getAllByRole, getByRole } = await render(<Test />);
+      await render(<Test />);
 
-      const trigger = getByRole('button', { name: 'Toggle' });
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
       await act(async () => {
         trigger.focus();
       });
 
       await userEvent.keyboard('[Enter]');
 
-      const [firstItem, ...otherItems] = getAllByRole('menuitem');
+      const [firstItem, ...otherItems] = screen.getAllByRole('menuitem');
       await waitFor(() => {
         expect(firstItem.tabIndex).to.equal(0);
       });
@@ -661,16 +661,16 @@ describe('<Menu.Root />', () => {
     });
 
     it('focuses the first item when down arrow key opens the menu', async () => {
-      const { getByRole, getAllByRole, user } = await render(<Test />);
+      const { user } = await render(<Test />);
 
-      const trigger = getByRole('button', { name: 'Toggle' });
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
       await act(async () => {
         trigger.focus();
       });
 
       await user.keyboard('[ArrowDown]');
 
-      const [firstItem, ...otherItems] = getAllByRole('menuitem');
+      const [firstItem, ...otherItems] = screen.getAllByRole('menuitem');
       await waitFor(() => expect(firstItem).toHaveFocus());
       expect(firstItem.tabIndex).to.equal(0);
       otherItems.forEach((item) => {
@@ -679,9 +679,9 @@ describe('<Menu.Root />', () => {
     });
 
     it('focuses the last item when up arrow key opens the menu', async () => {
-      const { getByRole, getAllByRole, user } = await render(<Test />);
+      const { user } = await render(<Test />);
 
-      const trigger = getByRole('button', { name: 'Toggle' });
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
 
       await act(async () => {
         trigger.focus();
@@ -689,7 +689,7 @@ describe('<Menu.Root />', () => {
 
       await user.keyboard('[ArrowUp]');
 
-      const [firstItem, secondItem, lastItem] = getAllByRole('menuitem');
+      const [firstItem, secondItem, lastItem] = screen.getAllByRole('menuitem');
       await waitFor(() => {
         expect(lastItem).toHaveFocus();
       });
@@ -701,7 +701,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('focuses the trigger after the menu is closed', async () => {
-      const { getByRole, findByRole, user } = await render(
+      const { user } = await render(
         <div>
           <input type="text" />
           <Menu.Root>
@@ -718,10 +718,10 @@ describe('<Menu.Root />', () => {
         </div>,
       );
 
-      const button = getByRole('button', { name: 'Toggle' });
+      const button = screen.getByRole('button', { name: 'Toggle' });
       await user.click(button);
 
-      const menuItem = await findByRole('menuitem');
+      const menuItem = await screen.findByRole('menuitem');
       await user.click(menuItem);
 
       expect(button).toHaveFocus();
@@ -733,7 +733,7 @@ describe('<Menu.Root />', () => {
         skip();
       }
 
-      const { getByRole, findByRole, user } = await render(
+      const { user } = await render(
         <div>
           <input type="text" />
           <Menu.Root>
@@ -750,10 +750,10 @@ describe('<Menu.Root />', () => {
         </div>,
       );
 
-      const button = getByRole('button', { name: 'Toggle' });
+      const button = screen.getByRole('button', { name: 'Toggle' });
       await user.click(button);
 
-      const menuItem = await findByRole('menuitem');
+      const menuItem = await screen.findByRole('menuitem');
       await user.click(menuItem);
 
       await waitFor(() => {
@@ -764,7 +764,7 @@ describe('<Menu.Root />', () => {
 
   describe('prop: closeParentOnEsc', () => {
     it('does not close the parent menu when the Escape key is pressed by default', async () => {
-      const { getByRole, queryAllByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -788,29 +788,29 @@ describe('<Menu.Root />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await act(async () => {
         trigger.focus();
       });
 
       await user.keyboard('[ArrowDown]');
       await waitFor(() => {
-        expect(getByRole('menuitem', { name: '1' })).toHaveFocus();
+        expect(screen.getByRole('menuitem', { name: '1' })).toHaveFocus();
       });
 
       await user.keyboard('[ArrowDown]');
       await waitFor(() => {
-        expect(getByRole('menuitem', { name: '2' })).toHaveFocus();
+        expect(screen.getByRole('menuitem', { name: '2' })).toHaveFocus();
       });
 
       await user.keyboard('[ArrowRight]');
       await waitFor(() => {
-        expect(getByRole('menuitem', { name: '2.1' })).toHaveFocus();
+        expect(screen.getByRole('menuitem', { name: '2.1' })).toHaveFocus();
       });
 
       await user.keyboard('[Escape]');
 
-      const menus = queryAllByRole('menu', { hidden: false });
+      const menus = screen.queryAllByRole('menu', { hidden: false });
       await waitFor(() => {
         expect(menus.length).to.equal(1);
       });
@@ -819,7 +819,7 @@ describe('<Menu.Root />', () => {
     });
 
     it('closes the parent menu when the Escape key is pressed  if `closeParentOnEsc=true`', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -843,30 +843,30 @@ describe('<Menu.Root />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await act(async () => {
         trigger.focus();
       });
 
       await user.keyboard('[ArrowDown]');
       await waitFor(() => {
-        expect(getByRole('menuitem', { name: '1' })).toHaveFocus();
+        expect(screen.getByRole('menuitem', { name: '1' })).toHaveFocus();
       });
 
       await user.keyboard('[ArrowDown]');
       await waitFor(() => {
-        expect(getByRole('menuitem', { name: '2' })).toHaveFocus();
+        expect(screen.getByRole('menuitem', { name: '2' })).toHaveFocus();
       });
 
       await user.keyboard('[ArrowRight]');
       await waitFor(() => {
-        expect(getByRole('menuitem', { name: '2.1' })).toHaveFocus();
+        expect(screen.getByRole('menuitem', { name: '2.1' })).toHaveFocus();
       });
 
       await user.keyboard('[Escape]');
       await flushMicrotasks();
 
-      expect(queryByRole('menu', { hidden: false })).to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: false })).to.equal(null);
     });
   });
 
@@ -1174,7 +1174,7 @@ describe('<Menu.Root />', () => {
 
   describe('prop: openOnHover', () => {
     it('should open the menu when the trigger is hovered', async () => {
-      const { getByRole, queryByRole } = await render(
+      await render(
         <Menu.Root openOnHover delay={0}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -1187,7 +1187,7 @@ describe('<Menu.Root />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
 
       await act(async () => {
         trigger.focus();
@@ -1196,12 +1196,12 @@ describe('<Menu.Root />', () => {
       await userEvent.hover(trigger);
 
       await waitFor(() => {
-        expect(queryByRole('menu')).not.to.equal(null);
+        expect(screen.queryByRole('menu')).not.to.equal(null);
       });
     });
 
     it.skipIf(!isJSDOM)('should close the menu when the trigger is no longer hovered', async () => {
-      const { getByRole, queryByRole } = await render(
+      await render(
         <Menu.Root openOnHover delay={0} modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -1214,7 +1214,7 @@ describe('<Menu.Root />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
 
       await act(async () => {
         trigger.focus();
@@ -1223,18 +1223,18 @@ describe('<Menu.Root />', () => {
       await userEvent.hover(trigger);
 
       await waitFor(() => {
-        expect(queryByRole('menu')).not.to.equal(null);
+        expect(screen.queryByRole('menu')).not.to.equal(null);
       });
 
       await userEvent.unhover(trigger);
 
       await waitFor(() => {
-        expect(queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).to.equal(null);
       });
     });
 
     it('should not close when submenu is hovered after root menu is hovered', async () => {
-      const { getByRole, getByTestId } = await render(
+      await render(
         <Menu.Root openOnHover delay={0}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -1257,7 +1257,7 @@ describe('<Menu.Root />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
 
       await act(async () => {
         trigger.focus();
@@ -1266,25 +1266,25 @@ describe('<Menu.Root />', () => {
       await userEvent.hover(trigger);
 
       await waitFor(() => {
-        expect(getByTestId('menu')).not.to.equal(null);
+        expect(screen.getByTestId('menu')).not.to.equal(null);
       });
 
-      const menu = getByTestId('menu');
+      const menu = screen.getByTestId('menu');
 
       await userEvent.hover(menu);
 
-      const submenuTrigger = getByRole('menuitem', { name: '2' });
+      const submenuTrigger = screen.getByRole('menuitem', { name: '2' });
 
       await userEvent.hover(submenuTrigger);
 
       await waitFor(() => {
-        expect(getByTestId('menu')).not.to.equal(null);
+        expect(screen.getByTestId('menu')).not.to.equal(null);
       });
       await waitFor(() => {
-        expect(getByTestId('submenu')).not.to.equal(null);
+        expect(screen.getByTestId('submenu')).not.to.equal(null);
       });
 
-      const submenu = getByTestId('submenu');
+      const submenu = screen.getByTestId('submenu');
 
       // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
       fireEvent.mouseMove(menu);
@@ -1292,15 +1292,15 @@ describe('<Menu.Root />', () => {
       await userEvent.hover(submenu);
 
       await waitFor(() => {
-        expect(getByTestId('menu')).not.to.equal(null);
+        expect(screen.getByTestId('menu')).not.to.equal(null);
       });
       await waitFor(() => {
-        expect(getByTestId('submenu')).not.to.equal(null);
+        expect(screen.getByTestId('submenu')).not.to.equal(null);
       });
     });
 
     it('keeps the parent submenu open after a third-level submenu closes due to sibling hover', async () => {
-      const { getByRole, getByTestId } = await render(
+      await render(
         <Menu.Root openOnHover delay={0}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -1332,7 +1332,7 @@ describe('<Menu.Root />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
 
       await act(async () => {
         trigger.focus();
@@ -1341,41 +1341,41 @@ describe('<Menu.Root />', () => {
       await userEvent.hover(trigger);
 
       await waitFor(() => {
-        expect(getByTestId('menu')).not.to.equal(null);
+        expect(screen.getByTestId('menu')).not.to.equal(null);
       });
 
       // Open first-level submenu
-      const level1Trigger = getByRole('menuitem', { name: 'Level 1' });
+      const level1Trigger = screen.getByRole('menuitem', { name: 'Level 1' });
       await userEvent.hover(level1Trigger);
 
       await waitFor(() => {
-        expect(getByTestId('submenu-1')).not.to.equal(null);
+        expect(screen.getByTestId('submenu-1')).not.to.equal(null);
       });
 
       // Open second-level submenu
-      const level2Trigger = getByRole('menuitem', { name: 'Level 2' });
+      const level2Trigger = screen.getByRole('menuitem', { name: 'Level 2' });
       await userEvent.hover(level2Trigger);
 
       await waitFor(() => {
-        expect(getByTestId('submenu-2')).not.to.equal(null);
+        expect(screen.getByTestId('submenu-2')).not.to.equal(null);
       });
 
       // Hover a sibling item in the parent submenu to close the second-level submenu
-      const parentSibling = getByRole('menuitem', { name: 'Parent Sibling' });
+      const parentSibling = screen.getByRole('menuitem', { name: 'Parent Sibling' });
       // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
       fireEvent.mouseMove(parentSibling);
 
       await waitFor(() => {
-        expect(() => getByTestId('submenu-2')).to.throw();
+        expect(() => screen.getByTestId('submenu-2')).to.throw();
       });
 
       // Now unhover the parent submenu container; it should remain open
-      const submenu1 = getByTestId('submenu-1');
+      const submenu1 = screen.getByTestId('submenu-1');
       fireEvent.mouseLeave(submenu1);
 
       // Parent submenu should still be open
       await waitFor(() => {
-        expect(getByTestId('submenu-1')).not.to.equal(null);
+        expect(screen.getByTestId('submenu-1')).not.to.equal(null);
       });
     });
   });

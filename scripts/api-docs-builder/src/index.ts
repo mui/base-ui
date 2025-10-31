@@ -7,7 +7,7 @@ import * as inspector from 'node:inspector';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import * as tae from 'typescript-api-extractor';
-import kebabCase from 'lodash/kebabCase';
+import { kebabCase } from 'es-toolkit/string';
 import ts from 'typescript';
 import { globby } from 'globby';
 import { isPublicComponent, formatComponentData } from './componentHandler';

@@ -1,16 +1,20 @@
 {
   "name": "SelectScrollDownArrow",
-  "description": "An element that scrolls the select menu down when hovered.\nRenders a `<div>` element.",
+  "description": "An element that scrolls the select popup down when hovered. Does not render when using touch input.\nRenders a `<div>` element.",
   "props": {
+    "style": {
+      "type": "CSSProperties | ((state: Select.ScrollDownArrow.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Select.ScrollDownArrow.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "className": {
-      "type": "string | ((state: Select.ScrollDownArrow.State) => string)",
+      "type": "string | ((state: Select.ScrollDownArrow.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Select.ScrollDownArrow.State) => string)"
+      "detailedType": "| string\n| ((\n    state: Select.ScrollDownArrow.State,\n  ) => string | undefined)"
     },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to keep the HTML element in the DOM while the select menu is not scrollable.",
+      "description": "Whether to keep the HTML element in the DOM while the select popup is not scrollable.",
       "detailedType": "boolean | undefined"
     },
     "render": {

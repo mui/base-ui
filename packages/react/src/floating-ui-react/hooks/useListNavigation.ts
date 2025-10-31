@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   activeElement,
@@ -25,7 +25,7 @@ import {
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { Dimensions, ElementProps, FloatingRootContext } from '../types';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
 
@@ -140,7 +140,7 @@ export interface UseListNavigationProps {
    * be rendered.
    * This prop allows you to manually specify indices which should be disabled,
    * overriding the default logic.
-   * For Windows-style select menus, where the menu does not open when
+   * For Windows-style select popups, where the menu does not open when
    * navigating via arrow keys, specify an empty array.
    * @default undefined
    */
@@ -280,7 +280,7 @@ export function useListNavigation(
   }
 
   const floatingFocusElement = getFloatingFocusElement(elements.floating);
-  const floatingFocusElementRef = useLatestRef(floatingFocusElement);
+  const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
 
   const parentId = useFloatingParentNodeId();
   const tree = useFloatingTree();
@@ -296,7 +296,7 @@ export function useListNavigation(
   const keyRef = React.useRef<null | string>(null);
   const isPointerModalityRef = React.useRef(true);
 
-  const onNavigate = useEventCallback((event?: React.SyntheticEvent) => {
+  const onNavigate = useStableCallback((event?: React.SyntheticEvent) => {
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
@@ -306,12 +306,12 @@ export function useListNavigation(
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
 
-  const disabledIndicesRef = useLatestRef(disabledIndices);
-  const latestOpenRef = useLatestRef(open);
-  const scrollItemIntoViewRef = useLatestRef(scrollItemIntoView);
-  const selectedIndexRef = useLatestRef(selectedIndex);
+  const disabledIndicesRef = useValueAsRef(disabledIndices);
+  const latestOpenRef = useValueAsRef(open);
+  const scrollItemIntoViewRef = useValueAsRef(scrollItemIntoView);
+  const selectedIndexRef = useValueAsRef(selectedIndex);
 
-  const focusItem = useEventCallback(() => {
+  const focusItem = useStableCallback(() => {
     function runFocus(item: HTMLElement) {
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
@@ -393,6 +393,7 @@ export function useListNavigation(
       return;
     }
     if (!open) {
+      forceSyncFocusRef.current = false;
       return;
     }
     if (!elements.floating) {
@@ -430,12 +431,13 @@ export function useListNavigation(
             }
             runs += 1;
           } else {
+            // initially focus the first non-disabled item
             indexRef.current =
               keyRef.current == null ||
               isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
               nested
-                ? getMinListIndex(listRef, disabledIndicesRef.current)
-                : getMaxListIndex(listRef, disabledIndicesRef.current);
+                ? getMinListIndex(listRef)
+                : getMaxListIndex(listRef);
             keyRef.current = null;
             onNavigate();
           }
@@ -523,7 +525,11 @@ export function useListNavigation(
         }
       },
       onPointerLeave(event) {
-        if (!isPointerModalityRef.current || event.pointerType === 'touch') {
+        if (
+          !latestOpenRef.current ||
+          !isPointerModalityRef.current ||
+          event.pointerType === 'touch'
+        ) {
           return;
         }
 
@@ -555,7 +561,7 @@ export function useListNavigation(
     );
   }, [parentId, tree, parentOrientation]);
 
-  const commonOnKeyDown = useEventCallback((event: React.KeyboardEvent) => {
+  const commonOnKeyDown = useStableCallback((event: React.KeyboardEvent) => {
     isPointerModalityRef.current = false;
     forceSyncFocusRef.current = true;
 
@@ -581,7 +587,7 @@ export function useListNavigation(
         stopEvent(event);
       }
 
-      onOpenChange(false, createBaseUIEventDetails('list-navigation', event.nativeEvent));
+      onOpenChange(false, createChangeEventDetails('list-navigation', event.nativeEvent));
 
       if (isHTMLElement(elements.domReference)) {
         if (virtual) {
@@ -789,7 +795,7 @@ export function useListNavigation(
         // Close submenu on Shift+Tab
         if (event.key === 'Tab' && event.shiftKey && open && !virtual) {
           stopEvent(event);
-          onOpenChange(false, createBaseUIEventDetails('list-navigation', event.nativeEvent));
+          onOpenChange(false, createChangeEventDetails('list-navigation', event.nativeEvent));
 
           if (isHTMLElement(elements.domReference)) {
             elements.domReference.focus();
@@ -870,7 +876,7 @@ export function useListNavigation(
               indexRef.current = getMinListIndex(listRef, disabledIndicesRef.current);
               onNavigate(event);
             } else {
-              onOpenChange(true, createBaseUIEventDetails('list-navigation', event.nativeEvent));
+              onOpenChange(true, createChangeEventDetails('list-navigation', event.nativeEvent));
             }
           }
 
@@ -885,7 +891,7 @@ export function useListNavigation(
           stopEvent(event);
 
           if (!open && openOnArrowKeyDown) {
-            onOpenChange(true, createBaseUIEventDetails('list-navigation', event.nativeEvent));
+            onOpenChange(true, createChangeEventDetails('list-navigation', event.nativeEvent));
           } else {
             commonOnKeyDown(event);
           }

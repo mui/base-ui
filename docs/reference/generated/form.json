@@ -12,8 +12,18 @@
       "description": "Event handler called when the `errors` object is cleared.",
       "detailedType": "((errors: Errors) => void) | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Form.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Form.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "validationMode": {
+      "type": "FormValidationMode",
+      "default": "'onSubmit'",
+      "description": "Determines when the form should be validated.\nThe `validationMode` prop on `<Field.Root>` takes precedence over this.\n\n- `onSubmit` (default): validates the field when the form is submitted, afterwards fields will re-validate on change.\n- `onBlur`: validates a field when it loses focus.\n- `onChange`: validates the field on every change to its value.",
+      "detailedType": "'onBlur' | 'onChange' | 'onSubmit' | undefined"
+    },
     "className": {
-      "type": "string | ((state: Form.State) => string)",
+      "type": "string | ((state: Form.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {

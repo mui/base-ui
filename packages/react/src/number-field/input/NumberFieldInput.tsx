@@ -7,9 +7,13 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../../field/utils/constants';
+import { useField } from '../../field/useField';
+import { useFormContext } from '../../form/FormContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { DEFAULT_STEP } from '../utils/constants';
 import {
   ARABIC_DETECT_RE,
+  PERSIAN_DETECT_RE,
   HAN_DETECT_RE,
   FULLWIDTH_DETECT_RE,
   getNumberLocaleDetails,
@@ -21,9 +25,11 @@ import {
 } from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../utils/stateAttributesMapping';
-import { useField } from '../../field/useField';
-import { useFormContext } from '../../form/FormContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 
 const stateAttributesMapping = {
@@ -74,14 +80,19 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     locale,
     inputRef,
     value,
+    onValueCommitted,
+    lastChangedValueRef,
+    hasPendingCommitRef,
+    valueRef,
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
-  const { labelId, validationMode, setTouched, setFocused, invalid } = useFieldRootContext();
+  const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange } =
+    useFieldRootContext();
+  const { labelId } = useLabelableContext();
 
   const {
     getInputValidationProps,
-    getValidationProps,
     commitValidation,
     inputRef: inputValidationRef,
   } = useFieldControlValidation();
@@ -108,13 +119,13 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
     clearErrors(name);
 
-    if (validationMode === 'onChange') {
+    if (shouldValidateOnChange()) {
       commitValidation(value);
     }
-  }, [value, inputValue, name, clearErrors, validationMode, commitValidation]);
+  }, [value, inputValue, name, clearErrors, shouldValidateOnChange, commitValidation]);
 
   useIsoLayoutEffect(() => {
-    if (prevValueRef.current === value || validationMode === 'onChange') {
+    if (prevValueRef.current === value || shouldValidateOnChange()) {
       return;
     }
 
@@ -123,7 +134,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       return;
     }
     commitValidation(value, true);
-  }, [commitValidation, validationMode, value]);
+  }, [commitValidation, shouldValidateOnChange, value]);
 
   useIsoLayoutEffect(() => {
     prevValueRef.current = value;
@@ -169,6 +180,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       setTouched(true);
       setFocused(false);
 
+      const hadManualInput = !allowInputSyncRef.current;
+      const hadPendingProgrammaticChange = hasPendingCommitRef.current;
+
       allowInputSyncRef.current = true;
 
       if (inputValue.trim() === '') {
@@ -176,6 +190,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         if (validationMode === 'onBlur') {
           commitValidation(null);
         }
+        onValueCommitted(null, createGenericEventDetails('none', event.nativeEvent));
         return;
       }
 
@@ -198,11 +213,18 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           ? Number(parsedValue.toFixed(maxFrac))
           : parsedValue;
 
+      const nextEventDetails = createGenericEventDetails('none', event.nativeEvent);
+      const shouldUpdateValue = value !== committed;
+      const shouldCommit = hadManualInput || shouldUpdateValue || hadPendingProgrammaticChange;
+
       if (validationMode === 'onBlur') {
         commitValidation(committed);
       }
-      if (value !== committed) {
+      if (shouldUpdateValue) {
         setValue(committed, event.nativeEvent);
+      }
+      if (shouldCommit) {
+        onValueCommitted(committed, nextEventDetails);
       }
 
       // Normalize only the displayed text
@@ -230,8 +252,38 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
+      // For trusted user typing, update the input text immediately and only fire onValueChange
+      // if the typed value is currently parseable into a number. This preserves good UX for IME
+      // composition/partial input while still providing live numeric updates when possible.
+      const allowedNonNumericKeys = getAllowedNonNumericKeys();
+      const isValidCharacterString = Array.from(targetValue).every((ch) => {
+        const isAsciiDigit = ch >= '0' && ch <= '9';
+        const isArabicNumeral = ARABIC_DETECT_RE.test(ch);
+        const isHanNumeral = HAN_DETECT_RE.test(ch);
+        const isPersianNumeral = PERSIAN_DETECT_RE.test(ch);
+        const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(ch);
+        const isMinus = ANY_MINUS_DETECT_RE.test(ch);
+        return (
+          isAsciiDigit ||
+          isArabicNumeral ||
+          isHanNumeral ||
+          isPersianNumeral ||
+          isFullwidthNumeral ||
+          isMinus ||
+          allowedNonNumericKeys.has(ch)
+        );
+      });
+
+      if (!isValidCharacterString) {
+        return;
+      }
+
       if (event.isTrusted) {
         setInputValue(targetValue);
+        const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
+        if (parsedValue !== null) {
+          setValue(parsedValue, event.nativeEvent);
+        }
         return;
       }
 
@@ -305,7 +357,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         }
       });
 
-      const isLatinNumeral = /^[0-9]$/.test(event.key);
+      const isAsciiDigit = event.key >= '0' && event.key <= '9';
       const isArabicNumeral = ARABIC_DETECT_RE.test(event.key);
       const isHanNumeral = HAN_DETECT_RE.test(event.key);
       const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(event.key);
@@ -320,7 +372,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         event.ctrlKey ||
         event.metaKey ||
         isAllowedNonNumericKey ||
-        isLatinNumeral ||
+        isAsciiDigit ||
         isArabicNumeral ||
         isFullwidthNumeral ||
         isHanNumeral ||
@@ -337,14 +389,20 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Prevent insertion of text or caret from moving.
       stopEvent(event);
 
+      const details = createChangeEventDetails('none', nativeEvent);
+
       if (event.key === 'ArrowUp') {
         incrementValue(amount, 1, parsedValue, nativeEvent);
+        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
       } else if (event.key === 'ArrowDown') {
         incrementValue(amount, -1, parsedValue, nativeEvent);
+        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
       } else if (event.key === 'Home' && min != null) {
         setValue(min, nativeEvent);
+        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
       } else if (event.key === 'End' && max != null) {
         setValue(max, nativeEvent);
+        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
       }
     },
     onPaste(event) {
@@ -370,21 +428,25 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef, inputValidationRef],
     state,
-    props: [inputProps, getInputValidationProps(), getValidationProps(), elementProps],
+    props: [inputProps, getInputValidationProps(), elementProps],
     stateAttributesMapping,
   });
 
   return element;
 });
 
-export namespace NumberFieldInput {
-  export interface State extends NumberFieldRoot.State {}
+export interface NumberFieldInputState extends NumberFieldRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'input', State> {
-    /**
-     * A string value that provides a user-friendly name for the role of the input.
-     * @default 'Number field'
-     */
-    'aria-roledescription'?: React.AriaAttributes['aria-roledescription'] | undefined;
-  }
+export interface NumberFieldInputProps
+  extends BaseUIComponentProps<'input', NumberFieldInput.State> {
+  /**
+   * A string value that provides a user-friendly name for the role of the input.
+   * @default 'Number field'
+   */
+  'aria-roledescription'?: React.AriaAttributes['aria-roledescription'] | undefined;
+}
+
+export namespace NumberFieldInput {
+  export type State = NumberFieldInputState;
+  export type Props = NumberFieldInputProps;
 }

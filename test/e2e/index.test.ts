@@ -64,6 +64,93 @@ describe('e2e', () => {
     await browser.close();
   });
 
+  describe('<Field />', () => {
+    describe('validationMode=onChange', () => {
+      it('<Field.Control />', async () => {
+        await renderFixture('field/validate-on-change/Input');
+
+        const error = await page.getByTestId('error');
+        await expect(error).toBeHidden();
+
+        const input = page.getByRole('textbox');
+
+        await input.press('a');
+        await expect(page.getByText('tooShort error')).toBeVisible();
+        expect(error).toHaveCount(1);
+
+        // clear the input
+        await input.press('Backspace');
+        await expect(page.getByText('valueMissing error')).toBeVisible();
+        expect(error).toHaveCount(1);
+
+        await input.pressSequentially('abc');
+        await expect(input).toHaveValue('abc');
+        await expect(error).toBeHidden();
+
+        await input.press('d');
+        await expect(input).toHaveValue('abcd');
+        await expect(page.getByText('custom error')).toBeVisible();
+        expect(error).toHaveCount(1);
+
+        await input.press('Backspace');
+        await expect(input).toHaveValue('abc');
+        await expect(error).toBeHidden();
+
+        await input.press('Backspace');
+        await expect(input).toHaveValue('ab');
+        expect(error).toHaveCount(1);
+        await expect(page.getByText('tooShort error')).toBeVisible();
+
+        await input.press('Backspace');
+        await input.press('Backspace');
+        await expect(input).toHaveValue('');
+        expect(error).toHaveCount(1);
+        await expect(page.getByText('valueMissing error')).toBeVisible();
+      });
+
+      it('<Select />', async () => {
+        // options one & three returns errors
+        // options two and four are valid
+        // the field is required
+        await renderFixture('field/validate-on-change/Select');
+
+        const error = await page.getByTestId('error');
+        await expect(error).toBeHidden();
+
+        const trigger = await page.getByRole('combobox');
+        await expect(trigger).toHaveText('select');
+
+        const options = page.getByRole('option');
+
+        await trigger.click();
+        await options.filter({ hasText: 'one' }).click();
+        await expect(trigger).toHaveText('one');
+        await expect(error).toHaveText('error one');
+
+        await trigger.click();
+        await options.filter({ hasText: 'two' }).click();
+        await expect(trigger).toHaveText('two');
+        await expect(error).toBeHidden();
+
+        await trigger.click();
+        // clear the value
+        await options.filter({ hasText: 'select' }).click();
+        await expect(trigger).toHaveText('select');
+        await expect(error).toHaveText('valueMissing error');
+
+        await trigger.click();
+        await options.filter({ hasText: 'three' }).click();
+        await expect(trigger).toHaveText('three');
+        await expect(error).toHaveText('error three');
+
+        await trigger.click();
+        await options.filter({ hasText: 'four' }).click();
+        await expect(trigger).toHaveText('four');
+        await expect(error).toBeHidden();
+      });
+    });
+  });
+
   describe('<Radio />', () => {
     it('loops focus by default', async () => {
       await renderFixture('Radio');
@@ -84,7 +171,7 @@ describe('e2e', () => {
 
   describe('<Slider />', () => {
     it('overlapping thumbs', async () => {
-      await renderFixture('RangeSlider');
+      await renderFixture('slider/Range');
 
       // mouse down at the center of the lower thumb but the upper thumb
       // is moved due to overlap
@@ -97,7 +184,7 @@ describe('e2e', () => {
     });
 
     it('overlapping thumbs at max', async () => {
-      await renderFixture('RangeSliderMax');
+      await renderFixture('slider/RangeSliderMax');
 
       // both thumbs are at max with the upper thumb completely covering the
       // lower one; the lower one will be moved by the pointer instead so the
@@ -108,6 +195,24 @@ describe('e2e', () => {
       await page.mouse.up();
 
       await expect(page.getByRole('status')).toHaveText('50 – 100');
+    });
+
+    it('inset thumbs', async () => {
+      await renderFixture('slider/Inset');
+      await expect(page.getByRole('status')).toHaveText('30');
+
+      // click the left inset offset region
+      await page.mouse.click(10, 10);
+      await expect(page.getByRole('status')).toHaveText('0');
+      // click the right inset offset region
+      await page.mouse.click(110, 10);
+      await expect(page.getByRole('status')).toHaveText('100');
+      // drag from the center of the thumb
+      await page.mouse.move(110, 10);
+      await page.mouse.down();
+      await page.mouse.move(90, 10);
+      await page.mouse.up();
+      await expect(page.getByRole('status')).toHaveText('80');
     });
   });
 });

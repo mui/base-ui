@@ -3,9 +3,9 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { warn } from '@base-ui-components/utils/warn';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStore, Store } from '@base-ui-components/utils/store';
 import {
   useClick,
@@ -13,22 +13,22 @@ import {
   useFloatingRootContext,
   useInteractions,
   useListNavigation,
-  useRole,
   useTypeahead,
   FloatingRootContext,
 } from '../../floating-ui-react';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
 import type { SelectRootConditionalProps, SelectRoot } from './SelectRoot';
 import { EMPTY_ARRAY } from '../../utils/constants';
+import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 
 export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   params: useSelectRoot.Parameters<Value, Multiple>,
@@ -43,31 +43,27 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     onOpenChangeComplete,
     items,
     multiple = false,
+    itemToStringLabel,
+    itemToStringValue,
+    isItemEqualToValue = defaultItemEquality,
   } = params;
 
   const { clearErrors } = useFormContext();
   const {
     setDirty,
+    shouldValidateOnChange,
     validityData,
     validationMode,
-    setControlId,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
   } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
-  const id = useBaseUiId(idProp);
-
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  useIsoLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
+  const id = useLabelableId({ id: idProp });
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: params.value,
@@ -86,6 +82,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
+  const scrollArrowsMountedCountRef = React.useRef(0);
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
@@ -107,6 +105,9 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         id,
         modal,
         multiple,
+        itemToStringLabel,
+        itemToStringValue,
+        isItemEqualToValue,
         value,
         label: '',
         open,
@@ -121,8 +122,10 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         triggerProps: {},
         triggerElement: null,
         positionerElement: null,
+        listElement: null,
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
+        hasScrollArrows: false,
       }),
   ).current;
 
@@ -140,7 +143,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
 
-  const controlRef = useLatestRef(store.state.triggerElement);
+  const controlRef = useValueAsRef(store.state.triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
 
   useField({
@@ -170,24 +173,24 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
       const labels = currentValue
         .map((v) => {
-          const index = valuesRef.current.indexOf(v);
+          const index = findItemIndex(valuesRef.current, v, isItemEqualToValue);
           return index !== -1 ? (labelsRef.current[index] ?? '') : '';
         })
         .filter(Boolean);
 
       const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = lastValue != null ? valuesRef.current.indexOf(lastValue) : -1;
+      const lastIndex = findItemIndex(valuesRef.current, lastValue, isItemEqualToValue);
 
       // Store the last selected index for later use when closing the popup.
       lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;
 
-      store.apply({
+      store.update({
         label: labels.join(', '),
       });
     } else {
-      const index = valuesRef.current.indexOf(value);
+      const index = findItemIndex(valuesRef.current, value as Value, isItemEqualToValue);
 
-      store.apply({
+      store.update({
         selectedIndex: index === -1 ? null : index,
         label: labelsRef.current[index] ?? '',
       });
@@ -195,9 +198,9 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
-    commitValidation(value, validationMode !== 'onChange');
+    commitValidation(value, !shouldValidateOnChange());
 
-    if (validationMode === 'onChange') {
+    if (shouldValidateOnChange()) {
       commitValidation(value);
     }
   }, [
@@ -205,19 +208,21 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     commitValidation,
     clearErrors,
     name,
+    shouldValidateOnChange,
     validationMode,
     store,
     setDirty,
     validityData.initialValue,
     setFilled,
     multiple,
+    isItemEqualToValue,
   ]);
 
   useIsoLayoutEffect(() => {
     prevValueRef.current = value;
   }, [value]);
 
-  const setOpen = useEventCallback(
+  const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
       params.onOpenChange?.(nextOpen, eventDetails);
 
@@ -247,7 +252,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     },
   );
 
-  const handleUnmount = useEventCallback(() => {
+  const handleUnmount = useStableCallback(() => {
     setMounted(false);
     store.set('activeIndex', null);
     onOpenChangeComplete?.(false);
@@ -266,7 +271,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const setValue = useEventCallback(
+  const setValue = useStableCallback(
     (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
       params.onValueChange?.(nextValue, eventDetails);
 
@@ -283,7 +288,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
    * Does nothing until at least one item has reported its index (so that
    * `valuesRef`/`labelsRef` are populated).
    */
-  const syncSelectedState = useEventCallback(() => {
+  const syncSelectedState = useStableCallback(() => {
     if (!hasRegisteredRef.current) {
       return;
     }
@@ -293,13 +298,16 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
       const labels = currentValue
         .map((v) => {
-          const index = valuesRef.current.indexOf(v);
+          const index = findItemIndex(valuesRef.current, v, isItemEqualToValue);
           return index !== -1 ? (labelsRef.current[index] ?? '') : '';
         })
         .filter(Boolean);
 
       const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = lastValue !== undefined ? valuesRef.current.indexOf(lastValue) : -1;
+      const lastIndex =
+        lastValue !== undefined
+          ? findItemIndex(valuesRef.current, lastValue, isItemEqualToValue)
+          : -1;
 
       // Store the last selected index for later use when closing the popup.
       lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;
@@ -309,16 +317,16 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         computedSelectedIndex = lastIndex === -1 ? null : lastIndex;
       }
 
-      store.apply({
+      store.update({
         selectedIndex: computedSelectedIndex,
         label: labels.join(', '),
       });
     } else {
-      const index = valuesRef.current.indexOf(value);
+      const index = findItemIndex(valuesRef.current, value as Value, isItemEqualToValue);
       const hasIndex = index !== -1;
 
       if (hasIndex || value === null) {
-        store.apply({
+        store.update({
           selectedIndex: hasIndex ? index : null,
           label: hasIndex ? (labelsRef.current[index] ?? '') : '',
         });
@@ -339,7 +347,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
    * Called by each <Select.Item> once it knows its stable index. After the first
    * call, the root is able to resolve labels and selected indices.
    */
-  const registerItemIndex = useEventCallback((index: number) => {
+  const registerItemIndex = useStableCallback((index: number) => {
     hasRegisteredRef.current = true;
 
     if (multiple) {
@@ -354,16 +362,16 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   // Keep store in sync whenever `value` changes after registration.
   useIsoLayoutEffect(syncSelectedState, [value, syncSelectedState]);
 
-  const handleScrollArrowVisibility = useEventCallback(() => {
-    const popupElement = popupRef.current;
-    if (!popupElement) {
+  const handleScrollArrowVisibility = useStableCallback(() => {
+    const scroller = store.state.listElement || popupRef.current;
+    if (!scroller) {
       return;
     }
 
-    const viewportTop = popupElement.scrollTop;
-    const viewportBottom = popupElement.scrollTop + popupElement.clientHeight;
+    const viewportTop = scroller.scrollTop;
+    const viewportBottom = scroller.scrollTop + scroller.clientHeight;
     const shouldShowUp = viewportTop > 1;
-    const shouldShowDown = viewportBottom < popupElement.scrollHeight - 1;
+    const shouldShowDown = viewportBottom < scroller.scrollHeight - 1;
 
     if (store.state.scrollUpArrowVisible !== shouldShowUp) {
       store.set('scrollUpArrowVisible', shouldShowUp);
@@ -391,16 +399,12 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     bubbles: false,
   });
 
-  const role = useRole(floatingContext, {
-    role: 'select',
-  });
-
   const listNavigation = useListNavigation(floatingContext, {
     enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
     selectedIndex,
-    disabledIndices: EMPTY_ARRAY,
+    disabledIndices: EMPTY_ARRAY as number[],
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
@@ -423,7 +427,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index], createBaseUIEventDetails('none'));
+        setValue(valuesRef.current[index], createChangeEventDetails('none'));
       }
     },
     onTypingChange(typing) {
@@ -436,7 +440,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
     click,
     dismiss,
-    role,
     listNavigation,
     typeahead,
   ]);
@@ -444,15 +447,14 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   useOnFirstRender(() => {
     // These should be initialized at store creation, but there is an interdependency
     // between some values used in floating hooks above.
-    store.apply({
+    store.update({
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
     });
   });
 
-  // Store values that depend on other hooks
-  React.useEffect(() => {
-    store.apply({
+  useIsoLayoutEffect(() => {
+    store.update({
       id,
       modal,
       multiple,
@@ -463,6 +465,9 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
       items,
+      itemToStringLabel,
+      itemToStringValue,
+      isItemEqualToValue,
     });
   }, [
     store,
@@ -476,6 +481,9 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     getFloatingProps,
     getReferenceProps,
     items,
+    itemToStringLabel,
+    itemToStringValue,
+    isItemEqualToValue,
   ]);
 
   const rootContext: SelectRootContext = React.useMemo(
@@ -486,11 +494,15 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       disabled,
       readOnly,
       multiple,
+      itemToStringLabel,
+      itemToStringValue,
       setValue,
       setOpen,
       listRef,
       popupRef,
+      scrollHandlerRef,
       handleScrollArrowVisibility,
+      scrollArrowsMountedCountRef,
       getItemProps,
       events: floatingContext.events,
       valueRef,
@@ -513,10 +525,13 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       disabled,
       readOnly,
       multiple,
+      itemToStringLabel,
+      itemToStringValue,
       setValue,
       setOpen,
       listRef,
       popupRef,
+      scrollHandlerRef,
       getItemProps,
       floatingContext.events,
       valueRef,
@@ -541,13 +556,19 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   };
 }
 
-export namespace useSelectRoot {
-  export interface Parameters<Value, Multiple extends boolean | undefined = false>
-    extends Omit<SelectRootConditionalProps<Value, Multiple>, 'children' | 'inputRef'> {}
+export interface UseSelectRootParameters<Value, Multiple extends boolean | undefined = false>
+  extends Omit<SelectRootConditionalProps<Value, Multiple>, 'children' | 'inputRef'> {}
 
-  export type ReturnValue = {
-    rootContext: SelectRootContext;
-    floatingContext: FloatingRootContext;
-    value: any;
-  };
+export type UseSelectRootReturnValue = {
+  rootContext: SelectRootContext;
+  floatingContext: FloatingRootContext;
+  value: any;
+};
+
+export namespace useSelectRoot {
+  export type Parameters<
+    Value,
+    Multiple extends boolean | undefined = false,
+  > = UseSelectRootParameters<Value, Multiple>;
+  export type ReturnValue = UseSelectRootReturnValue;
 }

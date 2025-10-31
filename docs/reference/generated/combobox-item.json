@@ -4,7 +4,13 @@
   "props": {
     "value": {
       "type": "any",
+      "default": "null",
       "description": "A unique value that identifies this item."
+    },
+    "onClick": {
+      "type": "MouseEventHandler<HTMLElement>",
+      "description": "An optional click handler for the item when selected.\nIt fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.",
+      "detailedType": "React.MouseEventHandler<HTMLElement> | undefined"
     },
     "index": {
       "type": "number",
@@ -17,6 +23,10 @@
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button.",
       "detailedType": "boolean | undefined"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Item.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Combobox.Item.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -28,8 +38,9 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: Combobox.Item.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Combobox.Item.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Combobox.Item.State) => string | undefined)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Combobox.Item.State) => ReactElement)",

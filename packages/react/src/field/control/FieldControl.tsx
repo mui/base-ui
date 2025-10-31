@@ -1,17 +1,21 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { fieldValidityMapping } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useField } from '../useField';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldControlValidation } from './useFieldControlValidation';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 
 /**
  * The form control to label and validate.
@@ -52,28 +56,13 @@ export const FieldControl = React.forwardRef(function FieldControl(
     [fieldState, disabled],
   );
 
-  const {
-    setControlId,
-    labelId,
-    setTouched,
-    setDirty,
-    validityData,
-    setFocused,
-    setFilled,
-    validationMode,
-  } = useFieldRootContext();
+  const { setTouched, setDirty, validityData, setFocused, setFilled, validationMode } =
+    useFieldRootContext();
+  const { labelId } = useLabelableContext();
 
-  const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
-    useFieldControlValidation();
+  const { getInputValidationProps, commitValidation, inputRef } = useFieldControlValidation();
 
-  const id = useBaseUiId(idProp);
-
-  useIsoLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
+  const id = useLabelableId({ id: idProp });
 
   useIsoLayoutEffect(() => {
     const hasExternalValue = valueProp != null;
@@ -93,7 +82,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const isControlled = valueProp !== undefined;
 
-  const setValue = useEventCallback(
+  const setValue = useStableCallback(
     (nextValue: string, eventDetails: FieldControl.ChangeEventDetails) => {
       onValueChange?.(nextValue, eventDetails);
 
@@ -127,7 +116,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
-          setValue(inputValue, createBaseUIEventDetails('none', event.nativeEvent));
+          setValue(inputValue, createChangeEventDetails('none', event.nativeEvent));
           setDirty(inputValue !== validityData.initialValue);
           setFilled(inputValue !== '');
         },
@@ -149,7 +138,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
           }
         },
       },
-      getValidationProps(),
       getInputValidationProps(),
       elementProps,
     ],
@@ -159,17 +147,24 @@ export const FieldControl = React.forwardRef(function FieldControl(
   return element;
 });
 
+export type FieldControlState = FieldRoot.State;
+
+export interface FieldControlProps extends BaseUIComponentProps<'input', FieldControl.State> {
+  /**
+   * Callback fired when the `value` changes. Use when controlled.
+   */
+  onValueChange?: (value: string, eventDetails: FieldControl.ChangeEventDetails) => void;
+  defaultValue?: React.ComponentProps<'input'>['defaultValue'];
+}
+
+export type FieldControlChangeEventReason = 'none';
+
+export type FieldControlChangeEventDetails =
+  BaseUIChangeEventDetails<FieldControl.ChangeEventReason>;
+
 export namespace FieldControl {
-  export type State = FieldRoot.State;
-
-  export interface Props extends BaseUIComponentProps<'input', State> {
-    /**
-     * Callback fired when the `value` changes. Use when controlled.
-     */
-    onValueChange?: (value: string, eventDetails: ChangeEventDetails) => void;
-    defaultValue?: React.ComponentProps<'input'>['defaultValue'];
-  }
-
-  export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
+  export type State = FieldControlState;
+  export type Props = FieldControlProps;
+  export type ChangeEventReason = FieldControlChangeEventReason;
+  export type ChangeEventDetails = FieldControlChangeEventDetails;
 }

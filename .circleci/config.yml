@@ -73,42 +73,29 @@ commands:
                 # See https://stackoverflow.com/a/73411601
                 command: corepack enable --install-directory ~/bin
       - run:
-          name: Resolve React version
-          command: |
-            echo 'Using React version: << parameters.react-version >>'
-            node scripts/useReactVersion.mjs
-            # log a patch for maintainers who want to check out this change
-            git --no-pager diff HEAD
-      - run:
           name: View install environment
           command: |
             node --version
             pnpm --version
-      - when:
-          condition:
-            equal: [<< parameters.react-version >>, stable]
-          steps:
-            - run:
-                name: Install JS dependencies
-                command: pnpm install
-      - unless:
-          condition:
-            equal: [<< parameters.react-version >>, stable]
-          steps:
-            - run:
-                name: Install JS dependencies (without frozen lockfile)
-                command: pnpm install --no-frozen-lockfile
-            - run:
-                name: Restore clean working copy
-                command: git restore .
+      - run:
+          name: Install js dependencies
+          command: |
+            args=""
+            if [ -n "$REACT_VERSION" ] && [ "$REACT_VERSION" != "stable" ]; then
+              args="react@$REACT_VERSION"
+            fi
+            if [ -n "$args" ]; then
+              pnpm dlx @mui/internal-code-infra@canary set-version-overrides --pkg $args
+            else
+              pnpm install
+            fi
 
 jobs:
   test_unit:
     <<: *default-job
     steps:
       - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - install_js
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom:coverage
@@ -129,8 +116,7 @@ jobs:
     <<: *default-job
     steps:
       - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - install_js
       - run:
           name: '`pnpm prettier` changes committed?'
           command: |
@@ -148,17 +134,13 @@ jobs:
           name: Stylelint
           command: pnpm stylelint
       - run:
-          name: Lint JSON
-          command: pnpm jsonlint
-      - run:
           name: Lint Markdown
           command: pnpm markdownlint
   test_static:
     <<: *default-job
     steps:
       - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - install_js
       - run:
           name: '`pnpm dedupe` was run?'
           command: |
@@ -195,8 +177,7 @@ jobs:
     resource_class: 'medium+'
     steps:
       - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - install_js
       - run:
           name: Tests TypeScript definitions
           command: pnpm typescript
@@ -204,7 +185,7 @@ jobs:
             NODE_OPTIONS: --max-old-space-size=3072
       - run:
           name: Any defect declaration files?
-          command: node scripts/testBuiltTypes.mjs
+          command: pnpm code-infra validate-built-types
       - save_cache:
           name: Save generated declaration files
           key: typescript-declaration-files-{{ .Branch }}-{{ .Revision }}
@@ -216,8 +197,7 @@ jobs:
     resource_class: 'medium+'
     steps:
       - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - install_js
       - run:
           name: Resolve typescript version
           command: |
@@ -240,17 +220,16 @@ jobs:
             # Fixing these takes some effort that isn't viable to merge in a single PR.
             # We'll simply monitor them for now.
             set +e
-            node scripts/testBuiltTypes.mjs
+            pnpm code-infra validate-built-types
             exit 0
   test_browser:
     <<: *default-job
     resource_class: 'medium+'
     docker:
-      - image: mcr.microsoft.com/playwright:v1.55.0-noble
+      - image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - checkout
       - install_js:
-          react-version: << parameters.react-version >>
           browsers: true
       - run:
           name: Run tests on headless Chromium
@@ -271,11 +250,10 @@ jobs:
   test_regressions:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.55.0-noble
+      - image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - checkout
       - install_js:
-          react-version: << parameters.react-version >>
           browsers: true
       - run:
           name: Run visual regression tests
@@ -286,7 +264,7 @@ jobs:
   test_e2e:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.55.0-noble
+      - image: mcr.microsoft.com/playwright:v1.56.1-noble
     steps:
       - checkout
       - install_js:
@@ -299,11 +277,16 @@ jobs:
     <<: *default-job
     steps:
       - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
+      - install_js
       - run:
           name: Build packages
           command: pnpm release:build
+      - run:
+          name: Validate type declarations
+          command: pnpm code-infra validate-built-types
+      - run:
+          name: Check public types
+          command: pnpm -r run release:test
       - run:
           name: Test Node.js module resolution
           command: pnpm -F @base-ui/test-node-resolution test
