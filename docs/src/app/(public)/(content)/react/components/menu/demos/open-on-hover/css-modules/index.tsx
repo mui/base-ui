@@ -4,8 +4,8 @@ import styles from './index.module.css';
 
 export default function ExampleMenu() {
   return (
-    <Menu.Root openOnHover>
-      <Menu.Trigger className={styles.Button}>
+    <Menu.Root>
+      <Menu.Trigger openOnHover className={styles.Button}>
         Add to playlist <ChevronDownIcon className={styles.ButtonIcon} />
       </Menu.Trigger>
       <Menu.Portal>

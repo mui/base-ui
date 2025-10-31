@@ -538,8 +538,10 @@ describe('<Menu.Root />', () => {
             <Menu.Positioner data-testid="menu">
               <Menu.Popup>
                 <Menu.Item>Item 1</Menu.Item>
-                <Menu.SubmenuRoot openOnHover={false}>
-                  <Menu.SubmenuTrigger data-testid="submenu-trigger">Submenu</Menu.SubmenuTrigger>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger openOnHover={false} data-testid="submenu-trigger">
+                    Submenu
+                  </Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner data-testid="submenu">
                       <Menu.Popup>
@@ -1176,8 +1178,10 @@ describe('<Menu.Root />', () => {
   describe('prop: openOnHover', () => {
     it('should open the menu when the trigger is hovered', async () => {
       await render(
-        <Menu.Root openOnHover delay={0}>
-          <Menu.Trigger>Open</Menu.Trigger>
+        <Menu.Root>
+          <Menu.Trigger openOnHover delay={0}>
+            Open
+          </Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
@@ -1203,8 +1207,10 @@ describe('<Menu.Root />', () => {
 
     it.skipIf(!isJSDOM)('should close the menu when the trigger is no longer hovered', async () => {
       await render(
-        <Menu.Root openOnHover delay={0} modal={false}>
-          <Menu.Trigger>Open</Menu.Trigger>
+        <Menu.Root modal={false}>
+          <Menu.Trigger openOnHover delay={0}>
+            Open
+          </Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
@@ -1236,14 +1242,16 @@ describe('<Menu.Root />', () => {
 
     it('should not close when submenu is hovered after root menu is hovered', async () => {
       await render(
-        <Menu.Root openOnHover delay={0}>
-          <Menu.Trigger>Open</Menu.Trigger>
+        <Menu.Root>
+          <Menu.Trigger openOnHover delay={0}>
+            Open
+          </Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner data-testid="menu">
               <Menu.Popup>
                 <Menu.Item>1</Menu.Item>
-                <Menu.SubmenuRoot delay={0}>
-                  <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger delay={0}>2</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner data-testid="submenu">
                       <Menu.Popup>
@@ -1302,19 +1310,21 @@ describe('<Menu.Root />', () => {
 
     it('keeps the parent submenu open after a third-level submenu closes due to sibling hover', async () => {
       await render(
-        <Menu.Root openOnHover delay={0}>
-          <Menu.Trigger>Open</Menu.Trigger>
+        <Menu.Root>
+          <Menu.Trigger openOnHover delay={0}>
+            Open
+          </Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner data-testid="menu">
               <Menu.Popup>
-                <Menu.SubmenuRoot delay={0}>
-                  <Menu.SubmenuTrigger>Level 1</Menu.SubmenuTrigger>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger delay={0}>Level 1</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner data-testid="submenu-1">
                       <Menu.Popup>
                         <Menu.Item data-testid="parent-item">Parent Sibling</Menu.Item>
-                        <Menu.SubmenuRoot delay={0}>
-                          <Menu.SubmenuTrigger>Level 2</Menu.SubmenuTrigger>
+                        <Menu.SubmenuRoot>
+                          <Menu.SubmenuTrigger delay={0}>Level 2</Menu.SubmenuTrigger>
                           <Menu.Portal>
                             <Menu.Positioner data-testid="submenu-2">
                               <Menu.Popup>
@@ -1388,8 +1398,8 @@ describe('<Menu.Root />', () => {
 
     it('should close after delay', async () => {
       await renderFakeTimers(
-        <Menu.Root openOnHover delay={0} closeDelay={100}>
-          <Menu.Trigger />
+        <Menu.Root>
+          <Menu.Trigger openOnHover delay={0} closeDelay={100} />
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>Content</Menu.Popup>

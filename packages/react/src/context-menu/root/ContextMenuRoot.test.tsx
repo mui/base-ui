@@ -29,8 +29,8 @@ describe('<ContextMenu.Root />', () => {
           <ContextMenu.Portal>
             <ContextMenu.Positioner>
               <ContextMenu.Popup data-testid="context-root-popup">
-                <ContextMenu.SubmenuRoot defaultOpen onOpenChange={submenuOnOpenChange} delay={1}>
-                  <ContextMenu.SubmenuTrigger data-testid="context-submenu-trigger">
+                <ContextMenu.SubmenuRoot defaultOpen onOpenChange={submenuOnOpenChange}>
+                  <ContextMenu.SubmenuTrigger delay={1} data-testid="context-submenu-trigger">
                     More options
                   </ContextMenu.SubmenuTrigger>
                   <ContextMenu.Portal>

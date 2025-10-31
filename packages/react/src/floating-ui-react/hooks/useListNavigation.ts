@@ -879,7 +879,11 @@ export function useListNavigation(
             } else {
               onOpenChange(
                 true,
-                createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+                createChangeEventDetails(
+                  REASONS.listNavigation,
+                  event.nativeEvent,
+                  event.currentTarget as HTMLElement,
+                ),
               );
             }
           }
@@ -895,7 +899,14 @@ export function useListNavigation(
           stopEvent(event);
 
           if (!open && openOnArrowKeyDown) {
-            onOpenChange(true, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
+            onOpenChange(
+              true,
+              createChangeEventDetails(
+                REASONS.listNavigation,
+                event.nativeEvent,
+                event.currentTarget as HTMLElement,
+              ),
+            );
           } else {
             commonOnKeyDown(event);
           }

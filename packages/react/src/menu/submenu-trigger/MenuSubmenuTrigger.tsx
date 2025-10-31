@@ -1,6 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useFloatingTree } from '../../floating-ui-react';
+import {
+  safePolygon,
+  useClick,
+  useFloatingTree,
+  useHover,
+  useInteractions,
+} from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -27,6 +33,10 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     label,
     id: idProp,
     nativeButton = false,
+    openOnHover = true,
+    delay = 100,
+    closeDelay = 0,
+    disabled: disabledProp = false,
     ...elementProps
   } = componentProps;
 
@@ -39,7 +49,14 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const rootTriggerProps = store.useState('activeTriggerProps');
   const open = store.useState('open');
   const parent = store.useState('parent');
-  const disabled = store.useState('disabled');
+  const menuDisabled = store.useState('disabled');
+  const hoverEnabled = store.useState('hoverEnabled');
+  const allowMouseEnter = store.useState('allowMouseEnter');
+  const floatingRootContext = store.useState('floatingRootContext');
+
+  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
+
+  const disabled = disabledProp || menuDisabled;
 
   if (parent.type !== 'menu') {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
@@ -69,6 +86,29 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     nodeId: menuPositionerContext?.floatingContext.nodeId,
   });
 
+  const hover = useHover(floatingRootContext, {
+    enabled: hoverEnabled && openOnHover && !disabled,
+    handleClose: safePolygon({ blockPointerEvents: true }),
+    mouseOnly: true,
+    move: true,
+    restMs: allowMouseEnter ? delay : undefined,
+    delay: { open: allowMouseEnter ? delay : 10 ** 10, close: closeDelay },
+
+    triggerElement: triggerElement as HTMLElement | null,
+  });
+
+  const click = useClick(floatingRootContext, {
+    enabled: !disabled,
+    event: 'mousedown',
+    toggle: !openOnHover,
+    ignoreMouse: openOnHover,
+    stickIfOpen: false,
+  });
+
+  const localInteractionProps = useInteractions([click, hover]);
+
+  delete rootTriggerProps.id;
+
   const registerTrigger = useTriggerRegistration(id, store);
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
@@ -80,10 +120,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     state,
     stateAttributesMapping: triggerOpenStateMapping,
     props: [
+      localInteractionProps.getReferenceProps(),
       rootTriggerProps,
       itemProps,
-      elementProps,
-      getItemProps,
       {
         tabIndex: open || highlighted ? 0 : -1,
         onBlur() {
@@ -92,8 +131,10 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
           }
         },
       },
+      elementProps,
+      getItemProps,
     ],
-    ref: [forwardedRef, listItem.ref, itemRef, registerTrigger],
+    ref: [forwardedRef, listItem.ref, itemRef, registerTrigger, setTriggerElement],
   });
 });
 
@@ -109,6 +150,30 @@ export interface MenuSubmenuTriggerProps
    * @ignore
    */
   id?: string;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * How long to wait before the menu may be opened on hover. Specified in milliseconds.
+   *
+   * Requires the `openOnHover` prop.
+   * @default 100
+   */
+  delay?: number;
+  /**
+   * How long to wait before closing the menu that was opened on hover.
+   * Specified in milliseconds.
+   *
+   * Requires the `openOnHover` prop.
+   * @default 0
+   */
+  closeDelay?: number;
+  /**
+   * Whether the menu should also open when the trigger is hovered.
+   */
+  openOnHover?: boolean;
 }
 
 export interface MenuSubmenuTriggerState {
