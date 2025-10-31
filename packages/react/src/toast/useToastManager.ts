@@ -1,13 +1,12 @@
 'use client';
 import * as React from 'react';
 import { ToastContext } from './provider/ToastProviderContext';
-import type { BaseUIComponentProps } from '../utils/types';
-import type { UseAnchorPositioningSharedParameters } from '../utils/useAnchorPositioning';
+import type { ToastPositionerProps } from './positioner/ToastPositioner';
 
 /**
  * Returns the array of toasts and methods to manage them.
  */
-export function useToastManager(): useToastManager.ReturnValue {
+export function useToastManager(): UseToastManagerReturnValue {
   const context = React.useContext(ToastContext);
 
   if (!context) {
@@ -97,9 +96,7 @@ export interface ToastObject<Data extends object> {
   data?: Data;
 }
 
-export interface ToastPositionerOptions
-  extends BaseUIComponentProps<'div', any>,
-    Omit<UseAnchorPositioningSharedParameters, 'anchor'> {
+export interface ToastPositionerOptions extends Omit<ToastPositionerProps, 'anchor' | 'toast'> {
   /**
    * An element to position the toast against.
    */
@@ -138,15 +135,4 @@ export interface UseToastManagerPromiseOptions<Value, Data extends object> {
     | string
     | UseToastManagerUpdateOptions<Data>
     | ((error: any) => string | UseToastManagerUpdateOptions<Data>);
-}
-
-export namespace useToastManager {
-  export type ReturnValue = UseToastManagerReturnValue;
-  export type AddOptions<Data extends object> = UseToastManagerAddOptions<Data>;
-  export type UpdateOptions<Data extends object> = UseToastManagerUpdateOptions<Data>;
-  export type PromiseOptions<Value, Data extends object> = UseToastManagerPromiseOptions<
-    Value,
-    Data
-  >;
-  export type PositionerOptions = ToastPositionerOptions;
 }

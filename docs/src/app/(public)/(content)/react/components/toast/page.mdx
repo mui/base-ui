@@ -19,6 +19,7 @@ import { Toast } from '@base-ui-components/react/toast';
 <Toast.Provider>
   <Toast.Portal>
     <Toast.Viewport>
+      {/* Stacked toasts */}
       <Toast.Root>
         <Toast.Content>
           <Toast.Title />
@@ -27,16 +28,20 @@ import { Toast } from '@base-ui-components/react/toast';
           <Toast.Close />
         </Toast.Content>
       </Toast.Root>
+
+      {/* Anchored toasts */}
+      <Toast.Positioner>
+        <Toast.Root>
+          <Toast.Arrow />
+          <Toast.Content>
+            <Toast.Title />
+            <Toast.Description />
+            <Toast.Action />
+            <Toast.Close />
+          </Toast.Content>
+        </Toast.Root>
+      </Toast.Positioner>
     </Toast.Viewport>
-    {/* For anchored toasts */}
-    <Toast.Positioner>
-      <Toast.Root>
-        <Toast.Arrow />
-        <Toast.Content>
-          <Toast.Title />
-        </Toast.Content>
-      </Toast.Root>
-    </Toast.Positioner>
   </Toast.Portal>
 </Toast.Provider>;
 ```
@@ -328,24 +333,27 @@ This is useful for animating the toast differently when it is removed from the l
 
 ## Examples
 
-### Anchored toast
+### Anchored toasts
 
-Toasts can be anchored to a specific element using `<Toast.Positioner>` and the `positionerProps` option when adding a toast.
-This is useful for showing contextual feedback like transient "Copied" toasts that appear near the button that triggered the action.
+Toasts can be anchored to a specific element using `<Toast.Positioner>` and the `positionerProps` option when adding a toast. This is useful for showing contextual feedback like transient "Copied" toasts that appear near the button that triggered the action.
 
-Anchored toasts should be rendered in a separate `<Toast.Provider>` from stacked toasts:
+Anchored toasts should be rendered in a separate `<Toast.Provider>` from stacked toasts. A global toast manager can be created for each to manage them separately throughout your app:
 
 ```tsx title="Mixing stacked and anchored toasts"
+const anchoredToastManager = Toast.createToastManager();
+const stackedToastManager = Toast.createToastManager();
+
 function App() {
   return (
     <React.Fragment>
-      <Toast.Provider>
+      <Toast.Provider toastManager={anchoredToastManager}>
         <AnchoredToasts />
       </Toast.Provider>
-
-      <Toast.Provider>
+      <Toast.Provider toastManager={stackedToastManager}>
         <StackedToasts />
       </Toast.Provider>
+
+      {/* App content */}
     </React.Fragment>
   );
 }

@@ -1,21 +1,26 @@
-import { Toast } from '@base-ui-components/react/toast';
+import {
+  Toast,
+  type UseToastManagerReturnValue,
+  type UseToastManagerAddOptions,
+  type UseToastManagerPromiseOptions,
+  type UseToastManagerUpdateOptions,
+} from '@base-ui-components/react/toast';
 
 export type ToastProviderProps = Toast.Provider.Props;
 export type ToastViewportProps = Toast.Viewport.Props;
 export type ToastRootProps = Toast.Root.Props;
 
-export type ToastManagerReturn = ReturnType<typeof Toast.useToastManager>;
-export type ToastManagerAdd = ToastManagerReturn['add'];
-export type ToastManagerUpdate = ToastManagerReturn['update'];
-export type ToastManagerPromise = ToastManagerReturn['promise'];
+export type ToastManagerReturnValue = UseToastManagerReturnValue;
+export type ToastManagerAdd = UseToastManagerReturnValue['add'];
+export type ToastManagerUpdate = UseToastManagerReturnValue['update'];
+export type ToastManagerPromise = UseToastManagerReturnValue['promise'];
 
-export type ToastManagerAddOptions<Data extends object> = Toast.useToastManager.AddOptions<Data>;
-export type ToastManagerUpdateOptions<Data extends object> =
-  Toast.useToastManager.UpdateOptions<Data>;
-export type ToastManagerPromiseOptions<
+export type ToastManagerAddOptions<Data extends object> = UseToastManagerAddOptions<Data>;
+export type ToastManagerUpdateOptions<Data extends object> = UseToastManagerUpdateOptions<Data>;
+export type ToastManagerPromiseOptions<Value, Data extends object> = UseToastManagerPromiseOptions<
   Value,
-  Data extends object,
-> = Toast.useToastManager.PromiseOptions<Value, Data>;
+  Data
+>;
 
 export type ToastCreateManagerReturn = ReturnType<typeof Toast.createToastManager>;
 

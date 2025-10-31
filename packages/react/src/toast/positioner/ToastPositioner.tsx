@@ -10,6 +10,8 @@ import { ToastPositionerContext } from './ToastPositionerContext';
 import { useFloatingRootContext } from '../../floating-ui-react';
 import { NOOP } from '../../utils/noop';
 import type { ToastObject } from '../useToastManager';
+import { ToastRootCssVars } from '../root/ToastRootCssVars';
+import { useToastContext } from '../provider/ToastProviderContext';
 
 /**
  * Positions the toast against the anchor.
@@ -22,6 +24,8 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { toast, ...props } = componentProps;
+
+  const { toasts } = useToastContext();
 
   const positionerProps = (toast.positionerProps ?? EMPTY_OBJECT) as NonNullable<
     typeof toast.positionerProps
@@ -46,6 +50,12 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
   } = props;
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLDivElement | null>(null);
+
+  const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
+  const visibleIndex = React.useMemo(
+    () => toasts.filter((t) => t.transitionStatus !== 'ending').indexOf(toast),
+    [toast, toasts],
+  );
 
   const anchor = isElement(anchorProp) ? anchorProp : null;
 
@@ -84,9 +94,11 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
       style: {
         ...positioning.positionerStyles,
         ...hiddenStyles,
+        [ToastRootCssVars.index as string]:
+          toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
       },
     };
-  }, [positioning.positionerStyles]);
+  }, [positioning.positionerStyles, toast.transitionStatus, domIndex, visibleIndex]);
 
   const state: ToastPositioner.State = React.useMemo(
     () => ({
@@ -144,10 +156,6 @@ export interface ToastPositionerProps
    * The toast object associated with the positioner.
    */
   toast: ToastObject<any>;
-  /**
-   * The trigger element for the toast. Falls back to the anchor element when not provided.
-   */
-  trigger?: Element | null;
 }
 
 export namespace ToastPositioner {

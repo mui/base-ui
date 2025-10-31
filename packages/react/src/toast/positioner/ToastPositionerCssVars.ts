@@ -1,11 +1,11 @@
-export enum TooltipPositionerCssVars {
+export enum ToastPositionerCssVars {
   /**
-   * The available width between the trigger and the edge of the viewport.
+   * The available width between the anchor and the edge of the viewport.
    * @type {number}
    */
   availableWidth = '--available-width',
   /**
-   * The available height between the trigger and the edge of the viewport.
+   * The available height between the anchor and the edge of the viewport.
    * @type {number}
    */
   availableHeight = '--available-height',

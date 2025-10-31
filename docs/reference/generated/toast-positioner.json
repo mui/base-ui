@@ -18,11 +18,6 @@
       "description": "The toast object associated with the positioner.",
       "detailedType": "id: string\n  ref?: RefObject<HTMLElement | null>\n  title?: ReactNode\n  type?: string\n  description?: ReactNode\n  timeout?: number\n  priority?: 'high' | 'low'\n  transitionStatus?: 'starting' | 'ending'\n  limited?: boolean\n  height?: number\n  onClose?: () => void\n  onRemove?: () => void\n  actionProps?: Omit<\n    DetailedHTMLProps<\n      ButtonHTMLAttributes<HTMLButtonElement>,\n      HTMLButtonElement\n    >,\n    'ref'\n  >\n  positionerProps?: Toast.Positioner.Options\n  data?: any\n}"
     },
-    "trigger": {
-      "type": "Element | null",
-      "description": "The trigger element for the toast. Falls back to the anchor element when not provided.",
-      "detailedType": "Element | null | undefined"
-    },
     "align": {
       "type": "Align",
       "default": "'center'",
@@ -101,6 +96,39 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toast.Positioner.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
-  "cssVariables": {}
+  "dataAttributes": {
+    "data-anchor-hidden": {
+      "description": "Present when the anchor is hidden."
+    },
+    "data-align": {
+      "description": "Indicates how the toast is aligned relative to specified side.",
+      "type": "'start' | 'center' | 'end'"
+    },
+    "data-side": {
+      "description": "Indicates which side the toast is positioned relative to the trigger.",
+      "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
+    }
+  },
+  "cssVariables": {
+    "--anchor-height": {
+      "description": "The anchor's height.",
+      "type": "number"
+    },
+    "--anchor-width": {
+      "description": "The anchor's width.",
+      "type": "number"
+    },
+    "--available-height": {
+      "description": "The available height between the anchor and the edge of the viewport.",
+      "type": "number"
+    },
+    "--available-width": {
+      "description": "The available width between the anchor and the edge of the viewport.",
+      "type": "number"
+    },
+    "--transform-origin": {
+      "description": "The coordinates that this element is anchored to. Used for animations and transitions.",
+      "type": "string"
+    }
+  }
 }

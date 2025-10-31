@@ -5,18 +5,42 @@ import { Button } from '@base-ui-components/react/button';
 import { Tooltip } from '@base-ui-components/react/tooltip';
 import styles from './index.module.css';
 
+const anchoredToastManager = Toast.createToastManager();
+const stackedToastManager = Toast.createToastManager();
+
 export default function ExampleToast() {
   return (
     <Tooltip.Provider>
-      <Toast.Provider>
-        <CopyButton />
+      <Toast.Provider toastManager={anchoredToastManager}>
+        <AnchoredToasts />
       </Toast.Provider>
+      <Toast.Provider toastManager={stackedToastManager}>
+        <StackedToasts />
+      </Toast.Provider>
+
+      <div className={styles.ButtonGroup}>
+        <CopyButton />
+        <StackedToastButton />
+      </div>
     </Tooltip.Provider>
   );
 }
 
+function StackedToastButton() {
+  function createToast() {
+    stackedToastManager.add({
+      description: 'Copied',
+    });
+  }
+
+  return (
+    <button type="button" className={styles.Button} onClick={createToast}>
+      Stacked toast
+    </button>
+  );
+}
+
 function CopyButton() {
-  const toastManager = Toast.useToastManager();
   const [copied, setCopied] = React.useState(false);
   const buttonRef = React.useRef<HTMLButtonElement | null>(null);
 
@@ -25,13 +49,14 @@ function CopyButton() {
     navigator.clipboard.writeText('Hello, world!');
 
     setCopied(true);
-    toastManager.add({
+
+    anchoredToastManager.add({
       description: 'Copied',
       positionerProps: {
         anchor: buttonRef.current,
         sideOffset: 8,
       },
-      timeout: 1500,
+      timeout: 10000,
       onClose() {
         setCopied(false);
       },
@@ -39,69 +64,84 @@ function CopyButton() {
   }
 
   return (
-    <React.Fragment>
-      <Tooltip.Root
-        disabled={copied}
-        onOpenChange={(open, eventDetails) => {
-          if (eventDetails.reason === 'trigger-press') {
-            eventDetails.cancel();
-          }
-        }}
+    <Tooltip.Root
+      disabled={copied}
+      onOpenChange={(open, eventDetails) => {
+        if (eventDetails.reason === 'trigger-press') {
+          eventDetails.cancel();
+        }
+      }}
+    >
+      <Tooltip.Trigger
+        render={
+          <Button
+            ref={buttonRef}
+            type="button"
+            className={styles.CopyButton}
+            focusableWhenDisabled
+            disabled={copied}
+            onClick={handleCopy}
+            aria-label="Copy to clipboard"
+          />
+        }
       >
-        <Tooltip.Trigger
-          render={
-            <Button
-              ref={buttonRef}
-              type="button"
-              className={styles.Button}
-              focusableWhenDisabled
-              disabled={copied}
-              onClick={handleCopy}
-              aria-label="Copy to clipboard"
-            />
-          }
-        >
-          {copied ? (
-            <CheckIcon className={styles.Icon} />
-          ) : (
-            <ClipboardIcon className={styles.Icon} />
-          )}
-        </Tooltip.Trigger>
-        <Tooltip.Portal>
-          <Tooltip.Positioner sideOffset={8}>
-            <Tooltip.Popup className={styles.Tooltip}>
-              <Tooltip.Arrow className={styles.Arrow}>
-                <ArrowSvg />
-              </Tooltip.Arrow>
-              Copy
-            </Tooltip.Popup>
-          </Tooltip.Positioner>
-        </Tooltip.Portal>
-      </Tooltip.Root>
-      <Toast.Portal>
-        <Toast.Viewport className={styles.Viewport}>
-          <ToastList />
-        </Toast.Viewport>
-      </Toast.Portal>
-    </React.Fragment>
+        {copied ? <CheckIcon className={styles.Icon} /> : <ClipboardIcon className={styles.Icon} />}
+      </Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Positioner sideOffset={8}>
+          <Tooltip.Popup className={styles.Tooltip}>
+            <Tooltip.Arrow className={styles.Arrow}>
+              <ArrowSvg />
+            </Tooltip.Arrow>
+            Copy
+          </Tooltip.Popup>
+        </Tooltip.Positioner>
+      </Tooltip.Portal>
+    </Tooltip.Root>
   );
 }
 
-function ToastList() {
+function AnchoredToasts() {
   const { toasts } = Toast.useToastManager();
-  const anchoredToasts = toasts.filter((toast) => toast.positionerProps);
-  return anchoredToasts.map((toast) => (
-    <Toast.Positioner key={toast.id} toast={toast}>
-      <Toast.Root toast={toast} className={styles.Toast}>
-        <Toast.Arrow className={styles.Arrow}>
-          <ArrowSvg />
-        </Toast.Arrow>
-        <Toast.Content>
-          <Toast.Description />
-        </Toast.Content>
-      </Toast.Root>
-    </Toast.Positioner>
-  ));
+  return (
+    <Toast.Portal>
+      <Toast.Viewport className={styles.AnchoredViewport}>
+        {toasts.map((toast) => (
+          <Toast.Positioner key={toast.id} toast={toast} className={styles.AnchoredPositioner}>
+            <Toast.Root toast={toast} className={styles.AnchoredToast}>
+              <Toast.Arrow className={styles.Arrow}>
+                <ArrowSvg />
+              </Toast.Arrow>
+              <Toast.Content>
+                <Toast.Description />
+              </Toast.Content>
+            </Toast.Root>
+          </Toast.Positioner>
+        ))}
+      </Toast.Viewport>
+    </Toast.Portal>
+  );
+}
+
+function StackedToasts() {
+  const { toasts } = Toast.useToastManager();
+  return (
+    <Toast.Portal>
+      <Toast.Viewport className={styles.StackedViewport}>
+        {toasts.map((toast) => (
+          <Toast.Root key={toast.id} toast={toast} className={styles.StackedToast}>
+            <Toast.Content className={styles.Content}>
+              <Toast.Title className={styles.Title} />
+              <Toast.Description className={styles.Description} />
+              <Toast.Close className={styles.Close} aria-label="Close">
+                <XIcon className={styles.Icon} />
+              </Toast.Close>
+            </Toast.Content>
+          </Toast.Root>
+        ))}
+      </Toast.Viewport>
+    </Toast.Portal>
+  );
 }
 
 function ArrowSvg(props: React.ComponentProps<'svg'>) {
@@ -158,6 +198,26 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
       {...props}
     >
       <path d="M20 6 9 17l-5-5" />
+    </svg>
+  );
+}
+
+function XIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
     </svg>
   );
 }

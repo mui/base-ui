@@ -6,10 +6,15 @@ import { generateId } from '@base-ui-components/utils/generateId';
 import { Timeout } from '@base-ui-components/utils/useTimeout';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { ToastContext } from './ToastProviderContext';
-import { ToastObject, useToastManager } from '../useToastManager';
 import { isFocusVisible } from '../utils/focusVisible';
 import { resolvePromiseOptions } from '../utils/resolvePromiseOptions';
-import { createToastManager } from '../createToastManager';
+import type {
+  ToastObject,
+  UseToastManagerAddOptions,
+  UseToastManagerPromiseOptions,
+  UseToastManagerUpdateOptions,
+} from '../useToastManager';
+import type { ToastManager } from '../createToastManager';
 
 interface TimerInfo {
   timeout?: Timeout;
@@ -184,7 +189,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   });
 
   const add = useStableCallback(
-    <Data extends object>(toast: useToastManager.AddOptions<Data>): string => {
+    <Data extends object>(toast: UseToastManagerAddOptions<Data>): string => {
       const id = toast.id || generateId('toast');
       const toastToAdd: ToastObject<Data> = {
         ...toast,
@@ -225,7 +230,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   );
 
   const update = useStableCallback(
-    <Data extends object>(id: string, updates: useToastManager.UpdateOptions<Data>) => {
+    <Data extends object>(id: string, updates: UseToastManagerUpdateOptions<Data>) => {
       setToasts((prev) =>
         prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
       );
@@ -235,7 +240,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const promise = useStableCallback(
     <Value, Data extends object>(
       promiseValue: Promise<Value>,
-      options: useToastManager.PromiseOptions<Value, Data>,
+      options: UseToastManagerPromiseOptions<Value, Data>,
     ): Promise<Value> => {
       // Create a loading toast (which does not auto-dismiss).
       const loadingOptions = resolvePromiseOptions(options.loading);
@@ -376,7 +381,7 @@ export interface ToastProviderProps {
   /**
    * A global manager for toasts to use outside of a React component.
    */
-  toastManager?: createToastManager.ToastManager;
+  toastManager?: ToastManager;
 }
 
 export namespace ToastProvider {
