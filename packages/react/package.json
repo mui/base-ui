@@ -89,7 +89,7 @@
     "@floating-ui/react-dom": "^2.1.6",
     "@floating-ui/utils": "^0.2.10",
     "reselect": "^5.1.1",
-    "tabbable": "^6.2.0",
+    "tabbable": "^6.3.0",
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
