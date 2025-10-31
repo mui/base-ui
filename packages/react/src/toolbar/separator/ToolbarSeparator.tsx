@@ -27,9 +27,16 @@ export const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
 });
 
 export interface ToolbarSeparatorProps
-  extends BaseUIComponentProps<'div', Separator.State>,
-    Separator.Props {}
+  extends BaseUIComponentProps<'div', ToolbarSeparator.State>,
+    Separator.Props {
+  orientation?: ToolbarRoot.Orientation;
+}
+
+export interface ToolbarSeparatorState extends Separator.State {
+  orientation: ToolbarRoot.Orientation;
+}
 
 export namespace ToolbarSeparator {
   export type Props = ToolbarSeparatorProps;
+  export type State = ToolbarSeparatorState;
 }

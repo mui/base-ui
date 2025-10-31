@@ -57,7 +57,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
 
   const formatOptionsRef = useLatestRef(format);
 
-  let status: ProgressStatus = 'indeterminate';
+  let status: ProgressRoot.Status = 'indeterminate';
   if (Number.isFinite(value)) {
     status = value === max ? 'complete' : 'progressing';
   }
@@ -104,10 +104,10 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   );
 });
 
-export type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
+export type ProgressRootStatus = 'indeterminate' | 'progressing' | 'complete';
 
 export interface ProgressRootState {
-  status: ProgressStatus;
+  status: ProgressRoot.Status;
 }
 
 export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressRoot.State> {
@@ -148,4 +148,5 @@ export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressR
 export namespace ProgressRoot {
   export type State = ProgressRootState;
   export type Props = ProgressRootProps;
+  export type Status = ProgressRootStatus;
 }
