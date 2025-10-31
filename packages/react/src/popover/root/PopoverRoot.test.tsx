@@ -580,12 +580,18 @@ describe('<Popover.Root />', () => {
 
           await user.tab({ shift: true });
 
-          expect(screen.getByRole('button')).toHaveFocus();
+          await waitFor(() => {
+            expect(screen.getByRole('button')).toHaveFocus();
+          });
 
-          expect(screen.queryByTestId('popup')).to.toBeVisible();
+          await waitFor(() => {
+            expect(screen.queryByTestId('popup')).toBeVisible();
+          });
 
           await user.tab();
-          expect(screen.getByTestId('input-inside')).toHaveFocus();
+          await waitFor(() => {
+            expect(screen.getByTestId('input-inside')).toHaveFocus();
+          });
         },
       );
     });
