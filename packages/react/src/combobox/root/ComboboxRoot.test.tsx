@@ -605,16 +605,16 @@ describe('<Combobox.Root />', () => {
       });
     });
 
-    it('Enter selects when focus is on Listbox', async () => {
+    it('clicking on "listbox" keeps the focus on the input', async () => {
       const items = ['apple', 'banana', 'cherry'];
 
       const { user } = await render(
         <Combobox.Root items={items}>
-          <Combobox.Input data-testid="input" />
+          <Combobox.Input />
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>
-                <Combobox.List data-testid="listbox">
+                <Combobox.List>
                   {(item: string) => (
                     <Combobox.Item key={item} value={item}>
                       {item}
@@ -627,16 +627,16 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const input = screen.getByTestId('input');
+      const input = screen.getByRole('combobox');
 
       await user.click(input);
       await waitFor(() => {
         expect(screen.getByRole('listbox')).not.to.equal(null);
       });
 
-      const listbox = screen.getByTestId('listbox');
+      const listbox = screen.getByRole('listbox');
       await user.click(listbox);
-      expect(listbox).toHaveFocus();
+      expect(input).toHaveFocus();
 
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{Enter}');
