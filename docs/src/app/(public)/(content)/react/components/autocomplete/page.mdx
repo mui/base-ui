@@ -88,15 +88,15 @@ Accepts all `Intl.CollatorOptions`, plus the following option:
   type="return"
   data={{
     contains: {
-      type: '(itemValue: any, query: string) => boolean',
+      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
       description: 'Returns whether the item matches the query anywhere.',
     },
     startsWith: {
-      type: '(itemValue: any, query: string) => boolean',
+      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
       description: 'Returns whether the item starts with the query.',
     },
     endsWith: {
-      type: '(itemValue: any, query: string) => boolean',
+      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
       description: 'Returns whether the item ends with the query.',
     },
   }}
