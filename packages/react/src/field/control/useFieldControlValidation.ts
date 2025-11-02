@@ -36,21 +36,21 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
 }
 
 export function useFieldControlValidation() {
+  const { formRef, clearErrors } = useFormContext();
+
   const {
     setValidityData,
     validate,
     validityData,
-    validationMode,
     validationDebounceTime,
     invalid,
     markedDirtyRef,
     state,
     name,
+    shouldValidateOnChange,
   } = useFieldRootContext();
 
   const { controlId, getDescriptionProps } = useLabelableContext();
-
-  const { formRef, clearErrors } = useFormContext();
 
   const timeout = useTimeout();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -153,11 +153,17 @@ export function useFieldControlValidation() {
     const nextState = getState(element);
 
     let defaultValidationMessage;
+    const validateOnChange = shouldValidateOnChange();
 
-    if (element.validationMessage) {
+    if (element.validationMessage && !validateOnChange) {
+      // not validating on change, if there is a `validationMessage` from
+      // native validity, set errors and skip calling the custom validate fn
       defaultValidationMessage = element.validationMessage;
       validationErrors = [element.validationMessage];
     } else {
+      // call the validate function because either
+      // - validating on change, or
+      // - native constraint validations passed, custom validity check is next
       const formValues = Array.from(formRef.current.fields.values()).reduce(
         (acc, field) => {
           if (field.name && field.getValueRef) {
@@ -189,6 +195,18 @@ export function useFieldControlValidation() {
         } else if (result) {
           validationErrors = [result];
           element.setCustomValidity(result);
+        }
+      } else if (validateOnChange) {
+        // validate function returned no errors, if validating on change
+        // we need to clear the custom validity state
+        element.setCustomValidity('');
+        nextState.customError = false;
+
+        if (element.validationMessage) {
+          defaultValidationMessage = element.validationMessage;
+          validationErrors = [element.validationMessage];
+        } else if (element.validity.valid && !nextState.valid) {
+          nextState.valid = true;
         }
       }
     }
@@ -236,7 +254,7 @@ export function useFieldControlValidation() {
 
             clearErrors(name);
 
-            if (validationMode !== 'onChange') {
+            if (!shouldValidateOnChange()) {
               commitValidation(event.currentTarget.value, true);
               return;
             }
@@ -273,8 +291,8 @@ export function useFieldControlValidation() {
       timeout,
       commitValidation,
       invalid,
-      validationMode,
       validationDebounceTime,
+      shouldValidateOnChange,
     ],
   );
 

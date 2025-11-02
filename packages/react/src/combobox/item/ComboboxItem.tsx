@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
@@ -160,7 +161,17 @@ export const ComboboxItem = React.memo(
         if (disabled || readOnly) {
           return;
         }
-        store.state.handleSelection(event.nativeEvent, value);
+
+        function selectItem() {
+          store.state.handleSelection(event.nativeEvent, value);
+        }
+
+        if (store.state.submitOnItemClick) {
+          ReactDOM.flushSync(selectItem);
+          store.state.requestSubmit();
+        } else {
+          selectItem();
+        }
       },
     };
 

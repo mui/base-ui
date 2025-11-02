@@ -54,6 +54,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
   const programmaticScrollRef = React.useRef(true);
   const scrollEndTimeout = useTimeout();
+  const waitForAnimationsTimeout = useTimeout();
 
   function computeThumbPositionHandler() {
     const viewportEl = viewportRef.current;
@@ -255,20 +256,33 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   }, [viewportRef, setHovering]);
 
   React.useEffect(() => {
-    if (typeof ResizeObserver === 'undefined') {
+    const viewport = viewportRef.current;
+    if (typeof ResizeObserver === 'undefined' || !viewport) {
       return undefined;
     }
 
     const ro = new ResizeObserver(computeThumbPosition);
 
-    if (viewportRef.current) {
-      ro.observe(viewportRef.current);
-    }
+    ro.observe(viewport);
+
+    // If there are animations in the viewport, wait for them to finish and then recompute the thumb position.
+    // This is necessary when the viewport contains a Dialog that is animating its popup on open
+    // and the popup is using a transform for the animation, which affects the size of the viewport.
+    // Without this, the thumb position will be incorrect until scrolling (i.e. if the scrollbar shows
+    // on hover, the thumb has an incorrect size).
+    // We assume the user is using `onOpenChangeComplete` to hide the scrollbar
+    // until animations complete because otherwise the scrollbar would show the thumb resizing mid-animation.
+    waitForAnimationsTimeout.start(0, () => {
+      Promise.all(viewport.getAnimations({ subtree: true }).map((animation) => animation.finished))
+        .then(computeThumbPosition)
+        .catch(() => {});
+    });
 
     return () => {
       ro.disconnect();
+      waitForAnimationsTimeout.clear();
     };
-  }, [computeThumbPosition, viewportRef]);
+  }, [computeThumbPosition, viewportRef, waitForAnimationsTimeout]);
 
   function handleUserInteraction() {
     programmaticScrollRef.current = false;
