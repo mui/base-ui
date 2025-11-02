@@ -9,8 +9,8 @@
     "release:version": "lerna version --no-changelog --no-push --no-git-tag-version --no-private",
     "release:build": "lerna run --concurrency 8 --no-private build --skip-nx-cache",
     "release:changelog": "tsx scripts/releaseChangelog.mts",
-    "release:publish": "pnpm publish --recursive --tag latest",
-    "release:publish:dry-run": "pnpm publish --recursive --tag latest --registry=\"http://localhost:4873/\"",
+    "release:publish": "code-infra publish --github-release",
+    "release:publish:dry-run": "code-infra publish --github-release --dry-run ",
     "docs:api": "pnpm --filter api-docs-builder start",
     "docs:build": "pnpm --filter docs generate-llms && pnpm --filter docs build",
     "docs:deploy": "pnpm --filter docs run deploy",
@@ -20,8 +20,8 @@
     "docs:link-check": "pnpm --filter docs link-check",
     "docs:generate-llms": "pnpm --filter docs run generate-llms",
     "extract-error-codes": "code-infra extract-error-codes --errorCodesPath docs/src/error-codes.json --detection opt-out",
-    "eslint": "eslint . --cache --report-unused-disable-directives --ext .js,.ts,.tsx,.mts --max-warnings 0 && pnpm -r lint",
-    "eslint:ci": "eslint . --report-unused-disable-directives --ext .js,.ts,.tsx,.mts --max-warnings 0 && pnpm -r lint",
+    "eslint": "eslint . --cache --report-unused-disable-directives --max-warnings 0 && pnpm -r lint",
+    "eslint:ci": "eslint . --report-unused-disable-directives --max-warnings 0 && pnpm -r lint",
     "stylelint": "stylelint --reportInvalidScopeDisables --reportNeedlessDisables \"docs/**/*.{js,ts,tsx}\" \"**/*.css\" --ignore-path .lintignore",
     "markdownlint": "markdownlint-cli2 \"**/*.{md,mdx}\"",
     "valelint": "pnpm vale sync && git ls-files | grep -h \".md$\" | xargs pnpm vale --filter='.Level==\"error\"'",
@@ -53,7 +53,8 @@
     "test:browsers": "cross-env VITEST_ENV=all-browsers pnpm test:_unit",
     "test:argos": "code-infra argos-push --folder test/regressions/screenshots/chrome",
     "typescript": "tsc -b tsconfig.json",
-    "inline-scripts": "tsx ./scripts/inlineScripts.mts"
+    "inline-scripts": "tsx ./scripts/inlineScripts.mts",
+    "use-react-18": "code-infra set-version-overrides --pkg react@18"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",

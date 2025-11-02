@@ -3568,7 +3568,7 @@ describe('<Combobox.Root />', () => {
 
     it('prop: validate', async () => {
       await render(
-        <Field.Root validate={() => 'error'}>
+        <Field.Root validationMode="onBlur" validate={() => 'error'}>
           <Combobox.Root>
             <Combobox.Input data-testid="input" />
             <Combobox.Portal>
@@ -3586,6 +3586,52 @@ describe('<Combobox.Root />', () => {
       fireEvent.blur(input);
 
       await flushMicrotasks();
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('prop: validationMode=onSubmit', async () => {
+      const { user } = await render(
+        <Form>
+          <Field.Root validate={(val) => (val === 'a' ? 'error' : null)}>
+            <Combobox.Root required>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Clear data-testid="clear" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="a">a</Combobox.Item>
+                      <Combobox.Item value="b">b</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByTestId('input');
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      await user.click(screen.getByText('submit'));
+      expect(input).to.have.attribute('aria-invalid', 'true');
+
+      await user.click(input);
+
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      const clear = screen.getByTestId('clear');
+      await user.click(clear);
+
+      expect(document.activeElement).to.equal(input);
+      await user.keyboard('{Tab}');
 
       expect(input).to.have.attribute('aria-invalid', 'true');
     });

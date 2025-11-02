@@ -152,8 +152,14 @@ export function useDismiss(
     dismissOnTouchEnd: boolean;
     dismissOnMouseDown: boolean;
   } | null>(null);
+
   const cancelDismissOnEndTimeout = useTimeout();
-  const insideReactTreeEventRef = React.useRef<Event | null>(null);
+  const clearInsideReactTreeTimeout = useTimeout();
+
+  const clearInsideReactTree = useStableCallback(() => {
+    clearInsideReactTreeTimeout.clear();
+    dataRef.current.insideReactTree = false;
+  });
 
   const isComposingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
@@ -227,24 +233,9 @@ export function useDismiss(
     );
   });
 
-  const markInsideReactTree = useStableCallback((event: React.SyntheticEvent) => {
-    insideReactTreeEventRef.current = event.nativeEvent;
+  const markInsideReactTree = useStableCallback(() => {
     dataRef.current.insideReactTree = true;
-  });
-
-  const clearInsideReactTree = useStableCallback(() => {
-    insideReactTreeEventRef.current = null;
-    dataRef.current.insideReactTree = false;
-  });
-
-  const shouldSkipInsideReactTreeEvent = useStableCallback((event: Event) => {
-    if (!dataRef.current.insideReactTree) {
-      return false;
-    }
-
-    const isSameEvent = insideReactTreeEventRef.current === event;
-    clearInsideReactTree();
-    return isSameEvent;
+    clearInsideReactTreeTimeout.start(0, clearInsideReactTree);
   });
 
   const closeOnPressOutside = useStableCallback(
@@ -254,7 +245,8 @@ export function useDismiss(
         return;
       }
 
-      if (shouldSkipInsideReactTreeEvent(event)) {
+      if (dataRef.current.insideReactTree) {
+        clearInsideReactTree();
         return;
       }
 
@@ -366,6 +358,7 @@ export function useDismiss(
       }
 
       onOpenChange(false, createChangeEventDetails('outside-press', event));
+      clearInsideReactTree();
     },
   );
 
@@ -430,15 +423,6 @@ export function useDismiss(
     // - The click ended inside the floating element.
     const endedOrStartedInside = endedOrStartedInsideRef.current;
     endedOrStartedInsideRef.current = false;
-
-    if (shouldIgnoreEvent(event)) {
-      clearInsideReactTree();
-      return;
-    }
-
-    if (shouldSkipInsideReactTreeEvent(event)) {
-      return;
-    }
 
     cancelDismissOnEndTimeout.clear();
 
