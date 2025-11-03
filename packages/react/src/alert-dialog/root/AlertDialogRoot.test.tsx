@@ -128,6 +128,26 @@ describe('<AlertDialog.Root />', () => {
       expect(handleOpenChange.callCount).to.equal(1);
       expect(handleOpenChange.firstCall.args[1].reason).to.equal('escape-key');
     });
+
+    it('does not close when the backdrop is clicked', async () => {
+      const handleOpenChange = spy();
+
+      const { user } = await render(
+        <AlertDialog.Root defaultOpen onOpenChange={handleOpenChange}>
+          <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>,
+      );
+
+      await user.click(screen.getByRole('presentation', { hidden: true }));
+
+      expect(handleOpenChange.callCount).to.equal(0);
+      expect(screen.queryByRole('alertdialog')).not.to.equal(null);
+    });
   });
 
   describe('prop: actionsRef', () => {
