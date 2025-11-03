@@ -7,7 +7,6 @@ import { useId } from '@base-ui-components/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
-import { StoreInspector } from '@base-ui-components/utils/store';
 import {
   FloatingTree,
   useDismiss,
@@ -34,7 +33,6 @@ import {
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
-import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
 import { mergeProps } from '../../merge-props';
 import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
 import { MenuStore } from '../store/MenuStore';
@@ -114,6 +112,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
+  const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
@@ -138,6 +137,25 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       );
     }
   }
+
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  store.useSyncedValues({ mounted, transitionStatus });
+
+  let resolvedTriggerId: string | null = null;
+  if (mounted === true && triggerIdProp === undefined && triggers.size === 1) {
+    resolvedTriggerId = triggers.keys().next().value || null;
+  } else {
+    resolvedTriggerId = activeTriggerId ?? null;
+  }
+
+  useIsoLayoutEffect(() => {
+    if (open) {
+      store.set('activeTriggerId', resolvedTriggerId);
+      if (resolvedTriggerId == null) {
+        store.set('payload', undefined);
+      }
+    }
+  }, [store, resolvedTriggerId, open]);
 
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
@@ -164,9 +182,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       allowOutsidePressDismissalRef.current = true;
     });
   }, [allowOutsidePressDismissalTimeout, open, parent.type]);
-
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  store.useSyncedValues({ mounted, transitionStatus });
 
   const {
     openMethod,
@@ -402,6 +417,9 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   const setActiveIndex = React.useCallback(
     (index: number | null) => {
+      if (store.select('activeIndex') === index) {
+        return;
+      }
       store.set('activeIndex', index);
     },
     [store],
@@ -440,7 +458,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     onTypingChange,
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps, getItemProps, getTriggerProps } = useInteractions([
     dismiss,
     focus,
     role,
@@ -448,13 +466,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     typeahead,
   ]);
 
-  const mixedToggleHandlers = useMixedToggleClickHandler({
-    open,
-    enabled: parent.type === 'menubar',
-    mouseDownAction: 'open',
-  });
-
-  const triggerProps = React.useMemo(() => {
+  const activeTriggerProps = React.useMemo(() => {
     const referenceProps = mergeProps(
       getReferenceProps(),
       {
@@ -466,13 +478,27 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
         },
       },
       interactionTypeProps,
-      mixedToggleHandlers,
     );
     delete referenceProps.role;
     return referenceProps;
-  }, [getReferenceProps, mixedToggleHandlers, store, interactionTypeProps]);
+  }, [getReferenceProps, store, interactionTypeProps]);
 
   const disableHoverTimeout = useAnimationFrame();
+
+  const inactiveTriggerProps = React.useMemo(() => {
+    const triggerProps = getTriggerProps();
+    if (!triggerProps) {
+      return triggerProps;
+    }
+
+    const {
+      role: roleDiscarded,
+      ['aria-expanded']: ariaExpandedDiscarded,
+      ['aria-controls']: ariaControlsDiscarded,
+      ...rest
+    } = triggerProps;
+    return rest;
+  }, [getTriggerProps]);
 
   const popupProps = React.useMemo(
     () =>
@@ -498,7 +524,8 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
 
   store.useSyncedValues({
-    activeTriggerProps: triggerProps,
+    activeTriggerProps,
+    inactiveTriggerProps,
     popupProps,
     itemProps,
   });
@@ -513,7 +540,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const content = (
     <MenuRootContext.Provider value={context as MenuRootContext}>
       {typeof children === 'function' ? children({ payload }) : children}
-      <StoreInspector store={store} />
     </MenuRootContext.Provider>
   );
 

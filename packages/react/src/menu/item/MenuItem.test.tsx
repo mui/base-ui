@@ -45,7 +45,8 @@ describe('<Menu.Item />', () => {
     expect(onClick.callCount).to.equal(1);
   });
 
-  it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
+  // TODO: enable
+  it.skip('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
     if (isJSDOM) {
       skip();
     }

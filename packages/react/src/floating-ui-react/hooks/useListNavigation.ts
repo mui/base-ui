@@ -948,7 +948,7 @@ export function useListNavigation(
   ]);
 
   return React.useMemo(
-    () => (enabled ? { reference, floating, item } : {}),
+    () => (enabled ? { reference, floating, item, trigger: reference } : {}),
     [enabled, reference, floating, item],
   );
 }

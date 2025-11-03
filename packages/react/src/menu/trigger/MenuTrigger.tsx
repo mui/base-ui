@@ -23,6 +23,7 @@ import { findRootOwnerId } from '../utils/findRootOwnerId';
 import { useTriggerRegistration } from '../../utils/popupStoreUtils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { REASONS } from '../../utils/reasons';
+import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -42,7 +43,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     disabled: disabledProp = false,
     nativeButton = true,
     id: idProp,
-    openOnHover: openOnHoverProp = false,
+    openOnHover: openOnHoverProp,
     delay = 100,
     closeDelay = 0,
     ...elementProps
@@ -158,6 +159,12 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     stickIfOpen: parent.type === undefined ? stickIfOpen : false,
   });
 
+  const mixedToggleHandlers = useMixedToggleClickHandler({
+    open,
+    enabled: parent.type === 'menubar',
+    mouseDownAction: 'open',
+  });
+
   const localInteractionProps = useInteractions([click, hover]);
 
   const isMenubar = parent.type === 'menubar';
@@ -213,7 +220,9 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const props = [
     localInteractionProps.getReferenceProps(),
     isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
-    { id },
+    // TODO: figure out why 'aria-expanded' from useRole doesn't work
+    { id, 'aria-expanded': open && isTriggerActive ? 'true' : 'false' },
+    mixedToggleHandlers,
     elementProps,
     getTriggerProps,
   ];
