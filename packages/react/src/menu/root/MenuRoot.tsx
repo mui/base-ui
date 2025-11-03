@@ -169,11 +169,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   store.useSyncedValues({ mounted, transitionStatus });
 
-  const {
-    openMethod,
-    triggerProps: interactionTypeProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  const { triggerProps: interactionTypeProps, reset: resetOpenInteractionType } =
+    useOpenInteractionType(open);
 
   useScrollLock({
     enabled: open && modal && lastOpenChangeReason !== 'trigger-hover',
