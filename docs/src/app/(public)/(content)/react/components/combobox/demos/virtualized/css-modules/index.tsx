@@ -103,6 +103,8 @@ export default function ExampleVirtualizedCombobox() {
                       return (
                         <Combobox.Item
                           key={virtualItem.key}
+                          data-index={virtualItem.index}
+													ref={virtualizer.measureElement}
                           index={virtualItem.index}
                           value={item}
                           className={styles.Item}
@@ -114,7 +116,6 @@ export default function ExampleVirtualizedCombobox() {
                             left: 0,
                             width: '100%',
                             height: `${virtualItem.size}px`,
-                            transform: `translateY(${virtualItem.start}px)`,
                           }}
                         >
                           <Combobox.ItemIndicator className={styles.ItemIndicator}>
