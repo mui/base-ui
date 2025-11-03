@@ -8,13 +8,15 @@ export default function ExampleVirtualizedAutocomplete() {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
 
+  const deferredSearchValue = React.useDeferredValue(searchValue);
+
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
 
-  const { contains } = Autocomplete.useFilter({ sensitivity: 'base' });
+  const { contains } = Autocomplete.useFilter();
 
   const filteredItems = React.useMemo(() => {
-    return virtualItems.filter((item) => contains(item, searchValue));
-  }, [contains, searchValue]);
+    return virtualizedItems.filter((item) => contains(item, deferredSearchValue, getItemLabel));
+  }, [contains, deferredSearchValue]);
 
   const virtualizer = useVirtualizer({
     enabled: open,
@@ -24,10 +26,12 @@ export default function ExampleVirtualizedAutocomplete() {
     overscan: 20,
     paddingStart: 8,
     paddingEnd: 8,
+    scrollPaddingEnd: 8,
+    scrollPaddingStart: 8,
   });
 
   const handleScrollElementRef = React.useCallback(
-    (element: HTMLDivElement) => {
+    (element: HTMLDivElement | null) => {
       scrollElementRef.current = element;
       if (element) {
         virtualizer.measure();
@@ -42,12 +46,14 @@ export default function ExampleVirtualizedAutocomplete() {
   return (
     <Autocomplete.Root
       virtualized
-      items={virtualItems}
+      items={virtualizedItems}
+      filteredItems={filteredItems}
       open={open}
       onOpenChange={setOpen}
       value={searchValue}
       onValueChange={setSearchValue}
       openOnInputClick
+      itemToStringValue={getItemLabel}
       onItemHighlighted={(item, { reason, index }) => {
         if (!item) {
           return;
@@ -64,7 +70,7 @@ export default function ExampleVirtualizedAutocomplete() {
       }}
     >
       <label className={styles.Label}>
-        Search 10,000 items (virtualized)
+        Search 10,000 items
         <Autocomplete.Input className={styles.Input} />
       </label>
 
@@ -108,7 +114,7 @@ export default function ExampleVirtualizedAutocomplete() {
                             transform: `translateY(${virtualItem.start}px)`,
                           }}
                         >
-                          {item}
+                          {item.name}
                         </Autocomplete.Item>
                       );
                     })}
@@ -123,7 +129,17 @@ export default function ExampleVirtualizedAutocomplete() {
   );
 }
 
-const virtualItems = Array.from({ length: 10000 }, (_, i) => {
-  const indexLabel = String(i + 1).padStart(4, '0');
-  return `Item ${indexLabel}`;
+interface VirtualizedItem {
+  id: string;
+  name: string;
+}
+
+function getItemLabel(item: VirtualizedItem | null) {
+  return item ? item.name : '';
+}
+
+const virtualizedItems: VirtualizedItem[] = Array.from({ length: 10000 }, (_, index) => {
+  const id = String(index + 1);
+  const indexLabel = id.padStart(4, '0');
+  return { id, name: `Item ${indexLabel}` };
 });

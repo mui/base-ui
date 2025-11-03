@@ -104,7 +104,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
       },
       elementProps,
     ],
-    ref: [forwardedRef, store.context.popupRef, store.getElementSetter('popupElement')],
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
     stateAttributesMapping,
   });
 
