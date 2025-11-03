@@ -24,6 +24,7 @@ import { useTriggerRegistration } from '../../utils/popupStoreUtils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { REASONS } from '../../utils/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
+import { MenuHandle } from '../store/MenuHandle';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -46,10 +47,17 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     openOnHover: openOnHoverProp,
     delay = 100,
     closeDelay = 0,
+    handle,
     ...elementProps
   } = componentProps;
 
-  const { store } = useMenuRootContext();
+  const rootContext = useMenuRootContext(true);
+  const store = handle?.store ?? rootContext?.store;
+  if (!store) {
+    throw new Error(
+      'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
+    );
+  }
 
   const rootActiveTriggerProps = store.useState('activeTriggerProps');
   const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
@@ -252,7 +260,13 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   return element;
 });
 
-export interface MenuTriggerProps
+export interface MenuTrigger {
+  <Payload>(
+    componentProps: MenuTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
+}
+
+export interface MenuTriggerProps<Payload = unknown>
   extends NativeButtonProps,
     BaseUIComponentProps<'button', MenuTrigger.State> {
   children?: React.ReactNode;
@@ -261,6 +275,14 @@ export interface MenuTriggerProps
    * @default false
    */
   disabled?: boolean;
+  /**
+   * A handle to associate the trigger with a menu.
+   */
+  handle?: MenuHandle<Payload>;
+  /**
+   * A payload to pass to the menu when it is opened.
+   */
+  payload?: Payload;
   /**
    * How long to wait before the menu may be opened on hover. Specified in milliseconds.
    *
@@ -290,6 +312,6 @@ export type MenuTriggerState = {
 };
 
 export namespace MenuTrigger {
-  export type Props = MenuTriggerProps;
+  export type Props<Payload = unknown> = MenuTriggerProps<Payload>;
   export type State = MenuTriggerState;
 }
