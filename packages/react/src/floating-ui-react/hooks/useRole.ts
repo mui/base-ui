@@ -45,7 +45,9 @@ export function useRole(context: FloatingRootContext, props: UseRoleProps = {}):
     [elements.floating, defaultFloatingId],
   );
 
-  const triggerIds = elements.triggers?.map((trigger) => trigger.id).filter(Boolean) as string[];
+  const triggerIds = (
+    elements.triggers?.map((trigger) => trigger.id).filter(Boolean) as string[]
+  ).join(' ');
 
   const ariaRole = (componentRoleToAriaRoleMap.get(role) ?? role) as AriaRole | false | undefined;
 
@@ -96,7 +98,7 @@ export function useRole(context: FloatingRootContext, props: UseRoleProps = {}):
     return {
       ...floatingProps,
       ...(ariaRole === 'menu' && {
-        'aria-labelledby': triggerIds.length > 0 ? triggerIds.join(' ') : referenceId,
+        'aria-labelledby': triggerIds.length > 0 ? triggerIds : referenceId,
       }),
     };
   }, [ariaRole, floatingId, referenceId, role, triggerIds]);
