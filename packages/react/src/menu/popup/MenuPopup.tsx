@@ -37,7 +37,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const { render, className, finalFocus, ...elementProps } = componentProps;
 
   const { store } = useMenuRootContext();
-  const { side, align, floatingContext } = useMenuPositionerContext();
+  const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
 
   const open = store.useState('open');
@@ -49,6 +49,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
+  const floatingContext = store.useState('floatingRootContext');
 
   useOpenChangeComplete({
     open,

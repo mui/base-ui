@@ -227,7 +227,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       arrowRef: positioner.arrowRef,
       arrowUncentered: positioner.arrowUncentered,
       arrowStyles: positioner.arrowStyles,
-      floatingContext: positioner.context,
+      nodeId: positioner.context.nodeId,
     }),
     [
       positioner.side,
@@ -235,7 +235,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       positioner.arrowRef,
       positioner.arrowUncentered,
       positioner.arrowStyles,
-      positioner.context,
+      positioner.context.nodeId,
     ],
   );
 

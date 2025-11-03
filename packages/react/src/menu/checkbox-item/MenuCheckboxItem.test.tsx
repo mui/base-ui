@@ -21,8 +21,7 @@ describe('<Menu.CheckboxItem />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  // TODO: enable
-  it.skip('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
+  it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
     if (isJSDOM) {
       skip();
     }

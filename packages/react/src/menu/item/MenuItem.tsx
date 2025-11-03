@@ -47,7 +47,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
     menuEvents,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.floatingContext.nodeId,
+    nodeId: menuPositionerContext?.nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 

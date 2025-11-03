@@ -83,7 +83,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     store,
     nativeButton,
     itemMetadata,
-    nodeId: menuPositionerContext?.floatingContext.nodeId,
+    nodeId: menuPositionerContext?.nodeId,
   });
 
   const hover = useHover(floatingRootContext, {
