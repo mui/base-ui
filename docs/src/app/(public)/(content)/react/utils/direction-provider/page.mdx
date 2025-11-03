@@ -21,7 +21,7 @@ import { DirectionProvider } from '@base-ui-components/react/direction-provider'
 </DirectionProvider>
 ```
 
-This only affects component interactions and behavior, you must additionally set `dir="rtl"` to affect HTML and CSS.
+`<DirectionProvider>` enables child Base UI components to adjust behavior based on RTL text direction, but does not affect HTML and CSS. The `dir="rtl"` HTML attribute or `direction: rtl` CSS style must be set additionally by your own application code.
 
 ## API reference
 
@@ -29,7 +29,7 @@ This only affects component interactions and behavior, you must additionally set
 
 ## useDirection
 
-Use this hook to read the current text direction. This is useful for wrapping portalled components that may be rendered outside your application root and are un-affected by the `dir` attribute set within.
+Use this hook to read the current text direction. This is useful for wrapping portalled components that may be rendered outside your application root and are unaffected by the `dir` attribute set within.
 
 ### Return value
 
