@@ -105,6 +105,8 @@ export default function ExampleVirtualizedCombobox() {
                         <Combobox.Item
                           key={virtualItem.key}
                           index={virtualItem.index}
+                          data-index={virtualItem.index}
+													ref={virtualizer.measureElement}
                           value={item}
                           className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
                           aria-setsize={filteredItems.length}
@@ -114,7 +116,6 @@ export default function ExampleVirtualizedCombobox() {
                             top: 0,
                             left: 0,
                             width: '100%',
-                            height: `${virtualItem.size}px`,
                             transform: `translateY(${virtualItem.start}px)`,
                           }}
                         >
