@@ -1184,7 +1184,9 @@ describe('<Tooltip.Root />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
 
-      expect(screen.queryByTestId(popupId)).to.equal(null);
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).to.equal(null);
+      });
 
       await user.hover(trigger1);
       await waitFor(() => {
