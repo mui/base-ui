@@ -29,39 +29,31 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     ...elementProps
   } = componentProps;
 
-  const id = useBaseUiId(idProp);
-
-  const {
-    triggerProps: rootTriggerProps,
-    parent,
-    setTriggerElement,
-    open,
-    typingRef,
-    disabled,
-    allowMouseUpTriggerRef,
-  } = useMenuRootContext();
+  const listItem = useCompositeListItem();
   const menuPositionerContext = useMenuPositionerContext();
+  const id = useBaseUiId(idProp);
+  const { events: menuEvents } = useFloatingTree()!;
+
+  const { store } = useMenuRootContext();
+  const rootTriggerProps = store.useState('triggerProps');
+  const open = store.useState('open');
+  const parent = store.useState('parent');
+  const disabled = store.useState('disabled');
 
   if (parent.type !== 'menu') {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
-  const parentMenuContext = parent.context;
-
-  const { activeIndex, itemProps, setActiveIndex } = parentMenuContext;
-  const item = useCompositeListItem();
-
-  const highlighted = activeIndex === item.index;
-
-  const { events: menuEvents } = useFloatingTree()!;
+  const parentMenuStore = parent.store;
+  const itemProps = parentMenuStore.useState('itemProps');
+  const highlighted = parentMenuStore.useState('isActive', listItem.index);
 
   const itemMetadata = React.useMemo(
     () => ({
       type: 'submenu-trigger' as const,
-      setActive: () => setActiveIndex(item.index),
-      allowMouseEnterEnabled: parentMenuContext.allowMouseEnter,
+      setActive: () => parentMenuStore.set('activeIndex', listItem.index),
     }),
-    [setActiveIndex, item.index, parentMenuContext.allowMouseEnter],
+    [parentMenuStore, listItem.index],
   );
 
   const { getItemProps, itemRef } = useMenuItem({
@@ -70,8 +62,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     highlighted,
     id,
     menuEvents,
-    allowMouseUpTriggerRef,
-    typingRef,
+    store,
     nativeButton,
     itemMetadata,
     nodeId: menuPositionerContext?.floatingContext.nodeId,
@@ -84,7 +75,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, item.ref, itemRef, setTriggerElement],
     stateAttributesMapping: triggerOpenStateMapping,
     props: [
       rootTriggerProps,
@@ -95,18 +85,18 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
         tabIndex: open || highlighted ? 0 : -1,
         onBlur() {
           if (highlighted) {
-            setActiveIndex(null);
+            parentMenuStore.set('activeIndex', null);
           }
         },
       },
     ],
+    ref: [forwardedRef, listItem.ref, itemRef, store.useStateSetter('triggerElement')],
   });
 });
 
 export interface MenuSubmenuTriggerProps
   extends NonNativeButtonProps,
     BaseUIComponentProps<'div', MenuSubmenuTrigger.State> {
-  children?: React.ReactNode;
   onClick?: React.MouseEventHandler<HTMLElement>;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
@@ -123,6 +113,9 @@ export interface MenuSubmenuTriggerState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the item is highlighted.
+   */
   highlighted: boolean;
   /**
    * Whether the menu is currently open.

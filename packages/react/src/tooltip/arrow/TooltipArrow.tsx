@@ -5,6 +5,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useTooltipRootContext } from '../root/TooltipRootContext';
 
 /**
  * Displays an element positioned against the tooltip anchor.
@@ -17,6 +18,9 @@ export const TooltipArrow = React.forwardRef(function TooltipArrow(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
+  const { store } = useTooltipRootContext();
+
+  const instantType = store.useState('instantType');
 
   const { open, arrowRef, side, align, arrowUncentered, arrowStyles } =
     useTooltipPositionerContext();
@@ -27,8 +31,9 @@ export const TooltipArrow = React.forwardRef(function TooltipArrow(
       side,
       align,
       uncentered: arrowUncentered,
+      instant: instantType,
     }),
-    [open, side, align, arrowUncentered],
+    [open, side, align, arrowUncentered, instantType],
   );
 
   const element = useRenderElement('div', componentProps, {

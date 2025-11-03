@@ -54,6 +54,11 @@
       "description": "Filter function used to match items vs input query.",
       "detailedType": "| ((\n    itemValue: any,\n    query: string,\n    itemToString:\n      | ((itemValue: any) => string)\n      | undefined,\n  ) => boolean)\n| ((\n    itemValue: ItemValue,\n    query: string,\n    itemToString:\n      | ((itemValue: ItemValue) => string)\n| null\n| undefined"
     },
+    "filteredItems": {
+      "type": "any[] | Group[]",
+      "description": "Filtered items to display in the list.\nWhen provided, the list will use these items instead of filtering the `items` prop internally.\nUse when you want to control filtering logic externally with the `useFilter()` hook.",
+      "detailedType": "any[] | Group[] | undefined"
+    },
     "grid": {
       "type": "boolean",
       "default": "false",

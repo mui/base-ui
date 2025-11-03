@@ -27,4 +27,9 @@ export enum TooltipArrowDataAttributes {
    * Present when the tooltip arrow is uncentered.
    */
   uncentered = 'data-uncentered',
+  /**
+   * Present if animations should be instant.
+   * @type {'delay' | 'dismiss' | 'focus'}
+   */
+  instant = 'data-instant',
 }
