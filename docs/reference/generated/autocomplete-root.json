@@ -71,6 +71,12 @@
       "description": "Whether moving the pointer over items should highlight them.",
       "detailedType": "boolean | undefined"
     },
+    "inline": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the list is rendered inline without using the popup.",
+      "detailedType": "boolean | undefined"
+    },
     "itemToStringValue": {
       "type": "((itemValue: any) => string) | ((itemValue: ItemValue) => string)",
       "description": "When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.\nIf the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.",
