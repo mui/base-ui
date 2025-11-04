@@ -6,7 +6,9 @@
   content="A high-quality, unstyled React autocomplete component that renders an input with a list of filtered options."
 />
 
-<Demo path="./demos/hero" />
+import { DemoAutocompleteHero } from './demos/hero';
+
+<DemoAutocompleteHero />
 
 ## Usage guidelines
 
@@ -113,31 +115,41 @@ If using `itemToStringValue`, the value prop on the `<Autocomplete.Item>` must m
 
 Load items asynchronously while typing and render custom status content.
 
-<Demo path="./demos/async" compact />
+import { DemoAutocompleteAsync } from './demos/async';
+
+<DemoAutocompleteAsync compact />
 
 ### Inline autocomplete
 
 Autofill the input with the highlighted item while navigating with arrow keys using the `mode` prop. Accepts `aria-autocomplete` values `list`, `both`, `inline`, or `none`.
 
-<Demo path="./demos/inline" compact />
+import { DemoAutocompleteInline } from './demos/inline';
+
+<DemoAutocompleteInline compact />
 
 ### Grouped
 
 Organize related options with `<Autocomplete.Group>` and `<Autocomplete.GroupLabel>` to add section headings inside the popup.
 
-<Demo path="./demos/grouped" compact />
+import { DemoAutocompleteGrouped } from './demos/grouped';
+
+<DemoAutocompleteGrouped compact />
 
 ### Fuzzy matching
 
 Use fuzzy matching to find relevant results even when the query doesn't exactly match the item text.
 
-<Demo path="./demos/fuzzy-matching" compact />
+import { DemoAutocompleteFuzzyMatching } from './demos/fuzzy-matching';
+
+<DemoAutocompleteFuzzyMatching compact />
 
 ### Limit results
 
 Limit the number of visible items using the `limit` prop and guide users to refine their query using `<Autocomplete.Status>`.
 
-<Demo path="./demos/limit" compact />
+import { DemoAutocompleteLimit } from './demos/limit';
+
+<DemoAutocompleteLimit compact />
 
 ### Auto highlight
 
@@ -145,16 +157,22 @@ The first matching item can be automatically highlighted as the user types by sp
 
 The prop can be combined with the `keepHighlight` and `highlightItemOnHover` props to configure how the highlight behaves during mouse interactions.
 
-<Demo path="./demos/auto-highlight" compact />
+import { DemoAutocompleteAutoHighlight } from './demos/auto-highlight';
+
+<DemoAutocompleteAutoHighlight compact />
 
 ### Grid layout
 
 Display items in a grid layout, wrapping each row in `<Autocomplete.Row>` components.
 
-<Demo path="./demos/grid" compact />
+import { DemoAutocompleteGrid } from './demos/grid';
+
+<DemoAutocompleteGrid compact />
 
 ### Virtualized
 
 Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
 
-<Demo path="./demos/virtualized" compact />
+import { DemoAutocompleteVirtualized } from './demos/virtualized';
+
+<DemoAutocompleteVirtualized compact />

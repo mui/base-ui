@@ -23,6 +23,7 @@ export const isIOS =
 
 export const isFirefox = hasNavigator && /firefox/i.test(userAgent);
 export const isSafari = hasNavigator && /apple/i.test(navigator.vendor);
+export const isEdge = hasNavigator && /Edg/i.test(userAgent);
 export const isAndroid = (hasNavigator && /android/i.test(platform)) || /android/i.test(userAgent);
 export const isMac =
   hasNavigator && platform.toLowerCase().startsWith('mac') && !navigator.maxTouchPoints;
