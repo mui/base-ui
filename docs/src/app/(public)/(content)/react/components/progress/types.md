@@ -37,7 +37,13 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type ProgressRootState = { status: ProgressStatus };
+type ProgressRootState = { status: Progress.Root.Status };
+```
+
+### Root.Status
+
+```typescript
+type ProgressRootStatus = 'indeterminate' | 'progressing' | 'complete';
 ```
 
 ### Value

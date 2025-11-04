@@ -136,3 +136,9 @@ type CheckboxIndicatorState = {
   focused: boolean;
 };
 ```
+
+### PARENT\_CHECKBOX
+
+```typescript
+'data-parent';
+```

@@ -37,6 +37,144 @@ Re-export of [Root](#root) props.
 type MenuRootActions = { unmount: () => void };
 ```
 
+### Root.ChangeEventReason
+
+```typescript
+type MenuRootChangeEventReason =
+  | 'none'
+  | 'trigger-hover'
+  | 'trigger-focus'
+  | 'trigger-press'
+  | 'outside-press'
+  | 'focus-out'
+  | 'list-navigation'
+  | 'escape-key'
+  | 'item-press'
+  | 'close-press'
+  | 'sibling-open'
+  | 'cancel-open';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type MenuRootChangeEventDetails =
+  | {
+      reason: 'none';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'trigger-hover';
+      event: MouseEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'trigger-focus';
+      event: FocusEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'trigger-press';
+      event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'outside-press';
+      event: MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'focus-out';
+      event: FocusEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'list-navigation';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'escape-key';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'item-press';
+      event: KeyboardEvent | MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'close-press';
+      event: KeyboardEvent | MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'sibling-open';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'cancel-open';
+      event: MouseEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    };
+```
+
+### Root.Orientation
+
+```typescript
+type MenuRootOrientation = 'horizontal' | 'vertical';
+```
+
 ### Trigger
 
 A button that opens the menu. Renders a `<button>` element.
@@ -61,6 +199,12 @@ A button that opens the menu. Renders a `<button>` element.
 ### Trigger.Props
 
 Re-export of [Trigger](#trigger) props.
+
+### Trigger.State
+
+```typescript
+type MenuTriggerState = { open: boolean };
+```
 
 ### Portal
 
@@ -198,6 +342,18 @@ A container for the menu items. Renders a `<div>` element.
 
 Re-export of [Popup](#popup) props.
 
+### Popup.State
+
+```typescript
+type MenuPopupState = {
+  transitionStatus: TransitionStatus;
+  side: Side;
+  align: Align;
+  open: boolean;
+  nested: boolean;
+};
+```
+
 ### Arrow
 
 Displays an element positioned against the menu anchor. Renders a `<div>` element.
@@ -321,9 +477,25 @@ A separator element accessible to screen readers. Renders a `<div>` element.
 
 | Prop           | Type                                                                                    | Default          | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation    | `Orientation`                                                                           | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
+| orientation    | `Menu.Separator.Orientation`                                                            | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
 | className      | `string \| ((state: Menu.Separator.State) => string)`                                   | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.Separator.State) => ReactElement)`     | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Separator.Props
+
+Re-export of [Separator](#separator) props.
+
+### Separator.State
+
+```typescript
+type SeparatorState = { orientation: Menu.Separator.Orientation };
+```
+
+### Separator.Orientation
+
+```typescript
+type MenuSeparatorOrientation = 'horizontal' | 'vertical';
+```
 
 ### SubmenuTrigger
 
@@ -381,6 +553,144 @@ Groups related radio items. Renders a `<div>` element.
 
 Re-export of [RadioGroup](#radiogroup) props.
 
+### RadioGroup.State
+
+```typescript
+type MenuRadioGroupState = { disabled: boolean };
+```
+
+### RadioGroup.ChangeEventReason
+
+```typescript
+type MenuRadioGroupChangeEventReason =
+  | 'none'
+  | 'trigger-hover'
+  | 'trigger-focus'
+  | 'trigger-press'
+  | 'outside-press'
+  | 'focus-out'
+  | 'list-navigation'
+  | 'escape-key'
+  | 'item-press'
+  | 'close-press'
+  | 'sibling-open'
+  | 'cancel-open';
+```
+
+### RadioGroup.ChangeEventDetails
+
+```typescript
+type MenuRadioGroupChangeEventDetails =
+  | {
+      reason: 'none';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'trigger-hover';
+      event: MouseEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'trigger-focus';
+      event: FocusEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'trigger-press';
+      event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'outside-press';
+      event: MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'focus-out';
+      event: FocusEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'list-navigation';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'escape-key';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'item-press';
+      event: KeyboardEvent | MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'close-press';
+      event: KeyboardEvent | MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'sibling-open';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'cancel-open';
+      event: MouseEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    };
+```
+
 ### RadioItem
 
 A menu item that works like a radio button in a given group. Renders a `<div>` element.
@@ -412,6 +722,16 @@ A menu item that works like a radio button in a given group. Renders a `<div>` e
 ### RadioItem.Props
 
 Re-export of [RadioItem](#radioitem) props.
+
+### RadioItem.State
+
+```typescript
+type MenuRadioItemState = {
+  disabled: boolean;
+  highlighted: boolean;
+  checked: boolean;
+};
+```
 
 ### RadioItemIndicator
 
@@ -483,6 +803,148 @@ A menu item that toggles a setting on or off. Renders a `<div>` element.
 
 Re-export of [CheckboxItem](#checkboxitem) props.
 
+### CheckboxItem.State
+
+```typescript
+type MenuCheckboxItemState = {
+  disabled: boolean;
+  highlighted: boolean;
+  checked: boolean;
+};
+```
+
+### CheckboxItem.ChangeEventReason
+
+```typescript
+type MenuCheckboxItemChangeEventReason =
+  | 'none'
+  | 'trigger-hover'
+  | 'trigger-focus'
+  | 'trigger-press'
+  | 'outside-press'
+  | 'focus-out'
+  | 'list-navigation'
+  | 'escape-key'
+  | 'item-press'
+  | 'close-press'
+  | 'sibling-open'
+  | 'cancel-open';
+```
+
+### CheckboxItem.ChangeEventDetails
+
+```typescript
+type MenuCheckboxItemChangeEventDetails =
+  | {
+      reason: 'none';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'trigger-hover';
+      event: MouseEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'trigger-focus';
+      event: FocusEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'trigger-press';
+      event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'outside-press';
+      event: MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'focus-out';
+      event: FocusEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'list-navigation';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'escape-key';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'item-press';
+      event: KeyboardEvent | MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'close-press';
+      event: KeyboardEvent | MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'sibling-open';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'cancel-open';
+      event: MouseEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    };
+```
+
 ### CheckboxItemIndicator
 
 Indicates whether the checkbox item is ticked. Renders a `<div>` element.
@@ -520,20 +982,29 @@ type MenuCheckboxItemIndicatorState = {
 };
 ```
 
-### Separator..Props
+### Parent
 
 ```typescript
-type SeparatorProps = {
-  orientation?: Orientation;
-  className?: string | ((state: { orientation: Orientation }) => string);
-  render?:
-    | ReactElement
-    | ((props: HTMLProps, state: { orientation: Orientation }) => ReactElement);
-};
+type MenuParent =
+  | { type: 'menu'; context: MenuRootContext }
+  | { type: 'menubar'; context: MenubarContext }
+  | { type: 'context-menu'; context: ContextMenuRootContext }
+  | {
+      type: 'nested-context-menu';
+      context: ContextMenuRootContext;
+      menuContext: MenuRootContext;
+    }
+  | { type: undefined };
 ```
 
-### Separator..State
+### SubmenuRoot.Context
 
 ```typescript
-type SeparatorState = { orientation: Orientation };
+Context<boolean>;
+```
+
+### useMenuSubmenuRootContext
+
+```typescript
+() => boolean;
 ```

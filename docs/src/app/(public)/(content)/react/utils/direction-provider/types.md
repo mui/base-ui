@@ -4,6 +4,12 @@
 
 ## API Reference
 
+### DirectionContext
+
+```typescript
+type DirectionContext = { direction: TextDirection };
+```
+
 ### DirectionProvider
 
 Enables RTL behavior for Base UI components.
@@ -15,12 +21,24 @@ Enables RTL behavior for Base UI components.
 | direction      | `TextDirection`  | `'ltr'`   | The reading direction of the text   |
 | children       | `ReactNode`      | -         | -                                   |
 
+### DirectionProvider.Props
+
+Re-export of [DirectionProvider](#directionprovider) props.
+
 ### TextDirection
 
 ```typescript
 type TextDirection = 'ltr' | 'rtl';
 ```
 
-### DirectionProvider.Props
+### useDirection
 
-Re-export of [DirectionProvider](#directionprovider) props.
+**useDirection Parameters:**
+
+| Parameter      | Type      | Default   | Description |
+| :------------- | :-------- | :-------- | :---------- |
+| optional       | `boolean` | `true`    | -           |
+
+**useDirection Return Value:**
+
+`TextDirection`

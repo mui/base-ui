@@ -469,16 +469,42 @@ A viewport for displaying content transitions. This component is only required i
 | `--popup-height` | ``   | The height of the parent popup. This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered. It can be used to freeze the dimensions of the popup when animating between different content.       |
 | `--popup-width`  | ``   | The width of the parent popup. This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered. It can be used to freeze the dimensions of the popup when animating between different content.         |
 
-### Root.ChildRenderFunction
+### State
 
 ```typescript
-type PopoverRootChildRenderFunction<Payload> = (arg: {
-  payload: Payload | undefined;
-}) => React.ReactNode;
+type PopoverState = {
+  open: boolean;
+  mounted: boolean;
+  instantType: 'dismiss' | 'click' | undefined;
+  modal: boolean | 'trap-focus';
+  transitionStatus: TransitionStatus;
+  openMethod: InteractionType | null;
+  openReason: PopoverRoot.ChangeEventReason | null;
+  stickIfOpen: boolean;
+  titleId: string | undefined;
+  descriptionId: string | undefined;
+  activeTriggerId: string | null;
+  positionerElement: HTMLElement | null;
+  popupElement: HTMLElement | null;
+  triggers: PopupTriggerMap;
+  floatingRootContext: FloatingRootContext;
+  payload: unknown | undefined;
+  activeTriggerProps: HTMLProps;
+  inactiveTriggerProps: HTMLProps;
+  popupProps: HTMLProps;
+};
 ```
 
 ### createHandle
 
 ```typescript
 () => {};
+```
+
+### Root.ChildRenderFunction
+
+```typescript
+type PopoverRootChildRenderFunction<Payload> = (arg: {
+  payload: Payload | undefined;
+}) => React.ReactNode;
 ```

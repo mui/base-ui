@@ -418,7 +418,7 @@ Creates a new toast manager.
 };
 ```
 
-### createToastManager..ToastManager
+### createToastManager.ToastManager
 
 ```typescript
 type CreateToastManager = {
@@ -542,6 +542,36 @@ type CreateToastManager = {
               });
     },
   ) => Promise<Value>;
+};
+```
+
+### ManagerEvent
+
+```typescript
+type ToastManagerEvent = {
+  action: 'add' | 'close' | 'update' | 'promise';
+  options: any;
+};
+```
+
+### Object
+
+```typescript
+type ToastObject = {
+  id: string;
+  ref?: RefObject<HTMLElement | null>;
+  title?: ReactNode;
+  type?: string;
+  description?: ReactNode;
+  timeout?: number;
+  priority?: 'low' | 'high';
+  transitionStatus?: 'starting' | 'ending';
+  limited?: boolean;
+  height?: number;
+  onClose?: () => void;
+  onRemove?: () => void;
+  actionProps?: {};
+  data?: {};
 };
 ```
 
@@ -684,7 +714,7 @@ Returns the array of toasts and methods to manage them.
 };
 ```
 
-### useToastManager..AddOptions
+### useToastManager.AddOptions
 
 ```typescript
 type UseToastManagerAddOptions = {
@@ -702,7 +732,7 @@ type UseToastManagerAddOptions = {
 };
 ```
 
-### useToastManager..PromiseOptions
+### useToastManager.PromiseOptions
 
 ```typescript
 type UseToastManagerPromiseOptions = {
@@ -788,7 +818,7 @@ type UseToastManagerPromiseOptions = {
 };
 ```
 
-### useToastManager..ReturnValue
+### useToastManager.ReturnValue
 
 ```typescript
 type UseToastManagerReturnValue = {
@@ -925,7 +955,7 @@ type UseToastManagerReturnValue = {
 };
 ```
 
-### useToastManager..UpdateOptions
+### useToastManager.UpdateOptions
 
 ```typescript
 type UseToastManagerUpdateOptions = {

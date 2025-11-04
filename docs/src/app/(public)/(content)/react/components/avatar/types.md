@@ -56,3 +56,9 @@ Rendered when the image fails to load or when no image is provided. Renders a `<
 ### Fallback.Props
 
 Re-export of [Fallback](#fallback) props.
+
+### ImageLoadingStatus
+
+```typescript
+type AvatarImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
+```

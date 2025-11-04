@@ -34,6 +34,10 @@ Groups all parts of the select. Doesn’t render its own HTML element.
 | id                    | `string`                                                                                                                                                                                      | -         | The id of the Select.                                                                                                                                                                                                                                                                               |
 | children              | `ReactNode`                                                                                                                                                                                   | -         | -                                                                                                                                                                                                                                                                                                   |
 
+### Root.Props
+
+Re-export of [Root](#root) props.
+
 ### Root.State
 
 ```typescript
@@ -44,6 +48,119 @@ type SelectRootState = {};
 
 ```typescript
 type SelectRootActions = { unmount: () => void };
+```
+
+### Root.ChangeEventReason
+
+```typescript
+type SelectRootChangeEventReason =
+  | 'trigger-press'
+  | 'outside-press'
+  | 'escape-key'
+  | 'window-resize'
+  | 'item-press'
+  | 'focus-out'
+  | 'list-navigation'
+  | 'cancel-open'
+  | 'none';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type SelectRootChangeEventDetails =
+  | {
+      reason: 'trigger-press';
+      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'outside-press';
+      event: MouseEvent | PointerEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'escape-key';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'window-resize';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'item-press';
+      event: MouseEvent | PointerEvent | KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'focus-out';
+      event: FocusEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'list-navigation';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'cancel-open';
+      event: MouseEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    }
+  | {
+      reason: 'none';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: HTMLElement | undefined;
+    };
+```
+
+### Root.ConditionalProps
+
+```typescript
+type SelectRootConditionalProps<
+  Value,
+  Multiple extends boolean | undefined = false,
+> =
+  | SelectRootControlledProps<Value, Multiple>
+  | SelectRootUncontrolledProps<Value, Multiple>;
 ```
 
 ### Trigger
@@ -434,9 +551,25 @@ A separator element accessible to screen readers. Renders a `<div>` element.
 
 | Prop           | Type                                                                                    | Default          | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation    | `Orientation`                                                                           | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
+| orientation    | `Select.Separator.Orientation`                                                          | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
 | className      | `string \| ((state: Select.Separator.State) => string)`                                 | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
 | render         | `ReactElement \| ((props: HTMLProps, state: Select.Separator.State) => ReactElement)`   | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Separator.Props
+
+Re-export of [Separator](#separator) props.
+
+### Separator.State
+
+```typescript
+type SeparatorState = { orientation: Select.Separator.Orientation };
+```
+
+### Separator.Orientation
+
+```typescript
+type SelectSeparatorOrientation = 'horizontal' | 'vertical';
+```
 
 ### ItemText
 
@@ -547,22 +680,4 @@ Re-export of [ScrollDownArrow](#scrolldownarrow) props.
 
 ```typescript
 type SelectScrollDownArrowState = {};
-```
-
-### Separator..Props
-
-```typescript
-type SeparatorProps = {
-  orientation?: Orientation;
-  className?: string | ((state: { orientation: Orientation }) => string);
-  render?:
-    | ReactElement
-    | ((props: HTMLProps, state: { orientation: Orientation }) => ReactElement);
-};
-```
-
-### Separator..State
-
-```typescript
-type SeparatorState = { orientation: Orientation };
 ```

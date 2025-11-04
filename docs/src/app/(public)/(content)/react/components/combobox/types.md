@@ -45,6 +45,10 @@ Groups all parts of the combobox. Doesn't render its own HTML element.
 | id                    | `string`                                                                                                                                                                                      | -         | The id of the component.                                                                                                                                                                                                                                                                                                                                                                                                           |
 | children              | `ReactNode`                                                                                                                                                                                   | -         | -                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 
+### Root.Props
+
+Re-export of [Root](#root) props.
+
 ### Trigger
 
 A button that opens the popup. Renders a `<button>` element.
@@ -506,9 +510,25 @@ A separator element accessible to screen readers. Renders a `<div>` element.
 
 | Prop           | Type                                                                                    | Default          | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation    | `Orientation`                                                                           | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
+| orientation    | `Combobox.Separator.Orientation`                                                        | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
 | className      | `string \| ((state: Combobox.Separator.State) => string)`                               | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
 | render         | `ReactElement \| ((props: HTMLProps, state: Combobox.Separator.State) => ReactElement)` | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Separator.Props
+
+Re-export of [Separator](#separator) props.
+
+### Separator.State
+
+```typescript
+type SeparatorState = { orientation: Combobox.Separator.Orientation };
+```
+
+### Separator.Orientation
+
+```typescript
+type ComboboxSeparatorOrientation = 'horizontal' | 'vertical';
+```
 
 ### Status
 
@@ -679,6 +699,38 @@ type ComboboxItemIndicatorState = {
 };
 ```
 
+### Filter
+
+```typescript
+type Filter = {
+  contains: (item: any, query: string) => boolean;
+  startsWith: (item: any, query: string) => boolean;
+  endsWith: (item: any, query: string) => boolean;
+};
+```
+
+### UseComboboxFilterOptions
+
+```typescript
+type UseComboboxFilterOptions = {
+  multiple?: boolean;
+  value?: any;
+  locale?: IntlLocalesArgument;
+};
+```
+
+### useCoreFilter
+
+Matches items against a query using `Intl.Collator` for robust string matching.
+
+```typescript
+(options?: { locale?: IntlLocalesArgument }) => {
+  contains: (item: any, query: string) => boolean;
+  startsWith: (item: any, query: string) => boolean;
+  endsWith: (item: any, query: string) => boolean;
+};
+```
+
 ### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
@@ -695,20 +747,8 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 };
 ```
 
-### Separator..Props
+### UseFilterOptions
 
 ```typescript
-type SeparatorProps = {
-  orientation?: Orientation;
-  className?: string | ((state: { orientation: Orientation }) => string);
-  render?:
-    | ReactElement
-    | ((props: HTMLProps, state: { orientation: Orientation }) => ReactElement);
-};
-```
-
-### Separator..State
-
-```typescript
-type SeparatorState = { orientation: Orientation };
+type UseFilterOptions = { locale?: IntlLocalesArgument };
 ```

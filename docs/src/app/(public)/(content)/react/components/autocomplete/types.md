@@ -513,9 +513,25 @@ A separator element accessible to screen readers. Renders a `<div>` element.
 
 | Prop           | Type                                                                                           | Default          | Description                                                                                                                                                                              |
 | :------------- | :--------------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation    | `Orientation`                                                                                  | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
+| orientation    | `Autocomplete.Separator.Orientation`                                                           | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
 | className      | `string \| ((state: Autocomplete.Separator.State) => string)`                                  | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
 | render         | `ReactElement \| ((props: HTMLProps, state: Autocomplete.Separator.State) => ReactElement)`    | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Separator.Props
+
+Re-export of [Separator](#separator) props.
+
+### Separator.State
+
+```typescript
+type SeparatorState = { orientation: Autocomplete.Separator.Orientation };
+```
+
+### Separator.Orientation
+
+```typescript
+type AutocompleteSeparatorOrientation = 'horizontal' | 'vertical';
+```
 
 ### Status
 
@@ -596,6 +612,42 @@ Re-export of [Row](#row) props.
 type ComboboxRowState = {};
 ```
 
+### Filter
+
+```typescript
+type Filter = {
+  contains: (item: any, query: string) => boolean;
+  startsWith: (item: any, query: string) => boolean;
+  endsWith: (item: any, query: string) => boolean;
+};
+```
+
+### useComboboxFilter
+
+Matches items against a query using `Intl.Collator` for robust string matching.
+
+```typescript
+(options?: {
+  multiple?: boolean;
+  value?: any;
+  locale?: IntlLocalesArgument;
+}) => {
+  contains: (item: any, query: string) => boolean;
+  startsWith: (item: any, query: string) => boolean;
+  endsWith: (item: any, query: string) => boolean;
+};
+```
+
+### UseComboboxFilterOptions
+
+```typescript
+type UseComboboxFilterOptions = {
+  multiple?: boolean;
+  value?: any;
+  locale?: IntlLocalesArgument;
+};
+```
+
 ### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
@@ -608,20 +660,8 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 };
 ```
 
-### Separator..Props
+### UseFilterOptions
 
 ```typescript
-type SeparatorProps = {
-  orientation?: Orientation;
-  className?: string | ((state: { orientation: Orientation }) => string);
-  render?:
-    | ReactElement
-    | ((props: HTMLProps, state: { orientation: Orientation }) => ReactElement);
-};
-```
-
-### Separator..State
-
-```typescript
-type SeparatorState = { orientation: Orientation };
+type UseFilterOptions = { locale?: IntlLocalesArgument };
 ```
