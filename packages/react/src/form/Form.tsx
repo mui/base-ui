@@ -1,6 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import {
+  createGenericEventDetails,
+  type BaseUIGenericEventDetails,
+} from '../utils/createBaseUIEventDetails';
 import type { BaseUIComponentProps } from '../utils/types';
 import { FormContext } from './FormContext';
 import { useRenderElement } from '../utils/useRenderElement';
@@ -23,6 +27,7 @@ export const Form = React.forwardRef(function Form(
     errors,
     onClearErrors,
     onSubmit,
+    onFormSubmit,
     ...elementProps
   } = componentProps;
 
@@ -83,6 +88,22 @@ export const Form = React.forwardRef(function Form(
           } else {
             submittedRef.current = true;
             onSubmit?.(event as any);
+
+            if (onFormSubmit) {
+              event.preventDefault();
+
+              const formValues = values.reduce(
+                (acc, field) => {
+                  if (field.name && field.getValueRef) {
+                    acc[field.name] = field.getValueRef.current?.();
+                  }
+                  return acc;
+                },
+                {} as Record<string, unknown>,
+              );
+
+              onFormSubmit(formValues, createGenericEventDetails('none', event.nativeEvent));
+            }
           }
         },
       },
@@ -112,6 +133,11 @@ export const Form = React.forwardRef(function Form(
   return <FormContext.Provider value={contextValue}>{element}</FormContext.Provider>;
 });
 
+export type FormValues = Record<string, unknown>;
+
+export type FormSubmitEventReason = 'none';
+export type FormSubmitEventDetails = BaseUIGenericEventDetails<Form.SubmitEventReason>;
+
 export interface FormState {}
 
 export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
@@ -135,6 +161,14 @@ export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
    * Event handler called when the `errors` object is cleared.
    */
   onClearErrors?: (errors: FormContext['errors']) => void;
+  /**
+   * Event handler called when the form is submitted.
+   * `preventDefault()` is called on the native submit event when used.
+   */
+  onFormSubmit?: (
+    formValues: Record<string, unknown>,
+    eventDetails: Form.SubmitEventDetails,
+  ) => void;
 }
 
 export type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
@@ -143,4 +177,7 @@ export namespace Form {
   export type Props = FormProps;
   export type State = FormState;
   export type ValidationMode = FormValidationMode;
+  export type Values = FormValues;
+  export type SubmitEventReason = FormSubmitEventReason;
+  export type SubmitEventDetails = FormSubmitEventDetails;
 }
