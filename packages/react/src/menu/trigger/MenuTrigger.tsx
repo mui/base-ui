@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { contains } from '../../floating-ui-react/utils';
 import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react/index';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -42,6 +43,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     delay = 100,
     closeDelay = 0,
     handle,
+    payload,
     ...elementProps
   } = componentProps;
 
@@ -210,13 +212,19 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const state: MenuTrigger.State = React.useMemo(
     () => ({
       disabled,
-      open,
+      open: open && isTriggerActive,
     }),
-    [disabled, open],
+    [disabled, open, isTriggerActive],
   );
 
   const id = useBaseUiId(idProp);
   const registerTrigger = useTriggerRegistration(id, store);
+
+  useIsoLayoutEffect(() => {
+    if (isTriggerActive) {
+      store.set('payload', payload);
+    }
+  }, [isTriggerActive, payload, store]);
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, setTriggerElement];
   const props = [
@@ -252,7 +260,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   }
 
   return element;
-});
+}) as MenuTrigger;
 
 export interface MenuTrigger {
   <Payload>(
