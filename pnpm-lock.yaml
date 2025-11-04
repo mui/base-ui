@@ -214,7 +214,7 @@ importers:
         specifier: ^1.40.0
         version: 1.40.0
       estree-util-value-to-estree:
-        specifier: ^3.4.1
+        specifier: ^3.5.0
         version: 3.5.0
       globby:
         specifier: ^15.0.0
