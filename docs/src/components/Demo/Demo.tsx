@@ -38,7 +38,6 @@ export function Demo({ defaultOpen = false, compact = false, className, ...demoP
     defaultOpen,
     export: exportOpts,
     exportCodeSandbox,
-    fileHashMode: 'remove-after-interaction',
   });
 
   return (

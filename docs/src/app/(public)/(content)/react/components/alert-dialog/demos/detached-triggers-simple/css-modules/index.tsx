@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
-import styles from '../../styles.module.css';
+import styles from '../../_index.module.css';
 
 const demoAlertDialog = AlertDialog.createHandle();
 

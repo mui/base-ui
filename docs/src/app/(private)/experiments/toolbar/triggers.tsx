@@ -13,7 +13,7 @@ import triggerToolbarClasses from './triggers.module.css';
 import tooltipClasses from '../../../(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
 import switchClasses from '../../../(public)/(content)/react/components/switch/demos/hero/css-modules/index.module.css';
 import dialogClasses from '../../../(public)/(content)/react/components/alert-dialog/demos/hero/css-modules/index.module.css';
-import popoverClasses from '../../../(public)/(content)/react/components/popover/demos/styles.module.css';
+import popoverClasses from '../../../(public)/(content)/react/components/popover/demos/_index.module.css';
 import comboSliderClasses from './slider.module.css';
 import { SlidersIcon, TrashIcon, MessageCircleIcon, ArrowSvg, BellIcon } from './_icons';
 import {
