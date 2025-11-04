@@ -126,8 +126,10 @@ export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, type
     // Sync `allowMouseEnter` with parent menu if applicable.
     this.observe(
       createSelector((state) => state.allowMouseEnter),
-      (allowMouseEnter) => {
-        if (this.state.parent.type === 'menu') {
+      (allowMouseEnter, oldValue) => {
+        // The allowMouseEnter !== oldValue check prevent calling parent store's set
+        // on intialization. Without it, React might complain about updating one component during rendering another.
+        if (this.state.parent.type === 'menu' && allowMouseEnter !== oldValue) {
           this.state.parent.store.set('allowMouseEnter', allowMouseEnter);
         }
       },
