@@ -8,6 +8,7 @@ import clsx from 'clsx';
 import { CheckIcon } from 'docs/src/icons/CheckIcon';
 import { ExternalLinkIcon } from 'docs/src/icons/ExternalLinkIcon';
 import { exportCodeSandbox, exportOpts } from 'docs/src/utils/demoExportOptions';
+import { isSafari, isEdge } from '@base-ui-components/utils/detectBrowser';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { DemoCodeBlock } from './DemoCodeBlock';
@@ -40,6 +41,13 @@ export function Demo({ defaultOpen = false, compact = false, className, ...demoP
     exportCodeSandbox,
   });
 
+  const [fallbackToCodeSandbox, setFallbackToCodeSandbox] = React.useState(false);
+  React.useEffect(() => {
+    if (isSafari || isEdge) {
+      setFallbackToCodeSandbox(true);
+    }
+  }, []);
+
   return (
     <div className={clsx('DemoRoot', className)}>
       {demo.allFilesSlugs.map(({ slug }) => (
@@ -68,14 +76,25 @@ export function Demo({ defaultOpen = false, compact = false, className, ...demoP
                   selectedTransform={demo.selectedTransform}
                   selectTransform={demo.selectTransform}
                 />
-                <GhostButton
-                  aria-label="Open in StackBlitz"
-                  type="button"
-                  onClick={demo.openStackBlitz}
-                >
-                  StackBlitz
-                  <ExternalLinkIcon />
-                </GhostButton>
+                {fallbackToCodeSandbox ? (
+                  <GhostButton
+                    aria-label="Open in CodeSandbox"
+                    type="button"
+                    onClick={demo.openCodeSandbox}
+                  >
+                    CodeSandbox
+                    <ExternalLinkIcon />
+                  </GhostButton>
+                ) : (
+                  <GhostButton
+                    aria-label="Open in StackBlitz"
+                    type="button"
+                    onClick={demo.openStackBlitz}
+                  >
+                    StackBlitz
+                    <ExternalLinkIcon />
+                  </GhostButton>
+                )}
                 <GhostButton aria-label="Copy code" onClick={demo.copy}>
                   Copy
                   <span className="flex size-3.5 items-center justify-center">
