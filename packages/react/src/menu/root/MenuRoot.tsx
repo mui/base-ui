@@ -34,7 +34,10 @@ import {
 } from '../../context-menu/root/ContextMenuRootContext';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { mergeProps } from '../../merge-props';
-import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
+import {
+  useFloatingParentNodeId,
+  useFloatingTree,
+} from '../../floating-ui-react/components/FloatingTree';
 import { MenuStore } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import { PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
@@ -127,6 +130,16 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const openEventRef = React.useRef<Event | null>(null);
   const stickIfOpenTimeout = useTimeout();
   const nested = useFloatingParentNodeId() != null;
+
+  const parentTree = useFloatingTree();
+
+  useIsoLayoutEffect(() => {
+    if (parent.type !== undefined && parent.type !== 'context-menu' && parent.type !== 'menu') {
+      store.set('floatingTreeRoot', parentTree);
+    }
+  }, [parent.type, parentTree, store]);
+
+  const treeRoot = store.useState('floatingTreeRoot');
 
   let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
 
@@ -407,6 +420,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
       return allowOutsidePressDismissalRef.current;
     },
+    externalTree: treeRoot,
   });
 
   const role = useRole(floatingRootContext, {
@@ -437,6 +451,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     disabledIndices: EMPTY_ARRAY,
     onNavigate: setActiveIndex,
     openOnArrowKeyDown: parent.type !== 'context-menu',
+    externalTree: treeRoot,
   });
 
   const onTypingChange = React.useCallback(
@@ -545,7 +560,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   if (parent.type === undefined || parent.type === 'context-menu') {
     // set up a FloatingTree to provide the context to nested menus
-    return <FloatingTree>{content}</FloatingTree>;
+    return <FloatingTree externalTree={treeRoot}>{content}</FloatingTree>;
   }
 
   return content;

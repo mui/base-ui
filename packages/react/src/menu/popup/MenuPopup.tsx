@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { FloatingFocusManager, useFloatingTree } from '../../floating-ui-react';
+import { FloatingFocusManager } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -50,6 +50,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
   const floatingContext = store.useState('floatingRootContext');
+  const floatingTreeRoot = store.useState('floatingTreeRoot');
 
   useOpenChangeComplete({
     open,
@@ -61,8 +62,6 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     },
   });
 
-  const { events: menuEvents } = useFloatingTree()!;
-
   React.useEffect(() => {
     function handleClose(event: {
       domEvent: Event | undefined;
@@ -71,12 +70,12 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       store.setOpen(false, createChangeEventDetails(event.reason, event.domEvent));
     }
 
-    menuEvents.on('close', handleClose);
+    floatingTreeRoot.events.on('close', handleClose);
 
     return () => {
-      menuEvents.off('close', handleClose);
+      floatingTreeRoot.events.off('close', handleClose);
     };
-  }, [menuEvents, store]);
+  }, [floatingTreeRoot.events, store]);
 
   const state: MenuPopup.State = React.useMemo(
     () => ({
@@ -125,6 +124,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       returnFocus={finalFocus === undefined ? returnFocus : finalFocus}
       initialFocus={parent.type !== 'menu'}
       restoreFocus
+      externalTree={floatingTreeRoot}
     >
       {element}
     </FloatingFocusManager>

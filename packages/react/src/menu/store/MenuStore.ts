@@ -5,6 +5,7 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingRootContext } from '../../floating-ui-react';
 import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTree';
 import { TransitionStatus } from '../../utils/useTransitionStatus';
 import { HTMLProps } from '../../utils/types';
 import { PopupTriggerMap } from '../../utils/popupStoreUtils';
@@ -25,6 +26,7 @@ export type State<Payload> = {
   instantType: 'dismiss' | 'click' | 'group' | undefined;
   lastOpenChangeReason: MenuRoot.ChangeEventReason | null;
   floatingRootContext: FloatingRootContext;
+  floatingTreeRoot: FloatingTreeStore;
   itemProps: HTMLProps;
   popupProps: HTMLProps;
   payload: Payload | undefined;
@@ -90,6 +92,13 @@ const selectors = {
   instantType: createSelector((state: State<unknown>) => state.instantType),
   lastOpenChangeReason: createSelector((state: State<unknown>) => state.lastOpenChangeReason),
   floatingRootContext: createSelector((state: State<unknown>) => state.floatingRootContext),
+  floatingTreeRoot: createSelector((state: State<unknown>): FloatingTreeStore => {
+    if (state.parent.type === 'menu') {
+      return state.parent.store.select('floatingTreeRoot');
+    }
+
+    return state.floatingTreeRoot;
+  }),
   itemProps: createSelector((state: State<unknown>) => state.itemProps),
   popupProps: createSelector((state: State<unknown>) => state.popupProps),
   activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
@@ -183,6 +192,7 @@ function createInitialState<Payload>(): State<Payload> {
     instantType: undefined,
     lastOpenChangeReason: null,
     floatingRootContext: getEmptyContext(),
+    floatingTreeRoot: new FloatingTreeStore(),
     itemProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,

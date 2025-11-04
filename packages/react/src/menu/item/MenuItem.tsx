@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useFloatingTree } from '../../floating-ui-react';
 import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -33,7 +32,6 @@ export const MenuItem = React.forwardRef(function MenuItem(
   const listItem = useCompositeListItem({ label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
-  const { events: menuEvents } = useFloatingTree()!;
 
   const { store } = useMenuRootContext();
   const highlighted = store.useState('isActive', listItem.index);
@@ -44,7 +42,6 @@ export const MenuItem = React.forwardRef(function MenuItem(
     disabled,
     highlighted,
     id,
-    menuEvents,
     store,
     nativeButton,
     nodeId: menuPositionerContext?.nodeId,

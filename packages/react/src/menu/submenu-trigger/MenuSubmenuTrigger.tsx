@@ -1,12 +1,6 @@
 'use client';
 import * as React from 'react';
-import {
-  safePolygon,
-  useClick,
-  useFloatingTree,
-  useHover,
-  useInteractions,
-} from '../../floating-ui-react';
+import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -43,7 +37,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const listItem = useCompositeListItem();
   const menuPositionerContext = useMenuPositionerContext();
   const id = useBaseUiId(idProp);
-  const { events: menuEvents } = useFloatingTree()!;
 
   const { store } = useMenuRootContext();
   const rootTriggerProps = store.useState('activeTriggerProps');
@@ -53,6 +46,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const hoverEnabled = store.useState('hoverEnabled');
   const allowMouseEnter = store.useState('allowMouseEnter');
   const floatingRootContext = store.useState('floatingRootContext');
+  const floatingTreeRoot = store.useState('floatingTreeRoot');
 
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
 
@@ -79,7 +73,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     disabled,
     highlighted,
     id,
-    menuEvents,
     store,
     nativeButton,
     itemMetadata,
@@ -93,8 +86,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     move: true,
     restMs: allowMouseEnter ? delay : undefined,
     delay: { open: allowMouseEnter ? delay : 10 ** 10, close: closeDelay },
-
     triggerElement: triggerElement as HTMLElement | null,
+    externalTree: floatingTreeRoot,
   });
 
   const click = useClick(floatingRootContext, {

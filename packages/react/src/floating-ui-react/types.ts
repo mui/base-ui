@@ -7,6 +7,7 @@ import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 
 import type { ExtendedUserProps } from './hooks/useInteractions';
+import type { FloatingTreeStore } from './components/FloatingTree';
 
 export * from '.';
 export type { FloatingDelayGroupProps } from './components/FloatingDelayGroup';
@@ -215,4 +216,8 @@ export interface UseFloatingOptions<RT extends ReferenceType = ReferenceType>
    * Unique node id when using `FloatingTree`.
    */
   nodeId?: string;
+  /**
+   * External FlatingTree to use when the one provided by context can't be used.
+   */
+  externalTree?: FloatingTreeStore<RT>;
 }

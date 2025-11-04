@@ -4,13 +4,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { contains } from '../../floating-ui-react/utils';
-import {
-  safePolygon,
-  useClick,
-  useFloatingTree,
-  useHover,
-  useInteractions,
-} from '../../floating-ui-react/index';
+import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react/index';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -71,6 +65,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const hoverEnabled = store.useState('hoverEnabled');
   const allowMouseEnter = store.useState('allowMouseEnter');
   const stickIfOpen = store.useState('stickIfOpen');
+  const floatingTreeRoot = store.useState('floatingTreeRoot');
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const isTriggerActive = activeTrigger === triggerElement;
@@ -84,8 +79,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     disabled,
     native: nativeButton,
   });
-
-  const { events: menuEvents } = useFloatingTree()!;
 
   React.useEffect(() => {
     if (!open && parent.type === undefined) {
@@ -126,7 +119,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       return;
     }
 
-    menuEvents.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
+    floatingTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
   });
 
   React.useEffect(() => {
@@ -157,6 +150,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         ? { open: allowMouseEnter ? delay : 10 ** 10, close: closeDelay }
         : { close: closeDelay },
     triggerElement,
+    externalTree: floatingTreeRoot,
   });
 
   const click = useClick(floatingRootContext, {

@@ -1,12 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
-import {
-  FloatingNode,
-  useFloatingNodeId,
-  useFloatingParentNodeId,
-  useFloatingTree,
-} from '../../floating-ui-react';
+import { FloatingNode, useFloatingNodeId, useFloatingParentNodeId } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -60,6 +55,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const parent = store.useState('parent');
   const floatingRootContext = store.useState('floatingRootContext');
+  const floatingTreeRoot = store.useState('floatingTreeRoot');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
   const modal = store.useState('modal');
@@ -109,9 +105,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     trackAnchor,
     collisionAvoidance,
     shiftCrossAxis: contextMenu,
+    externalTree: floatingTreeRoot,
   });
-
-  const { events: menuEvents } = useFloatingTree()!;
 
   const positionerProps = React.useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
@@ -150,12 +145,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
     }
 
-    menuEvents.on('menuopenchange', onMenuOpenChange);
+    floatingTreeRoot.events.on('menuopenchange', onMenuOpenChange);
 
     return () => {
-      menuEvents.off('menuopenchange', onMenuOpenChange);
+      floatingTreeRoot.events.off('menuopenchange', onMenuOpenChange);
     };
-  }, [store, menuEvents, nodeId, parentNodeId]);
+  }, [store, floatingTreeRoot.events, nodeId, parentNodeId]);
 
   React.useEffect(() => {
     if (parentNodeId == null) {
@@ -171,12 +166,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       store.setOpen(false, createChangeEventDetails(reason));
     }
 
-    menuEvents.on('menuopenchange', onParentClose);
+    floatingTreeRoot.events.on('menuopenchange', onParentClose);
 
     return () => {
-      menuEvents.off('menuopenchange', onParentClose);
+      floatingTreeRoot.events.off('menuopenchange', onParentClose);
     };
-  }, [menuEvents, parentNodeId, store]);
+  }, [floatingTreeRoot.events, parentNodeId, store]);
 
   // Close unrelated child submenus when hovering a different item in the parent menu.
   React.useEffect(() => {
@@ -192,11 +187,11 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
     }
 
-    menuEvents.on('itemhover', onItemHover);
+    floatingTreeRoot.events.on('itemhover', onItemHover);
     return () => {
-      menuEvents.off('itemhover', onItemHover);
+      floatingTreeRoot.events.off('itemhover', onItemHover);
     };
-  }, [menuEvents, parentNodeId, open, triggerElement, store]);
+  }, [floatingTreeRoot.events, parentNodeId, open, triggerElement, store]);
 
   React.useEffect(() => {
     const eventDetails: MenuOpenEventDetails = {
@@ -206,8 +201,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       reason: store.select('lastOpenChangeReason'),
     };
 
-    menuEvents.emit('menuopenchange', eventDetails);
-  }, [menuEvents, open, nodeId, parentNodeId, store]);
+    floatingTreeRoot.events.emit('menuopenchange', eventDetails);
+  }, [floatingTreeRoot.events, open, nodeId, parentNodeId, store]);
 
   const state: MenuPositioner.State = React.useMemo(
     () => ({
