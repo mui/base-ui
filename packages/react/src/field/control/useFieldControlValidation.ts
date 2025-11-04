@@ -8,6 +8,7 @@ import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
+import type { Form } from '../../form';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 import type { HTMLProps } from '../../utils/types';
 
@@ -164,15 +165,12 @@ export function useFieldControlValidation() {
       // call the validate function because either
       // - validating on change, or
       // - native constraint validations passed, custom validity check is next
-      const formValues = Array.from(formRef.current.fields.values()).reduce(
-        (acc, field) => {
-          if (field.name && field.getValueRef) {
-            acc[field.name] = field.getValueRef.current?.();
-          }
-          return acc;
-        },
-        {} as Record<string, unknown>,
-      );
+      const formValues = Array.from(formRef.current.fields.values()).reduce((acc, field) => {
+        if (field.name && field.getValueRef) {
+          acc[field.name] = field.getValueRef.current?.();
+        }
+        return acc;
+      }, {} as Form.Values);
 
       const resultOrPromise = validate(value, formValues);
       if (

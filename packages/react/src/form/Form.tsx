@@ -92,15 +92,12 @@ export const Form = React.forwardRef(function Form(
             if (onFormSubmit) {
               event.preventDefault();
 
-              const formValues = values.reduce(
-                (acc, field) => {
-                  if (field.name && field.getValueRef) {
-                    acc[field.name] = field.getValueRef.current?.();
-                  }
-                  return acc;
-                },
-                {} as Record<string, unknown>,
-              );
+              const formValues = values.reduce((acc, field) => {
+                if (field.name && field.getValueRef) {
+                  acc[field.name] = field.getValueRef.current?.();
+                }
+                return acc;
+              }, {} as FormValues);
 
               onFormSubmit(formValues, createGenericEventDetails('none', event.nativeEvent));
             }
@@ -133,7 +130,7 @@ export const Form = React.forwardRef(function Form(
   return <FormContext.Provider value={contextValue}>{element}</FormContext.Provider>;
 });
 
-export type FormValues = Record<string, unknown>;
+export type FormValues = Record<string, any>;
 
 export type FormSubmitEventReason = 'none';
 export type FormSubmitEventDetails = BaseUIGenericEventDetails<Form.SubmitEventReason>;
@@ -165,10 +162,7 @@ export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
    * Event handler called when the form is submitted.
    * `preventDefault()` is called on the native submit event when used.
    */
-  onFormSubmit?: (
-    formValues: Record<string, unknown>,
-    eventDetails: Form.SubmitEventDetails,
-  ) => void;
+  onFormSubmit?: (formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void;
 }
 
 export type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
