@@ -134,6 +134,12 @@ type TabsPanelState = {
 };
 ```
 
+### Panel.Metadata
+
+```typescript
+type TabsPanelMetadata = { id?: string; value: Tabs.Tab.Value };
+```
+
 ### Indicator
 
 A visual indicator that can be styled to match the position of the currently active tab. Renders a `<span>` element.
@@ -233,18 +239,6 @@ type TabsTabValue = any;
 type TabsTabActivationDirection = 'none' | 'left' | 'right' | 'up' | 'down';
 ```
 
-### Panel.Metadata
-
-```typescript
-type TabsPanelMetadata = { id?: string; value: Tabs.Tab.Value };
-```
-
-### Tab.Metadata
-
-```typescript
-type TabsTabMetadata = { disabled: boolean; id: string | undefined; value: any };
-```
-
 ### Tab.Position
 
 ```typescript
@@ -255,4 +249,10 @@ type TabsTabPosition = { left: number; right: number; top: number; bottom: numbe
 
 ```typescript
 type TabsTabSize = { width: number; height: number };
+```
+
+### Tab.Metadata
+
+```typescript
+type TabsTabMetadata = { disabled: boolean; id: string | undefined; value: any };
 ```

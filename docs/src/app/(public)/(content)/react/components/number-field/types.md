@@ -91,6 +91,18 @@ type NumberFieldRootChangeEventDetails = {
 };
 ```
 
+### Root.CommitEventReason
+
+```typescript
+type NumberFieldRootCommitEventReason = 'none';
+```
+
+### Root.CommitEventDetails
+
+```typescript
+type NumberFieldRootCommitEventDetails = { reason: 'none'; event: Event };
+```
+
 ### Input
 
 The native input control in the number field. Renders an `<input>` element.
@@ -385,16 +397,4 @@ type NumberFieldIncrementState = {
   filled: boolean;
   focused: boolean;
 };
-```
-
-### Root.CommitEventDetails
-
-```typescript
-type NumberFieldRootCommitEventDetails = { reason: 'none'; event: Event };
-```
-
-### Root.CommitEventReason
-
-```typescript
-type NumberFieldRootCommitEventReason = 'none';
 ```

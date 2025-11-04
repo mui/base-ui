@@ -497,6 +497,12 @@ type SeparatorState = { orientation: Menu.Separator.Orientation };
 type MenuSeparatorOrientation = 'horizontal' | 'vertical';
 ```
 
+### SubmenuRoot.Context
+
+```typescript
+Context<boolean>;
+```
+
 ### SubmenuTrigger
 
 A menu item that opens a submenu. Renders a `<div>` element.
@@ -995,12 +1001,6 @@ type MenuParent =
       menuContext: MenuRootContext;
     }
   | { type: undefined };
-```
-
-### SubmenuRoot.Context
-
-```typescript
-Context<boolean>;
 ```
 
 ### useMenuSubmenuRootContext

@@ -150,6 +150,14 @@ type PopoverRootChangeEventDetails =
     };
 ```
 
+### Root.ChildRenderFunction
+
+```typescript
+type PopoverRootChildRenderFunction<Payload> = (arg: {
+  payload: Payload | undefined;
+}) => React.ReactNode;
+```
+
 ### Trigger
 
 A button that opens the popover. Renders a `<button>` element.
@@ -499,12 +507,4 @@ type PopoverState = {
 
 ```typescript
 () => {};
-```
-
-### Root.ChildRenderFunction
-
-```typescript
-type PopoverRootChildRenderFunction<Payload> = (arg: {
-  payload: Payload | undefined;
-}) => React.ReactNode;
 ```

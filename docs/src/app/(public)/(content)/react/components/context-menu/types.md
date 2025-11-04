@@ -483,6 +483,12 @@ type SeparatorState = { orientation: ContextMenu.Separator.Orientation };
 type ContextMenuSeparatorOrientation = 'horizontal' | 'vertical';
 ```
 
+### SubmenuRoot.Context
+
+```typescript
+Context<boolean>;
+```
+
 ### SubmenuTrigger
 
 A menu item that opens a submenu. Renders a `<div>` element.
@@ -966,12 +972,6 @@ type MenuCheckboxItemIndicatorState = {
   highlighted: boolean;
   transitionStatus: TransitionStatus;
 };
-```
-
-### SubmenuRoot.Context
-
-```typescript
-Context<boolean>;
 ```
 
 ### useMenuSubmenuRootContext

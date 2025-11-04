@@ -714,110 +714,6 @@ Returns the array of toasts and methods to manage them.
 };
 ```
 
-### useToastManager.AddOptions
-
-```typescript
-type UseToastManagerAddOptions = {
-  id?: string;
-  title?: ReactNode;
-  type?: string;
-  description?: ReactNode;
-  timeout?: number;
-  priority?: 'low' | 'high';
-  transitionStatus?: 'starting' | 'ending';
-  onClose?: () => void;
-  onRemove?: () => void;
-  actionProps?: {};
-  data?: {};
-};
-```
-
-### useToastManager.PromiseOptions
-
-```typescript
-type UseToastManagerPromiseOptions = {
-  loading:
-    | string
-    | {
-        id?: string;
-        title?: ReactNode;
-        type?: string;
-        description?: ReactNode;
-        timeout?: number;
-        priority?: 'low' | 'high';
-        transitionStatus?: 'starting' | 'ending';
-        onClose?: () => void;
-        onRemove?: () => void;
-        actionProps?: {};
-        data?: {};
-      };
-  success:
-    | string
-    | {
-        id?: string;
-        title?: ReactNode;
-        type?: string;
-        description?: ReactNode;
-        timeout?: number;
-        priority?: 'low' | 'high';
-        transitionStatus?: 'starting' | 'ending';
-        onClose?: () => void;
-        onRemove?: () => void;
-        actionProps?: {};
-        data?: {};
-      }
-    | ((
-        result: Value,
-      ) =>
-        | string
-        | {
-            id?: string;
-            title?: ReactNode;
-            type?: string;
-            description?: ReactNode;
-            timeout?: number;
-            priority?: 'low' | 'high';
-            transitionStatus?: 'starting' | 'ending';
-            onClose?: () => void;
-            onRemove?: () => void;
-            actionProps?: {};
-            data?: {};
-          });
-  error:
-    | string
-    | {
-        id?: string;
-        title?: ReactNode;
-        type?: string;
-        description?: ReactNode;
-        timeout?: number;
-        priority?: 'low' | 'high';
-        transitionStatus?: 'starting' | 'ending';
-        onClose?: () => void;
-        onRemove?: () => void;
-        actionProps?: {};
-        data?: {};
-      }
-    | ((
-        error: any,
-      ) =>
-        | string
-        | {
-            id?: string;
-            title?: ReactNode;
-            type?: string;
-            description?: ReactNode;
-            timeout?: number;
-            priority?: 'low' | 'high';
-            transitionStatus?: 'starting' | 'ending';
-            onClose?: () => void;
-            onRemove?: () => void;
-            actionProps?: {};
-            data?: {};
-          });
-};
-```
-
 ### useToastManager.ReturnValue
 
 ```typescript
@@ -955,6 +851,24 @@ type UseToastManagerReturnValue = {
 };
 ```
 
+### useToastManager.AddOptions
+
+```typescript
+type UseToastManagerAddOptions = {
+  id?: string;
+  title?: ReactNode;
+  type?: string;
+  description?: ReactNode;
+  timeout?: number;
+  priority?: 'low' | 'high';
+  transitionStatus?: 'starting' | 'ending';
+  onClose?: () => void;
+  onRemove?: () => void;
+  actionProps?: {};
+  data?: {};
+};
+```
+
 ### useToastManager.UpdateOptions
 
 ```typescript
@@ -970,5 +884,91 @@ type UseToastManagerUpdateOptions = {
   onRemove?: () => void;
   actionProps?: {};
   data?: {};
+};
+```
+
+### useToastManager.PromiseOptions
+
+```typescript
+type UseToastManagerPromiseOptions = {
+  loading:
+    | string
+    | {
+        id?: string;
+        title?: ReactNode;
+        type?: string;
+        description?: ReactNode;
+        timeout?: number;
+        priority?: 'low' | 'high';
+        transitionStatus?: 'starting' | 'ending';
+        onClose?: () => void;
+        onRemove?: () => void;
+        actionProps?: {};
+        data?: {};
+      };
+  success:
+    | string
+    | {
+        id?: string;
+        title?: ReactNode;
+        type?: string;
+        description?: ReactNode;
+        timeout?: number;
+        priority?: 'low' | 'high';
+        transitionStatus?: 'starting' | 'ending';
+        onClose?: () => void;
+        onRemove?: () => void;
+        actionProps?: {};
+        data?: {};
+      }
+    | ((
+        result: Value,
+      ) =>
+        | string
+        | {
+            id?: string;
+            title?: ReactNode;
+            type?: string;
+            description?: ReactNode;
+            timeout?: number;
+            priority?: 'low' | 'high';
+            transitionStatus?: 'starting' | 'ending';
+            onClose?: () => void;
+            onRemove?: () => void;
+            actionProps?: {};
+            data?: {};
+          });
+  error:
+    | string
+    | {
+        id?: string;
+        title?: ReactNode;
+        type?: string;
+        description?: ReactNode;
+        timeout?: number;
+        priority?: 'low' | 'high';
+        transitionStatus?: 'starting' | 'ending';
+        onClose?: () => void;
+        onRemove?: () => void;
+        actionProps?: {};
+        data?: {};
+      }
+    | ((
+        error: any,
+      ) =>
+        | string
+        | {
+            id?: string;
+            title?: ReactNode;
+            type?: string;
+            description?: ReactNode;
+            timeout?: number;
+            priority?: 'low' | 'high';
+            transitionStatus?: 'starting' | 'ending';
+            onClose?: () => void;
+            onRemove?: () => void;
+            actionProps?: {};
+            data?: {};
+          });
 };
 ```

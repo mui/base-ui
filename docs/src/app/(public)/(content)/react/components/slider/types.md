@@ -71,6 +71,38 @@ type SliderRootState = {
 };
 ```
 
+### Root.ChangeEventReason
+
+```typescript
+type SliderRootChangeEventReason = 'none';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type SliderRootChangeEventDetails = {
+  reason: 'none';
+  event: Event;
+  cancel: () => void;
+  allowPropagation: () => void;
+  isCanceled: boolean;
+  isPropagationAllowed: boolean;
+  trigger: HTMLElement | undefined;
+} & { activeThumbIndex: number };
+```
+
+### Root.CommitEventReason
+
+```typescript
+type SliderRootCommitEventReason = 'none';
+```
+
+### Root.CommitEventDetails
+
+```typescript
+type SliderRootCommitEventDetails = { reason: 'none'; event: Event };
+```
+
 ### Value
 
 Displays the current value of the slider as text. Renders an `<output>` element.
@@ -251,3 +283,9 @@ The clickable, interactive part of the slider. Renders a `<div>` element.
 ### Control.Props
 
 Re-export of [Control](#control) props.
+
+### ThumbMetadata
+
+```typescript
+type ThumbMetadata = { inputId: string | undefined };
+```
