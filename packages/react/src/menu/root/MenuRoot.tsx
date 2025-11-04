@@ -420,7 +420,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
       return allowOutsidePressDismissalRef.current;
     },
-    externalTree: treeRoot,
+    externalTree: nested ? treeRoot : undefined,
   });
 
   const role = useRole(floatingRootContext, {
@@ -451,7 +451,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     disabledIndices: EMPTY_ARRAY,
     onNavigate: setActiveIndex,
     openOnArrowKeyDown: parent.type !== 'context-menu',
-    externalTree: treeRoot,
+    externalTree: nested ? treeRoot : undefined,
   });
 
   const onTypingChange = React.useCallback(

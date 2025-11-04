@@ -624,6 +624,83 @@ describe('<Menu.Root />', () => {
 
       expect(submenuTrigger).toHaveFocus();
     });
+
+    it('closes the entire tree when clicking outside the deepest submenu', async () => {
+      const { user } = await render(
+        <div>
+          <Menu.Root>
+            <Menu.Trigger>Open Main</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="level-1">
+                <Menu.Popup>
+                  <Menu.Item>Item 1</Menu.Item>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger data-testid="submenu-trigger-1">
+                      Level 2
+                    </Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner data-testid="level-2">
+                        <Menu.Popup>
+                          <Menu.Item>Item 2</Menu.Item>
+                          <Menu.SubmenuRoot>
+                            <Menu.SubmenuTrigger data-testid="submenu-trigger-2">
+                              Level 3
+                            </Menu.SubmenuTrigger>
+                            <Menu.Portal>
+                              <Menu.Positioner data-testid="level-3">
+                                <Menu.Popup>
+                                  <Menu.Item>Deep Item</Menu.Item>
+                                </Menu.Popup>
+                              </Menu.Positioner>
+                            </Menu.Portal>
+                          </Menu.SubmenuRoot>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <button data-testid="outside">Outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open Main' });
+      await user.click(trigger);
+
+      await screen.findByTestId('level-1');
+
+      await user.keyboard('[ArrowDown]');
+      await user.keyboard('[ArrowDown]');
+
+      const submenuTrigger1 = await screen.findByTestId('submenu-trigger-1');
+      await waitFor(() => {
+        expect(submenuTrigger1).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowRight]');
+      await screen.findByTestId('level-2');
+
+      await user.keyboard('[ArrowDown]');
+
+      const submenuTrigger2 = await screen.findByTestId('submenu-trigger-2');
+      await waitFor(() => {
+        expect(submenuTrigger2).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowRight]');
+      await screen.findByTestId('level-3');
+
+      const outside = screen.getByTestId('outside');
+      await user.click(outside);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('level-1')).to.equal(null);
+        expect(screen.queryByTestId('level-2')).to.equal(null);
+        expect(screen.queryByTestId('level-3')).to.equal(null);
+      });
+    });
   });
 
   describe('focus management', () => {
