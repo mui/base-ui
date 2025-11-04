@@ -103,9 +103,9 @@ export default function ExampleVirtualizedCombobox() {
                       return (
                         <Combobox.Item
                           key={virtualItem.key}
-                          data-index={virtualItem.index}
-													ref={virtualizer.measureElement}
                           index={virtualItem.index}
+                          data-index={virtualItem.index}
+                          ref={virtualizer.measureElement}
                           value={item}
                           className={styles.Item}
                           aria-setsize={filteredItems.length}
