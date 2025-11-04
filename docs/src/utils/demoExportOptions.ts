@@ -188,14 +188,6 @@ export function resolveDependencies(packageName: string): Record<string, string>
       return { [packageName]: version };
     }
 
-    case '@mui/material':
-    case '@mui/system':
-      return {
-        [packageName]: 'latest',
-        '@emotion/react': 'latest',
-        '@emotion/styled': 'latest',
-      };
-
     default:
       return {
         [packageName]: 'latest',
