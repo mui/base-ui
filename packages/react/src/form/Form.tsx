@@ -16,10 +16,9 @@ import { EMPTY_OBJECT } from '../utils/constants';
  *
  * Documentation: [Base UI Form](https://base-ui.com/react/components/form)
  */
-export const Form = React.forwardRef(function Form(
-  componentProps: Form.Props,
-  forwardedRef: React.ForwardedRef<HTMLFormElement>,
-) {
+export const Form = React.forwardRef(function Form<
+  FormValues extends Record<string, any> = Record<string, any>,
+>(componentProps: Form.Props<FormValues>, forwardedRef: React.ForwardedRef<HTMLFormElement>) {
   const {
     render,
     className,
@@ -94,7 +93,7 @@ export const Form = React.forwardRef(function Form(
 
               const formValues = values.reduce((acc, field) => {
                 if (field.name && field.getValueRef) {
-                  acc[field.name] = field.getValueRef.current?.();
+                  (acc as Record<string, any>)[field.name] = field.getValueRef.current?.();
                 }
                 return acc;
               }, {} as FormValues);
@@ -128,16 +127,21 @@ export const Form = React.forwardRef(function Form(
   );
 
   return <FormContext.Provider value={contextValue}>{element}</FormContext.Provider>;
-});
-
-export type FormValues = Record<string, any>;
+}) as {
+  <FormValues extends Record<string, any> = Record<string, any>>(
+    props: Form.Props<FormValues> & {
+      ref?: React.RefObject<HTMLFormElement>;
+    },
+  ): React.JSX.Element;
+};
 
 export type FormSubmitEventReason = 'none';
 export type FormSubmitEventDetails = BaseUIGenericEventDetails<Form.SubmitEventReason>;
 
 export interface FormState {}
 
-export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
+export interface FormProps<FormValues extends Record<string, any> = Record<string, any>>
+  extends BaseUIComponentProps<'form', Form.State> {
   /**
    * Determines when the form should be validated.
    * The `validationMode` prop on `<Field.Root>` takes precedence over this.
@@ -168,10 +172,12 @@ export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
 export type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
 
 export namespace Form {
-  export type Props = FormProps;
+  export type Props<FormValues extends Record<string, any> = Record<string, any>> =
+    FormProps<FormValues>;
   export type State = FormState;
   export type ValidationMode = FormValidationMode;
-  export type Values = FormValues;
   export type SubmitEventReason = FormSubmitEventReason;
   export type SubmitEventDetails = FormSubmitEventDetails;
+
+  export type Values<FormValues extends Record<string, any> = Record<string, any>> = FormValues;
 }
