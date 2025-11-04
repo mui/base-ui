@@ -253,6 +253,27 @@ describe('<Form />', () => {
       });
       expect(submitSpy.lastCall.returnValue.eventDetails.event.defaultPrevented).to.equal(true);
     });
+
+    it('does not run when the form is invalid', async () => {
+      const submitSpy = spy();
+
+      function App() {
+        return (
+          <Form onFormSubmit={submitSpy}>
+            <Field.Root name="username">
+              <Field.Control defaultValue="" required />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+      render(<App />);
+      expect(screen.queryByTestId('error')).to.equal(null);
+      fireEvent.click(screen.getByText('submit'));
+      expect(submitSpy.callCount).to.equal(0);
+      expect(screen.queryByTestId('error')).to.not.equal(null);
+    });
   });
 
   describe('prop: noValidate', () => {
