@@ -34,6 +34,7 @@ export default defineConfig(
   globalIgnores(['./examples']),
   createBaseConfig({
     baseDirectory: dirname,
+    enableReactCompiler: true,
   }),
   {
     name: 'Base UI overrides',
@@ -76,6 +77,16 @@ export default defineConfig(
 
       // This rule doesn't recognise <label> wrapped around custom controls
       'jsx-a11y/label-has-associated-control': 'off',
+      'react-compiler/react-compiler': [
+        'error',
+        {
+          compilationMode: 'infer',
+          // When targeting react v17 or v18, the packages also need to have
+          // "react-compiler-runtime" as a dependency.
+          target: '17',
+          enableReanimatedCheck: false,
+        },
+      ],
     },
   },
   {
@@ -84,6 +95,9 @@ export default defineConfig(
       `**/*${EXTENSION_TEST_FILE}`,
     ],
     extends: createTestConfig({ useMocha: false }),
+    rules: {
+      'react-compiler/react-compiler': 'off',
+    },
   },
   baseSpecRules,
   {
