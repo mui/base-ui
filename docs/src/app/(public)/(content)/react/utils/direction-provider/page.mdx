@@ -10,7 +10,7 @@ import { DemoDirectionProviderHero } from './demos/hero';
 
 <DemoDirectionProviderHero />
 
-## API reference
+## Anatomy
 
 Import the component and wrap it around your app:
 
@@ -23,4 +23,26 @@ import { DirectionProvider } from '@base-ui-components/react/direction-provider'
 </DirectionProvider>
 ```
 
+`<DirectionProvider>` enables child Base UI components to adjust behavior based on RTL text direction, but does not affect HTML and CSS. The `dir="rtl"` HTML attribute or `direction: rtl` CSS style must be set additionally by your own application code.
+
+## API reference
+
 <Reference component="DirectionProvider" />
+
+## useDirection
+
+Use this hook to read the current text direction. This is useful for wrapping portalled components that may be rendered outside your application root and are unaffected by the `dir` attribute set within.
+
+### Return value
+
+<PropsReferenceTable
+  type="return"
+  data={{
+    direction: {
+      type: 'TextDirection',
+      detailedType: "'ltr' | 'rtl' | undefined",
+      description: 'The current text direction.',
+      default: "'ltr'",
+    },
+  }}
+/>
