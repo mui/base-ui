@@ -186,11 +186,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       allowInputSyncRef.current = true;
 
       if (inputValue.trim() === '') {
-        setValue(null);
+        setValue(null, createChangeEventDetails('input-clear', event.nativeEvent));
         if (validationMode === 'onBlur') {
           commitValidation(null);
         }
-        onValueCommitted(null, createGenericEventDetails('none', event.nativeEvent));
+        onValueCommitted(null, createGenericEventDetails('input-clear', event.nativeEvent));
         return;
       }
 
@@ -213,7 +213,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           ? Number(parsedValue.toFixed(maxFrac))
           : parsedValue;
 
-      const nextEventDetails = createGenericEventDetails('none', event.nativeEvent);
+      const nextEventDetails = createGenericEventDetails('input-blur', event.nativeEvent);
       const shouldUpdateValue = value !== committed;
       const shouldCommit = hadManualInput || shouldUpdateValue || hadPendingProgrammaticChange;
 
@@ -221,7 +221,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         commitValidation(committed);
       }
       if (shouldUpdateValue) {
-        setValue(committed, event.nativeEvent);
+        setValue(committed, createChangeEventDetails('input-blur', event.nativeEvent));
       }
       if (shouldCommit) {
         onValueCommitted(committed, nextEventDetails);
@@ -248,7 +248,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       if (targetValue.trim() === '') {
         setInputValue(targetValue);
-        setValue(null, event.nativeEvent);
+        setValue(null, createChangeEventDetails('input-clear', event.nativeEvent));
         return;
       }
 
@@ -282,7 +282,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         setInputValue(targetValue);
         const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
         if (parsedValue !== null) {
-          setValue(parsedValue, event.nativeEvent);
+          setValue(parsedValue, createChangeEventDetails('input-change', event.nativeEvent));
         }
         return;
       }
@@ -291,7 +291,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       if (parsedValue !== null) {
         setInputValue(targetValue);
-        setValue(parsedValue, event.nativeEvent);
+        setValue(parsedValue, createChangeEventDetails('input-change', event.nativeEvent));
       }
     },
     onKeyDown(event) {
@@ -389,20 +389,32 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Prevent insertion of text or caret from moving.
       stopEvent(event);
 
-      const details = createChangeEventDetails('none', nativeEvent);
+      const commitDetails = createGenericEventDetails('keyboard', nativeEvent);
 
       if (event.key === 'ArrowUp') {
-        incrementValue(amount, 1, parsedValue, nativeEvent);
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
+        incrementValue({
+          amount,
+          direction: 1,
+          currentValue: parsedValue,
+          event: nativeEvent,
+          reason: 'keyboard',
+        });
+        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       } else if (event.key === 'ArrowDown') {
-        incrementValue(amount, -1, parsedValue, nativeEvent);
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
+        incrementValue({
+          amount,
+          direction: -1,
+          currentValue: parsedValue,
+          event: nativeEvent,
+          reason: 'keyboard',
+        });
+        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       } else if (event.key === 'Home' && min != null) {
-        setValue(min, nativeEvent);
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
+        setValue(min, createChangeEventDetails('keyboard', nativeEvent));
+        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       } else if (event.key === 'End' && max != null) {
-        setValue(max, nativeEvent);
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, details);
+        setValue(max, createChangeEventDetails('keyboard', nativeEvent));
+        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       }
     },
     onPaste(event) {
@@ -419,7 +431,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       if (parsedValue !== null) {
         allowInputSyncRef.current = false;
-        setValue(parsedValue, event.nativeEvent);
+        setValue(parsedValue, createChangeEventDetails('input-paste', event.nativeEvent));
         setInputValue(pastedData);
       }
     },

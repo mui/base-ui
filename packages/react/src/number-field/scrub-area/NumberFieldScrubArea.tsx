@@ -155,7 +155,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
           onScrubbingChange(false, event);
           onValueCommitted(
             lastChangedValueRef.current ?? valueRef.current,
-            createGenericEventDetails('none', event),
+            createGenericEventDetails('scrub', event),
           );
         }
       }
@@ -177,7 +177,17 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
         if (Math.abs(cumulativeDelta) >= pixelSensitivity) {
           cumulativeDelta = 0;
           const dValue = direction === 'vertical' ? -movementY : movementX;
-          incrementValue(dValue * (getStepAmount(event) ?? DEFAULT_STEP), 1);
+          const stepAmount = getStepAmount(event) ?? DEFAULT_STEP;
+          const rawAmount = dValue * stepAmount;
+
+          if (rawAmount !== 0) {
+            incrementValue({
+              amount: Math.abs(rawAmount),
+              direction: rawAmount >= 0 ? 1 : -1,
+              event,
+              reason: 'scrub',
+            });
+          }
         }
       }
 

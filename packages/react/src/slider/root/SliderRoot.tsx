@@ -32,6 +32,18 @@ import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStateAttributesMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
 
+function isSliderKeyboardEvent(
+  event: React.KeyboardEvent | React.ChangeEvent,
+): event is React.KeyboardEvent {
+  return 'key' in event;
+}
+
+function getSliderChangeEventReason(
+  event: React.KeyboardEvent | React.ChangeEvent,
+): SliderRootChangeEventReason {
+  return isSliderKeyboardEvent(event) ? 'keyboard' : 'input-change';
+}
+
 function areValuesEqual(
   newValue: number | readonly number[],
   oldValue: number | readonly number[],
@@ -129,6 +141,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   // state which is updated later when the nested `input` receives focus.
   const pressedThumbIndexRef = React.useRef(-1);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
+  const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>('none');
 
   const formatOptionsRef = useValueAsRef(format);
 
@@ -171,10 +184,15 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   }, [max, min, range, valueUnwrapped]);
 
   const setValue = useStableCallback(
-    (newValue: number | number[], thumbIndex: number, event: Event) => {
+    (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => {
       if (Number.isNaN(newValue) || areValuesEqual(newValue, valueUnwrapped)) {
         return;
       }
+
+      const changeDetails =
+        details ?? createChangeEventDetails('none', undefined, undefined, { activeThumbIndex: -1 });
+
+      lastChangeReasonRef.current = changeDetails.reason;
 
       // Redefine target to allow name and value to be read.
       // This allows seamless integration with the most popular form libraries.
@@ -188,15 +206,13 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         value: { value: newValue, name },
       });
 
+      changeDetails.event = clonedEvent;
+
       lastChangedValueRef.current = newValue;
 
-      const details = createChangeEventDetails('none', clonedEvent, undefined, {
-        activeThumbIndex: thumbIndex,
-      });
+      onValueChange(newValue, changeDetails);
 
-      onValueChange(newValue, details);
-
-      if (details.isCanceled) {
+      if (changeDetails.isCanceled) {
         return;
       }
 
@@ -216,18 +232,25 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       const newValue = getSliderValue(valueInput, index, min, max, range, values);
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
-        setValue(newValue, index, event.nativeEvent);
+        const reason = getSliderChangeEventReason(event);
+        setValue(
+          newValue,
+          createChangeEventDetails(reason, event.nativeEvent, undefined, {
+            activeThumbIndex: index,
+          }),
+        );
         setDirty(newValue !== validityData.initialValue);
         setTouched(true);
 
         const nextValue = lastChangedValueRef.current ?? newValue;
-        onValueCommitted(nextValue, createGenericEventDetails('none', event.nativeEvent));
+        const commitReason = lastChangeReasonRef.current;
+        onValueCommitted(nextValue, createGenericEventDetails(commitReason, event.nativeEvent));
         clearErrors(name);
 
         if (shouldValidateOnChange()) {
-          fieldControlValidation.commitValidation(nextValue ?? newValue);
+          fieldControlValidation.commitValidation(nextValue);
         } else {
-          fieldControlValidation.commitValidation(nextValue ?? newValue, true);
+          fieldControlValidation.commitValidation(nextValue, true);
         }
       }
     },
@@ -294,6 +317,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       labelId: ariaLabelledby,
       largeStep,
       lastChangedValueRef,
+      lastChangeReasonRef,
       locale,
       max,
       min,
@@ -328,6 +352,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       indicatorPosition,
       largeStep,
       lastChangedValueRef,
+      lastChangeReasonRef,
       locale,
       max,
       min,
@@ -494,6 +519,14 @@ export interface SliderRootProps<
   /**
    * Callback function that is fired when the slider's value changed.
    * You can pull out the new value by accessing `event.target.value` (any).
+   *
+   * The `eventDetails.reason` indicates what triggered the change:
+   *
+   * - `'input-change'` when the hidden range input emits a change event (for example, via form integration)
+   * - `'track-press'` when the control track is pressed
+   * - `'drag'` while dragging a thumb
+   * - `'keyboard'` for keyboard input
+   * - `'none'` when the change is triggered without a specific interaction
    */
   onValueChange?: (
     value: Value extends number ? number : Value,
@@ -502,6 +535,14 @@ export interface SliderRootProps<
   /**
    * Callback function that is fired when the `pointerup` is triggered.
    * **Warning**: This is a generic event not a change event.
+   *
+   * The `eventDetails.reason` indicates what triggered the commit:
+   *
+   * - `'drag'` while dragging a thumb
+   * - `'track-press'` when the control track is pressed
+   * - `'keyboard'` for keyboard input
+   * - `'input-change'` when the hidden range input emits a change event (for example, via form integration)
+   * - `'none'` when the commit occurs without a specific interaction
    */
   onValueCommitted?: (
     value: Value extends number ? number : Value,
@@ -509,13 +550,30 @@ export interface SliderRootProps<
   ) => void;
 }
 
-export type SliderRootChangeEventReason = 'none';
+export interface SliderRootChangeEventCustomProperties {
+  /**
+   * The index of the active thumb at the time of the change.
+   */
+  activeThumbIndex: number;
+}
+
+export type SliderRootChangeEventReason =
+  | 'input-change'
+  | 'track-press'
+  | 'drag'
+  | 'keyboard'
+  | 'none';
 export type SliderRootChangeEventDetails = BaseUIChangeEventDetails<
   SliderRoot.ChangeEventReason,
-  { activeThumbIndex: number }
+  SliderRootChangeEventCustomProperties
 >;
 
-export type SliderRootCommitEventReason = 'none';
+export type SliderRootCommitEventReason =
+  | 'drag'
+  | 'track-press'
+  | 'keyboard'
+  | 'input-change'
+  | 'none';
 export type SliderRootCommitEventDetails = BaseUIGenericEventDetails<SliderRoot.CommitEventReason>;
 
 export namespace SliderRoot {

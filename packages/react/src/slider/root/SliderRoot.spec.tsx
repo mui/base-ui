@@ -38,3 +38,60 @@ const singleValueExplicitTypeAnnotation = (
 const arrayValueExplicitTypeAnnotation = (
   <Slider.Root<number[]> onValueChange={(v) => expectType<number[], typeof v>(v)} />
 );
+
+type SliderChangeHandler = NonNullable<Slider.Root.Props['onValueChange']>;
+type SliderCommitHandler = NonNullable<Slider.Root.Props['onValueCommitted']>;
+
+type SliderChangeDetails = Parameters<SliderChangeHandler>[1];
+
+function assertSliderChange(details: SliderChangeDetails) {
+  if (details.reason === 'drag') {
+    const event: PointerEvent | TouchEvent = details.event;
+    void event;
+    // @ts-expect-error pointer drag does not emit wheel events
+    const wheelEvent: WheelEvent = details.event;
+    void wheelEvent;
+  }
+
+  if (details.reason === 'keyboard') {
+    const event: KeyboardEvent = details.event;
+    void event;
+  }
+
+  if (details.reason === 'track-press') {
+    const event: PointerEvent | MouseEvent | TouchEvent = details.event;
+    void event;
+  }
+}
+
+type SliderCommitDetails = Parameters<SliderCommitHandler>[1];
+
+function assertSliderCommit(details: SliderCommitDetails) {
+  if (details.reason === 'drag') {
+    const event: PointerEvent | TouchEvent = details.event;
+    void event;
+  }
+
+  if (details.reason === 'input-change') {
+    const event: InputEvent | Event = details.event;
+    void event;
+  }
+}
+
+const handleSliderChange: SliderChangeHandler = (v, details) => {
+  expectType<number | readonly number[], typeof v>(v);
+  assertSliderChange(details);
+};
+
+const handleSliderCommit: SliderCommitHandler = (v, details) => {
+  expectType<number | readonly number[], typeof v>(v);
+  assertSliderCommit(details);
+};
+
+const sliderReasonNarrowing = (
+  <Slider.Root
+    defaultValue={25}
+    onValueChange={handleSliderChange}
+    onValueCommitted={handleSliderCommit}
+  />
+);

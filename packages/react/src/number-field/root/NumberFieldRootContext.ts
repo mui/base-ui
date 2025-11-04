@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Timeout } from '@base-ui-components/utils/useTimeout';
 import type { NumberFieldRoot } from './NumberFieldRoot';
 import { EventWithOptionalKeyState } from '../utils/types';
+import type { IncrementValueParameters } from '../utils/types';
 
 export type InputMode = 'numeric' | 'decimal' | 'text';
 
@@ -16,14 +17,9 @@ export interface NumberFieldRootContext {
   disabled: boolean;
   readOnly: boolean;
   id: string | undefined;
-  setValue: (unvalidatedValue: number | null, event?: Event, dir?: 1 | -1) => void;
+  setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => void;
   getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
-  incrementValue: (
-    amount: number,
-    dir: 1 | -1,
-    currentValue?: number | null,
-    event?: Event,
-  ) => void;
+  incrementValue: (params: IncrementValueParameters) => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
   allowInputSyncRef: React.RefObject<boolean | null>;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;

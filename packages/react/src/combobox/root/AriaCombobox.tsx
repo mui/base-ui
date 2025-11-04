@@ -1548,7 +1548,6 @@ export namespace AriaCombobox {
   export type HighlightEventReason = 'keyboard' | 'pointer' | 'none';
   export type HighlightEventDetails = BaseUIGenericEventDetails<
     HighlightEventReason,
-    Event,
     { index: number }
   >;
 

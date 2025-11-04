@@ -8,8 +8,15 @@ import {
   TOUCH_TIMEOUT,
 } from '../utils/constants';
 import { parseNumber } from '../utils/parse';
-import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
-import type { EventWithOptionalKeyState } from '../utils/types';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+} from '../../utils/createBaseUIEventDetails';
+import type {
+  EventWithOptionalKeyState,
+  Direction,
+  IncrementValueParameters,
+} from '../utils/types';
 import type { NumberFieldRoot } from './NumberFieldRoot';
 import type { HTMLProps } from '../../utils/types';
 
@@ -47,6 +54,9 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
 
   const isMin = value != null && value <= minWithDefault;
   const isMax = value != null && value >= maxWithDefault;
+  const pressReason: NumberFieldRoot.ChangeEventReason = isIncrement
+    ? 'increment-press'
+    : 'decrement-press';
 
   function commitValue(nativeEvent: MouseEvent) {
     allowInputSyncRef.current = true;
@@ -58,7 +68,17 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
       // The increment value function needs to know the current input value to increment it
       // correctly.
       valueRef.current = parsedValue;
-      setValue(parsedValue, nativeEvent);
+      setValue(
+        parsedValue,
+        createChangeEventDetails<NumberFieldRoot.ChangeEventReason, { direction?: Direction }>(
+          pressReason,
+          nativeEvent,
+          undefined,
+          {
+            direction: isIncrement ? 1 : -1,
+          },
+        ),
+      );
     }
   }
 
@@ -98,11 +118,16 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
 
       const prev = valueRef.current;
 
-      incrementValue(amount, isIncrement ? 1 : -1, undefined, event.nativeEvent);
+      incrementValue({
+        amount,
+        direction: isIncrement ? 1 : -1,
+        event: event.nativeEvent,
+        reason: pressReason,
+      });
 
       const committed = lastChangedValueRef.current ?? valueRef.current;
       if (committed !== prev) {
-        onValueCommitted(committed, createGenericEventDetails('none', event.nativeEvent));
+        onValueCommitted(committed, createGenericEventDetails(pressReason, event.nativeEvent));
       }
     },
     onPointerDown(event) {
@@ -211,12 +236,7 @@ export interface UseNumberFieldButtonParameters {
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
   id: string | undefined;
-  incrementValue: (
-    amount: number,
-    dir: 1 | -1,
-    currentValue?: number | null,
-    event?: Event,
-  ) => void;
+  incrementValue: (params: IncrementValueParameters) => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
   inputValue: string;
   intentionalTouchCheckTimeout: Timeout;
@@ -227,7 +247,7 @@ export interface UseNumberFieldButtonParameters {
   minWithDefault: number;
   movesAfterTouchRef: React.RefObject<number | null>;
   readOnly: boolean;
-  setValue: (unvalidatedValue: number | null, event?: Event) => void;
+  setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => void;
   startAutoChange: (isIncrement: boolean, event?: React.MouseEvent | Event) => void;
   stopAutoChange: () => void;
   value: number | null;
