@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
 import { type MenuStore } from '../store/MenuStore';
+import { MenuParent } from './MenuRoot';
 
 export interface MenuRootContext<Payload = unknown> {
   store: MenuStore<Payload>;
+  parent: MenuParent;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);

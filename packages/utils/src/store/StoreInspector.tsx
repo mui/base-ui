@@ -12,7 +12,7 @@ const STYLES = `
   all: unset;
   width: 32px;
   height: 32px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   color: oklch(0.651 0.078 264);
@@ -59,6 +59,7 @@ const STYLES = `
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  max-width: 50vw;
   color-scheme: dark;
   overflow: clip;
   box-shadow:

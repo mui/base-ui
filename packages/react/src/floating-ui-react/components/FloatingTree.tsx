@@ -3,8 +3,8 @@ import * as React from 'react';
 import { useId } from '@base-ui-components/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import type { FloatingNodeType, FloatingTreeType, ReferenceType } from '../types';
-import { createEventEmitter, EventEmitter } from '../utils/createEventEmitter';
+import type { FloatingEvents, FloatingNodeType, FloatingTreeType, ReferenceType } from '../types';
+import { createEventEmitter } from '../utils/createEventEmitter';
 
 const FloatingNodeContext = React.createContext<FloatingNodeType | null>(null);
 const FloatingTreeContext = React.createContext<FloatingTreeType | null>(null);
@@ -79,7 +79,9 @@ export interface FloatingTreeProps {
 export class FloatingTreeStore<RT extends ReferenceType = ReferenceType> {
   public readonly nodesRef: React.RefObject<Array<FloatingNodeType<RT>>> = { current: [] };
 
-  public readonly events: EventEmitter = createEventEmitter();
+  public readonly events: FloatingEvents = createEventEmitter();
+
+  private readonly _id: string = `${Math.random().toString(16).slice(2)}`;
 
   public addNode(node: FloatingNodeType<RT>) {
     this.nodesRef.current.push(node);

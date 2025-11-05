@@ -1,4 +1,6 @@
-export function createEventEmitter() {
+import { FloatingEvents } from '../types';
+
+export function createEventEmitter(): FloatingEvents {
   const map = new Map<string, Set<(data: any) => void>>();
   return {
     emit(event: string, data: any) {
@@ -15,5 +17,3 @@ export function createEventEmitter() {
     },
   };
 }
-
-export type EventEmitter = ReturnType<typeof createEventEmitter>;

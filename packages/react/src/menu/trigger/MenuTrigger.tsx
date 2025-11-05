@@ -5,7 +5,14 @@ import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { contains } from '../../floating-ui-react/utils';
-import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react/index';
+import {
+  safePolygon,
+  useClick,
+  useFloatingTree,
+  useHover,
+  useInteractions,
+} from '../../floating-ui-react/index';
+import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTree';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -20,6 +27,9 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { REASONS } from '../../utils/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
 import { MenuHandle } from '../store/MenuHandle';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { useMenubarContext } from '../../menubar/MenubarContext';
+import { MenuParent } from '../root/MenuRoot';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -55,27 +65,62 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     );
   }
 
+  const contextMenuContext = useContextMenuRootContext(true);
+  const parentContext = useMenuRootContext(true);
+  const menubarContext = useMenubarContext(true);
+
+  const parent: MenuParent = React.useMemo(() => {
+    if (menubarContext) {
+      return {
+        type: 'menubar',
+        context: menubarContext,
+      };
+    }
+
+    // Ensure this is not a Menu nested inside ContextMenu.Trigger.
+    // ContextMenu parentContext is always undefined as ContextMenu.Root is instantiated with
+    // <MenuRootContext.Provider value={undefined}>
+    if (contextMenuContext && !parentContext) {
+      return {
+        type: 'context-menu',
+        context: contextMenuContext,
+      };
+    }
+
+    return {
+      type: undefined,
+    };
+  }, [contextMenuContext, parentContext, menubarContext]);
+
   const rootActiveTriggerProps = store.useState('activeTriggerProps');
   const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
   const menuDisabled = store.useState('disabled');
   const open = store.useState('open');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
-  const parent = store.useState('parent');
   const activeTrigger = store.useState('activeTriggerElement');
   const floatingRootContext = store.useState('floatingRootContext');
   const hoverEnabled = store.useState('hoverEnabled');
-  const allowMouseEnter = store.useState('allowMouseEnter');
   const stickIfOpen = store.useState('stickIfOpen');
-  const floatingTreeRoot = store.useState('floatingTreeRoot');
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-  const isTriggerActive = activeTrigger === triggerElement;
+  const isTriggerActive = activeTrigger != null && activeTrigger === triggerElement;
 
   const disabled = disabledProp || menuDisabled;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerTimeout = useTimeout();
+
+  const floatingTreeRootFromContext = useFloatingTree();
+  const floatingTreeRoot: FloatingTreeStore = React.useMemo(() => {
+    return floatingTreeRootFromContext ?? new FloatingTreeStore();
+  }, [floatingTreeRootFromContext]);
+
+  useIsoLayoutEffect(() => {
+    if (isTriggerActive) {
+      store.update({ floatingTreeRoot, parent });
+    }
+  }, [floatingTreeRoot, store, isTriggerActive, parent]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -132,8 +177,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   }, [open, handleDocumentMouseUp, lastOpenChangeReason]);
 
   const openOnHover =
-    openOnHoverProp ??
-    (parent.type === 'menu' || (parent.type === 'menubar' && parent.context.hasSubmenuOpen));
+    openOnHoverProp ?? (parent.type === 'menubar' && parent.context.hasSubmenuOpen);
 
   const hover = useHover(floatingRootContext, {
     enabled:
@@ -144,13 +188,9 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       (parent.type !== 'menubar' || (parent.context.hasSubmenuOpen && !open)),
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
-    move: parent.type === 'menu',
-    restMs:
-      parent.type === undefined || (parent.type === 'menu' && allowMouseEnter) ? delay : undefined,
-    delay:
-      parent.type === 'menu'
-        ? { open: allowMouseEnter ? delay : 10 ** 10, close: closeDelay }
-        : { close: closeDelay },
+    move: false,
+    restMs: parent.type === undefined ? delay : undefined,
+    delay: { close: closeDelay },
     triggerElement,
     externalTree: floatingTreeRoot,
   });
@@ -158,8 +198,8 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const click = useClick(floatingRootContext, {
     enabled: !disabled && parent.type !== 'context-menu',
     event: open && parent.type === 'menubar' ? 'click' : 'mousedown',
-    toggle: !openOnHover || parent.type !== 'menu',
-    ignoreMouse: openOnHover && parent.type === 'menu',
+    toggle: true,
+    ignoreMouse: false,
     stickIfOpen: parent.type === undefined ? stickIfOpen : false,
   });
 

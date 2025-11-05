@@ -10,6 +10,7 @@ import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popupStoreUtils';
+import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 /**
  * A menu item that opens a submenu.
@@ -41,22 +42,23 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const { store } = useMenuRootContext();
   const rootTriggerProps = store.useState('activeTriggerProps');
   const open = store.useState('open');
-  const parent = store.useState('parent');
   const menuDisabled = store.useState('disabled');
   const hoverEnabled = store.useState('hoverEnabled');
   const allowMouseEnter = store.useState('allowMouseEnter');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
 
-  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
+  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
   const disabled = disabledProp || menuDisabled;
 
-  if (parent.type !== 'menu') {
+  const submenuRootContext = useMenuSubmenuRootContext();
+  if (!submenuRootContext?.parentMenu) {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
-  const parentMenuStore = parent.store;
+  const parentMenuStore = submenuRootContext.parentMenu;
+
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
 
@@ -86,7 +88,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     move: true,
     restMs: allowMouseEnter ? delay : undefined,
     delay: { open: allowMouseEnter ? delay : 10 ** 10, close: closeDelay },
-    triggerElement: triggerElement as HTMLElement | null,
+    triggerElement,
     externalTree: floatingTreeRoot,
   });
 

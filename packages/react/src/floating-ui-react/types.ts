@@ -157,12 +157,7 @@ export interface FloatingNodeType<RT extends ReferenceType = ReferenceType> {
   context?: FloatingContext<RT>;
 }
 
-export interface FloatingTreeType<RT extends ReferenceType = ReferenceType> {
-  nodesRef: React.MutableRefObject<Array<FloatingNodeType<RT>>>;
-  events: FloatingEvents;
-  addNode(node: FloatingNodeType): void;
-  removeNode(node: FloatingNodeType): void;
-}
+export type FloatingTreeType<RT extends ReferenceType = ReferenceType> = FloatingTreeStore<RT>;
 
 export interface ElementProps {
   reference?: React.HTMLProps<Element>;

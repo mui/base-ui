@@ -32,15 +32,12 @@ import {
   ContextMenuRootContext,
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
-import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { mergeProps } from '../../merge-props';
-import {
-  useFloatingParentNodeId,
-  useFloatingTree,
-} from '../../floating-ui-react/components/FloatingTree';
+import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
 import { MenuStore } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import { PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
+import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 /**
  * Groups all parts of the menu.
@@ -71,7 +68,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const menubarContext = useMenubarContext(true);
   const isSubmenu = useMenuSubmenuRootContext();
 
-  const parent: MenuParent = React.useMemo(() => {
+  const parentFromContext: MenuParent = React.useMemo(() => {
     if (isSubmenu && parentContext) {
       return {
         type: 'menu',
@@ -101,7 +98,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     };
   }, [contextMenuContext, parentContext, menubarContext, isSubmenu]);
 
-  const store = MenuStore.useStore(handle?.store, { parent });
+  const store = MenuStore.useStore(handle?.store, { parent: parentFromContext });
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
@@ -110,7 +107,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     disabled: disabledProp,
     modal: modalProp,
     rootId: useId(),
-    parent,
   });
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
@@ -122,6 +118,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const modal = store.useState('modal');
   const disabled = store.useState('disabled');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const parent = store.useState('parent');
 
   const activeIndex = store.useState('activeIndex');
   const payload = store.useState('payload') as Payload | undefined;
@@ -130,14 +127,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const openEventRef = React.useRef<Event | null>(null);
   const stickIfOpenTimeout = useTimeout();
   const nested = useFloatingParentNodeId() != null;
-
-  const parentTree = useFloatingTree();
-
-  useIsoLayoutEffect(() => {
-    if (parent.type !== undefined && parent.type !== 'context-menu' && parent.type !== 'menu') {
-      store.set('floatingTreeRoot', parentTree);
-    }
-  }, [parent.type, parentTree, store]);
 
   const treeRoot = store.useState('floatingTreeRoot');
 
@@ -402,12 +391,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   }, [floatingEvents, setOpen]);
 
   const focus = useFocus(floatingRootContext, {
-    enabled:
-      !disabled &&
-      !open &&
-      parent.type === 'menubar' &&
-      parent.context.hasSubmenuOpen &&
-      !contextMenuContext,
+    enabled: !disabled && !open && parent.type === 'menubar' && parent.context.hasSubmenuOpen,
   });
 
   const dismiss = useDismiss(floatingRootContext, {
@@ -548,8 +532,9 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const context: MenuRootContext<Payload> = React.useMemo(
     () => ({
       store,
+      parent: parentFromContext,
     }),
-    [store],
+    [store, parentFromContext],
   );
 
   const content = (
@@ -616,7 +601,6 @@ export interface MenuRootProps<Payload = unknown> {
    * @default true
    */
   closeParentOnEsc?: boolean;
-
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the menu will not be unmounted when closed.
