@@ -129,13 +129,13 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
 function createInitialState<Payload>(options: DialogStoreOptions = {}): State<Payload> {
   const { modal = true, dismissible = true } = options;
   return {
-    open: false,
     dismissible,
+    modal,
+    open: false,
     nested: false,
     popupElement: null,
     viewportElement: null,
     activeTriggerId: null,
-    modal,
     descriptionElementId: undefined,
     titleElementId: undefined,
     openMethod: null,

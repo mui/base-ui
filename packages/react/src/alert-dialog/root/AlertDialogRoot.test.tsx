@@ -462,6 +462,35 @@ describe('<AlertDialog.Root />', () => {
   });
 
   describe('imperative actions on the handle', () => {
+    it('keeps the alert dialog open when the backdrop is clicked', async () => {
+      const handle = AlertDialog.createHandle();
+
+      const { user } = await render(
+        <React.Fragment>
+          <AlertDialog.Trigger handle={handle}>Open</AlertDialog.Trigger>
+          <AlertDialog.Root handle={handle}>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup>
+                <AlertDialog.Close>Close</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      expect(await screen.findByRole('alertdialog')).not.to.equal(null);
+
+      const backdrop = await screen.findByRole('presentation', { hidden: true });
+      await user.click(backdrop);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).not.to.equal(null);
+      });
+    });
+
     it('opens and closes the dialog', async () => {
       const dialog = AlertDialog.createHandle();
       await render(
