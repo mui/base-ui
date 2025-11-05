@@ -73,7 +73,7 @@ function TanstackForm() {
           errors.serverName = 'At least 3 characters.';
         }
 
-        return { form: errors, fields: errors };
+        return isEmpty(errors) ? undefined : { form: errors, fields: errors };
       },
     },
   });
@@ -471,6 +471,14 @@ export default function App() {
       <TanstackForm />
     </ToastProvider>
   );
+}
+
+function isEmpty(object: Partial<Record<DeepKeys<FormValues>, ValidationError>>) {
+  // eslint-disable-next-line
+  for (const _ in object) {
+    return false;
+  }
+  return true;
 }
 
 function cartesian<T extends string[][]>(...arrays: T): string[][] {
