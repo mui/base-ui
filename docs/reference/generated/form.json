@@ -7,11 +7,6 @@
       "description": "An object where the keys correspond to the `name` attribute of the form fields,\nand the values correspond to the error(s) related to that field.",
       "detailedType": "{} | undefined"
     },
-    "onClearErrors": {
-      "type": "((errors: Errors) => void)",
-      "description": "Event handler called when the `errors` object is cleared.",
-      "detailedType": "((errors: Errors) => void) | undefined"
-    },
     "style": {
       "type": "CSSProperties | ((state: Form.State) => CSSProperties | undefined)",
       "detailedType": "| React.CSSProperties\n| ((state: Form.State) => CSSProperties | undefined)\n| undefined"

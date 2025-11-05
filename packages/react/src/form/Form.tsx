@@ -21,7 +21,6 @@ export const Form = React.forwardRef(function Form(
     className,
     validationMode = 'onSubmit',
     errors: externalErrors,
-    onClearErrors,
     onSubmit,
     ...elementProps
   } = componentProps;
@@ -103,7 +102,6 @@ export const Form = React.forwardRef(function Form(
       const nextErrors = { ...errors };
       delete nextErrors[name];
       setErrors(nextErrors);
-      onClearErrors?.(nextErrors);
     }
   });
 
@@ -140,10 +138,6 @@ export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
    * and the values correspond to the error(s) related to that field.
    */
   errors?: FormContext['errors'];
-  /**
-   * Event handler called when the `errors` object is cleared.
-   */
-  onClearErrors?: (errors: FormContext['errors']) => void;
 }
 
 export type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';

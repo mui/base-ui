@@ -73,39 +73,6 @@ describe('<Form />', () => {
   });
 
   describe('prop: errors', () => {
-    function App() {
-      const [errors, setErrors] = React.useState<Form.Props['errors']>({
-        foo: 'bar',
-      });
-
-      return (
-        <Form
-          errors={errors}
-          onSubmit={(event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const name = formData.get('name') as string;
-            const age = formData.get('age') as string;
-
-            setErrors({
-              ...(name === '' && { name: 'Name is required' }),
-              ...(age === '' && { age: 'Age is required' }),
-            });
-          }}
-        >
-          <Field.Root name="name">
-            <Field.Control data-testid="name" />
-            <Field.Error data-testid="name-error" />
-          </Field.Root>
-          <Field.Root name="age">
-            <Field.Control data-testid="age" />
-            <Field.Error data-testid="age-error" />
-          </Field.Root>
-          <button>Submit</button>
-        </Form>
-      );
-    }
-
     it('should mark <Field.Control> as invalid and populate <Field.Error>', () => {
       render(
         <Form errors={{ foo: 'bar' }}>
@@ -133,6 +100,37 @@ describe('<Form />', () => {
       expect(screen.queryByTestId('error')).to.equal(null);
       expect(screen.getByRole('textbox')).not.to.have.attribute('aria-invalid');
     });
+
+    function App() {
+      const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+
+      return (
+        <Form
+          errors={errors}
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const name = formData.get('name') as string;
+            const age = formData.get('age') as string;
+
+            setErrors({
+              ...(name === '' && { name: 'Name is required' }),
+              ...(age === '' && { age: 'Age is required' }),
+            });
+          }}
+        >
+          <Field.Root name="name">
+            <Field.Control data-testid="name" />
+            <Field.Error data-testid="name-error" />
+          </Field.Root>
+          <Field.Root name="age">
+            <Field.Control data-testid="age" />
+            <Field.Error data-testid="age-error" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>
+      );
+    }
 
     it('focuses the first invalid field only on submit', async () => {
       const { user } = render(<App />);
@@ -184,39 +182,15 @@ describe('<Form />', () => {
       const name = screen.getByTestId('name');
       const age = screen.getByTestId('age');
 
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(screen.queryByTestId('name-error')).to.not.equal(null);
+      expect(screen.queryByTestId('age-error')).to.not.equal(null);
+
       fireEvent.change(name, { target: { value: 'John' } });
       fireEvent.change(age, { target: { value: '42' } });
-
       expect(screen.queryByTestId('name-error')).to.equal(null);
       expect(screen.queryByTestId('age-error')).to.equal(null);
-    });
-  });
-
-  describe('prop: onClearErrors', () => {
-    it('should clear errors if no matching name keys exist', () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Form.Props['errors']>({
-          foo: 'bar',
-        });
-        return (
-          <Form errors={errors}>
-            <Field.Root name="foo">
-              <Field.Control />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      render(<App />);
-
-      expect(screen.getByTestId('error')).to.have.text('bar');
-      expect(screen.getByRole('textbox')).to.have.attribute('aria-invalid', 'true');
-
-      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'baz' } });
-
-      expect(screen.queryByTestId('error')).to.equal(null);
-      expect(screen.getByRole('textbox')).not.to.have.attribute('aria-invalid');
     });
   });
 
