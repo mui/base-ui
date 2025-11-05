@@ -34,7 +34,6 @@ import {
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
@@ -119,15 +118,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
+    validation,
   } = useFieldRootContext();
-  const fieldControlValidation = useFieldControlValidation();
   const id = useLabelableId({ id: idProp });
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
-  const commitValidation = fieldControlValidation.commitValidation;
+  const commit = validation.commit;
 
   let autoHighlightMode: false | 'input-change' | 'always';
   if (autoHighlight === 'always') {
@@ -340,7 +339,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         disabled,
         readOnly,
         required,
-        fieldControlValidation,
         grid,
         isGrouped,
         virtualized,
@@ -433,7 +431,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useField({
     id,
-    commitValidation,
+    commit,
     value: formValue,
     controlRef: inputInsidePopup ? triggerRef : inputRef,
     name,
@@ -870,10 +868,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     clearErrors(name);
-    commitValidation?.(selectedValue, true);
+    commit?.(selectedValue, true);
 
     if (shouldValidateOnChange()) {
-      commitValidation?.(selectedValue);
+      commit?.(selectedValue);
     }
 
     updateValue(selectedValue);
@@ -905,10 +903,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     clearErrors(name);
-    commitValidation?.(inputValue, true);
+    commit?.(inputValue, true);
 
     if (shouldValidateOnChange()) {
-      commitValidation?.(inputValue);
+      commit?.(inputValue);
     }
 
     updateValue(inputValue);
@@ -1111,7 +1109,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       disabled,
       readOnly,
       required,
-      fieldControlValidation,
       grid,
       isGrouped,
       virtualized,
@@ -1144,7 +1141,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     disabled,
     readOnly,
     required,
-    fieldControlValidation,
+    validation,
     grid,
     isGrouped,
     virtualized,
@@ -1159,7 +1156,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     autoHighlightMode,
   ]);
 
-  const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
+  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
 
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
@@ -1201,7 +1198,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     <React.Fragment>
       {props.children}
       <input
-        {...fieldControlValidation.getInputValidationProps({
+        {...validation.getInputValidationProps({
           // Move focus when the hidden input is focused.
           onFocus() {
             if (inputInsidePopup) {
@@ -1231,7 +1228,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 setInputValue(nextValue, details);
 
                 if (shouldValidateOnChange()) {
-                  fieldControlValidation.commitValidation(nextValue);
+                  validation.commit(nextValue);
                 }
                 return;
               }
@@ -1249,7 +1246,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 setSelectedValue?.(matchingValue, details);
 
                 if (shouldValidateOnChange()) {
-                  fieldControlValidation.commitValidation(matchingValue);
+                  validation.commit(matchingValue);
                 }
               }
             }
@@ -1261,17 +1258,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               queueMicrotask(handleChange);
             }
           },
-          id,
-          name: multiple || selectionMode === 'none' ? undefined : name,
-          disabled,
-          required: required && !hasMultipleSelection,
-          readOnly,
-          value: serializedValue,
-          ref: hiddenInputRef,
-          style: visuallyHidden,
-          tabIndex: -1,
-          'aria-hidden': true,
         })}
+        id={id}
+        name={multiple || selectionMode === 'none' ? undefined : name}
+        disabled={disabled}
+        required={required && !hasMultipleSelection}
+        readOnly={readOnly}
+        value={serializedValue}
+        ref={hiddenInputRef}
+        style={visuallyHidden}
+        tabIndex={-1}
+        aria-hidden
       />
       {hiddenInputs}
     </React.Fragment>
