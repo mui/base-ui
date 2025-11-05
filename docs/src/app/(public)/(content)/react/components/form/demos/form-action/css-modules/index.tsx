@@ -2,38 +2,37 @@
 import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
+import { Button } from '@base-ui-components/react/button';
 import styles from './index.module.css';
 
 interface FormState {
-  success: boolean;
   serverErrors?: Form.Props['errors'];
 }
 
 export default function ActionStateForm() {
-  const [state, formAction, loading] = React.useActionState<FormState, FormData>(submitForm, {
-    success: false,
-  });
+  const [state, formAction, loading] = React.useActionState<FormState, FormData>(submitForm, {});
 
   return (
-    <Form className={styles.Form} errors={state.serverErrors} action={formAction}>
+    <Form errors={state.serverErrors} action={formAction} className={styles.Form}>
       <Field.Root name="username" className={styles.Field}>
         <Field.Label className={styles.Label}>Username</Field.Label>
         <Field.Control
           type="username"
           required
-          defaultValue=""
+          defaultValue="admin"
           placeholder="e.g. alice132"
           className={styles.Input}
         />
         <Field.Error className={styles.Error} />
       </Field.Root>
-      <button disabled={loading} type="submit" className={styles.Button}>
+      <Button type="submit" disabled={loading} focusableWhenDisabled className={styles.Button}>
         Submit
-      </button>
+      </Button>
     </Form>
   );
 }
 
+// Mark this as a Server Function with `'use server'` in a supporting framework like Next.js
 async function submitForm(_previousState: FormState, formData: FormData) {
   // Mimic a server response
   await new Promise((resolve) => {
@@ -52,13 +51,12 @@ async function submitForm(_previousState: FormState, formData: FormData) {
 
     if (!success) {
       return {
-        success: false,
         serverErrors: { username: `${username} is unavailable` },
       };
     }
   } catch {
-    return { success: false, serverErrors: { username: 'A server error has occurred' } };
+    return { serverErrors: { username: 'A server error has occurred' } };
   }
 
-  return { success: true };
+  return {};
 }

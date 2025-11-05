@@ -74,14 +74,12 @@
     background-color: var(--color-gray-100);
   }
 
-  &:disabled {
-    cursor: not-allowed;
-    color: var(--color-gray-400);
-    background-color: var(--color-gray-100);
-  }
-
   &:focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: -1px;
+  }
+
+  &[data-disabled] {
+    color: var(--color-gray-500);
   }
 }
