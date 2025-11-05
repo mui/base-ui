@@ -1229,7 +1229,7 @@ describe('<Select.Root />', () => {
 
     it('clears errors on change', async () => {
       function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
+        const [errors] = React.useState<Record<string, string | string[]>>({
           select: 'test',
         });
         return (

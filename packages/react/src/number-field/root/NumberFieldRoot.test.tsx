@@ -873,7 +873,7 @@ describe('<NumberField />', () => {
 
     it('clears errors on change', async () => {
       function App() {
-        const [errors, setErrors] = React.useState<Form.Props['errors']>({
+        const [errors] = React.useState<Form.Props['errors']>({
           test: 'test',
         });
         return (
