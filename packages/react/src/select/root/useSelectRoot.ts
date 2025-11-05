@@ -28,6 +28,7 @@ import { useField } from '../../field/useField';
 import type { SelectRootConditionalProps, SelectRoot } from './SelectRoot';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
+import { useValueChanged } from '../../utils/useValueChanged';
 
 export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   params: useSelectRoot.Parameters<Value, Multiple>,
@@ -52,7 +53,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     setDirty,
     shouldValidateOnChange,
     validityData,
-    validationMode,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
@@ -154,17 +154,11 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     getValue: () => value,
   });
 
-  const prevValueRef = React.useRef(value);
-
   useIsoLayoutEffect(() => {
     setFilled(value !== null);
   }, [value, setFilled]);
 
-  useIsoLayoutEffect(() => {
-    if (prevValueRef.current === value) {
-      return;
-    }
-
+  useValueChanged(value, () => {
     if (multiple) {
       // For multiple selection, update the label and keep track of the last selected
       // item via `selectedIndex`, which is needed when the popup (re)opens.
@@ -197,29 +191,13 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
-    commit(value, !shouldValidateOnChange());
 
     if (shouldValidateOnChange()) {
       commit(value);
+    } else {
+      commit(value, true);
     }
-  }, [
-    value,
-    commit,
-    clearErrors,
-    name,
-    shouldValidateOnChange,
-    validationMode,
-    store,
-    setDirty,
-    validityData.initialValue,
-    setFilled,
-    multiple,
-    isItemEqualToValue,
-  ]);
-
-  useIsoLayoutEffect(() => {
-    prevValueRef.current = value;
-  }, [value]);
+  });
 
   const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {

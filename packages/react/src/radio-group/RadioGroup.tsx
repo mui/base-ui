@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
@@ -17,6 +16,7 @@ import { useLabelableContext } from '../labelable-provider/LabelableContext';
 import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRoot } from '../field/root/FieldRoot';
 import { mergeProps } from '../merge-props';
+import { useValueChanged } from '../utils/useValueChanged';
 
 import { RadioGroupContext } from './RadioGroupContext';
 import { type BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
@@ -57,6 +57,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     disabled: fieldDisabled,
     state: fieldState,
     validation,
+    setDirty,
+    setFilled,
+    validityData,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
   const { clearErrors } = useFormContext();
@@ -102,25 +105,18 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     getValue: () => checkedValue ?? null,
   });
 
-  const prevValueRef = React.useRef(checkedValue);
-
-  useIsoLayoutEffect(() => {
-    if (prevValueRef.current === checkedValue) {
-      return;
-    }
-
+  useValueChanged(checkedValue, () => {
     clearErrors(name);
+
+    setDirty(checkedValue !== validityData.initialValue);
+    setFilled(checkedValue != null);
 
     if (shouldValidateOnChange()) {
       validation.commit(checkedValue);
     } else {
       validation.commit(checkedValue, true);
     }
-  }, [name, clearErrors, shouldValidateOnChange, validationMode, checkedValue, validation]);
-
-  useIsoLayoutEffect(() => {
-    prevValueRef.current = checkedValue;
-  }, [checkedValue]);
+  });
 
   const [touched, setTouched] = React.useState(false);
 
