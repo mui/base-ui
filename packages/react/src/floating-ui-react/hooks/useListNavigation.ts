@@ -144,7 +144,7 @@ export interface UseListNavigationProps {
    * navigating via arrow keys, specify an empty array.
    * @default undefined
    */
-  disabledIndices?: Array<number> | ((index: number) => boolean);
+  disabledIndices?: ReadonlyArray<number> | ((index: number) => boolean);
   /**
    * Determines whether focus can escape the list, such that nothing is selected
    * after navigating beyond the boundary of the list. In some

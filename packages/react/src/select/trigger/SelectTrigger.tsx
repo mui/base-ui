@@ -60,7 +60,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     store,
     setOpen,
     selectionRef,
-    fieldControlValidation,
+    validation,
     readOnly,
     alignItemWithTriggerActiveRef,
     disabled: selectDisabled,
@@ -164,7 +164,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         setFocused(false);
 
         if (validationMode === 'onBlur') {
-          fieldControlValidation.commitValidation(value);
+          validation.commit(value);
         }
       },
       onPointerMove({ pointerType }) {
@@ -220,7 +220,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         });
       },
     },
-    fieldControlValidation.getValidationProps,
+    validation.getValidationProps,
     elementProps,
     getButtonProps,
   );

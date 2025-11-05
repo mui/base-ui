@@ -6,7 +6,9 @@
   content="A high-quality, unstyled React checkbox group component that provides a shared state for a series of checkboxes."
 />
 
-<Demo path="./demos/hero" />
+import { DemoCheckboxGroupHero } from './demos/hero';
+
+<DemoCheckboxGroupHero />
 
 ## Anatomy
 
@@ -31,11 +33,15 @@ A checkbox that controls other checkboxes within a `<CheckboxGroup>` can be crea
 2. Pass an array of all the child checkbox values to the `allValues` prop on the `<CheckboxGroup>` component
 3. Add the `parent` boolean prop to the parent `<Checkbox>`
 
-<Demo path="./demos/parent" />
+import { DemoCheckboxGroupParent } from './demos/parent';
+
+<DemoCheckboxGroupParent />
 
 ### Nested parent checkbox
 
-<Demo compact path="./demos/nested" />
+import { DemoCheckboxGroupNested } from './demos/nested';
+
+<DemoCheckboxGroupNested compact />
 
 ### Form integration
 
@@ -67,7 +73,9 @@ To use checkbox group in a form:
 </Form>
 ```
 
-<Demo compact path="./demos/form" />
+import { DemoCheckboxGroupForm } from './demos/form';
+
+<DemoCheckboxGroupForm compact />
 
 ## API reference
 

@@ -59,7 +59,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   return useRenderElement('div', componentProps, {
     enabled: shouldRender,
     state,
-    ref: [forwardedRef, store.getElementSetter('viewportElement')],
+    ref: [forwardedRef, store.useStateSetter('viewportElement')],
     stateAttributesMapping,
     props: [
       {

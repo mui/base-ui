@@ -6,7 +6,9 @@
   content="A high-quality, unstyled React menu component that displays list of actions in a dropdown, enhanced with keyboard navigation."
 />
 
-<Demo path="./demos/hero" />
+import { DemoMenuHero } from './demos/hero';
+
+<DemoMenuHero />
 
 ## Anatomy
 
@@ -46,19 +48,25 @@ import { Menu } from '@base-ui-components/react/menu';
 
 To create a menu that opens on hover, add the `openOnHover` prop to the Root part. You can additionally configure how quickly the menu opens on hover using the `delay` prop.
 
-<Demo compact path="./demos/open-on-hover" />
+import { DemoMenuOpenOnHover } from './demos/open-on-hover';
+
+<DemoMenuOpenOnHover compact />
 
 ### Checkbox items
 
 Use the `<Menu.CheckboxItem>` part to create a menu item that can toggle a setting on or off.
 
-<Demo compact path="./demos/checkbox-items" />
+import { DemoMenuCheckboxItems } from './demos/checkbox-items';
+
+<DemoMenuCheckboxItems compact />
 
 ### Radio items
 
 Use the `<Menu.RadioGroup>` and `<Menu.RadioItem>` parts to create menu items that work like radio buttons.
 
-<Demo compact path="./demos/radio-items" />
+import { DemoMenuRadioItems } from './demos/radio-items';
+
+<DemoMenuRadioItems compact />
 
 ### Close on click
 
@@ -76,7 +84,9 @@ Use the `closeOnClick` prop to change whether the menu closes when an item is cl
 
 Use the `<Menu.GroupLabel>` part to add a label to a `<Menu.Group>`
 
-<Demo compact path="./demos/group-labels" />
+import { DemoMenuGroupLabels } from './demos/group-labels';
+
+<DemoMenuGroupLabels compact />
 
 ### Nested menu
 
@@ -109,7 +119,9 @@ To create a submenu, nest another menu inside the parent menu with `<Menu.Submen
 </Menu.Root>
 ```
 
-<Demo compact path="./demos/submenu" />
+import { DemoMenuSubmenu } from './demos/submenu';
+
+<DemoMenuSubmenu compact />
 
 ### Navigate to another page
 
