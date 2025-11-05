@@ -13,10 +13,13 @@ export default function ExampleForm() {
       className="flex w-full max-w-64 flex-col gap-4"
       errors={errors}
       onClearErrors={setErrors}
-      onFormSubmit={async (formValues) => {
-        setLoading(true);
+      onSubmit={async (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const value = formData.get('url') as string;
 
-        const response = await submitForm(formValues);
+        setLoading(true);
+        const response = await submitForm(value);
         const serverErrors = {
           url: response.error,
         };
@@ -49,14 +52,14 @@ export default function ExampleForm() {
   );
 }
 
-async function submitForm(formValues: Form.Values) {
+async function submitForm(value: string) {
   // Mimic a server response
   await new Promise((resolve) => {
     setTimeout(resolve, 1000);
   });
 
   try {
-    const url = new URL(formValues.url as string);
+    const url = new URL(value);
 
     if (url.hostname.endsWith('example.com')) {
       return { error: 'The example domain is not allowed' };
