@@ -33,12 +33,6 @@ type TextDirection = 'ltr' | 'rtl';
 
 ### useDirection
 
-**useDirection Parameters:**
-
-| Parameter      | Type      | Default   | Description |
-| :------------- | :-------- | :-------- | :---------- |
-| optional       | `boolean` | `true`    | -           |
-
 **useDirection Return Value:**
 
 `TextDirection`

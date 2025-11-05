@@ -12,7 +12,8 @@ Groups the fieldset legend and the associated fields. Renders a `<fieldset>` ele
 
 | Prop           | Type                                                                                    | Default | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: Fieldset.Root.State) => string)`                                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Fieldset.Root.State) => CSSProperties \| undefined)`         | -       | -                                                                                                                                                                                        |
+| className      | `string \| ((state: Fieldset.Root.State) => string \| undefined)`                       | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
 | render         | `ReactElement \| ((props: HTMLProps, state: Fieldset.Root.State) => ReactElement)`      | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Root.Props
@@ -33,7 +34,8 @@ An accessible label that is automatically associated with the fieldset. Renders 
 
 | Prop           | Type                                                                                    | Default | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: Fieldset.Legend.State) => string)`                                  | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Fieldset.Legend.State) => CSSProperties \| undefined)`       | -       | -                                                                                                                                                                                        |
+| className      | `string \| ((state: Fieldset.Legend.State) => string \| undefined)`                     | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
 | render         | `ReactElement \| ((props: HTMLProps, state: Fieldset.Legend.State) => ReactElement)`    | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Legend.Props

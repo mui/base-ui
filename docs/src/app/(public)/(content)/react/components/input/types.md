@@ -14,20 +14,21 @@ A native input element that automatically works with [Field](https://base-ui.com
 | :------------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | defaultValue   | `string \| number \| string[]`                                                   | -       | -                                                                                                                                                                                        |
 | onValueChange  | `((value: string, eventDetails: Input.ChangeEventDetails) => void)`              | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                            |
-| className      | `string \| ((state: Input.State) => string)`                                     | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Input.State) => CSSProperties \| undefined)`          | -       | -                                                                                                                                                                                        |
+| className      | `string \| ((state: Input.State) => string \| undefined)`                        | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
 | render         | `ReactElement \| ((props: HTMLProps, state: Input.State) => ReactElement)`       | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
-| Attribute      | Type    | Description                                       |
-| :------------- | :------ | :------------------------------------------------ |
-| data-disabled  | -       | Present when the input is disabled.               |
-| data-valid     | -       | Present when the input is in valid state.         |
-| data-invalid   | -       | Present when the input is in invalid state.       |
-| data-dirty     | -       | Present when the input's value has changed.       |
-| data-touched   | -       | Present when the input has been touched.          |
-| data-filled    | -       | Present when the input is filled.                 |
-| data-focused   | -       | Present when the input is focused.                |
+| Attribute      | Type    | Description                                                                   |
+| :------------- | :------ | :---------------------------------------------------------------------------- |
+| data-disabled  | -       | Present when the input is disabled.                                           |
+| data-valid     | -       | Present when the input is in valid state (when wrapped in Field.Root).        |
+| data-invalid   | -       | Present when the input is in invalid state (when wrapped in Field.Root).      |
+| data-dirty     | -       | Present when the input's value has changed (when wrapped in Field.Root).      |
+| data-touched   | -       | Present when the input has been touched (when wrapped in Field.Root).         |
+| data-filled    | -       | Present when the input is filled (when wrapped in Field.Root).                |
+| data-focused   | -       | Present when the input is focused (when wrapped in Field.Root).               |
 
 ### Input.Props
 

@@ -10,12 +10,14 @@ A native form element with consolidated error handling. Renders a `<form>` eleme
 
 **Form Props:**
 
-| Prop           | Type                                                                      | Default | Description                                                                                                                                                                              |
-| :------------- | :------------------------------------------------------------------------ | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| errors         | `Errors`                                                                  | -       | An object where the keys correspond to the `name` attribute of the form fields, and the values correspond to the error(s) related to that field.                                         |
-| onClearErrors  | `((errors: Errors) => void)`                                              | -       | Event handler called when the `errors` object is cleared.                                                                                                                                |
-| className      | `string \| ((state: Form.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render         | `ReactElement \| ((props: HTMLProps, state: Form.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                       | Default          | Description                                                                                                                                                                                                                                                                                                                                                |
+| :------------- | :------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| errors         | `Errors`                                                                   | -                | An object where the keys correspond to the `name` attribute of the form fields, and the values correspond to the error(s) related to that field.                                                                                                                                                                                                           |
+| onClearErrors  | `((errors: Errors) => void)`                                               | -                | Event handler called when the `errors` object is cleared.                                                                                                                                                                                                                                                                                                  |
+| style          | `CSSProperties \| ((state: Form.State) => CSSProperties \| undefined)`     | -                | -                                                                                                                                                                                                                                                                                                                                                          |
+| validationMode | `Form.ValidationMode`                                                      | `'onSubmit'`     | Determines when the form should be validated. The `validationMode` prop on `<Field.Root>` takes precedence over this.`onSubmit` (default): validates the field when the form is submitted, afterwards fields will re-validate on change., `onBlur`: validates a field when it loses focus., `onChange`: validates the field on every change to its value.  |
+| className      | `string \| ((state: Form.State) => string \| undefined)`                   | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                       |
+| render         | `ReactElement \| ((props: HTMLProps, state: Form.State) => ReactElement)`  | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                   |
 
 ### Form.Props
 
@@ -25,4 +27,10 @@ Re-export of [Form](#form) props.
 
 ```typescript
 type FormState = {};
+```
+
+### Form.ValidationMode
+
+```typescript
+type FormValidationMode = 'onBlur' | 'onChange' | 'onSubmit';
 ```

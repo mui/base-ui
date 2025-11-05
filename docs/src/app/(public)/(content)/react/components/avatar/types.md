@@ -10,10 +10,11 @@ Displays a user's profile picture, initials, or fallback icon. Renders a `<span>
 
 **Root Props:**
 
-| Prop           | Type                                                                             | Default | Description                                                                                                                                                                              |
-| :------------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: Avatar.Root.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render         | `ReactElement \| ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                              | Default | Description                                                                                                                                                                              |
+| :------------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| style          | `CSSProperties \| ((state: Avatar.Root.State) => CSSProperties \| undefined)`     | -       | -                                                                                                                                                                                        |
+| className      | `string \| ((state: Avatar.Root.State) => string \| undefined)`                   | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Root.Props
 
@@ -31,11 +32,12 @@ The image to be displayed in the avatar. Renders an `<img>` element.
 
 **Image Props:**
 
-| Prop                  | Type                                                                             | Default | Description                                                                                                                                                                              |
-| :-------------------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| onLoadingStatusChange | `((status: ImageLoadingStatus) => void)`                                         | -       | Callback fired when the loading status changes.                                                                                                                                          |
-| className             | `string \| ((state: Avatar.Root.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render                | `ReactElement \| ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                              | Default | Description                                                                                                                                                                              |
+| :-------------------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| onLoadingStatusChange | `((status: ImageLoadingStatus) => void)`                                          | -       | Callback fired when the loading status changes.                                                                                                                                          |
+| style                 | `CSSProperties \| ((state: Avatar.Root.State) => CSSProperties \| undefined)`     | -       | -                                                                                                                                                                                        |
+| className             | `string \| ((state: Avatar.Root.State) => string \| undefined)`                   | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render                | `ReactElement \| ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Image.Props
 
@@ -47,11 +49,12 @@ Rendered when the image fails to load or when no image is provided. Renders a `<
 
 **Fallback Props:**
 
-| Prop           | Type                                                                             | Default | Description                                                                                                                                                                              |
-| :------------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| delay          | `number`                                                                         | -       | How long to wait before showing the fallback. Specified in milliseconds.                                                                                                                 |
-| className      | `string \| ((state: Avatar.Root.State) => string)`                               | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render         | `ReactElement \| ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                              | Default | Description                                                                                                                                                                              |
+| :------------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| style          | `CSSProperties \| ((state: Avatar.Root.State) => CSSProperties \| undefined)`     | -       | -                                                                                                                                                                                        |
+| delay          | `number`                                                                          | -       | How long to wait before showing the fallback. Specified in milliseconds.                                                                                                                 |
+| className      | `string \| ((state: Avatar.Root.State) => string \| undefined)`                   | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Fallback.Props
 
