@@ -5,7 +5,9 @@
 
 Base UI form control components extend the native [constraint validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api) so you can build forms for collecting user input or providing control over an interface.
 
-<Demo path="./demos/hero" />
+import { DemoBaseUIForm } from './demos/hero';
+
+<DemoBaseUIForm />
 
 ## Naming form controls
 
@@ -222,7 +224,9 @@ import { Form } from '@base-ui-components/react/form';
 
 [React Hook Form](https://react-hook-form.com) is a popular library that you can integrate with Base UI to externally manage form and field state for your existing components.
 
-<Demo path="./demos/react-hook-form" />
+import { DemoReactHookForm } from './demos/react-hook-form';
+
+<DemoReactHookForm />
 
 ### Initialize the form
 
@@ -354,7 +358,9 @@ async function submitForm(data: FormValues) {
 
 Base UI also supports [TanStack Form](https://tanstack.com/form/v1/docs/overview), which uses a function-based API to orchestrate validations.
 
-<Demo path="./demos/tanstack-form" />
+import { DemoTanstackForm } from './demos/tanstack-form';
+
+<DemoTanstackForm />
 
 ### Create a form instance
 

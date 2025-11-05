@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useForm, revalidateLogic, DeepKeys, ValidationError } from '@tanstack/react-form';
 import { ChevronDown, ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
