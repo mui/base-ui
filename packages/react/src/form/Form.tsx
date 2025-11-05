@@ -20,7 +20,7 @@ export const Form = React.forwardRef(function Form(
     render,
     className,
     validationMode = 'onSubmit',
-    errors,
+    errors: externalErrors,
     onClearErrors,
     onSubmit,
     ...elementProps
@@ -41,6 +41,14 @@ export const Form = React.forwardRef(function Form(
       (control as HTMLInputElement).select();
     }
   });
+
+  const [errors, setErrors] = React.useState(externalErrors);
+
+  React.useEffect(() => {
+    if (externalErrors && Object.keys(externalErrors).length > 0) {
+      setErrors(externalErrors);
+    }
+  }, [externalErrors]);
 
   React.useEffect(() => {
     if (!submittedRef.current) {
@@ -94,6 +102,7 @@ export const Form = React.forwardRef(function Form(
     if (name && errors && EMPTY_OBJECT.hasOwnProperty.call(errors, name)) {
       const nextErrors = { ...errors };
       delete nextErrors[name];
+      setErrors(nextErrors);
       onClearErrors?.(nextErrors);
     }
   });
