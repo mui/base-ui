@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { generateId } from '@base-ui-components/utils/generateId';
 import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -16,8 +15,8 @@ import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
 
 const stateAttributesMapping = {
   ...tabsStateAttributesMapping,
-  selectedTabPosition: () => null,
-  selectedTabSize: () => null,
+  activeTabPosition: () => null,
+  activeTabSize: () => null,
 };
 
 /**
@@ -37,7 +36,6 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   const { tabsListRef } = useTabsListContext();
 
-  const [instanceId] = React.useState(() => generateId('tab'));
   const [isMounted, setIsMounted] = React.useState(false);
   const { value: activeTabValue } = useTabsRootContext();
 
@@ -73,30 +71,30 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   let isTabSelected = false;
 
   if (value != null && tabsListRef.current != null) {
-    const selectedTab = getTabElementBySelectedValue(value);
+    const activeTab = getTabElementBySelectedValue(value);
     const tabsList = tabsListRef.current;
     isTabSelected = true;
 
-    if (selectedTab != null) {
+    if (activeTab != null) {
       // Use offset-based positioning, but determine size using sub-pixel
       // precision and floor it to avoid potential overflow.
       // See https://github.com/mui/base-ui/issues/2235.
-      left = selectedTab.offsetLeft - tabsList.clientLeft;
-      top = selectedTab.offsetTop - tabsList.clientTop;
+      left = activeTab.offsetLeft - tabsList.clientLeft;
+      top = activeTab.offsetTop - tabsList.clientTop;
 
-      const { width: rectWidth, height: rectHeight } = selectedTab.getBoundingClientRect();
+      const { width: rectWidth, height: rectHeight } = activeTab.getBoundingClientRect();
       width = Math.floor(rectWidth);
       height = Math.floor(rectHeight);
 
       right =
         direction === 'ltr'
-          ? tabsList.scrollWidth - selectedTab.offsetLeft - width - tabsList.clientLeft
-          : selectedTab.offsetLeft - tabsList.clientLeft;
-      bottom = tabsList.scrollHeight - selectedTab.offsetTop - height - tabsList.clientTop;
+          ? tabsList.scrollWidth - activeTab.offsetLeft - width - tabsList.clientLeft
+          : activeTab.offsetLeft - tabsList.clientLeft;
+      bottom = tabsList.scrollHeight - activeTab.offsetTop - height - tabsList.clientTop;
     }
   }
 
-  const selectedTabPosition = React.useMemo(
+  const activeTabPosition = React.useMemo(
     () =>
       isTabSelected
         ? {
@@ -109,7 +107,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     [left, right, top, bottom, isTabSelected],
   );
 
-  const selectedTabSize = React.useMemo(
+  const activeTabSize = React.useMemo(
     () =>
       isTabSelected
         ? {
@@ -140,11 +138,11 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   const state: TabsIndicator.State = React.useMemo(
     () => ({
       orientation,
-      selectedTabPosition,
-      selectedTabSize,
+      activeTabPosition,
+      activeTabSize,
       tabActivationDirection,
     }),
-    [orientation, selectedTabPosition, selectedTabSize, tabActivationDirection],
+    [orientation, activeTabPosition, activeTabSize, tabActivationDirection],
   );
 
   const element = useRenderElement('span', componentProps, {
@@ -158,9 +156,6 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
       },
       elementProps,
       {
-        ['data-instance-id' as string]: !(isMounted && renderBeforeHydration)
-          ? instanceId
-          : undefined,
         suppressHydrationWarning: true,
       },
     ],
@@ -186,8 +181,8 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 });
 
 export interface TabsIndicatorState extends TabsRoot.State {
-  selectedTabPosition: TabsTab.Position | null;
-  selectedTabSize: TabsTab.Size | null;
+  activeTabPosition: TabsTab.Position | null;
+  activeTabSize: TabsTab.Size | null;
   orientation: TabsRoot.Orientation;
 }
 

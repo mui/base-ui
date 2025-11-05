@@ -6,15 +6,17 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 export default function ExampleVirtualizedCombobox() {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
-  const [value, setValue] = React.useState<string | null>(null);
+  const [value, setValue] = React.useState<VirtualizedItem | null>(null);
+
+  const deferredSearchValue = React.useDeferredValue(searchValue);
 
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
 
-  const { contains } = Combobox.useFilter({ sensitivity: 'base', value });
+  const { contains } = Combobox.useFilter({ value });
 
   const filteredItems = React.useMemo(() => {
-    return virtualItems.filter((item) => contains(item, searchValue));
-  }, [contains, searchValue]);
+    return virtualizedItems.filter((item) => contains(item, deferredSearchValue, getItemLabel));
+  }, [contains, deferredSearchValue]);
 
   const virtualizer = useVirtualizer({
     enabled: open,
@@ -29,7 +31,7 @@ export default function ExampleVirtualizedCombobox() {
   });
 
   const handleScrollElementRef = React.useCallback(
-    (element: HTMLDivElement) => {
+    (element: HTMLDivElement | null) => {
       scrollElementRef.current = element;
       if (element) {
         virtualizer.measure();
@@ -44,14 +46,15 @@ export default function ExampleVirtualizedCombobox() {
   return (
     <Combobox.Root
       virtualized
-      filter={contains}
-      items={virtualItems}
+      items={virtualizedItems}
+      filteredItems={filteredItems}
       open={open}
       onOpenChange={setOpen}
       inputValue={searchValue}
       onInputValueChange={setSearchValue}
       value={value}
       onValueChange={setValue}
+      itemToStringLabel={getItemLabel}
       onItemHighlighted={(item, { reason, index }) => {
         if (!item) {
           return;
@@ -60,6 +63,7 @@ export default function ExampleVirtualizedCombobox() {
         const isStart = index === 0;
         const isEnd = index === filteredItems.length - 1;
         const shouldScroll = reason === 'none' || (reason === 'keyboard' && (isStart || isEnd));
+
         if (shouldScroll) {
           queueMicrotask(() => {
             virtualizer.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });
@@ -101,6 +105,8 @@ export default function ExampleVirtualizedCombobox() {
                         <Combobox.Item
                           key={virtualItem.key}
                           index={virtualItem.index}
+                          data-index={virtualItem.index}
+                          ref={virtualizer.measureElement}
                           value={item}
                           className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
                           aria-setsize={filteredItems.length}
@@ -110,14 +116,13 @@ export default function ExampleVirtualizedCombobox() {
                             top: 0,
                             left: 0,
                             width: '100%',
-                            height: `${virtualItem.size}px`,
                             transform: `translateY(${virtualItem.start}px)`,
                           }}
                         >
                           <Combobox.ItemIndicator className="col-start-1">
                             <CheckIcon className="size-3" />
                           </Combobox.ItemIndicator>
-                          <div className="col-start-2">{item}</div>
+                          <div className="col-start-2">{item.name}</div>
                         </Combobox.Item>
                       );
                     })}
@@ -140,7 +145,17 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-const virtualItems = Array.from({ length: 10000 }, (_, i) => {
-  const indexLabel = String(i + 1).padStart(4, '0');
-  return `Item ${indexLabel}`;
+interface VirtualizedItem {
+  id: string;
+  name: string;
+}
+
+function getItemLabel(item: VirtualizedItem | null) {
+  return item ? item.name : '';
+}
+
+const virtualizedItems: VirtualizedItem[] = Array.from({ length: 10000 }, (_, index) => {
+  const id = String(index + 1);
+  const indexLabel = id.padStart(4, '0');
+  return { id, name: `Item ${indexLabel}` };
 });

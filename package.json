@@ -9,9 +9,8 @@
     "release:version": "lerna version --no-changelog --no-push --no-git-tag-version --no-private",
     "release:build": "lerna run --concurrency 8 --no-private build --skip-nx-cache",
     "release:changelog": "tsx scripts/releaseChangelog.mts",
-    "release:publish": "pnpm publish --recursive --tag latest",
-    "release:publish:dry-run": "pnpm publish --recursive --tag latest --registry=\"http://localhost:4873/\"",
-    "release:tag": "node scripts/releaseTag.mjs --repo base-ui",
+    "release:publish": "code-infra publish --github-release",
+    "release:publish:dry-run": "code-infra publish --github-release --dry-run ",
     "docs:build": "pnpm --filter docs generate-llms && pnpm --filter docs build",
     "docs:deploy": "pnpm --filter docs run deploy",
     "docs:dev": "pnpm --filter docs dev",
@@ -19,9 +18,9 @@
     "docs:start": "pnpm --filter docs serve",
     "docs:link-check": "pnpm --filter docs link-check",
     "docs:generate-llms": "pnpm --filter docs run generate-llms",
-    "extract-error-codes": "cross-env MUI_EXTRACT_ERROR_CODES=true lerna run --concurrency 1 build:stable",
-    "eslint": "eslint . --cache --report-unused-disable-directives --ext .js,.ts,.tsx,.mts --max-warnings 0 && pnpm -r lint",
-    "eslint:ci": "eslint . --report-unused-disable-directives --ext .js,.ts,.tsx,.mts --max-warnings 0 && pnpm -r lint",
+    "extract-error-codes": "code-infra extract-error-codes --errorCodesPath docs/src/error-codes.json --detection opt-out",
+    "eslint": "eslint . --cache --report-unused-disable-directives --max-warnings 0 && pnpm -r lint",
+    "eslint:ci": "eslint . --report-unused-disable-directives --max-warnings 0 && pnpm -r lint",
     "stylelint": "stylelint --reportInvalidScopeDisables --reportNeedlessDisables \"docs/**/*.{js,ts,tsx}\" \"**/*.css\" --ignore-path .lintignore",
     "markdownlint": "markdownlint-cli2 \"**/*.{md,mdx}\"",
     "valelint": "pnpm vale sync && git ls-files | grep -h \".md$\" | xargs pnpm vale --filter='.Level==\"error\"'",
@@ -53,22 +52,21 @@
     "test:browsers": "cross-env VITEST_ENV=all-browsers pnpm test:_unit",
     "test:argos": "code-infra argos-push --folder test/regressions/screenshots/chrome",
     "typescript": "tsc -b tsconfig.json",
-    "validate-declarations": "tsx scripts/validateTypescriptDeclarations.mts",
-    "inline-scripts": "tsx ./scripts/inlineScripts.mts"
+    "inline-scripts": "tsx ./scripts/inlineScripts.mts",
+    "use-react-18": "code-infra set-version-overrides --pkg react@18"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
     "@babel/plugin-transform-react-constant-elements": "^7.27.1",
     "@base-ui-components/monorepo-tests": "workspace:*",
-    "@mui/internal-code-infra": "^0.0.3-canary.26",
-    "@mui/internal-netlify-cache": "^0.0.2-canary.0",
-    "@mui/internal-test-utils": "^2.0.10",
-    "@mui/monorepo": "github:mui/material-ui#v7.3.2",
+    "@mui/internal-netlify-cache": "^0.0.2-canary.1",
+    "@mui/internal-code-infra": "^0.0.3-canary.37",
+    "@mui/internal-test-utils": "^2.0.14",
     "@octokit/rest": "^22.0.0",
-    "@playwright/test": "1.56.0",
-    "@tailwindcss/postcss": "4.1.14",
-    "@types/node": "^22.18.8",
-    "@types/react": "^19.1.13",
+    "@playwright/test": "1.56.1",
+    "@tailwindcss/postcss": "4.1.15",
+    "@types/node": "^22.18.12",
+    "@types/react": "^19.2.2",
     "@types/yargs": "^17.0.33",
     "@vitejs/plugin-react": "^5.0.4",
     "@vitest/browser": "^3.2.4",
@@ -81,23 +79,23 @@
     "cross-env": "^10.1.0",
     "docs": "workspace:^",
     "es-toolkit": "^1.40.0",
-    "eslint": "^9.37.0",
+    "eslint": "^9.38.0",
     "execa": "^9.6.0",
     "globby": "^15.0.0",
     "lerna": "^9.0.0",
     "markdownlint-cli2": "^0.18.1",
-    "nx": "^21.6.3",
+    "nx": "^21.6.5",
     "prettier": "^3.6.2",
     "pretty-quick": "^4.2.2",
-    "publint": "^0.3.14",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "publint": "^0.3.15",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "remark-mdx": "^3.1.1",
     "rimraf": "^6.0.1",
     "serve": "^14.2.5",
     "stylelint": "^16.25.0",
     "stylelint-config-tailwindcss": "^1.0.0",
-    "tailwindcss": "4.1.14",
+    "tailwindcss": "4.1.15",
     "terser": "^5.44.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
@@ -105,10 +103,10 @@
     "vitest": "^3.2.4",
     "yargs": "^18.0.0"
   },
-  "packageManager": "pnpm@10.18.2",
+  "packageManager": "pnpm@10.19.0",
   "engines": {
-    "pnpm": "10.18.2",
-    "node": ">=22.11"
+    "pnpm": "10.19.0",
+    "node": ">=22.18.0"
   },
   "resolutions": {
     "@babel/core": "^7.28.4",
@@ -117,8 +115,17 @@
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/types": "^7.28.4",
-    "@types/node": "^22.18.8",
-    "@types/react": "^19.1.13",
-    "@types/react-dom": "^19.1.9"
+    "@types/node": "^22.18.12",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2"
+  },
+  "pnpm": {
+    "packageExtensions": {
+      "@mui/internal-test-utils": {
+        "dependencies": {
+          "lodash.kebabcase": "^4.1.1"
+        }
+      }
+    }
   }
 }

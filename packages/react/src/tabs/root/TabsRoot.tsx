@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -54,7 +54,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabsTab.ActivationDirection>('none');
 
-  const onValueChange = useEventCallback(
+  const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
       onValueChangeProp?.(newValue, eventDetails);
 
@@ -200,13 +200,13 @@ export interface TabsRootState {
 
 export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.State> {
   /**
-   * The value of the currently selected `Tab`. Use when the component is controlled.
-   * When the value is `null`, no Tab will be selected.
+   * The value of the currently active `Tab`. Use when the component is controlled.
+   * When the value is `null`, no Tab will be active.
    */
   value?: TabsTab.Value;
   /**
    * The default value. Use when the component is not controlled.
-   * When the value is `null`, no Tab will be selected.
+   * When the value is `null`, no Tab will be active.
    * @default 0
    */
   defaultValue?: TabsTab.Value;

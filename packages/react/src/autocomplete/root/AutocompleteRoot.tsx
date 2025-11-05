@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { AriaCombobox } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
@@ -67,7 +67,7 @@ export function AutocompleteRoot<ItemValue>(
     resolvedInputValue = internalValue;
   }
 
-  const handleValueChange = useEventCallback(
+  const handleValueChange = useStableCallback(
     (nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) => {
       setInlineInputValue('');
       if (!isControlled) {
@@ -100,7 +100,7 @@ export function AutocompleteRoot<ItemValue>(
     };
   }, [baseFilter, mode, other.filter, resolvedQuery, staticItems]);
 
-  const handleItemHighlighted = useEventCallback(
+  const handleItemHighlighted = useStableCallback(
     (highlightedValue: any, eventDetails: AriaCombobox.HighlightEventDetails) => {
       props.onItemHighlighted?.(highlightedValue, eventDetails);
 
@@ -166,6 +166,9 @@ export interface AutocompleteRootProps<ItemValue>
     | 'autoComplete' // mode
     | 'itemToStringLabel' // itemToStringValue
     // Custom JSDoc
+    | 'autoHighlight'
+    | 'keepHighlight'
+    | 'highlightItemOnHover'
     | 'actionsRef'
     | 'onOpenChange'
     | 'onInputValueChange'
@@ -179,6 +182,23 @@ export interface AutocompleteRootProps<ItemValue>
    * @default 'list'
    */
   mode?: 'list' | 'both' | 'inline' | 'none';
+  /**
+   * Whether the first matching item is highlighted automatically.
+   * - `true`: highlight after the user types and keep the highlight while the query changes.
+   * - `'always'`: always highlight the first item.
+   * @default false
+   */
+  autoHighlight?: boolean | 'always';
+  /**
+   * Whether the highlighted item should be preserved when the pointer leaves the list.
+   * @default false
+   */
+  keepHighlight?: boolean;
+  /**
+   * Whether moving the pointer over items should highlight them.
+   * @default true
+   */
+  highlightItemOnHover?: boolean;
   /**
    * The uncontrolled input value of the autocomplete when it's initially rendered.
    *
@@ -196,6 +216,13 @@ export interface AutocompleteRootProps<ItemValue>
    * Event handler called when the input value of the autocomplete changes.
    */
   onValueChange?: (value: string, eventDetails: AutocompleteRootChangeEventDetails) => void;
+  /**
+   * Whether clicking an item should submit the autocomplete's owning form.
+   * By default, clicking an item via a pointer or <kbd>Enter</kbd> key does not submit the owning form.
+   * Useful when the autocomplete is used as a single-field form search input.
+   * @default false
+   */
+  submitOnItemClick?: AriaCombobox.Props<ItemValue, 'none'>['submitOnItemClick'];
   /**
    * When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.

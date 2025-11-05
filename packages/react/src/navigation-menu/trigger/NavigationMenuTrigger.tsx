@@ -2,16 +2,15 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isTabbable } from 'tabbable';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import {
   safePolygon,
   useClick,
-  useDismiss,
   useFloatingRootContext,
   useFloatingTree,
   useHover,
@@ -21,7 +20,6 @@ import {
   contains,
   getNextTabbable,
   getPreviousTabbable,
-  getTarget,
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
@@ -32,7 +30,7 @@ import {
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { EMPTY_ARRAY, PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
@@ -43,8 +41,9 @@ import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useButton } from '../../use-button';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
+import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
+import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
 
-const TRIGGER_IDENTIFIER = 'data-base-ui-navigation-menu-trigger';
 const DEFAULT_SIZE = { width: 0, height: 0 };
 
 /**
@@ -84,6 +83,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const itemValue = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
+  const dismissProps = useNavigationMenuDismissContext();
 
   const stickIfOpenTimeout = useTimeout();
   const focusFrame = useAnimationFrame();
@@ -99,7 +99,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const animationAbortControllerRef = React.useRef<AbortController | null>(null);
 
   const isActiveItem = open && value === itemValue;
-  const isActiveItemRef = useLatestRef(isActiveItem);
+  const isActiveItemRef = useValueAsRef(isActiveItem);
   const interactionsEnabled = positionerElement ? true : !value;
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
@@ -117,7 +117,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, 'auto');
   }
 
-  const handleValueChange = useEventCallback((currentWidth: number, currentHeight: number) => {
+  const handleValueChange = useStableCallback((currentWidth: number, currentHeight: number) => {
     if (!popupElement || !positionerElement) {
       return;
     }
@@ -289,16 +289,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     stickIfOpen,
     toggle: isActiveItem,
   });
-  const dismiss = useDismiss(context, {
-    enabled: isActiveItem && interactionsEnabled,
-    outsidePress(event) {
-      // When pressing a new trigger with touch input, prevent closing the popup.
-      const target = getTarget(event) as HTMLElement | null;
-      const closestNavigationMenuTrigger = target?.closest(`[${TRIGGER_IDENTIFIER}]`);
-      return closestNavigationMenuTrigger === null;
-    },
-  });
-
   useIsoLayoutEffect(() => {
     if (isActiveItem) {
       setFloatingRootContext(context);
@@ -306,7 +296,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }, [isActiveItem, context, setFloatingRootContext, prevTriggerElementRef, triggerElement]);
 
-  const { getReferenceProps } = useInteractions([hover, click, dismiss]);
+  const { getReferenceProps } = useInteractions([hover, click]);
 
   function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
     ReactDOM.flushSync(() => {
@@ -347,7 +337,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     });
   }
 
-  const handleOpenEvent = useEventCallback((event: React.MouseEvent | React.KeyboardEvent) => {
+  const handleOpenEvent = useStableCallback((event: React.MouseEvent | React.KeyboardEvent) => {
     // For nested scenarios without positioner/popup, we can still open the menu
     // but we can't do size calculations
     if (!popupElement || !positionerElement) {
@@ -380,7 +370,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     onPointerDown: handleSetPointerType,
     'aria-expanded': isActiveItem,
     'aria-controls': isActiveItem ? popupElement?.id : undefined,
-    [TRIGGER_IDENTIFIER as string]: '',
+    [NAVIGATION_MENU_TRIGGER_IDENTIFIER as string]: '',
     onFocus() {
       if (!isActiveItem) {
         return;
@@ -435,7 +425,13 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         state={state}
         stateAttributesMapping={pressableTriggerOpenStateMapping}
         refs={[forwardedRef, setTriggerElement, buttonRef]}
-        props={[getReferenceProps, defaultProps, elementProps, getButtonProps]}
+        props={[
+          getReferenceProps,
+          dismissProps?.reference || EMPTY_ARRAY,
+          defaultProps,
+          elementProps,
+          getButtonProps,
+        ]}
       />
       {isActiveItem && (
         <React.Fragment>

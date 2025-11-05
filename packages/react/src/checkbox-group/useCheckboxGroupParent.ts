@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 
@@ -20,13 +20,15 @@ export function useCheckboxGroupParent(
   const checked = value.length === allValues.length;
   const indeterminate = value.length !== allValues.length && value.length > 0;
 
-  const onValueChange = useEventCallback(onValueChangeProp);
+  const onValueChange = useStableCallback(onValueChangeProp);
 
   const getParentProps: useCheckboxGroupParent.ReturnValue['getParentProps'] = React.useCallback(
     () => ({
       id,
       indeterminate,
       checked,
+      // TODO: custom `id` on child checkboxes breaks this
+      // https://github.com/mui/base-ui/issues/2691
       'aria-controls': allValues.map((v) => `${id}-${v}`).join(' '),
       onCheckedChange(_, eventDetails) {
         const uncontrolledState = uncontrolledStateRef.current;
@@ -72,16 +74,15 @@ export function useCheckboxGroupParent(
   );
 
   const getChildProps: useCheckboxGroupParent.ReturnValue['getChildProps'] = React.useCallback(
-    (name: string) => ({
-      name,
-      id: `${id}-${name}`,
-      checked: value.includes(name),
+    (childValue: string, childId?: string) => ({
+      id: childId ?? `${id}-${childValue}`,
+      checked: value.includes(childValue),
       onCheckedChange(nextChecked, eventDetails) {
         const newValue = value.slice();
         if (nextChecked) {
-          newValue.push(name);
+          newValue.push(childValue);
         } else {
-          newValue.splice(newValue.indexOf(name), 1);
+          newValue.splice(newValue.indexOf(childValue), 1);
         }
         uncontrolledStateRef.current = newValue;
         onValueChange(newValue, eventDetails);
@@ -120,8 +121,10 @@ export interface UseCheckboxGroupParentReturnValue {
     'aria-controls': string;
     onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
   };
-  getChildProps: (name: string) => {
-    name: string;
+  getChildProps: (
+    value: string,
+    id?: string,
+  ) => {
     id: string;
     checked: boolean;
     onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;

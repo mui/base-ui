@@ -1,7 +1,9 @@
+'use client';
 import * as React from 'react';
 import { z } from 'zod';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
+import { Button } from '@base-ui-components/react/button';
 import styles from './index.module.css';
 
 const schema = z.object({
@@ -49,9 +51,9 @@ export default function Page() {
         <Field.Control placeholder="Enter age" className={styles.Input} />
         <Field.Error className={styles.Error} />
       </Field.Root>
-      <button type="submit" className={styles.Button}>
+      <Button type="submit" className={styles.Button}>
         Submit
-      </button>
+      </Button>
     </Form>
   );
 }

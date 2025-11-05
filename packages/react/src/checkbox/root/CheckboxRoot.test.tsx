@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Field } from '@base-ui-components/react/field';
@@ -583,22 +583,40 @@ describe('<Checkbox.Root />', () => {
       expect(button).not.to.have.attribute('data-invalid');
     });
 
-    it('prop: validate', async () => {
+    it('prop: validationMode=onSubmit', async () => {
       await render(
-        <Field.Root validate={() => 'error'}>
-          <Checkbox.Root data-testid="button" />
-          <Field.Error data-testid="error" />
-        </Field.Root>,
+        <Form>
+          <Field.Root>
+            <Checkbox.Root required />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
       );
 
-      const button = screen.getByTestId('button');
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).not.to.have.attribute('aria-invalid');
 
-      expect(button).not.to.have.attribute('aria-invalid');
+      fireEvent.click(checkbox);
+      expect(checkbox).to.have.attribute('data-checked', '');
+      fireEvent.click(checkbox);
+      expect(checkbox).to.have.attribute('data-unchecked', '');
+      expect(checkbox).not.to.have.attribute('aria-invalid');
 
-      fireEvent.focus(button);
-      fireEvent.blur(button);
+      fireEvent.click(screen.getByText('submit'));
+      expect(checkbox).to.have.attribute('aria-invalid', 'true');
 
-      expect(button).to.have.attribute('aria-invalid', 'true');
+      fireEvent.click(checkbox);
+      expect(checkbox).to.have.attribute('data-checked', '');
+      expect(checkbox).not.to.have.attribute('aria-invalid');
+
+      fireEvent.click(checkbox);
+      expect(checkbox).to.have.attribute('data-unchecked', '');
+      expect(checkbox).to.have.attribute('aria-invalid');
+
+      fireEvent.click(checkbox);
+      expect(checkbox).to.have.attribute('data-checked', '');
+      expect(checkbox).not.to.have.attribute('aria-invalid');
     });
 
     it('props: validationMode=onChange', async () => {
@@ -648,47 +666,69 @@ describe('<Checkbox.Root />', () => {
     });
 
     describe('Field.Label', () => {
-      it('explicit association', async () => {
-        await render(
-          <Field.Root>
-            <Field.Label>Label</Field.Label>
-            <Checkbox.Root data-testid="button" />
-          </Field.Root>,
-        );
+      describe('explicit association', () => {
+        it('when label and checkbox are siblings', async () => {
+          await render(
+            <Field.Root>
+              <Field.Label>Label</Field.Label>
+              <Checkbox.Root />
+            </Field.Root>,
+          );
 
-        const label = screen.getByText('Label');
-        const button = screen.getByTestId('button');
-
-        await waitFor(() => {
+          const label = screen.getByText('Label');
           expect(label.getAttribute('for')).not.to.equal(null);
+
+          const checkbox = screen.getByRole('checkbox');
+          expect(label.getAttribute('for')).to.equal(checkbox.getAttribute('id'));
+
+          expect(checkbox.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+          expect(checkbox).to.have.attribute('aria-checked', 'false');
+
+          fireEvent.click(label);
+          expect(checkbox).to.have.attribute('aria-checked', 'true');
         });
-
-        expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
-
-        expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
-        expect(button).to.have.attribute('aria-checked', 'false');
-
-        fireEvent.click(label);
-        expect(button).to.have.attribute('aria-checked', 'true');
       });
 
-      it('implicit association', async () => {
-        await render(
-          <Field.Root>
-            <Field.Label data-testid="label">
-              <Checkbox.Root data-testid="button" />
-            </Field.Label>
-          </Field.Root>,
-        );
+      describe('implicit association', () => {
+        it('native button', async () => {
+          await render(
+            <Field.Root>
+              <Field.Label data-testid="label">
+                <Checkbox.Root />
+                OK
+              </Field.Label>
+            </Field.Root>,
+          );
 
-        const label = screen.getByTestId('label');
-        expect(label).to.not.have.attribute('for');
+          const label = screen.getByTestId('label');
+          expect(label).to.not.have.attribute('for');
 
-        const button = screen.getByTestId('button');
-        expect(button).to.have.attribute('aria-checked', 'false');
+          const button = screen.getByRole('checkbox');
+          expect(button).to.have.attribute('aria-checked', 'false');
 
-        fireEvent.click(label);
-        expect(button).to.have.attribute('aria-checked', 'true');
+          fireEvent.click(screen.getByText('OK'));
+          expect(button).to.have.attribute('aria-checked', 'true');
+        });
+
+        it('non-native button', async () => {
+          await render(
+            <Field.Root>
+              <Field.Label data-testid="label">
+                <Checkbox.Root render={<span />} nativeButton={false} />
+                OK
+              </Field.Label>
+            </Field.Root>,
+          );
+
+          const label = screen.getByTestId('label');
+          expect(label).to.not.have.attribute('for');
+
+          const button = screen.getByRole('checkbox');
+          expect(button).to.have.attribute('aria-checked', 'false');
+
+          fireEvent.click(screen.getByText('OK'));
+          expect(button).to.have.attribute('aria-checked', 'true');
+        });
       });
     });
 

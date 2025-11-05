@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../utils/types';
 import { FormContext } from './FormContext';
 import { useRenderElement } from '../utils/useRenderElement';
@@ -16,14 +16,26 @@ export const Form = React.forwardRef(function Form(
   componentProps: Form.Props,
   forwardedRef: React.ForwardedRef<HTMLFormElement>,
 ) {
-  const { render, className, errors, onClearErrors, onSubmit, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    validationMode = 'onSubmit',
+    errors,
+    onClearErrors,
+    onSubmit,
+    ...elementProps
+  } = componentProps;
 
   const formRef = React.useRef<FormContext['formRef']['current']>({
     fields: new Map(),
   });
   const submittedRef = React.useRef(false);
+  const submitAttemptedRef = React.useRef(false);
 
-  const focusControl = useEventCallback((control: HTMLElement) => {
+  const focusControl = useStableCallback((control: HTMLElement | null) => {
+    if (!control) {
+      return;
+    }
     control.focus();
     if (control.tagName === 'INPUT') {
       (control as HTMLInputElement).select();
@@ -52,6 +64,8 @@ export const Form = React.forwardRef(function Form(
       {
         noValidate: true,
         onSubmit(event) {
+          submitAttemptedRef.current = true;
+
           let values = Array.from(formRef.current.fields.values());
 
           // Async validation isn't supported to stop the submit event.
@@ -76,7 +90,7 @@ export const Form = React.forwardRef(function Form(
     ],
   });
 
-  const clearErrors = useEventCallback((name: string | undefined) => {
+  const clearErrors = useStableCallback((name: string | undefined) => {
     if (name && errors && EMPTY_OBJECT.hasOwnProperty.call(errors, name)) {
       const nextErrors = { ...errors };
       delete nextErrors[name];
@@ -87,10 +101,12 @@ export const Form = React.forwardRef(function Form(
   const contextValue: FormContext = React.useMemo(
     () => ({
       formRef,
-      errors: errors ?? {},
+      validationMode,
+      errors: errors ?? EMPTY_OBJECT,
       clearErrors,
+      submitAttemptedRef,
     }),
-    [formRef, errors, clearErrors],
+    [formRef, validationMode, errors, clearErrors],
   );
 
   return <FormContext.Provider value={contextValue}>{element}</FormContext.Provider>;
@@ -99,6 +115,17 @@ export const Form = React.forwardRef(function Form(
 export interface FormState {}
 
 export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
+  /**
+   * Determines when the form should be validated.
+   * The `validationMode` prop on `<Field.Root>` takes precedence over this.
+   *
+   * - `onSubmit` (default): validates the field when the form is submitted, afterwards fields will re-validate on change.
+   * - `onBlur`: validates a field when it loses focus.
+   * - `onChange`: validates the field on every change to its value.
+   *
+   * @default 'onSubmit'
+   */
+  validationMode?: FormValidationMode;
   /**
    * An object where the keys correspond to the `name` attribute of the form fields,
    * and the values correspond to the error(s) related to that field.
@@ -110,7 +137,10 @@ export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
   onClearErrors?: (errors: FormContext['errors']) => void;
 }
 
+export type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
+
 export namespace Form {
   export type Props = FormProps;
   export type State = FormState;
+  export type ValidationMode = FormValidationMode;
 }

@@ -7,6 +7,7 @@ export const TypesDialogRoot = types.Root;
 export const TypesDialogTrigger = types.Trigger;
 export const TypesDialogPortal = types.Portal;
 export const TypesDialogBackdrop = types.Backdrop;
+export const TypesDialogViewport = types.Viewport;
 export const TypesDialogPopup = types.Popup;
 export const TypesDialogTitle = types.Title;
 export const TypesDialogDescription = types.Description;

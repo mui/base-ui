@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui-components/react/switch';
 import { userEvent } from '@testing-library/user-event';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
@@ -452,22 +452,31 @@ describe('<Switch.Root />', () => {
       expect(button).not.to.have.attribute('data-focused');
     });
 
-    it('prop: validate', async () => {
+    it('prop: validationMode=onSubmit', async () => {
       await render(
-        <Field.Root validate={() => 'error'}>
-          <Switch.Root data-testid="button" />
-          <Field.Error data-testid="error" />
-        </Field.Root>,
+        <Form>
+          <Field.Root>
+            <Switch.Root required />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
       );
 
-      const button = screen.getByTestId('button');
-
+      const button = screen.getByRole('switch');
       expect(button).not.to.have.attribute('aria-invalid');
 
-      fireEvent.focus(button);
-      fireEvent.blur(button);
-
+      fireEvent.click(screen.getByText('submit'));
       expect(button).to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.not.equal(null);
+
+      fireEvent.click(button);
+      expect(button).not.to.have.attribute('aria-invalid');
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      fireEvent.click(button);
+      expect(button).to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.not.equal(null);
     });
 
     it('prop: validationMode=onChange', async () => {
@@ -541,14 +550,20 @@ describe('<Switch.Root />', () => {
           await render(
             <Field.Root>
               <Field.Label data-testid="label">
-                <Switch.Root data-testid="button" render={<span />} nativeButton={false} />
+                <Switch.Root render={<span />} nativeButton={false} />
+                OK
               </Field.Label>
             </Field.Root>,
           );
 
           const label = screen.getByTestId('label');
+          expect(label).to.not.have.attribute('for');
+
           const button = screen.getByRole('switch');
-          expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+          expect(button).to.have.attribute('aria-checked', 'false');
+
+          fireEvent.click(screen.getByText('OK'));
+          expect(button).to.have.attribute('aria-checked', 'true');
         });
       });
 
@@ -564,9 +579,7 @@ describe('<Switch.Root />', () => {
           const label = screen.getByTestId('label');
           const button = screen.getByRole('switch');
 
-          await waitFor(() => {
-            expect(label.getAttribute('for')).not.to.equal(null);
-          });
+          expect(label.getAttribute('for')).not.to.equal(null);
 
           expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
           expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
@@ -575,6 +588,22 @@ describe('<Switch.Root />', () => {
 
           fireEvent.click(label);
           expect(button).to.have.attribute('aria-checked', 'true');
+        });
+
+        it('when rendering a non-native button', async () => {
+          await render(
+            <Field.Root>
+              <Field.Label data-testid="label">OK</Field.Label>
+              <Switch.Root render={<span />} nativeButton={false} />
+            </Field.Root>,
+          );
+
+          const label = screen.getByTestId('label');
+          expect(label.getAttribute('for')).not.to.equal(null);
+
+          const button = screen.getByRole('switch');
+          expect(button.getAttribute('id')).to.equal(label.getAttribute('for'));
+          expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
         });
 
         it('when rendering a non-native label', async () => {
@@ -589,9 +618,8 @@ describe('<Switch.Root />', () => {
           const label = screen.getByTestId('label');
           const button = screen.getByRole('switch');
 
-          await waitFor(() => {
-            expect(label.getAttribute('for')).not.to.equal(null);
-          });
+          expect(label.getAttribute('for')).not.to.equal(null);
+          expect(label.getAttribute('id')).not.to.equal(null);
 
           expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
           expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
@@ -23,6 +23,8 @@ import {
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { type LabelableContext } from '../../labelable-provider/LabelableContext';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
@@ -108,7 +110,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   } = componentProps;
 
   const id = useBaseUiId(idProp);
-  const inputId = `${id}-input`;
 
   const {
     active: activeIndex,
@@ -144,18 +145,14 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const vertical = orientation === 'vertical';
   const rtl = direction === 'rtl';
 
-  const { controlId, setControlId, setTouched, setFocused, validationMode } = useFieldRootContext();
+  const { setTouched, setFocused, validationMode } = useFieldRootContext();
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  useIsoLayoutEffect(() => {
-    setControlId(inputId);
-
-    return () => {
-      setControlId(undefined);
-    };
-  }, [controlId, inputId, setControlId]);
+  const defaultInputId = useBaseUiId();
+  const labelableId = useLabelableId();
+  const inputId = range ? defaultInputId : labelableId;
 
   const thumbMetadata = React.useMemo(
     () => ({
@@ -178,7 +175,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   useOnMount(() => setIsMounted(true));
 
-  const getInsetPosition = useEventCallback(() => {
+  const getInsetPosition = useStableCallback(() => {
     const control = controlRef.current;
     const thumb = thumbRef.current;
     if (!control || !thumb) {
@@ -190,12 +187,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const side = vertical ? 'height' : 'width';
     // the total travel distance adjusted to account for the thumb size
     const controlSize = controlRect[side] - thumbRect[side];
-    // console.log('controlSize', controlSize);
     // px distance from the starting edge (inline-start or bottom) to the thumb center
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
-    // console.log('nextPositionPercent', nextPositionPercent);
     setPositionPercent(nextPositionPercent);
     if (index === 0) {
       setIndicatorPosition((prevPosition) => [nextPositionPercent, prevPosition[1]]);
@@ -451,7 +446,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 });
 
 export interface ThumbMetadata {
-  inputId: string | undefined;
+  inputId: LabelableContext['controlId'];
 }
 
 export interface SliderThumbState extends SliderRoot.State {}

@@ -1948,9 +1948,52 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     describe('prop: validate', () => {
-      it('runs on blur by default', async () => {
+      it('validationMode=onSubmit', async () => {
         await render(
-          <Field.Root validate={() => 'error'}>
+          <Form>
+            <Field.Root validate={(val) => ((val as number) > 90 ? 'error' : null)}>
+              <Slider.Root defaultValue={99}>
+                <Slider.Control>
+                  <Slider.Thumb />
+                </Slider.Control>
+              </Slider.Root>
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        const input = screen.getByRole('slider');
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
+
+        fireEvent.change(input, { target: { value: '98' } });
+        expect(input).to.not.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
+
+        fireEvent.click(screen.getByText('submit'));
+        expect(input).to.have.attribute('aria-invalid', 'true');
+        expect(screen.queryByTestId('error')).to.not.equal(null);
+
+        fireEvent.change(input, { target: { value: '10' } });
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
+
+        fireEvent.change(input, { target: { value: '94' } });
+        expect(input).to.have.attribute('aria-invalid', 'true');
+        expect(screen.queryByTestId('error')).to.not.equal(null);
+
+        fireEvent.change(input, { target: { value: '12' } });
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
+      });
+
+      it('validationMode=onBlur', async () => {
+        await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => ((value as number) > 1 ? 'error' : null)}
+          >
             <Slider.Root>
               <Slider.Control>
                 <Slider.Thumb />
@@ -1963,8 +2006,31 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         const input = screen.getByRole('slider');
         expect(input).not.to.have.attribute('aria-invalid');
 
-        fireEvent.focus(input);
+        fireEvent.change(input, { target: { value: '2' } });
+        expect(input).not.to.have.attribute('aria-invalid');
         fireEvent.blur(input);
+        await flushMicrotasks();
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('validationMode=onChange', async () => {
+        await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => (Number(value) === 1 ? 'error' : null)}
+          >
+            <Slider.Root defaultValue={0}>
+              <Slider.Control>
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByRole('slider');
+        expect(input).not.to.have.attribute('aria-invalid');
+
+        fireEvent.change(input, { target: { value: '1' } });
         await flushMicrotasks();
         expect(input).to.have.attribute('aria-invalid', 'true');
       });
@@ -1972,85 +2038,35 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       it('receives an array value for range sliders', async () => {
         const validateSpy = spy();
         await render(
-          <Field.Root validate={validateSpy}>
-            <Slider.Root defaultValue={[5, 12]}>
-              <Slider.Control>
-                <Slider.Thumb index={0} />
-                <Slider.Thumb index={1} />
-              </Slider.Control>
-            </Slider.Root>
-            <Field.Error data-testid="error" />
-          </Field.Root>,
+          <Form>
+            <Field.Root validate={validateSpy}>
+              <Slider.Root defaultValue={[5, 12]}>
+                <Slider.Control>
+                  <Slider.Thumb index={0} />
+                  <Slider.Thumb index={1} />
+                </Slider.Control>
+              </Slider.Root>
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
         );
 
-        const [input] = screen.getAllByRole('slider');
-        fireEvent.focus(input);
-        fireEvent.blur(input);
-        await flushMicrotasks();
+        fireEvent.click(screen.getByText('submit'));
         expect(validateSpy.callCount).to.equal(1);
         expect(validateSpy.args[0][0]).to.deep.equal([5, 12]);
       });
     });
 
-    it('prop: validationMode=onChange', async () => {
-      await render(
-        <Field.Root
-          validationMode="onChange"
-          validate={(value) => {
-            return value === 1 ? 'error' : null;
-          }}
-        >
-          <Slider.Root>
-            <Slider.Control>
-              <Slider.Thumb data-testid="thumb" />
-            </Slider.Control>
-          </Slider.Root>
-        </Field.Root>,
-      );
-
-      const input = screen.getByRole('slider');
-      expect(input).not.to.have.attribute('aria-invalid');
-
-      fireEvent.change(input, { target: { value: '1' } });
-      await flushMicrotasks();
-      expect(input).to.have.attribute('aria-invalid', 'true');
-    });
-
-    it('prop: validationMode=onBlur', async () => {
-      await render(
-        <Field.Root
-          validationMode="onBlur"
-          validate={(value) => {
-            return value === 1 ? 'error' : null;
-          }}
-        >
-          <Slider.Root>
-            <Slider.Control>
-              <Slider.Thumb data-testid="thumb" />
-            </Slider.Control>
-          </Slider.Root>
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
-
-      const input = screen.getByRole('slider');
-      expect(input).not.to.have.attribute('aria-invalid');
-
-      fireEvent.change(input, { target: { value: '1' } });
-      fireEvent.blur(input);
-      await flushMicrotasks();
-      expect(input).to.have.attribute('aria-invalid', 'true');
-    });
-
     it('Field.Label', async () => {
       await render(
         <Field.Root>
-          <Slider.Root data-testid="slider">
+          <Slider.Root>
             <Slider.Control>
               <Slider.Thumb />
             </Slider.Control>
           </Slider.Root>
-          <Field.Label data-testid="label" render={<span />} />
+          <Field.Label data-testid="label" />
         </Field.Root>,
       );
 

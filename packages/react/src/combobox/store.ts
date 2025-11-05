@@ -3,8 +3,9 @@ import type { InteractionType } from '@base-ui-components/utils/useEnhancedClick
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import type { useFieldControlValidation } from '../field/control/useFieldControlValidation';
-import type { AriaCombobox } from './root/AriaCombobox';
+import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../utils/itemEquality';
+import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
   id: string | undefined;
@@ -36,6 +37,7 @@ export type State = {
   listElement: HTMLElement | null;
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
+  popupSide: Side | null;
 
   openMethod: InteractionType | null;
 
@@ -68,6 +70,7 @@ export type State = {
   getItemProps: (
     props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>;
+  requestSubmit: () => void;
 
   name: string | undefined;
   disabled: boolean;
@@ -82,8 +85,8 @@ export type State = {
   itemToStringLabel?: (item: any) => string;
   isItemEqualToValue: (item: any, value: any) => boolean;
   modal: boolean;
-  autoHighlight: boolean;
-  alwaysSubmitOnEnter: boolean;
+  autoHighlight: false | 'always' | 'input-change';
+  submitOnItemClick: boolean;
   hasInputValue: boolean;
 };
 
@@ -128,6 +131,7 @@ export const selectors = {
   listElement: createSelector((state: State) => state.listElement),
   triggerElement: createSelector((state: State) => state.triggerElement),
   inputElement: createSelector((state: State) => state.inputElement),
+  popupSide: createSelector((state: State) => state.popupSide),
 
   openMethod: createSelector((state: State) => state.openMethod),
 
@@ -158,5 +162,5 @@ export const selectors = {
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
-  alwaysSubmitOnEnter: createSelector((state: State) => state.alwaysSubmitOnEnter),
+  submitOnItemClick: createSelector((state: State) => state.submitOnItemClick),
 };

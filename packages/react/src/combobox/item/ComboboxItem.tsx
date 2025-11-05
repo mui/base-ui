@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   useComboboxRootContext,
@@ -70,7 +70,6 @@ export const ComboboxItem = React.memo(
     const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useLatestRef(index);
 
     const hasRegistered = listItem.index !== -1;
 
@@ -162,7 +161,17 @@ export const ComboboxItem = React.memo(
         if (disabled || readOnly) {
           return;
         }
-        store.state.handleSelection(event.nativeEvent, value);
+
+        function selectItem() {
+          store.state.handleSelection(event.nativeEvent, value);
+        }
+
+        if (store.state.submitOnItemClick) {
+          ReactDOM.flushSync(selectItem);
+          store.state.requestSubmit();
+        } else {
+          selectItem();
+        }
       },
     };
 
@@ -175,10 +184,9 @@ export const ComboboxItem = React.memo(
     const contextValue: ComboboxItemContext = React.useMemo(
       () => ({
         selected,
-        indexRef,
         textRef,
       }),
-      [selected, indexRef, textRef],
+      [selected, textRef],
     );
 
     return (

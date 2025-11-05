@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
-import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { AnimationFrame, useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { warn } from '@base-ui-components/utils/warn';
 import { HTMLProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -43,6 +43,8 @@ export function useCollapsiblePanel(
   const shouldCancelInitialOpenAnimationRef = React.useRef(open);
   const shouldCancelInitialOpenTransitionRef = React.useRef(open);
 
+  const endingStyleFrame = useAnimationFrame();
+
   /**
    * When opening, the `hidden` attribute is removed immediately.
    * When closing, the `hidden` attribute is set after any exit animations runs.
@@ -63,7 +65,7 @@ export function useCollapsiblePanel(
    * time it opens. If the panel is in the middle of a close transition that is
    * interrupted and re-opens, this won't run as the panel was not unmounted.
    */
-  const handlePanelRef = useEventCallback((element: HTMLElement) => {
+  const handlePanelRef = useStableCallback((element: HTMLElement) => {
     if (!element) {
       return undefined;
     }
@@ -113,17 +115,8 @@ export function useCollapsiblePanel(
       return undefined;
     }
 
-    /**
-     * Explicitly set `display` to ensure the panel is actually rendered before
-     * measuring anything. `!important` is to needed to override a conflicting
-     * Tailwind v4 default that sets `display: none !important` on `[hidden]`:
-     * https://github.com/tailwindlabs/tailwindcss/blob/cd154a4f471e7a63cc27cad15dada650de89d52b/packages/tailwindcss/preflight.css#L320-L326
-     */
-    element.style.setProperty('display', getComputedStyle(element).display || 'block', 'important');
-
     if (height === undefined || width === undefined) {
       setDimensions({ height: element.scrollHeight, width: element.scrollWidth });
-      element.style.removeProperty('display');
 
       if (shouldCancelInitialOpenTransitionRef.current) {
         element.style.setProperty('transition-duration', '0s');
@@ -183,7 +176,6 @@ export function useCollapsiblePanel(
       };
 
       /* opening */
-      panel.style.setProperty('display', getComputedStyle(panel).display || 'block', 'important');
       Object.keys(originalLayoutStyles).forEach((key) => {
         panel.style.setProperty(key, 'initial', 'important');
       });
@@ -202,7 +194,6 @@ export function useCollapsiblePanel(
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
       resizeFrame = AnimationFrame.request(() => {
-        panel.style.removeProperty('display');
         Object.entries(originalLayoutStyles).forEach(([key, value]) => {
           if (value === '') {
             panel.style.removeProperty(key);
@@ -212,29 +203,54 @@ export function useCollapsiblePanel(
         });
       });
     } else {
+      if (panel.scrollHeight === 0 && panel.scrollWidth === 0) {
+        return undefined;
+      }
+
       /* closing */
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
-      abortControllerRef.current = new AbortController();
-      const signal = abortControllerRef.current.signal;
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+      const signal = abortController.signal;
 
-      let frame2 = -1;
-      const frame1 = AnimationFrame.request(() => {
-        // Wait until the `[data-ending-style]` attribute is added.
-        frame2 = AnimationFrame.request(() => {
+      let attributeObserver: MutationObserver | null = null;
+
+      const endingStyleAttribute = CollapsiblePanelDataAttributes.endingStyle;
+
+      // Wait for `[data-ending-style]` to be applied.
+      attributeObserver = new MutationObserver((mutationList) => {
+        const hasEndingStyle = mutationList.some(
+          (mutation) =>
+            mutation.type === 'attributes' && mutation.attributeName === endingStyleAttribute,
+        );
+
+        if (hasEndingStyle) {
+          attributeObserver?.disconnect();
+          attributeObserver = null;
           runOnceAnimationsFinish(() => {
             setDimensions({ height: 0, width: 0 });
             panel.style.removeProperty('content-visibility');
-            panel.style.removeProperty('display');
             setMounted(false);
-            abortControllerRef.current = null;
+            if (abortControllerRef.current === abortController) {
+              abortControllerRef.current = null;
+            }
           }, signal);
-        });
+        }
+      });
+
+      attributeObserver.observe(panel, {
+        attributes: true,
+        attributeFilter: [endingStyleAttribute],
       });
 
       return () => {
-        AnimationFrame.cancel(frame1);
-        AnimationFrame.cancel(frame2);
+        attributeObserver?.disconnect();
+        endingStyleFrame.cancel();
+        if (abortControllerRef.current === abortController) {
+          abortController.abort();
+          abortControllerRef.current = null;
+        }
       };
     }
 
@@ -244,6 +260,7 @@ export function useCollapsiblePanel(
   }, [
     abortControllerRef,
     animationTypeRef,
+    endingStyleFrame,
     hiddenUntilFound,
     keepMounted,
     mounted,
@@ -252,7 +269,6 @@ export function useCollapsiblePanel(
     runOnceAnimationsFinish,
     setDimensions,
     setMounted,
-    transitionDimensionRef,
   ]);
 
   useIsoLayoutEffect(() => {

@@ -7,6 +7,7 @@ export const TypesAlertDialogRoot = types.Root;
 export const TypesAlertDialogTrigger = types.Trigger;
 export const TypesAlertDialogPortal = types.Portal;
 export const TypesAlertDialogBackdrop = types.Backdrop;
+export const TypesAlertDialogViewport = types.Viewport;
 export const TypesAlertDialogPopup = types.Popup;
 export const TypesAlertDialogTitle = types.Title;
 export const TypesAlertDialogDescription = types.Description;

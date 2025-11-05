@@ -7,7 +7,9 @@
   content="A high-quality, unstyled React toast component to generate notifications."
 />
 
-<Demo path="./demos/hero" />
+import { DemoToastHero } from './demos/hero';
+
+<DemoToastHero />
 
 ## Anatomy
 
@@ -369,13 +371,17 @@ To change the toasts' position, you can modify the `.Viewport` and `.Root` style
 A more general component could accept a `data-position` attribute, which the CSS handles for each variation.
 The following shows a top-center position:
 
-<Demo path="./demos/position" compact />
+import { DemoToastPosition } from './demos/position';
+
+<DemoToastPosition compact />
 
 ### Undo action
 
 When adding a toast, the `actionProps` option can be used to define props for an action button inside of it—this enables the ability to undo an action associated with the toast.
 
-<Demo path="./demos/undo" compact />
+import { DemoToastUndo } from './demos/undo';
+
+<DemoToastUndo compact />
 
 ### Promise
 
@@ -383,18 +389,24 @@ An asynchronous toast can be created with three possible states: `loading`, `suc
 The `type` string matches these states to change the styling.
 Each of the states also accepts the [method options](/react/components/toast#method-options) object for more granular control.
 
-<Demo path="./demos/promise" compact />
+import { DemoToastPromise } from './demos/promise';
+
+<DemoToastPromise compact />
 
 ### Custom
 
 A toast with custom data can be created by passing any typed object interface to the `data` option.
 This enables you to pass any data (including functions) you need to the toast and access it in the toast's rendering logic.
 
-<Demo path="./demos/custom" compact />
+import { DemoToastCustom } from './demos/custom';
+
+<DemoToastCustom compact />
 
 ### Varying heights
 
 Toasts with varying heights are stacked by ensuring that the `<Toast.Content>` element has `overflow: hidden` set, along with all toasts' heights matching the frontmost toast at index 0.
 This prevents taller toasts from overflowing the stack when collapsed.
 
-<Demo path="./demos/varying-heights" compact />
+import { DemoToastVaryingHeights } from './demos/varying-heights';
+
+<DemoToastVaryingHeights compact />

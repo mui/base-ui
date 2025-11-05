@@ -81,26 +81,38 @@ function transformJsx() {
           if (node.data.estree.type === 'Program') {
             const estree = node.data.estree;
             if (estree.body[0].type === 'ImportDeclaration') {
-              // Mark subsequent h3+ headings for removal until we hit an h2 or lower
-              for (let i = index + 1; i < parent.children.length; i += 1) {
-                const nextNode = parent.children[i];
-                if (nextNode.type === 'heading') {
-                  if (nextNode.depth >= 3) {
-                    // Remove h3 headings following the types import
-                    nextNode.data = nextNode.data || {};
-                    nextNode.data.remove = true;
-                  } else {
-                    break;
-                  }
-                }
-              }
-
               // Handle import declarations in MDX
               const importPath = estree.body[0].source.value;
-              const demoContent = processTypedoc(node, file.path || '', importPath);
 
-              // Replace the demo component with the generated content
-              parent.children.splice(index, 1, ...demoContent);
+              // Determine if this is a types import or demo import
+              const specifiers = estree.body[0].specifiers || [];
+              const isTypesImport = specifiers.some((spec) =>
+                spec.imported?.name?.startsWith('Type'),
+              );
+
+              let processedContent;
+              if (isTypesImport) {
+                // Mark subsequent h3+ headings for removal until we hit an h2 or lower
+                for (let i = index + 1; i < parent.children.length; i += 1) {
+                  const nextNode = parent.children[i];
+                  if (nextNode.type === 'heading') {
+                    if (nextNode.depth >= 3) {
+                      // Remove h3 headings following the types import
+                      nextNode.data = nextNode.data || {};
+                      nextNode.data.remove = true;
+                    } else {
+                      break;
+                    }
+                  }
+                }
+
+                processedContent = processTypedoc(node, file.path || '', importPath);
+              } else {
+                processedContent = processDemo(node, file.path || '', importPath);
+              }
+
+              // Replace the import with the generated content
+              parent.children.splice(index, 1, ...processedContent);
               return visit.CONTINUE;
             }
           }
@@ -120,20 +132,14 @@ function transformJsx() {
           return [visit.SKIP, index];
         }
 
+        if (node.name.startsWith('Demo')) {
+          // Remove Demo components - they are handled by the import statement
+          parent.children.splice(index, 1);
+          return [visit.SKIP, index];
+        }
+
         // Process different component types
         switch (node.name) {
-          case 'Demo': {
-            // Get the file path for context
-            const filePath = file.path || '';
-
-            // Process the demo component using our dedicated processor
-            const demoContent = processDemo(node, filePath);
-
-            // Replace the demo component with the generated content
-            parent.children.splice(index, 1, ...demoContent);
-            return visit.CONTINUE;
-          }
-
           case 'Reference': {
             // Process the reference component using our dedicated processor
             const tables = processReference(node, parent, index);

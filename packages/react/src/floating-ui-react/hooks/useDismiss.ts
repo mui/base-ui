@@ -9,7 +9,7 @@ import {
   isWebKit,
 } from '@floating-ui/utils/dom';
 import { Timeout, useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import {
   contains,
   getDocument,
@@ -84,7 +84,7 @@ export interface UseDismissProps {
    * ```
    * @default true
    */
-  outsidePress?: boolean | ((event: MouseEvent) => boolean);
+  outsidePress?: boolean | ((event: MouseEvent | TouchEvent) => boolean);
   /**
    * The type of event to use to determine an outside "press".
    * - `intentional` requires the user to click outside intentionally, firing on `pointerup` for mouse, and requiring minimal `touchmove`s for touch.
@@ -113,10 +113,6 @@ export interface UseDismissProps {
    * floating elements.
    */
   bubbles?: boolean | { escapeKey?: boolean; outsidePress?: boolean };
-  /**
-   * Determines whether to use capture phase event listeners.
-   */
-  capture?: boolean | { escapeKey?: boolean; outsidePress?: boolean };
 }
 
 /**
@@ -138,37 +134,41 @@ export function useDismiss(
     referencePressEvent = 'sloppy',
     ancestorScroll = false,
     bubbles,
-    capture,
   } = props;
 
   const tree = useFloatingTree();
-  const outsidePressFn = useEventCallback(
+  const outsidePressFn = useStableCallback(
     typeof outsidePressProp === 'function' ? outsidePressProp : () => false,
   );
   const outsidePress = typeof outsidePressProp === 'function' ? outsidePressFn : outsidePressProp;
 
   const endedOrStartedInsideRef = React.useRef(false);
   const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp(bubbles);
-  const { escapeKey: escapeKeyCapture, outsidePress: outsidePressCapture } = normalizeProp(capture);
 
   const touchStateRef = React.useRef<{
     startTime: number;
     startX: number;
     startY: number;
-    dismissOnPointerUp: boolean;
+    dismissOnTouchEnd: boolean;
     dismissOnMouseDown: boolean;
   } | null>(null);
+
   const cancelDismissOnEndTimeout = useTimeout();
-  const insideReactTreeTimeout = useTimeout();
+  const clearInsideReactTreeTimeout = useTimeout();
+
+  const clearInsideReactTree = useStableCallback(() => {
+    clearInsideReactTreeTimeout.clear();
+    dataRef.current.insideReactTree = false;
+  });
 
   const isComposingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
-  const trackPointerType = useEventCallback((event: PointerEvent) => {
+  const trackPointerType = useStableCallback((event: PointerEvent) => {
     currentPointerTypeRef.current = event.pointerType;
   });
 
-  const getOutsidePressEvent = useEventCallback(() => {
+  const getOutsidePressEvent = useStableCallback(() => {
     const type = currentPointerTypeRef.current as 'pen' | 'mouse' | 'touch' | '';
     const computedType = type === 'pen' || !type ? 'mouse' : type;
 
@@ -182,7 +182,7 @@ export function useDismiss(
     return resolved[computedType];
   });
 
-  const closeOnEscapeKeyDown = useEventCallback(
+  const closeOnEscapeKeyDown = useStableCallback(
     (event: React.KeyboardEvent<Element> | KeyboardEvent) => {
       if (!open || !enabled || !escapeKey || event.key !== 'Escape') {
         return;
@@ -225,7 +225,7 @@ export function useDismiss(
     },
   );
 
-  const shouldIgnoreEvent = useEventCallback((event: Event) => {
+  const shouldIgnoreEvent = useStableCallback((event: Event) => {
     const computedOutsidePressEvent = getOutsidePressEvent();
     return (
       (computedOutsidePressEvent === 'intentional' && event.type !== 'click') ||
@@ -233,30 +233,24 @@ export function useDismiss(
     );
   });
 
-  const closeOnEscapeKeyDownCapture = useEventCallback((event: KeyboardEvent) => {
-    const callback = () => {
-      closeOnEscapeKeyDown(event);
-      getTarget(event)?.removeEventListener('keydown', callback);
-    };
-    getTarget(event)?.addEventListener('keydown', callback);
+  const markInsideReactTree = useStableCallback(() => {
+    dataRef.current.insideReactTree = true;
+    clearInsideReactTreeTimeout.start(0, clearInsideReactTree);
   });
 
-  const closeOnPressOutside = useEventCallback(
-    (event: MouseEvent, endedOrStartedInside = false) => {
+  const closeOnPressOutside = useStableCallback(
+    (event: MouseEvent | PointerEvent | TouchEvent, endedOrStartedInside = false) => {
       if (shouldIgnoreEvent(event)) {
+        clearInsideReactTree();
         return;
       }
 
-      // Given developers can stop the propagation of the synthetic event,
-      // we can only be confident with a positive value.
-      const insideReactTree = dataRef.current.insideReactTree;
-      dataRef.current.insideReactTree = false;
+      if (dataRef.current.insideReactTree) {
+        clearInsideReactTree();
+        return;
+      }
 
       if (getOutsidePressEvent() === 'intentional' && endedOrStartedInside) {
-        return;
-      }
-
-      if (insideReactTree) {
         return;
       }
 
@@ -299,7 +293,8 @@ export function useDismiss(
       }
 
       // Check if the click occurred on the scrollbar
-      if (isHTMLElement(target)) {
+      // Skip for touch events: scrollbars don't receive touch events on most platforms
+      if (isHTMLElement(target) && !('touches' in event)) {
         const lastTraversableNode = isLastTraversableNode(target);
         const style = getComputedStyle(target);
         const scrollRe = /auto|scroll/;
@@ -363,10 +358,26 @@ export function useDismiss(
       }
 
       onOpenChange(false, createChangeEventDetails('outside-press', event));
+      clearInsideReactTree();
     },
   );
 
-  const handlePointerDown = useEventCallback((event: PointerEvent) => {
+  const handlePointerDown = useStableCallback((event: PointerEvent) => {
+    if (
+      getOutsidePressEvent() !== 'sloppy' ||
+      event.pointerType === 'touch' ||
+      !open ||
+      !enabled ||
+      isEventTargetWithin(event, elements.floating) ||
+      isEventTargetWithin(event, elements.domReference)
+    ) {
+      return;
+    }
+
+    closeOnPressOutside(event);
+  });
+
+  const handleTouchStart = useStableCallback((event: TouchEvent) => {
     if (
       getOutsidePressEvent() !== 'sloppy' ||
       !open ||
@@ -377,38 +388,41 @@ export function useDismiss(
       return;
     }
 
-    if (event.pointerType === 'touch') {
+    const touch = event.touches[0];
+    if (touch) {
       touchStateRef.current = {
         startTime: Date.now(),
-        startX: event.clientX,
-        startY: event.clientY,
-        dismissOnPointerUp: false,
+        startX: touch.clientX,
+        startY: touch.clientY,
+        dismissOnTouchEnd: false,
         dismissOnMouseDown: true,
       };
 
       cancelDismissOnEndTimeout.start(1000, () => {
         if (touchStateRef.current) {
-          touchStateRef.current.dismissOnPointerUp = false;
+          touchStateRef.current.dismissOnTouchEnd = false;
           touchStateRef.current.dismissOnMouseDown = false;
         }
       });
-      return;
     }
-
-    closeOnPressOutside(event);
   });
 
-  const closeOnPressOutsideCapture = useEventCallback((event: PointerEvent | MouseEvent) => {
+  const handleTouchStartCapture = useStableCallback((event: TouchEvent) => {
+    const target = getTarget(event);
+    function callback() {
+      handleTouchStart(event);
+      target?.removeEventListener(event.type, callback);
+    }
+    target?.addEventListener(event.type, callback);
+  });
+
+  const closeOnPressOutsideCapture = useStableCallback((event: PointerEvent | MouseEvent) => {
     // When click outside is lazy (`up` event), handle dragging.
     // Don't close if:
     // - The click started inside the floating element.
     // - The click ended inside the floating element.
     const endedOrStartedInside = endedOrStartedInsideRef.current;
     endedOrStartedInsideRef.current = false;
-
-    if (shouldIgnoreEvent(event)) {
-      return;
-    }
 
     cancelDismissOnEndTimeout.clear();
 
@@ -420,21 +434,22 @@ export function useDismiss(
       return;
     }
 
-    const callback = () => {
+    const target = getTarget(event);
+
+    function callback() {
       if (event.type === 'pointerdown') {
         handlePointerDown(event as PointerEvent);
       } else {
         closeOnPressOutside(event as MouseEvent, endedOrStartedInside);
       }
-      getTarget(event)?.removeEventListener(event.type, callback);
-    };
-    getTarget(event)?.addEventListener(event.type, callback);
+      target?.removeEventListener(event.type, callback);
+    }
+    target?.addEventListener(event.type, callback);
   });
 
-  const handlePointerMove = useEventCallback((event: PointerEvent) => {
+  const handleTouchMove = useStableCallback((event: TouchEvent) => {
     if (
       getOutsidePressEvent() !== 'sloppy' ||
-      event.pointerType !== 'touch' ||
       !touchStateRef.current ||
       isEventTargetWithin(event, elements.floating) ||
       isEventTargetWithin(event, elements.domReference)
@@ -442,12 +457,17 @@ export function useDismiss(
       return;
     }
 
-    const deltaX = Math.abs(event.clientX - touchStateRef.current.startX);
-    const deltaY = Math.abs(event.clientY - touchStateRef.current.startY);
+    const touch = event.touches[0];
+    if (!touch) {
+      return;
+    }
+
+    const deltaX = Math.abs(touch.clientX - touchStateRef.current.startX);
+    const deltaY = Math.abs(touch.clientY - touchStateRef.current.startY);
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
     if (distance > 5) {
-      touchStateRef.current.dismissOnPointerUp = true;
+      touchStateRef.current.dismissOnTouchEnd = true;
     }
 
     if (distance > 10) {
@@ -457,10 +477,18 @@ export function useDismiss(
     }
   });
 
-  const handlePointerUp = useEventCallback((event: PointerEvent) => {
+  const handleTouchMoveCapture = useStableCallback((event: TouchEvent) => {
+    const target = getTarget(event);
+    function callback() {
+      handleTouchMove(event);
+      target?.removeEventListener(event.type, callback);
+    }
+    target?.addEventListener(event.type, callback);
+  });
+
+  const handleTouchEnd = useStableCallback((event: TouchEvent) => {
     if (
       getOutsidePressEvent() !== 'sloppy' ||
-      event.pointerType !== 'touch' ||
       !touchStateRef.current ||
       isEventTargetWithin(event, elements.floating) ||
       isEventTargetWithin(event, elements.domReference)
@@ -468,12 +496,21 @@ export function useDismiss(
       return;
     }
 
-    if (touchStateRef.current.dismissOnPointerUp) {
+    if (touchStateRef.current.dismissOnTouchEnd) {
       closeOnPressOutside(event);
     }
 
     cancelDismissOnEndTimeout.clear();
     touchStateRef.current = null;
+  });
+
+  const handleTouchEndCapture = useStableCallback((event: TouchEvent) => {
+    const target = getTarget(event);
+    function callback() {
+      handleTouchEnd(event);
+      target?.removeEventListener(event.type, callback);
+    }
+    target?.addEventListener(event.type, callback);
   });
 
   React.useEffect(() => {
@@ -514,29 +551,18 @@ export function useDismiss(
     doc.addEventListener('pointerdown', trackPointerType, true);
 
     if (escapeKey) {
-      doc.addEventListener(
-        'keydown',
-        escapeKeyCapture ? closeOnEscapeKeyDownCapture : closeOnEscapeKeyDown,
-        escapeKeyCapture,
-      );
+      doc.addEventListener('keydown', closeOnEscapeKeyDown);
       doc.addEventListener('compositionstart', handleCompositionStart);
       doc.addEventListener('compositionend', handleCompositionEnd);
     }
 
     if (outsidePress) {
-      doc.addEventListener(
-        'click',
-        outsidePressCapture ? closeOnPressOutsideCapture : closeOnPressOutside,
-        outsidePressCapture,
-      );
-      doc.addEventListener(
-        'pointerdown',
-        outsidePressCapture ? closeOnPressOutsideCapture : closeOnPressOutside,
-        outsidePressCapture,
-      );
-      doc.addEventListener('pointermove', handlePointerMove, outsidePressCapture);
-      doc.addEventListener('pointerup', handlePointerUp, outsidePressCapture);
-      doc.addEventListener('mousedown', closeOnPressOutsideCapture, outsidePressCapture);
+      doc.addEventListener('click', closeOnPressOutsideCapture, true);
+      doc.addEventListener('pointerdown', closeOnPressOutsideCapture, true);
+      doc.addEventListener('touchstart', handleTouchStartCapture, true);
+      doc.addEventListener('touchmove', handleTouchMoveCapture, true);
+      doc.addEventListener('touchend', handleTouchEndCapture, true);
+      doc.addEventListener('mousedown', closeOnPressOutsideCapture, true);
     }
 
     let ancestors: (Element | Window | VisualViewport)[] = [];
@@ -570,29 +596,18 @@ export function useDismiss(
       doc.removeEventListener('pointerdown', trackPointerType, true);
 
       if (escapeKey) {
-        doc.removeEventListener(
-          'keydown',
-          escapeKeyCapture ? closeOnEscapeKeyDownCapture : closeOnEscapeKeyDown,
-          escapeKeyCapture,
-        );
+        doc.removeEventListener('keydown', closeOnEscapeKeyDown);
         doc.removeEventListener('compositionstart', handleCompositionStart);
         doc.removeEventListener('compositionend', handleCompositionEnd);
       }
 
       if (outsidePress) {
-        doc.removeEventListener(
-          'click',
-          outsidePressCapture ? closeOnPressOutsideCapture : closeOnPressOutside,
-          outsidePressCapture,
-        );
-        doc.removeEventListener(
-          'pointerdown',
-          outsidePressCapture ? closeOnPressOutsideCapture : closeOnPressOutside,
-          outsidePressCapture,
-        );
-        doc.removeEventListener('pointermove', handlePointerMove, outsidePressCapture);
-        doc.removeEventListener('pointerup', handlePointerUp, outsidePressCapture);
-        doc.removeEventListener('mousedown', closeOnPressOutsideCapture, outsidePressCapture);
+        doc.removeEventListener('click', closeOnPressOutsideCapture, true);
+        doc.removeEventListener('pointerdown', closeOnPressOutsideCapture, true);
+        doc.removeEventListener('touchstart', handleTouchStartCapture, true);
+        doc.removeEventListener('touchmove', handleTouchMoveCapture, true);
+        doc.removeEventListener('touchend', handleTouchEndCapture, true);
+        doc.removeEventListener('mousedown', closeOnPressOutsideCapture, true);
       }
 
       ancestors.forEach((ancestor) => {
@@ -613,20 +628,16 @@ export function useDismiss(
     escapeKeyBubbles,
     outsidePressBubbles,
     closeOnEscapeKeyDown,
-    escapeKeyCapture,
-    closeOnEscapeKeyDownCapture,
     closeOnPressOutside,
-    outsidePressCapture,
     closeOnPressOutsideCapture,
     handlePointerDown,
-    handlePointerMove,
-    handlePointerUp,
+    handleTouchStartCapture,
+    handleTouchMoveCapture,
+    handleTouchEndCapture,
     trackPointerType,
   ]);
 
-  React.useEffect(() => {
-    dataRef.current.insideReactTree = false;
-  }, [dataRef, outsidePress]);
+  React.useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
 
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
@@ -645,7 +656,7 @@ export function useDismiss(
     [closeOnEscapeKeyDown, onOpenChange, referencePress, referencePressEvent],
   );
 
-  const handlePressedInside = useEventCallback((event: React.MouseEvent) => {
+  const handlePressedInside = useStableCallback((event: React.MouseEvent) => {
     const target = getTarget(event.nativeEvent) as Element | null;
     if (!contains(elements.floating, target) || event.button !== 0) {
       return;
@@ -653,24 +664,19 @@ export function useDismiss(
     endedOrStartedInsideRef.current = true;
   });
 
-  const handleCaptureInside = useEventCallback(() => {
-    dataRef.current.insideReactTree = true;
-    insideReactTreeTimeout.start(0, () => {
-      dataRef.current.insideReactTree = false;
-    });
-  });
-
   const floating: ElementProps['floating'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
       onMouseDown: handlePressedInside,
       onMouseUp: handlePressedInside,
-      onPointerDownCapture: handleCaptureInside,
-      onMouseDownCapture: handleCaptureInside,
-      onClickCapture: handleCaptureInside,
-      onMouseUpCapture: handleCaptureInside,
+      onPointerDownCapture: markInsideReactTree,
+      onMouseDownCapture: markInsideReactTree,
+      onClickCapture: markInsideReactTree,
+      onMouseUpCapture: markInsideReactTree,
+      onTouchEndCapture: markInsideReactTree,
+      onTouchMoveCapture: markInsideReactTree,
     }),
-    [closeOnEscapeKeyDown, handlePressedInside, handleCaptureInside],
+    [closeOnEscapeKeyDown, handlePressedInside, markInsideReactTree],
   );
 
   return React.useMemo(

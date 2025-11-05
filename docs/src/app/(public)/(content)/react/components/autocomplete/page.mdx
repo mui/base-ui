@@ -6,7 +6,9 @@
   content="A high-quality, unstyled React autocomplete component that renders an input with a list of filtered options."
 />
 
-<Demo path="./demos/hero" />
+import { DemoAutocompleteHero } from './demos/hero';
+
+<DemoAutocompleteHero />
 
 ## Usage guidelines
 
@@ -160,6 +162,44 @@ import {
 
 <TypesComboboxSeparator />
 
+## useFilter
+
+Matches items against a query using `Intl.Collator` for robust string matching.
+This hook is used when externally filtering items.
+
+### Input parameters
+
+Accepts all `Intl.CollatorOptions`, plus the following option:
+
+<PropsReferenceTable
+  data={{
+    locale: {
+      type: 'Intl.LocalesArgument',
+      description: 'The locale to use for string comparison.',
+    },
+  }}
+/>
+
+### Return value
+
+<PropsReferenceTable
+  type="return"
+  data={{
+    contains: {
+      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
+      description: 'Returns whether the item matches the query anywhere.',
+    },
+    startsWith: {
+      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
+      description: 'Returns whether the item starts with the query.',
+    },
+    endsWith: {
+      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
+      description: 'Returns whether the item ends with the query.',
+    },
+  }}
+/>
+
 ## TypeScript inference
 
 Autocomplete infers the item type from the `items` prop passed to `<Autocomplete.Root>`.
@@ -171,46 +211,64 @@ If using `itemToStringValue`, the value prop on the `<Autocomplete.Item>` must m
 
 Load items asynchronously while typing and render custom status content.
 
-<Demo path="./demos/async" compact />
+import { DemoAutocompleteAsync } from './demos/async';
+
+<DemoAutocompleteAsync compact />
 
 ### Inline autocomplete
 
 Autofill the input with the highlighted item while navigating with arrow keys using the `mode` prop. Accepts `aria-autocomplete` values `list`, `both`, `inline`, or `none`.
 
-<Demo path="./demos/inline" compact />
+import { DemoAutocompleteInline } from './demos/inline';
+
+<DemoAutocompleteInline compact />
 
 ### Grouped
 
-Group related options together by passing an array of group objects to the `items` prop.
+Organize related options with `<Autocomplete.Group>` and `<Autocomplete.GroupLabel>` to add section headings inside the popup.
 
-<Demo path="./demos/grouped" compact />
+import { DemoAutocompleteGrouped } from './demos/grouped';
+
+<DemoAutocompleteGrouped compact />
 
 ### Fuzzy matching
 
 Use fuzzy matching to find relevant results even when the query doesn't exactly match the item text.
 
-<Demo path="./demos/fuzzy-matching" compact />
+import { DemoAutocompleteFuzzyMatching } from './demos/fuzzy-matching';
+
+<DemoAutocompleteFuzzyMatching compact />
 
 ### Limit results
 
 Limit the number of visible items using the `limit` prop and guide users to refine their query using `<Autocomplete.Status>`.
 
-<Demo path="./demos/limit" compact />
+import { DemoAutocompleteLimit } from './demos/limit';
+
+<DemoAutocompleteLimit compact />
 
 ### Auto highlight
 
-Automatically highlight the first matching option as the user types using the `autoHighlight` prop.
+The first matching item can be automatically highlighted as the user types by specifying the `autoHighlight` prop on `<Autocomplete.Root>`. Set the prop's value to `"always"` if the highlight should always be present, such as when the list is rendered inline within a dialog.
 
-<Demo path="./demos/auto-highlight" compact />
+The prop can be combined with the `keepHighlight` and `highlightItemOnHover` props to configure how the highlight behaves during mouse interactions.
+
+import { DemoAutocompleteAutoHighlight } from './demos/auto-highlight';
+
+<DemoAutocompleteAutoHighlight compact />
 
 ### Grid layout
 
 Display items in a grid layout, wrapping each row in `<Autocomplete.Row>` components.
 
-<Demo path="./demos/grid" compact />
+import { DemoAutocompleteGrid } from './demos/grid';
+
+<DemoAutocompleteGrid compact />
 
 ### Virtualized
 
 Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
 
-<Demo path="./demos/virtualized" compact />
+import { DemoAutocompleteVirtualized } from './demos/virtualized';
+
+<DemoAutocompleteVirtualized compact />

@@ -69,8 +69,11 @@ export function PropsReferenceAccordion({
               {prop.type && (
                 <Accordion.Scrollable className="px-3 flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
                   {hasExpandedType ? (
-                    <ReferenceTableTooltip.Root delay={300} hoverable={false}>
-                      <ReferenceTableTooltip.Trigger render={<span>{displayShortType}</span>} />
+                    <ReferenceTableTooltip.Root hoverable={false}>
+                      <ReferenceTableTooltip.Trigger
+                        delay={300}
+                        render={<span>{displayShortType}</span>}
+                      />
                       <ReferenceTableTooltip.Popup>
                         {displayDetailedType}
                       </ReferenceTableTooltip.Popup>

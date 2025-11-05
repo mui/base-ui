@@ -54,7 +54,9 @@ export function AttributesReferenceTable({ data, ...props }: AttributesReference
               <div className="sr-only xs:not-sr-only xs:contents">Description</div>
             </Table.ColumnHeader>
             {/* A cell to maintain a layout consistent with the props table */}
-            <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden role="presentation" />
+            <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden>
+              <div className="invisible">{'-'}</div>
+            </Table.ColumnHeader>
           </Table.Row>
         </Table.Head>
         <Table.Body>

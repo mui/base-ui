@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
+import type { Form } from '../../form';
 import { useFormContext } from '../../form/FormContext';
+import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -18,12 +20,14 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
+  const { errors, validationMode: formValidationMode, submitAttemptedRef } = useFormContext();
+
   const {
     render,
     className,
     validate: validateProp,
     validationDebounceTime = 0,
-    validationMode = 'onBlur',
+    validationMode = formValidationMode,
     name,
     disabled: disabledProp = false,
     invalid: invalidProp,
@@ -34,15 +38,9 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const { disabled: disabledFieldset } = useFieldsetRootContext();
 
-  const { errors } = useFormContext();
-
-  const validate = useEventCallback(validateProp || (() => null));
+  const validate = useStableCallback(validateProp || (() => null));
 
   const disabled = disabledFieldset || disabledProp;
-
-  const [controlId, setControlId] = React.useState<string | null | undefined>(undefined);
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
-  const [messageIds, setMessageIds] = React.useState<string[]>([]);
 
   const [touchedState, setTouchedUnwrapped] = React.useState(false);
   const [dirtyState, setDirtyUnwrapped] = React.useState(false);
@@ -54,7 +52,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const markedDirtyRef = React.useRef(false);
 
-  const setDirty: typeof setDirtyUnwrapped = useEventCallback((value) => {
+  const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
     if (dirtyProp !== undefined) {
       return;
     }
@@ -65,12 +63,18 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     setDirtyUnwrapped(value);
   });
 
-  const setTouched: typeof setTouchedUnwrapped = useEventCallback((value) => {
+  const setTouched: typeof setTouchedUnwrapped = useStableCallback((value) => {
     if (touchedProp !== undefined) {
       return;
     }
     setTouchedUnwrapped(value);
   });
+
+  const shouldValidateOnChange = useStableCallback(
+    () =>
+      validationMode === 'onChange' ||
+      (validationMode === 'onSubmit' && submitAttemptedRef.current),
+  );
 
   const invalid = Boolean(
     invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
@@ -101,12 +105,6 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
       invalid,
-      controlId,
-      setControlId,
-      labelId,
-      setLabelId,
-      messageIds,
-      setMessageIds,
       name,
       validityData,
       setValidityData,
@@ -122,14 +120,12 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
       validate,
       validationMode,
       validationDebounceTime,
+      shouldValidateOnChange,
       state,
       markedDirtyRef,
     }),
     [
       invalid,
-      controlId,
-      labelId,
-      messageIds,
       name,
       validityData,
       disabled,
@@ -144,6 +140,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
       validate,
       validationMode,
       validationDebounceTime,
+      shouldValidateOnChange,
       state,
     ],
   );
@@ -155,7 +152,11 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     stateAttributesMapping: fieldValidityMapping,
   });
 
-  return <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>;
+  return (
+    <LabelableProvider>
+      <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>
+    </LabelableProvider>
+  );
 });
 
 export interface FieldValidityData {
@@ -203,6 +204,8 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.St
   /**
    * A function for custom validation. Return a string or an array of strings with
    * the error message(s) if the value is invalid, or `null` if the value is valid.
+   * Asynchronous functions are supported, but they do not prevent form submission
+   * when using `validationMode="onSubmit"`.
    */
   validate?: (
     value: unknown,
@@ -210,12 +213,15 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.St
   ) => string | string[] | null | Promise<string | string[] | null>;
   /**
    * Determines when the field should be validated.
+   * This takes precedence over the `validationMode` prop on `<Form>`.
    *
-   * - **onBlur** triggers validation when the control loses focus
-   * - **onChange** triggers validation on every change to the control value
-   * @default 'onBlur'
+   * - `onSubmit`: triggers validation when the form is submitted, and re-validates on change after submission.
+   * - `onBlur`: triggers validation when the control loses focus.
+   * - `onChange`: triggers validation on every change to the control value.
+   *
+   * @default 'onSubmit'
    */
-  validationMode?: 'onBlur' | 'onChange';
+  validationMode?: Form.ValidationMode;
   /**
    * How long to wait between `validate` callbacks if
    * `validationMode="onChange"` is used. Specified in milliseconds.
