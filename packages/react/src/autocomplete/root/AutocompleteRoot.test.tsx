@@ -857,7 +857,7 @@ describe('<Autocomplete.Root />', () => {
           autocomplete: 'test',
         });
         return (
-          <Form errors={errors} onClearErrors={setErrors}>
+          <Form errors={errors}>
             <Field.Root name="autocomplete">
               <Autocomplete.Root>
                 <Autocomplete.Input data-testid="input" />

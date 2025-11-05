@@ -13,7 +13,6 @@ export default function ExampleForm() {
     <Form
       className={styles.Form}
       errors={errors}
-      onClearErrors={setErrors}
       onSubmit={async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);

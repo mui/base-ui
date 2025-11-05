@@ -312,7 +312,7 @@ describe('<Checkbox.Root />', () => {
           test: 'test',
         });
         return (
-          <Form errors={errors} onClearErrors={setErrors}>
+          <Form errors={errors}>
             <Field.Root name="test" data-testid="field">
               <Checkbox.Root data-testid="checkbox" />
               <Field.Error data-testid="error" />

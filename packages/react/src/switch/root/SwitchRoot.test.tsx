@@ -317,7 +317,7 @@ describe('<Switch.Root />', () => {
           test: 'test',
         });
         return (
-          <Form errors={errors} onClearErrors={setErrors}>
+          <Form errors={errors}>
             <Field.Root name="test" data-testid="field">
               <Switch.Root data-testid="switch" />
               <Field.Error data-testid="error" />

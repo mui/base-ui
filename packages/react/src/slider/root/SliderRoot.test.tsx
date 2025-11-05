@@ -1774,7 +1774,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
           test: 'test',
         });
         return (
-          <Form errors={errors} onClearErrors={setErrors}>
+          <Form errors={errors}>
             <Field.Root name="test" data-testid="field">
               <TestSlider data-testid="slider" defaultValue={50} />
               <Field.Error data-testid="error" />

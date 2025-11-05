@@ -1233,7 +1233,7 @@ describe('<Select.Root />', () => {
           select: 'test',
         });
         return (
-          <Form errors={errors} onClearErrors={setErrors}>
+          <Form errors={errors}>
             <Field.Root name="select">
               <Select.Root>
                 <Select.Trigger data-testid="trigger">

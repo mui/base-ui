@@ -846,7 +846,6 @@ describe('<NumberField />', () => {
         return (
           <Form
             errors={errors}
-            onClearErrors={setErrors}
             onSubmit={(event) => {
               event.preventDefault();
               setErrors({ quantity: 'server error' });
@@ -878,7 +877,7 @@ describe('<NumberField />', () => {
           test: 'test',
         });
         return (
-          <Form errors={errors} onClearErrors={setErrors}>
+          <Form errors={errors}>
             <Field.Root name="test" data-testid="field">
               <NumberField defaultValue={1} />
               <Field.Error data-testid="error" />

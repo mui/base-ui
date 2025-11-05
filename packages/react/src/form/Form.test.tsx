@@ -81,7 +81,6 @@ describe('<Form />', () => {
       return (
         <Form
           errors={errors}
-          onClearErrors={setErrors}
           onSubmit={(event) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
@@ -200,7 +199,7 @@ describe('<Form />', () => {
           foo: 'bar',
         });
         return (
-          <Form errors={errors} onClearErrors={setErrors}>
+          <Form errors={errors}>
             <Field.Root name="foo">
               <Field.Control />
               <Field.Error data-testid="error" />

@@ -34,7 +34,6 @@ export default function Page() {
     <Form
       className="flex w-full max-w-64 flex-col gap-4"
       errors={errors}
-      onClearErrors={setErrors}
       onSubmit={async (event) => {
         const response = await submitForm(event);
         setErrors(response.errors);

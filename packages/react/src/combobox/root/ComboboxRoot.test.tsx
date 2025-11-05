@@ -3218,7 +3218,7 @@ describe('<Combobox.Root />', () => {
           combobox: 'test',
         });
         return (
-          <Form errors={errors} onClearErrors={setErrors}>
+          <Form errors={errors}>
             <Field.Root name="combobox">
               <Combobox.Root>
                 <Combobox.Input data-testid="input" />
