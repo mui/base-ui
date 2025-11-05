@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
@@ -14,7 +15,7 @@ export default function ActionStateForm() {
   });
 
   return (
-    <Form className={styles.Form} action={formAction}>
+    <Form className={styles.Form} errors={state.serverErrors} action={formAction}>
       <Field.Root name="username" className={styles.Field}>
         <Field.Label className={styles.Label}>Username</Field.Label>
         <Field.Control
@@ -25,10 +26,6 @@ export default function ActionStateForm() {
           className={styles.Input}
         />
         <Field.Error className={styles.Error} />
-
-        <Field.Error match={!!state.serverErrors?.username}>
-          {state.serverErrors?.username}
-        </Field.Error>
       </Field.Root>
       <button disabled={loading} type="submit" className={styles.Button}>
         Submit

@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
@@ -13,7 +14,11 @@ export default function ActionStateForm() {
   });
 
   return (
-    <Form className="flex w-full max-w-64 flex-col gap-4" action={formAction}>
+    <Form
+      action={formAction}
+      errors={state.serverErrors}
+      className="flex w-full max-w-64 flex-col gap-4"
+    >
       <Field.Root name="username" className="flex flex-col items-start gap-1">
         <Field.Label className="text-sm font-medium text-gray-900">Username</Field.Label>
         <Field.Control
@@ -24,10 +29,6 @@ export default function ActionStateForm() {
           className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
         <Field.Error className="text-sm text-red-800" />
-
-        <Field.Error className="text-sm text-red-800" match={!!state.serverErrors?.username}>
-          {state.serverErrors?.username}
-        </Field.Error>
       </Field.Root>
       <button
         disabled={loading}
