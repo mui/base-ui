@@ -44,7 +44,7 @@ export const Form = React.forwardRef(function Form(
   const [errors, setErrors] = React.useState(externalErrors);
 
   React.useEffect(() => {
-    if (externalErrors && Object.keys(externalErrors).length > 0) {
+    if (externalErrors) {
       setErrors(externalErrors);
     }
   }, [externalErrors]);
