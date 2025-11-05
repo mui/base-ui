@@ -22,7 +22,7 @@ export default function ExampleDialog() {
           </Dialog.Popup>
         </Dialog.Portal>
       </Dialog.Root>
-      <button ref={finalFocusRef} className={styles.Button}>
+      <button ref={finalFocusRef} type="button" className={styles.Button}>
         Final focus
       </button>
     </div>
