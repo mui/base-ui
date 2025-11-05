@@ -16,7 +16,6 @@ import {
   useTypeahead,
   FloatingRootContext,
 } from '../../floating-ui-react';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -57,8 +56,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
+    validation,
   } = useFieldRootContext();
-  const fieldControlValidation = useFieldControlValidation();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -144,11 +143,11 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const positionerElement = useStore(store, selectors.positionerElement);
 
   const controlRef = useValueAsRef(store.state.triggerElement);
-  const commitValidation = fieldControlValidation.commitValidation;
+  const commit = validation.commit;
 
   useField({
     id,
-    commitValidation,
+    commit,
     value,
     controlRef,
     name,
@@ -198,14 +197,14 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
-    commitValidation(value, !shouldValidateOnChange());
+    commit(value, !shouldValidateOnChange());
 
     if (shouldValidateOnChange()) {
-      commitValidation(value);
+      commit(value);
     }
   }, [
     value,
-    commitValidation,
+    commit,
     clearErrors,
     name,
     shouldValidateOnChange,
@@ -511,7 +510,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       typingRef,
       selectionRef,
       selectedItemTextRef,
-      fieldControlValidation,
+      validation,
       registerItemIndex,
       onOpenChangeComplete,
       keyboardActiveRef,
@@ -540,7 +539,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       typingRef,
       selectionRef,
       selectedItemTextRef,
-      fieldControlValidation,
+      validation,
       registerItemIndex,
       onOpenChangeComplete,
       keyboardActiveRef,

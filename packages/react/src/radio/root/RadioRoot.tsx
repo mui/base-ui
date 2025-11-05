@@ -52,7 +52,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     setCheckedValue,
     touched,
     setTouched,
-    fieldControlValidation,
+    validation,
     registerControlRef,
   } = useRadioGroupContext();
 
@@ -200,7 +200,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const props = [
     rootProps,
     getDescriptionProps,
-    fieldControlValidation?.getValidationProps ?? EMPTY_OBJECT,
+    validation?.getValidationProps ?? EMPTY_OBJECT,
     elementProps,
     getButtonProps,
   ];

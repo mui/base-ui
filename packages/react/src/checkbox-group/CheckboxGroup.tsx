@@ -11,7 +11,6 @@ import { useLabelableContext } from '../labelable-provider/LabelableContext';
 import type { BaseUIComponentProps } from '../utils/types';
 import { fieldValidityMapping } from '../field/utils/constants';
 import { useField } from '../field/useField';
-import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 import { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
@@ -37,12 +36,15 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     ...elementProps
   } = componentProps;
 
-  const { disabled: fieldDisabled, name: fieldName, state: fieldState } = useFieldRootContext();
+  const {
+    disabled: fieldDisabled,
+    name: fieldName,
+    state: fieldState,
+    validation,
+  } = useFieldRootContext();
   const { labelId } = useLabelableContext();
 
   const disabled = fieldDisabled || disabledProp;
-
-  const fieldControlValidation = useFieldControlValidation();
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: externalValue,
@@ -82,7 +84,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   useField({
     enabled: !!fieldName,
     id,
-    commitValidation: fieldControlValidation.commitValidation,
+    commit: validation.commit,
     value,
     controlRef,
     name: fieldName,
@@ -105,19 +107,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       setValue,
       parent,
       disabled,
-      fieldControlValidation,
+      validation,
       registerControlRef,
     }),
-    [
-      allValues,
-      value,
-      defaultValue,
-      setValue,
-      parent,
-      disabled,
-      fieldControlValidation,
-      registerControlRef,
-    ],
+    [allValues, value, defaultValue, setValue, parent, disabled, validation, registerControlRef],
   );
 
   const element = useRenderElement('div', componentProps, {

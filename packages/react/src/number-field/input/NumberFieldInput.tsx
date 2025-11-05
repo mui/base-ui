@@ -5,7 +5,6 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
@@ -87,22 +86,16 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
-  const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange } =
+  const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange, validation } =
     useFieldRootContext();
   const { labelId } = useLabelableContext();
-
-  const {
-    getInputValidationProps,
-    commitValidation,
-    inputRef: inputValidationRef,
-  } = useFieldControlValidation();
 
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
 
   useField({
     id,
-    commitValidation,
+    commit: validation.commit,
     value,
     controlRef: inputRef,
     name,
@@ -120,9 +113,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     clearErrors(name);
 
     if (shouldValidateOnChange()) {
-      commitValidation(value);
+      validation.commit(value);
     }
-  }, [value, inputValue, name, clearErrors, shouldValidateOnChange, commitValidation]);
+  }, [value, inputValue, name, clearErrors, shouldValidateOnChange, validation]);
 
   useIsoLayoutEffect(() => {
     if (prevValueRef.current === value || shouldValidateOnChange()) {
@@ -133,8 +126,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       blockRevalidationRef.current = false;
       return;
     }
-    commitValidation(value, true);
-  }, [commitValidation, shouldValidateOnChange, value]);
+    validation.commit(value, true);
+  }, [shouldValidateOnChange, validation, value]);
 
   useIsoLayoutEffect(() => {
     prevValueRef.current = value;
@@ -188,7 +181,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       if (inputValue.trim() === '') {
         setValue(null, createChangeEventDetails('input-clear', event.nativeEvent));
         if (validationMode === 'onBlur') {
-          commitValidation(null);
+          validation.commit(null);
         }
         onValueCommitted(null, createGenericEventDetails('input-clear', event.nativeEvent));
         return;
@@ -218,7 +211,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const shouldCommit = hadManualInput || shouldUpdateValue || hadPendingProgrammaticChange;
 
       if (validationMode === 'onBlur') {
-        commitValidation(committed);
+        validation.commit(committed);
       }
       if (shouldUpdateValue) {
         setValue(committed, createChangeEventDetails('input-blur', event.nativeEvent));
@@ -438,9 +431,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   };
 
   const element = useRenderElement('input', componentProps, {
-    ref: [forwardedRef, inputRef, inputValidationRef],
+    ref: [forwardedRef, inputRef, validation.inputRef],
     state,
-    props: [inputProps, getInputValidationProps(), elementProps],
+    props: [inputProps, validation.getInputValidationProps(), elementProps],
     stateAttributesMapping,
   });
 
