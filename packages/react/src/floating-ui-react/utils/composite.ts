@@ -4,7 +4,7 @@ import type { Dimensions } from '../types';
 import { stopEvent } from './event';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from './constants';
 
-type DisabledIndices = Array<number> | ((index: number) => boolean);
+type DisabledIndices = ReadonlyArray<number> | ((index: number) => boolean);
 
 export function isDifferentGridRow(index: number, cols: number, prevRow: number) {
   return Math.floor(index / cols) !== prevRow;
@@ -18,7 +18,7 @@ export function isIndexOutOfListBounds(
 }
 
 export function getMinListIndex(
-  listRef: React.RefObject<Array<HTMLElement | null>>,
+  listRef: React.RefObject<ReadonlyArray<HTMLElement | null>>,
   disabledIndices?: DisabledIndices | undefined,
 ) {
   return findNonDisabledListIndex(listRef, { disabledIndices });
@@ -36,7 +36,7 @@ export function getMaxListIndex(
 }
 
 export function findNonDisabledListIndex(
-  listRef: React.RefObject<Array<HTMLElement | null>>,
+  listRef: React.RefObject<ReadonlyArray<HTMLElement | null>>,
   {
     startingIndex = -1,
     decrement = false,
@@ -421,7 +421,7 @@ export function getGridCellIndices(
 }
 
 export function isListIndexDisabled(
-  listRef: React.RefObject<Array<HTMLElement | null>>,
+  listRef: React.RefObject<ReadonlyArray<HTMLElement | null>>,
   index: number,
   disabledIndices?: DisabledIndices,
 ) {

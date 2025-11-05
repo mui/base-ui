@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';

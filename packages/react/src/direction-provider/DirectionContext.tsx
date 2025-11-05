@@ -12,11 +12,8 @@ export type DirectionContext = {
  */
 export const DirectionContext = React.createContext<DirectionContext | undefined>(undefined);
 
-export function useDirection(optional = true) {
+export function useDirection() {
   const context = React.useContext(DirectionContext);
-  if (context === undefined && !optional) {
-    throw new Error('Base UI: DirectionContext is missing.');
-  }
 
   return context?.direction ?? 'ltr';
 }

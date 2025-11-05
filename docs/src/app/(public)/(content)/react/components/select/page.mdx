@@ -6,7 +6,9 @@
   content="A high-quality, unstyled React select component that allows you for choosing a predefined value in a dropdown menu."
 />
 
-<Demo path="./demos/hero" />
+import { DemoSelectHero } from './demos/hero';
+
+<DemoSelectHero />
 
 ## Usage guidelines
 
@@ -120,11 +122,15 @@ To avoid lookup, [object values](#object-values) for each item can also be used.
 
 Add the `multiple` prop to the `<Select.Root>` component to allow multiple selections.
 
-<Demo path="./demos/multiple" compact />
+import { DemoSelectMultiple } from './demos/multiple';
+
+<DemoSelectMultiple compact />
 
 ### Object values
 
 Select items can use objects as values instead of primitives.
 This lets you access the full object in custom render functions, and can avoid needing to specify `items` for lookup.
 
-<Demo path="./demos/object-values" compact />
+import { DemoSelectObjectValues } from './demos/object-values';
+
+<DemoSelectObjectValues compact />
