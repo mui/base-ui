@@ -14,7 +14,6 @@ import { useFormContext } from '../form/FormContext';
 import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { useLabelableContext } from '../labelable-provider/LabelableContext';
-import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRoot } from '../field/root/FieldRoot';
 import { mergeProps } from '../merge-props';
@@ -57,9 +56,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     name: fieldName,
     disabled: fieldDisabled,
     state: fieldState,
+    validation,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
-  const fieldControlValidation = useFieldControlValidation();
   const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
@@ -96,7 +95,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
 
   useField({
     id,
-    commitValidation: fieldControlValidation.commitValidation,
+    commit: validation.commit,
     value: checkedValue,
     controlRef,
     name,
@@ -113,18 +112,11 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     clearErrors(name);
 
     if (shouldValidateOnChange()) {
-      fieldControlValidation.commitValidation(checkedValue);
+      validation.commit(checkedValue);
     } else {
-      fieldControlValidation.commitValidation(checkedValue, true);
+      validation.commit(checkedValue, true);
     }
-  }, [
-    name,
-    clearErrors,
-    shouldValidateOnChange,
-    validationMode,
-    checkedValue,
-    fieldControlValidation,
-  ]);
+  }, [name, clearErrors, shouldValidateOnChange, validationMode, checkedValue, validation]);
 
   useIsoLayoutEffect(() => {
     prevValueRef.current = checkedValue;
@@ -138,7 +130,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       setFocused(false);
 
       if (validationMode === 'onBlur') {
-        fieldControlValidation.commitValidation(checkedValue);
+        validation.commit(checkedValue);
       }
     }
   });
@@ -161,7 +153,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     return JSON.stringify(checkedValue);
   }, [checkedValue]);
 
-  const mergedInputRef = useMergedRefs(fieldControlValidation.inputRef, inputRefProp);
+  const mergedInputRef = useMergedRefs(validation.inputRef, inputRefProp);
 
   const inputProps = mergeProps<'input'>(
     {
@@ -179,7 +171,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
         controlRef.current?.focus();
       },
     },
-    fieldControlValidation.getInputValidationProps,
+    validation.getInputValidationProps,
   );
 
   const state: RadioGroup.State = React.useMemo(
@@ -197,7 +189,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       ...fieldState,
       checkedValue,
       disabled,
-      fieldControlValidation,
+      validation,
       name,
       onValueChange,
       readOnly,
@@ -210,7 +202,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     [
       checkedValue,
       disabled,
-      fieldControlValidation,
+      validation,
       fieldState,
       name,
       onValueChange,
@@ -242,7 +234,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
         render={render}
         className={className}
         state={state}
-        props={[defaultProps, fieldControlValidation.getValidationProps, elementProps]}
+        props={[defaultProps, validation.getValidationProps, elementProps]}
         refs={[forwardedRef]}
         stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}

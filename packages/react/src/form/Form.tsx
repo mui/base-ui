@@ -92,8 +92,8 @@ export const Form = React.forwardRef(function Form<
               event.preventDefault();
 
               const formValues = values.reduce((acc, field) => {
-                if (field.name && field.getValueRef) {
-                  (acc as Record<string, any>)[field.name] = field.getValueRef.current?.();
+                if (field.name) {
+                  (acc as Record<string, any>)[field.name] = field.getValue();
                 }
                 return acc;
               }, {} as FormValues);

@@ -14,7 +14,6 @@ import { stateAttributesMapping } from '../stateAttributesMapping';
 import { useField } from '../../field/useField';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
@@ -59,6 +58,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     validationMode,
     disabled: fieldDisabled,
     name: fieldName,
+    validation,
   } = useFieldRootContext();
 
   const { labelId } = useLabelableContext();
@@ -66,17 +66,10 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const {
-    getValidationProps,
-    getInputValidationProps,
-    inputRef: inputValidationRef,
-    commitValidation,
-  } = useFieldControlValidation();
-
   const onCheckedChange = useStableCallback(onCheckedChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const handleInputRef = useMergedRefs(inputRef, externalInputRef, inputValidationRef);
+  const handleInputRef = useMergedRefs(inputRef, externalInputRef, validation.inputRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
 
@@ -95,7 +88,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   useField({
     id,
-    commitValidation,
+    commit: validation.commit,
     value: checked,
     controlRef: switchRef,
     name,
@@ -133,7 +126,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       setFocused(false);
 
       if (validationMode === 'onBlur') {
-        commitValidation(element.checked);
+        validation.commit(element.checked);
       }
     },
     onClick(event) {
@@ -181,20 +174,18 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
             setCheckedState(nextChecked);
 
             if (shouldValidateOnChange()) {
-              commitValidation(nextChecked);
+              validation.commit(nextChecked);
             } else {
-              commitValidation(nextChecked, true);
+              validation.commit(nextChecked, true);
             }
           },
         },
-        getInputValidationProps,
+        validation.getInputValidationProps,
       ),
     [
       checked,
       clearErrors,
-      commitValidation,
       disabled,
-      getInputValidationProps,
       handleInputRef,
       id,
       name,
@@ -204,6 +195,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       setDirty,
       setFilled,
       shouldValidateOnChange,
+      validation,
       validityData.initialValue,
     ],
   );
@@ -222,7 +214,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, switchRef, buttonRef],
-    props: [rootProps, getValidationProps, elementProps, getButtonProps],
+    props: [rootProps, validation.getValidationProps, elementProps, getButtonProps],
     stateAttributesMapping,
   });
 

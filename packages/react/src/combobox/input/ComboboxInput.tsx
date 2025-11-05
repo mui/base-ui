@@ -54,6 +54,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     setTouched,
     setFocused,
     validationMode,
+    validation,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
   const comboboxChipsContext = useComboboxChipsContext();
@@ -66,7 +67,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
-  const fieldControlValidation = useStore(store, selectors.fieldControlValidation);
   const openOnInputClick = useStore(store, selectors.openOnInputClick);
   const name = useStore(store, selectors.name);
   const selectionMode = useStore(store, selectors.selectionMode);
@@ -201,7 +201,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
           if (validationMode === 'onBlur') {
             const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
-            fieldControlValidation?.commitValidation(valueToValidate);
+            validation.commit(valueToValidate);
           }
         },
         onCompositionStart(event) {
@@ -429,9 +429,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           store.state.keyboardActiveRef.current = false;
         },
       },
-      fieldControlValidation
-        ? fieldControlValidation.getValidationProps(elementProps)
-        : elementProps,
+      validation ? validation.getValidationProps(elementProps) : elementProps,
     ],
     stateAttributesMapping,
   });

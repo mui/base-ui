@@ -80,7 +80,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const {
     disabled,
     dragging,
-    fieldControlValidation,
+    validation,
     inset,
     lastChangedValueRef,
     max,
@@ -278,7 +278,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       return;
     }
 
-    fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
+    validation.commit(lastChangedValueRef.current ?? finger.value);
     onValueCommitted(
       lastChangedValueRef.current ?? finger.value,
       createGenericEventDetails('none', nativeEvent),
