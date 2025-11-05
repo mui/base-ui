@@ -1422,6 +1422,7 @@ describe('<Tooltip.Root />', () => {
       const triggerId = randomStringValue();
       await render(
         <React.Fragment>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <Tooltip.Trigger handle={testTooltip} payload={1}>
             Trigger 1
           </Tooltip.Trigger>
