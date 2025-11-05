@@ -50,6 +50,10 @@ const nextConfig = {
   pageExtensions: ['mdx', 'tsx'],
   turbopack: {
     rules: {
+      './app/**/types.ts': {
+        as: '*.ts',
+        loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedTypesMeta'],
+      },
       './src/app/**/demos/*/index.ts': {
         as: '*.ts',
         loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter'],
@@ -62,6 +66,16 @@ const nextConfig = {
   },
   webpack: (config, { defaultLoaders }) => {
     // for production builds
+    config.module.rules.push({
+      test: /\/types\.ts$/,
+      use: [
+        defaultLoaders.babel,
+        {
+          loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedTypesMeta',
+          options: { performance: { logging: true } },
+        },
+      ],
+    });
     config.module.rules.push({
       test: /\/demos\/[^/]+\/index\.ts$/,
       use: [
