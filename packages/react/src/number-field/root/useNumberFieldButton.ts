@@ -118,8 +118,7 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
 
       const prev = valueRef.current;
 
-      incrementValue({
-        amount,
+      incrementValue(amount, {
         direction: isIncrement ? 1 : -1,
         event: event.nativeEvent,
         reason: pressReason,
@@ -236,7 +235,7 @@ export interface UseNumberFieldButtonParameters {
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
   id: string | undefined;
-  incrementValue: (params: IncrementValueParameters) => void;
+  incrementValue: (amount: number, params: IncrementValueParameters) => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
   inputValue: string;
   intentionalTouchCheckTimeout: Timeout;

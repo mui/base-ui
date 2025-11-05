@@ -19,7 +19,7 @@ export interface NumberFieldRootContext {
   id: string | undefined;
   setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => void;
   getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
-  incrementValue: (params: IncrementValueParameters) => void;
+  incrementValue: (amount: number, params: IncrementValueParameters) => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
   allowInputSyncRef: React.RefObject<boolean | null>;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;

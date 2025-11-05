@@ -12,7 +12,6 @@ export interface ChangeEventCustomProperties {
 }
 
 export interface IncrementValueParameters {
-  amount: number;
   direction: Direction;
   event?: Event | React.SyntheticEvent;
   reason: DirectionalChangeReason;

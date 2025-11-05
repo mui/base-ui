@@ -385,8 +385,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const commitDetails = createGenericEventDetails('keyboard', nativeEvent);
 
       if (event.key === 'ArrowUp') {
-        incrementValue({
-          amount,
+        incrementValue(amount, {
           direction: 1,
           currentValue: parsedValue,
           event: nativeEvent,
@@ -394,8 +393,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         });
         onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       } else if (event.key === 'ArrowDown') {
-        incrementValue({
-          amount,
+        incrementValue(amount, {
           direction: -1,
           currentValue: parsedValue,
           event: nativeEvent,

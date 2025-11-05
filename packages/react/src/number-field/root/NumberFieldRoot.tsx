@@ -37,14 +37,6 @@ import {
   type BaseUIGenericEventDetails,
   type ReasonToEvent,
 } from '../../utils/createBaseUIEventDetails';
-import { isReactEvent } from '../../floating-ui-react/utils';
-
-function getNativeEvent(event?: Event | React.SyntheticEvent | null) {
-  if (!event) {
-    return undefined;
-  }
-  return isReactEvent(event) ? event.nativeEvent : event;
-}
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -206,18 +198,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const setValue = useStableCallback(
     (unvalidatedValue: number | null, details: NumberFieldRoot.ChangeEventDetails) => {
-      const eventWithOptionalKeyState = details.event as EventWithOptionalKeyState | undefined;
-
-      const stepDirection = details.direction;
-      const stepAmount =
-        stepDirection != null ? getStepAmount(eventWithOptionalKeyState) : undefined;
-      const adjustedStep =
-        stepDirection != null && typeof stepAmount === 'number'
-          ? stepAmount * stepDirection
-          : undefined;
+      const eventWithOptionalKeyState = details.event as EventWithOptionalKeyState;
+      const dir = details.direction;
 
       const validatedValue = toValidatedNumber(unvalidatedValue, {
-        step: adjustedStep,
+        step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
         format: formatOptionsRef.current,
         minWithDefault,
         maxWithDefault,
@@ -261,13 +246,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   );
 
   const incrementValue = useStableCallback(
-    ({ amount, direction, currentValue, event, reason }: IncrementValueParameters) => {
+    (amount: number, { direction, currentValue, event, reason }: IncrementValueParameters) => {
       const prevValue = currentValue == null ? valueRef.current : currentValue;
       const nextValue =
         typeof prevValue === 'number' ? prevValue + amount * direction : Math.max(0, min ?? 0);
-      const nativeEvent = getNativeEvent(event) as
-        | ReasonToEvent<IncrementValueParameters['reason']>
-        | undefined;
+      const nativeEvent = event as ReasonToEvent<IncrementValueParameters['reason']> | undefined;
       setValue(
         nextValue,
         createChangeEventDetails(reason, nativeEvent, undefined, {
@@ -320,8 +303,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
       function tick() {
         const amount = getStepAmount(triggerEvent as EventWithOptionalKeyState) ?? DEFAULT_STEP;
-        incrementValue({
-          amount,
+        incrementValue(amount, {
           direction: isIncrement ? 1 : -1,
           event: triggerEvent,
           reason: isIncrement ? 'increment-press' : 'decrement-press',
@@ -410,8 +392,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
         const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
-        incrementValue({
-          amount,
+        incrementValue(amount, {
           direction: event.deltaY > 0 ? -1 : 1,
           event,
           reason: 'wheel',
