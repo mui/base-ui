@@ -4,8 +4,6 @@ import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
 import styles from './index.module.css';
 
-import { submitForm } from '../submitForm';
-
 interface FormState {
   success: boolean;
   serverErrors?: Form.Props['errors'];
@@ -34,4 +32,33 @@ export default function ActionStateForm() {
       </button>
     </Form>
   );
+}
+
+async function submitForm(_previousState: FormState, formData: FormData) {
+  // Mimic a server response
+  await new Promise((resolve) => {
+    setTimeout(resolve, 1000);
+  });
+
+  try {
+    const username = formData.get('username') as string | null;
+
+    if (username === 'admin') {
+      return { success: false, serverErrors: { username: "'admin' is reserved for system use" } };
+    }
+
+    // 50% chance the username is taken
+    const success = Math.random() > 0.5;
+
+    if (!success) {
+      return {
+        success: false,
+        serverErrors: { username: `${username} is unavailable` },
+      };
+    }
+  } catch {
+    return { success: false, serverErrors: { username: 'A server error has occurred' } };
+  }
+
+  return { success: true };
 }
