@@ -2,20 +2,20 @@
 import * as React from 'react';
 import { useForm, revalidateLogic, DeepKeys, ValidationError } from '@tanstack/react-form';
 import { ChevronDown, ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
-import { Button } from '../../hero/tailwind/button';
-import { CheckboxGroup } from '../../hero/tailwind/checkbox-group';
-import { RadioGroup } from '../../hero/tailwind/radio-group';
-import { ToastProvider, useToastManager } from '../../hero/tailwind/toast';
-import * as Autocomplete from '../../hero/tailwind/autocomplete';
-import * as Checkbox from '../../hero/tailwind/checkbox';
-import * as Combobox from '../../hero/tailwind/combobox';
-import * as Field from '../../hero/tailwind/field';
-import * as Fieldset from '../../hero/tailwind/fieldset';
-import * as NumberField from '../../hero/tailwind/number-field';
-import * as Radio from '../../hero/tailwind/radio';
-import * as Select from '../../hero/tailwind/select';
-import * as Slider from '../../hero/tailwind/slider';
-import * as Switch from '../../hero/tailwind/switch';
+import { Button } from '../../components/button';
+import { CheckboxGroup } from '../../components/checkbox-group';
+import { RadioGroup } from '../../components/radio-group';
+import { ToastProvider, useToastManager } from '../../components/toast';
+import * as Autocomplete from '../../components/autocomplete';
+import * as Checkbox from '../../components/checkbox';
+import * as Combobox from '../../components/combobox';
+import * as Field from '../../components/field';
+import * as Fieldset from '../../components/fieldset';
+import * as NumberField from '../../components/number-field';
+import * as Radio from '../../components/radio';
+import * as Select from '../../components/select';
+import * as Slider from '../../components/slider';
+import * as Switch from '../../components/switch';
 
 interface FormValues {
   serverName: string;
@@ -46,7 +46,7 @@ function TanstackForm() {
 
   const form = useForm({
     defaultValues,
-    onSubmit: async ({ value: formValues }) => {
+    onSubmit: ({ value: formValues }) => {
       toastManager.add({
         title: 'Form submitted',
         description: 'The form contains these values:',

@@ -1,21 +1,21 @@
 'use client';
 import * as React from 'react';
 import { ChevronDown, ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
-import { Button } from './button';
-import { CheckboxGroup } from './checkbox-group';
-import { Form } from './form';
-import { RadioGroup } from './radio-group';
-import { ToastProvider, useToastManager } from './toast';
-import * as Autocomplete from './autocomplete';
-import * as Checkbox from './checkbox';
-import * as Combobox from './combobox';
-import * as Field from './field';
-import * as Fieldset from './fieldset';
-import * as NumberField from './number-field';
-import * as Radio from './radio';
-import * as Select from './select';
-import * as Slider from './slider';
-import * as Switch from './switch';
+import { Button } from '../../components/button';
+import { CheckboxGroup } from '../../components/checkbox-group';
+import { Form } from '../../components/form';
+import { RadioGroup } from '../../components/radio-group';
+import { ToastProvider, useToastManager } from '../../components/toast';
+import * as Autocomplete from '../../components/autocomplete';
+import * as Checkbox from '../../components/checkbox';
+import * as Combobox from '../../components/combobox';
+import * as Field from '../../components/field';
+import * as Fieldset from '../../components/fieldset';
+import * as NumberField from '../../components/number-field';
+import * as Radio from '../../components/radio';
+import * as Select from '../../components/select';
+import * as Slider from '../../components/slider';
+import * as Switch from '../../components/switch';
 
 function ExampleForm() {
   const toastManager = useToastManager();
