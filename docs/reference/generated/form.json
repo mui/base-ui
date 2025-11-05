@@ -4,7 +4,7 @@
   "props": {
     "errors": {
       "type": "Errors",
-      "description": "An object where the keys correspond to the `name` attribute of the form fields,\nand the values correspond to the error(s) related to that field.",
+      "description": "Validation errors returned externally, typically after submission by a server or a form action.\nThis should be an object where keys correspond to the `name` attribute on `<Field.Root>`,\nand values correspond to error(s) related to that field.",
       "detailedType": "{} | undefined"
     },
     "style": {

@@ -134,8 +134,9 @@ export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
    */
   validationMode?: FormValidationMode;
   /**
-   * An object where the keys correspond to the `name` attribute of the form fields,
-   * and the values correspond to the error(s) related to that field.
+   * Validation errors returned externally, typically after submission by a server or a form action.
+   * This should be an object where keys correspond to the `name` attribute on `<Field.Root>`,
+   * and values correspond to error(s) related to that field.
    */
   errors?: FormContext['errors'];
 }
