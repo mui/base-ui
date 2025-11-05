@@ -2,12 +2,6 @@
   "name": "ToolbarRoot",
   "description": "A container for grouping a set of controls, such as buttons, toggle groups, or menus.\nRenders a `<div>` element.",
   "props": {
-    "cols": {
-      "type": "number",
-      "default": "1",
-      "description": "The number of columns. When greater than 1, the toolbar is arranged into\na grid.",
-      "detailedType": "number | undefined"
-    },
     "style": {
       "type": "CSSProperties | ((state: Toolbar.Root.State) => CSSProperties | undefined)",
       "detailedType": "| React.CSSProperties\n| ((state: Toolbar.Root.State) => CSSProperties | undefined)\n| undefined"
