@@ -163,9 +163,9 @@ import { Accordion } from '@base-ui-components/react/accordion';
 
 ## Examples
 
-### Single panel opened at a time
+### Open multiple panels
 
-You can set up the accordion to allow only one panel to be open at a time, setting the \`multiple\` prop to \`false\`.
+You can set up the accordion to allow multiple panels to be open at the same time using the \`multiple\` prop.
 
 ## Demo
 
@@ -181,7 +181,7 @@ import { Accordion } from '@base-ui-components/react/accordion';
 export default function ExampleAccordion() {
   return (
     <Accordion.Root
-      multiple={false}
+      multiple
       className="flex w-96 max-w-[calc(100vw-8rem)] flex-col justify-center text-gray-900"
     >
       <Accordion.Item className="border-b border-gray-200">

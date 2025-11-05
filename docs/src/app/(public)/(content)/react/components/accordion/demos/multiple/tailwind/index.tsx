@@ -4,7 +4,7 @@ import { Accordion } from '@base-ui-components/react/accordion';
 export default function ExampleAccordion() {
   return (
     <Accordion.Root
-      multiple={false}
+      multiple
       className="flex w-96 max-w-[calc(100vw-8rem)] flex-col justify-center text-gray-900"
     >
       <Accordion.Item className="border-b border-gray-200">
