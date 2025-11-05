@@ -86,7 +86,7 @@
     "globby": "^15.0.0",
     "lerna": "^9.0.0",
     "markdownlint-cli2": "^0.18.1",
-    "nx": "^21.6.8",
+    "nx": "^22.0.2",
     "prettier": "^3.6.2",
     "pretty-quick": "^4.2.2",
     "publint": "^0.3.15",
