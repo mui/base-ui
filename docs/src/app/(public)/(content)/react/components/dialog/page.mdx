@@ -152,6 +152,18 @@ import { DemoDialogCloseConfirmation } from './demos/close-confirmation';
 
 <DemoDialogCloseConfirmation compact />
 
+### Custom focus target after closing
+
+Sometimes it's useful to have the focus return to a custom element after the dialog is closed (instead of focusing the trigger which is the default behavior).
+
+You can do this by applying the `finalFocus` prop on the `<Dialog.Popup>` component.
+
+import { DemoDialogFinalFocus } from './demos/final-focus';
+
+<DemoDialogFinalFocus compact />
+
+You can also set the prop to `false` if you don't want to move the focus anywhere after closing the dialog, or a function for specifying the final focus ref dynamically.
+
 ### Outside scroll dialog
 
 The dialog can be made scrollable by using `<Dialog.Viewport>` as an outer scrollable container for `<Dialog.Popup>` while the popup can extend past the bottom edge. The scrollable area uses the [Scroll Area component](/react/components/scroll-area) to provide custom scrollbars.
