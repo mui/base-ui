@@ -80,97 +80,11 @@ function PlusIcon(props: React.ComponentProps<'svg'>) {
 
 This example shows how to implement the component using CSS Modules.
 
-\`\`\`css
-/* index.module.css */
-.Accordion {
-  box-sizing: border-box;
-  display: flex;
-  width: 24rem;
-  max-width: calc(100vw - 8rem);
-  flex-direction: column;
-  justify-content: center;
-  color: var(--color-gray-900);
-}
-
-.Item {
-  border-bottom: 1px solid var(--color-gray-200);
-}
-
-.Header {
-  margin: 0;
-}
-
-.Trigger {
-  box-sizing: border-box;
-  position: relative;
-  display: flex;
-  width: 100%;
-  gap: 1rem;
-  align-items: baseline;
-  justify-content: space-between;
-  padding-block: 0.5rem;
-  padding-inline: 0.75rem 0.25rem;
-  color: var(--color-gray-900);
-  font-family: inherit;
-  font-weight: 500;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  background: var(--color-gray-50);
-  border: none;
-  outline: none;
-  text-align: left;
-
-  @media (hover: hover) {
-    &:hover {
-      background-color: var(--color-gray-100);
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    z-index: 1;
-  }
-}
-
-.TriggerIcon {
-  box-sizing: border-box;
-  flex-shrink: 0;
-  width: 0.75rem;
-  height: 0.75rem;
-  margin-right: 0.5rem;
-  transition: transform 150ms ease-out;
-
-  [data-panel-open] > & {
-    transform: rotate(45deg) scale(1.1);
-  }
-}
-
-.Panel {
-  box-sizing: border-box;
-  height: var(--accordion-panel-height);
-  overflow: hidden;
-  color: var(--color-gray-600);
-  font-size: 1rem;
-  line-height: 1.5rem;
-  transition: height 150ms ease-out;
-
-  &[data-starting-style],
-  &[data-ending-style] {
-    height: 0;
-  }
-}
-
-.Content {
-  padding: 0.75rem;
-}
-
-\`\`\`
-
 \`\`\`tsx
 /* index.tsx */
 import * as React from 'react';
 import { Accordion } from '@base-ui-components/react/accordion';
-import styles from './index.module.css';
+import styles from '../../_index.module.css';
 
 export default function ExampleAccordion() {
   return (
@@ -245,6 +159,152 @@ import { Accordion } from '@base-ui-components/react/accordion';
     <Accordion.Panel />
   </Accordion.Item>
 </Accordion.Root>;
+\`\`\`
+
+## Examples
+
+### Single panel opened at a time
+
+You can set up the accordion to allow only one panel to be open at a time, setting the \`multiple\` prop to \`false\`.
+
+## Demo
+
+### Tailwind
+
+This example shows how to implement the component using Tailwind CSS.
+
+\`\`\`tsx
+/* index.tsx */
+import * as React from 'react';
+import { Accordion } from '@base-ui-components/react/accordion';
+
+export default function ExampleAccordion() {
+  return (
+    <Accordion.Root
+      multiple={false}
+      className="flex w-96 max-w-[calc(100vw-8rem)] flex-col justify-center text-gray-900"
+    >
+      <Accordion.Item className="border-b border-gray-200">
+        <Accordion.Header>
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
+            What is Base UI?
+            <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
+          </Accordion.Trigger>
+        </Accordion.Header>
+        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-base text-gray-600 transition-[height] ease-out data-[ending-style]:h-0 data-[starting-style]:h-0">
+          <div className="p-3">
+            Base UI is a library of high-quality unstyled React components for design systems and
+            web apps.
+          </div>
+        </Accordion.Panel>
+      </Accordion.Item>
+
+      <Accordion.Item className="border-b border-gray-200">
+        <Accordion.Header>
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
+            How do I get started?
+            <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
+          </Accordion.Trigger>
+        </Accordion.Header>
+        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-base text-gray-600 transition-[height] ease-out data-[ending-style]:h-0 data-[starting-style]:h-0">
+          <div className="p-3">
+            Head to the “Quick start” guide in the docs. If you’ve used unstyled libraries before,
+            you’ll feel at home.
+          </div>
+        </Accordion.Panel>
+      </Accordion.Item>
+
+      <Accordion.Item className="border-b border-gray-200">
+        <Accordion.Header>
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
+            Can I use it for my project?
+            <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
+          </Accordion.Trigger>
+        </Accordion.Header>
+        <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-base text-gray-600 transition-[height] ease-out data-[ending-style]:h-0 data-[starting-style]:h-0">
+          <div className="p-3">Of course! Base UI is free and open source.</div>
+        </Accordion.Panel>
+      </Accordion.Item>
+    </Accordion.Root>
+  );
+}
+
+function PlusIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg viewBox="0 0 12 12" fill="currentcolor" {...props}>
+      <path d="M6.75 0H5.25V5.25H0V6.75L5.25 6.75V12H6.75V6.75L12 6.75V5.25H6.75V0Z" />
+    </svg>
+  );
+}
+
+\`\`\`
+
+### CSS Modules
+
+This example shows how to implement the component using CSS Modules.
+
+\`\`\`tsx
+/* index.tsx */
+import * as React from 'react';
+import { Accordion } from '@base-ui-components/react/accordion';
+import styles from '../../_index.module.css';
+
+export default function ExampleAccordion() {
+  return (
+    <Accordion.Root className={styles.Accordion} multiple={false}>
+      <Accordion.Item className={styles.Item}>
+        <Accordion.Header className={styles.Header}>
+          <Accordion.Trigger className={styles.Trigger}>
+            What is Base UI?
+            <PlusIcon className={styles.TriggerIcon} />
+          </Accordion.Trigger>
+        </Accordion.Header>
+        <Accordion.Panel className={styles.Panel}>
+          <div className={styles.Content}>
+            Base UI is a library of high-quality unstyled React components for design systems and
+            web apps.
+          </div>
+        </Accordion.Panel>
+      </Accordion.Item>
+
+      <Accordion.Item className={styles.Item}>
+        <Accordion.Header className={styles.Header}>
+          <Accordion.Trigger className={styles.Trigger}>
+            How do I get started?
+            <PlusIcon className={styles.TriggerIcon} />
+          </Accordion.Trigger>
+        </Accordion.Header>
+        <Accordion.Panel className={styles.Panel}>
+          <div className={styles.Content}>
+            Head to the “Quick start” guide in the docs. If you’ve used unstyled libraries before,
+            you’ll feel at home.
+          </div>
+        </Accordion.Panel>
+      </Accordion.Item>
+
+      <Accordion.Item className={styles.Item}>
+        <Accordion.Header className={styles.Header}>
+          <Accordion.Trigger className={styles.Trigger}>
+            Can I use it for my project?
+            <PlusIcon className={styles.TriggerIcon} />
+          </Accordion.Trigger>
+        </Accordion.Header>
+        <Accordion.Panel className={styles.Panel}>
+          <div className={styles.Content}>Of course! Base UI is free and open source.</div>
+        </Accordion.Panel>
+      </Accordion.Item>
+    </Accordion.Root>
+  );
+}
+
+function PlusIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg viewBox="0 0 12 12" fill="currentcolor" {...props}>
+      <path d="M6.75 0H5.25V5.25H0V6.75L5.25 6.75V12H6.75V6.75L12 6.75V5.25H6.75V0Z" />
+    </svg>
+  );
+}
+
 \`\`\`
 
 ## API reference
