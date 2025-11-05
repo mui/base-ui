@@ -49,7 +49,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const { store } = useMenuRootContext();
 
   const keepMounted = useMenuPortalContext();
-  const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
   const contextMenuContext = useContextMenuRootContext(true);
 
@@ -61,6 +60,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+
+  const nodeId = useFloatingNodeId(floatingTreeRoot);
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;

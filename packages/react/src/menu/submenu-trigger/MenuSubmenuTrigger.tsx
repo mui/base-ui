@@ -20,7 +20,7 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
  */
 export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   componentProps: MenuSubmenuTrigger.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
@@ -111,7 +111,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     [disabled, highlighted, open],
   );
 
-  return useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     stateAttributesMapping: triggerOpenStateMapping,
     props: [
@@ -131,6 +131,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     ],
     ref: [forwardedRef, listItem.ref, itemRef, registerTrigger, setTriggerElement],
   });
+
+  return element;
 });
 
 export interface MenuSubmenuTriggerProps

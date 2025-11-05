@@ -146,7 +146,11 @@ export function StoreInspector(props: StoreInspectorProps) {
       <button
         className="baseui-store-inspector-trigger"
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          setOpen((o) => !o);
+        }}
         title="Toggle store inspector"
         aria-hidden
       >
