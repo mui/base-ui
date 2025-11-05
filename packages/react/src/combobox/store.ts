@@ -2,7 +2,6 @@ import { Store, createSelector } from '@base-ui-components/utils/store';
 import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
-import type { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../utils/itemEquality';
 import type { AriaCombobox } from './root/AriaCombobox';
@@ -76,7 +75,6 @@ export type State = {
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
-  fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
   grid: boolean;
   isGrouped: boolean;
   virtualized: boolean;
@@ -152,7 +150,6 @@ export const selectors = {
   disabled: createSelector((state: State) => state.disabled),
   readOnly: createSelector((state: State) => state.readOnly),
   required: createSelector((state: State) => state.required),
-  fieldControlValidation: createSelector((state: State) => state.fieldControlValidation),
   grid: createSelector((state: State) => state.grid),
   isGrouped: createSelector((state: State) => state.isGrouped),
   virtualized: createSelector((state: State) => state.virtualized),

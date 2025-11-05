@@ -70,10 +70,15 @@ const selectors = {
   inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
 };
 
+export type DialogStoreOptions = {
+  modal?: State<unknown>['modal'];
+  dismissible?: State<unknown>['dismissible'];
+};
+
 export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
-  constructor() {
+  constructor(options?: DialogStoreOptions) {
     super(
-      createInitialState<Payload>(),
+      createInitialState<Payload>(options),
       {
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
@@ -121,15 +126,16 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
   };
 }
 
-function createInitialState<Payload>(): State<Payload> {
+function createInitialState<Payload>(options: DialogStoreOptions = {}): State<Payload> {
+  const { modal = true, dismissible = true } = options;
   return {
+    dismissible,
+    modal,
     open: false,
-    dismissible: true,
     nested: false,
     popupElement: null,
     viewportElement: null,
     activeTriggerId: null,
-    modal: true,
     descriptionElementId: undefined,
     titleElementId: undefined,
     openMethod: null,

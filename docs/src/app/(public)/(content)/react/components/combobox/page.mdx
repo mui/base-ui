@@ -65,6 +65,55 @@ import { Combobox } from '@base-ui-components/react/combobox';
 </Combobox.Root>;
 ```
 
+## TypeScript inference
+
+Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
+When using `itemToStringLabel` or `itemToStringValue`, the `value` prop on the `<Combobox.Item>` must match the type passed to `defaultValue` or `value`.
+When not specifying value props, the parameter's type must be explicitly specified.
+
+## Examples
+
+### Multiple select
+
+The combobox can allow multiple selections by adding the `multiple` prop to `<Combobox.Root>`.
+Selection chips are rendered with `<Combobox.Chip>` inside the input that can be removed.
+
+import { DemoComboboxMultiple } from './demos/multiple';
+
+<DemoComboboxMultiple compact />
+
+### Input inside popup
+
+`<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
+
+import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
+
+<DemoComboboxInputInsidePopup compact />
+
+### Grouped
+
+Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to add section headings inside the popup.
+
+import { DemoComboboxGrouped } from './demos/grouped';
+
+<DemoComboboxGrouped compact />
+
+### Creatable
+
+Create a new item when the filter matches no items, opening a creation `<Dialog>`.
+
+import { DemoComboboxCreatable } from './demos/creatable';
+
+<DemoComboboxCreatable compact />
+
+### Virtualized
+
+Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
+
+import { DemoComboboxVirtualized } from './demos/virtualized';
+
+<DemoComboboxVirtualized compact />
+
 ## API reference
 
 <Reference
@@ -120,52 +169,3 @@ Accepts all `Intl.CollatorOptions`, plus the following options:
     },
   }}
 />
-
-## TypeScript inference
-
-Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
-When using `itemToStringLabel` or `itemToStringValue`, the `value` prop on the `<Combobox.Item>` must match the type passed to `defaultValue` or `value`.
-When not specifying value props, the parameter's type must be explicitly specified.
-
-## Examples
-
-### Multiple select
-
-The combobox can allow multiple selections by adding the `multiple` prop to `<Combobox.Root>`.
-Selection chips are rendered with `<Combobox.Chip>` inside the input that can be removed.
-
-import { DemoComboboxMultiple } from './demos/multiple';
-
-<DemoComboboxMultiple compact />
-
-### Input inside popup
-
-`<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
-
-import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
-
-<DemoComboboxInputInsidePopup compact />
-
-### Grouped
-
-Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to add section headings inside the popup.
-
-import { DemoComboboxGrouped } from './demos/grouped';
-
-<DemoComboboxGrouped compact />
-
-### Creatable
-
-Create a new item when the filter matches no items, opening a creation `<Dialog>`.
-
-import { DemoComboboxCreatable } from './demos/creatable';
-
-<DemoComboboxCreatable compact />
-
-### Virtualized
-
-Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
-
-import { DemoComboboxVirtualized } from './demos/virtualized';
-
-<DemoComboboxVirtualized compact />
