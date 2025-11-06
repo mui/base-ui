@@ -2947,15 +2947,20 @@ describe('<Combobox.Root />', () => {
 
         const input = await screen.findByTestId('dialog-input');
 
+        await act(async () => {
+          input.focus();
+        });
+
         await user.keyboard('{ArrowDown}');
-        const apple = screen.getByRole('option', { name: 'Apple' });
         await waitFor(() => {
+          const apple = screen.getByRole('option', { name: 'Apple' });
           expect(input).to.have.attribute('aria-activedescendant', apple.id);
         });
 
         await user.keyboard('{Enter}');
 
         await waitFor(() => {
+          const apple = screen.getByRole('option', { name: 'Apple' });
           expect(input).to.have.attribute('aria-activedescendant', apple.id);
         });
       });
