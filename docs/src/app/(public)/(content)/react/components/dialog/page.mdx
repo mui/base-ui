@@ -152,17 +152,15 @@ import { DemoDialogCloseConfirmation } from './demos/close-confirmation';
 
 <DemoDialogCloseConfirmation compact />
 
-### Custom focus target after closing
+### Custom focus management
 
-Sometimes it's useful to have the focus return to a custom element after the dialog is closed (instead of focusing the trigger which is the default behavior).
+You can control where the focus goes when the dialog opens and close using the `initialFocus` and `finalFocus` props on the `<Dialog.Popup>` component.
 
-You can do this by applying the `finalFocus` prop on the `<Dialog.Popup>` component.
+import { DemoDialogFocusManagement } from './demos/focus-management';
 
-import { DemoDialogFinalFocus } from './demos/final-focus';
+<DemoDialogFocusManagement compact />
 
-<DemoDialogFinalFocus compact />
-
-You can also set the prop to `false` if you don't want to move the focus anywhere after closing the dialog, or a function for specifying the final focus ref dynamically.
+You can also set these props to `false` if you don't want to move the focus anywhere after opening/closing the dialog, or a function for specifying the target focusable element ref dynamically.
 
 ### Outside scroll dialog
 
