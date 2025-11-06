@@ -2,22 +2,56 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { Slider } from '@base-ui-components/react/slider';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+
+interface ColorStop {
+  value: number; // the slider thumb raw value in the range [0,100]
+  hex: string; // hex
+}
+
+const INITIAL_START = {
+  value: 0,
+  hex: '#ffffff',
+};
+
+const INITIAL_END = {
+  value: 100,
+  hex: '#999999',
+};
 
 export default function App() {
   const controlRef = React.useRef<HTMLDivElement>(null);
   const trackRef = React.useRef<HTMLDivElement>(null);
 
-  const [val, setVal] = React.useState([50, 70]);
+  const pressedColorRef = React.useRef<string>(null);
 
-  const setValue = (nextValue) => {
-    console.log(nextValue);
-    setVal(nextValue);
-  };
+  const [valueUnwrapped, setValueUnwrapped] = React.useState<ColorStop[]>([
+    INITIAL_START,
+    INITIAL_END,
+  ]);
+
+  const value = React.useMemo(() => {
+    return valueUnwrapped.map((stop) => stop.value);
+  }, [valueUnwrapped]);
+
+  const setValue = useStableCallback((nextValue, eventDetails) => {
+    // console.log('nextValue', nextValue, eventDetails, pressedColorRef.current);
+    if (pressedColorRef.current) {
+      const newStop = {
+        value: nextValue[eventDetails.activeThumbIndex],
+        hex: pressedColorRef.current,
+      };
+      let newValue = valueUnwrapped.filter((stop) => stop.hex !== pressedColorRef.current);
+      newValue.push(newStop);
+      newValue.sort((a, b) => a.value - b.value);
+      setValueUnwrapped(newValue);
+    }
+  });
 
   return (
-    <div>
+    <div className="pt-16">
       <SliderRoot
-        value={val}
+        value={value}
         onValueChange={setValue}
         onValueCommitted={setValue}
         thumbCollisionBehavior="swap"
@@ -36,17 +70,31 @@ export default function App() {
               const nextXCoord = (event.clientX - controlRect.left) / controlRect.width;
               const nextVal = Math.round(nextXCoord * 100);
               console.log('nextVal', nextVal);
-              const nextSliderValue = val.slice();
-              nextSliderValue.push(nextVal);
-              nextSliderValue.sort((a, b) => a - b);
-              console.log('nextSliderValue', nextSliderValue);
-              setVal(nextSliderValue);
+              // const nextSliderValue = val.slice();
+              // nextSliderValue.push(nextVal);
+              // nextSliderValue.sort((a, b) => a - b);
+              // console.log('nextSliderValue', nextSliderValue);
+              // setVal(nextSliderValue);
             }
+          }}
+          onPointerUp={() => {
+            pressedColorRef.current = null;
           }}
         >
           <SliderTrack ref={trackRef}>
-            {val.map((v, i) => {
-              return <SliderThumb key={i} index={i} />;
+            {valueUnwrapped.map((val: ColorStop, i) => {
+              return (
+                <SliderThumb
+                  key={`${val.hex}-${i}`}
+                  data-value={val.hex}
+                  index={i}
+                  style={{ backgroundColor: val.hex }}
+                  onPointerDown={() => {
+                    pressedColorRef.current = val.hex;
+                    // console.log('thumb on pointerdown', pressedColorRef.current);
+                  }}
+                />
+              );
             })}
           </SliderTrack>
         </SliderControl>
@@ -57,12 +105,6 @@ export default function App() {
 
 function SliderRoot({ className, ...props }: Slider.Root.Props<any>) {
   return <Slider.Root className={clsx('grid grid-cols-2', className)} {...props} />;
-}
-
-function SliderValue({ className, ...props }: Slider.Value.Props) {
-  return (
-    <Slider.Value className={clsx('text-sm font-medium text-gray-900', className)} {...props} />
-  );
 }
 
 const SliderControl = React.forwardRef<HTMLDivElement, Slider.Control.Props>(function SliderControl(
@@ -93,12 +135,6 @@ const SliderTrack = React.forwardRef<HTMLDivElement, Slider.Track.Props>(functio
     />
   );
 });
-
-function SliderIndicator({ className, ...props }: Slider.Indicator.Props) {
-  return (
-    <Slider.Indicator className={clsx('rounded bg-gray-700 select-none', className)} {...props} />
-  );
-}
 
 function SliderThumb({ className, ...props }: Slider.Thumb.Props) {
   return (
