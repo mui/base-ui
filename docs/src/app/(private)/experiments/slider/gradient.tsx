@@ -149,6 +149,28 @@ export default function App() {
           </SliderTrack>
         </SliderControl>
       </SliderRoot>
+      <ul className="mt-4">
+        {valueUnwrapped.map((stop) => {
+          return (
+            <li key={stop.id} className="flex items-center">
+              <input
+                type="color"
+                defaultValue={stop.hex}
+                onChange={(event) => {
+                  const nextColor = event.target.value;
+
+                  setValueUnwrapped((prev) => {
+                    return prev.map((val) =>
+                      val.id === stop.id ? { ...val, hex: nextColor } : val,
+                    );
+                  });
+                }}
+              />
+              <code className="text-xs">{stop.hex}</code>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
