@@ -33,44 +33,67 @@ export default function App() {
     INITIAL_END,
   ]);
 
+  // raw slider value
   const value = React.useMemo(() => {
     return valueUnwrapped.map((stop) => stop.value);
   }, [valueUnwrapped]);
 
-  const setValue = useStableCallback((nextValue, eventDetails) => {
+  const handleChange = useStableCallback((nextValue, eventDetails) => {
     // console.log('nextValue', nextValue);
     function getNewValue(id: ColorStop['id']) {
       return valueUnwrapped.filter((stop) => stop.id !== id);
     }
 
     let newStop;
-    let newValue;
+    let nextValueUnwrapped;
 
     if (pressedThumbIdRef.current) {
       const hex = valueUnwrapped.find((v) => v.id === pressedThumbIdRef.current)?.hex;
+      if (!hex) {
+        return;
+      }
       newStop = {
         id: pressedThumbIdRef.current,
         value: nextValue[eventDetails.activeThumbIndex],
         hex,
       };
-      newValue = getNewValue(pressedThumbIdRef.current);
+      nextValueUnwrapped = getNewValue(pressedThumbIdRef.current);
+
+      if (nextValueUnwrapped && newStop) {
+        nextValueUnwrapped.push(newStop);
+        nextValueUnwrapped.sort((a, b) => a.value - b.value);
+        setValueUnwrapped(nextValueUnwrapped);
+      }
     } else if (eventDetails.event.key && eventDetails.event.target.parentElement) {
       const activeThumbEl = eventDetails.event.target.parentElement;
-      const activeThumbIndex = activeThumbEl.getAttribute('data-index');
+      const activeThumbIndex = Number(activeThumbEl.getAttribute('data-index'));
       const activeThumbHex = activeThumbEl.getAttribute('data-value');
       const activeThumbId = activeThumbEl.getAttribute('id');
+
+      const newValue = nextValue[activeThumbIndex];
+
+      // manually prevent swapping via keyboard navigation
+      const willOverlap =
+        newValue === valueUnwrapped[activeThumbIndex + 1]?.value ||
+        newValue === valueUnwrapped[activeThumbIndex - 1]?.value;
+
       newStop = {
         id: activeThumbId,
-        value: nextValue[activeThumbIndex],
+        value: newValue,
         hex: activeThumbHex,
       };
-      newValue = getNewValue(activeThumbId);
-    }
 
-    if (newValue && newStop) {
-      newValue.push(newStop);
-      newValue.sort((a, b) => a.value - b.value);
-      setValueUnwrapped(newValue);
+      if (willOverlap) {
+        nextValueUnwrapped = valueUnwrapped.slice();
+        nextValueUnwrapped[activeThumbIndex] = newStop;
+        setValueUnwrapped(nextValueUnwrapped);
+      } else {
+        nextValueUnwrapped = getNewValue(activeThumbId);
+        nextValueUnwrapped.push(newStop);
+        nextValueUnwrapped.sort((a, b) => a.value - b.value);
+        console.log(valueUnwrapped, nextValueUnwrapped);
+        setValueUnwrapped(nextValueUnwrapped);
+      }
     }
   });
 
@@ -83,8 +106,8 @@ export default function App() {
     <div className="pt-16">
       <SliderRoot
         value={value}
-        onValueChange={setValue}
-        onValueCommitted={setValue}
+        onValueChange={handleChange}
+        onValueCommitted={handleChange}
         thumbCollisionBehavior="swap"
         className="w-[320px]"
       >
@@ -93,7 +116,17 @@ export default function App() {
           onPointerDown={(event) => {
             const controlEl = controlRef.current;
             const trackEl = trackRef.current;
-            if (controlEl != null && (event.target === controlEl || event.target === trackEl)) {
+
+            if (controlEl == null || trackEl == null) {
+              return;
+            }
+
+            const isMainButton = !event.button || event.button === 0;
+            if (!isMainButton) {
+              return;
+            }
+
+            if (event.target === controlEl || event.target === trackEl) {
               // did not land on a thumb
               event.preventDefault();
               // create a new value/thumb
@@ -178,15 +211,6 @@ export default function App() {
   );
 }
 
-function getHexMidpoint(hex1: string, hex2: string): string {
-  const c1 = parseInt(hex1.slice(1), 16);
-  const c2 = parseInt(hex2.slice(1), 16);
-  const r = ((c1 >> 16) + (c2 >> 16)) >> 1;
-  const g = (((c1 >> 8) & 0xff) + ((c2 >> 8) & 0xff)) >> 1;
-  const b = ((c1 & 0xff) + (c2 & 0xff)) >> 1;
-  return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
-}
-
 function SliderRoot({ className, ...props }: Slider.Root.Props<any>) {
   return <Slider.Root className={clsx('grid grid-cols-2', className)} {...props} />;
 }
@@ -230,4 +254,14 @@ function SliderThumb({ className, ...props }: Slider.Thumb.Props) {
       {...props}
     />
   );
+}
+
+/* eslint-disable no-bitwise */
+function getHexMidpoint(hex1: string, hex2: string): string {
+  const c1 = parseInt(hex1.slice(1), 16);
+  const c2 = parseInt(hex2.slice(1), 16);
+  const r = ((c1 >> 16) + (c2 >> 16)) >> 1;
+  const g = (((c1 >> 8) & 0xff) + ((c2 >> 8) & 0xff)) >> 1;
+  const b = ((c1 & 0xff) + (c2 & 0xff)) >> 1;
+  return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
 }
