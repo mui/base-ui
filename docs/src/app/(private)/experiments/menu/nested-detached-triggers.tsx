@@ -157,7 +157,7 @@ function ReusableMenu(props: { handle: Menu.Handle<ContentKey> }) {
   const { handle } = props;
 
   return (
-    <Menu.Root handle={handle} modal={false}>
+    <Menu.Root handle={handle}>
       {({ payload: contentKey }) => {
         const items = contentKey ? contents[contentKey] : undefined;
         return (
