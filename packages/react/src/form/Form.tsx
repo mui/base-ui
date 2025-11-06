@@ -5,6 +5,7 @@ import type { BaseUIComponentProps } from '../utils/types';
 import { FormContext } from './FormContext';
 import { useRenderElement } from '../utils/useRenderElement';
 import { EMPTY_OBJECT } from '../utils/constants';
+import { useValueChanged } from '../utils/useValueChanged';
 
 /**
  * A native form element with consolidated error handling.
@@ -43,11 +44,9 @@ export const Form = React.forwardRef(function Form(
 
   const [errors, setErrors] = React.useState(externalErrors);
 
-  React.useEffect(() => {
-    if (externalErrors) {
-      setErrors(externalErrors);
-    }
-  }, [externalErrors]);
+  useValueChanged(externalErrors, () => {
+    setErrors(externalErrors);
+  });
 
   React.useEffect(() => {
     if (!submittedRef.current) {
