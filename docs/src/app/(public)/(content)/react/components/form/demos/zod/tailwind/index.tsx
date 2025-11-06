@@ -10,11 +10,8 @@ const schema = z.object({
   age: z.coerce.number('Age must be a number').positive('Age must be a positive number'),
 });
 
-async function submitForm(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
-
-  const formData = new FormData(event.currentTarget);
-  const result = schema.safeParse(Object.fromEntries(formData as any));
+async function submitForm(formValues: Form.Values) {
+  const result = schema.safeParse(formValues);
 
   if (!result.success) {
     return {
@@ -35,8 +32,8 @@ export default function Page() {
       className="flex w-full max-w-64 flex-col gap-4"
       errors={errors}
       onClearErrors={setErrors}
-      onSubmit={async (event) => {
-        const response = await submitForm(event);
+      onFormSubmit={async (formValues) => {
+        const response = await submitForm(formValues);
         setErrors(response.errors);
       }}
     >
