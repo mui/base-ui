@@ -19,6 +19,7 @@ import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../types';
+import { useValueChanged } from '../../utils/useValueChanged';
 
 /**
  * Represents the switch itself.
@@ -101,6 +102,18 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     }
   }, [inputRef, setFilled]);
 
+  useValueChanged(checked, () => {
+    clearErrors(name);
+    setDirty(checked !== validityData.initialValue);
+    setFilled(checked);
+
+    if (shouldValidateOnChange()) {
+      validation.commit(checked);
+    } else {
+      validation.commit(checked, true);
+    }
+  });
+
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
@@ -168,23 +181,13 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
               return;
             }
 
-            clearErrors(name);
-            setDirty(nextChecked !== validityData.initialValue);
-            setFilled(nextChecked);
             setCheckedState(nextChecked);
-
-            if (shouldValidateOnChange()) {
-              validation.commit(nextChecked);
-            } else {
-              validation.commit(nextChecked, true);
-            }
           },
         },
         validation.getInputValidationProps,
       ),
     [
       checked,
-      clearErrors,
       disabled,
       handleInputRef,
       id,
@@ -192,11 +195,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       onCheckedChange,
       required,
       setCheckedState,
-      setDirty,
-      setFilled,
-      shouldValidateOnChange,
       validation,
-      validityData.initialValue,
     ],
   );
 
