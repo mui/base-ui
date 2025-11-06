@@ -49,8 +49,18 @@ interface Settings {
 
 const frameworks = ['React', 'Vue', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Gatsby', 'Remix'];
 
-interface Values {
-  numberField: number | null;
+interface MyFormValues {
+  input: string;
+  'required-checkbox': boolean;
+  switch: boolean;
+  slider: number;
+  'range-slider': number[];
+  'number-field': number;
+  select: string[];
+  'radio-group': string[];
+  'multi-select': string[];
+  combobox: string;
+  autocomplete: string;
 }
 
 export const settingsMetadata: SettingsMetadata<Settings> = {
@@ -67,29 +77,14 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   },
 };
 
-async function submitForm(
-  event: React.FormEvent<HTMLFormElement>,
-  values: Values,
-  native: boolean,
-) {
-  event.preventDefault();
-
-  const formData = new FormData(event.currentTarget);
-
-  const entries = Object.fromEntries(formData as any);
-
-  entries['number-field'] = values.numberField;
-  entries.slider = parseFloat(formData.get('slider') as string);
-  entries['range-slider'] = formData.getAll('range-slider').map((v) => parseFloat(v as string));
-  entries['multi-select'] = formData.getAll('multi-select');
-
+async function submitForm(values: MyFormValues, native: boolean) {
   if (native) {
     return {
       errors: {},
     };
   }
 
-  const result = schema.safeParse(entries);
+  const result = schema.safeParse(values);
 
   if (!result.success) {
     return {
@@ -116,17 +111,11 @@ export default function Page() {
 
       <hr style={{ margin: '1rem 0' }} />
 
-      <Form
+      <Form<MyFormValues>
         className={styles.Form}
         errors={errors}
-        onSubmit={async (event) => {
-          const response = await submitForm(
-            event,
-            {
-              numberField: numberFieldValueRef.current,
-            },
-            native,
-          );
+        onFormSubmit={async (values) => {
+          const response = await submitForm(values, native);
           setErrors(response.errors);
         }}
         validationMode={settings.validationMode}
