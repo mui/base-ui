@@ -70,6 +70,14 @@ const selectors = {
       ? (state.triggers.get(state.activeTriggerId) ?? null)
       : null,
   ),
+  isTriggerActive: createSelector(
+    (state: State<unknown>, triggerId: string | undefined) =>
+      triggerId !== undefined && state.activeTriggerId === triggerId,
+  ),
+  isOpenedByTrigger: createSelector(
+    (state: State<unknown>, triggerId: string | undefined) =>
+      triggerId !== undefined && state.activeTriggerId === triggerId && state.open,
+  ),
   allowMouseEnter: createSelector((state: State<unknown>): boolean =>
     state.parent.type === 'menu'
       ? state.parent.store.select('allowMouseEnter')

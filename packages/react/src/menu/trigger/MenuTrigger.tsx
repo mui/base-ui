@@ -99,16 +99,10 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const rootActiveTriggerProps = store.useState('activeTriggerProps');
   const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
   const menuDisabled = store.useState('disabled');
-  const open = store.useState('open');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const rootId = store.useState('rootId');
-  const activeTrigger = store.useState('activeTriggerElement');
   const floatingRootContext = store.useState('floatingRootContext');
   const hoverEnabled = store.useState('hoverEnabled');
-  const stickIfOpen = store.useState('stickIfOpen');
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-  const isTriggerActive = activeTrigger != null && activeTrigger === triggerElement;
 
   const disabled = disabledProp || menuDisabled;
 
@@ -122,8 +116,13 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
   const parentNodeId = useFloatingParentNodeId();
-
   store.useSyncedValues({ floatingNodeId, floatingParentNodeId: parentNodeId });
+
+  const thisTriggerId = useBaseUiId(idProp);
+  const registerTrigger = useTriggerRegistration(thisTriggerId, store);
+
+  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
@@ -137,10 +136,10 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   });
 
   React.useEffect(() => {
-    if (!open && parent.type === undefined) {
+    if (!isOpenedByThisTrigger && parent.type === undefined) {
       store.context.allowMouseUpTriggerRef.current = false;
     }
-  }, [store, open, parent.type]);
+  }, [store, isOpenedByThisTrigger, parent.type]);
 
   const handleDocumentMouseUp = useStableCallback((mouseEvent: MouseEvent) => {
     if (!triggerRef.current) {
@@ -160,7 +159,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       return;
     }
 
-    if (mouseUpTarget != null && findRootOwnerId(mouseUpTarget) === rootId) {
+    if (mouseUpTarget != null && findRootOwnerId(mouseUpTarget) === store.select('rootId')) {
       return;
     }
 
@@ -179,11 +178,11 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   });
 
   React.useEffect(() => {
-    if (open && lastOpenChangeReason === REASONS.triggerHover) {
+    if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
       const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
     }
-  }, [open, handleDocumentMouseUp, lastOpenChangeReason]);
+  }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
   const openOnHover =
     openOnHoverProp ?? (parent.type === 'menubar' && parent.context.hasSubmenuOpen);
@@ -194,7 +193,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       openOnHover &&
       !disabled &&
       parent.type !== 'context-menu' &&
-      (parent.type !== 'menubar' || (parent.context.hasSubmenuOpen && !(open && isTriggerActive))),
+      (parent.type !== 'menubar' || (parent.context.hasSubmenuOpen && !isOpenedByThisTrigger)),
     handleClose: safePolygon({ blockPointerEvents: parent.type !== 'menubar' }),
     mouseOnly: true,
     move: false,
@@ -206,14 +205,14 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const click = useClick(floatingRootContext, {
     enabled: !disabled && parent.type !== 'context-menu',
-    event: open && parent.type === 'menubar' ? 'click' : 'mousedown',
+    event: isOpenedByThisTrigger && parent.type === 'menubar' ? 'click' : 'mousedown',
     toggle: true,
     ignoreMouse: false,
-    stickIfOpen: parent.type === undefined ? stickIfOpen : false,
+    stickIfOpen: parent.type === undefined ? store.select('stickIfOpen') : false,
   });
 
   const mixedToggleHandlers = useMixedToggleClickHandler({
-    open,
+    open: isOpenedByThisTrigger,
     enabled: parent.type === 'menubar',
     mouseDownAction: 'open',
   });
@@ -230,7 +229,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
           'aria-haspopup': 'menu' as const,
           ref: buttonRef,
           onMouseDown: (event: React.MouseEvent) => {
-            if (open) {
+            if (store.select('open')) {
               return;
             }
 
@@ -249,7 +248,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     },
     [
       getButtonProps,
-      open,
       allowMouseUpTriggerTimeout,
       handleDocumentMouseUp,
       isMenubar,
@@ -261,13 +259,10 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const state: MenuTrigger.State = React.useMemo(
     () => ({
       disabled,
-      open: open && isTriggerActive,
+      open: isOpenedByThisTrigger,
     }),
-    [disabled, open, isTriggerActive],
+    [disabled, isOpenedByThisTrigger],
   );
-
-  const id = useBaseUiId(idProp);
-  const registerTrigger = useTriggerRegistration(id, store);
 
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
@@ -280,7 +275,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     localInteractionProps.getReferenceProps(),
     isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
     // TODO: figure out why 'aria-expanded' from useRole doesn't work
-    { id, 'aria-expanded': open && isTriggerActive ? 'true' : 'false' },
+    { id: thisTriggerId, 'aria-expanded': isOpenedByThisTrigger ? 'true' : 'false' },
     mixedToggleHandlers,
     elementProps,
     getTriggerProps,

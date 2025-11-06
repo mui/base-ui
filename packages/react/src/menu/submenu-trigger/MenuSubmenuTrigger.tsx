@@ -44,7 +44,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const listItem = useCompositeListItem();
   const menuPositionerContext = useMenuPositionerContext();
-  const id = useBaseUiId(idProp);
 
   const { store } = useMenuRootContext();
   const rootTriggerProps = store.useState('activeTriggerProps');
@@ -57,8 +56,10 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
   const parentNodeId = useFloatingParentNodeId();
-
   store.useSyncedValues({ floatingNodeId, floatingParentNodeId: parentNodeId });
+
+  const thisTriggerId = useBaseUiId(idProp);
+  const registerTrigger = useTriggerRegistration(thisTriggerId, store);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
@@ -86,7 +87,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     closeOnClick: false,
     disabled,
     highlighted,
-    id,
+    id: thisTriggerId,
     store,
     nativeButton,
     itemMetadata,
@@ -115,8 +116,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const localInteractionProps = useInteractions([click, hover]);
 
   delete rootTriggerProps.id;
-
-  const registerTrigger = useTriggerRegistration(id, store);
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
     () => ({ disabled, highlighted, open }),
