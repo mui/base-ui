@@ -13,20 +13,19 @@ interface ColorStop {
 const INITIAL_START = {
   id: 'initial-start',
   value: 0,
-  hex: '#ffffff',
+  hex: '#ff0000',
 };
 
 const INITIAL_END = {
   id: 'initial-end',
   value: 100,
-  hex: '#999999',
+  hex: '#0000ff',
 };
 
 export default function App() {
   const controlRef = React.useRef<HTMLDivElement>(null);
   const trackRef = React.useRef<HTMLDivElement>(null);
 
-  const pressedColorRef = React.useRef<string>(null);
   const pressedThumbIdRef = React.useRef<string>(null);
 
   const [valueUnwrapped, setValueUnwrapped] = React.useState<ColorStop[]>([
@@ -39,7 +38,7 @@ export default function App() {
   }, [valueUnwrapped]);
 
   const setValue = useStableCallback((nextValue, eventDetails) => {
-    // console.log('nextValue', nextValue, eventDetails);
+    // console.log('nextValue', nextValue);
     function getNewValue(id: ColorStop['id']) {
       return valueUnwrapped.filter((stop) => stop.id !== id);
     }
@@ -48,10 +47,11 @@ export default function App() {
     let newValue;
 
     if (pressedThumbIdRef.current) {
+      const hex = valueUnwrapped.find((v) => v.id === pressedThumbIdRef.current)?.hex;
       newStop = {
         id: pressedThumbIdRef.current,
         value: nextValue[eventDetails.activeThumbIndex],
-        hex: pressedColorRef.current,
+        hex,
       };
       newValue = getNewValue(pressedThumbIdRef.current);
     } else if (eventDetails.event.key && eventDetails.event.target.parentElement) {
@@ -73,6 +73,11 @@ export default function App() {
       setValueUnwrapped(newValue);
     }
   });
+
+  const cssLinearGradient = React.useMemo(() => {
+    const cssStops = valueUnwrapped.map((stop) => `${stop.hex} ${stop.value}%`);
+    return `linear-gradient(to right, ${cssStops.join(', ')})`;
+  }, [valueUnwrapped]);
 
   return (
     <div className="pt-16">
@@ -126,11 +131,10 @@ export default function App() {
             }
           }}
           onPointerUp={() => {
-            pressedColorRef.current = null;
             pressedThumbIdRef.current = null;
           }}
         >
-          <SliderTrack ref={trackRef}>
+          <SliderTrack ref={trackRef} style={{ background: cssLinearGradient }}>
             {valueUnwrapped.map((val: ColorStop, i) => {
               return (
                 <SliderThumb
@@ -140,7 +144,6 @@ export default function App() {
                   data-value={val.hex}
                   style={{ backgroundColor: val.hex }}
                   onPointerDown={() => {
-                    pressedColorRef.current = val.hex;
                     pressedThumbIdRef.current = val.id;
                   }}
                 />
