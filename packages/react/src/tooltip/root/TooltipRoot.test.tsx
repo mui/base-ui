@@ -1160,6 +1160,7 @@ describe('<Tooltip.Root />', () => {
       const popupId = randomStringValue();
       const { user } = await render(
         <div>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <Tooltip.Trigger handle={testTooltip} delay={0}>
             Trigger 1
           </Tooltip.Trigger>
@@ -1184,22 +1185,36 @@ describe('<Tooltip.Root />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
 
-      expect(screen.queryByTestId(popupId)).to.equal(null);
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).to.equal(null);
+      });
 
       await user.hover(trigger1);
-      expect(screen.queryByTestId(popupId)).toBeVisible();
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBeVisible();
+      });
       await user.unhover(trigger1);
-      expect(screen.queryByTestId(popupId)).to.equal(null);
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).to.equal(null);
+      });
 
       await user.hover(trigger2);
-      expect(screen.queryByTestId(popupId)).toBeVisible();
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBeVisible();
+      });
       await user.unhover(trigger2);
-      expect(screen.queryByTestId(popupId)).to.equal(null);
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).to.equal(null);
+      });
 
       await user.hover(trigger3);
-      expect(screen.queryByTestId(popupId)).toBeVisible();
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBeVisible();
+      });
       await user.unhover(trigger3);
-      expect(screen.queryByTestId(popupId)).to.equal(null);
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).to.equal(null);
+      });
     });
 
     it('should open the tooltip with any trigger on focus', async () => {
@@ -1407,6 +1422,7 @@ describe('<Tooltip.Root />', () => {
       const triggerId = randomStringValue();
       await render(
         <React.Fragment>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <Tooltip.Trigger handle={testTooltip} payload={1}>
             Trigger 1
           </Tooltip.Trigger>

@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
@@ -31,6 +29,7 @@ import {
   createGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
+import { useValueChanged } from '../../utils/useValueChanged';
 
 const stateAttributesMapping = {
   ...fieldValidityMapping,
@@ -87,45 +86,32 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
-  const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange } =
+  const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange, validation } =
     useFieldRootContext();
   const { labelId } = useLabelableContext();
-
-  const {
-    getInputValidationProps,
-    commitValidation,
-    inputRef: inputValidationRef,
-  } = useFieldControlValidation();
 
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
 
   useField({
     id,
-    commitValidation,
+    commit: validation.commit,
     value,
     controlRef: inputRef,
     name,
     getValue: () => value ?? null,
   });
 
-  const prevValueRef = React.useRef(value);
-  const prevInputValueRef = React.useRef(inputValue);
-
-  useIsoLayoutEffect(() => {
-    if (prevValueRef.current === value && prevInputValueRef.current === inputValue) {
-      return;
-    }
+  useValueChanged(value, (previousValue) => {
+    const validateOnChange = shouldValidateOnChange();
 
     clearErrors(name);
 
-    if (shouldValidateOnChange()) {
-      commitValidation(value);
+    if (validateOnChange) {
+      validation.commit(value);
     }
-  }, [value, inputValue, name, clearErrors, shouldValidateOnChange, commitValidation]);
 
-  useIsoLayoutEffect(() => {
-    if (prevValueRef.current === value || shouldValidateOnChange()) {
+    if (previousValue === value || validateOnChange) {
       return;
     }
 
@@ -133,13 +119,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       blockRevalidationRef.current = false;
       return;
     }
-    commitValidation(value, true);
-  }, [commitValidation, shouldValidateOnChange, value]);
 
-  useIsoLayoutEffect(() => {
-    prevValueRef.current = value;
-    prevInputValueRef.current = inputValue;
-  }, [value, inputValue]);
+    validation.commit(value, true);
+  });
 
   const inputProps: React.ComponentProps<'input'> = {
     id,
@@ -188,7 +170,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       if (inputValue.trim() === '') {
         setValue(null);
         if (validationMode === 'onBlur') {
-          commitValidation(null);
+          validation.commit(null);
         }
         onValueCommitted(null, createGenericEventDetails('none', event.nativeEvent));
         return;
@@ -218,7 +200,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const shouldCommit = hadManualInput || shouldUpdateValue || hadPendingProgrammaticChange;
 
       if (validationMode === 'onBlur') {
-        commitValidation(committed);
+        validation.commit(committed);
       }
       if (shouldUpdateValue) {
         setValue(committed, event.nativeEvent);
@@ -426,9 +408,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   };
 
   const element = useRenderElement('input', componentProps, {
-    ref: [forwardedRef, inputRef, inputValidationRef],
+    ref: [forwardedRef, inputRef, validation.inputRef],
     state,
-    props: [inputProps, getInputValidationProps(), elementProps],
+    props: [inputProps, validation.getInputValidationProps(), elementProps],
     stateAttributesMapping,
   });
 

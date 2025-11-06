@@ -16,7 +16,6 @@ import {
   useTypeahead,
   FloatingRootContext,
 } from '../../floating-ui-react';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -29,6 +28,7 @@ import { useField } from '../../field/useField';
 import type { SelectRootConditionalProps, SelectRoot } from './SelectRoot';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
+import { useValueChanged } from '../../utils/useValueChanged';
 
 export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   params: useSelectRoot.Parameters<Value, Multiple>,
@@ -53,12 +53,11 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     setDirty,
     shouldValidateOnChange,
     validityData,
-    validationMode,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
+    validation,
   } = useFieldRootContext();
-  const fieldControlValidation = useFieldControlValidation();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -144,28 +143,22 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const positionerElement = useStore(store, selectors.positionerElement);
 
   const controlRef = useValueAsRef(store.state.triggerElement);
-  const commitValidation = fieldControlValidation.commitValidation;
+  const commit = validation.commit;
 
   useField({
     id,
-    commitValidation,
+    commit,
     value,
     controlRef,
     name,
     getValue: () => value,
   });
 
-  const prevValueRef = React.useRef(value);
-
   useIsoLayoutEffect(() => {
     setFilled(value !== null);
   }, [value, setFilled]);
 
-  useIsoLayoutEffect(() => {
-    if (prevValueRef.current === value) {
-      return;
-    }
-
+  useValueChanged(value, () => {
     if (multiple) {
       // For multiple selection, update the label and keep track of the last selected
       // item via `selectedIndex`, which is needed when the popup (re)opens.
@@ -198,29 +191,13 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
-    commitValidation(value, !shouldValidateOnChange());
 
     if (shouldValidateOnChange()) {
-      commitValidation(value);
+      commit(value);
+    } else {
+      commit(value, true);
     }
-  }, [
-    value,
-    commitValidation,
-    clearErrors,
-    name,
-    shouldValidateOnChange,
-    validationMode,
-    store,
-    setDirty,
-    validityData.initialValue,
-    setFilled,
-    multiple,
-    isItemEqualToValue,
-  ]);
-
-  useIsoLayoutEffect(() => {
-    prevValueRef.current = value;
-  }, [value]);
+  });
 
   const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
@@ -511,7 +488,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       typingRef,
       selectionRef,
       selectedItemTextRef,
-      fieldControlValidation,
+      validation,
       registerItemIndex,
       onOpenChangeComplete,
       keyboardActiveRef,
@@ -540,7 +517,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       typingRef,
       selectionRef,
       selectedItemTextRef,
-      fieldControlValidation,
+      validation,
       registerItemIndex,
       onOpenChangeComplete,
       keyboardActiveRef,

@@ -1,19 +1,23 @@
-import * as BaseDemo from 'docs/src/blocks/Demo';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
+import kebabCase from 'es-toolkit/compat/kebabCase';
 import { DemoErrorFallback } from './DemoErrorFallback';
 
-export function DemoPlayground() {
-  const { selectedVariant } = useDemoContext();
+export type DemoPlaygroundProps = {
+  component: React.ReactNode;
+  variant?: string;
+};
 
+export function DemoPlayground({ component, variant }: DemoPlaygroundProps) {
   return (
     <ErrorBoundary FallbackComponent={DemoErrorFallback}>
       <div className="DemoPlayground">
-        <BaseDemo.Playground
+        <div
           aria-label="Component demo"
-          data-demo={selectedVariant.name}
+          data-demo={kebabCase(variant)}
           className="DemoPlaygroundInner"
-        />
+        >
+          {component}
+        </div>
       </div>
     </ErrorBoundary>
   );

@@ -6,7 +6,9 @@
   content="A high-quality, unstyled React autocomplete component that renders an input with a list of filtered options."
 />
 
-<Demo path="./demos/hero" />
+import { DemoAutocompleteHero } from './demos/hero';
+
+<DemoAutocompleteHero />
 
 ## Usage guidelines
 
@@ -55,6 +57,79 @@ import { Autocomplete } from '@base-ui-components/react/autocomplete';
 </Autocomplete.Root>;
 ```
 
+## TypeScript inference
+
+Autocomplete infers the item type from the `items` prop passed to `<Autocomplete.Root>`.
+If using `itemToStringValue`, the value prop on the `<Autocomplete.Item>` must match the type of an item in the `items` array.
+
+## Examples
+
+### Async search
+
+Load items asynchronously while typing and render custom status content.
+
+import { DemoAutocompleteAsync } from './demos/async';
+
+<DemoAutocompleteAsync compact />
+
+### Inline autocomplete
+
+Autofill the input with the highlighted item while navigating with arrow keys using the `mode` prop. Accepts `aria-autocomplete` values `list`, `both`, `inline`, or `none`.
+
+import { DemoAutocompleteInline } from './demos/inline';
+
+<DemoAutocompleteInline compact />
+
+### Grouped
+
+Organize related options with `<Autocomplete.Group>` and `<Autocomplete.GroupLabel>` to add section headings inside the popup.
+
+import { DemoAutocompleteGrouped } from './demos/grouped';
+
+<DemoAutocompleteGrouped compact />
+
+### Fuzzy matching
+
+Use fuzzy matching to find relevant results even when the query doesn't exactly match the item text.
+
+import { DemoAutocompleteFuzzyMatching } from './demos/fuzzy-matching';
+
+<DemoAutocompleteFuzzyMatching compact />
+
+### Limit results
+
+Limit the number of visible items using the `limit` prop and guide users to refine their query using `<Autocomplete.Status>`.
+
+import { DemoAutocompleteLimit } from './demos/limit';
+
+<DemoAutocompleteLimit compact />
+
+### Auto highlight
+
+The first matching item can be automatically highlighted as the user types by specifying the `autoHighlight` prop on `<Autocomplete.Root>`. Set the prop's value to `"always"` if the highlight should always be present, such as when the list is rendered inline within a dialog.
+
+The prop can be combined with the `keepHighlight` and `highlightItemOnHover` props to configure how the highlight behaves during mouse interactions.
+
+import { DemoAutocompleteAutoHighlight } from './demos/auto-highlight';
+
+<DemoAutocompleteAutoHighlight compact />
+
+### Grid layout
+
+Display items in a grid layout, wrapping each row in `<Autocomplete.Row>` components.
+
+import { DemoAutocompleteGrid } from './demos/grid';
+
+<DemoAutocompleteGrid compact />
+
+### Virtualized
+
+Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
+
+import { DemoAutocompleteVirtualized } from './demos/virtualized';
+
+<DemoAutocompleteVirtualized compact />
+
 ## API reference
 
 <Reference component="Autocomplete" parts="Root, Value" />
@@ -101,60 +176,3 @@ Accepts all `Intl.CollatorOptions`, plus the following option:
     },
   }}
 />
-
-## TypeScript inference
-
-Autocomplete infers the item type from the `items` prop passed to `<Autocomplete.Root>`.
-If using `itemToStringValue`, the value prop on the `<Autocomplete.Item>` must match the type of an item in the `items` array.
-
-## Examples
-
-### Async search
-
-Load items asynchronously while typing and render custom status content.
-
-<Demo path="./demos/async" compact />
-
-### Inline autocomplete
-
-Autofill the input with the highlighted item while navigating with arrow keys using the `mode` prop. Accepts `aria-autocomplete` values `list`, `both`, `inline`, or `none`.
-
-<Demo path="./demos/inline" compact />
-
-### Grouped
-
-Organize related options with `<Autocomplete.Group>` and `<Autocomplete.GroupLabel>` to add section headings inside the popup.
-
-<Demo path="./demos/grouped" compact />
-
-### Fuzzy matching
-
-Use fuzzy matching to find relevant results even when the query doesn't exactly match the item text.
-
-<Demo path="./demos/fuzzy-matching" compact />
-
-### Limit results
-
-Limit the number of visible items using the `limit` prop and guide users to refine their query using `<Autocomplete.Status>`.
-
-<Demo path="./demos/limit" compact />
-
-### Auto highlight
-
-The first matching item can be automatically highlighted as the user types by specifying the `autoHighlight` prop on `<Autocomplete.Root>`. Set the prop's value to `"always"` if the highlight should always be present, such as when the list is rendered inline within a dialog.
-
-The prop can be combined with the `keepHighlight` and `highlightItemOnHover` props to configure how the highlight behaves during mouse interactions.
-
-<Demo path="./demos/auto-highlight" compact />
-
-### Grid layout
-
-Display items in a grid layout, wrapping each row in `<Autocomplete.Row>` components.
-
-<Demo path="./demos/grid" compact />
-
-### Virtualized
-
-Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
-
-<Demo path="./demos/virtualized" compact />
