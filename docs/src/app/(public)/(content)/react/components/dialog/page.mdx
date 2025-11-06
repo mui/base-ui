@@ -172,6 +172,8 @@ import { DemoDialogInsideScroll } from './demos/inside-scroll';
 
 When adding elements that should appear "outside" the colored popup area, continue to place them inside `<Dialog.Popup>`, but create a child element that has the popup styles. This ensures they are kept in the tab order and announced correctly by screen readers.
 
+`<Dialog.Popup>` has `pointer-events: none`, while inner content (the colored popup and close button) has `pointer-events: auto` so clicks on the backdrop continue to be registered.
+
 import { DemoDialogUncontained } from './demos/uncontained';
 
 <DemoDialogUncontained compact />
