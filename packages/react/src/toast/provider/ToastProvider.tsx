@@ -10,9 +10,9 @@ import { isFocusVisible } from '../utils/focusVisible';
 import { resolvePromiseOptions } from '../utils/resolvePromiseOptions';
 import type {
   ToastObject,
-  UseToastManagerAddOptions,
-  UseToastManagerPromiseOptions,
-  UseToastManagerUpdateOptions,
+  ToastManagerAddOptions,
+  ToastManagerPromiseOptions,
+  ToastManagerUpdateOptions,
 } from '../useToastManager';
 import type { ToastManager } from '../createToastManager';
 
@@ -189,7 +189,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   });
 
   const add = useStableCallback(
-    <Data extends object>(toast: UseToastManagerAddOptions<Data>): string => {
+    <Data extends object>(toast: ToastManagerAddOptions<Data>): string => {
       const id = toast.id || generateId('toast');
       const toastToAdd: ToastObject<Data> = {
         ...toast,
@@ -230,7 +230,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   );
 
   const update = useStableCallback(
-    <Data extends object>(id: string, updates: UseToastManagerUpdateOptions<Data>) => {
+    <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
       setToasts((prev) =>
         prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
       );
@@ -240,7 +240,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const promise = useStableCallback(
     <Value, Data extends object>(
       promiseValue: Promise<Value>,
-      options: UseToastManagerPromiseOptions<Value, Data>,
+      options: ToastManagerPromiseOptions<Value, Data>,
     ): Promise<Value> => {
       // Create a loading toast (which does not auto-dismiss).
       const loadingOptions = resolvePromiseOptions(options.loading);

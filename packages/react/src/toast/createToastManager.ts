@@ -1,9 +1,9 @@
 import { generateId } from '@base-ui-components/utils/generateId';
 import type {
   ToastObject,
-  UseToastManagerAddOptions,
-  UseToastManagerPromiseOptions,
-  UseToastManagerUpdateOptions,
+  ToastManagerAddOptions,
+  ToastManagerPromiseOptions,
+  ToastManagerUpdateOptions,
 } from './useToastManager';
 
 /**
@@ -29,7 +29,7 @@ export function createToastManager(): ToastManager {
       };
     },
 
-    add<Data extends object>(options: UseToastManagerAddOptions<Data>): string {
+    add<Data extends object>(options: ToastManagerAddOptions<Data>): string {
       const id = options.id || generateId('toast');
       const toastToAdd: ToastObject<Data> = {
         ...options,
@@ -52,7 +52,7 @@ export function createToastManager(): ToastManager {
       });
     },
 
-    update<Data extends object>(id: string, updates: UseToastManagerUpdateOptions<Data>): void {
+    update<Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>): void {
       emit({
         action: 'update',
         options: {
@@ -64,7 +64,7 @@ export function createToastManager(): ToastManager {
 
     promise<Value, Data extends object>(
       promiseValue: Promise<Value>,
-      options: UseToastManagerPromiseOptions<Value, Data>,
+      options: ToastManagerPromiseOptions<Value, Data>,
     ): Promise<Value> {
       let handledPromise = promiseValue;
 
@@ -86,12 +86,12 @@ export function createToastManager(): ToastManager {
 
 export interface ToastManager {
   ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
-  add: <Data extends object>(options: UseToastManagerAddOptions<Data>) => string;
+  add: <Data extends object>(options: ToastManagerAddOptions<Data>) => string;
   close: (id: string) => void;
-  update: <Data extends object>(id: string, updates: UseToastManagerUpdateOptions<Data>) => void;
+  update: <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => void;
   promise: <Value, Data extends object>(
     promiseValue: Promise<Value>,
-    options: UseToastManagerPromiseOptions<Value, Data>,
+    options: ToastManagerPromiseOptions<Value, Data>,
   ) => Promise<Value>;
 }
 

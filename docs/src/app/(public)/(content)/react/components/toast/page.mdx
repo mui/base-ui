@@ -274,7 +274,7 @@ const toastManager = Toast.useToastManager();
       description: 'The array of toast objects.',
     },
     add: {
-      type: '(options: useToast.AddOptions) => string',
+      type: '(options: ToastManagerAddOptions) => string',
       description: 'Add a toast to the toast list.',
     },
     close: {
@@ -282,11 +282,11 @@ const toastManager = Toast.useToastManager();
       description: 'Closes and removes a toast from the toast list.',
     },
     update: {
-      type: '(toastId: string, options: useToast.UpdateOptions) => void',
+      type: '(toastId: string, options: ToastManagerUpdateOptions) => void',
       description: 'Update a toast in the toast list.',
     },
     promise: {
-      type: '<Value>(promise: Promise<Value>, options: useToast.PromiseOptions) => Promise<Value>',
+      type: '<Value>(promise: Promise<Value>, options: ToastManagerPromiseOptions) => Promise<Value>',
       description:
         'Create a toast that resolves with a value, with three possible states for the toast: `loading`, `success`, and `error`.',
     },

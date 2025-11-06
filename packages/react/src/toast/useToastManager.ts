@@ -89,14 +89,15 @@ export interface ToastObject<Data extends object> {
   /**
    * The props forwarded to the toast positioner element when rendering anchored toasts.
    */
-  positionerProps?: ToastPositionerOptions;
+  positionerProps?: ToastManagerPositionerProps;
   /**
    * Custom data for the toast.
    */
   data?: Data;
 }
 
-export interface ToastPositionerOptions extends Omit<ToastPositionerProps, 'anchor' | 'toast'> {
+export interface ToastManagerPositionerProps
+  extends Omit<ToastPositionerProps, 'anchor' | 'toast'> {
   /**
    * An element to position the toast against.
    */
@@ -105,34 +106,31 @@ export interface ToastPositionerOptions extends Omit<ToastPositionerProps, 'anch
 
 export interface UseToastManagerReturnValue {
   toasts: ToastContext<any>['toasts'];
-  add: <Data extends object>(options: UseToastManagerAddOptions<Data>) => string;
+  add: <Data extends object>(options: ToastManagerAddOptions<Data>) => string;
   close: (toastId: string) => void;
-  update: <Data extends object>(
-    toastId: string,
-    options: UseToastManagerUpdateOptions<Data>,
-  ) => void;
+  update: <Data extends object>(toastId: string, options: ToastManagerUpdateOptions<Data>) => void;
   promise: <Value, Data extends object>(
     promise: Promise<Value>,
-    options: UseToastManagerPromiseOptions<Value, Data>,
+    options: ToastManagerPromiseOptions<Value, Data>,
   ) => Promise<Value>;
 }
 
-export interface UseToastManagerAddOptions<Data extends object>
+export interface ToastManagerAddOptions<Data extends object>
   extends Omit<ToastObject<Data>, 'id' | 'animation' | 'height' | 'ref' | 'limited'> {
   id?: string;
 }
 
-export interface UseToastManagerUpdateOptions<Data extends object>
-  extends Partial<UseToastManagerAddOptions<Data>> {}
+export interface ToastManagerUpdateOptions<Data extends object>
+  extends Partial<ToastManagerAddOptions<Data>> {}
 
-export interface UseToastManagerPromiseOptions<Value, Data extends object> {
-  loading: string | UseToastManagerUpdateOptions<Data>;
+export interface ToastManagerPromiseOptions<Value, Data extends object> {
+  loading: string | ToastManagerUpdateOptions<Data>;
   success:
     | string
-    | UseToastManagerUpdateOptions<Data>
-    | ((result: Value) => string | UseToastManagerUpdateOptions<Data>);
+    | ToastManagerUpdateOptions<Data>
+    | ((result: Value) => string | ToastManagerUpdateOptions<Data>);
   error:
     | string
-    | UseToastManagerUpdateOptions<Data>
-    | ((error: any) => string | UseToastManagerUpdateOptions<Data>);
+    | ToastManagerUpdateOptions<Data>
+    | ((error: any) => string | ToastManagerUpdateOptions<Data>);
 }

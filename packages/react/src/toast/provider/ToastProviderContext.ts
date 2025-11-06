@@ -1,9 +1,9 @@
 import * as React from 'react';
 import type {
   ToastObject,
-  UseToastManagerAddOptions,
-  UseToastManagerPromiseOptions,
-  UseToastManagerUpdateOptions,
+  ToastManagerAddOptions,
+  ToastManagerPromiseOptions,
+  ToastManagerUpdateOptions,
 } from '../useToastManager';
 
 export interface ToastContextValue<Data extends object> {
@@ -14,11 +14,11 @@ export interface ToastContextValue<Data extends object> {
   focused: boolean;
   setFocused: React.Dispatch<React.SetStateAction<boolean>>;
   expanded: boolean;
-  add: (options: UseToastManagerAddOptions<Data>) => string;
-  update: (id: string, options: UseToastManagerUpdateOptions<Data>) => void;
+  add: (options: ToastManagerAddOptions<Data>) => string;
+  update: (id: string, options: ToastManagerUpdateOptions<Data>) => void;
   promise: <Value>(
     value: Promise<Value>,
-    options: UseToastManagerPromiseOptions<Value, Data>,
+    options: ToastManagerPromiseOptions<Value, Data>,
   ) => Promise<Value>;
   close: (id: string) => void;
   pauseTimers: () => void;

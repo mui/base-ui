@@ -2,7 +2,7 @@ import { Toast } from '@base-ui-components/react/toast';
 import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import type { UseToastManagerAddOptions } from '../useToastManager';
+import type { ToastManagerAddOptions } from '../useToastManager';
 import { List, Button } from '../utils/test-utils';
 
 const toast: Toast.Root.ToastObject = {
@@ -51,7 +51,7 @@ describe('<Toast.Root />', () => {
     function SwipeTestButton({
       toastOptions,
     }: {
-      toastOptions?: Partial<UseToastManagerAddOptions<any>>;
+      toastOptions?: Partial<ToastManagerAddOptions<any>>;
     } = {}) {
       const { add } = Toast.useToastManager();
       return (
