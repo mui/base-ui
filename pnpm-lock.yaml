@@ -108,9 +108,6 @@ importers:
       markdownlint-cli2:
         specifier: ^0.18.1
         version: 0.18.1
-      nx:
-        specifier: ^21.6.8
-        version: 21.6.8
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
