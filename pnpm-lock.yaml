@@ -91,7 +91,7 @@ importers:
         specifier: workspace:^
         version: link:docs
       es-toolkit:
-        specifier: ^1.40.0
+        specifier: ^1.41.0
         version: 1.41.0
       eslint:
         specifier: ^9.38.0
@@ -130,8 +130,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
       rimraf:
-        specifier: ^6.0.1
-        version: 6.0.1
+        specifier: ^6.1.0
+        version: 6.1.0
       serve:
         specifier: ^14.2.5
         version: 14.2.5
@@ -365,8 +365,8 @@ importers:
         specifier: ^11.0.0
         version: 11.0.0
       rimraf:
-        specifier: ^6.0.1
-        version: 6.0.1
+        specifier: ^6.1.0
+        version: 6.1.0
       serve:
         specifier: ^14.2.5
         version: 14.2.5
@@ -590,7 +590,7 @@ importers:
         version: 1.41.0
       rimraf:
         specifier: ^6.0.1
-        version: 6.0.1
+        version: 6.1.0
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
@@ -640,7 +640,7 @@ importers:
         specifier: workspace:^
         version: link:../docs
       es-toolkit:
-        specifier: ^1.40.0
+        specifier: ^1.41.0
         version: 1.41.0
       is-wsl:
         specifier: ^3.1.0
@@ -8504,8 +8504,8 @@ packages:
     resolution: {integrity: sha512-l0OE8wL34P4nJH/H2ffoaniAokM2qSmrtXHmlpvYr5AVVX8msAyW0l8NVJFDxlSK4u3Uh/f41cQheDVdnYijwQ==}
     hasBin: true
 
-  rimraf@6.0.1:
-    resolution: {integrity: sha512-9dkvaxAsk/xNXSJzMgFqqMCuFgt2+KsOFek3TMLfo8NCPfWpBmqwyNn5Y+NX56QUYfCtsyhF3ayiboEoUmJk/A==}
+  rimraf@6.1.0:
+    resolution: {integrity: sha512-DxdlA1bdNzkZK7JiNWH+BAx1x4tEJWoTofIopFo6qWUU94jYrFZ0ubY05TqH3nWPJ1nKa1JWVFDINZ3fnrle/A==}
     engines: {node: 20 || >=22}
     hasBin: true
 
@@ -19381,7 +19381,7 @@ snapshots:
     dependencies:
       glob: 10.4.5
 
-  rimraf@6.0.1:
+  rimraf@6.1.0:
     dependencies:
       glob: 11.0.3
       package-json-from-dist: 1.0.1
