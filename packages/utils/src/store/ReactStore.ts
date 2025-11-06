@@ -11,10 +11,17 @@ import { NOOP } from '../empty';
  * A Store that supports controlled state keys, non-reactive values and provides utility methods for React.
  */
 export class ReactStore<
-  State,
+  State extends object,
   Context = Record<string, never>,
-  Selectors extends Record<string, (state: State) => any> = Record<string, never>,
+  Selectors extends Record<string, SelectorFunction<State>> = Record<string, never>,
 > extends Store<State> {
+  /**
+   * Creates a new ReactStore instance.
+   *
+   * @param state Initial state of the store.
+   * @param context Non-reactive context values.
+   * @param selectors Optional selectors for use with `useState`.
+   */
   constructor(state: State, context: Context = {} as Context, selectors?: Selectors) {
     super(state);
     this.context = context;
@@ -152,9 +159,14 @@ export class ReactStore<
   public update(values: Partial<State>): void {
     const newValues = { ...values };
     for (const key in newValues) {
+      if (!Object.hasOwn(newValues, key)) {
+        continue;
+      }
+
       if (this.controlledValues.get(key) === true) {
         // Ignore updates to controlled values
         delete newValues[key];
+        continue;
       }
     }
 
@@ -170,14 +182,28 @@ export class ReactStore<
   public setState(newState: State) {
     const newValues = { ...newState };
     for (const key in newValues) {
+      if (!Object.hasOwn(newValues, key)) {
+        continue;
+      }
+
       if (this.controlledValues.get(key) === true) {
         // Ignore updates to controlled values
         delete newValues[key];
+        continue;
       }
     }
 
     super.setState({ ...this.state, ...newValues });
   }
+
+  /** Gets the current value from the store using a selector with the provided key.
+   *
+   * @param key Key of the selector to use.
+   */
+  public select = ((key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) => {
+    const selector = this.selectors![key];
+    return selector(this.state, a1, a2, a3);
+  }) as ReactStoreSelectorMethod<Selectors>;
 
   /**
    * Returns a value from the store's state using a selector function.
@@ -186,15 +212,10 @@ export class ReactStore<
    *
    * @param key Key of the selector to use.
    */
-  public useState<Key extends keyof Selectors>(key: Key): ReturnType<Selectors[Key]> {
-    if (!this.selectors) {
-      throw new Error('Base UI: selectors are required to call useState.');
-    }
-    return useStore<State, ReturnType<Selectors[Key]>>(
-      this,
-      this.selectors[key] as (state: State) => ReturnType<Selectors[Key]>,
-    );
-  }
+  public useState = ((key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) => {
+    const selector = this.selectors![key];
+    return useStore(this, selector, a1, a2, a3);
+  }) as ReactStoreSelectorMethod<Selectors>;
 
   /**
    * Wraps a function with `useStableCallback` to ensure it has a stable reference
@@ -214,15 +235,62 @@ export class ReactStore<
   /**
    * Returns a stable setter function for a specific key in the store's state.
    * It's commonly used to pass as a ref callback to React elements.
+   *
    * @param key Key of the state to set.
    */
-  public getElementSetter<Key extends keyof State, Value extends State[Key]>(key: keyof State) {
+  public useStateSetter<Key extends keyof State, Value extends State[Key]>(key: keyof State) {
     return React.useCallback(
-      (element: Value) => {
-        this.set(key, element);
+      (value: Value) => {
+        this.set(key, value);
       },
       [key],
     );
+  }
+
+  /**
+   * Observes changes derived from the store's selectors and calls the listener when the selected value changes.
+   *
+   * @param key Key of the selector to observe.
+   * @param listener Listener function called when the selector result changes.
+   */
+  public observe<Key extends keyof Selectors>(
+    selector: Key,
+    listener: (
+      newValue: ReturnType<Selectors[Key]>,
+      oldValue: ReturnType<Selectors[Key]>,
+      store: this,
+    ) => void,
+  ): () => void;
+
+  public observe<Selector extends ObserveSelector<State>>(
+    selector: Selector,
+    listener: (newValue: ReturnType<Selector>, oldValue: ReturnType<Selector>, store: this) => void,
+  ): () => void;
+
+  public observe(
+    selector: keyof Selectors | ObserveSelector<State>,
+    listener: (newValue: any, oldValue: any, store: this) => void,
+  ) {
+    let selectFn: ObserveSelector<State>;
+
+    if (typeof selector === 'function') {
+      selectFn = selector;
+    } else {
+      selectFn = this.selectors![selector] as ObserveSelector<State>;
+    }
+
+    let prevValue = selectFn(this.state);
+
+    listener(prevValue, prevValue, this);
+
+    return this.subscribe((nextState) => {
+      const nextValue = selectFn(nextState);
+      if (!Object.is(prevValue, nextValue)) {
+        const oldValue = prevValue;
+        prevValue = nextValue;
+        listener(nextValue, oldValue, this);
+      }
+    });
   }
 }
 
@@ -237,3 +305,20 @@ type ContextFunction<Context, Key extends keyof Context> = Extract<Context[Key],
 type KeysAllowingUndefined<State> = {
   [Key in keyof State]-?: undefined extends State[Key] ? Key : never;
 }[keyof State];
+
+type ReactStoreSelectorMethod<Selectors extends Record<PropertyKey, SelectorFunction<any>>> = <
+  Key extends keyof Selectors,
+>(
+  key: Key,
+  ...args: SelectorArgs<Selectors[Key]>
+) => ReturnType<Selectors[Key]>;
+
+type ObserveSelector<State> = (state: State) => any;
+
+type SelectorFunction<State> = (state: State, ...args: any[]) => any;
+
+type Tail<T extends readonly any[]> = T extends readonly [any, ...infer Rest] ? Rest : [];
+
+type SelectorArgs<Selector> = Selector extends (...params: infer Params) => any
+  ? Tail<Params>
+  : never;

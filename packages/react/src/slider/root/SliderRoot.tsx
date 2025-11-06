@@ -13,6 +13,7 @@ import {
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { useValueChanged } from '../../utils/useValueChanged';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { clamp } from '../../utils/clamp';
@@ -21,7 +22,6 @@ import { activeElement } from '../../floating-ui-react/utils';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
@@ -99,11 +99,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setTouched,
     setDirty,
     validityData,
-    validationMode,
+    shouldValidateOnChange,
+    validation,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
-
-  const fieldControlValidation = useFieldControlValidation();
 
   const ariaLabelledby = ariaLabelledByProp ?? labelId;
   const disabled = fieldDisabled || disabledProp;
@@ -148,11 +147,30 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   useField({
     id,
-    commitValidation: fieldControlValidation.commitValidation,
+    commit: validation.commit,
     value: valueUnwrapped,
     controlRef,
     name,
     getValue: () => valueUnwrapped,
+  });
+
+  useValueChanged(valueUnwrapped, () => {
+    clearErrors(name);
+
+    if (shouldValidateOnChange()) {
+      validation.commit(valueUnwrapped);
+    } else {
+      validation.commit(valueUnwrapped, true);
+    }
+
+    const initialValue = validityData.initialValue as Value | undefined;
+    let isDirty: boolean;
+    if (Array.isArray(valueUnwrapped) && Array.isArray(initialValue)) {
+      isDirty = !areArraysEqual(valueUnwrapped, initialValue);
+    } else {
+      isDirty = valueUnwrapped !== initialValue;
+    }
+    setDirty(isDirty);
   });
 
   const registerFieldControlRef = useStableCallback((element: HTMLElement | null) => {
@@ -201,8 +219,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       }
 
       setValueUnwrapped(newValue as Value);
-      clearErrors(name);
-      fieldControlValidation.commitValidation(newValue, true);
     },
   );
 
@@ -213,18 +229,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
         setValue(newValue, index, event.nativeEvent);
-        setDirty(newValue !== validityData.initialValue);
         setTouched(true);
 
         const nextValue = lastChangedValueRef.current ?? newValue;
         onValueCommitted(nextValue, createGenericEventDetails('none', event.nativeEvent));
-        clearErrors(name);
-
-        if (validationMode === 'onChange') {
-          fieldControlValidation.commitValidation(nextValue ?? newValue);
-        } else {
-          fieldControlValidation.commitValidation(nextValue ?? newValue, true);
-        }
       }
     },
   );
@@ -282,7 +290,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       controlRef,
       disabled,
       dragging,
-      fieldControlValidation,
+      validation,
       formatOptionsRef,
       handleInputChange,
       indicatorPosition,
@@ -318,7 +326,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       ariaLabelledby,
       disabled,
       dragging,
-      fieldControlValidation,
+      validation,
       formatOptionsRef,
       handleInputChange,
       indicatorPosition,
@@ -357,7 +365,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         id,
         role: 'group',
       },
-      fieldControlValidation.getValidationProps,
+      validation.getValidationProps,
       elementProps,
     ],
     stateAttributesMapping: sliderStateAttributesMapping,

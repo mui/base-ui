@@ -44,17 +44,10 @@ function createFileCodeBlock(filePath, relativePath) {
  * @param {string} mdxFilePath - Path to the MDX file containing the Demo component
  * @returns {Array} Array of markdown nodes to replace the Demo component
  */
-export function processDemo(node, mdxFilePath) {
-  // Extract path attribute
-  const pathAttr = node.attributes?.find((attr) => attr.name === 'path')?.value;
-
-  if (!pathAttr) {
-    throw new Error('Missing "path" prop on the "<Demo />" component.');
-  }
-
+export function processDemo(node, mdxFilePath, demoPath) {
   // Resolve demo path relative to the MDX file
   const mdxDir = path.dirname(mdxFilePath);
-  const demoPath = path.resolve(mdxDir, pathAttr);
+  demoPath = path.resolve(mdxDir, demoPath);
 
   // Check if the demo folder exists
   if (!fs.existsSync(demoPath)) {

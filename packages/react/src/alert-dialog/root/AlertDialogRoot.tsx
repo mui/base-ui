@@ -30,7 +30,20 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   const parentDialogRootContext = useDialogRootContext();
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => handle?.store ?? new DialogStore<Payload>()).current;
+  const store = useRefWithInit(() => {
+    const dialogStore =
+      handle?.store ??
+      new DialogStore<Payload>({
+        modal: true,
+        dismissible: false,
+      });
+
+    if (handle?.store) {
+      dialogStore.update({ modal: true, dismissible: false });
+    }
+
+    return dialogStore;
+  }).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);

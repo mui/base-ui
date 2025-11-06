@@ -43,27 +43,38 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the autocomplete will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the autocomplete manually.\nUseful when the autocomplete's animation is controlled by an external library.",
       "detailedType": "| React.RefObject<Autocomplete.Root.Actions>\n| undefined"
     },
-    "alwaysSubmitOnEnter": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether pressing Enter in the input should always allow forms to submit.\nBy default, pressing Enter in the input will stop form submission if an item is highlighted.",
-      "detailedType": "boolean | undefined"
-    },
     "autoHighlight": {
-      "type": "boolean",
+      "type": "boolean | 'always'",
       "default": "false",
-      "description": "Whether to automatically highlight the first item while filtering.",
-      "detailedType": "boolean | undefined"
+      "description": "Whether the first matching item is highlighted automatically.\n- `true`: highlight after the user types and keep the highlight while the query changes.\n- `'always'`: always highlight the first item.",
+      "detailedType": "boolean | 'always' | undefined"
     },
     "filter": {
       "type": "((itemValue: any, query: string, itemToString: ((itemValue: any) => string) | undefined) => boolean) | ((itemValue: ItemValue, query: string, itemToString: ((itemValue: ItemValue) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.",
       "detailedType": "| ((\n    itemValue: any,\n    query: string,\n    itemToString:\n      | ((itemValue: any) => string)\n      | undefined,\n  ) => boolean)\n| ((\n    itemValue: ItemValue,\n    query: string,\n    itemToString:\n      | ((itemValue: ItemValue) => string)\n| null\n| undefined"
     },
+    "filteredItems": {
+      "type": "any[] | Group[]",
+      "description": "Filtered items to display in the list.\nWhen provided, the list will use these items instead of filtering the `items` prop internally.\nUse when you want to control filtering logic externally with the `useFilter()` hook.",
+      "detailedType": "any[] | Group[] | undefined"
+    },
     "grid": {
       "type": "boolean",
       "default": "false",
       "description": "Whether list items are presented in a grid layout.\nWhen enabled, arrow keys navigate across rows and columns inferred from DOM rows.",
+      "detailedType": "boolean | undefined"
+    },
+    "highlightItemOnHover": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether moving the pointer over items should highlight them.",
+      "detailedType": "boolean | undefined"
+    },
+    "inline": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the list is rendered inline without using the popup.",
       "detailedType": "boolean | undefined"
     },
     "itemToStringValue": {
@@ -75,6 +86,12 @@
       "type": "({ items: any[] })[] | ItemValue[]",
       "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
       "detailedType": "{ items: any[] }[] | ItemValue[] | undefined"
+    },
+    "keepHighlight": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the highlighted item should be preserved when the pointer leaves the list.",
+      "detailedType": "boolean | undefined"
     },
     "limit": {
       "type": "number",
@@ -118,6 +135,12 @@
       "type": "boolean",
       "default": "true",
       "description": "Whether the popup opens when clicking the input.",
+      "detailedType": "boolean | undefined"
+    },
+    "submitOnItemClick": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether clicking an item should submit the autocomplete's owning form.\nBy default, clicking an item via a pointer or <kbd>Enter</kbd> key does not submit the owning form.\nUseful when the autocomplete is used as a single-field form search input.",
       "detailedType": "boolean | undefined"
     },
     "virtualized": {

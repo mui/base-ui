@@ -75,10 +75,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const store = rootContext.store;
   const isMultiple = multiple ?? false;
 
-  const { setDirty, validityData, validationMode } = useFieldRootContext();
+  const { setDirty, shouldValidateOnChange, validityData } = useFieldRootContext();
   const { controlId } = useLabelableContext();
 
-  const ref = useMergedRefs(inputRef, rootContext.fieldControlValidation.inputRef);
+  const ref = useMergedRefs(inputRef, rootContext.validation.inputRef);
 
   const serializedValue = React.useMemo(() => {
     if (isMultiple && Array.isArray(value) && value.length === 0) {
@@ -112,13 +112,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       <SelectFloatingContext.Provider value={floatingContext}>
         {children}
         <input
-          {...rootContext.fieldControlValidation.getInputValidationProps({
+          {...rootContext.validation.getInputValidationProps({
             onFocus() {
               // Move focus to the trigger element when the hidden input is focused.
               store.state.triggerElement?.focus();
             },
             // Handle browser autofill.
-            onChange(event: React.ChangeEvent<HTMLSelectElement>) {
+            onChange(event: React.ChangeEvent<HTMLInputElement>) {
               // Workaround for https://github.com/facebook/react/issues/9023
               if (event.nativeEvent.defaultPrevented) {
                 return;
@@ -146,8 +146,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                   setDirty(matchingValue !== validityData.initialValue);
                   rootContext.setValue?.(matchingValue, details);
 
-                  if (validationMode === 'onChange') {
-                    rootContext.fieldControlValidation.commitValidation(matchingValue);
+                  if (shouldValidateOnChange()) {
+                    rootContext.validation.commit(matchingValue);
                   }
                 }
               }
@@ -155,17 +155,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               store.set('forceMount', true);
               queueMicrotask(handleChange);
             },
-            id: id || controlId || undefined,
-            name: isMultiple ? undefined : rootContext.name,
-            value: serializedValue,
-            disabled: rootContext.disabled,
-            required: rootContext.required && !hasMultipleSelection,
-            readOnly: rootContext.readOnly,
-            ref,
-            style: visuallyHidden,
-            tabIndex: -1,
-            'aria-hidden': true,
           })}
+          id={id || controlId || undefined}
+          name={isMultiple ? undefined : rootContext.name}
+          value={serializedValue}
+          disabled={rootContext.disabled}
+          required={rootContext.required && !hasMultipleSelection}
+          readOnly={rootContext.readOnly}
+          ref={ref}
+          style={visuallyHidden}
+          tabIndex={-1}
+          aria-hidden
         />
         {hiddenInputs}
       </SelectFloatingContext.Provider>

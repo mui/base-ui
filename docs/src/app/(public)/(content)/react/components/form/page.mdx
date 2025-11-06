@@ -7,7 +7,9 @@
   content="A high-quality, unstyled React form component with consolidated error handling."
 />
 
-<Demo path="./demos/hero" />
+import { DemoFormHero } from './demos/hero';
+
+<DemoFormHero />
 
 ## Anatomy
 
@@ -26,14 +28,16 @@ import { Form } from '@base-ui-components/react/form';
 </Form>;
 ```
 
-## API reference
-
-<Reference component="Form" />
-
 ## Examples
 
 ### Using with Zod
 
 When parsing the schema using `schema.safeParse()`, the `z.flattenError(result.error).fieldErrors` data can be used to map the errors to each field's `name`.
 
-<Demo path="./demos/zod" />
+import { DemoFormZod } from './demos/zod';
+
+<DemoFormZod />
+
+## API reference
+
+<Reference component="Form" />

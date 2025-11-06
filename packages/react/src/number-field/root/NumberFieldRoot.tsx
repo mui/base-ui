@@ -75,7 +75,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const {
     setDirty,
     validityData,
-    setValidityData,
     disabled: fieldDisabled,
     setFilled,
     invalid,
@@ -133,12 +132,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const allowInputSyncRef = React.useRef(true);
   const lastChangedValueRef = React.useRef<number | null>(null);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
-
-  useIsoLayoutEffect(() => {
-    if (validityData.initialValue === null && value !== validityData.initialValue) {
-      setValidityData((prev) => ({ ...prev, initialValue: value }));
-    }
-  }, [setValidityData, validityData.initialValue, value]);
 
   // During SSR, the value is formatted on the server, whose locale may differ from the client's
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
