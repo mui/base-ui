@@ -22,17 +22,11 @@ function ExampleForm() {
   return (
     <Form
       aria-label="Launch new cloud server"
-      onSubmit={async (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const entries = Object.fromEntries(formData as any);
-        entries.backupSchedule = formData.getAll('backupSchedule');
-        entries.restartOnFailure = formData.get('restartOnFailure') === 'true';
-        entries.scalingThreshold = formData.getAll('scalingThreshold');
+      onFormSubmit={async (formValues) => {
         toastManager.add({
           title: 'Form submitted',
           description: 'The form contains these values:',
-          data: entries,
+          data: formValues,
         });
       }}
     >
