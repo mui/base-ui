@@ -99,7 +99,6 @@
   color: var(--color-gray-600);
 
   & a {
-    color: var(--color-blue);
     text-decoration: underline;
   }
 }

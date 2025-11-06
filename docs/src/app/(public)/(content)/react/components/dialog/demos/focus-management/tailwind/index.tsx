@@ -23,7 +23,7 @@ export default function ExampleDialog() {
             <Dialog.Title className="-mt-1.5 mb-1 text-lg font-medium">Feedback form</Dialog.Title>
             <Dialog.Description render={<div />} className="mt-6 mb-6 text-base text-gray-600">
               <p>
-                You feedback means a lot to us! See how we process this data <a href="#">here</a>.
+                You feedback means a lot to us! See how we process this data <a href="#" className='underline'>here</a>.
               </p>
               <Fieldset.Root className="flex w-full max-w-64 flex-col gap-4 mt-[1rem]">
                 <Field.Root className="flex flex-col items-start gap-1">
