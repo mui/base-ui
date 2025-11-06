@@ -313,18 +313,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
     const finger = fingerCoords != null ? getFingerState(fingerCoords) : null;
 
     if (finger != null) {
-      fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
+      validation.commit(lastChangedValueRef.current ?? finger.value);
       onValueCommitted(
         lastChangedValueRef.current ?? finger.value,
         createGenericEventDetails('none', nativeEvent),
       );
     }
-
-    validation.commit(lastChangedValueRef.current ?? finger.value);
-    onValueCommitted(
-      lastChangedValueRef.current ?? finger.value,
-      createGenericEventDetails('none', nativeEvent),
-    );
 
     if (
       'pointerType' in nativeEvent &&
