@@ -22,12 +22,16 @@ export default function ExampleDialog() {
           >
             <Dialog.Title className="-mt-1.5 mb-1 text-lg font-medium">Feedback form</Dialog.Title>
             <Dialog.Description render={<div />} className="mt-6 mb-6 text-base text-gray-600">
-              <Fieldset.Root className="flex w-full max-w-64 flex-col gap-4">
+              <p>
+                You feedback means a lot to us! See how we process this data <a href="#">here</a>.
+              </p>
+              <Fieldset.Root className="flex w-full max-w-64 flex-col gap-4 mt-[1rem]">
                 <Field.Root className="flex flex-col items-start gap-1">
                   <Field.Label className="text-sm font-medium text-gray-900">
                     Full name (optional)
                   </Field.Label>
                   <Field.Control
+                    ref={initialFocusRef}
                     placeholder="Enter your name"
                     className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
                   />
@@ -38,7 +42,6 @@ export default function ExampleDialog() {
                   </Field.Label>
                   <Field.Control
                     required
-                    ref={initialFocusRef}
                     placeholder="Enter your feedback"
                     className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
                   />

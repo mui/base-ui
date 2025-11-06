@@ -21,15 +21,21 @@ export default function ExampleDialog() {
           >
             <Dialog.Title className={styles.Title}>Feedback form</Dialog.Title>
             <Dialog.Description render={<div />} className={styles.Description}>
+              <p>
+                You feedback means a lot to us! See how we process this data <a href="#">here</a>.
+              </p>
               <Fieldset.Root className={styles.Fieldset}>
                 <Field.Root className={styles.Field}>
                   <Field.Label className={styles.Label}>Full name (optional)</Field.Label>
-                  <Field.Control placeholder="Enter your name" className={styles.Input} />
+                  <Field.Control
+                    ref={initialFocusRef}
+                    placeholder="Enter your name"
+                    className={styles.Input}
+                  />
                 </Field.Root>
                 <Field.Root className={styles.Field}>
                   <Field.Label className={styles.Label}>Your feedback *</Field.Label>
                   <Field.Control
-                    ref={initialFocusRef}
                     required
                     placeholder="Enter your feedback"
                     className={styles.Input}

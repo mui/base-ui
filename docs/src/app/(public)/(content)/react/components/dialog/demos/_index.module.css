@@ -97,6 +97,11 @@
   font-size: 1rem;
   line-height: 1.5rem;
   color: var(--color-gray-600);
+
+  & a {
+    color: var(--color-blue);
+    text-decoration: underline;
+  }
 }
 
 .Actions {
@@ -113,6 +118,7 @@
 .Fieldset {
   border: 0;
   margin: 0;
+  margin-top: 1rem;
   padding: 0;
   display: flex;
   flex-direction: column;
