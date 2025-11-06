@@ -119,6 +119,10 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
       }
 
       if (details.open) {
+        // Only one submenu can be open at a time within a menubar, so we can clear all others.
+        // This is also needed when the same menu is opened from different triggers.
+        // In that case we get another open event without a close event for the previous one.
+        openSubmenusRef.current.clear();
         openSubmenusRef.current.add(details.nodeId);
       } else {
         openSubmenusRef.current.delete(details.nodeId);

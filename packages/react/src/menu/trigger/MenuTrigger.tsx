@@ -115,8 +115,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   }, [floatingTreeRootFromContext]);
 
   const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
-  const parentNodeId = useFloatingParentNodeId();
-  store.useSyncedValues({ floatingNodeId, floatingParentNodeId: parentNodeId });
+  const floatingParentNodeId = useFloatingParentNodeId();
 
   const thisTriggerId = useBaseUiId(idProp);
   const registerTrigger = useTriggerRegistration(thisTriggerId, store);
@@ -125,10 +124,22 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
   useIsoLayoutEffect(() => {
-    if (isTriggerActive) {
-      store.update({ floatingTreeRoot, parent });
+    if (isOpenedByThisTrigger) {
+      store.update({
+        floatingTreeRoot,
+        parent,
+        floatingNodeId,
+        floatingParentNodeId,
+      });
     }
-  }, [floatingTreeRoot, store, isTriggerActive, parent]);
+  }, [
+    isOpenedByThisTrigger,
+    store,
+    floatingTreeRoot,
+    parent,
+    floatingNodeId,
+    floatingParentNodeId,
+  ]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,

@@ -103,11 +103,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
 
-  store.useSyncedValues({
-    disabled: disabledProp,
-    modal: modalProp,
-    rootId: useId(),
-  });
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
@@ -139,6 +134,12 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       );
     }
   }
+
+  store.useSyncedValues({
+    disabled: disabledProp,
+    modal: parent.type === undefined ? modalProp : undefined,
+    rootId: useId(),
+  });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   store.useSyncedValues({ mounted, transitionStatus });

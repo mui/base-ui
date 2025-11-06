@@ -60,7 +60,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const triggerElement = store.useState('activeTriggerElement');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const nodeId = store.useState('floatingNodeId');
-  const parentNodeId = store.useState('floatingParentNodeId');
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
@@ -131,7 +130,10 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         if (details.parentNodeId === nodeId) {
           store.set('hoverEnabled', false);
         }
-        if (details.nodeId !== nodeId && details.parentNodeId === parentNodeId) {
+        if (
+          details.nodeId !== nodeId &&
+          details.parentNodeId === store.select('floatingParentNodeId')
+        ) {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
         }
       } else if (details.parentNodeId === nodeId) {
@@ -150,15 +152,15 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     return () => {
       floatingTreeRoot.events.off('menuopenchange', onMenuOpenChange);
     };
-  }, [store, floatingTreeRoot.events, nodeId, parentNodeId]);
+  }, [store, floatingTreeRoot.events, nodeId]);
 
   React.useEffect(() => {
-    if (parentNodeId == null) {
+    if (store.select('floatingParentNodeId') == null) {
       return undefined;
     }
 
     function onParentClose(details: MenuOpenEventDetails) {
-      if (details.open || details.nodeId !== parentNodeId) {
+      if (details.open || details.nodeId !== store.select('floatingParentNodeId')) {
         return;
       }
 
@@ -171,14 +173,14 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     return () => {
       floatingTreeRoot.events.off('menuopenchange', onParentClose);
     };
-  }, [floatingTreeRoot.events, parentNodeId, store]);
+  }, [floatingTreeRoot.events, store]);
 
   // Close unrelated child submenus when hovering a different item in the parent menu.
   React.useEffect(() => {
     function onItemHover(event: { nodeId: string | undefined; target: Element | null }) {
       // If an item within our parent menu is hovered, and this menu's trigger is not that item,
       // close this submenu. This ensures hovering a different item in the parent closes other branches.
-      if (!open || event.nodeId !== parentNodeId) {
+      if (!open || event.nodeId !== store.select('floatingParentNodeId')) {
         return;
       }
 
@@ -191,18 +193,21 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     return () => {
       floatingTreeRoot.events.off('itemhover', onItemHover);
     };
-  }, [floatingTreeRoot.events, parentNodeId, open, triggerElement, store]);
+  }, [floatingTreeRoot.events, open, triggerElement, store]);
+
+  const floatingNodeId = store.select('floatingNodeId');
+  const floatingParentNodeId = store.select('floatingParentNodeId');
 
   React.useEffect(() => {
     const eventDetails: MenuOpenEventDetails = {
       open,
-      nodeId,
-      parentNodeId,
+      nodeId: floatingNodeId,
+      parentNodeId: floatingParentNodeId,
       reason: store.select('lastOpenChangeReason'),
     };
 
     floatingTreeRoot.events.emit('menuopenchange', eventDetails);
-  }, [floatingTreeRoot.events, open, nodeId, parentNodeId, store]);
+  }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
   const state: MenuPositioner.State = React.useMemo(
     () => ({
