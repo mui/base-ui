@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Form } from '@base-ui-components/react/form';
 import { Field } from '@base-ui-components/react/field';
+import { NumberField } from '@base-ui-components/react/number-field';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
@@ -218,6 +219,60 @@ describe('<Form />', () => {
 
       expect(screen.queryByTestId('error')).to.equal(null);
       expect(screen.getByRole('textbox')).not.to.have.attribute('aria-invalid');
+    });
+  });
+
+  describe('prop: onFormSubmit', () => {
+    it('runs when the form is submitted', async () => {
+      const submitSpy = spy((formValues, eventDetails) => ({ formValues, eventDetails }));
+
+      function App() {
+        return (
+          <Form onFormSubmit={submitSpy}>
+            <Field.Root name="username">
+              <Field.Control defaultValue="alice132" />
+            </Field.Root>
+            <Field.Root name="quantity">
+              <NumberField.Root defaultValue={5}>
+                <NumberField.Input />
+              </NumberField.Root>
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      render(<App />);
+
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(submitSpy.callCount).to.equal(1);
+      expect(submitSpy.lastCall.returnValue.formValues).to.deep.equal({
+        username: 'alice132',
+        quantity: 5,
+      });
+      expect(submitSpy.lastCall.returnValue.eventDetails.event.defaultPrevented).to.equal(true);
+    });
+
+    it('does not run when the form is invalid', async () => {
+      const submitSpy = spy();
+
+      function App() {
+        return (
+          <Form onFormSubmit={submitSpy}>
+            <Field.Root name="username">
+              <Field.Control defaultValue="" required />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+      render(<App />);
+      expect(screen.queryByTestId('error')).to.equal(null);
+      fireEvent.click(screen.getByText('submit'));
+      expect(submitSpy.callCount).to.equal(0);
+      expect(screen.queryByTestId('error')).to.not.equal(null);
     });
   });
 
