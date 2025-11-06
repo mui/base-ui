@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -30,6 +29,7 @@ import {
   createGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
+import { useValueChanged } from '../../utils/useValueChanged';
 
 const stateAttributesMapping = {
   ...fieldValidityMapping,
@@ -102,23 +102,16 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     getValue: () => value ?? null,
   });
 
-  const prevValueRef = React.useRef(value);
-  const prevInputValueRef = React.useRef(inputValue);
-
-  useIsoLayoutEffect(() => {
-    if (prevValueRef.current === value && prevInputValueRef.current === inputValue) {
-      return;
-    }
+  useValueChanged(value, (previousValue) => {
+    const validateOnChange = shouldValidateOnChange();
 
     clearErrors(name);
 
-    if (shouldValidateOnChange()) {
+    if (validateOnChange) {
       validation.commit(value);
     }
-  }, [value, inputValue, name, clearErrors, shouldValidateOnChange, validation]);
 
-  useIsoLayoutEffect(() => {
-    if (prevValueRef.current === value || shouldValidateOnChange()) {
+    if (previousValue === value || validateOnChange) {
       return;
     }
 
@@ -126,13 +119,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       blockRevalidationRef.current = false;
       return;
     }
-    validation.commit(value, true);
-  }, [shouldValidateOnChange, validation, value]);
 
-  useIsoLayoutEffect(() => {
-    prevValueRef.current = value;
-    prevInputValueRef.current = inputValue;
-  }, [value, inputValue]);
+    validation.commit(value, true);
+  });
 
   const inputProps: React.ComponentProps<'input'> = {
     id,
