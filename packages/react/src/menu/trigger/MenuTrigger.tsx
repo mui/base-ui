@@ -12,7 +12,11 @@ import {
   useHover,
   useInteractions,
 } from '../../floating-ui-react/index';
-import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTree';
+import {
+  FloatingTreeStore,
+  useFloatingNodeId,
+  useFloatingParentNodeId,
+} from '../../floating-ui-react/components/FloatingTree';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -116,6 +120,11 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     return floatingTreeRootFromContext ?? new FloatingTreeStore();
   }, [floatingTreeRootFromContext]);
 
+  const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
+  const parentNodeId = useFloatingParentNodeId();
+
+  store.useSyncedValues({ floatingNodeId, floatingParentNodeId: parentNodeId });
+
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
       store.update({ floatingTreeRoot, parent });
@@ -185,8 +194,8 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       openOnHover &&
       !disabled &&
       parent.type !== 'context-menu' &&
-      (parent.type !== 'menubar' || (parent.context.hasSubmenuOpen && !open)),
-    handleClose: safePolygon({ blockPointerEvents: true }),
+      (parent.type !== 'menubar' || (parent.context.hasSubmenuOpen && !(open && isTriggerActive))),
+    handleClose: safePolygon({ blockPointerEvents: parent.type !== 'menubar' }),
     mouseOnly: true,
     move: false,
     restMs: parent.type === undefined ? delay : undefined,

@@ -27,6 +27,8 @@ export type State<Payload> = {
   lastOpenChangeReason: MenuRoot.ChangeEventReason | null;
   floatingRootContext: FloatingRootContext;
   floatingTreeRoot: FloatingTreeStore;
+  floatingNodeId: string | undefined;
+  floatingParentNodeId: string | null;
   itemProps: HTMLProps;
   popupProps: HTMLProps;
   payload: Payload | undefined;
@@ -99,6 +101,8 @@ const selectors = {
 
     return state.floatingTreeRoot;
   }),
+  floatingNodeId: createSelector((state: State<unknown>) => state.floatingNodeId),
+  floatingParentNodeId: createSelector((state: State<unknown>) => state.floatingParentNodeId),
   itemProps: createSelector((state: State<unknown>) => state.itemProps),
   popupProps: createSelector((state: State<unknown>) => state.popupProps),
   activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
@@ -195,6 +199,8 @@ function createInitialState<Payload>(): State<Payload> {
     lastOpenChangeReason: null,
     floatingRootContext: getEmptyContext(),
     floatingTreeRoot: new FloatingTreeStore(),
+    floatingNodeId: undefined,
+    floatingParentNodeId: null,
     itemProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,

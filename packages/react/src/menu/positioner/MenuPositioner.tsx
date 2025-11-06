@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
-import { FloatingNode, useFloatingNodeId, useFloatingParentNodeId } from '../../floating-ui-react';
+import { FloatingNode } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -49,7 +49,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const { store } = useMenuRootContext();
 
   const keepMounted = useMenuPortalContext();
-  const parentNodeId = useFloatingParentNodeId();
   const contextMenuContext = useContextMenuRootContext(true);
 
   const parent = store.useState('parent');
@@ -60,8 +59,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-
-  const nodeId = useFloatingNodeId(floatingTreeRoot);
+  const nodeId = store.useState('floatingNodeId');
+  const parentNodeId = store.useState('floatingParentNodeId');
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;

@@ -1,6 +1,13 @@
 'use client';
 import * as React from 'react';
-import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
+import {
+  safePolygon,
+  useClick,
+  useFloatingNodeId,
+  useFloatingParentNodeId,
+  useHover,
+  useInteractions,
+} from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -47,6 +54,11 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const allowMouseEnter = store.useState('allowMouseEnter');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
+
+  const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
+  const parentNodeId = useFloatingParentNodeId();
+
+  store.useSyncedValues({ floatingNodeId, floatingParentNodeId: parentNodeId });
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
