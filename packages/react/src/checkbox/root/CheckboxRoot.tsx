@@ -16,7 +16,6 @@ import { useButton } from '../../use-button/useButton';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
@@ -69,6 +68,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     state: fieldState,
     validationMode,
     validityData,
+    shouldValidateOnChange,
+    validation: localValidation,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
   const { labelId, controlId, setControlId, getDescriptionProps } = useLabelableContext();
@@ -116,9 +117,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     native: nativeButton,
   });
 
-  const localFieldControlValidation = useFieldControlValidation();
-  const fieldControlValidation =
-    groupContext?.fieldControlValidation ?? localFieldControlValidation;
+  const validation = groupContext?.validation ?? localValidation;
 
   const [checked, setCheckedState] = useControlled({
     controlled: value && groupValue && !parent ? groupValue.includes(value) : groupChecked,
@@ -153,7 +152,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   useField({
     enabled: !groupContext,
     id,
-    commitValidation: fieldControlValidation.commitValidation,
+    commit: validation.commit,
     value: checked,
     controlRef,
     name,
@@ -161,7 +160,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, fieldControlValidation.inputRef);
+  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.inputRef);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current) {
@@ -186,7 +185,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     setFocused(false);
 
     if (validationMode === 'onBlur') {
-      fieldControlValidation.commitValidation(groupContext ? groupValue : element.checked);
+      validation.commit(groupContext ? groupValue : element.checked);
     }
   }
 
@@ -239,10 +238,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         if (!groupContext) {
           setFilled(nextChecked);
 
-          if (validationMode === 'onChange') {
-            fieldControlValidation.commitValidation(nextChecked);
+          if (shouldValidateOnChange()) {
+            validation.commit(nextChecked);
           } else {
-            fieldControlValidation.commitValidation(nextChecked, true);
+            validation.commit(nextChecked, true);
           }
         }
 
@@ -254,10 +253,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           setGroupValue(nextGroupValue, details);
           setFilled(nextGroupValue.length > 0);
 
-          if (validationMode === 'onChange') {
-            fieldControlValidation.commitValidation(nextGroupValue);
+          if (shouldValidateOnChange()) {
+            validation.commit(nextGroupValue);
           } else {
-            fieldControlValidation.commitValidation(nextGroupValue, true);
+            validation.commit(nextGroupValue, true);
           }
         }
       },
@@ -271,9 +270,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
       : EMPTY_OBJECT,
     getDescriptionProps,
-    groupContext
-      ? fieldControlValidation.getValidationProps
-      : fieldControlValidation.getInputValidationProps,
+    groupContext ? validation.getValidationProps : validation.getInputValidationProps,
   );
 
   const computedChecked = isGroupedWithParent ? Boolean(groupChecked) : checked;
@@ -319,7 +316,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         onClick,
       },
       getDescriptionProps,
-      fieldControlValidation.getValidationProps,
+      validation.getValidationProps,
       elementProps,
       otherGroupProps,
       getButtonProps,

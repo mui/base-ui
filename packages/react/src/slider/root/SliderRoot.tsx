@@ -21,7 +21,6 @@ import { activeElement } from '../../floating-ui-react/utils';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
@@ -99,11 +98,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setTouched,
     setDirty,
     validityData,
-    validationMode,
+    shouldValidateOnChange,
+    validation,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
-
-  const fieldControlValidation = useFieldControlValidation();
 
   const ariaLabelledby = ariaLabelledByProp ?? labelId;
   const disabled = fieldDisabled || disabledProp;
@@ -148,7 +146,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   useField({
     id,
-    commitValidation: fieldControlValidation.commitValidation,
+    commit: validation.commit,
     value: valueUnwrapped,
     controlRef,
     name,
@@ -202,7 +200,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       setValueUnwrapped(newValue as Value);
       clearErrors(name);
-      fieldControlValidation.commitValidation(newValue, true);
+      if (shouldValidateOnChange()) {
+        validation.commit(newValue);
+      } else {
+        validation.commit(newValue, true);
+      }
     },
   );
 
@@ -220,10 +222,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         onValueCommitted(nextValue, createGenericEventDetails('none', event.nativeEvent));
         clearErrors(name);
 
-        if (validationMode === 'onChange') {
-          fieldControlValidation.commitValidation(nextValue ?? newValue);
+        if (shouldValidateOnChange()) {
+          validation.commit(nextValue ?? newValue);
         } else {
-          fieldControlValidation.commitValidation(nextValue ?? newValue, true);
+          validation.commit(nextValue ?? newValue, true);
         }
       }
     },
@@ -282,7 +284,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       controlRef,
       disabled,
       dragging,
-      fieldControlValidation,
+      validation,
       formatOptionsRef,
       handleInputChange,
       indicatorPosition,
@@ -318,7 +320,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       ariaLabelledby,
       disabled,
       dragging,
-      fieldControlValidation,
+      validation,
       formatOptionsRef,
       handleInputChange,
       indicatorPosition,
@@ -357,7 +359,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         id,
         role: 'group',
       },
-      fieldControlValidation.getValidationProps,
+      validation.getValidationProps,
       elementProps,
     ],
     stateAttributesMapping: sliderStateAttributesMapping,

@@ -1,6 +1,6 @@
 export enum TabsTabDataAttributes {
   /**
-   * Indicates the direction of the activation (based on the previous selected tab).
+   * Indicates the direction of the activation (based on the previous active tab).
    * @type {'left' | 'right' | 'up' | 'down' | 'none'}
    */
   activationDirection = 'data-activation-direction',
@@ -14,11 +14,7 @@ export enum TabsTabDataAttributes {
    */
   disabled = 'data-disabled',
   /**
-   * Present when the tab is highlighted.
+   * Present when the tab is active.
    */
-  highlighted = 'data-highlighted',
-  /**
-   * Present when the tab is selected.
-   */
-  selected = 'data-selected',
+  active = 'data-active',
 }

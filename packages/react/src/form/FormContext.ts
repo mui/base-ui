@@ -2,6 +2,7 @@
 import * as React from 'react';
 import type { FieldValidityData } from '../field/root/FieldRoot';
 import { NOOP } from '../utils/noop';
+import type { Form } from './Form';
 
 export type Errors = Record<string, string | string[]>;
 
@@ -16,10 +17,12 @@ export interface FormContext {
         validate: () => void;
         validityData: FieldValidityData;
         controlRef: React.RefObject<HTMLElement | null>;
-        getValueRef: React.RefObject<(() => unknown) | undefined>;
+        getValue: () => unknown;
       }
     >;
   }>;
+  validationMode: Form.ValidationMode;
+  submitAttemptedRef: React.RefObject<boolean>;
 }
 
 export const FormContext = React.createContext<FormContext>({
@@ -30,6 +33,10 @@ export const FormContext = React.createContext<FormContext>({
   },
   errors: {},
   clearErrors: NOOP,
+  validationMode: 'onSubmit',
+  submitAttemptedRef: {
+    current: false,
+  },
 });
 
 export function useFormContext() {

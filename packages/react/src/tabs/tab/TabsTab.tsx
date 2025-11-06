@@ -35,7 +35,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
   } = componentProps;
 
   const {
-    value: selectedTabValue,
+    value: activeTabValue,
     getTabPanelIdByTabValueOrIndex,
     orientation,
   } = useTabsRootContext();
@@ -65,19 +65,19 @@ export const TabsTab = React.forwardRef(function TabsTab(
 
   const tabValue = valueProp ?? index;
 
-  // the `selected` state isn't set on the server (it relies on effects to be calculated),
-  // so we fall back to checking the `value` param with the selectedTabValue from the TabsContext
-  const selected = React.useMemo(() => {
+  // the `active` state isn't set on the server (it relies on effects to be calculated),
+  // so we fall back to checking the `value` param with the activeTabValue from the TabsContext
+  const active = React.useMemo(() => {
     if (valueProp === undefined) {
-      return index < 0 ? false : index === selectedTabValue;
+      return index < 0 ? false : index === activeTabValue;
     }
 
-    return valueProp === selectedTabValue;
-  }, [index, selectedTabValue, valueProp]);
+    return valueProp === activeTabValue;
+  }, [index, activeTabValue, valueProp]);
 
   const isNavigatingRef = React.useRef(false);
 
-  // Keep the highlighted item in sync with the currently selected tab
+  // Keep the highlighted item in sync with the currently active tab
   // when the value prop changes externally (controlled mode)
   useIsoLayoutEffect(() => {
     if (isNavigatingRef.current) {
@@ -85,7 +85,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
       return;
     }
 
-    if (!(selected && index > -1 && highlightedTabIndex !== index)) {
+    if (!(active && index > -1 && highlightedTabIndex !== index)) {
       return;
     }
 
@@ -99,7 +99,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
 
     setHighlightedTabIndex(index);
-  }, [selected, index, highlightedTabIndex, setHighlightedTabIndex, disabled, tabsListRef]);
+  }, [active, index, highlightedTabIndex, setHighlightedTabIndex, disabled, tabsListRef]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -113,7 +113,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const isMainButtonRef = React.useRef(false);
 
   function onClick(event: React.MouseEvent<HTMLButtonElement>) {
-    if (selected || disabled) {
+    if (active || disabled) {
       return;
     }
 
@@ -126,7 +126,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
   }
 
   function onFocus(event: React.FocusEvent<HTMLButtonElement>) {
-    if (selected) {
+    if (active) {
       return;
     }
 
@@ -152,7 +152,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
   }
 
   function onPointerDown(event: React.PointerEvent<HTMLButtonElement>) {
-    if (selected || disabled) {
+    if (active || disabled) {
       return;
     }
 
@@ -174,10 +174,10 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const state: TabsTab.State = React.useMemo(
     () => ({
       disabled,
-      selected,
+      active,
       orientation,
     }),
-    [disabled, selected, orientation],
+    [disabled, active, orientation],
   );
 
   const element = useRenderElement('button', componentProps, {
@@ -188,12 +188,12 @@ export const TabsTab = React.forwardRef(function TabsTab(
       {
         role: 'tab',
         'aria-controls': tabPanelId,
-        'aria-selected': selected,
+        'aria-selected': active,
         id,
         onClick,
         onFocus,
         onPointerDown,
-        [ACTIVE_COMPOSITE_ITEM as string]: selected ? '' : undefined,
+        [ACTIVE_COMPOSITE_ITEM as string]: active ? '' : undefined,
         onKeyDownCapture() {
           isNavigatingRef.current = true;
         },
@@ -233,7 +233,7 @@ export interface TabsTabState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
-  selected: boolean;
+  active: boolean;
   orientation: TabsRoot.Orientation;
 }
 
