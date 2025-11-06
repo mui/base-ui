@@ -12,6 +12,15 @@
       "description": "Event handler called when the `errors` object is cleared.",
       "detailedType": "((errors: Errors) => void) | undefined"
     },
+    "onFormSubmit": {
+      "type": "((formValues: Record<string, any>, eventDetails: Form.SubmitEventDetails) => void)",
+      "description": "Event handler called when the form is submitted.\n`preventDefault()` is called on the native submit event when used.",
+      "detailedType": "| ((\n    formValues: Record<string, any>,\n    eventDetails: Form.SubmitEventDetails,\n  ) => void)\n| undefined"
+    },
+    "ref": {
+      "type": "RefObject<HTMLFormElement>",
+      "detailedType": "React.RefObject<HTMLFormElement> | undefined"
+    },
     "style": {
       "type": "CSSProperties | ((state: Form.State) => CSSProperties | undefined)",
       "detailedType": "| React.CSSProperties\n| ((state: Form.State) => CSSProperties | undefined)\n| undefined"

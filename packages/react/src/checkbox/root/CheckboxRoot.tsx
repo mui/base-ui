@@ -25,6 +25,7 @@ import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { useValueChanged } from '../../utils/useValueChanged';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
@@ -171,6 +172,22 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }, [checked, groupIndeterminate, setFilled]);
 
+  useValueChanged(checked, () => {
+    if (groupContext && !parent) {
+      return;
+    }
+
+    clearErrors(name);
+    setFilled(checked);
+    setDirty(checked !== validityData.initialValue);
+
+    if (shouldValidateOnChange()) {
+      validation.commit(checked);
+    } else {
+      validation.commit(checked, true);
+    }
+  });
+
   function onFocus() {
     setFocused(true);
   }
@@ -231,19 +248,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           return;
         }
 
-        clearErrors(name);
-        setDirty(nextChecked !== validityData.initialValue);
         setCheckedState(nextChecked);
-
-        if (!groupContext) {
-          setFilled(nextChecked);
-
-          if (shouldValidateOnChange()) {
-            validation.commit(nextChecked);
-          } else {
-            validation.commit(nextChecked, true);
-          }
-        }
 
         if (value && groupValue && setGroupValue && !parent) {
           const nextGroupValue = nextChecked
@@ -251,13 +256,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
             : groupValue.filter((item) => item !== value);
 
           setGroupValue(nextGroupValue, details);
-          setFilled(nextGroupValue.length > 0);
-
-          if (shouldValidateOnChange()) {
-            validation.commit(nextGroupValue);
-          } else {
-            validation.commit(nextGroupValue, true);
-          }
         }
       },
       onFocus() {
