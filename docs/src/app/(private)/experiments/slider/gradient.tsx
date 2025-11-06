@@ -36,12 +36,33 @@ export default function App() {
 
   const setValue = useStableCallback((nextValue, eventDetails) => {
     // console.log('nextValue', nextValue, eventDetails, pressedColorRef.current);
+
+    function getNewValue(hex: ColorStop['hex']) {
+      return valueUnwrapped.filter((stop) => stop.hex !== hex);
+    }
+
+    let newStop;
+    let newValue;
+
     if (pressedColorRef.current) {
-      const newStop = {
+      newStop = {
         value: nextValue[eventDetails.activeThumbIndex],
         hex: pressedColorRef.current,
       };
-      let newValue = valueUnwrapped.filter((stop) => stop.hex !== pressedColorRef.current);
+      newValue = getNewValue(pressedColorRef.current);
+    } else if (eventDetails.event.key && eventDetails.event.target.parentElement) {
+      const activeThumbEl = eventDetails.event.target.parentElement;
+      const activeThumbIndex = activeThumbEl.getAttribute('data-index');
+      const activeThumbHex = activeThumbEl.getAttribute('data-value');
+      // console.log('key press setValue() activeThumbHex', activeThumbHex);
+      newStop = {
+        value: nextValue[activeThumbIndex],
+        hex: activeThumbHex,
+      };
+      newValue = getNewValue(activeThumbHex);
+    }
+
+    if (newValue && newStop) {
       newValue.push(newStop);
       newValue.sort((a, b) => a.value - b.value);
       setValueUnwrapped(newValue);
