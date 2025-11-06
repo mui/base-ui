@@ -97,9 +97,23 @@ export default function App() {
               const nextVal = Math.round(nextXCoord * 100);
               const nextIndex = valueUnwrapped.findIndex((v) => v.value > nextVal);
               const nextStops = valueUnwrapped.slice();
+
+              let hex = '#ff8800';
+              if (nextStops.length > 0) {
+                if (nextIndex === -1) {
+                  hex = nextStops[nextStops.length - 1].hex; // same as last
+                } else if (nextIndex === 0) {
+                  hex = nextStops[0].hex; // same as first
+                } else {
+                  const prev = nextStops[nextIndex - 1];
+                  const next = nextStops[nextIndex];
+                  hex = getHexMidpoint(prev.hex, next.hex);
+                }
+              }
+
               const newStop: ColorStop = {
                 value: nextVal,
-                hex: '#ff8800',
+                hex,
                 id: Math.random().toString(36).slice(2),
               };
 
@@ -137,6 +151,15 @@ export default function App() {
       </SliderRoot>
     </div>
   );
+}
+
+function getHexMidpoint(hex1: string, hex2: string): string {
+  const c1 = parseInt(hex1.slice(1), 16);
+  const c2 = parseInt(hex2.slice(1), 16);
+  const r = ((c1 >> 16) + (c2 >> 16)) >> 1;
+  const g = (((c1 >> 8) & 0xff) + ((c2 >> 8) & 0xff)) >> 1;
+  const b = ((c1 & 0xff) + (c2 & 0xff)) >> 1;
+  return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
 }
 
 function SliderRoot({ className, ...props }: Slider.Root.Props<any>) {
