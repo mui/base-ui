@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { Orientation } from '../../utils/types';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
-import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot } from './SliderRoot';
 
@@ -18,7 +18,7 @@ export interface SliderRootContext {
   controlRef: React.RefObject<HTMLElement | null>;
   dragging: boolean;
   disabled: boolean;
-  fieldControlValidation: useFieldControlValidation.ReturnValue;
+  validation: UseFieldValidationReturnValue;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   handleInputChange: (
     valueInput: number,

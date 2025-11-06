@@ -46,7 +46,7 @@
     "autoHighlight": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to automatically highlight the first item while filtering.",
+      "description": "Whether the first matching item is highlighted automatically while filtering.",
       "detailedType": "boolean | undefined"
     },
     "defaultInputValue": {
@@ -59,10 +59,27 @@
       "description": "Filter function used to match items vs input query.",
       "detailedType": "| ((\n    itemValue: Value,\n    query: string,\n    itemToString:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
+    "filteredItems": {
+      "type": "any[] | Group[]",
+      "description": "Filtered items to display in the list.\nWhen provided, the list will use these items instead of filtering the `items` prop internally.\nUse when you want to control filtering logic externally with the `useFilter()` hook.",
+      "detailedType": "any[] | Group[] | undefined"
+    },
     "grid": {
       "type": "boolean",
       "default": "false",
       "description": "Whether list items are presented in a grid layout.\nWhen enabled, arrow keys navigate across rows and columns inferred from DOM rows.",
+      "detailedType": "boolean | undefined"
+    },
+    "highlightItemOnHover": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether moving the pointer over items should highlight them.",
+      "detailedType": "boolean | undefined"
+    },
+    "inline": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the list is rendered inline without using the popup.",
       "detailedType": "boolean | undefined"
     },
     "inputValue": {
@@ -89,6 +106,12 @@
       "type": "any[] | Group[]",
       "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
       "detailedType": "any[] | Group[] | undefined"
+    },
+    "keepHighlight": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the highlighted item should be preserved when the pointer leaves the list.",
+      "detailedType": "boolean | undefined"
     },
     "limit": {
       "type": "number",

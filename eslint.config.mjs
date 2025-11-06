@@ -76,6 +76,11 @@ export default defineConfig(
 
       // This rule doesn't recognise <label> wrapped around custom controls
       'jsx-a11y/label-has-associated-control': 'off',
+      // Turn off new eslint-plugin-react-hooks rules till we can fix all warnings
+      'react-hooks/globals': 'off',
+      'react-hooks/immutability': 'off',
+      'react-hooks/incompatible-library': 'off',
+      'react-hooks/refs': 'off',
     },
   },
   {
@@ -143,6 +148,7 @@ export default defineConfig(
     rules: {
       'guard-for-in': 'off',
       'testing-library/prefer-screen-queries': 'off', // Enable usage of playwright queries
+      'testing-library/no-await-sync-queries': 'off',
       'testing-library/render-result-naming-convention': 'off', // inconsequential in regression tests
     },
   },

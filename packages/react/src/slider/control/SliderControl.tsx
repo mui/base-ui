@@ -81,7 +81,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const {
     disabled,
     dragging,
-    fieldControlValidation,
+    validation,
     inset,
     lastChangedValueRef,
     max,
@@ -319,6 +319,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
         createGenericEventDetails('none', nativeEvent),
       );
     }
+
+    validation.commit(lastChangedValueRef.current ?? finger.value);
+    onValueCommitted(
+      lastChangedValueRef.current ?? finger.value,
+      createGenericEventDetails('none', nativeEvent),
+    );
 
     if (
       'pointerType' in nativeEvent &&

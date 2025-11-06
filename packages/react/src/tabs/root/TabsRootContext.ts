@@ -5,7 +5,7 @@ import type { TabsRoot } from './TabsRoot';
 
 export interface TabsRootContext {
   /**
-   * The currently selected tab's value.
+   * The currently active tab's value.
    */
   value: TabsTab.Value;
   /**

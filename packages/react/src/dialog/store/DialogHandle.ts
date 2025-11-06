@@ -11,8 +11,8 @@ export class DialogHandle<Payload> {
    */
   public readonly store: DialogStore<Payload>;
 
-  constructor() {
-    this.store = new DialogStore<Payload>();
+  constructor(store?: DialogStore<Payload>) {
+    this.store = store ?? new DialogStore<Payload>();
   }
 
   /**

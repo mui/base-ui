@@ -6,7 +6,9 @@
   content="A high-quality, unstyled React slider component that works like a range input and is easy to style."
 />
 
-<Demo path="./demos/hero" />
+import { DemoSliderHero } from './demos/hero';
+
+<DemoSliderHero />
 
 ## Anatomy
 
@@ -26,10 +28,6 @@ import { Slider } from '@base-ui-components/react/slider';
 </Slider.Root>;
 ```
 
-## API reference
-
-<Reference component="Slider" parts="Root, Value, Control, Track, Indicator, Thumb" />
-
 ## Examples
 
 ### Range slider
@@ -41,7 +39,9 @@ To create a range slider:
 
 Thumbs can be configured to behave differently when they collide during pointer interactions using the `thumbCollisionBehavior` prop on `<Slider.Root>`.
 
-<Demo compact path="./demos/range-slider" />
+import { DemoSliderRangeSlider } from './demos/range-slider';
+
+<DemoSliderRangeSlider compact />
 
 ### Thumb alignment
 
@@ -49,4 +49,10 @@ Set `thumbAlignment="edge"` to inset the thumb such that its edge aligns with th
 
 A client-only alternative `thumbAlignment="edge-client-only"` can be used to reduce bundle size but only renders after React hydration.
 
-<Demo compact path="./demos/edge-alignment" />
+import { DemoSliderEdgeAlignment } from './demos/edge-alignment';
+
+<DemoSliderEdgeAlignment compact />
+
+## API reference
+
+<Reference component="Slider" parts="Root, Value, Control, Track, Indicator, Thumb" />

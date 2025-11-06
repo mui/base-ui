@@ -8,7 +8,7 @@ import {
   useInteractions,
   useRole,
 } from '../../floating-ui-react';
-import { getTarget } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -125,7 +125,12 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       };
     },
     outsidePress(event) {
-      if (event.button !== 0) {
+      // For mouse events, only accept left button (button 0)
+      // For touch events, a single touch is equivalent to left button
+      if ('button' in event && event.button !== 0) {
+        return false;
+      }
+      if ('touches' in event && event.touches.length !== 1) {
         return false;
       }
       const target = getTarget(event) as Element | null;
@@ -137,7 +142,8 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
         if (modal) {
           return store.context.internalBackdropRef.current || store.context.backdropRef.current
             ? store.context.internalBackdropRef.current === eventTarget ||
-                store.context.backdropRef.current === eventTarget
+                store.context.backdropRef.current === eventTarget ||
+                contains(eventTarget, popupElement)
             : true;
         }
         return true;
