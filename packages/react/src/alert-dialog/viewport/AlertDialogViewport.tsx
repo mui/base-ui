@@ -59,7 +59,7 @@ export const AlertDialogViewport = React.forwardRef(function AlertDialogViewport
   return useRenderElement('div', componentProps, {
     enabled: shouldRender,
     state,
-    ref: [forwardedRef, store.getElementSetter('viewportElement')],
+    ref: [forwardedRef, store.useStateSetter('viewportElement')],
     stateAttributesMapping,
     props: [
       {

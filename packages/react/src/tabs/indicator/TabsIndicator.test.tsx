@@ -22,7 +22,7 @@ describe('<Tabs.Indicator />', () => {
   }));
 
   describe.skipIf(isJSDOM)('rendering', () => {
-    it('should not render when no tab is selected', async () => {
+    it('should not render when no tab is active', async () => {
       await render(
         <Tabs.Root value={null}>
           <Tabs.List>

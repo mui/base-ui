@@ -14,12 +14,12 @@ import { stateAttributesMapping } from '../stateAttributesMapping';
 import { useField } from '../../field/useField';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../types';
+import { useValueChanged } from '../../utils/useValueChanged';
 
 /**
  * Represents the switch itself.
@@ -55,9 +55,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     validityData,
     setFilled,
     setFocused,
+    shouldValidateOnChange,
     validationMode,
     disabled: fieldDisabled,
     name: fieldName,
+    validation,
   } = useFieldRootContext();
 
   const { labelId } = useLabelableContext();
@@ -65,17 +67,10 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const {
-    getValidationProps,
-    getInputValidationProps,
-    inputRef: inputValidationRef,
-    commitValidation,
-  } = useFieldControlValidation();
-
   const onCheckedChange = useStableCallback(onCheckedChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const handleInputRef = useMergedRefs(inputRef, externalInputRef, inputValidationRef);
+  const handleInputRef = useMergedRefs(inputRef, externalInputRef, validation.inputRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
 
@@ -94,7 +89,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   useField({
     id,
-    commitValidation,
+    commit: validation.commit,
     value: checked,
     controlRef: switchRef,
     name,
@@ -106,6 +101,18 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       setFilled(inputRef.current.checked);
     }
   }, [inputRef, setFilled]);
+
+  useValueChanged(checked, () => {
+    clearErrors(name);
+    setDirty(checked !== validityData.initialValue);
+    setFilled(checked);
+
+    if (shouldValidateOnChange()) {
+      validation.commit(checked);
+    } else {
+      validation.commit(checked, true);
+    }
+  });
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -132,7 +139,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       setFocused(false);
 
       if (validationMode === 'onBlur') {
-        commitValidation(element.checked);
+        validation.commit(element.checked);
       }
     },
     onClick(event) {
@@ -174,36 +181,21 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
               return;
             }
 
-            clearErrors(name);
-            setDirty(nextChecked !== validityData.initialValue);
-            setFilled(nextChecked);
             setCheckedState(nextChecked);
-
-            if (validationMode === 'onChange') {
-              commitValidation(nextChecked);
-            } else {
-              commitValidation(nextChecked, true);
-            }
           },
         },
-        getInputValidationProps,
+        validation.getInputValidationProps,
       ),
     [
       checked,
-      clearErrors,
-      commitValidation,
       disabled,
-      getInputValidationProps,
       handleInputRef,
       id,
       name,
       onCheckedChange,
       required,
       setCheckedState,
-      setDirty,
-      setFilled,
-      validationMode,
-      validityData.initialValue,
+      validation,
     ],
   );
 
@@ -221,7 +213,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, switchRef, buttonRef],
-    props: [rootProps, getValidationProps, elementProps, getButtonProps],
+    props: [rootProps, validation.getValidationProps, elementProps, getButtonProps],
     stateAttributesMapping,
   });
 

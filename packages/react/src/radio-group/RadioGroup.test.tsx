@@ -512,6 +512,49 @@ describe('<RadioGroup />', () => {
 
         expect(input).to.have.attribute('name', 'field-radio');
       });
+
+      it('revalidates when the controlled value changes externally', async () => {
+        const validateSpy = spy((value: unknown) => ((value as string) === 'b' ? 'error' : null));
+
+        function App() {
+          const [value, setValue] = React.useState('a');
+
+          return (
+            <React.Fragment>
+              <Field.Root validationMode="onChange" validate={validateSpy} name="choices">
+                <RadioGroup
+                  value={value}
+                  onValueChange={(nextValue) => setValue(nextValue as string)}
+                >
+                  <Field.Item>
+                    <Radio.Root value="a" data-testid="radio" />
+                  </Field.Item>
+                  <Field.Item>
+                    <Radio.Root value="b" data-testid="radio" />
+                  </Field.Item>
+                </RadioGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setValue('b')}>
+                Select externally
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(<App />);
+
+        const radioGroup = screen.getByRole('radiogroup');
+        const toggle = screen.getByText('Select externally');
+
+        expect(radioGroup).not.to.have.attribute('aria-invalid');
+        const initialCallCount = validateSpy.callCount;
+
+        fireEvent.click(toggle);
+
+        expect(validateSpy.callCount).to.equal(initialCallCount + 1);
+        expect(validateSpy.lastCall.args[0]).to.equal('b');
+        expect(radioGroup).to.have.attribute('aria-invalid', 'true');
+      });
     });
 
     describe('Field.Label', () => {
@@ -586,6 +629,53 @@ describe('<RadioGroup />', () => {
 
         fireEvent.click(screen.getByText('Banana'));
         expect(changeSpy.lastCall.returnValue).to.equal('banana');
+      });
+    });
+
+    describe('prop: validationMode', () => {
+      it('onSubmit', async () => {
+        const { user } = await render(
+          <Form>
+            <Field.Root
+              validate={(val) => {
+                if (val === 'a') {
+                  return 'custom error a';
+                }
+
+                if (val === 'c') {
+                  return 'custom error c';
+                }
+                return null;
+              }}
+            >
+              <RadioGroup>
+                <Radio.Root value="a" data-testid="item" />
+                <Radio.Root value="b" data-testid="item" />
+                <Radio.Root value="c" data-testid="item" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        const radioGroup = screen.getByRole('radiogroup');
+        const [radioA, radioB, radioC] = screen.getAllByTestId('item');
+        expect(radioGroup).to.not.have.attribute('aria-invalid');
+
+        await user.click(radioA);
+        expect(radioA).to.have.attribute('data-checked', '');
+        expect(radioGroup).to.not.have.attribute('aria-invalid');
+
+        await user.click(radioC);
+        expect(radioC).to.have.attribute('data-checked', '');
+        expect(radioGroup).to.not.have.attribute('aria-invalid');
+
+        await user.click(screen.getByText('submit'));
+        expect(radioGroup).to.have.attribute('aria-invalid');
+
+        await user.click(radioB);
+        expect(radioB).to.have.attribute('data-checked', '');
+        expect(radioGroup).to.not.have.attribute('aria-invalid');
       });
     });
   });

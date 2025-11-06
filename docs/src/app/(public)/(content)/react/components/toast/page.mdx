@@ -7,7 +7,9 @@
   content="A high-quality, unstyled React toast component to generate notifications."
 />
 
-<Demo path="./demos/hero" />
+import { DemoToastHero } from './demos/hero';
+
+<DemoToastHero />
 
 ## Anatomy
 
@@ -31,6 +33,147 @@ import { Toast } from '@base-ui-components/react/toast';
   </Toast.Portal>
 </Toast.Provider>;
 ```
+
+## General usage
+
+- `<Toast.Provider>` can be wrapped around your entire app, ensuring all toasts are rendered in the same viewport.
+- <kbd>F6</kbd> lets users jump into the toast viewport landmark region to navigate toasts with
+  keyboard focus.
+
+## Global manager
+
+A global toast manager can be created by passing the `toastManager` prop to the `<Toast.Provider>`.
+This enables you to queue a toast from anywhere in the app (such as in functions outside the React tree) while still using the same toast renderer.
+
+The created `toastManager` object has the same properties and methods as the `Toast.useToastManager()` hook.
+
+```tsx title="Creating a manager instance"
+const toastManager = Toast.createToastManager();
+```
+
+```jsx title="Using the instance"
+<Toast.Provider toastManager={toastManager}>
+```
+
+## Stacking and animations
+
+The `--toast-index` CSS variable can be used to determine the stacking order of the toasts.
+The 0th index toast appears at the front.
+
+```css title="z-index stacking"
+.Toast {
+  z-index: calc(1000 - var(--toast-index));
+  transform: scale(1 - calc(0.1 * var(--toast-index)));
+}
+```
+
+The `--toast-offset-y` CSS variable can be used to determine the vertical offset of the toasts when positioned absolutely with a translation offset — this is usually used with the `data-expanded` attribute, present when the toast viewport is being hovered or has focus.
+
+```css title="Expanded offset"
+.Toast[data-expanded] {
+  transform: translateY(var(--toast-offset-y));
+}
+```
+
+`<Toast.Content>` is used to hide overflow from taller toasts while the stack is collapsed.
+The `data-behind` attribute marks content that sits behind the frontmost toast and pairs with the `data-expanded` attribute so the content fades back in when the viewport expands:
+
+```css title="Collapsed content" "data-behind" "data-expanded"
+.ToastContent {
+  overflow: hidden;
+  transition: opacity 0.25s;
+}
+
+.ToastContent[data-behind] {
+  opacity: 0;
+}
+
+.ToastContent[data-expanded] {
+  opacity: 1;
+}
+```
+
+The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are used to determine the swipe movement of the toasts in order to add a translation offset.
+
+```css title="Swipe offset"  "--toast-swipe-movement-x" "--toast-swipe-movement-y"
+.Toast {
+  transform: scale(1 - calc(0.1 * var(--toast-index))) + translateX(var(--toast-swipe-movement-x)) +
+    translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
+}
+```
+
+The `data-swipe-direction` attribute can be used to determine the swipe direction of the toasts to add a translation offset upon dismissal.
+
+```css title="Swipe direction" "data-swipe-direction"
+&[data-ending-style] {
+  opacity: 0;
+
+  &[data-swipe-direction='up'] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
+  }
+  &[data-swipe-direction='down'] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
+  }
+  &[data-swipe-direction='left'] {
+    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+  }
+  &[data-swipe-direction='right'] {
+    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+  }
+}
+```
+
+The `data-limited` attribute indicates that the toast was removed from the list due to exceeding the `limit` option.
+This is useful for animating the toast differently when it is removed from the list.
+
+## Examples
+
+### Custom position
+
+The position of the toasts is controlled by your own CSS.
+To change the toasts' position, you can modify the `.Viewport` and `.Root` styles.
+A more general component could accept a `data-position` attribute, which the CSS handles for each variation.
+The following shows a top-center position:
+
+import { DemoToastPosition } from './demos/position';
+
+<DemoToastPosition compact />
+
+### Undo action
+
+When adding a toast, the `actionProps` option can be used to define props for an action button inside of it—this enables the ability to undo an action associated with the toast.
+
+import { DemoToastUndo } from './demos/undo';
+
+<DemoToastUndo compact />
+
+### Promise
+
+An asynchronous toast can be created with three possible states: `loading`, `success`, and `error`.
+The `type` string matches these states to change the styling.
+Each of the states also accepts the [method options](/react/components/toast#method-options) object for more granular control.
+
+import { DemoToastPromise } from './demos/promise';
+
+<DemoToastPromise compact />
+
+### Custom
+
+A toast with custom data can be created by passing any typed object interface to the `data` option.
+This enables you to pass any data (including functions) you need to the toast and access it in the toast's rendering logic.
+
+import { DemoToastCustom } from './demos/custom';
+
+<DemoToastCustom compact />
+
+### Varying heights
+
+Toasts with varying heights are stacked by ensuring that the `<Toast.Content>` element has `overflow: hidden` set, along with all toasts' heights matching the frontmost toast at index 0.
+This prevents taller toasts from overflowing the stack when collapsed.
+
+import { DemoToastVaryingHeights } from './demos/varying-heights';
+
+<DemoToastVaryingHeights compact />
 
 ## API reference
 
@@ -224,134 +367,3 @@ const promise = toastManager.promise(
   },
 );
 ```
-
-## General usage
-
-- `<Toast.Provider>` can be wrapped around your entire app, ensuring all toasts are rendered in the same viewport.
-- <kbd>F6</kbd> lets users jump into the toast viewport landmark region to navigate toasts with
-  keyboard focus.
-
-## Global manager
-
-A global toast manager can be created by passing the `toastManager` prop to the `<Toast.Provider>`.
-This enables you to queue a toast from anywhere in the app (such as in functions outside the React tree) while still using the same toast renderer.
-
-The created `toastManager` object has the same properties and methods as the `Toast.useToastManager()` hook.
-
-```tsx title="Creating a manager instance"
-const toastManager = Toast.createToastManager();
-```
-
-```jsx title="Using the instance"
-<Toast.Provider toastManager={toastManager}>
-```
-
-## Stacking and animations
-
-The `--toast-index` CSS variable can be used to determine the stacking order of the toasts.
-The 0th index toast appears at the front.
-
-```css title="z-index stacking"
-.Toast {
-  z-index: calc(1000 - var(--toast-index));
-  transform: scale(1 - calc(0.1 * var(--toast-index)));
-}
-```
-
-The `--toast-offset-y` CSS variable can be used to determine the vertical offset of the toasts when positioned absolutely with a translation offset — this is usually used with the `data-expanded` attribute, present when the toast viewport is being hovered or has focus.
-
-```css title="Expanded offset"
-.Toast[data-expanded] {
-  transform: translateY(var(--toast-offset-y));
-}
-```
-
-`<Toast.Content>` is used to hide overflow from taller toasts while the stack is collapsed.
-The `data-behind` attribute marks content that sits behind the frontmost toast and pairs with the `data-expanded` attribute so the content fades back in when the viewport expands:
-
-```css title="Collapsed content" "data-behind" "data-expanded"
-.ToastContent {
-  overflow: hidden;
-  transition: opacity 0.25s;
-}
-
-.ToastContent[data-behind] {
-  opacity: 0;
-}
-
-.ToastContent[data-expanded] {
-  opacity: 1;
-}
-```
-
-The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are used to determine the swipe movement of the toasts in order to add a translation offset.
-
-```css title="Swipe offset"  "--toast-swipe-movement-x" "--toast-swipe-movement-y"
-.Toast {
-  transform: scale(1 - calc(0.1 * var(--toast-index))) + translateX(var(--toast-swipe-movement-x)) +
-    translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
-}
-```
-
-The `data-swipe-direction` attribute can be used to determine the swipe direction of the toasts to add a translation offset upon dismissal.
-
-```css title="Swipe direction" "data-swipe-direction"
-&[data-ending-style] {
-  opacity: 0;
-
-  &[data-swipe-direction='up'] {
-    transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
-  }
-  &[data-swipe-direction='down'] {
-    transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
-  }
-  &[data-swipe-direction='left'] {
-    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
-  }
-  &[data-swipe-direction='right'] {
-    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
-  }
-}
-```
-
-The `data-limited` attribute indicates that the toast was removed from the list due to exceeding the `limit` option.
-This is useful for animating the toast differently when it is removed from the list.
-
-## Examples
-
-### Custom position
-
-The position of the toasts is controlled by your own CSS.
-To change the toasts' position, you can modify the `.Viewport` and `.Root` styles.
-A more general component could accept a `data-position` attribute, which the CSS handles for each variation.
-The following shows a top-center position:
-
-<Demo path="./demos/position" compact />
-
-### Undo action
-
-When adding a toast, the `actionProps` option can be used to define props for an action button inside of it—this enables the ability to undo an action associated with the toast.
-
-<Demo path="./demos/undo" compact />
-
-### Promise
-
-An asynchronous toast can be created with three possible states: `loading`, `success`, and `error`.
-The `type` string matches these states to change the styling.
-Each of the states also accepts the [method options](/react/components/toast#method-options) object for more granular control.
-
-<Demo path="./demos/promise" compact />
-
-### Custom
-
-A toast with custom data can be created by passing any typed object interface to the `data` option.
-This enables you to pass any data (including functions) you need to the toast and access it in the toast's rendering logic.
-
-<Demo path="./demos/custom" compact />
-
-### Varying heights
-
-Toasts with varying heights are stacked by ensuring that the `<Toast.Content>` element has `overflow: hidden` set, along with all toasts' heights matching the frontmost toast at index 0.
-This prevents taller toasts from overflowing the stack when collapsed.
-
-<Demo path="./demos/varying-heights" compact />

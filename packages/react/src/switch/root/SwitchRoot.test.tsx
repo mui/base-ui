@@ -452,22 +452,31 @@ describe('<Switch.Root />', () => {
       expect(button).not.to.have.attribute('data-focused');
     });
 
-    it('prop: validate', async () => {
+    it('prop: validationMode=onSubmit', async () => {
       await render(
-        <Field.Root validate={() => 'error'}>
-          <Switch.Root data-testid="button" />
-          <Field.Error data-testid="error" />
-        </Field.Root>,
+        <Form>
+          <Field.Root>
+            <Switch.Root required />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
       );
 
-      const button = screen.getByTestId('button');
-
+      const button = screen.getByRole('switch');
       expect(button).not.to.have.attribute('aria-invalid');
 
-      fireEvent.focus(button);
-      fireEvent.blur(button);
-
+      fireEvent.click(screen.getByText('submit'));
       expect(button).to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.not.equal(null);
+
+      fireEvent.click(button);
+      expect(button).not.to.have.attribute('aria-invalid');
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      fireEvent.click(button);
+      expect(button).to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.not.equal(null);
     });
 
     it('prop: validationMode=onChange', async () => {
@@ -489,6 +498,39 @@ describe('<Switch.Root />', () => {
 
       fireEvent.click(button);
 
+      expect(button).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('revalidates when a controlled value changes externally', async () => {
+      const validateSpy = spy((value: unknown) => ((value as boolean) ? 'error' : null));
+
+      function App() {
+        const [checked, setChecked] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <Field.Root validationMode="onChange" validate={validateSpy} name="newsletters">
+              <Switch.Root data-testid="button" checked={checked} onCheckedChange={setChecked} />
+            </Field.Root>
+            <button type="button" onClick={() => setChecked((prev) => !prev)}>
+              Toggle externally
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const button = screen.getByTestId('button');
+      const toggle = screen.getByText('Toggle externally');
+
+      expect(button).not.to.have.attribute('aria-invalid');
+      const initialCallCount = validateSpy.callCount;
+
+      fireEvent.click(toggle);
+
+      expect(validateSpy.callCount).to.equal(initialCallCount + 1);
+      expect(validateSpy.lastCall.args[0]).to.equal(true);
       expect(button).to.have.attribute('aria-invalid', 'true');
     });
 

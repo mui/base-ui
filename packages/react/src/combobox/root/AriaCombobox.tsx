@@ -34,7 +34,6 @@ import {
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
@@ -44,7 +43,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { HTMLProps } from '../../utils/types';
-import { useValueChanged } from './utils/useValueChanged';
+import { useValueChanged } from '../../utils/useValueChanged';
 import { NOOP } from '../../utils/noop';
 import {
   stringifyAsLabel,
@@ -93,6 +92,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     inputRef: inputRefProp,
     grid = false,
     items,
+    filteredItems: filteredItemsProp,
     filter: filterProp,
     openOnInputClick = true,
     autoHighlight = false,
@@ -102,6 +102,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
     virtualized = false,
+    inline: inlineProp = false,
     fillInputOnItemPress = true,
     modal = false,
     limit = -1,
@@ -114,19 +115,19 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const {
     setDirty,
     validityData,
-    validationMode,
+    shouldValidateOnChange,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
+    validation,
   } = useFieldRootContext();
-  const fieldControlValidation = useFieldControlValidation();
   const id = useLabelableId({ id: idProp });
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
-  const commitValidation = fieldControlValidation.commitValidation;
+  const commit = validation.commit;
 
   let autoHighlightMode: false | 'input-change' | 'always';
   if (autoHighlight === 'always') {
@@ -216,6 +217,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [items, isGrouped]);
 
   const filteredItems: Value[] | Group<Value>[] = React.useMemo(() => {
+    if (filteredItemsProp) {
+      return filteredItemsProp as Value[] | Group<Value>[];
+    }
+
     if (!items) {
       return [];
     }
@@ -275,7 +280,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     return limitedItems;
-  }, [items, flatItems, query, filter, isGrouped, itemToStringLabel, limit]);
+  }, [filteredItemsProp, items, isGrouped, query, limit, filter, itemToStringLabel, flatItems]);
 
   const flatFilteredItems: Value[] = React.useMemo(() => {
     if (isGrouped) {
@@ -335,7 +340,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         disabled,
         readOnly,
         required,
-        fieldControlValidation,
         grid,
         isGrouped,
         virtualized,
@@ -349,7 +353,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         mounted: false,
         forceMounted: false,
         transitionStatus: 'idle',
-        inline: false,
+        inline: inlineProp,
         activeIndex: null,
         selectedIndex: null,
         popupProps: {},
@@ -428,7 +432,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useField({
     id,
-    commitValidation,
+    commit,
     value: formValue,
     controlRef: inputInsidePopup ? triggerRef : inputRef,
     name,
@@ -674,10 +678,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   });
 
+  // Support composing the Dialog component around an inline combobox.
+  // `[role="dialog"]` is more interoperable than using a context, e.g. it can work
+  // with third-party modal libraries, though the limitation is that the closest
+  // `role=dialog` part must be the animated element.
+  const resolvedPopupRef: React.RefObject<HTMLElement | null> = React.useMemo(() => {
+    if (inline && positionerElement) {
+      return { current: positionerElement.closest('[role="dialog"]') };
+    }
+    return popupRef;
+  }, [inline, positionerElement]);
+
   useOpenChangeComplete({
     enabled: !props.actionsRef,
     open,
-    ref: popupRef,
+    ref: resolvedPopupRef,
     onComplete() {
       if (!open) {
         handleUnmount();
@@ -865,10 +880,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     clearErrors(name);
-    commitValidation?.(selectedValue, true);
+    commit?.(selectedValue, true);
 
-    if (validationMode === 'onChange') {
-      commitValidation?.(selectedValue);
+    if (shouldValidateOnChange()) {
+      commit?.(selectedValue);
     }
 
     updateValue(selectedValue);
@@ -900,10 +915,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     clearErrors(name);
-    commitValidation?.(inputValue, true);
+    commit?.(inputValue, true);
 
-    if (validationMode === 'onChange') {
-      commitValidation?.(inputValue);
+    if (shouldValidateOnChange()) {
+      commit?.(inputValue);
     }
 
     updateValue(inputValue);
@@ -980,7 +995,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   const dismiss = useDismiss(floatingRootContext, {
-    enabled: !readOnly && !disabled,
+    enabled: !readOnly && !disabled && !inline,
     outsidePressEvent: {
       mouse: 'sloppy',
       // The visual viewport (affected by the mobile software keyboard) can be
@@ -1018,14 +1033,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // Floating UI tests don't require `role="row"` wrappers, so retains the number API.
     cols: grid ? 2 : 1,
     orientation: grid ? 'horizontal' : undefined,
-    disabledIndices: virtualized
-      ? (index) => index < 0 || index >= flatFilteredItems.length
-      : (EMPTY_ARRAY as number[]),
+    disabledIndices: EMPTY_ARRAY as number[],
     onNavigate(nextActiveIndex, event) {
-      const isClosing = !open || transitionStatus === 'ending';
-
       // Retain the highlight only while actually transitioning out or closed.
-      if (nextActiveIndex === null && !inline && isClosing) {
+      if ((!event && !open) || transitionStatus === 'ending') {
         return;
       }
 
@@ -1073,6 +1084,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useOnFirstRender(() => {
     store.update({
+      inline: inlineProp,
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
@@ -1097,6 +1109,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       mounted,
       transitionStatus,
       items,
+      inline: inlineProp,
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
@@ -1108,7 +1121,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       disabled,
       readOnly,
       required,
-      fieldControlValidation,
       grid,
       isGrouped,
       virtualized,
@@ -1141,7 +1153,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     disabled,
     readOnly,
     required,
-    fieldControlValidation,
+    validation,
     grid,
     isGrouped,
     virtualized,
@@ -1152,11 +1164,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     isItemEqualToValue,
     submitOnItemClick,
     hasInputValue,
+    inlineProp,
     requestSubmit,
     autoHighlightMode,
   ]);
 
-  const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
+  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
 
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
@@ -1198,11 +1211,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     <React.Fragment>
       {props.children}
       <input
-        {...fieldControlValidation.getInputValidationProps({
+        {...validation.getInputValidationProps({
           // Move focus when the hidden input is focused.
           onFocus() {
             if (inputInsidePopup) {
               triggerElement?.focus();
+              return;
             }
 
             (inputRef.current || triggerElement)?.focus();
@@ -1227,8 +1241,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 setDirty(nextValue !== validityData.initialValue);
                 setInputValue(nextValue, details);
 
-                if (validationMode === 'onChange') {
-                  fieldControlValidation.commitValidation(nextValue);
+                if (shouldValidateOnChange()) {
+                  validation.commit(nextValue);
                 }
                 return;
               }
@@ -1245,8 +1259,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 setDirty(matchingValue !== validityData.initialValue);
                 setSelectedValue?.(matchingValue, details);
 
-                if (validationMode === 'onChange') {
-                  fieldControlValidation.commitValidation(matchingValue);
+                if (shouldValidateOnChange()) {
+                  validation.commit(matchingValue);
                 }
               }
             }
@@ -1258,17 +1272,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               queueMicrotask(handleChange);
             }
           },
-          id,
-          name: multiple || selectionMode === 'none' ? undefined : name,
-          disabled,
-          required: required && !hasMultipleSelection,
-          readOnly,
-          value: serializedValue,
-          ref: hiddenInputRef,
-          style: visuallyHidden,
-          tabIndex: -1,
-          'aria-hidden': true,
         })}
+        id={id}
+        name={multiple || selectionMode === 'none' ? undefined : name}
+        disabled={disabled}
+        required={required && !hasMultipleSelection}
+        readOnly={readOnly}
+        value={serializedValue}
+        ref={hiddenInputRef}
+        style={visuallyHidden}
+        tabIndex={-1}
+        aria-hidden
       />
       {hiddenInputs}
     </React.Fragment>
@@ -1409,6 +1423,12 @@ interface ComboboxRootProps<ItemValue> {
    */
   items?: readonly any[] | readonly Group<any>[];
   /**
+   * Filtered items to display in the list.
+   * When provided, the list will use these items instead of filtering the `items` prop internally.
+   * Use when you want to control filtering logic externally with the `useFilter()` hook.
+   */
+  filteredItems?: readonly any[] | readonly Group<any>[];
+  /**
    * Filter function used to match items vs input query.
    */
   filter?:
@@ -1438,6 +1458,11 @@ interface ComboboxRootProps<ItemValue> {
    * @default false
    */
   virtualized?: boolean;
+  /**
+   * Whether the list is rendered inline without using the popup.
+   * @default false
+   */
+  inline?: boolean;
   /**
    * Determines if the popup enters a modal state when open.
    * - `true`: user interaction is limited to the popup: document page scroll is locked and pointer interactions on outside elements are disabled.

@@ -1,6 +1,7 @@
+'use client';
 import * as React from 'react';
 import { Dialog } from '@base-ui-components/react/dialog';
-import styles from '../../index.module.css';
+import styles from '../../_index.module.css';
 
 const demoDialog = Dialog.createHandle();
 

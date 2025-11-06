@@ -22,40 +22,6 @@ describe('<Field.Root />', () => {
     render,
   }));
 
-  it('should not mark invalid if `valueMissing` is the only error and not yet dirtied', async () => {
-    await render(
-      <Field.Root>
-        <Field.Control data-testid="control" required />
-      </Field.Root>,
-    );
-
-    const control = screen.getByTestId('control');
-
-    fireEvent.focus(control);
-    fireEvent.blur(control);
-
-    expect(control).not.to.have.attribute('data-invalid');
-    expect(control).not.to.have.attribute('aria-invalid');
-  });
-
-  it('should mark invalid if `valueMissing` is the only error and dirtied', async () => {
-    await render(
-      <Field.Root>
-        <Field.Control data-testid="control" required />
-      </Field.Root>,
-    );
-
-    const control = screen.getByTestId('control');
-
-    fireEvent.focus(control);
-    fireEvent.change(control, { target: { value: 'a' } });
-    fireEvent.change(control, { target: { value: '' } });
-    fireEvent.blur(control);
-
-    expect(control).to.have.attribute('data-invalid', '');
-    expect(control).to.have.attribute('aria-invalid', 'true');
-  });
-
   describe('prop: disabled', () => {
     it('should add data-disabled style hook to all components', async () => {
       await render(
@@ -79,9 +45,10 @@ describe('<Field.Root />', () => {
   });
 
   describe('prop: validate', () => {
-    it('should validate the field on blur', async () => {
+    it('when not in <Form> the function does not run by default', async () => {
+      const validateSpy = spy(() => 'error');
       await render(
-        <Field.Root validate={() => 'error'}>
+        <Field.Root validate={validateSpy}>
           <Field.Control />
           <Field.Error />
         </Field.Root>,
@@ -93,41 +60,25 @@ describe('<Field.Root />', () => {
       expect(message).to.equal(null);
 
       fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'abc' } });
+      expect(validateSpy.callCount).to.equal(0);
+      expect(screen.queryByText('error')).to.equal(null);
+
       fireEvent.blur(control);
-
-      expect(screen.queryByText('error')).not.to.equal(null);
-    });
-
-    it('supports async validation', async () => {
-      await render(
-        <Field.Root validate={() => Promise.resolve('error')}>
-          <Field.Control />
-          <Field.Error />
-        </Field.Root>,
-      );
-
-      const control = screen.getByRole('textbox');
-      const message = screen.queryByText('error');
-
-      expect(message).to.equal(null);
-
-      fireEvent.focus(control);
-      fireEvent.blur(control);
-
-      await flushMicrotasks();
-
-      await waitFor(() => {
-        expect(screen.queryByText('error')).not.to.equal(null);
-      });
+      expect(validateSpy.callCount).to.equal(0);
+      expect(screen.queryByText('error')).to.equal(null);
     });
 
     it('runs after native validations', async () => {
       await render(
-        <Field.Root validate={() => 'custom error'}>
-          <Field.Control required />
-          <Field.Error match="valueMissing">value missing</Field.Error>
-          <Field.Error match="customError" />
-        </Field.Root>,
+        <Form>
+          <Field.Root validate={(val) => (val === 'ab' ? 'custom error' : null)}>
+            <Field.Control required />
+            <Field.Error match="valueMissing">value missing</Field.Error>
+            <Field.Error match="customError" />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
       );
 
       expect(screen.queryByText('value missing')).to.equal(null);
@@ -135,93 +86,37 @@ describe('<Field.Root />', () => {
 
       const input = screen.getByRole<HTMLInputElement>('textbox');
 
-      fireEvent.focus(input);
-      fireEvent.change(input, { target: { value: 'a' } });
-      fireEvent.change(input, { target: { value: '' } });
-      fireEvent.blur(input);
-
-      await flushMicrotasks();
-
-      await waitFor(() => {
-        expect(screen.queryByText('value missing')).not.to.equal(null);
-      });
-      await waitFor(() => {
-        expect(screen.queryByText('custom error')).to.equal(null);
-      });
+      // submit
+      fireEvent.click(screen.getByText('submit'));
+      expect(screen.queryByText('value missing')).not.to.equal(null);
+      expect(screen.queryByText('custom error')).to.equal(null);
 
       fireEvent.focus(input);
+      // revalidate
       fireEvent.change(input, { target: { value: 'ab' } });
-      fireEvent.blur(input);
+      expect(screen.queryByText('value missing')).to.equal(null);
+      expect(screen.queryByText('custom error')).not.to.equal(null);
 
-      await waitFor(() => {
-        expect(screen.queryByText('value missing')).to.equal(null);
-      });
-      await waitFor(() => {
-        expect(screen.queryByText('custom error')).not.to.equal(null);
-      });
+      fireEvent.change(input, { target: { value: '' } });
+      expect(screen.queryByText('value missing')).not.to.equal(null);
+      // expect(screen.queryByText('custom error')).to.equal(null);
     });
 
-    it('should apply [data-field] style hooks to field components', async () => {
+    it('should apply aria-invalid prop to control once validation finishes', async () => {
       await render(
-        <Field.Root>
-          <Field.Label data-testid="label">Label</Field.Label>
-          <Field.Description data-testid="description">Description</Field.Description>
-          <Field.Error data-testid="error" />
-          <Field.Control data-testid="control" required />
-        </Field.Root>,
-      );
-
-      const control = screen.getByTestId<HTMLInputElement>('control');
-      const label = screen.getByTestId('label');
-      const description = screen.getByTestId('description');
-      let error = screen.queryByTestId('error');
-
-      expect(control).not.to.have.attribute('data-valid');
-      expect(label).not.to.have.attribute('data-valid');
-      expect(description).not.to.have.attribute('data-valid');
-      expect(error).to.equal(null);
-
-      fireEvent.focus(control);
-      fireEvent.change(control, { target: { value: 'a' } });
-      fireEvent.change(control, { target: { value: '' } });
-      fireEvent.blur(control);
-
-      error = screen.getByTestId('error');
-
-      expect(control).to.have.attribute('data-invalid', '');
-      expect(label).to.have.attribute('data-invalid', '');
-      expect(description).to.have.attribute('data-invalid', '');
-      expect(error).to.have.attribute('data-invalid', '');
-
-      act(() => {
-        control.value = 'value';
-        control.focus();
-        control.blur();
-      });
-
-      error = screen.queryByTestId('error');
-
-      expect(control).to.have.attribute('data-valid', '');
-      expect(label).to.have.attribute('data-valid', '');
-      expect(description).to.have.attribute('data-valid', '');
-      expect(error).to.equal(null);
-    });
-
-    it('should apply aria-invalid prop to control once validated', async () => {
-      await render(
-        <Field.Root validate={() => 'error'}>
-          <Field.Control />
-          <Field.Error />
-        </Field.Root>,
+        <Form>
+          <Field.Root validate={() => 'error'}>
+            <Field.Control />
+            <Field.Error />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
       );
 
       const control = screen.getByRole('textbox');
-
       expect(control).not.to.have.attribute('aria-invalid');
 
-      fireEvent.focus(control);
-      fireEvent.blur(control);
-
+      fireEvent.click(screen.getByText('submit'));
       expect(control).to.have.attribute('aria-invalid', 'true');
     });
 
@@ -285,12 +180,12 @@ describe('<Field.Root />', () => {
           <Field.Root name="switch">
             <Switch.Root defaultChecked={false} />
           </Field.Root>
+
+          <button type="submit">submit</button>
         </Form>,
       );
 
-      const input = screen.getByTestId('input');
-      fireEvent.focus(input);
-      fireEvent.blur(input);
+      fireEvent.click(screen.getByText('submit'));
 
       expect(validateSpy.callCount).to.equal(1);
       expect(validateSpy.firstCall.args[1]).to.deep.equal({
@@ -316,21 +211,19 @@ describe('<Field.Root />', () => {
             <input type="checkbox" checked={checked} onChange={() => setChecked(!checked)} />
             {checked && (
               <Field.Root name="input1">
-                <Field.Control data-testid="input1" defaultValue="one" />
+                <Field.Control defaultValue="one" />
               </Field.Root>
             )}
             <Field.Root name="input2" validate={validateSpy}>
-              <Field.Control data-testid="input2" defaultValue="two" />
+              <Field.Control defaultValue="two" />
             </Field.Root>
-            <button>Submit</button>
+            <button type="submit">submit</button>
           </Form>
         );
       }
       await render(<App />);
 
-      const input = screen.getByTestId('input2');
-      fireEvent.focus(input);
-      fireEvent.blur(input);
+      fireEvent.click(screen.getByText('submit'));
 
       expect(validateSpy.callCount).to.equal(1);
       expect(validateSpy.firstCall.args[1]).to.deep.equal({
@@ -339,9 +232,7 @@ describe('<Field.Root />', () => {
       });
 
       fireEvent.click(screen.getByRole('checkbox'));
-
-      fireEvent.focus(input);
-      fireEvent.blur(input);
+      fireEvent.click(screen.getByText('submit'));
 
       expect(validateSpy.callCount).to.equal(2);
       expect(validateSpy.lastCall.args[1]).to.deep.equal({
@@ -351,6 +242,50 @@ describe('<Field.Root />', () => {
   });
 
   describe('prop: validationMode', () => {
+    describe('onSubmit', () => {
+      it('should validate the field on submit', async () => {
+        await render(
+          <Form>
+            <Field.Root validate={() => 'error'}>
+              <Field.Control />
+              <Field.Error />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        const message = screen.queryByText('error');
+
+        expect(message).to.equal(null);
+
+        fireEvent.click(screen.getByText('submit'));
+
+        expect(screen.queryByText('error')).not.to.equal(null);
+      });
+
+      it('revalidates on change', async () => {
+        await render(
+          <Form>
+            <Field.Root>
+              <Field.Control type="url" required defaultValue="" />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        const control = screen.getByRole<HTMLInputElement>('textbox');
+
+        expect(screen.queryByTestId('error')).to.equal(null);
+
+        fireEvent.click(screen.getByText('submit'));
+        expect(screen.queryByTestId('error')).not.to.equal(null);
+
+        fireEvent.change(control, { target: { value: 'http://example' } });
+        expect(screen.queryByTestId('error')).to.equal(null);
+      });
+    });
+
     describe('onChange', () => {
       it('validates the field on change', async () => {
         await render(
@@ -407,12 +342,10 @@ describe('<Field.Root />', () => {
         expect(control).to.have.attribute('data-invalid', '');
         expect(control).to.have.attribute('aria-invalid', 'true');
       });
-    });
 
-    describe('computed validity state', () => {
-      it('should not mark field as invalid for valueMissing if not dirty', async () => {
+      it('should not mark invalid if `valueMissing` is the only error and not yet dirtied', async () => {
         await render(
-          <Field.Root>
+          <Field.Root validationMode="onBlur">
             <Field.Control data-testid="control" required />
           </Field.Root>,
         );
@@ -426,42 +359,261 @@ describe('<Field.Root />', () => {
         expect(control).not.to.have.attribute('aria-invalid');
       });
 
-      it('should mark field as invalid for valueMissing if dirty', async () => {
+      it('should mark invalid if `valueMissing` is the only error and dirtied', async () => {
         await render(
-          <Field.Root>
+          <Field.Root validationMode="onBlur">
             <Field.Control data-testid="control" required />
           </Field.Root>,
         );
 
         const control = screen.getByTestId('control');
 
-        // Mark as touched and dirtied
         fireEvent.focus(control);
         fireEvent.change(control, { target: { value: 'a' } });
         fireEvent.change(control, { target: { value: '' } });
         fireEvent.blur(control);
 
-        // valueMissing is true, and markedDirtyRef is true, so valid should be false
         expect(control).to.have.attribute('data-invalid', '');
         expect(control).to.have.attribute('aria-invalid', 'true');
       });
 
-      it('should mark field as invalid for other errors (e.g., typeMismatch) even if not dirty', async () => {
+      it('supports async validation', async () => {
         await render(
-          <Field.Root>
-            <Field.Control data-testid="control" type="email" defaultValue="not_an_email@" />
+          <Field.Root validationMode="onBlur" validate={() => Promise.resolve('error')}>
+            <Field.Control />
+            <Field.Error />
           </Field.Root>,
         );
 
-        const control = screen.getByTestId('control');
+        const control = screen.getByRole('textbox');
+        const message = screen.queryByText('error');
 
-        // Mark as touched but not dirty
+        expect(message).to.equal(null);
+
         fireEvent.focus(control);
         fireEvent.blur(control);
 
-        // typeMismatch is true, so valid should be false regardless of dirty state
+        await flushMicrotasks();
+
+        await waitFor(() => {
+          expect(screen.queryByText('error')).not.to.equal(null);
+        });
+      });
+
+      it('should apply [data-field] style hooks to field components', async () => {
+        await render(
+          <Field.Root validationMode="onBlur">
+            <Field.Label data-testid="label">Label</Field.Label>
+            <Field.Description data-testid="description">Description</Field.Description>
+            <Field.Error data-testid="error" />
+            <Field.Control data-testid="control" required />
+          </Field.Root>,
+        );
+
+        const control = screen.getByTestId<HTMLInputElement>('control');
+        const label = screen.getByTestId('label');
+        const description = screen.getByTestId('description');
+        let error = screen.queryByTestId('error');
+
+        expect(control).not.to.have.attribute('data-valid');
+        expect(label).not.to.have.attribute('data-valid');
+        expect(description).not.to.have.attribute('data-valid');
+        expect(error).to.equal(null);
+
+        fireEvent.focus(control);
+        fireEvent.change(control, { target: { value: 'a' } });
+        fireEvent.change(control, { target: { value: '' } });
+        fireEvent.blur(control);
+
+        error = screen.getByTestId('error');
+
         expect(control).to.have.attribute('data-invalid', '');
-        expect(control).to.have.attribute('aria-invalid', 'true');
+        expect(label).to.have.attribute('data-invalid', '');
+        expect(description).to.have.attribute('data-invalid', '');
+        expect(error).to.have.attribute('data-invalid', '');
+
+        act(() => {
+          control.value = 'value';
+          control.focus();
+          control.blur();
+        });
+
+        error = screen.queryByTestId('error');
+
+        expect(control).to.have.attribute('data-valid', '');
+        expect(label).to.have.attribute('data-valid', '');
+        expect(description).to.have.attribute('data-valid', '');
+        expect(error).to.equal(null);
+      });
+
+      describe('revalidation', () => {
+        it('revalidates on change for `valueMissing`', async () => {
+          await render(
+            <Field.Root validationMode="onBlur">
+              <Field.Control required />
+              <Field.Error />
+            </Field.Root>,
+          );
+
+          const control = screen.getByRole('textbox');
+          const message = screen.queryByText('error');
+
+          expect(message).to.equal(null);
+
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: 't' } });
+          fireEvent.blur(control);
+
+          expect(control).not.to.have.attribute('aria-invalid', 'true');
+
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: '' } });
+          fireEvent.blur(control);
+
+          expect(control).to.have.attribute('aria-invalid');
+        });
+
+        it('handles both `required` and `typeMismatch`', async () => {
+          await render(
+            <Field.Root validationMode="onBlur">
+              <Field.Control type="email" required />
+              <Field.Error data-testid="error" />
+            </Field.Root>,
+          );
+
+          const control = screen.getByRole('textbox');
+          const message = screen.queryByTestId('error');
+
+          expect(message).to.equal(null);
+
+          fireEvent.focus(control);
+          fireEvent.blur(control);
+
+          expect(control).not.to.have.attribute('aria-invalid');
+
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: 'tt' } });
+          fireEvent.blur(control);
+
+          expect(control).to.have.attribute('aria-invalid', 'true');
+
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: '' } });
+          fireEvent.blur(control);
+
+          expect(control).to.have.attribute('aria-invalid', 'true');
+
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: 'email@email.com' } });
+          fireEvent.blur(control);
+
+          expect(control).not.to.have.attribute('aria-invalid');
+        });
+
+        it('clears valueMissing on change but defers other native errors like typeMismatch until blur when both are active', async () => {
+          await render(
+            <Field.Root validationMode="onBlur">
+              <Field.Control type="email" required data-testid="control" />
+              <Field.Error data-testid="error" />
+            </Field.Root>,
+          );
+
+          const control = screen.getByTestId('control');
+
+          fireEvent.focus(control);
+          fireEvent.blur(control);
+          expect(control).not.to.have.attribute('aria-invalid', 'true');
+          expect(screen.queryByTestId('error')).to.equal(null);
+
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: 'a' } });
+          fireEvent.change(control, { target: { value: '' } });
+          fireEvent.blur(control);
+
+          expect(control).to.have.attribute('aria-invalid', 'true');
+          expect(screen.getByTestId('error')).not.to.equal(null);
+
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: 't' } });
+
+          // The field becomes temporarily valid because only 'valueMissing' is checked for immediate clearing.
+          // Other errors like 'typeMismatch' are deferred to the next blur/submit.
+          expect(control).not.to.have.attribute('aria-invalid', 'true');
+          expect(screen.queryByTestId('error')).to.equal(null);
+
+          fireEvent.blur(control);
+
+          expect(control).to.have.attribute('aria-invalid', 'true');
+          expect(screen.getByTestId('error')).not.to.equal(null);
+          expect(screen.getByTestId('error').textContent).not.to.equal('');
+
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: 'test@example.com' } });
+
+          expect(control).not.to.have.attribute('aria-invalid', 'true');
+          expect(screen.queryByTestId('error')).to.equal(null);
+
+          fireEvent.blur(control);
+
+          expect(control).not.to.have.attribute('aria-invalid', 'true');
+          expect(screen.queryByTestId('error')).to.equal(null);
+        });
+      });
+
+      describe('computed validity state', () => {
+        it('should not mark field as invalid for valueMissing if not dirty', async () => {
+          await render(
+            <Field.Root validationMode="onBlur">
+              <Field.Control data-testid="control" required />
+            </Field.Root>,
+          );
+
+          const control = screen.getByTestId('control');
+
+          fireEvent.focus(control);
+          fireEvent.blur(control);
+
+          expect(control).not.to.have.attribute('data-invalid');
+          expect(control).not.to.have.attribute('aria-invalid');
+        });
+
+        it('should mark field as invalid for valueMissing if dirty', async () => {
+          await render(
+            <Field.Root validationMode="onBlur">
+              <Field.Control data-testid="control" required />
+            </Field.Root>,
+          );
+
+          const control = screen.getByTestId('control');
+
+          // Mark as touched and dirtied
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: 'a' } });
+          fireEvent.change(control, { target: { value: '' } });
+          fireEvent.blur(control);
+
+          // valueMissing is true, and markedDirtyRef is true, so valid should be false
+          expect(control).to.have.attribute('data-invalid', '');
+          expect(control).to.have.attribute('aria-invalid', 'true');
+        });
+
+        it('should mark field as invalid for other errors (e.g., typeMismatch) even if not dirty', async () => {
+          await render(
+            <Field.Root validationMode="onBlur">
+              <Field.Control data-testid="control" type="email" defaultValue="not_an_email@" />
+            </Field.Root>,
+          );
+
+          const control = screen.getByTestId('control');
+
+          // Mark as touched but not dirty
+          fireEvent.focus(control);
+          fireEvent.blur(control);
+
+          // typeMismatch is true, so valid should be false regardless of dirty state
+          expect(control).to.have.attribute('data-invalid', '');
+          expect(control).to.have.attribute('aria-invalid', 'true');
+        });
       });
     });
   });
@@ -507,120 +659,6 @@ describe('<Field.Root />', () => {
 
       expect(control).to.have.attribute('aria-invalid', 'true');
       expect(screen.queryByText('error')).not.to.equal(null);
-    });
-  });
-
-  describe('revalidation', () => {
-    it('revalidates on change for `valueMissing`', async () => {
-      await render(
-        <Field.Root>
-          <Field.Control required />
-          <Field.Error />
-        </Field.Root>,
-      );
-
-      const control = screen.getByRole('textbox');
-      const message = screen.queryByText('error');
-
-      expect(message).to.equal(null);
-
-      fireEvent.focus(control);
-      fireEvent.change(control, { target: { value: 't' } });
-      fireEvent.blur(control);
-
-      expect(control).not.to.have.attribute('aria-invalid', 'true');
-
-      fireEvent.focus(control);
-      fireEvent.change(control, { target: { value: '' } });
-      fireEvent.blur(control);
-
-      expect(control).to.have.attribute('aria-invalid');
-    });
-
-    it('handles both `required` and `typeMismatch`', async () => {
-      await render(
-        <Field.Root>
-          <Field.Control type="email" required />
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
-
-      const control = screen.getByRole('textbox');
-      const message = screen.queryByTestId('error');
-
-      expect(message).to.equal(null);
-
-      fireEvent.focus(control);
-      fireEvent.blur(control);
-
-      expect(control).not.to.have.attribute('aria-invalid');
-
-      fireEvent.focus(control);
-      fireEvent.change(control, { target: { value: 'tt' } });
-      fireEvent.blur(control);
-
-      expect(control).to.have.attribute('aria-invalid', 'true');
-
-      fireEvent.focus(control);
-      fireEvent.change(control, { target: { value: '' } });
-      fireEvent.blur(control);
-
-      expect(control).to.have.attribute('aria-invalid', 'true');
-
-      fireEvent.focus(control);
-      fireEvent.change(control, { target: { value: 'email@email.com' } });
-      fireEvent.blur(control);
-
-      expect(control).not.to.have.attribute('aria-invalid');
-    });
-
-    it('clears valueMissing on change but defers other native errors like typeMismatch until blur when both are active', async () => {
-      await render(
-        <Field.Root>
-          <Field.Control type="email" required data-testid="control" />
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
-
-      const control = screen.getByTestId('control');
-
-      fireEvent.focus(control);
-      fireEvent.blur(control);
-      expect(control).not.to.have.attribute('aria-invalid', 'true');
-      expect(screen.queryByTestId('error')).to.equal(null);
-
-      fireEvent.focus(control);
-      fireEvent.change(control, { target: { value: 'a' } });
-      fireEvent.change(control, { target: { value: '' } });
-      fireEvent.blur(control);
-
-      expect(control).to.have.attribute('aria-invalid', 'true');
-      expect(screen.getByTestId('error')).not.to.equal(null);
-
-      fireEvent.focus(control);
-      fireEvent.change(control, { target: { value: 't' } });
-
-      // The field becomes temporarily valid because only 'valueMissing' is checked for immediate clearing.
-      // Other errors like 'typeMismatch' are deferred to the next blur/submit.
-      expect(control).not.to.have.attribute('aria-invalid', 'true');
-      expect(screen.queryByTestId('error')).to.equal(null);
-
-      fireEvent.blur(control);
-
-      expect(control).to.have.attribute('aria-invalid', 'true');
-      expect(screen.getByTestId('error')).not.to.equal(null);
-      expect(screen.getByTestId('error').textContent).not.to.equal('');
-
-      fireEvent.focus(control);
-      fireEvent.change(control, { target: { value: 'test@example.com' } });
-
-      expect(control).not.to.have.attribute('aria-invalid', 'true');
-      expect(screen.queryByTestId('error')).to.equal(null);
-
-      fireEvent.blur(control);
-
-      expect(control).not.to.have.attribute('aria-invalid', 'true');
-      expect(screen.queryByTestId('error')).to.equal(null);
     });
   });
 

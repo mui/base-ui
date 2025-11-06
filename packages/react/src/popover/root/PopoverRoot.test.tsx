@@ -580,12 +580,18 @@ describe('<Popover.Root />', () => {
 
           await user.tab({ shift: true });
 
-          expect(screen.getByRole('button')).toHaveFocus();
+          await waitFor(() => {
+            expect(screen.getByRole('button')).toHaveFocus();
+          });
 
-          expect(screen.queryByTestId('popup')).to.toBeVisible();
+          await waitFor(() => {
+            expect(screen.queryByTestId('popup')).toBeVisible();
+          });
 
           await user.tab();
-          expect(screen.getByTestId('input-inside')).toHaveFocus();
+          await waitFor(() => {
+            expect(screen.getByTestId('input-inside')).toHaveFocus();
+          });
         },
       );
     });
@@ -740,6 +746,9 @@ describe('<Popover.Root />', () => {
       const { user } = await render(<Test />);
 
       const removeButton = screen.getByTestId('remove');
+      await waitFor(() => {
+        expect(removeButton).toHaveFocus();
+      });
       fireEvent.pointerDown(removeButton);
 
       const popup = screen.getByTestId('popup');
