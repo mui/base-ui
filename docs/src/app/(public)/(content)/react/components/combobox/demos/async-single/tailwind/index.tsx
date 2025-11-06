@@ -1,8 +1,8 @@
+'use client';
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
-import styles from './index.module.css';
 
-export default function ExampleAsyncCombobox() {
+export default function ExampleAsyncSingleCombobox() {
   const id = React.useId();
 
   const [searchResults, setSearchResults] = React.useState<DirectoryUser[]>([]);
@@ -11,9 +11,11 @@ export default function ExampleAsyncCombobox() {
   const [error, setError] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();
 
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+
   const { contains } = Combobox.useFilter();
 
-  const abortControllerRef = React.useRef<AbortController | null>(null);
+  const trimmedSearchValue = searchValue.trim();
 
   const items = React.useMemo(() => {
     if (!selectedValue || searchResults.some((user) => user.id === selectedValue.id)) {
@@ -24,12 +26,13 @@ export default function ExampleAsyncCombobox() {
   }, [searchResults, selectedValue]);
 
   function getStatus() {
-    const trimmedSearchValue = searchValue.trim();
-
     if (isPending) {
       return (
         <React.Fragment>
-          <span className={styles.Spinner} aria-hidden />
+          <span
+            aria-hidden="true"
+            className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent rtl:border-r-current rtl:border-l-transparent"
+          />
           Searching...
         </React.Fragment>
       );
@@ -51,12 +54,9 @@ export default function ExampleAsyncCombobox() {
   }
 
   function getEmptyMessage() {
-    const trimmedSearchValue = searchValue.trim();
-
     if (trimmedSearchValue === '' || isPending || searchResults.length > 0 || error) {
       return null;
     }
-
     return 'Try a different search term.';
   }
 
@@ -78,10 +78,6 @@ export default function ExampleAsyncCombobox() {
       onInputValueChange={(nextSearchValue, { reason }) => {
         setSearchValue(nextSearchValue);
 
-        const controller = new AbortController();
-        abortControllerRef.current?.abort();
-        abortControllerRef.current = controller;
-
         if (nextSearchValue === '') {
           setSearchResults([]);
           setError(null);
@@ -91,6 +87,10 @@ export default function ExampleAsyncCombobox() {
         if (reason === 'item-press') {
           return;
         }
+
+        const controller = new AbortController();
+        abortControllerRef.current?.abort();
+        abortControllerRef.current = controller;
 
         startTransition(async () => {
           setError(null);
@@ -108,39 +108,60 @@ export default function ExampleAsyncCombobox() {
         });
       }}
     >
-      <div className={styles.Label}>
+      <div className="relative flex flex-col gap-1 text-sm font-medium leading-5 text-gray-900">
         <label htmlFor={id}>Assign reviewer</label>
-        <div className={styles.InputWrapper}>
-          <Combobox.Input id={id} placeholder="e.g. Michael" className={styles.Input} />
-          <div className={styles.ActionButtons}>
-            <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
-              <ClearIcon className={styles.ClearIcon} />
+        <div className="relative w-max [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
+          <Combobox.Input
+            id={id}
+            placeholder="e.g. Michael"
+            className="box-border h-10 w-80 rounded-md border border-gray-200 bg-[canvas] pl-3.5 text-base font-normal text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          />
+          <div className="absolute bottom-0 right-2 flex h-10 items-center justify-center text-gray-600">
+            <Combobox.Clear
+              className="combobox-clear flex h-10 w-6 items-center justify-center rounded border-0 bg-transparent p-0"
+              aria-label="Clear selection"
+            >
+              <ClearIcon className="size-4" />
             </Combobox.Clear>
-            <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
-              <ChevronDownIcon className={styles.TriggerIcon} />
+            <Combobox.Trigger
+              className="flex h-10 w-6 items-center justify-center rounded border-0 bg-transparent p-0"
+              aria-label="Open popup"
+            >
+              <ChevronDownIcon className="size-4" />
             </Combobox.Trigger>
           </div>
         </div>
       </div>
 
       <Combobox.Portal>
-        <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
-          <Combobox.Popup className={styles.Popup} aria-busy={isPending || undefined}>
-            <Combobox.Status className={styles.Status}>{getStatus()}</Combobox.Status>
-            <Combobox.Empty className={styles.Empty}>{getEmptyMessage()}</Combobox.Empty>
+        <Combobox.Positioner className="outline-none" sideOffset={4}>
+          <Combobox.Popup
+            className="box-border w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pb-2 scroll-pt-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-[0_10px_15px_-3px_var(--color-gray-200),0_4px_6px_-4px_var(--color-gray-200)] outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:-outline-offset-1 dark:shadow-none dark:outline-gray-300"
+            aria-busy={isPending || undefined}
+          >
+            <Combobox.Status className="flex items-center gap-2 py-1 pl-4 pr-5 text-sm text-gray-600 empty:hidden">
+              {getStatus()}
+            </Combobox.Status>
+            <Combobox.Empty className="px-4 py-2 text-[0.875rem] leading-4 text-gray-600 empty:hidden">
+              {getEmptyMessage()}
+            </Combobox.Empty>
             <Combobox.List>
               {(user: DirectoryUser) => (
-                <Combobox.Item key={user.id} className={styles.Item} value={user}>
-                  <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                <Combobox.Item
+                  key={user.id}
+                  value={user}
+                  className="grid cursor-default select-none grid-cols-[0.75rem_1fr] items-start gap-2 py-2 pl-4 pr-5 text-base leading-[1.2rem] outline-none [@media(hover:hover)]:[&[data-highlighted]]:relative [@media(hover:hover)]:[&[data-highlighted]]:z-0 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-900 [@media(hover:hover)]:[&[data-highlighted]]:before:absolute [@media(hover:hover)]:[&[data-highlighted]]:before:inset-y-0 [@media(hover:hover)]:[&[data-highlighted]]:before:inset-x-2 [@media(hover:hover)]:[&[data-highlighted]]:before:z-[-1] [@media(hover:hover)]:[&[data-highlighted]]:before:rounded [@media(hover:hover)]:[&[data-highlighted]]:before:bg-gray-100 [@media(hover:hover)]:[&[data-highlighted]]:before:content-['']"
+                >
+                  <Combobox.ItemIndicator className="col-start-1 mt-1">
+                    <CheckIcon className="size-3" />
                   </Combobox.ItemIndicator>
-                  <div className={styles.ItemText}>
-                    <div className={styles.ItemTitle}>{user.name}</div>
-                    <div className={styles.ItemSubtitle}>
-                      <span className={styles.ItemUsername}>@{user.username}</span>
+                  <div className="col-start-2 flex flex-col gap-1">
+                    <div className="text-[0.95rem] font-medium">{user.name}</div>
+                    <div className="flex flex-wrap gap-3 text-[0.8125rem] text-gray-600">
+                      <span className="opacity-80">@{user.username}</span>
                       <span>{user.title}</span>
                     </div>
-                    <div className={styles.ItemEmail}>{user.email}</div>
+                    <div className="text-xs opacity-80">{user.email}</div>
                   </div>
                 </Combobox.Item>
               )}
