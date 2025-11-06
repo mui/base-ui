@@ -190,8 +190,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.2)(react@19.2.0)
       '@mui/internal-docs-infra':
-        specifier: ^0.2.3-canary.10
-        version: 0.2.3-canary.10(@types/react@19.2.2)(next@15.5.6(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@cfc7afe
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@cfc7afe(@types/react@19.2.2)(next@15.5.6(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@next/mdx':
         specifier: ^15.5.6
         version: 15.5.6(@mdx-js/loader@3.1.1(webpack@5.102.1))(@mdx-js/react@3.1.1(@types/react@19.2.2)(react@19.2.0))
@@ -2302,8 +2302,9 @@ packages:
       prettier: ^3.5.3
       typescript: ^5.0.0
 
-  '@mui/internal-docs-infra@0.2.3-canary.10':
-    resolution: {integrity: sha512-9UJbolStXhVYV5wkdkjP8Nhnfi4rqgGwXUSSe1KHRHciUIGXxTeAXAXPMKi2o4akDNUQK48TwtL8xobSEY1lww==}
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@cfc7afe':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@cfc7afe}
+    version: 0.2.2
     engines: {node: '>=22.12.0'}
     peerDependencies:
       '@types/react': ^19.2.2
@@ -12074,7 +12075,7 @@ snapshots:
       - stylelint
       - supports-color
 
-  '@mui/internal-docs-infra@0.2.3-canary.10(@types/react@19.2.2)(next@15.5.6(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@cfc7afe(@types/react@19.2.2)(next@15.5.6(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@babel/standalone': 7.28.5
