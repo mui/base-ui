@@ -5,16 +5,19 @@ import { Slider } from '@base-ui-components/react/slider';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 
 interface ColorStop {
+  id: string;
   value: number; // the slider thumb raw value in the range [0,100]
   hex: string; // hex
 }
 
 const INITIAL_START = {
+  id: 'initial-start',
   value: 0,
   hex: '#ffffff',
 };
 
 const INITIAL_END = {
+  id: 'initial-end',
   value: 100,
   hex: '#999999',
 };
@@ -24,6 +27,7 @@ export default function App() {
   const trackRef = React.useRef<HTMLDivElement>(null);
 
   const pressedColorRef = React.useRef<string>(null);
+  const pressedThumbIdRef = React.useRef<string>(null);
 
   const [valueUnwrapped, setValueUnwrapped] = React.useState<ColorStop[]>([
     INITIAL_START,
@@ -35,31 +39,32 @@ export default function App() {
   }, [valueUnwrapped]);
 
   const setValue = useStableCallback((nextValue, eventDetails) => {
-    // console.log('nextValue', nextValue, eventDetails, pressedColorRef.current);
-
-    function getNewValue(hex: ColorStop['hex']) {
-      return valueUnwrapped.filter((stop) => stop.hex !== hex);
+    // console.log('nextValue', nextValue, eventDetails);
+    function getNewValue(id: ColorStop['id']) {
+      return valueUnwrapped.filter((stop) => stop.id !== id);
     }
 
     let newStop;
     let newValue;
 
-    if (pressedColorRef.current) {
+    if (pressedThumbIdRef.current) {
       newStop = {
+        id: pressedThumbIdRef.current,
         value: nextValue[eventDetails.activeThumbIndex],
         hex: pressedColorRef.current,
       };
-      newValue = getNewValue(pressedColorRef.current);
+      newValue = getNewValue(pressedThumbIdRef.current);
     } else if (eventDetails.event.key && eventDetails.event.target.parentElement) {
       const activeThumbEl = eventDetails.event.target.parentElement;
       const activeThumbIndex = activeThumbEl.getAttribute('data-index');
       const activeThumbHex = activeThumbEl.getAttribute('data-value');
-      // console.log('key press setValue() activeThumbHex', activeThumbHex);
+      const activeThumbId = activeThumbEl.getAttribute('id');
       newStop = {
+        id: activeThumbId,
         value: nextValue[activeThumbIndex],
         hex: activeThumbHex,
       };
-      newValue = getNewValue(activeThumbHex);
+      newValue = getNewValue(activeThumbId);
     }
 
     if (newValue && newStop) {
@@ -90,29 +95,39 @@ export default function App() {
               const controlRect = controlEl.getBoundingClientRect();
               const nextXCoord = (event.clientX - controlRect.left) / controlRect.width;
               const nextVal = Math.round(nextXCoord * 100);
-              console.log('nextVal', nextVal);
-              // const nextSliderValue = val.slice();
-              // nextSliderValue.push(nextVal);
-              // nextSliderValue.sort((a, b) => a - b);
-              // console.log('nextSliderValue', nextSliderValue);
-              // setVal(nextSliderValue);
+              const nextIndex = valueUnwrapped.findIndex((v) => v.value > nextVal);
+              const nextStops = valueUnwrapped.slice();
+              const newStop: ColorStop = {
+                value: nextVal,
+                hex: '#ff8800',
+                id: Math.random().toString(36).slice(2),
+              };
+
+              if (nextIndex === -1) {
+                nextStops.push(newStop);
+              } else {
+                nextStops.splice(nextIndex, 0, newStop);
+              }
+              setValueUnwrapped(nextStops);
             }
           }}
           onPointerUp={() => {
             pressedColorRef.current = null;
+            pressedThumbIdRef.current = null;
           }}
         >
           <SliderTrack ref={trackRef}>
             {valueUnwrapped.map((val: ColorStop, i) => {
               return (
                 <SliderThumb
-                  key={`${val.hex}-${i}`}
-                  data-value={val.hex}
+                  key={val.id}
                   index={i}
+                  id={val.id}
+                  data-value={val.hex}
                   style={{ backgroundColor: val.hex }}
                   onPointerDown={() => {
                     pressedColorRef.current = val.hex;
-                    // console.log('thumb on pointerdown', pressedColorRef.current);
+                    pressedThumbIdRef.current = val.id;
                   }}
                 />
               );
