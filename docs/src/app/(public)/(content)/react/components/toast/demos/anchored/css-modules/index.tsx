@@ -56,7 +56,7 @@ function CopyButton() {
         anchor: buttonRef.current,
         sideOffset: 8,
       },
-      timeout: 10000,
+      timeout: 1500,
       onClose() {
         setCopied(false);
       },
