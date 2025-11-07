@@ -2,10 +2,6 @@
   "name": "ToastRoot",
   "description": "Groups all parts of an individual toast.\nRenders a `<div>` element.",
   "props": {
-    "style": {
-      "type": "CSSProperties | ((state: Toast.Root.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Toast.Root.State) => CSSProperties | undefined)\n| undefined"
-    },
     "swipeDirection": {
       "type": "'left' | 'right' | 'up' | 'down' | ('left' | 'right' | 'up' | 'down')[]",
       "default": "['down', 'right']",
@@ -22,6 +18,10 @@
       "type": "string | ((state: Toast.Root.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Toast.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Toast.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toast.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toast.Root.State) => ReactElement)",

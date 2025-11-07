@@ -97,6 +97,7 @@
     "id",
     "children",
     "className",
+    "style",
     "keepMounted",
     "render"
   ]

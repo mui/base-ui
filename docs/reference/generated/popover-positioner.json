@@ -8,10 +8,6 @@
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
       "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'none' | 'flip' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| {\n    side?: 'none' | 'shift'\n    align?: 'none' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Popover.Positioner.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Popover.Positioner.State,\n  ) => CSSProperties | undefined)\n| undefined"
-    },
     "align": {
       "type": "Align",
       "default": "'center'",
@@ -83,6 +79,10 @@
       "type": "string | ((state: Popover.Positioner.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Popover.Positioner.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Popover.Positioner.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Popover.Positioner.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Popover.Positioner.State) => ReactElement)",
