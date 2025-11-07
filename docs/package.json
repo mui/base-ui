@@ -21,7 +21,7 @@
     "@emotion/styled": "^11.14.1",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@mui/internal-docs-infra": "^0.2.3-canary.10",
+    "@mui/internal-docs-infra": "^0.2.3-canary.12",
     "@next/mdx": "^15.5.6",
     "@react-spring/web": "^10.0.3",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",
