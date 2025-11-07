@@ -3,9 +3,9 @@
   "description": "A two-state button that can be on or off.\nRenders a `<button>` element.",
   "props": {
     "value": {
-      "type": "string",
+      "type": "Value",
       "description": "A unique string that identifies the toggle when used\ninside a toggle group.",
-      "detailedType": "string | undefined"
+      "detailedType": "Value | undefined"
     },
     "defaultPressed": {
       "type": "boolean",
@@ -32,6 +32,11 @@
     "style": {
       "type": "CSSProperties | ((state: Toggle.State) => CSSProperties | undefined)",
       "detailedType": "| React.CSSProperties\n| ((state: Toggle.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "toggleRef": {
+      "type": "RefObject<HTMLButtonElement>",
+      "description": "The ref of the element.",
+      "detailedType": "React.RefObject<HTMLButtonElement> | undefined"
     },
     "disabled": {
       "type": "boolean",

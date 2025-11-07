@@ -3,25 +3,30 @@
   "description": "Provides a shared state to a series of toggle buttons.",
   "props": {
     "defaultValue": {
-      "type": "any[]",
+      "type": "Value[] | Value",
       "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the uncontrolled counterpart of `value`.",
-      "detailedType": "any[] | undefined"
+      "detailedType": "Value[] | Value | undefined"
     },
     "value": {
-      "type": "any[]",
+      "type": "Value[] | Value",
       "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the controlled counterpart of `defaultValue`.",
-      "detailedType": "any[] | undefined"
+      "detailedType": "Value[] | Value | undefined"
     },
     "onValueChange": {
-      "type": "((groupValue: any[], eventDetails: Toggle.Group.ChangeEventDetails) => void)",
+      "type": "((groupValue: Value[] | Value | undefined, eventDetails: Toggle.Group.ChangeEventDetails) => void)",
       "description": "Callback fired when the pressed states of the toggle group changes.",
-      "detailedType": "| ((\n    groupValue: any[],\n    eventDetails: Toggle.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    groupValue: Value[] | Value | undefined,\n    eventDetails: Toggle.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "multiple": {
-      "type": "boolean",
+      "type": "boolean | undefined",
       "default": "false",
       "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed.",
       "detailedType": "boolean | undefined"
+    },
+    "rootRef": {
+      "type": "RefObject<HTMLDivElement>",
+      "description": "The ref of the root component",
+      "detailedType": "React.RefObject<HTMLDivElement> | undefined"
     },
     "style": {
       "type": "CSSProperties | ((state: ToggleGroup.State) => CSSProperties | undefined)",
