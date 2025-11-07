@@ -18,10 +18,6 @@
       "description": "A payload to pass to the dialog when it is opened.",
       "detailedType": "Payload | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Dialog.Trigger.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Dialog.Trigger.State,\n  ) => CSSProperties | undefined)\n| undefined"
-    },
     "id": {
       "type": "string",
       "description": "ID of the trigger. In addition to being forwarded to the rendered element,\nit is also used to specify the active trigger for the dialogs in controlled mode (with the Dialog.Root `triggerId` prop).",
@@ -31,6 +27,10 @@
       "type": "string | ((state: Dialog.Trigger.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Dialog.Trigger.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Dialog.Trigger.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Dialog.Trigger.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Dialog.Trigger.State) => ReactElement)",

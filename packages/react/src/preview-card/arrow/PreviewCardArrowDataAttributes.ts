@@ -10,10 +10,6 @@ export enum PreviewCardArrowDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the anchor is hidden.
-   */
-  anchorHidden = CommonPopupDataAttributes.anchorHidden,
-  /**
    * Indicates which side the popup is positioned relative to the trigger.
    * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */

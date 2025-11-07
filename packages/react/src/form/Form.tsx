@@ -9,6 +9,7 @@ import type { BaseUIComponentProps } from '../utils/types';
 import { FormContext } from './FormContext';
 import { useRenderElement } from '../utils/useRenderElement';
 import { EMPTY_OBJECT } from '../utils/constants';
+import { useValueChanged } from '../utils/useValueChanged';
 
 /**
  * A native form element with consolidated error handling.
@@ -23,8 +24,7 @@ export const Form = React.forwardRef(function Form<
     render,
     className,
     validationMode = 'onSubmit',
-    errors,
-    onClearErrors,
+    errors: externalErrors,
     onSubmit,
     onFormSubmit,
     ...elementProps
@@ -44,6 +44,12 @@ export const Form = React.forwardRef(function Form<
     if (control.tagName === 'INPUT') {
       (control as HTMLInputElement).select();
     }
+  });
+
+  const [errors, setErrors] = React.useState(externalErrors);
+
+  useValueChanged(externalErrors, () => {
+    setErrors(externalErrors);
   });
 
   React.useEffect(() => {
@@ -111,7 +117,7 @@ export const Form = React.forwardRef(function Form<
     if (name && errors && EMPTY_OBJECT.hasOwnProperty.call(errors, name)) {
       const nextErrors = { ...errors };
       delete nextErrors[name];
-      onClearErrors?.(nextErrors);
+      setErrors(nextErrors);
     }
   });
 
@@ -154,14 +160,11 @@ export interface FormProps<FormValues extends Record<string, any> = Record<strin
    */
   validationMode?: FormValidationMode;
   /**
-   * An object where the keys correspond to the `name` attribute of the form fields,
-   * and the values correspond to the error(s) related to that field.
+   * Validation errors returned externally, typically after submission by a server or a form action.
+   * This should be an object where keys correspond to the `name` attribute on `<Field.Root>`,
+   * and values correspond to error(s) related to that field.
    */
   errors?: FormContext['errors'];
-  /**
-   * Event handler called when the `errors` object is cleared.
-   */
-  onClearErrors?: (errors: FormContext['errors']) => void;
   /**
    * Event handler called when the form is submitted.
    * `preventDefault()` is called on the native submit event when used.
