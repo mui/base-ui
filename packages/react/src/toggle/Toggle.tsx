@@ -18,10 +18,7 @@ import {
  *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
-export const Toggle = React.forwardRef(function Toggle(
-  componentProps: Toggle.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
-) {
+export function Toggle<Value>(componentProps: Toggle.Props<Value>) {
   const {
     className,
     defaultPressed: defaultPressedProp = false,
@@ -33,6 +30,7 @@ export const Toggle = React.forwardRef(function Toggle(
     type, // cannot change button type
     value: valueProp,
     nativeButton = true,
+    toggleRef = { current: null },
     ...elementProps
   } = componentProps;
 
@@ -40,14 +38,16 @@ export const Toggle = React.forwardRef(function Toggle(
 
   const groupContext = useToggleGroupContext();
 
-  const groupValue = groupContext?.value ?? [];
+  const groupValue = groupContext?.value;
+
+  const selected = Array.isArray(groupValue) ? groupValue.includes(value) : groupValue === value;
 
   const defaultPressed = groupContext ? undefined : defaultPressedProp;
 
   const disabled = (disabledProp || groupContext?.disabled) ?? false;
 
   const [pressed, setPressedState] = useControlled({
-    controlled: groupContext && value ? groupValue?.indexOf(value) > -1 : pressedProp,
+    controlled: groupContext && value ? selected : pressedProp,
     default: defaultPressed,
     name: 'Toggle',
     state: 'pressed',
@@ -73,7 +73,7 @@ export const Toggle = React.forwardRef(function Toggle(
     [disabled, pressed],
   );
 
-  const refs = [buttonRef, forwardedRef];
+  const refs = [buttonRef, toggleRef];
   const props = [
     {
       'aria-pressed': pressed,
@@ -115,7 +115,7 @@ export const Toggle = React.forwardRef(function Toggle(
   }
 
   return element;
-});
+}
 
 export interface ToggleState {
   /**
@@ -128,9 +128,9 @@ export interface ToggleState {
   disabled: boolean;
 }
 
-export interface ToggleProps
+export interface ToggleProps<Value>
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', Toggle.State> {
+    Omit<BaseUIComponentProps<'button', Toggle.State>, 'value'> {
   /**
    * Whether the toggle button is currently pressed.
    * This is the controlled counterpart of `defaultPressed`.
@@ -155,7 +155,11 @@ export interface ToggleProps
    * A unique string that identifies the toggle when used
    * inside a toggle group.
    */
-  value?: string;
+  value?: Value;
+  /**
+   * The ref of the element.
+   **/
+  toggleRef?: React.RefObject<HTMLButtonElement>;
 }
 
 export type ToggleChangeEventReason = 'none';
@@ -164,7 +168,7 @@ export type ToggleChangeEventDetails = BaseUIChangeEventDetails<Toggle.ChangeEve
 
 export namespace Toggle {
   export type State = ToggleState;
-  export type Props = ToggleProps;
+  export type Props<Value> = ToggleProps<Value>;
   export type ChangeEventReason = ToggleChangeEventReason;
   export type ChangeEventDetails = ToggleChangeEventDetails;
 }

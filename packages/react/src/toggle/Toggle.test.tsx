@@ -117,7 +117,7 @@ describe('<Toggle />', () => {
       }
 
       await render(
-        <ToggleGroup defaultValue={['left']}>
+        <ToggleGroup defaultValue="left">
           <Toggle value="left" render={(props) => <ToggleRenderComponent renderProps={props} />} />
         </ToggleGroup>,
       );
