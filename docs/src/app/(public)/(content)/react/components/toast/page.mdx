@@ -21,6 +21,7 @@ import { Toast } from '@base-ui-components/react/toast';
 <Toast.Provider>
   <Toast.Portal>
     <Toast.Viewport>
+      {/* Stacked toasts */}
       <Toast.Root>
         <Toast.Content>
           <Toast.Title />
@@ -29,6 +30,19 @@ import { Toast } from '@base-ui-components/react/toast';
           <Toast.Close />
         </Toast.Content>
       </Toast.Root>
+
+      {/* Anchored toasts */}
+      <Toast.Positioner>
+        <Toast.Root>
+          <Toast.Arrow />
+          <Toast.Content>
+            <Toast.Title />
+            <Toast.Description />
+            <Toast.Action />
+            <Toast.Close />
+          </Toast.Content>
+        </Toast.Root>
+      </Toast.Positioner>
     </Toast.Viewport>
   </Toast.Portal>
 </Toast.Provider>;
@@ -128,6 +142,66 @@ This is useful for animating the toast differently when it is removed from the l
 
 ## Examples
 
+### Anchored toasts
+
+Toasts can be anchored to a specific element using `<Toast.Positioner>` and the `positionerProps` option when adding a toast. This is useful for showing contextual feedback like transient "Copied" toasts that appear near the button that triggered the action.
+
+Anchored toasts should be rendered in a separate `<Toast.Provider>` from stacked toasts. A global toast manager can be created for each to manage them separately throughout your app:
+
+```tsx title="Mixing stacked and anchored toasts"
+const anchoredToastManager = Toast.createToastManager();
+const stackedToastManager = Toast.createToastManager();
+
+function App() {
+  return (
+    <React.Fragment>
+      <Toast.Provider toastManager={anchoredToastManager}>
+        <AnchoredToasts />
+      </Toast.Provider>
+      <Toast.Provider toastManager={stackedToastManager}>
+        <StackedToasts />
+      </Toast.Provider>
+
+      {/* App content */}
+    </React.Fragment>
+  );
+}
+
+function AnchoredToasts() {
+  const { toasts } = Toast.useToastManager();
+  return (
+    <Toast.Portal>
+      <Toast.Viewport>
+        {toasts.map((toast) => (
+          <Toast.Positioner key={toast.id} toast={toast}>
+            <Toast.Root toast={toast}>{/* ... */}</Toast.Root>
+          </Toast.Positioner>
+        ))}
+      </Toast.Viewport>
+    </Toast.Portal>
+  );
+}
+
+function StackedToasts() {
+  const { toasts } = Toast.useToastManager();
+  return (
+    <Toast.Portal>
+      <Toast.Viewport>
+        {toasts.map((toast) => (
+          <Toast.Root key={toast.id} toast={toast}>
+            {/* ... */}
+          </Toast.Root>
+        ))}
+      </Toast.Viewport>
+    </Toast.Portal>
+  );
+}
+```
+
+import { DemoToastAnchored } from './demos/anchored';
+
+<DemoToastAnchored compact />
+
 ### Custom position
 
 The position of the toasts is controlled by your own CSS.
@@ -179,7 +253,7 @@ import { DemoToastVaryingHeights } from './demos/varying-heights';
 
 <Reference
   component="Toast"
-  parts="Provider, Viewport, Portal, Root, Content, Title, Description, Action, Close"
+  parts="Provider, Viewport, Portal, Root, Content, Title, Description, Action, Close, Positioner, Arrow"
 />
 
 ## useToastManager
@@ -200,7 +274,7 @@ const toastManager = Toast.useToastManager();
       description: 'The array of toast objects.',
     },
     add: {
-      type: '(options: useToast.AddOptions) => string',
+      type: '(options: ToastManagerAddOptions) => string',
       description: 'Add a toast to the toast list.',
     },
     close: {
@@ -208,11 +282,11 @@ const toastManager = Toast.useToastManager();
       description: 'Closes and removes a toast from the toast list.',
     },
     update: {
-      type: '(toastId: string, options: useToast.UpdateOptions) => void',
+      type: '(toastId: string, options: ToastManagerUpdateOptions) => void',
       description: 'Update a toast in the toast list.',
     },
     promise: {
-      type: '<Value>(promise: Promise<Value>, options: useToast.PromiseOptions) => Promise<Value>',
+      type: '<Value>(promise: Promise<Value>, options: ToastManagerPromiseOptions) => Promise<Value>',
       description:
         'Create a toast that resolves with a value, with three possible states for the toast: `loading`, `success`, and `error`.',
     },
