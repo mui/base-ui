@@ -11,6 +11,7 @@ import { Slider } from '@base-ui-components/react/slider';
 import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { REASONS } from '../../utils/reasons';
 import {
   ARROW_RIGHT,
   ARROW_LEFT,
@@ -629,7 +630,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.args[0][1].activeThumbIndex).to.equal(0);
       expect(handleValueCommitted.callCount).to.equal(1);
       expect(handleValueCommitted.args[0][0]).to.equal(10);
-      expect(handleValueCommitted.args[0][1].reason).to.equal('track-press');
+      expect(handleValueCommitted.args[0][1].reason).to.equal(REASONS.trackPress);
 
       await act(async () => {
         slider.focus();
@@ -638,7 +639,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       fireEvent.change(slider, { target: { value: 23 } });
       expect(handleValueChange.callCount).to.equal(2);
       expect(handleValueCommitted.callCount).to.equal(2);
-      expect(handleValueCommitted.args[1][1].reason).to.equal('input-change');
+      expect(handleValueCommitted.args[1][1].reason).to.equal(REASONS.inputChange);
     });
 
     it.skipIf(isJSDOM || isWebKit)('should support touch events', async () => {
@@ -1009,7 +1010,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         number,
         SliderRoot.ChangeEventDetails,
       ];
-      expect(details.reason).to.equal('input-change');
+      expect(details.reason).to.equal(REASONS.inputChange);
       expect(details.activeThumbIndex).to.equal(0);
     });
 
@@ -1054,7 +1055,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         number | number[],
         SliderRoot.ChangeEventDetails,
       ];
-      expect(details.reason).to.equal('track-press');
+      expect(details.reason).to.equal(REASONS.trackPress);
     });
 
     it.skipIf(isJSDOM)('drags the intended thumb when 3 thumbs are present', async () => {

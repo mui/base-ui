@@ -15,6 +15,7 @@ import { getViewportRect } from '../utils/getViewportRect';
 import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewportResize';
 import { DEFAULT_STEP } from '../utils/constants';
 import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * An interactive area where the user can click and drag to change the field value.
@@ -155,7 +156,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
           onScrubbingChange(false, event);
           onValueCommitted(
             lastChangedValueRef.current ?? valueRef.current,
-            createGenericEventDetails('scrub', event),
+            createGenericEventDetails(REASONS.scrub, event),
           );
         }
       }
@@ -184,7 +185,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
             incrementValue(Math.abs(rawAmount), {
               direction: rawAmount >= 0 ? 1 : -1,
               event,
-              reason: 'scrub',
+              reason: REASONS.scrub,
             });
           }
         }

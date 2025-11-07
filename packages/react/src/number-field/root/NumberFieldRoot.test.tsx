@@ -6,6 +6,7 @@ import { NumberField as NumberFieldBase } from '@base-ui-components/react/number
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { REASONS } from '../../utils/reasons';
 
 describe('<NumberField />', () => {
   const { render } = createRenderer();
@@ -148,7 +149,7 @@ describe('<NumberField />', () => {
         number | null,
         NumberFieldBase.Root.ChangeEventDetails,
       ];
-      expect(details.reason).to.equal('input-change');
+      expect(details.reason).to.equal(REASONS.inputChange);
     });
 
     it('includes the reason when clearing the value', async () => {
@@ -163,7 +164,7 @@ describe('<NumberField />', () => {
         number | null,
         NumberFieldBase.Root.ChangeEventDetails,
       ];
-      expect(details.reason).to.equal('input-clear');
+      expect(details.reason).to.equal(REASONS.inputClear);
     });
 
     it('includes the reason for keyboard increments', async () => {

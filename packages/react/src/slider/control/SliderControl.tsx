@@ -12,6 +12,7 @@ import {
   createChangeEventDetails,
   createGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useSliderRootContext } from '../root/SliderRootContext';
@@ -265,7 +266,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
       setValue(
         finger.value,
-        createChangeEventDetails('drag', nativeEvent, undefined, {
+        createChangeEventDetails(REASONS.drag, nativeEvent, undefined, {
           activeThumbIndex: finger.thumbIndex,
         }),
       );
@@ -337,7 +338,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       focusThumb(finger.thumbIndex);
       setValue(
         finger.value,
-        createChangeEventDetails('track-press', nativeEvent, undefined, {
+        createChangeEventDetails(REASONS.trackPress, nativeEvent, undefined, {
           activeThumbIndex: finger.thumbIndex,
         }),
       );
@@ -433,7 +434,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
             if (!pressedOnAnyThumb) {
               setValue(
                 finger.value,
-                createChangeEventDetails('track-press', event.nativeEvent, undefined, {
+                createChangeEventDetails(REASONS.trackPress, event.nativeEvent, undefined, {
                   activeThumbIndex: finger.thumbIndex,
                 }),
               );

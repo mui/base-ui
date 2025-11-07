@@ -37,6 +37,7 @@ import {
   type BaseUIGenericEventDetails,
   type ReasonToEvent,
 } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -662,30 +663,30 @@ export interface NumberFieldRootState extends FieldRoot.State {
 }
 
 export type NumberFieldRootChangeEventReason =
-  | 'input-change'
-  | 'input-clear'
-  | 'input-blur'
-  | 'input-paste'
-  | 'keyboard'
-  | 'increment-press'
-  | 'decrement-press'
-  | 'wheel'
-  | 'scrub'
-  | 'none';
+  | typeof REASONS.inputChange
+  | typeof REASONS.inputClear
+  | typeof REASONS.inputBlur
+  | typeof REASONS.inputPaste
+  | typeof REASONS.keyboard
+  | typeof REASONS.incrementPress
+  | typeof REASONS.decrementPress
+  | typeof REASONS.wheel
+  | typeof REASONS.scrub
+  | typeof REASONS.none;
 export type NumberFieldRootChangeEventDetails = BaseUIChangeEventDetails<
   NumberFieldRootChangeEventReason,
   ChangeEventCustomProperties
 >;
 
 export type NumberFieldRootCommitEventReason =
-  | 'input-blur'
-  | 'input-clear'
-  | 'keyboard'
-  | 'increment-press'
-  | 'decrement-press'
-  | 'wheel'
-  | 'scrub'
-  | 'none';
+  | typeof REASONS.inputBlur
+  | typeof REASONS.inputClear
+  | typeof REASONS.keyboard
+  | typeof REASONS.incrementPress
+  | typeof REASONS.decrementPress
+  | typeof REASONS.wheel
+  | typeof REASONS.scrub
+  | typeof REASONS.none;
 export type NumberFieldRootCommitEventDetails =
   BaseUIGenericEventDetails<NumberFieldRoot.CommitEventReason>;
 

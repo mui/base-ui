@@ -4,6 +4,7 @@ import { getWindow, isHTMLElement } from '@floating-ui/utils/dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { FloatingRootContext, ElementProps } from '../../floating-ui-react';
 import { createChangeEventDetails } from '../createBaseUIEventDetails';
+import { REASONS } from '../reasons';
 import { activeElement, contains, getDocument } from '../../floating-ui-react/utils';
 
 interface UseFocusWithDelayProps {
@@ -49,7 +50,7 @@ export function useFocusWithDelay(
       onFocus(event) {
         const { nativeEvent } = event;
         timeout.start(delay ?? 0, () => {
-          onOpenChange(true, createChangeEventDetails('trigger-focus', nativeEvent));
+          onOpenChange(true, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
         });
       },
       onBlur(event) {
@@ -81,7 +82,7 @@ export function useFocusWithDelay(
             return;
           }
 
-          onOpenChange(false, createChangeEventDetails('trigger-focus', nativeEvent));
+          onOpenChange(false, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
         });
       },
     }),

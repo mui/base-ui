@@ -1,16 +1,20 @@
 import { expectType } from '#test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
+import { REASONS } from '../../utils/reasons';
 
 type NumberFieldChangeHandler = NonNullable<NumberField.Root.Props['onValueChange']>;
 type NumberFieldCommitHandler = NonNullable<NumberField.Root.Props['onValueCommitted']>;
 
 type NumberFieldChangeDetails = Parameters<NumberFieldChangeHandler>[1];
-type NumberFieldWheelEvent = Extract<NumberFieldChangeDetails, { reason: 'wheel' }>['event'];
+type NumberFieldWheelEvent = Extract<
+  NumberFieldChangeDetails,
+  { reason: typeof REASONS.wheel }
+>['event'];
 
 expectType<WheelEvent, NumberFieldWheelEvent>(null as unknown as NumberFieldWheelEvent);
 
 function assertNumberFieldChange(details: NumberFieldChangeDetails) {
-  if (details.reason === 'wheel') {
+  if (details.reason === REASONS.wheel) {
     const wheelEvent: WheelEvent = details.event;
     void wheelEvent;
     // @ts-expect-error wheel details should not expose pointer events
@@ -18,12 +22,12 @@ function assertNumberFieldChange(details: NumberFieldChangeDetails) {
     void pointerEvent;
   }
 
-  if (details.reason === 'increment-press') {
+  if (details.reason === REASONS.incrementPress) {
     const event: PointerEvent | MouseEvent | TouchEvent = details.event;
     void event;
   }
 
-  if (details.reason === 'input-clear') {
+  if (details.reason === REASONS.inputClear) {
     const event: InputEvent | FocusEvent | Event = details.event;
     void event;
     // @ts-expect-error keyboard events are not emitted for input-clear
@@ -35,17 +39,17 @@ function assertNumberFieldChange(details: NumberFieldChangeDetails) {
 type NumberFieldCommitDetails = Parameters<NumberFieldCommitHandler>[1];
 
 function assertNumberFieldCommit(details: NumberFieldCommitDetails) {
-  if (details.reason === 'wheel') {
+  if (details.reason === REASONS.wheel) {
     const event: WheelEvent = details.event;
     void event;
   }
 
-  if (details.reason === 'scrub') {
+  if (details.reason === REASONS.scrub) {
     const event: PointerEvent = details.event;
     void event;
   }
 
-  if (details.reason === 'input-clear') {
+  if (details.reason === REASONS.inputClear) {
     const event: InputEvent | FocusEvent | Event = details.event;
     void event;
   }

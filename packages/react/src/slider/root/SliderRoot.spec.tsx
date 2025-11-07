@@ -1,5 +1,6 @@
 import { expectType } from '#test-utils';
 import { Slider } from '@base-ui-components/react/slider';
+import { REASONS } from '../../utils/reasons';
 
 const value: number = 25;
 const array = [25];
@@ -45,7 +46,7 @@ type SliderCommitHandler = NonNullable<Slider.Root.Props['onValueCommitted']>;
 type SliderChangeDetails = Parameters<SliderChangeHandler>[1];
 
 function assertSliderChange(details: SliderChangeDetails) {
-  if (details.reason === 'drag') {
+  if (details.reason === REASONS.drag) {
     const event: PointerEvent | TouchEvent = details.event;
     void event;
     // @ts-expect-error pointer drag does not emit wheel events
@@ -53,12 +54,12 @@ function assertSliderChange(details: SliderChangeDetails) {
     void wheelEvent;
   }
 
-  if (details.reason === 'keyboard') {
+  if (details.reason === REASONS.keyboard) {
     const event: KeyboardEvent = details.event;
     void event;
   }
 
-  if (details.reason === 'track-press') {
+  if (details.reason === REASONS.trackPress) {
     const event: PointerEvent | MouseEvent | TouchEvent = details.event;
     void event;
   }
@@ -67,12 +68,12 @@ function assertSliderChange(details: SliderChangeDetails) {
 type SliderCommitDetails = Parameters<SliderCommitHandler>[1];
 
 function assertSliderCommit(details: SliderCommitDetails) {
-  if (details.reason === 'drag') {
+  if (details.reason === REASONS.drag) {
     const event: PointerEvent | TouchEvent = details.event;
     void event;
   }
 
-  if (details.reason === 'input-change') {
+  if (details.reason === REASONS.inputChange) {
     const event: InputEvent | Event = details.event;
     void event;
   }

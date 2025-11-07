@@ -1,33 +1,44 @@
 import { EMPTY_OBJECT } from './constants';
+import { REASONS } from './reasons';
 
 interface ReasonToEventMap {
-  none: Event;
-  'trigger-press': MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
-  'trigger-hover': MouseEvent;
-  'outside-press': MouseEvent | PointerEvent | TouchEvent;
-  'item-press': MouseEvent | KeyboardEvent | PointerEvent;
-  'close-press': MouseEvent | KeyboardEvent | PointerEvent;
-  'cancel-open': MouseEvent;
-  'trigger-focus': FocusEvent;
-  'focus-out': FocusEvent;
-  'escape-key': KeyboardEvent;
-  'list-navigation': KeyboardEvent;
-  'window-resize': UIEvent;
-  'sibling-open': Event;
-  'input-change': InputEvent | Event;
-  'input-clear': InputEvent | FocusEvent | Event;
-  'input-blur': FocusEvent;
-  'input-paste': ClipboardEvent;
-  keyboard: KeyboardEvent;
-  pointer: PointerEvent;
-  drag: PointerEvent | TouchEvent;
-  'track-press': PointerEvent | MouseEvent | TouchEvent;
-  'increment-press': PointerEvent | MouseEvent | TouchEvent;
-  'decrement-press': PointerEvent | MouseEvent | TouchEvent;
-  wheel: WheelEvent;
-  scrub: PointerEvent;
-  'clear-press': PointerEvent | MouseEvent | KeyboardEvent;
-  'chip-remove-press': PointerEvent | MouseEvent | KeyboardEvent;
+  [REASONS.none]: Event;
+
+  [REASONS.triggerPress]: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
+  [REASONS.triggerHover]: MouseEvent;
+  [REASONS.triggerFocus]: FocusEvent;
+
+  [REASONS.outsidePress]: MouseEvent | PointerEvent | TouchEvent;
+  [REASONS.itemPress]: MouseEvent | KeyboardEvent | PointerEvent;
+  [REASONS.closePress]: MouseEvent | KeyboardEvent | PointerEvent;
+  [REASONS.linkPress]: MouseEvent | PointerEvent;
+  [REASONS.clearPress]: PointerEvent | MouseEvent | KeyboardEvent;
+  [REASONS.chipRemovePress]: PointerEvent | MouseEvent | KeyboardEvent;
+  [REASONS.trackPress]: PointerEvent | MouseEvent | TouchEvent;
+  [REASONS.incrementPress]: PointerEvent | MouseEvent | TouchEvent;
+  [REASONS.decrementPress]: PointerEvent | MouseEvent | TouchEvent;
+
+  [REASONS.inputChange]: InputEvent | Event;
+  [REASONS.inputClear]: InputEvent | FocusEvent | Event;
+  [REASONS.inputBlur]: FocusEvent;
+  [REASONS.inputPaste]: ClipboardEvent;
+
+  [REASONS.focusOut]: FocusEvent;
+  [REASONS.escapeKey]: KeyboardEvent;
+  [REASONS.listNavigation]: KeyboardEvent;
+  [REASONS.keyboard]: KeyboardEvent;
+
+  [REASONS.pointer]: PointerEvent;
+  [REASONS.drag]: PointerEvent | TouchEvent;
+  [REASONS.wheel]: WheelEvent;
+  [REASONS.scrub]: PointerEvent;
+
+  [REASONS.cancelOpen]: MouseEvent;
+  [REASONS.siblingOpen]: Event;
+  [REASONS.disabled]: Event;
+  [REASONS.imperativeAction]: Event;
+
+  [REASONS.windowResize]: UIEvent;
 }
 
 /**

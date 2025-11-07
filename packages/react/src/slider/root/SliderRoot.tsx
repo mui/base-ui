@@ -31,17 +31,12 @@ import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStateAttributesMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
-
-function isSliderKeyboardEvent(
-  event: React.KeyboardEvent | React.ChangeEvent,
-): event is React.KeyboardEvent {
-  return 'key' in event;
-}
+import { REASONS } from '../../utils/reasons';
 
 function getSliderChangeEventReason(
   event: React.KeyboardEvent | React.ChangeEvent,
 ): SliderRootChangeEventReason {
-  return isSliderKeyboardEvent(event) ? 'keyboard' : 'input-change';
+  return 'key' in event ? REASONS.keyboard : REASONS.inputChange;
 }
 
 function areValuesEqual(
@@ -208,7 +203,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       }
 
       const changeDetails =
-        details ?? createChangeEventDetails('none', undefined, undefined, { activeThumbIndex: -1 });
+        details ??
+        createChangeEventDetails(REASONS.none, undefined, undefined, { activeThumbIndex: -1 });
 
       lastChangeReasonRef.current = changeDetails.reason;
 
@@ -238,7 +234,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     },
   );
 
-  // for keypresses only
   const handleInputChange = useStableCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
       const newValue = getSliderValue(valueInput, index, min, max, range, values);
@@ -254,7 +249,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         setTouched(true);
 
         const nextValue = lastChangedValueRef.current ?? newValue;
-        onValueCommitted(nextValue, createGenericEventDetails('none', event.nativeEvent));
+        onValueCommitted(nextValue, createGenericEventDetails(reason, event.nativeEvent));
       }
     },
   );
@@ -561,22 +556,22 @@ export interface SliderRootChangeEventCustomProperties {
 }
 
 export type SliderRootChangeEventReason =
-  | 'input-change'
-  | 'track-press'
-  | 'drag'
-  | 'keyboard'
-  | 'none';
+  | typeof REASONS.inputChange
+  | typeof REASONS.trackPress
+  | typeof REASONS.drag
+  | typeof REASONS.keyboard
+  | typeof REASONS.none;
 export type SliderRootChangeEventDetails = BaseUIChangeEventDetails<
   SliderRoot.ChangeEventReason,
   SliderRootChangeEventCustomProperties
 >;
 
 export type SliderRootCommitEventReason =
-  | 'drag'
-  | 'track-press'
-  | 'keyboard'
-  | 'input-change'
-  | 'none';
+  | typeof REASONS.inputChange
+  | typeof REASONS.trackPress
+  | typeof REASONS.drag
+  | typeof REASONS.keyboard
+  | typeof REASONS.none;
 export type SliderRootCommitEventDetails = BaseUIGenericEventDetails<SliderRoot.CommitEventReason>;
 
 export namespace SliderRoot {
