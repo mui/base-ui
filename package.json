@@ -81,7 +81,7 @@
     "cross-env": "^10.1.0",
     "docs": "workspace:^",
     "es-toolkit": "^1.41.0",
-    "eslint": "^9.39.0",
+    "eslint": "^9.39.1",
     "execa": "^9.6.0",
     "globby": "^15.0.0",
     "lerna": "^9.0.0",
