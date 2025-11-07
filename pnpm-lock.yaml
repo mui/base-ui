@@ -586,7 +586,7 @@ importers:
         specifier: ^1.41.0
         version: 1.41.0
       rimraf:
-        specifier: ^6.0.1
+        specifier: ^6.1.0
         version: 6.1.0
       tsx:
         specifier: ^4.20.6
