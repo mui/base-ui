@@ -124,7 +124,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
   useIsoLayoutEffect(() => {
-    if (isOpenedByThisTrigger) {
+    if (isTriggerActive) {
       store.update({
         floatingTreeRoot,
         parent,
@@ -132,14 +132,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         floatingParentNodeId,
       });
     }
-  }, [
-    isOpenedByThisTrigger,
-    store,
-    floatingTreeRoot,
-    parent,
-    floatingNodeId,
-    floatingParentNodeId,
-  ]);
+  }, [isTriggerActive, store, floatingTreeRoot, parent, floatingNodeId, floatingParentNodeId]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,

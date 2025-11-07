@@ -33,7 +33,6 @@ import {
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
 import { mergeProps } from '../../merge-props';
-import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
 import { MenuStore } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import { PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
@@ -118,10 +117,11 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const activeIndex = store.useState('activeIndex');
   const payload = store.useState('payload') as Payload | undefined;
   const triggers = store.useState('triggers');
+  const floatingParentNodeId = store.useState('floatingParentNodeId');
 
   const openEventRef = React.useRef<Event | null>(null);
   const stickIfOpenTimeout = useTimeout();
-  const nested = useFloatingParentNodeId() != null;
+  const nested = floatingParentNodeId != null;
 
   const treeRoot = store.useState('floatingTreeRoot');
 
@@ -392,7 +392,10 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   }, [floatingEvents, setOpen]);
 
   const focus = useFocus(floatingRootContext, {
-    enabled: !disabled && !open && parent.type === 'menubar' && parent.context.hasSubmenuOpen,
+    enabled:
+      !disabled &&
+      ((parent.type !== 'menubar' && !open) ||
+        (parent.type === 'menubar' && parent.context.hasSubmenuOpen)),
   });
 
   const dismiss = useDismiss(floatingRootContext, {
