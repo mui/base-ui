@@ -19,8 +19,6 @@
 
   &::before,
   &::after {
-    --scroll-area-overflow-y-start: inherit;
-    --scroll-area-overflow-y-end: inherit;
     content: '';
     display: block;
     left: 0;
@@ -32,12 +30,14 @@
   }
 
   &::before {
+    --scroll-area-overflow-y-start: inherit;
     top: 0;
     height: min(40px, var(--scroll-area-overflow-y-start));
     background: linear-gradient(to bottom, var(--color-gray-50), transparent);
   }
 
   &::after {
+    --scroll-area-overflow-y-end: inherit;
     bottom: 0;
     height: min(40px, var(--scroll-area-overflow-y-end, 40px));
     background: linear-gradient(to top, var(--color-gray-50), transparent);
