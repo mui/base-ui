@@ -186,6 +186,74 @@ import { Field } from '@base-ui-components/react/field';
 </Field.Root>;
 ```
 
+## Server-side validation
+
+You can pass errors returned by (post-submission) server-side validation to the `errors` prop, which will be merged into the client-side field state for display.
+
+This should be an object with field names as keys, and an error string or array of strings as the value. Once a field's value changes, any corresponding error in `errors` will be cleared from the field state.
+
+```tsx title="Displaying errors returned by server-side validation" "errors"
+import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui-components/react/field';
+
+async function submitToServer(/* payload */) {
+  return {
+    errors: {
+      promoCode: 'This promo code has expired',
+    },
+  };
+}
+
+const [errors, setErrors] = React.useState();
+
+<Form
+  errors={errors}
+  onSubmit={(event) => {
+    event.preventDefault();
+    const response = await submitToServer(/* data */);
+    setErrors(response.errors);
+  }}
+>
+  <Field.Root name="promoCode" />
+</Form>;
+```
+
+When using [Server Functions with Form Actions](https://react.dev/reference/rsc/server-functions#server-functions-with-use-action-state) you can return server-side errors from `useActionState` to the `errors` prop. A demo is available [here](/react/components/form#submit-with-a-server-function).
+
+```tsx title="Returning errors from useActionState" "state" "errors" "formAction"
+// app/form.tsx
+/* prettier-ignore */
+'use client';
+import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui-components/react/field';
+import { login } from './actions';
+
+const [state, formAction, loading] = React.useActionState(login, {});
+
+<Form action={formAction} errors={state.errors}>
+  <Field.Root name="password">
+    <Field.Control />
+    <Field.Error />
+  </Field.Root>
+</Form>;
+
+// app/actions.ts
+/* prettier-ignore */
+'use server';
+export async function login(formData: FormData) {
+  const result = authenticateUser(formData);
+
+  if (!result.success) {
+    return {
+      errors: {
+        password: 'Invalid username or password',
+      },
+    };
+  }
+  /* redirect on the server on success */
+}
+```
+
 ## Displaying errors
 
 Use `<Field.Error>` without `children` to automatically display the field's native error message when invalid. The `match` prop can be used to customize the message based on the validity state, and manage internationalization from your application logic:
