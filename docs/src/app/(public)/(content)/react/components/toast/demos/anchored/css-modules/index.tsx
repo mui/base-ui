@@ -45,9 +45,6 @@ function CopyButton() {
   const buttonRef = React.useRef<HTMLButtonElement | null>(null);
 
   function handleCopy() {
-    // Simulate copying to clipboard
-    navigator.clipboard.writeText('Hello, world!');
-
     setCopied(true);
 
     anchoredToastManager.add({
@@ -73,17 +70,11 @@ function CopyButton() {
       }}
     >
       <Tooltip.Trigger
-        render={
-          <Button
-            ref={buttonRef}
-            type="button"
-            className={styles.CopyButton}
-            focusableWhenDisabled
-            disabled={copied}
-            onClick={handleCopy}
-            aria-label="Copy to clipboard"
-          />
-        }
+        ref={buttonRef}
+        className={styles.CopyButton}
+        onClick={handleCopy}
+        aria-label="Copy to clipboard"
+        render={<Button disabled={copied} focusableWhenDisabled />}
       >
         {copied ? <CheckIcon className={styles.Icon} /> : <ClipboardIcon className={styles.Icon} />}
       </Tooltip.Trigger>
