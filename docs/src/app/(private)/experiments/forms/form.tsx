@@ -114,7 +114,6 @@ export default function Page() {
       <Form<MyFormValues>
         className={styles.Form}
         errors={errors}
-        onClearErrors={setErrors}
         onFormSubmit={async (values) => {
           const response = await submitForm(values, native);
           setErrors(response.errors);
