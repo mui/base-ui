@@ -9,6 +9,7 @@ import {
   safePolygon,
   useClick,
   useFloatingTree,
+  useFocus,
   useHover,
   useInteractions,
 } from '../../floating-ui-react/index';
@@ -101,6 +102,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const menuDisabled = store.useState('disabled');
   const floatingRootContext = store.useState('floatingRootContext');
   const hoverEnabled = store.useState('hoverEnabled');
+  const parentMenubarHasSubmenuOpen = parent.type === 'menubar' && parent.context.hasSubmenuOpen;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
@@ -188,8 +190,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
-  const openOnHover =
-    openOnHoverProp ?? (parent.type === 'menubar' && parent.context.hasSubmenuOpen);
+  const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen ?? false;
 
   const hover = useHover(floatingRootContext, {
     enabled:
@@ -197,7 +198,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       openOnHover &&
       !disabled &&
       parent.type !== 'context-menu' &&
-      (parent.type !== 'menubar' || (parent.context.hasSubmenuOpen && !isOpenedByThisTrigger)),
+      (parent.type !== 'menubar' || (parentMenubarHasSubmenuOpen && !isOpenedByThisTrigger)),
     handleClose: safePolygon({ blockPointerEvents: parent.type !== 'menubar' }),
     mouseOnly: true,
     move: false,
@@ -215,13 +216,19 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     stickIfOpen: parent.type === undefined ? store.select('stickIfOpen') : false,
   });
 
+  const focus = useFocus(floatingRootContext, {
+    enabled:
+      !disabled &&
+      ((parent.type !== 'menubar' && !isOpenedByThisTrigger) || parentMenubarHasSubmenuOpen),
+  });
+
   const mixedToggleHandlers = useMixedToggleClickHandler({
     open: isOpenedByThisTrigger,
     enabled: parent.type === 'menubar',
     mouseDownAction: 'open',
   });
 
-  const localInteractionProps = useInteractions([click, hover]);
+  const localInteractionProps = useInteractions([click, hover, focus]);
 
   const isMenubar = parent.type === 'menubar';
 

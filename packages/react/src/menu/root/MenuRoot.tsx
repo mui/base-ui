@@ -11,7 +11,6 @@ import {
   FloatingTree,
   useDismiss,
   useFloatingRootContext,
-  useFocus,
   useInteractions,
   useListNavigation,
   useRole,
@@ -391,13 +390,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     };
   }, [floatingEvents, setOpen]);
 
-  const focus = useFocus(floatingRootContext, {
-    enabled:
-      !disabled &&
-      ((parent.type !== 'menubar' && !open) ||
-        (parent.type === 'menubar' && parent.context.hasSubmenuOpen)),
-  });
-
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,
     bubbles: closeParentOnEsc && parent.type === 'menu',
@@ -463,7 +455,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   const { getReferenceProps, getFloatingProps, getItemProps, getTriggerProps } = useInteractions([
     dismiss,
-    focus,
     role,
     listNavigation,
     typeahead,
