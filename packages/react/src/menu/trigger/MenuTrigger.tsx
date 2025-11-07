@@ -26,6 +26,7 @@ import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../composite/item/CompositeItem';
+import { useCompositeRootContext } from '../../composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
 import { useTriggerRegistration } from '../../utils/popupStoreUtils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -73,6 +74,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const contextMenuContext = useContextMenuRootContext(true);
   const parentContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
+  const compositeRootContext = useCompositeRootContext(true);
 
   const parent: MenuParent = React.useMemo(() => {
     if (menubarContext) {
@@ -132,9 +134,18 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         parent,
         floatingNodeId,
         floatingParentNodeId,
+        keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
       });
     }
-  }, [isTriggerActive, store, floatingTreeRoot, parent, floatingNodeId, floatingParentNodeId]);
+  }, [
+    isTriggerActive,
+    store,
+    floatingTreeRoot,
+    parent,
+    floatingNodeId,
+    floatingParentNodeId,
+    compositeRootContext?.relayKeyboardEvent,
+  ]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,

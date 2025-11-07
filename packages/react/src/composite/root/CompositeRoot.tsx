@@ -49,6 +49,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     onHighlightedIndexChange,
     elementsRef,
     onMapChange: onMapChangeUnwrapped,
+    relayKeyboardEvent,
   } = useCompositeRoot({
     itemSizes,
     cols,
@@ -73,8 +74,13 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
-    () => ({ highlightedIndex, onHighlightedIndexChange, highlightItemOnHover }),
-    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover],
+    () => ({
+      highlightedIndex,
+      onHighlightedIndexChange,
+      highlightItemOnHover,
+      relayKeyboardEvent,
+    }),
+    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover, relayKeyboardEvent],
   );
 
   return (

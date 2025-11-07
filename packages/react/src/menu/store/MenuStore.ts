@@ -36,6 +36,7 @@ export type State<Payload> = {
   activeTriggerProps: HTMLProps;
   inactiveTriggerProps: HTMLProps;
   activeTriggerId: string | null;
+  keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
 };
 
 type Context = {
@@ -117,6 +118,19 @@ const selectors = {
   inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
   payload: createSelector((state: State<unknown>) => state.payload),
   triggers: createSelector((state: State<unknown>) => state.triggers),
+  keyboardEventRelay: createSelector(
+    (state: State<unknown>): React.KeyboardEventHandler<any> | undefined => {
+      if (state.keyboardEventRelay) {
+        return state.keyboardEventRelay;
+      }
+
+      if (state.parent.type === 'menu') {
+        return state.parent.store.select('keyboardEventRelay');
+      }
+
+      return undefined;
+    },
+  ),
 };
 
 export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
@@ -216,5 +230,6 @@ function createInitialState<Payload>(): State<Payload> {
     payload: undefined,
     triggers: new Map<string, HTMLElement>(),
     activeTriggerId: null,
+    keyboardEventRelay: undefined,
   };
 }

@@ -511,6 +511,16 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
             store.set('hoverEnabled', false);
           }
         },
+        onKeyDown(event) {
+          // The Menubar's CompositeRoot captures keyboard events via
+          // event delegation. This works well when Menu.Root is nested inside Menubar,
+          // but with detached triggers we need to manually forward the event to the CompositeRoot.
+          const relay = store.select('keyboardEventRelay');
+          if (relay) {
+            event.stopPropagation();
+            relay(event);
+          }
+        },
       }),
     [getFloatingProps, parent.type, disableHoverTimeout, store],
   );

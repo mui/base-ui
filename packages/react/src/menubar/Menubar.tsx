@@ -120,7 +120,7 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
         if (!rootContext.hasSubmenuOpen) {
           rootContext.setHasSubmenuOpen(true);
         }
-      } else if (details.reason !== 'sibling-open') {
+      } else if (details.reason !== 'sibling-open' && details.reason !== 'list-navigation') {
         rootContext.setHasSubmenuOpen(false);
       }
     }
