@@ -306,22 +306,19 @@ describe('<Checkbox.Root />', () => {
       expect(error).to.have.text('required');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors] = React.useState<Record<string, string | string[]>>({
-          test: 'test',
-        });
-        return (
-          <Form errors={errors}>
-            <Field.Root name="test" data-testid="field">
-              <Checkbox.Root data-testid="checkbox" />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      await render(<App />);
+    it('clears external errors on change', async () => {
+      await render(
+        <Form
+          errors={{
+            test: 'test',
+          }}
+        >
+          <Field.Root name="test" data-testid="field">
+            <Checkbox.Root data-testid="checkbox" />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       const checkbox = screen.getByTestId('checkbox');
 

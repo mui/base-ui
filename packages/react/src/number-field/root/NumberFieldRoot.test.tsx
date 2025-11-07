@@ -871,22 +871,19 @@ describe('<NumberField />', () => {
       expect(screen.queryByTestId('error')).to.have.text('server error');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors] = React.useState<Form.Props['errors']>({
-          test: 'test',
-        });
-        return (
-          <Form errors={errors}>
-            <Field.Root name="test" data-testid="field">
-              <NumberField defaultValue={1} />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      await render(<App />);
+    it('clears external errors on change', async () => {
+      await render(
+        <Form
+          errors={{
+            test: 'test',
+          }}
+        >
+          <Field.Root name="test" data-testid="field">
+            <NumberField defaultValue={1} />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       const input = screen.getByRole('textbox');
 
