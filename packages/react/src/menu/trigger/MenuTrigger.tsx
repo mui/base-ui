@@ -36,6 +36,7 @@ import { MenuHandle } from '../store/MenuHandle';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -219,12 +220,17 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     externalTree: floatingTreeRoot,
   });
 
+  // Whether to ignore clicks to open the menu.
+  // `lastOpenChangeReason` doesnt't need to be reactive here, as we need to run this
+  // only when `open` changes.
+  const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
+
   const click = useClick(floatingRootContext, {
     enabled: !disabled && parent.type !== 'context-menu',
     event: isOpenedByThisTrigger && parent.type === 'menubar' ? 'click' : 'mousedown',
     toggle: true,
     ignoreMouse: false,
-    stickIfOpen: parent.type === undefined ? store.select('stickIfOpen') : false,
+    stickIfOpen: parent.type === undefined ? stickIfOpen : false,
   });
 
   const focus = useFocus(floatingRootContext, {
@@ -382,4 +388,27 @@ export type MenuTriggerState = {
 export namespace MenuTrigger {
   export type Props<Payload = unknown> = MenuTriggerProps<Payload>;
   export type State = MenuTriggerState;
+}
+
+/**
+ * Determines whether to ignore clicks after a hover-open.
+ */
+function useStickIfOpen(open: boolean, openReason: string | null) {
+  const stickIfOpenTimeout = useTimeout();
+  const [stickIfOpen, setStickIfOpen] = React.useState(false);
+  useIsoLayoutEffect(() => {
+    if (open && openReason === 'trigger-hover') {
+      // Only allow "patient" clicks to close the menu if it's open.
+      // If they clicked within 500ms of the menu opening, keep it open.
+      setStickIfOpen(true);
+      stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+        setStickIfOpen(false);
+      });
+    } else if (!open) {
+      stickIfOpenTimeout.clear();
+      setStickIfOpen(false);
+    }
+  }, [open, openReason, stickIfOpenTimeout]);
+
+  return stickIfOpen;
 }

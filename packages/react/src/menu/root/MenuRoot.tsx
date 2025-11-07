@@ -19,7 +19,7 @@ import {
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { PATIENT_CLICK_THRESHOLD, TYPEAHEAD_RESET_MS } from '../../utils/constants';
+import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -119,7 +119,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const floatingParentNodeId = store.useState('floatingParentNodeId');
 
   const openEventRef = React.useRef<Event | null>(null);
-  const stickIfOpenTimeout = useTimeout();
+
   const nested = floatingParentNodeId != null;
 
   const treeRoot = store.useState('floatingTreeRoot');
@@ -310,13 +310,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       }
 
       if (reason === REASONS.triggerHover) {
-        // Only allow "patient" clicks to close the menu if it's open.
-        // If they clicked within 500ms of the menu opening, keep it open.
-        store.set('stickIfOpen', true);
-        stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
-          store.set('stickIfOpen', false);
-        });
-
         ReactDOM.flushSync(changeState);
       } else {
         changeState();
@@ -353,12 +346,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   );
 
   React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
-
-  React.useEffect(() => {
-    if (!open) {
-      stickIfOpenTimeout.clear();
-    }
-  }, [stickIfOpenTimeout, open]);
 
   const floatingRootContext = useFloatingRootContext({
     elements: {
