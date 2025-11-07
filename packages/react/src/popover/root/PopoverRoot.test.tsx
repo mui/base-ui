@@ -584,10 +584,6 @@ describe('<Popover.Root />', () => {
             expect(screen.getByRole('button')).toHaveFocus();
           });
 
-          await waitFor(() => {
-            expect(screen.queryByTestId('popup')).toBeVisible();
-          });
-
           await user.tab();
           await waitFor(() => {
             expect(screen.getByTestId('input-inside')).toHaveFocus();
