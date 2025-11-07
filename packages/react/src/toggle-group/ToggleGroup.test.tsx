@@ -79,7 +79,7 @@ describe('<ToggleGroup />', () => {
   describe('controlled', () => {
     it('pressed state', async () => {
       const { setProps } = await render(
-        <ToggleGroup value={['two']}>
+        <ToggleGroup value="two">
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
@@ -106,7 +106,7 @@ describe('<ToggleGroup />', () => {
 
     it('prop: value', async () => {
       const { setProps } = await render(
-        <ToggleGroup value={['two']}>
+        <ToggleGroup value="two">
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
@@ -196,7 +196,7 @@ describe('<ToggleGroup />', () => {
 
     it('only one item can be pressed when false', async () => {
       const { user } = await render(
-        <ToggleGroup multiple={false} defaultValue={['one']}>
+        <ToggleGroup defaultValue="one">
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
