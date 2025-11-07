@@ -16,7 +16,6 @@ import {
   useInteractions,
   useListNavigation,
   useClick,
-  useTypeahead,
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
@@ -359,7 +358,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         popupProps: {},
         inputProps: {},
         triggerProps: {},
-        typeaheadTriggerProps: {},
         positionerElement: null,
         listElement: null,
         triggerElement: null,
@@ -1062,19 +1060,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
-  const { reference: typeaheadTriggerProps } = useTypeahead(floatingRootContext, {
-    enabled: !open && !readOnly && !disabled && selectionMode === 'single',
-    listRef: labelsRef,
-    activeIndex,
-    selectedIndex,
-    onMatch(index) {
-      const nextSelectedValue = valuesRef.current[index];
-      if (nextSelectedValue !== undefined) {
-        setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
-      }
-    },
-  });
-
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
     role,
     click,
@@ -1088,7 +1073,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
-      typeaheadTriggerProps,
       getItemProps,
       setOpen,
       setInputValue,
@@ -1113,7 +1097,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
-      typeaheadTriggerProps,
       openMethod,
       getItemProps,
       selectionMode,
@@ -1147,7 +1130,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     getItemProps,
     openMethod,
     triggerProps,
-    typeaheadTriggerProps,
     selectionMode,
     name,
     disabled,
