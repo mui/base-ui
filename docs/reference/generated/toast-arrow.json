@@ -21,9 +21,6 @@
     "data-uncentered": {
       "description": "Present when the toast arrow is uncentered."
     },
-    "data-anchor-hidden": {
-      "description": "Present when the anchor is hidden."
-    },
     "data-align": {
       "description": "Indicates how the toast is aligned relative to specified side.",
       "type": "'start' | 'center' | 'end'"
