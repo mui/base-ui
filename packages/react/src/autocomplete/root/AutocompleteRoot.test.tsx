@@ -851,34 +851,31 @@ describe('<Autocomplete.Root />', () => {
       expect(error).to.have.text('required');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
-          autocomplete: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="autocomplete">
-              <Autocomplete.Root>
-                <Autocomplete.Input data-testid="input" />
-                <Autocomplete.Portal>
-                  <Autocomplete.Positioner>
-                    <Autocomplete.Popup>
-                      <Autocomplete.List>
-                        <Autocomplete.Item value="a">a</Autocomplete.Item>
-                        <Autocomplete.Item value="b">b</Autocomplete.Item>
-                      </Autocomplete.List>
-                    </Autocomplete.Popup>
-                  </Autocomplete.Positioner>
-                </Autocomplete.Portal>
-              </Autocomplete.Root>
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      const { user } = await renderFakeTimers(<App />);
+    it('clears external errors on change', async () => {
+      const { user } = await renderFakeTimers(
+        <Form
+          errors={{
+            autocomplete: 'test',
+          }}
+        >
+          <Field.Root name="autocomplete">
+            <Autocomplete.Root>
+              <Autocomplete.Input data-testid="input" />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      <Autocomplete.Item value="a">a</Autocomplete.Item>
+                      <Autocomplete.Item value="b">b</Autocomplete.Item>
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       expect(screen.getByTestId('error')).to.have.text('test');
 
