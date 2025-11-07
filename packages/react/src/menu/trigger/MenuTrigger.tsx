@@ -230,7 +230,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const focus = useFocus(floatingRootContext, {
     enabled:
       !disabled &&
-      ((parent.type !== 'menubar' && !isOpenedByThisTrigger) || parentMenubarHasSubmenuOpen),
+      ((parent.type !== 'menubar' && isOpenedByThisTrigger) || parentMenubarHasSubmenuOpen),
   });
 
   const mixedToggleHandlers = useMixedToggleClickHandler({
