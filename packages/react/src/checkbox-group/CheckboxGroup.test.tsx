@@ -547,7 +547,6 @@ describe('<CheckboxGroup />', () => {
         return (
           <Form
             errors={errors}
-            onClearErrors={setErrors}
             onSubmit={(event) => {
               event.preventDefault();
               setErrors({ group: 'server error' });
