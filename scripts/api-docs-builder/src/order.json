@@ -49,7 +49,6 @@
     "onClick",
     "closeOnClick",
     "errors",
-    "onClearErrors",
     "hidden",
     "hiddenUntilFound",
     "__EVERYTHING_ELSE__",

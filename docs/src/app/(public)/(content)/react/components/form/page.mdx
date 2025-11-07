@@ -30,6 +30,14 @@ import { Form } from '@base-ui-components/react/form';
 
 ## Examples
 
+### Submit with a Server Function
+
+Forms using `useActionState` can be submitted with a [Server Function](https://react.dev/reference/react-dom/components/form#handle-form-submission-with-a-server-function) instead of `onSubmit`.
+
+import { DemoFormAction } from './demos/form-action';
+
+<DemoFormAction />
+
 ### Submit form values as a JavaScript object
 
 You can use `onFormSubmit` instead of the native `onSubmit` to access form values as a JavaScript object. This is useful when you need to transform the values before submission, or integrate with 3rd party APIs.
