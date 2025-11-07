@@ -37,5 +37,22 @@
       "description": "Present when there is overflow on the vertical start side."
     }
   },
-  "cssVariables": {}
+  "cssVariables": {
+    "--scroll-area-overflow-x-end": {
+      "description": "The distance from the horizontal end edge in pixels.",
+      "type": "number"
+    },
+    "--scroll-area-overflow-x-start": {
+      "description": "The distance from the horizontal start edge in pixels.",
+      "type": "number"
+    },
+    "--scroll-area-overflow-y-end": {
+      "description": "The distance from the vertical end edge in pixels.",
+      "type": "number"
+    },
+    "--scroll-area-overflow-y-start": {
+      "description": "The distance from the vertical start edge in pixels.",
+      "type": "number"
+    }
+  }
 }
