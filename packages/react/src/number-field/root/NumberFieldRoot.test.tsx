@@ -1220,6 +1220,43 @@ describe('<NumberField />', () => {
         expect(input).to.have.attribute('aria-invalid', 'true');
       });
 
+      it('revalidates when the controlled value changes externally', async () => {
+        const validateSpy = spy((value: unknown) =>
+          (value as number | null) === 5 ? 'error' : null,
+        );
+
+        function App() {
+          const [value, setValue] = React.useState<number | null>(null);
+
+          return (
+            <React.Fragment>
+              <Field.Root validationMode="onChange" validate={validateSpy} name="quantity">
+                <NumberFieldBase.Root value={value} onValueChange={(next) => setValue(next)}>
+                  <NumberFieldBase.Input data-testid="input" />
+                </NumberFieldBase.Root>
+              </Field.Root>
+              <button type="button" onClick={() => setValue(5)}>
+                Set externally
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(<App />);
+
+        const input = screen.getByTestId('input');
+        const toggle = screen.getByText('Set externally');
+
+        expect(input).not.to.have.attribute('aria-invalid');
+        const initialCallCount = validateSpy.callCount;
+
+        fireEvent.click(toggle);
+
+        expect(validateSpy.callCount).to.equal(initialCallCount + 1);
+        expect(validateSpy.lastCall.args[0]).to.equal(5);
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
       it('onBlur', async () => {
         await render(
           <Field.Root

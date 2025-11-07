@@ -13,6 +13,7 @@ import {
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { useValueChanged } from '../../utils/useValueChanged';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { clamp } from '../../utils/clamp';
@@ -166,6 +167,25 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     getValue: () => valueUnwrapped,
   });
 
+  useValueChanged(valueUnwrapped, () => {
+    clearErrors(name);
+
+    if (shouldValidateOnChange()) {
+      validation.commit(valueUnwrapped);
+    } else {
+      validation.commit(valueUnwrapped, true);
+    }
+
+    const initialValue = validityData.initialValue as Value | undefined;
+    let isDirty: boolean;
+    if (Array.isArray(valueUnwrapped) && Array.isArray(initialValue)) {
+      isDirty = !areArraysEqual(valueUnwrapped, initialValue);
+    } else {
+      isDirty = valueUnwrapped !== initialValue;
+    }
+    setDirty(isDirty);
+  });
+
   const registerFieldControlRef = useStableCallback((element: HTMLElement | null) => {
     if (element) {
       controlRef.current = element;
@@ -215,12 +235,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       }
 
       setValueUnwrapped(newValue as Value);
-      clearErrors(name);
-      if (shouldValidateOnChange()) {
-        validation.commit(newValue);
-      } else {
-        validation.commit(newValue, true);
-      }
     },
   );
 
@@ -237,19 +251,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
             activeThumbIndex: index,
           }),
         );
-        setDirty(newValue !== validityData.initialValue);
         setTouched(true);
 
         const nextValue = lastChangedValueRef.current ?? newValue;
-        const commitReason = lastChangeReasonRef.current;
-        onValueCommitted(nextValue, createGenericEventDetails(commitReason, event.nativeEvent));
-        clearErrors(name);
-
-        if (shouldValidateOnChange()) {
-          validation.commit(nextValue ?? newValue);
-        } else {
-          validation.commit(nextValue ?? newValue, true);
-        }
+        onValueCommitted(nextValue, createGenericEventDetails('none', event.nativeEvent));
       }
     },
   );

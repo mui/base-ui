@@ -2099,6 +2099,44 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         expect(input).to.have.attribute('aria-invalid', 'true');
       });
 
+      it('revalidates when the controlled value changes externally', async () => {
+        const validateSpy = spy((value: unknown) => (Number(value) === 5 ? 'error' : null));
+
+        function App() {
+          const [value, setValue] = React.useState(0);
+
+          return (
+            <React.Fragment>
+              <Field.Root validationMode="onChange" validate={validateSpy} name="volume">
+                <Slider.Root value={value} onValueChange={(next) => setValue(next as number)}>
+                  <Slider.Control>
+                    <Slider.Thumb />
+                  </Slider.Control>
+                </Slider.Root>
+              </Field.Root>
+              <button type="button" onClick={() => setValue(5)}>
+                Set externally
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(<App />);
+
+        const slider = screen.getByRole('slider');
+        const toggle = screen.getByText('Set externally');
+
+        expect(slider).not.to.have.attribute('aria-invalid');
+        const initialCallCount = validateSpy.callCount;
+
+        fireEvent.click(toggle);
+        await flushMicrotasks();
+
+        expect(validateSpy.callCount).to.equal(initialCallCount + 1);
+        expect(validateSpy.lastCall.args[0]).to.equal(5);
+        expect(slider).to.have.attribute('aria-invalid', 'true');
+      });
+
       it('receives an array value for range sliders', async () => {
         const validateSpy = spy();
         await render(
