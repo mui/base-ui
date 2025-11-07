@@ -473,10 +473,12 @@ describe('<Menu.Root />', () => {
     ).forEach(([orientation, direction, openKey, closeKey]) => {
       it.skipIf(isJSDOM)(
         `opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu with ${openKey} key and closes it with ${closeKey}`,
+
         async () => {
           const { user } = await render(
             <DirectionProvider direction={direction}>
               <Menu.Root open orientation={orientation}>
+                <Menu.Trigger>Open menu</Menu.Trigger>
                 <Menu.Portal>
                   <Menu.Positioner>
                     <Menu.Popup>
