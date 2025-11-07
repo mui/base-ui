@@ -29,6 +29,18 @@ import { ScrollArea } from '@base-ui-components/react/scroll-area';
 </ScrollArea.Root>;
 ```
 
+## Examples
+
+### Gradient scroll fade
+
+import { DemoScrollAreaScrollFade } from './demos/scroll-fade';
+
+Use the viewport overflow CSS variables to fade the scroll edges, which gradually increases in strength as the user scrolls away from the edges.
+
+The CSS variables do not inherit by default to improve rendering performance in complex scroll areas with deep subtrees. To use them in child elements (or pseudo-elements on `<ScrollArea.Viewport>`), you must manually set each variable to `inherit`.
+
+<DemoScrollAreaScrollFade />
+
 ## API reference
 
 <Reference component="ScrollArea" parts="Root, Viewport, Content, Scrollbar, Thumb, Corner" />

@@ -51,22 +51,6 @@
     "--scroll-area-corner-width": {
       "description": "The scroll area's corner width.",
       "type": "number"
-    },
-    "--scroll-area-overflow-x-end": {
-      "description": "The distance from the horizontal end edge in pixels.",
-      "type": "number"
-    },
-    "--scroll-area-overflow-x-start": {
-      "description": "The distance from the horizontal start edge in pixels.",
-      "type": "number"
-    },
-    "--scroll-area-overflow-y-end": {
-      "description": "The distance from the vertical end edge in pixels.",
-      "type": "number"
-    },
-    "--scroll-area-overflow-y-start": {
-      "description": "The distance from the vertical start edge in pixels.",
-      "type": "number"
     }
   }
 }

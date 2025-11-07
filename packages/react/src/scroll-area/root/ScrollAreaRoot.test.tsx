@@ -301,7 +301,6 @@ describe('<ScrollArea.Root />', () => {
         </ScrollArea.Root>,
       );
 
-      const root = screen.getByTestId('root');
       const viewport = screen.getByTestId('viewport');
 
       fireEvent.scroll(viewport, {
@@ -317,11 +316,11 @@ describe('<ScrollArea.Root />', () => {
 
       await waitFor(() => expect(viewport).to.have.attribute('data-overflow-x-start'));
 
-      const rootStyle = root.style;
-      const startPx = rootStyle.getPropertyValue('--scroll-area-overflow-x-start');
+      const viewportStyle = viewport.style;
+      const startPx = viewportStyle.getPropertyValue('--scroll-area-overflow-x-start');
       expect(startPx).to.equal('35px');
 
-      const horizontalEndPx = rootStyle.getPropertyValue('--scroll-area-overflow-x-end');
+      const horizontalEndPx = viewportStyle.getPropertyValue('--scroll-area-overflow-x-end');
       expect(horizontalEndPx).to.not.equal('');
       expect(horizontalEndPx).to.not.equal('0px');
     });
