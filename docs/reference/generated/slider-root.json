@@ -42,6 +42,12 @@
       "description": "How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`:\n- `center`: The center of the thumb is aligned with the control edge\n- `edge`: The thumb is inset within the control such that its edge is aligned with the control edge\n- `edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return",
       "detailedType": "'center' | 'edge' | 'edge-client-only' | undefined"
     },
+    "thumbCollisionBehavior": {
+      "type": "'none' | 'push' | 'swap'",
+      "default": "'push'",
+      "description": "Controls how thumbs behave when they collide during pointer interactions.\n\n- `'push'` (default): Thumbs push each other without restoring their previous positions when dragged back.\n- `'swap'`: Thumbs swap places when dragged past each other.\n- `'none'`: Thumbs cannot move past each other; excess movement is ignored.",
+      "detailedType": "'none' | 'push' | 'swap' | undefined"
+    },
     "step": {
       "type": "number",
       "default": "1",
