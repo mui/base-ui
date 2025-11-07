@@ -8,14 +8,14 @@
       "description": "A string value that provides a user-friendly name for the role of the input.",
       "detailedType": "string | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: NumberField.Input.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: NumberField.Input.State,\n  ) => CSSProperties | undefined)\n| undefined"
-    },
     "className": {
       "type": "string | ((state: NumberField.Input.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: NumberField.Input.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: NumberField.Input.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: NumberField.Input.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NumberField.Input.State) => ReactElement)",

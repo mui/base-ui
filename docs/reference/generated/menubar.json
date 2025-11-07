@@ -8,10 +8,6 @@
       "description": "Whether the menubar is modal.",
       "detailedType": "boolean | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Menubar.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Menubar.State) => CSSProperties | undefined)\n| undefined"
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -34,6 +30,10 @@
       "type": "string | ((state: Menubar.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Menubar.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Menubar.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menubar.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menubar.State) => ReactElement)",
