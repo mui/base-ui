@@ -17,7 +17,6 @@ export type State = {
   isItemEqualToValue: (item: any, value: any) => boolean;
 
   value: any;
-  label: string;
 
   open: boolean;
   mounted: boolean;
@@ -53,8 +52,6 @@ export const selectors = {
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
 
   value: createSelector((state: State) => state.value),
-  label: createSelector((state: State) => state.label),
-
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
   forceMount: createSelector((state: State) => state.forceMount),

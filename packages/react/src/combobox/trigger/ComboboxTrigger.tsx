@@ -62,9 +62,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const inputValue = useComboboxInputValueContext();
 
-  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
-
   const focusTimeout = useTimeout();
+
+  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
