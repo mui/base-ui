@@ -10,6 +10,8 @@ import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
 import {
   FloatingTree,
   useDismiss,
+  useFloatingNodeId,
+  useFloatingParentNodeId,
   useFloatingRootContext,
   useInteractions,
   useListNavigation,
@@ -62,15 +64,15 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   } = props;
 
   const contextMenuContext = useContextMenuRootContext(true);
-  const parentContext = useMenuRootContext(true);
+  const parentMenuRootContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
   const isSubmenu = useMenuSubmenuRootContext();
 
   const parentFromContext: MenuParent = React.useMemo(() => {
-    if (isSubmenu && parentContext) {
+    if (isSubmenu && parentMenuRootContext) {
       return {
         type: 'menu',
-        store: parentContext.store,
+        store: parentMenuRootContext.store,
       };
     }
 
@@ -84,7 +86,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     // Ensure this is not a Menu nested inside ContextMenu.Trigger.
     // ContextMenu parentContext is always undefined as ContextMenu.Root is instantiated with
     // <MenuRootContext.Provider value={undefined}>
-    if (contextMenuContext && !parentContext) {
+    if (contextMenuContext && !parentMenuRootContext) {
       return {
         type: 'context-menu',
         context: contextMenuContext,
@@ -94,9 +96,35 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     return {
       type: undefined,
     };
-  }, [contextMenuContext, parentContext, menubarContext, isSubmenu]);
+  }, [contextMenuContext, parentMenuRootContext, menubarContext, isSubmenu]);
 
-  const store = MenuStore.useStore(handle?.store, { parent: parentFromContext });
+  const store = MenuStore.useStore(handle?.store, {
+    parent: parentFromContext,
+  });
+
+  const floatingNodeIdFromContext = useFloatingNodeId();
+  const floatingParentNodeIdFromContext = useFloatingParentNodeId();
+
+  useIsoLayoutEffect(() => {
+    if (contextMenuContext && !parentMenuRootContext) {
+      // This is a context menu root.
+      // It doesn't support detached triggers yet, so we have to sync the parent context manually.
+      store.update({
+        parent: {
+          type: 'context-menu',
+          context: contextMenuContext,
+        },
+        floatingNodeId: floatingNodeIdFromContext,
+        floatingParentNodeId: floatingParentNodeIdFromContext,
+      });
+    }
+  }, [
+    contextMenuContext,
+    parentMenuRootContext,
+    floatingNodeIdFromContext,
+    floatingParentNodeIdFromContext,
+    store,
+  ]);
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
