@@ -18,7 +18,10 @@ import {
  *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
-export function Toggle<Value>(componentProps: Toggle.Props<Value>) {
+export const Toggle = React.forwardRef(function Toggle<Value>(
+  componentProps: Toggle.Props<Value>,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+) {
   const {
     className,
     defaultPressed: defaultPressedProp = false,
@@ -30,7 +33,6 @@ export function Toggle<Value>(componentProps: Toggle.Props<Value>) {
     type, // cannot change button type
     value: valueProp,
     nativeButton = true,
-    toggleRef = { current: null },
     ...elementProps
   } = componentProps;
 
@@ -73,7 +75,7 @@ export function Toggle<Value>(componentProps: Toggle.Props<Value>) {
     [disabled, pressed],
   );
 
-  const refs = [buttonRef, toggleRef];
+  const refs = [buttonRef, forwardedRef];
   const props = [
     {
       'aria-pressed': pressed,
@@ -115,7 +117,13 @@ export function Toggle<Value>(componentProps: Toggle.Props<Value>) {
   }
 
   return element;
-}
+}) as {
+  <Value>(
+    props: Toggle.Props<Value> & {
+      ref?: React.RefObject<HTMLButtonElement>;
+    },
+  ): React.JSX.Element;
+};
 
 export interface ToggleState {
   /**
@@ -156,10 +164,6 @@ export interface ToggleProps<Value>
    * inside a toggle group.
    */
   value?: Value;
-  /**
-   * The ref of the element.
-   **/
-  toggleRef?: React.RefObject<HTMLButtonElement>;
 }
 
 export type ToggleChangeEventReason = 'none';

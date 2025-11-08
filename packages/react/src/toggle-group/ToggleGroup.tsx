@@ -24,8 +24,12 @@ const stateAttributesMapping = {
  *
  * Documentation: [Base UI Toggle Group](https://base-ui.com/react/components/toggle-group)
  */
-export function ToggleGroup<Value, Multiple extends boolean | undefined = false>(
+export const ToggleGroup = React.forwardRef(function ToggleGroup<
+  Value,
+  Multiple extends boolean | undefined = false,
+>(
   componentProps: ToggleGroup.Props<Value, Multiple>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     defaultValue: defaultValueProp,
@@ -37,7 +41,6 @@ export function ToggleGroup<Value, Multiple extends boolean | undefined = false>
     value: valueProp,
     className,
     render,
-    rootRef = { current: null },
     ...elementProps
   } = componentProps;
 
@@ -116,7 +119,7 @@ export function ToggleGroup<Value, Multiple extends boolean | undefined = false>
   const element = useRenderElement('div', componentProps, {
     enabled: Boolean(toolbarContext),
     state,
-    ref: rootRef,
+    ref: forwardedRef,
     props: [defaultProps, elementProps],
     stateAttributesMapping,
   });
@@ -130,7 +133,7 @@ export function ToggleGroup<Value, Multiple extends boolean | undefined = false>
           render={render}
           className={className}
           state={state}
-          refs={[rootRef]}
+          refs={[forwardedRef]}
           props={[defaultProps, elementProps]}
           stateAttributesMapping={stateAttributesMapping}
           loop={loop}
@@ -138,7 +141,11 @@ export function ToggleGroup<Value, Multiple extends boolean | undefined = false>
       )}
     </ToggleGroupContext.Provider>
   );
-}
+}) as {
+  <Value, Multiple extends boolean | undefined = false>(
+    props: ToggleGroup.Props<Value, Multiple> & { ref?: React.RefObject<HTMLDivElement> },
+  ): React.JSX.Element;
+};
 
 export interface ToggleGroupState {
   /**
@@ -202,10 +209,6 @@ export interface ToggleGroupProps<Value, Multiple extends boolean | undefined = 
    * @default false
    */
   multiple?: Multiple;
-  /**
-   * The ref of the root component
-   **/
-  rootRef?: React.RefObject<HTMLDivElement>;
 }
 
 export type ToggleGroupChangeEventReason = 'none';
