@@ -102,7 +102,8 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     parent: parentFromContext,
   });
 
-  const floatingNodeIdFromContext = useFloatingNodeId();
+  const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
   useIsoLayoutEffect(() => {
@@ -114,6 +115,11 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
           type: 'context-menu',
           context: contextMenuContext,
         },
+        floatingNodeId: floatingNodeIdFromContext,
+        floatingParentNodeId: floatingParentNodeIdFromContext,
+      });
+    } else if (parentMenuRootContext) {
+      store.update({
         floatingNodeId: floatingNodeIdFromContext,
         floatingParentNodeId: floatingParentNodeIdFromContext,
       });
@@ -149,8 +155,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const openEventRef = React.useRef<Event | null>(null);
 
   const nested = floatingParentNodeId != null;
-
-  const treeRoot = store.useState('floatingTreeRoot');
 
   let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
 
@@ -415,7 +419,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
       return allowOutsidePressDismissalRef.current;
     },
-    externalTree: nested ? treeRoot : undefined,
+    externalTree: nested ? floatingTreeRoot : undefined,
   });
 
   const role = useRole(floatingRootContext, {
@@ -446,7 +450,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     disabledIndices: EMPTY_ARRAY,
     onNavigate: setActiveIndex,
     openOnArrowKeyDown: parent.type !== 'context-menu',
-    externalTree: nested ? treeRoot : undefined,
+    externalTree: nested ? floatingTreeRoot : undefined,
   });
 
   const onTypingChange = React.useCallback(
@@ -565,7 +569,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   if (parent.type === undefined || parent.type === 'context-menu') {
     // set up a FloatingTree to provide the context to nested menus
-    return <FloatingTree externalTree={treeRoot}>{content}</FloatingTree>;
+    return <FloatingTree externalTree={floatingTreeRoot}>{content}</FloatingTree>;
   }
 
   return content;

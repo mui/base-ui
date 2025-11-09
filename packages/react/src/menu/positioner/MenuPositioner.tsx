@@ -59,7 +59,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const nodeId = store.useState('floatingNodeId');
+  const floatingNodeId = store.useState('floatingNodeId');
+  const floatingParentNodeId = store.useState('floatingParentNodeId');
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
@@ -99,7 +100,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    nodeId,
+    nodeId: floatingNodeId,
     keepMounted,
     trackAnchor,
     collisionAvoidance,
@@ -127,16 +128,16 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   React.useEffect(() => {
     function onMenuOpenChange(details: MenuOpenEventDetails) {
       if (details.open) {
-        if (details.parentNodeId === nodeId) {
+        if (details.parentNodeId === floatingNodeId) {
           store.set('hoverEnabled', false);
         }
         if (
-          details.nodeId !== nodeId &&
+          details.nodeId !== floatingNodeId &&
           details.parentNodeId === store.select('floatingParentNodeId')
         ) {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
         }
-      } else if (details.parentNodeId === nodeId) {
+      } else if (details.parentNodeId === floatingNodeId) {
         // Re-enable hover on the parent when a child closes, except when the child
         // closed due to hovering a different sibling item in this parent (sibling-open).
         // Keeping hover disabled in that scenario prevents the parent from closing
@@ -152,7 +153,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     return () => {
       floatingTreeRoot.events.off('menuopenchange', onMenuOpenChange);
     };
-  }, [store, floatingTreeRoot.events, nodeId]);
+  }, [store, floatingTreeRoot.events, floatingNodeId]);
 
   React.useEffect(() => {
     if (store.select('floatingParentNodeId') == null) {
@@ -194,9 +195,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       floatingTreeRoot.events.off('itemhover', onItemHover);
     };
   }, [floatingTreeRoot.events, open, triggerElement, store]);
-
-  const floatingNodeId = store.select('floatingNodeId');
-  const floatingParentNodeId = store.select('floatingParentNodeId');
 
   React.useEffect(() => {
     const eventDetails: MenuOpenEventDetails = {
@@ -276,7 +274,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
           cutout={backdropCutout}
         />
       )}
-      <FloatingNode id={nodeId}>
+      <FloatingNode id={floatingNodeId}>
         <CompositeList
           elementsRef={store.context.itemDomElements}
           labelsRef={store.context.itemLabels}
