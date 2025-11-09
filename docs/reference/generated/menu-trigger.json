@@ -2,11 +2,21 @@
   "name": "MenuTrigger",
   "description": "A button that opens the menu.\nRenders a `<button>` element.",
   "props": {
+    "handle": {
+      "type": "Menu.Handle<Payload>",
+      "description": "A handle to associate the trigger with a menu.",
+      "detailedType": "{} | undefined"
+    },
     "nativeButton": {
       "type": "boolean",
       "default": "true",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
       "detailedType": "boolean | undefined"
+    },
+    "payload": {
+      "type": "Payload",
+      "description": "A payload to pass to the menu when it is opened.",
+      "detailedType": "Payload | undefined"
     },
     "disabled": {
       "type": "boolean",

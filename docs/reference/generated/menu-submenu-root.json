@@ -35,7 +35,7 @@
       "detailedType": "string | null | undefined"
     },
     "handle": {
-      "type": "MenuHandle<unknown>",
+      "type": "Menu.Handle<unknown>",
       "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.",
       "detailedType": "{} | undefined"
     },
