@@ -6,6 +6,7 @@ import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { isMouseLikePointerType, isTypeableElement } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { getEmptyContext } from './useFloatingRootContext';
 
 export interface UseClickProps {
@@ -104,7 +105,7 @@ export function useClick(
         // Focus is always set on these elements. For touch, we may delay opening.
         if (isTypeableElement(nativeEvent.target)) {
           const details = createChangeEventDetails(
-            'trigger-press',
+            REASONS.triggerPress,
             nativeEvent,
             nativeEvent.target as HTMLElement,
           );
@@ -122,7 +123,7 @@ export function useClick(
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
           const details = createChangeEventDetails(
-            'trigger-press',
+            REASONS.triggerPress,
             nativeEvent,
             event.currentTarget as HTMLElement,
           );
@@ -167,7 +168,7 @@ export function useClick(
               : true)
           );
         const details = createChangeEventDetails(
-          'trigger-press',
+          REASONS.triggerPress,
           event.nativeEvent,
           event.currentTarget as HTMLElement,
         );

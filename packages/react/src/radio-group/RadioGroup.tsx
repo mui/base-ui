@@ -17,9 +17,9 @@ import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRoot } from '../field/root/FieldRoot';
 import { mergeProps } from '../merge-props';
 import { useValueChanged } from '../utils/useValueChanged';
-
 import { RadioGroupContext } from './RadioGroupContext';
-import { type BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import { REASONS } from '../utils/reasons';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -291,7 +291,7 @@ export interface RadioGroupProps
   inputRef?: React.Ref<HTMLInputElement>;
 }
 
-export type RadioGroupChangeEventReason = 'none';
+export type RadioGroupChangeEventReason = typeof REASONS.none;
 
 export type RadioGroupChangeEventDetails = BaseUIChangeEventDetails<RadioGroup.ChangeEventReason>;
 

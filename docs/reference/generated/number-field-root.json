@@ -19,7 +19,7 @@
     },
     "onValueChange": {
       "type": "((value: number | null, eventDetails: NumberField.Root.ChangeEventDetails) => void)",
-      "description": "Callback fired when the number value changes.",
+      "description": "Callback fired when the number value changes.\n\nThe `eventDetails.reason` indicates what triggered the change:\n- `'input-change'` for parseable typing or programmatic text updates\n- `'input-clear'` when the field becomes empty\n- `'input-blur'` when formatting or clamping occurs on blur\n- `'input-paste'` for paste interactions\n- `'keyboard'` for keyboard input\n- `'increment-press'` / `'decrement-press'` for button presses on the increment and decrement controls\n- `'wheel'` for wheel-based scrubbing\n- `'scrub'` for scrub area drags",
       "detailedType": "| ((\n    value: number | null,\n    eventDetails: NumberField.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onValueCommitted": {

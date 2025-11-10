@@ -7,6 +7,7 @@ import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { MenuStore } from '../store/MenuStore';
+import { REASONS } from '../../utils/reasons';
 
 export const REGULAR_ITEM = {
   type: 'regular-item' as const,
@@ -68,7 +69,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           },
           onClick(event) {
             if (closeOnClick) {
-              menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
+              menuEvents.emit('close', { domEvent: event, reason: REASONS.itemPress });
             }
           },
           onMouseUp(event) {

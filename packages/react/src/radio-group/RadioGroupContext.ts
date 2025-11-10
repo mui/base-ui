@@ -3,6 +3,7 @@ import * as React from 'react';
 import { NOOP } from '../utils/noop';
 import type { UseFieldValidationReturnValue } from '../field/root/useFieldValidation';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIEventReasons } from '../utils/reasons';
 
 export interface RadioGroupContext {
   disabled: boolean | undefined;
@@ -10,8 +11,14 @@ export interface RadioGroupContext {
   required: boolean | undefined;
   name: string | undefined;
   checkedValue: unknown;
-  setCheckedValue: (value: unknown, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
-  onValueChange: (value: unknown, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
+  setCheckedValue: (
+    value: unknown,
+    eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+  ) => void;
+  onValueChange: (
+    value: unknown,
+    eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+  ) => void;
   touched: boolean;
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   validation?: UseFieldValidationReturnValue;

@@ -5,6 +5,7 @@ import {
   createGenericEventDetails,
   type BaseUIGenericEventDetails,
 } from '../utils/createBaseUIEventDetails';
+import { REASONS } from '../utils/reasons';
 import type { BaseUIComponentProps } from '../utils/types';
 import { FormContext } from './FormContext';
 import { useRenderElement } from '../utils/useRenderElement';
@@ -104,7 +105,7 @@ export const Form = React.forwardRef(function Form<
                 return acc;
               }, {} as FormValues);
 
-              onFormSubmit(formValues, createGenericEventDetails('none', event.nativeEvent));
+              onFormSubmit(formValues, createGenericEventDetails(REASONS.none, event.nativeEvent));
             }
           }
         },
@@ -141,7 +142,7 @@ export const Form = React.forwardRef(function Form<
   ): React.JSX.Element;
 };
 
-export type FormSubmitEventReason = 'none';
+export type FormSubmitEventReason = typeof REASONS.none;
 export type FormSubmitEventDetails = BaseUIGenericEventDetails<Form.SubmitEventReason>;
 
 export interface FormState {}

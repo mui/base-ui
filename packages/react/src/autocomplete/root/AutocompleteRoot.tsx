@@ -4,6 +4,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { AriaCombobox } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups all parts of the autocomplete.
@@ -104,7 +105,7 @@ export function AutocompleteRoot<ItemValue>(
     (highlightedValue: any, eventDetails: AriaCombobox.HighlightEventDetails) => {
       props.onItemHighlighted?.(highlightedValue, eventDetails);
 
-      if (eventDetails.reason === 'pointer') {
+      if (eventDetails.reason === REASONS.pointer) {
         return;
       }
 

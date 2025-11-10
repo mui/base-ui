@@ -22,6 +22,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
@@ -404,7 +405,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index], createChangeEventDetails('none'));
+        setValue(valuesRef.current[index], createChangeEventDetails(REASONS.none));
       }
     },
     onTypingChange(typing) {

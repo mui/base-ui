@@ -86,18 +86,6 @@ type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
 
-export type OpenChangeReason =
-  | 'outside-press'
-  | 'escape-key'
-  | 'ancestor-scroll'
-  | 'reference-press'
-  | 'click'
-  | 'hover'
-  | 'focus'
-  | 'focus-out'
-  | 'list-navigation'
-  | 'safe-polygon';
-
 export type Delay = number | Partial<{ open: number; close: number }>;
 
 export type NarrowedElement<T> = T extends Element ? T : Element;

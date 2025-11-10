@@ -1,71 +1,54 @@
 import { EMPTY_OBJECT } from './constants';
+import { REASONS } from './reasons';
+
+interface ReasonToEventMap {
+  [REASONS.none]: Event;
+
+  [REASONS.triggerPress]: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
+  [REASONS.triggerHover]: MouseEvent;
+  [REASONS.triggerFocus]: FocusEvent;
+
+  [REASONS.outsidePress]: MouseEvent | PointerEvent | TouchEvent;
+  [REASONS.itemPress]: MouseEvent | KeyboardEvent | PointerEvent;
+  [REASONS.closePress]: MouseEvent | KeyboardEvent | PointerEvent;
+  [REASONS.linkPress]: MouseEvent | PointerEvent;
+  [REASONS.clearPress]: PointerEvent | MouseEvent | KeyboardEvent;
+  [REASONS.chipRemovePress]: PointerEvent | MouseEvent | KeyboardEvent;
+  [REASONS.trackPress]: PointerEvent | MouseEvent | TouchEvent;
+  [REASONS.incrementPress]: PointerEvent | MouseEvent | TouchEvent;
+  [REASONS.decrementPress]: PointerEvent | MouseEvent | TouchEvent;
+
+  [REASONS.inputChange]: InputEvent | Event;
+  [REASONS.inputClear]: InputEvent | FocusEvent | Event;
+  [REASONS.inputBlur]: FocusEvent;
+  [REASONS.inputPaste]: ClipboardEvent;
+
+  [REASONS.focusOut]: FocusEvent;
+  [REASONS.escapeKey]: KeyboardEvent;
+  [REASONS.listNavigation]: KeyboardEvent;
+  [REASONS.keyboard]: KeyboardEvent;
+
+  [REASONS.pointer]: PointerEvent;
+  [REASONS.drag]: PointerEvent | TouchEvent;
+  [REASONS.wheel]: WheelEvent;
+  [REASONS.scrub]: PointerEvent;
+
+  [REASONS.cancelOpen]: MouseEvent;
+  [REASONS.siblingOpen]: Event;
+  [REASONS.disabled]: Event;
+  [REASONS.imperativeAction]: Event;
+
+  [REASONS.windowResize]: UIEvent;
+}
 
 /**
- * Maps an open-change `reason` string to the corresponding native event type.
+ * Maps a change `reason` string to the corresponding native event type.
  */
-export type ReasonToEvent<Reason extends string> = Reason extends 'trigger-press'
-  ? MouseEvent | PointerEvent | TouchEvent | KeyboardEvent
-  : Reason extends 'trigger-hover'
-    ? MouseEvent
-    : Reason extends 'outside-press'
-      ? MouseEvent | PointerEvent | TouchEvent
-      : Reason extends 'item-press' | 'close-press'
-        ? MouseEvent | KeyboardEvent | PointerEvent
-        : Reason extends 'cancel-open'
-          ? MouseEvent
-          : Reason extends 'trigger-focus' | 'focus-out'
-            ? FocusEvent
-            : Reason extends 'escape-key' | 'list-navigation'
-              ? KeyboardEvent
-              : Event;
+export type ReasonToEvent<Reason extends string> = Reason extends keyof ReasonToEventMap
+  ? ReasonToEventMap[Reason]
+  : Event;
 
-/**
- * Details of custom change events emitted by Base UI components.
- */
-export type BaseUIChangeEventDetails<
-  Reason extends string,
-  CustomProperties extends object = {},
-> = {
-  [K in Reason]: {
-    /**
-     * The reason for the event.
-     */
-    reason: K;
-    /**
-     * The native event associated with the custom event.
-     */
-    event: ReasonToEvent<K>;
-    /**
-     * Cancels Base UI from handling the event.
-     */
-    cancel: () => void;
-    /**
-     * Allows the event to propagate in cases where Base UI will stop the propagation.
-     */
-    allowPropagation: () => void;
-    /**
-     * Indicates whether the event has been canceled.
-     */
-    isCanceled: boolean;
-    /**
-     * Indicates whether the event is allowed to propagate.
-     */
-    isPropagationAllowed: boolean;
-    /**
-     * The element that triggered the event, if applicable.
-     */
-    trigger: HTMLElement | undefined;
-  } & CustomProperties;
-}[Reason];
-
-/**
- * Details of custom generic events emitted by Base UI components.
- */
-export type BaseUIGenericEventDetails<
-  Reason extends string,
-  EventType extends Event = Event,
-  CustomProperties extends object = {},
-> = {
+type BaseUIChangeEventDetail<Reason extends string, CustomProperties extends object> = {
   /**
    * The reason for the event.
    */
@@ -73,8 +56,55 @@ export type BaseUIGenericEventDetails<
   /**
    * The native event associated with the custom event.
    */
-  event: EventType;
+  event: ReasonToEvent<Reason>;
+  /**
+   * Cancels Base UI from handling the event.
+   */
+  cancel: () => void;
+  /**
+   * Allows the event to propagate in cases where Base UI will stop the propagation.
+   */
+  allowPropagation: () => void;
+  /**
+   * Indicates whether the event has been canceled.
+   */
+  isCanceled: boolean;
+  /**
+   * Indicates whether the event is allowed to propagate.
+   */
+  isPropagationAllowed: boolean;
+  /**
+   * The element that triggered the event, if applicable.
+   */
+  trigger: HTMLElement | undefined;
 } & CustomProperties;
+
+/**
+ * Details of custom change events emitted by Base UI components.
+ */
+export type BaseUIChangeEventDetails<
+  Reason extends string,
+  CustomProperties extends object = {},
+> = Reason extends string ? BaseUIChangeEventDetail<Reason, CustomProperties> : never;
+
+/**
+ * Details of custom generic events emitted by Base UI components.
+ */
+type BaseUIGenericEventDetail<Reason extends string, CustomProperties extends object> = {
+  /**
+   * The reason for the event.
+   */
+  reason: Reason;
+  /**
+   * The native event associated with the custom event.
+   */
+  event: ReasonToEvent<Reason>;
+} & CustomProperties;
+
+export type BaseUIGenericEventDetails<
+  Reason extends string,
+  CustomProperties extends object = {},
+> = Reason extends string ? BaseUIGenericEventDetail<Reason, CustomProperties> : never;
 
 /**
  * Creates a Base UI event details object with the given reason and utilities
@@ -92,7 +122,7 @@ export function createChangeEventDetails<
   let canceled = false;
   let allowPropagation = false;
   const custom = customProperties ?? (EMPTY_OBJECT as CustomProperties);
-  return {
+  const details: BaseUIChangeEventDetail<Reason, CustomProperties> = {
     reason,
     event: (event ?? new Event('base-ui')) as ReasonToEvent<Reason>,
     cancel() {
@@ -110,21 +140,22 @@ export function createChangeEventDetails<
     trigger,
     ...custom,
   };
+  return details as BaseUIChangeEventDetails<Reason, CustomProperties>;
 }
 
 export function createGenericEventDetails<
   Reason extends string,
-  EventType extends Event = Event,
   CustomProperties extends object = {},
 >(
   reason: Reason,
-  event?: EventType,
-  custom?: CustomProperties,
-): BaseUIGenericEventDetails<Reason, EventType, CustomProperties> {
-  const customProperties = custom ?? (EMPTY_OBJECT as CustomProperties);
-  return {
+  event?: ReasonToEvent<Reason>,
+  customProperties?: CustomProperties,
+): BaseUIGenericEventDetails<Reason, CustomProperties> {
+  const custom = customProperties ?? (EMPTY_OBJECT as CustomProperties);
+  const details: BaseUIGenericEventDetail<Reason, CustomProperties> = {
     reason,
-    event: (event ?? new Event('base-ui')) as EventType,
-    ...customProperties,
+    event: (event ?? new Event('base-ui')) as ReasonToEvent<Reason>,
+    ...custom,
   };
+  return details as BaseUIGenericEventDetails<Reason, CustomProperties>;
 }

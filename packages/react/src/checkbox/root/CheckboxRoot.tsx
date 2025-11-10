@@ -25,6 +25,7 @@ import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useValueChanged } from '../../utils/useValueChanged';
 
 export const PARENT_CHECKBOX = 'data-parent';
@@ -239,7 +240,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         }
 
         const nextChecked = event.target.checked;
-        const details = createChangeEventDetails('none', event.nativeEvent);
+        const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
         groupOnChange?.(nextChecked, details);
         onCheckedChange(nextChecked, details);
@@ -423,7 +424,7 @@ export interface CheckboxRootProps
   value?: string;
 }
 
-export type CheckboxRootChangeEventReason = 'none';
+export type CheckboxRootChangeEventReason = typeof REASONS.none;
 export type CheckboxRootChangeEventDetails =
   BaseUIChangeEventDetails<CheckboxRoot.ChangeEventReason>;
 
