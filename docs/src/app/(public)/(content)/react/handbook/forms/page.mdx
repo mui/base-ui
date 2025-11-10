@@ -125,6 +125,47 @@ import { Combobox } from '@base-ui-components/react/combobox';
 </Form>;
 ```
 
+## Submitting data
+
+You can take over form submission using the native `onSubmit`, or custom `onFormSubmit` props:
+
+```tsx {4-9} title="Native submission using onSubmit"
+import { Form } from '@base-ui-components/react/form';
+
+<Form
+  onSubmit={async (event) => {
+    // Prevent the browser's default full-page refresh
+    event.preventDefault();
+    // Create a FormData object
+    const formData = new FormData(event.currentTarget);
+    // Send the FormData instance in a fetch request
+    await fetch('https://api.example.com', {
+      method: 'POST',
+      body: formData,
+    });
+  }}
+/>;
+```
+
+When using `onFormSubmit`, form values as a JavaScript object and `eventDetails` are provided as arguments. Additionally `preventDefault()` is automatically called on the native submit event:
+
+```tsx {4-9} title="Submission using onFormSubmit"
+import { Form } from '@base-ui-components/react/form';
+
+<Form
+  onFormSubmit={async (formValues) => {
+    const payload = {
+      product_id: formValues.id,
+      order_quantity: formValues.quantity,
+    };
+    await fetch('https://api.example.com', {
+      method: 'POST',
+      body: payload,
+    });
+  }}
+/>;
+```
+
 ## Constraint validation
 
 Base UI form components support native HTML validation attributes for many validation rules:
@@ -260,47 +301,6 @@ Use `<Field.Error>` without `children` to automatically display the field's nati
 
 ```tsx title="Customizing error message for a required field"
 <Field.Error match="valueMissing">You must create a username</Field.Error>
-```
-
-## Submitting data
-
-Once the form passes validation, you can take over form submission using the native `onSubmit`, or custom `onFormSubmit` props:
-
-```tsx {4-9} title="Native submission using onSubmit"
-import { Form } from '@base-ui-components/react/form';
-
-<Form
-  onSubmit={async (event) => {
-    // Prevent the browser's default full-page refresh
-    event.preventDefault();
-    // Create a FormData object
-    const formData = new FormData(event.currentTarget);
-    // Send the FormData instance in a fetch request
-    await fetch('https://api.example.com', {
-      method: 'POST',
-      body: formData,
-    });
-  }}
-/>;
-```
-
-When using `onFormSubmit`, form values as a JavaScript object and `eventDetails` are provided as arguments. Additionally `preventDefault()` is automatically called on the native submit event:
-
-```tsx {4-9} title="Submission using onFormSubmit"
-import { Form } from '@base-ui-components/react/form';
-
-<Form
-  onFormSubmit={async (formValues) => {
-    const payload = {
-      product_id: formValues.id,
-      order_quantity: formValues.quantity,
-    };
-    await fetch('https://api.example.com', {
-      method: 'POST',
-      body: payload,
-    });
-  }}
-/>;
 ```
 
 ## React Hook Form
