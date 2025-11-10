@@ -535,8 +535,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
           // event delegation. This works well when Menu.Root is nested inside Menubar,
           // but with detached triggers we need to manually forward the event to the CompositeRoot.
           const relay = store.select('keyboardEventRelay');
-          if (relay) {
-            event.stopPropagation();
+          if (relay && !event.isPropagationStopped()) {
             relay(event);
           }
         },
