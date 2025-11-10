@@ -4,6 +4,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { AriaCombobox } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups all parts of the autocomplete.
@@ -104,7 +105,7 @@ export function AutocompleteRoot<ItemValue>(
     (highlightedValue: any, eventDetails: AriaCombobox.HighlightEventDetails) => {
       props.onItemHighlighted?.(highlightedValue, eventDetails);
 
-      if (eventDetails.reason === 'pointer') {
+      if (eventDetails.reason === REASONS.pointer) {
         return;
       }
 
@@ -171,7 +172,6 @@ export interface AutocompleteRootProps<ItemValue>
     | 'highlightItemOnHover'
     | 'actionsRef'
     | 'onOpenChange'
-    | 'onInputValueChange'
   > {
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
@@ -239,13 +239,6 @@ export interface AutocompleteRootProps<ItemValue>
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?: (open: boolean, eventDetails: AutocompleteRootChangeEventDetails) => void;
-  /**
-   * Event handler called when the input value changes.
-   */
-  onInputValueChange?: (
-    inputValue: string,
-    eventDetails: AutocompleteRootChangeEventDetails,
-  ) => void;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.

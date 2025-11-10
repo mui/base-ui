@@ -20,6 +20,7 @@ import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useClick, useTypeahead } from '../../floating-ui-react';
@@ -222,7 +223,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             stopEvent(event);
             store.state.setOpen(
               true,
-              createChangeEventDetails('list-navigation', event.nativeEvent),
+              createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );
             store.state.inputRef.current?.focus();
           }

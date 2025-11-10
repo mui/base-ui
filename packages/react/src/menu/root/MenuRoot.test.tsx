@@ -6,6 +6,7 @@ import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { REASONS } from '../../utils/reasons';
 
 async function wait(time: number) {
   return new Promise((resolve) => {
@@ -1540,7 +1541,7 @@ describe('<Menu.Root />', () => {
       expect(openChangeSpy.callCount).to.equal(2);
       expect(openChangeSpy.firstCall.args[0]).to.equal(true);
       expect(openChangeSpy.lastCall.args[0]).to.equal(false);
-      expect(openChangeSpy.lastCall.args[1].reason).to.equal('item-press');
+      expect(openChangeSpy.lastCall.args[1].reason).to.equal(REASONS.itemPress);
     });
 
     it('closes the menu on click, drag outside, release', async () => {
@@ -1579,7 +1580,7 @@ describe('<Menu.Root />', () => {
       expect(openChangeSpy.callCount).to.equal(2);
       expect(openChangeSpy.firstCall.args[0]).to.equal(true);
       expect(openChangeSpy.lastCall.args[0]).to.equal(false);
-      expect(openChangeSpy.lastCall.args[1].reason).to.equal('cancel-open');
+      expect(openChangeSpy.lastCall.args[1].reason).to.equal(REASONS.cancelOpen);
     });
   });
 });

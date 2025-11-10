@@ -6,6 +6,7 @@ import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { Select } from '@base-ui-components/react/select';
+import { REASONS } from '../../utils/reasons';
 
 describe('<Dialog.Root />', () => {
   const { render } = createRenderer();
@@ -101,13 +102,13 @@ describe('<Dialog.Root />', () => {
       await user.click(openButton);
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[1].reason).to.equal('trigger-press');
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.triggerPress);
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       expect(handleOpenChange.callCount).to.equal(2);
-      expect(handleOpenChange.secondCall.args[1].reason).to.equal('close-press');
+      expect(handleOpenChange.secondCall.args[1].reason).to.equal(REASONS.closePress);
     });
 
     it('calls onOpenChange with the reason for change when pressed Esc while the dialog is open', async () => {
@@ -127,7 +128,7 @@ describe('<Dialog.Root />', () => {
       await user.keyboard('[Escape]');
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[1].reason).to.equal('escape-key');
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.escapeKey);
     });
 
     it('calls onOpenChange with the reason for change when user clicks backdrop while the modal dialog is open', async () => {
@@ -147,7 +148,7 @@ describe('<Dialog.Root />', () => {
       await user.click(screen.getByRole('presentation', { hidden: true }));
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[1].reason).to.equal('outside-press');
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
     });
 
     it('calls onOpenChange with the reason for change when user clicks outside while the non-modal dialog is open', async () => {
@@ -167,7 +168,7 @@ describe('<Dialog.Root />', () => {
       await user.click(document.body);
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[1].reason).to.equal('outside-press');
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
     });
 
     describe.skipIf(isJSDOM)('clicks on user backdrop', () => {
@@ -189,7 +190,7 @@ describe('<Dialog.Root />', () => {
         await user.click(document.querySelector('[data-backdrop]') as HTMLElement);
 
         expect(handleOpenChange.callCount).to.equal(1);
-        expect(handleOpenChange.firstCall.args[1].reason).to.equal('outside-press');
+        expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
       });
 
       it('does not change open state on non-main button clicks', async () => {

@@ -16,6 +16,7 @@ import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { compareItemEquality, itemIncludes, removeItem } from '../../utils/itemEquality';
 
 /**
@@ -131,10 +132,10 @@ export const SelectItem = React.memo(
         const nextValue = selected
           ? removeItem(currentValue, value, isItemEqualToValue)
           : [...currentValue, value];
-        setValue(nextValue, createChangeEventDetails('item-press', event));
+        setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
       } else {
-        setValue(value, createChangeEventDetails('item-press', event));
-        setOpen(false, createChangeEventDetails('item-press', event));
+        setValue(value, createChangeEventDetails(REASONS.itemPress, event));
+        setOpen(false, createChangeEventDetails(REASONS.itemPress, event));
       }
     }
 
