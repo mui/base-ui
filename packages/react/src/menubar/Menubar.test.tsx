@@ -1012,8 +1012,6 @@ function DetachedTriggerMenubar(props: Menubar.Props) {
 }
 
 function MultipleContainedTriggersMenubar(props: Menubar.Props) {
-  const testMenuHandle = useRefWithInit(() => new Menu.Handle<MenuDefinition>()).current;
-
   return (
     <Menubar {...props} style={{ maxWidth: '25vw', display: 'flex' }}>
       <DynamicMenu>
