@@ -109,7 +109,8 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
-  const disabled = disabledProp || menuDisabled;
+  const disabled =
+    disabledProp || menuDisabled || (parent.type === 'menubar' && parent.context.disabled);
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerTimeout = useTimeout();
