@@ -2,6 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { act, flushMicrotasks, waitFor, screen, fireEvent } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
@@ -39,1071 +40,822 @@ describe('<Menu.Root />', () => {
     expectedPopupRole: 'menu',
   });
 
-  describe('BaseUIChangeEventDetails', () => {
-    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
-      await render(
-        <Menu.Root
-          onOpenChange={(nextOpen, eventDetails) => {
-            if (nextOpen) {
-              eventDetails.cancel();
-            }
-          }}
-        >
-          <Menu.Trigger>Open menu</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Item</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
+  describe.for([
+    { name: 'contained triggers', Component: ContainedTriggerMenu },
+    { name: 'detached triggers', Component: DetachedTriggerMenu },
+  ])('when using $name', ({ Component: MenuTestSubject }) => {
+    describe('keyboard navigation', () => {
+      it('changes the highlighted item using the arrow keys', async () => {
+        await render(<MenuTestSubject />);
 
-      const trigger = screen.getByRole('button', { name: 'Open menu' });
-      await userEvent.click(trigger);
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
 
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
+        await userEvent.keyboard('[Enter]');
+
+        const item1 = screen.getByTestId('item-1');
+        const item2 = screen.getByTestId('item-2');
+        const item3 = screen.getByTestId('item-3');
+
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(item2).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(item3).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{ArrowUp}');
+        await waitFor(() => {
+          expect(item2).toHaveFocus();
+        });
+      });
+
+      it('changes the highlighted item using the Home and End keys', async () => {
+        await render(<MenuTestSubject />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+
+        await userEvent.keyboard('[Enter]');
+        const item1 = screen.getByTestId('item-1');
+        const item5 = screen.getByTestId('item-5');
+
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{End}');
+        await waitFor(() => {
+          expect(item5).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{Home}');
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
+      });
+
+      it('includes disabled items during keyboard navigation', async () => {
+        await render(<MenuTestSubject />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+
+        await userEvent.keyboard('[Enter]');
+
+        const item1 = screen.getByTestId('item-1');
+        const item2 = screen.getByTestId('item-2');
+        const disabledItem3 = screen.getByTestId('item-3');
+
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{ArrowDown}');
+
+        await waitFor(() => {
+          expect(item2).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{ArrowDown}');
+
+        await waitFor(() => {
+          expect(disabledItem3).toHaveFocus();
+        });
+
+        expect(disabledItem3).to.have.attribute('aria-disabled', 'true');
+      });
+
+      describe('text navigation', () => {
+        it('changes the highlighted item', async ({ skip }) => {
+          if (isJSDOM) {
+            // useMenuPopup Text navigation match menu items using HTMLElement.innerText
+            // innerText is not supported by JSDOM
+            skip();
+          }
+
+          const itemElements = [
+            <Menu.Item key="aa">Aa</Menu.Item>,
+            <Menu.Item key="ba">Ba</Menu.Item>,
+            <Menu.Item key="bb">Bb</Menu.Item>,
+            <Menu.Item key="ca">Ca</Menu.Item>,
+            <Menu.Item key="cb">Cb</Menu.Item>,
+            <Menu.Item key="cd">Cd</Menu.Item>,
+          ];
+
+          const { user } = await render(
+            <MenuTestSubject rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+          );
+
+          const items = screen.getAllByRole('menuitem');
+
+          await act(async () => {
+            items[0].focus();
+          });
+
+          await user.keyboard('c');
+          await waitFor(() => {
+            expect(screen.getByText('Ca')).toHaveFocus();
+          });
+
+          expect(screen.getByText('Ca')).to.have.attribute('tabindex', '0');
+
+          await user.keyboard('d');
+          await waitFor(() => {
+            expect(screen.getByText('Cd')).toHaveFocus();
+          });
+
+          expect(screen.getByText('Cd')).to.have.attribute('tabindex', '0');
+        });
+
+        it('changes the highlighted item using text navigation on label prop', async ({ skip }) => {
+          if (!isJSDOM) {
+            // This test is very flaky in real browsers
+            skip();
+          }
+
+          const itemElements = [
+            <Menu.Item key="1" label="Aa">
+              1
+            </Menu.Item>,
+            <Menu.Item key="2" label="Ba">
+              2
+            </Menu.Item>,
+            <Menu.Item key="3" label="Bb">
+              3
+            </Menu.Item>,
+            <Menu.Item key="4" label="Ca">
+              4
+            </Menu.Item>,
+          ];
+
+          const { user } = await render(
+            <MenuTestSubject popupProps={{ children: itemElements }} />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+          await user.click(trigger);
+          const items = screen.getAllByRole('menuitem');
+          await flushMicrotasks();
+
+          await user.keyboard('b');
+          await waitFor(() => {
+            expect(items[1]).toHaveFocus();
+          });
+
+          await waitFor(() => {
+            expect(items[1]).to.have.attribute('tabindex', '0');
+          });
+
+          await user.keyboard('b');
+          await waitFor(() => {
+            expect(items[2]).toHaveFocus();
+          });
+
+          await waitFor(() => {
+            expect(items[2]).to.have.attribute('tabindex', '0');
+          });
+
+          await user.keyboard('b');
+          await waitFor(() => {
+            expect(items[2]).toHaveFocus();
+          });
+
+          await waitFor(() => {
+            expect(items[2]).to.have.attribute('tabindex', '0');
+          });
+        });
+
+        it('skips the non-stringifiable items', async ({ skip }) => {
+          if (isJSDOM) {
+            // useMenuPopup Text navigation match menu items using HTMLElement.innerText
+            // innerText is not supported by JSDOM
+            skip();
+          }
+
+          const itemElements = [
+            <Menu.Item key="aa">Aa</Menu.Item>,
+            <Menu.Item key="ba">Ba</Menu.Item>,
+            <Menu.Item key="empty" />,
+            <Menu.Item key="nested">
+              <div>Nested Content</div>
+            </Menu.Item>,
+            <Menu.Item key="undefined">{undefined}</Menu.Item>,
+            <Menu.Item key="null">{null}</Menu.Item>,
+            <Menu.Item key="bc">Bc</Menu.Item>,
+          ];
+
+          const { user } = await render(
+            <MenuTestSubject rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+          );
+
+          const items = screen.getAllByRole('menuitem');
+
+          await act(async () => {
+            items[0].focus();
+          });
+
+          await user.keyboard('b');
+          await waitFor(() => {
+            expect(screen.getByText('Ba')).toHaveFocus();
+          });
+          expect(screen.getByText('Ba')).to.have.attribute('tabindex', '0');
+
+          await user.keyboard('c');
+          await waitFor(() => {
+            expect(screen.getByText('Bc')).toHaveFocus();
+          });
+          expect(screen.getByText('Bc')).to.have.attribute('tabindex', '0');
+        });
+
+        it('navigate to options with diacritic characters', async ({ skip }) => {
+          if (isJSDOM) {
+            // useMenuPopup Text navigation match menu items using HTMLElement.innerText
+            // innerText is not supported by JSDOM
+            skip();
+          }
+
+          const itemElements = [
+            <Menu.Item key="aa">Aa</Menu.Item>,
+            <Menu.Item key="ba">Ba</Menu.Item>,
+            <Menu.Item key="bb">Bb</Menu.Item>,
+            <Menu.Item key="bą">Bą</Menu.Item>,
+          ];
+
+          const { user } = await render(
+            <MenuTestSubject rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+          );
+
+          const items = screen.getAllByRole('menuitem');
+
+          await act(async () => {
+            items[0].focus();
+          });
+
+          await user.keyboard('b');
+          await waitFor(() => {
+            expect(screen.getByText('Ba')).toHaveFocus();
+          });
+          expect(screen.getByText('Ba')).to.have.attribute('tabindex', '0');
+
+          await user.keyboard('ą');
+          await waitFor(() => {
+            expect(screen.getByText('Bą')).toHaveFocus();
+          });
+          expect(screen.getByText('Bą')).to.have.attribute('tabindex', '0');
+        });
+
+        it('navigate to next options that begin with diacritic characters', async ({ skip }) => {
+          if (isJSDOM) {
+            // useMenuPopup Text navigation match menu items using HTMLElement.innerText
+            // innerText is not supported by JSDOM
+            skip();
+          }
+
+          const itemElements = [
+            <Menu.Item key="aa">Aa</Menu.Item>,
+            <Menu.Item key="ąa">ąa</Menu.Item>,
+            <Menu.Item key="ąb">ąb</Menu.Item>,
+            <Menu.Item key="ąc">ąc</Menu.Item>,
+          ];
+
+          const { user } = await render(
+            <MenuTestSubject rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+          );
+
+          const items = screen.getAllByRole('menuitem');
+
+          await act(async () => {
+            items[0].focus();
+          });
+
+          await user.keyboard('ą');
+          await waitFor(() => {
+            expect(screen.getByText('ąa')).toHaveFocus();
+          });
+          expect(screen.getByText('ąa')).to.have.attribute('tabindex', '0');
+        });
+
+        it('does not trigger the onClick event when Space is pressed during text navigation', async ({
+          skip,
+        }) => {
+          if (isJSDOM) {
+            // useMenuPopup Text navigation match menu items using HTMLElement.innerText
+            // innerText is not supported by JSDOM
+            skip();
+          }
+
+          const handleClick = spy();
+
+          const itemElements = [
+            <Menu.Item key="one" onClick={() => handleClick()}>
+              Item One
+            </Menu.Item>,
+            <Menu.Item key="two" onClick={() => handleClick()}>
+              Item Two
+            </Menu.Item>,
+            <Menu.Item key="three" onClick={() => handleClick()}>
+              Item Three
+            </Menu.Item>,
+          ];
+
+          const { user } = await render(
+            <MenuTestSubject rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+          );
+
+          const items = screen.getAllByRole('menuitem');
+
+          await act(async () => {
+            items[0].focus();
+          });
+
+          await user.keyboard('Item T');
+
+          expect(handleClick.called).to.equal(false);
+
+          await waitFor(() => {
+            expect(items[1]).toHaveFocus();
+          });
+        });
       });
     });
-  });
 
-  describe('keyboard navigation', () => {
-    it('changes the highlighted item using the arrow keys', async () => {
-      await render(
-        <Menu.Root>
-          <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item data-testid="item-1">1</Menu.Item>
-                <Menu.Item data-testid="item-2">2</Menu.Item>
-                <Menu.Item data-testid="item-3">3</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
+    describe('nested menus', () => {
+      (
+        [
+          ['vertical', 'ltr', 'ArrowRight', 'ArrowLeft'],
+          ['vertical', 'rtl', 'ArrowLeft', 'ArrowRight'],
+          ['horizontal', 'ltr', 'ArrowDown', 'ArrowUp'],
+          ['horizontal', 'rtl', 'ArrowDown', 'ArrowUp'],
+        ] as const
+      ).forEach(([orientation, direction, openKey, closeKey]) => {
+        it.skipIf(isJSDOM)(
+          `opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu with ${openKey} key and closes it with ${closeKey}`,
 
-      const trigger = screen.getByRole('button', { name: 'Toggle' });
-      await act(async () => {
-        trigger.focus();
+          async () => {
+            const { user } = await render(
+              <DirectionProvider direction={direction}>
+                <MenuTestSubject
+                  rootProps={{ open: true, orientation }}
+                  submenuProps={{ orientation }}
+                />
+              </DirectionProvider>,
+            );
+
+            const submenuTrigger = screen.getByTestId('submenu-trigger');
+
+            await act(async () => {
+              submenuTrigger.focus();
+            });
+
+            // This check fails in JSDOM
+            await waitFor(() => {
+              expect(submenuTrigger).toHaveFocus();
+            });
+
+            await user.keyboard(`[${openKey}]`);
+
+            let submenu: HTMLElement | null = await screen.findByTestId('submenu');
+
+            const submenuItem1 = screen.queryByTestId('item-4_1');
+            expect(submenuItem1).not.to.equal(null);
+            await waitFor(() => {
+              expect(submenuItem1).toHaveFocus();
+            });
+
+            await user.keyboard(`[${closeKey}]`);
+
+            submenu = screen.queryByTestId('submenu');
+            expect(submenu).to.equal(null);
+
+            expect(submenuTrigger).toHaveFocus();
+          },
+        );
       });
 
-      await userEvent.keyboard('[Enter]');
-
-      const item1 = screen.getByTestId('item-1');
-      const item2 = screen.getByTestId('item-2');
-      const item3 = screen.getByTestId('item-3');
-
-      await waitFor(() => {
-        expect(item1).toHaveFocus();
-      });
-
-      await userEvent.keyboard('{ArrowDown}');
-      await waitFor(() => {
-        expect(item2).toHaveFocus();
-      });
-
-      await userEvent.keyboard('{ArrowDown}');
-      await waitFor(() => {
-        expect(item3).toHaveFocus();
-      });
-
-      await userEvent.keyboard('{ArrowUp}');
-      await waitFor(() => {
-        expect(item2).toHaveFocus();
-      });
-    });
-
-    it('changes the highlighted item using the Home and End keys', async () => {
-      await render(
-        <Menu.Root>
-          <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item data-testid="item-1">1</Menu.Item>
-                <Menu.Item data-testid="item-2">2</Menu.Item>
-                <Menu.Item data-testid="item-3">3</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      const trigger = screen.getByRole('button', { name: 'Toggle' });
-      await act(async () => {
-        trigger.focus();
-      });
-
-      await userEvent.keyboard('[Enter]');
-      const item1 = screen.getByTestId('item-1');
-      const item3 = screen.getByTestId('item-3');
-
-      await waitFor(() => {
-        expect(item1).toHaveFocus();
-      });
-
-      await userEvent.keyboard('{End}');
-      await waitFor(() => {
-        expect(item3).toHaveFocus();
-      });
-
-      await userEvent.keyboard('{Home}');
-      await waitFor(() => {
-        expect(item1).toHaveFocus();
-      });
-    });
-
-    it('includes disabled items during keyboard navigation', async () => {
-      await render(
-        <Menu.Root>
-          <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item data-testid="item-1">1</Menu.Item>
-                <Menu.Item disabled data-testid="item-2">
-                  2
-                </Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      const trigger = screen.getByRole('button', { name: 'Toggle' });
-      await act(async () => {
-        trigger.focus();
-      });
-
-      await userEvent.keyboard('[Enter]');
-
-      const item1 = screen.getByTestId('item-1');
-      const item2 = screen.getByTestId('item-2');
-
-      await waitFor(() => {
-        expect(item1).toHaveFocus();
-      });
-
-      await userEvent.keyboard('{ArrowDown}');
-
-      await waitFor(() => {
-        expect(item2).toHaveFocus();
-      });
-
-      expect(item2).to.have.attribute('aria-disabled', 'true');
-    });
-
-    describe('text navigation', () => {
-      it('changes the highlighted item', async ({ skip }) => {
-        if (isJSDOM) {
-          // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-          // innerText is not supported by JSDOM
-          skip();
-        }
-
+      it('opens submenu on click when openOnHover is false', async () => {
         const { user } = await render(
-          <Menu.Root open>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Item>Aa</Menu.Item>
-                  <Menu.Item>Ba</Menu.Item>
-                  <Menu.Item>Bb</Menu.Item>
-                  <Menu.Item>Ca</Menu.Item>
-                  <Menu.Item>Cb</Menu.Item>
-                  <Menu.Item>Cd</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>,
+          <MenuTestSubject submenuTriggerProps={{ openOnHover: false }} />,
         );
 
-        const items = screen.getAllByRole('menuitem');
+        const mainTrigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(mainTrigger);
 
-        await act(async () => {
-          items[0].focus();
-        });
+        const menu = await screen.findByTestId('menu');
+        expect(screen.queryByTestId('submenu')).to.equal(null);
 
-        await user.keyboard('c');
-        await waitFor(() => {
-          expect(screen.getByText('Ca')).toHaveFocus();
-        });
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await user.click(submenuTrigger);
 
-        expect(screen.getByText('Ca')).to.have.attribute('tabindex', '0');
-
-        await user.keyboard('d');
-        await waitFor(() => {
-          expect(screen.getByText('Cd')).toHaveFocus();
-        });
-
-        expect(screen.getByText('Cd')).to.have.attribute('tabindex', '0');
+        expect(menu).not.to.equal(null);
+        expect(await screen.findByTestId('item-4_1')).to.have.text('Item 4.1');
       });
 
-      it('changes the highlighted item using text navigation on label prop', async ({ skip }) => {
-        if (!isJSDOM) {
-          // This test is very flaky in real browsers
-          skip();
-        }
+      it('closes submenus when focus is lost by shift-tabbing from a nested menu', async () => {
+        const { user } = await render(<MenuTestSubject />);
 
+        const mainTrigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(mainTrigger);
+
+        await screen.findByTestId('menu');
+        expect(screen.queryByTestId('submenu')).to.equal(null);
+
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await user.hover(submenuTrigger);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu')).not.to.equal(null);
+        });
+
+        const submenuItem = await screen.findByTestId('item-4_1');
+        await act(async () => {
+          submenuItem.focus();
+        });
+
+        await waitFor(() => {
+          expect(submenuItem).toHaveFocus();
+        });
+
+        // Shift+Tab should close the submenu and focus should return to the submenu trigger
+        await user.keyboard('{Shift>}{Tab}{/Shift}');
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu')).to.equal(null);
+        });
+
+        expect(submenuTrigger).toHaveFocus();
+      });
+
+      it('closes the entire tree when clicking outside the deepest submenu', async () => {
         const { user } = await render(
-          <Menu.Root>
-            <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Item label="Aa">1</Menu.Item>
-                  <Menu.Item label="Ba">2</Menu.Item>
-                  <Menu.Item label="Bb">3</Menu.Item>
-                  <Menu.Item label="Ca">4</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>,
+          <div>
+            <MenuTestSubject />
+            <button data-testid="outside">Outside</button>
+          </div>,
         );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await user.click(trigger);
-        const items = screen.getAllByRole('menuitem');
-        await flushMicrotasks();
 
-        await user.keyboard('b');
+        await screen.findByTestId('menu');
+
+        await user.keyboard('[ArrowDown]');
+        await user.keyboard('[ArrowDown]');
+        await user.keyboard('[ArrowDown]');
+        await user.keyboard('[ArrowDown]');
+
+        const submenuTrigger1 = await screen.findByTestId('submenu-trigger');
         await waitFor(() => {
-          expect(items[1]).toHaveFocus();
+          expect(submenuTrigger1).toHaveFocus();
         });
 
+        await user.keyboard('[ArrowRight]');
+        await screen.findByTestId('submenu');
+
+        await user.keyboard('[ArrowDown]');
+        await user.keyboard('[ArrowDown]');
+
+        const submenuTrigger2 = await screen.findByTestId('nested-submenu-trigger');
         await waitFor(() => {
-          expect(items[1]).to.have.attribute('tabindex', '0');
+          expect(submenuTrigger2).toHaveFocus();
         });
 
-        await user.keyboard('b');
-        await waitFor(() => {
-          expect(items[2]).toHaveFocus();
-        });
+        await user.keyboard('[ArrowRight]');
+        await screen.findByTestId('nested-submenu');
+
+        const outside = screen.getByTestId('outside');
+        await user.click(outside);
 
         await waitFor(() => {
-          expect(items[2]).to.have.attribute('tabindex', '0');
-        });
-
-        await user.keyboard('b');
-        await waitFor(() => {
-          expect(items[2]).toHaveFocus();
-        });
-
-        await waitFor(() => {
-          expect(items[2]).to.have.attribute('tabindex', '0');
+          expect(screen.queryByTestId('level-1')).to.equal(null);
+          expect(screen.queryByTestId('level-2')).to.equal(null);
+          expect(screen.queryByTestId('level-3')).to.equal(null);
         });
       });
+    });
 
-      it('skips the non-stringifiable items', async ({ skip }) => {
-        if (isJSDOM) {
-          // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-          // innerText is not supported by JSDOM
-          skip();
-        }
+    describe('focus management', () => {
+      it('focuses the first item after the menu is opened by keyboard', async () => {
+        await render(<MenuTestSubject />);
 
-        const { user } = await render(
-          <Menu.Root open>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Item>Aa</Menu.Item>
-                  <Menu.Item>Ba</Menu.Item>
-                  <Menu.Item />
-                  <Menu.Item>
-                    <div>Nested Content</div>
-                  </Menu.Item>
-                  <Menu.Item>{undefined}</Menu.Item>
-                  <Menu.Item>{null}</Menu.Item>
-                  <Menu.Item>Bc</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>,
-        );
-
-        const items = screen.getAllByRole('menuitem');
-
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
         await act(async () => {
-          items[0].focus();
+          trigger.focus();
         });
 
-        await user.keyboard('b');
-        await waitFor(() => {
-          expect(screen.getByText('Ba')).toHaveFocus();
-        });
-        expect(screen.getByText('Ba')).to.have.attribute('tabindex', '0');
+        await userEvent.keyboard('[Enter]');
 
-        await user.keyboard('c');
+        const [firstItem, ...otherItems] = screen.getAllByRole('menuitem');
         await waitFor(() => {
-          expect(screen.getByText('Bc')).toHaveFocus();
+          expect(firstItem.tabIndex).to.equal(0);
         });
-        expect(screen.getByText('Bc')).to.have.attribute('tabindex', '0');
+        otherItems.forEach((item) => {
+          expect(item.tabIndex).to.equal(-1);
+        });
       });
 
-      it('navigate to options with diacritic characters', async ({ skip }) => {
-        if (isJSDOM) {
-          // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-          // innerText is not supported by JSDOM
-          skip();
-        }
+      it('focuses the first item when down arrow key opens the menu', async () => {
+        const { user } = await render(<MenuTestSubject />);
 
-        const { user } = await render(
-          <Menu.Root open>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Item>Aa</Menu.Item>
-                  <Menu.Item>Ba</Menu.Item>
-                  <Menu.Item>Bb</Menu.Item>
-                  <Menu.Item>Bą</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>,
-        );
-
-        const items = screen.getAllByRole('menuitem');
-
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
         await act(async () => {
-          items[0].focus();
+          trigger.focus();
         });
 
-        await user.keyboard('b');
-        await waitFor(() => {
-          expect(screen.getByText('Ba')).toHaveFocus();
-        });
-        expect(screen.getByText('Ba')).to.have.attribute('tabindex', '0');
+        await user.keyboard('[ArrowDown]');
 
-        await user.keyboard('ą');
-        await waitFor(() => {
-          expect(screen.getByText('Bą')).toHaveFocus();
-        });
-        expect(screen.getByText('Bą')).to.have.attribute('tabindex', '0');
-      });
-
-      it('navigate to next options beginning with diacritic characters', async ({ skip }) => {
-        if (isJSDOM) {
-          // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-          // innerText is not supported by JSDOM
-          skip();
-        }
-
-        const { user } = await render(
-          <Menu.Root open>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Item>Aa</Menu.Item>
-                  <Menu.Item>ąa</Menu.Item>
-                  <Menu.Item>ąb</Menu.Item>
-                  <Menu.Item>ąc</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>,
-        );
-
-        const items = screen.getAllByRole('menuitem');
-
-        await act(async () => {
-          items[0].focus();
-        });
-
-        await user.keyboard('ą');
-        await waitFor(() => {
-          expect(screen.getByText('ąa')).toHaveFocus();
-        });
-        expect(screen.getByText('ąa')).to.have.attribute('tabindex', '0');
-      });
-
-      it('does not trigger the onClick event when Space is pressed during text navigation', async ({
-        skip,
-      }) => {
-        if (isJSDOM) {
-          // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-          // innerText is not supported by JSDOM
-          skip();
-        }
-
-        const handleClick = spy();
-
-        const { user } = await render(
-          <Menu.Root open>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Item onClick={() => handleClick()}>Item One</Menu.Item>
-                  <Menu.Item onClick={() => handleClick()}>Item Two</Menu.Item>
-                  <Menu.Item onClick={() => handleClick()}>Item Three</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>,
-        );
-
-        const items = screen.getAllByRole('menuitem');
-
-        await act(async () => {
-          items[0].focus();
-        });
-
-        await user.keyboard('Item T');
-
-        expect(handleClick.called).to.equal(false);
-
-        await waitFor(() => {
-          expect(items[1]).toHaveFocus();
-        });
-      });
-    });
-  });
-
-  describe('nested menus', () => {
-    (
-      [
-        ['vertical', 'ltr', 'ArrowRight', 'ArrowLeft'],
-        ['vertical', 'rtl', 'ArrowLeft', 'ArrowRight'],
-        ['horizontal', 'ltr', 'ArrowDown', 'ArrowUp'],
-        ['horizontal', 'rtl', 'ArrowDown', 'ArrowUp'],
-      ] as const
-    ).forEach(([orientation, direction, openKey, closeKey]) => {
-      it.skipIf(isJSDOM)(
-        `opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu with ${openKey} key and closes it with ${closeKey}`,
-
-        async () => {
-          const { user } = await render(
-            <DirectionProvider direction={direction}>
-              <Menu.Root open orientation={orientation}>
-                <Menu.Trigger>Open menu</Menu.Trigger>
-                <Menu.Portal>
-                  <Menu.Positioner>
-                    <Menu.Popup>
-                      <Menu.Item>1</Menu.Item>
-                      <Menu.SubmenuRoot orientation={orientation}>
-                        <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
-                        <Menu.Portal>
-                          <Menu.Positioner>
-                            <Menu.Popup data-testid="submenu">
-                              <Menu.Item data-testid="submenu-item-1">2.1</Menu.Item>
-                              <Menu.Item>2.2</Menu.Item>
-                            </Menu.Popup>
-                          </Menu.Positioner>
-                        </Menu.Portal>
-                      </Menu.SubmenuRoot>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Portal>
-              </Menu.Root>
-            </DirectionProvider>,
-          );
-
-          const submenuTrigger = screen.getByTestId('submenu-trigger');
-
-          await act(async () => {
-            submenuTrigger.focus();
-          });
-
-          // This check fails in JSDOM
-          await waitFor(() => {
-            expect(submenuTrigger).toHaveFocus();
-          });
-
-          await user.keyboard(`[${openKey}]`);
-
-          let submenu: HTMLElement | null = await screen.findByTestId('submenu');
-
-          const submenuItem1 = screen.queryByTestId('submenu-item-1');
-          expect(submenuItem1).not.to.equal(null);
-          await waitFor(() => {
-            expect(submenuItem1).toHaveFocus();
-          });
-
-          await user.keyboard(`[${closeKey}]`);
-
-          submenu = screen.queryByTestId('submenu');
-          expect(submenu).to.equal(null);
-
-          expect(submenuTrigger).toHaveFocus();
-        },
-      );
-    });
-
-    it('opens submenu on click when openOnHover is false', async () => {
-      const { user } = await render(
-        <Menu.Root>
-          <Menu.Trigger>Open Main</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner data-testid="menu">
-              <Menu.Popup>
-                <Menu.Item>Item 1</Menu.Item>
-                <Menu.SubmenuRoot>
-                  <Menu.SubmenuTrigger openOnHover={false} data-testid="submenu-trigger">
-                    Submenu
-                  </Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner data-testid="submenu">
-                      <Menu.Popup>
-                        <Menu.Item data-testid="submenu-item">Submenu Item</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.SubmenuRoot>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      const mainTrigger = screen.getByRole('button', { name: 'Open Main' });
-      await user.click(mainTrigger);
-
-      const submenu = await screen.findByTestId('menu');
-      expect(screen.queryByTestId('submenu')).to.equal(null);
-
-      const submenuTrigger = await screen.findByTestId('submenu-trigger');
-      await user.click(submenuTrigger);
-
-      expect(submenu).not.to.equal(null);
-      expect(await screen.findByTestId('submenu-item')).to.have.text('Submenu Item');
-    });
-
-    it('closes submenus when focus is lost by shift-tabbing from a nested menu', async () => {
-      const { user } = await render(
-        <Menu.Root>
-          <Menu.Trigger>Open Main</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner data-testid="menu">
-              <Menu.Popup>
-                <Menu.Item>Item 1</Menu.Item>
-                <Menu.SubmenuRoot>
-                  <Menu.SubmenuTrigger data-testid="submenu-trigger">Submenu</Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner data-testid="submenu">
-                      <Menu.Popup>
-                        <Menu.Item data-testid="submenu-item">Submenu Item</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.SubmenuRoot>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      const mainTrigger = screen.getByRole('button', { name: 'Open Main' });
-      await user.click(mainTrigger);
-
-      await screen.findByTestId('menu');
-      expect(screen.queryByTestId('submenu')).to.equal(null);
-
-      const submenuTrigger = await screen.findByTestId('submenu-trigger');
-      await user.hover(submenuTrigger);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('submenu')).not.to.equal(null);
-      });
-
-      const submenuItem = await screen.findByTestId('submenu-item');
-      await act(async () => {
-        submenuItem.focus();
-      });
-
-      await waitFor(() => {
-        expect(submenuItem).toHaveFocus();
-      });
-
-      // Shift+Tab should close the submenu and focus should return to the submenu trigger
-      await user.keyboard('{Shift>}{Tab}{/Shift}');
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('submenu')).to.equal(null);
-      });
-
-      expect(submenuTrigger).toHaveFocus();
-    });
-
-    it('closes the entire tree when clicking outside the deepest submenu', async () => {
-      const { user } = await render(
-        <div>
-          <Menu.Root>
-            <Menu.Trigger>Open Main</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner data-testid="level-1">
-                <Menu.Popup>
-                  <Menu.Item>Item 1</Menu.Item>
-                  <Menu.SubmenuRoot>
-                    <Menu.SubmenuTrigger data-testid="submenu-trigger-1">
-                      Level 2
-                    </Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner data-testid="level-2">
-                        <Menu.Popup>
-                          <Menu.Item>Item 2</Menu.Item>
-                          <Menu.SubmenuRoot>
-                            <Menu.SubmenuTrigger data-testid="submenu-trigger-2">
-                              Level 3
-                            </Menu.SubmenuTrigger>
-                            <Menu.Portal>
-                              <Menu.Positioner data-testid="level-3">
-                                <Menu.Popup>
-                                  <Menu.Item>Deep Item</Menu.Item>
-                                </Menu.Popup>
-                              </Menu.Positioner>
-                            </Menu.Portal>
-                          </Menu.SubmenuRoot>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.SubmenuRoot>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-          <button data-testid="outside">Outside</button>
-        </div>,
-      );
-
-      const trigger = screen.getByRole('button', { name: 'Open Main' });
-      await user.click(trigger);
-
-      await screen.findByTestId('level-1');
-
-      await user.keyboard('[ArrowDown]');
-      await user.keyboard('[ArrowDown]');
-
-      const submenuTrigger1 = await screen.findByTestId('submenu-trigger-1');
-      await waitFor(() => {
-        expect(submenuTrigger1).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowRight]');
-      await screen.findByTestId('level-2');
-
-      await user.keyboard('[ArrowDown]');
-
-      const submenuTrigger2 = await screen.findByTestId('submenu-trigger-2');
-      await waitFor(() => {
-        expect(submenuTrigger2).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowRight]');
-      await screen.findByTestId('level-3');
-
-      const outside = screen.getByTestId('outside');
-      await user.click(outside);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('level-1')).to.equal(null);
-        expect(screen.queryByTestId('level-2')).to.equal(null);
-        expect(screen.queryByTestId('level-3')).to.equal(null);
-      });
-    });
-  });
-
-  describe('focus management', () => {
-    function Test() {
-      return (
-        <Menu.Root>
-          <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>1</Menu.Item>
-                <Menu.Item>2</Menu.Item>
-                <Menu.Item>3</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-      );
-    }
-
-    it('focuses the first item after the menu is opened by keyboard', async () => {
-      await render(<Test />);
-
-      const trigger = screen.getByRole('button', { name: 'Toggle' });
-      await act(async () => {
-        trigger.focus();
-      });
-
-      await userEvent.keyboard('[Enter]');
-
-      const [firstItem, ...otherItems] = screen.getAllByRole('menuitem');
-      await waitFor(() => {
+        const [firstItem, ...otherItems] = screen.getAllByRole('menuitem');
+        await waitFor(() => expect(firstItem).toHaveFocus());
         expect(firstItem.tabIndex).to.equal(0);
-      });
-      otherItems.forEach((item) => {
-        expect(item.tabIndex).to.equal(-1);
-      });
-    });
-
-    it('focuses the first item when down arrow key opens the menu', async () => {
-      const { user } = await render(<Test />);
-
-      const trigger = screen.getByRole('button', { name: 'Toggle' });
-      await act(async () => {
-        trigger.focus();
+        otherItems.forEach((item) => {
+          expect(item.tabIndex).to.equal(-1);
+        });
       });
 
-      await user.keyboard('[ArrowDown]');
+      it('focuses the last item when up arrow key opens the menu', async () => {
+        const { user } = await render(<MenuTestSubject />);
 
-      const [firstItem, ...otherItems] = screen.getAllByRole('menuitem');
-      await waitFor(() => expect(firstItem).toHaveFocus());
-      expect(firstItem.tabIndex).to.equal(0);
-      otherItems.forEach((item) => {
-        expect(item.tabIndex).to.equal(-1);
-      });
-    });
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-    it('focuses the last item when up arrow key opens the menu', async () => {
-      const { user } = await render(<Test />);
+        await act(async () => {
+          trigger.focus();
+        });
 
-      const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.keyboard('[ArrowUp]');
 
-      await act(async () => {
-        trigger.focus();
-      });
+        const items = screen.getAllByRole('menuitem');
+        await waitFor(() => {
+          expect(items[4]).toHaveFocus();
+        });
 
-      await user.keyboard('[ArrowUp]');
-
-      const [firstItem, secondItem, lastItem] = screen.getAllByRole('menuitem');
-      await waitFor(() => {
-        expect(lastItem).toHaveFocus();
+        expect(items[4].tabIndex).to.equal(0);
+        [items[0], items[1], items[2], items[3]].forEach((item) => {
+          expect(item.tabIndex).to.equal(-1);
+        });
       });
 
-      expect(lastItem.tabIndex).to.equal(0);
-      [firstItem, secondItem].forEach((item) => {
-        expect(item.tabIndex).to.equal(-1);
-      });
-    });
+      it('focuses the trigger after the menu is closed', async () => {
+        const { user } = await render(
+          <div>
+            <input type="text" />
+            <MenuTestSubject />
+            <input type="text" />
+          </div>,
+        );
 
-    it('focuses the trigger after the menu is closed', async () => {
-      const { user } = await render(
-        <div>
-          <input type="text" />
-          <Menu.Root>
-            <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Item>Close</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-          <input type="text" />
-        </div>,
-      );
+        const button = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(button);
 
-      const button = screen.getByRole('button', { name: 'Toggle' });
-      await user.click(button);
+        const menuItem = await screen.findAllByRole('menuitem');
+        await user.click(menuItem[0]);
 
-      const menuItem = await screen.findByRole('menuitem');
-      await user.click(menuItem);
-
-      expect(button).toHaveFocus();
-    });
-
-    it('focuses the trigger after the menu is closed but not unmounted', async ({ skip }) => {
-      if (isJSDOM) {
-        // TODO: this stopped working in vitest JSDOM mode
-        skip();
-      }
-
-      const { user } = await render(
-        <div>
-          <input type="text" />
-          <Menu.Root>
-            <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Portal keepMounted>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Item>Close</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-          <input type="text" />
-        </div>,
-      );
-
-      const button = screen.getByRole('button', { name: 'Toggle' });
-      await user.click(button);
-
-      const menuItem = await screen.findByRole('menuitem');
-      await user.click(menuItem);
-
-      await waitFor(() => {
         expect(button).toHaveFocus();
       });
-    });
-  });
 
-  describe('prop: closeParentOnEsc', () => {
-    it('does not close the parent menu when the Escape key is pressed by default', async () => {
-      const { user } = await render(
-        <Menu.Root>
-          <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup id="parent-menu">
-                <Menu.Item>1</Menu.Item>
-                <Menu.SubmenuRoot>
-                  <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner>
-                      <Menu.Popup id="submenu">
-                        <Menu.Item>2.1</Menu.Item>
-                        <Menu.Item>2.2</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.SubmenuRoot>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
+      it('focuses the trigger after the menu is closed but not unmounted', async ({ skip }) => {
+        if (isJSDOM) {
+          // TODO: this stopped working in vitest JSDOM mode
+          skip();
+        }
 
-      const trigger = screen.getByRole('button', { name: 'Open' });
-      await act(async () => {
-        trigger.focus();
+        const { user } = await render(
+          <div>
+            <input type="text" />
+            <MenuTestSubject portalProps={{ keepMounted: true }} />
+            <input type="text" />
+          </div>,
+        );
+
+        const button = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(button);
+
+        const menuItem = await screen.findAllByRole('menuitem');
+        await user.click(menuItem[0]);
+
+        await waitFor(() => {
+          expect(button).toHaveFocus();
+        });
       });
-
-      await user.keyboard('[ArrowDown]');
-      await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: '1' })).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowDown]');
-      await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: '2' })).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowRight]');
-      await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: '2.1' })).toHaveFocus();
-      });
-
-      await user.keyboard('[Escape]');
-
-      const menus = screen.queryAllByRole('menu', { hidden: false });
-      await waitFor(() => {
-        expect(menus.length).to.equal(1);
-      });
-
-      expect(menus[0].id).to.equal('parent-menu');
     });
 
-    it('closes the parent menu when the Escape key is pressed  if `closeParentOnEsc=true`', async () => {
-      const { user } = await render(
-        <Menu.Root>
-          <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>1</Menu.Item>
-                <Menu.SubmenuRoot closeParentOnEsc>
-                  <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner>
-                      <Menu.Popup>
-                        <Menu.Item>2.1</Menu.Item>
-                        <Menu.Item>2.2</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.SubmenuRoot>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
+    describe('prop: closeParentOnEsc', () => {
+      it('does not close the parent menu when the Escape key is pressed by default', async () => {
+        const { user } = await render(<MenuTestSubject />);
 
-      const trigger = screen.getByRole('button', { name: 'Open' });
-      await act(async () => {
-        trigger.focus();
-      });
-
-      await user.keyboard('[ArrowDown]');
-      await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: '1' })).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowDown]');
-      await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: '2' })).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowRight]');
-      await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: '2.1' })).toHaveFocus();
-      });
-
-      await user.keyboard('[Escape]');
-      await flushMicrotasks();
-
-      expect(screen.queryByRole('menu', { hidden: false })).to.equal(null);
-    });
-  });
-
-  describe('prop: modal', () => {
-    it('should render an internal backdrop when `true`', async () => {
-      const { user } = await render(
-        <div>
-          <Menu.Root modal>
-            <Menu.Trigger>Open</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner data-testid="positioner">
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-          <button>Outside</button>
-        </div>,
-      );
-
-      const trigger = screen.getByRole('button', { name: 'Open' });
-
-      await user.click(trigger);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).not.to.equal(null);
-      });
-
-      const positioner = screen.getByTestId('positioner');
-
-      expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
-    });
-
-    it('should not render an internal backdrop when `false`', async () => {
-      const { user } = await render(
-        <div>
-          <Menu.Root modal={false}>
-            <Menu.Trigger>Open</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner data-testid="positioner">
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-          <button>Outside</button>
-        </div>,
-      );
-
-      const trigger = screen.getByRole('button', { name: 'Open' });
-
-      await user.click(trigger);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).not.to.equal(null);
-      });
-
-      const positioner = screen.getByTestId('positioner');
-
-      expect(positioner.previousElementSibling).to.equal(null);
-    });
-  });
-
-  describe('prop: actionsRef', () => {
-    it('unmounts the menu when the `unmount` method is called', async () => {
-      const actionsRef = {
-        current: {
-          unmount: spy(),
-        },
-      };
-
-      const { user } = await render(
-        <Menu.Root actionsRef={actionsRef}>
-          <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup />
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      const trigger = screen.getByRole('button', { name: 'Open' });
-      await act(() => {
-        trigger.focus();
-      });
-
-      await user.keyboard('{Enter}');
-
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).not.to.equal(null);
-      });
-
-      await user.click(trigger);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).not.to.equal(null);
-      });
-
-      await act(async () => {
-        await new Promise((resolve) => {
-          requestAnimationFrame(resolve);
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
         });
 
-        actionsRef.current.unmount();
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-1')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-2')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-3')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByTestId('submenu-trigger')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-4_1')).toHaveFocus();
+        });
+
+        await user.keyboard('[Escape]');
+
+        const menus = screen.queryAllByRole('menu', { hidden: false });
+        await waitFor(() => {
+          expect(menus.length).to.equal(1);
+        });
+
+        expect(menus[0].dataset.testid).to.equal('menu');
       });
 
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
-      });
-    });
-  });
-
-  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-    it('is called on close when there is no exit animation defined', async () => {
-      const onOpenChangeComplete = spy();
-
-      function Test() {
-        const [open, setOpen] = React.useState(true);
-        return (
-          <div>
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Menu.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup data-testid="popup" />
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </div>
+      it('closes the parent menu when the Escape key is pressed  if `closeParentOnEsc=true`', async () => {
+        const { user } = await render(
+          <MenuTestSubject submenuProps={{ closeParentOnEsc: true }} />,
         );
-      }
 
-      const { user } = await render(<Test />);
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
 
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-1')).toHaveFocus();
+        });
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup')).to.equal(null);
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-2')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-3')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByTestId('submenu-trigger')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Item 4.1' })).toHaveFocus();
+        });
+
+        await user.keyboard('[Escape]');
+        await flushMicrotasks();
+
+        expect(screen.queryByRole('menu', { hidden: false })).to.equal(null);
       });
-
-      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
-      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
     });
 
-    it('is called on close when the exit animation finishes', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    describe('prop: modal', () => {
+      it('should render an internal backdrop when `true`', async () => {
+        const { user } = await render(
+          <div>
+            <MenuTestSubject rootProps={{ modal: true }} />
+            <button>Outside</button>
+          </div>,
+        );
 
-      const onOpenChangeComplete = spy();
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-      function Test() {
-        const style = `
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+        });
+
+        const positioner = screen.getByTestId('menu-positioner');
+
+        expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
+      });
+
+      it('should not render an internal backdrop when `false`', async () => {
+        const { user } = await render(
+          <div>
+            <MenuTestSubject rootProps={{ modal: false }} />
+            <button>Outside</button>
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+        });
+
+        const positioner = screen.getByTestId('menu-positioner');
+
+        expect(positioner.previousElementSibling).to.equal(null);
+      });
+    });
+
+    describe('prop: actionsRef', () => {
+      it('unmounts the menu when the `unmount` method is called', async () => {
+        const actionsRef = {
+          current: {
+            unmount: spy(),
+          },
+        };
+
+        const { user } = await render(<MenuTestSubject rootProps={{ actionsRef }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(() => {
+          trigger.focus();
+        });
+
+        await user.keyboard('{Enter}');
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+        });
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+        });
+
+        await act(async () => {
+          await new Promise((resolve) => {
+            requestAnimationFrame(resolve);
+          });
+
+          actionsRef.current.unmount();
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).to.equal(null);
+        });
+      });
+    });
+
+    describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
+      it('is called on close when there is no exit animation defined', async () => {
+        const onOpenChangeComplete = spy();
+
+        function Test() {
+          const [open, setOpen] = React.useState(true);
+          return (
+            <div>
+              <button onClick={() => setOpen(false)}>Close</button>
+              <MenuTestSubject rootProps={{ open, onOpenChangeComplete }} />
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const closeButton = screen.getByText('Close');
+        await user.click(closeButton);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).to.equal(null);
+        });
+
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+        expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+      });
+
+      it('is called on close when the exit animation finishes', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const onOpenChangeComplete = spy();
+
+        function Test() {
+          const style = `
           @keyframes test-anim {
             to {
               opacity: 0;
@@ -1115,82 +867,73 @@ describe('<Menu.Root />', () => {
           }
         `;
 
-        const [open, setOpen] = React.useState(true);
+          const [open, setOpen] = React.useState(true);
 
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Menu.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup className="animation-test-indicator" data-testid="popup" />
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </div>
-        );
-      }
+          return (
+            <div>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <button onClick={() => setOpen(false)}>Close</button>
+              <MenuTestSubject
+                rootProps={{ open, onOpenChangeComplete }}
+                popupProps={{ className: 'animation-test-indicator' }}
+              />
+            </div>
+          );
+        }
 
-      const { user } = await render(<Test />);
+        const { user } = await render(<Test />);
 
-      expect(screen.getByTestId('popup')).not.to.equal(null);
+        expect(screen.getByTestId('menu')).not.to.equal(null);
 
-      // Wait for open animation to finish
-      await waitFor(() => {
+        // Wait for open animation to finish
+        await waitFor(() => {
+          expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+        });
+
+        const closeButton = screen.getByText('Close');
+        await user.click(closeButton);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).to.equal(null);
+        });
+
+        expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+      });
+
+      it('is called on open when there is no enter animation defined', async () => {
+        const onOpenChangeComplete = spy();
+
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+          return (
+            <div>
+              <button onClick={() => setOpen(true)}>Open</button>
+              <MenuTestSubject rootProps={{ open, onOpenChangeComplete }} />
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const openButton = screen.getByText('Open');
+        await user.click(openButton);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).not.to.equal(null);
+        });
+
+        expect(onOpenChangeComplete.callCount).to.equal(2);
         expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
       });
 
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
+      it('is called on open when the enter animation finishes', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup')).to.equal(null);
-      });
+        const onOpenChangeComplete = spy();
 
-      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
-    });
-
-    it('is called on open when there is no enter animation defined', async () => {
-      const onOpenChangeComplete = spy();
-
-      function Test() {
-        const [open, setOpen] = React.useState(false);
-        return (
-          <div>
-            <button onClick={() => setOpen(true)}>Open</button>
-            <Menu.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup data-testid="popup" />
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const openButton = screen.getByText('Open');
-      await user.click(openButton);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup')).not.to.equal(null);
-      });
-
-      expect(onOpenChangeComplete.callCount).to.equal(2);
-      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
-    });
-
-    it('is called on open when the enter animation finishes', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      const onOpenChangeComplete = spy();
-
-      function Test() {
-        const style = `
+        function Test() {
+          const style = `
           @keyframes test-anim {
             from {
               opacity: 0;
@@ -1202,309 +945,345 @@ describe('<Menu.Root />', () => {
           }
         `;
 
-        const [open, setOpen] = React.useState(false);
+          const [open, setOpen] = React.useState(false);
 
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(true)}>Open</button>
-            <Menu.Root
-              open={open}
-              onOpenChange={setOpen}
-              onOpenChangeComplete={onOpenChangeComplete}
-            >
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup className="animation-test-indicator" data-testid="popup" />
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </div>
+          return (
+            <div>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <button onClick={() => setOpen(true)}>Open</button>
+              <MenuTestSubject
+                rootProps={{ open, onOpenChange: setOpen, onOpenChangeComplete }}
+                popupProps={{ className: 'animation-test-indicator' }}
+              />
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const openButton = screen.getByText('Open');
+        await user.click(openButton);
+
+        // Wait for open animation to finish
+        await waitFor(() => {
+          expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+        });
+
+        expect(screen.queryByTestId('menu')).not.to.equal(null);
+      });
+
+      it('does not get called on mount when not open', async () => {
+        const onOpenChangeComplete = spy();
+
+        await render(<MenuTestSubject rootProps={{ onOpenChangeComplete }} />);
+
+        expect(onOpenChangeComplete.callCount).to.equal(0);
+      });
+    });
+
+    describe('prop: openOnHover', () => {
+      it('should open the menu when the trigger is hovered', async () => {
+        await render(<MenuTestSubject triggerProps={{ openOnHover: true, delay: 0 }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await act(async () => {
+          trigger.focus();
+        });
+
+        await userEvent.hover(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+        });
+      });
+
+      it('should close the menu when the trigger is no longer hovered', async () => {
+        await render(
+          <MenuTestSubject
+            rootProps={{ modal: false }}
+            triggerProps={{ openOnHover: true, delay: 0 }}
+          />,
         );
-      }
 
-      const { user } = await render(<Test />);
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-      const openButton = screen.getByText('Open');
-      await user.click(openButton);
+        await act(async () => {
+          trigger.focus();
+        });
 
-      // Wait for open animation to finish
-      await waitFor(() => {
-        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+        await userEvent.hover(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+        });
+
+        await userEvent.unhover(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).to.equal(null);
+        });
       });
 
-      expect(screen.queryByTestId('popup')).not.to.equal(null);
-    });
+      it('should not close when submenu is hovered after root menu is hovered', async () => {
+        await render(
+          <MenuTestSubject
+            triggerProps={{ openOnHover: true, delay: 0 }}
+            submenuTriggerProps={{ delay: 0 }}
+          />,
+        );
 
-    it('does not get called on mount when not open', async () => {
-      const onOpenChangeComplete = spy();
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-      await render(
-        <Menu.Root onOpenChangeComplete={onOpenChangeComplete}>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup />
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
+        await act(async () => {
+          trigger.focus();
+        });
 
-      expect(onOpenChangeComplete.callCount).to.equal(0);
-    });
-  });
+        await userEvent.hover(trigger);
 
-  describe('prop: openOnHover', () => {
-    it('should open the menu when the trigger is hovered', async () => {
-      await render(
-        <Menu.Root>
-          <Menu.Trigger openOnHover delay={0}>
-            Open
-          </Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>1</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
+        await waitFor(() => {
+          expect(screen.getByTestId('menu')).not.to.equal(null);
+        });
 
-      const trigger = screen.getByRole('button', { name: 'Open' });
+        const menu = screen.getByTestId('menu');
 
-      await act(async () => {
-        trigger.focus();
+        await userEvent.hover(menu);
+
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'Item 4' });
+
+        await userEvent.hover(submenuTrigger);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('menu')).not.to.equal(null);
+        });
+        await waitFor(() => {
+          expect(screen.getByTestId('submenu')).not.to.equal(null);
+        });
+
+        const submenu = screen.getByTestId('submenu');
+
+        // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
+        fireEvent.mouseMove(menu);
+        fireEvent.mouseLeave(menu);
+        await userEvent.hover(submenu);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('menu')).not.to.equal(null);
+        });
+        await waitFor(() => {
+          expect(screen.getByTestId('submenu')).not.to.equal(null);
+        });
       });
 
-      await userEvent.hover(trigger);
+      it('keeps the parent submenu open after a third-level submenu closes due to sibling hover', async () => {
+        await render(
+          <ContainedTriggerMenu
+            triggerProps={{ openOnHover: true, delay: 0 }}
+            submenuTriggerProps={{ delay: 0 }}
+          />,
+        );
 
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).not.to.equal(null);
-      });
-    });
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-    it.skipIf(!isJSDOM)('should close the menu when the trigger is no longer hovered', async () => {
-      await render(
-        <Menu.Root modal={false}>
-          <Menu.Trigger openOnHover delay={0}>
-            Open
-          </Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>1</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
+        await act(async () => {
+          trigger.focus();
+        });
 
-      const trigger = screen.getByRole('button', { name: 'Open' });
+        await userEvent.hover(trigger);
 
-      await act(async () => {
-        trigger.focus();
-      });
+        await waitFor(() => {
+          expect(screen.getByTestId('menu')).not.to.equal(null);
+        });
 
-      await userEvent.hover(trigger);
+        // Open first-level submenu
+        const level1Trigger = screen.getByRole('menuitem', { name: 'Item 4' });
+        await userEvent.hover(level1Trigger);
 
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).not.to.equal(null);
-      });
+        await waitFor(() => {
+          expect(screen.getByTestId('submenu')).not.to.equal(null);
+        });
 
-      await userEvent.unhover(trigger);
+        // Open second-level submenu
+        const level2Trigger = screen.getByRole('menuitem', { name: 'Item 4.3' });
+        await userEvent.hover(level2Trigger);
 
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
-      });
-    });
+        await waitFor(() => {
+          expect(screen.getByTestId('nested-submenu')).not.to.equal(null);
+        });
 
-    it('should not close when submenu is hovered after root menu is hovered', async () => {
-      await render(
-        <Menu.Root>
-          <Menu.Trigger openOnHover delay={0}>
-            Open
-          </Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner data-testid="menu">
-              <Menu.Popup>
-                <Menu.Item>1</Menu.Item>
-                <Menu.SubmenuRoot>
-                  <Menu.SubmenuTrigger delay={0}>2</Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner data-testid="submenu">
-                      <Menu.Popup>
-                        <Menu.Item>2.1</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.SubmenuRoot>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
+        // Hover a sibling item in the parent submenu to close the second-level submenu
+        const parentSibling = screen.getByRole('menuitem', { name: 'Item 4.2' });
+        // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
+        fireEvent.mouseMove(parentSibling);
 
-      const trigger = screen.getByRole('button', { name: 'Open' });
+        await waitFor(() => {
+          expect(screen.queryByTestId('nested-submenu')).to.equal(null);
+        });
 
-      await act(async () => {
-        trigger.focus();
-      });
+        // Now unhover the parent submenu container; it should remain open
+        const submenu1 = screen.getByTestId('submenu');
+        fireEvent.mouseLeave(submenu1);
 
-      await userEvent.hover(trigger);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('menu')).not.to.equal(null);
-      });
-
-      const menu = screen.getByTestId('menu');
-
-      await userEvent.hover(menu);
-
-      const submenuTrigger = screen.getByRole('menuitem', { name: '2' });
-
-      await userEvent.hover(submenuTrigger);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('menu')).not.to.equal(null);
-      });
-      await waitFor(() => {
-        expect(screen.getByTestId('submenu')).not.to.equal(null);
-      });
-
-      const submenu = screen.getByTestId('submenu');
-
-      // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
-      fireEvent.mouseMove(menu);
-      fireEvent.mouseLeave(menu);
-      await userEvent.hover(submenu);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('menu')).not.to.equal(null);
-      });
-      await waitFor(() => {
-        expect(screen.getByTestId('submenu')).not.to.equal(null);
+        // Parent submenu should still be open
+        await waitFor(() => {
+          expect(screen.getByTestId('submenu')).not.to.equal(null);
+        });
       });
     });
 
-    it('keeps the parent submenu open after a third-level submenu closes due to sibling hover', async () => {
-      await render(
-        <Menu.Root>
-          <Menu.Trigger openOnHover delay={0}>
-            Open
-          </Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner data-testid="menu">
-              <Menu.Popup>
-                <Menu.SubmenuRoot>
-                  <Menu.SubmenuTrigger delay={0}>Level 1</Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner data-testid="submenu-1">
-                      <Menu.Popup>
-                        <Menu.Item data-testid="parent-item">Parent Sibling</Menu.Item>
-                        <Menu.SubmenuRoot>
-                          <Menu.SubmenuTrigger delay={0}>Level 2</Menu.SubmenuTrigger>
-                          <Menu.Portal>
-                            <Menu.Positioner data-testid="submenu-2">
-                              <Menu.Popup>
-                                <Menu.Item>Child Item</Menu.Item>
-                              </Menu.Popup>
-                            </Menu.Positioner>
-                          </Menu.Portal>
-                        </Menu.SubmenuRoot>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.SubmenuRoot>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
+    describe('prop: closeDelay', () => {
+      const { render: renderFakeTimers, clock } = createRenderer();
 
-      const trigger = screen.getByRole('button', { name: 'Open' });
+      clock.withFakeTimers();
 
-      await act(async () => {
-        trigger.focus();
-      });
+      it('should close after delay', async () => {
+        await renderFakeTimers(
+          <MenuTestSubject triggerProps={{ openOnHover: true, delay: 0, closeDelay: 100 }} />,
+        );
 
-      await userEvent.hover(trigger);
+        const anchor = screen.getByRole('button');
 
-      await waitFor(() => {
-        expect(screen.getByTestId('menu')).not.to.equal(null);
-      });
+        fireEvent.mouseEnter(anchor);
+        fireEvent.mouseMove(anchor);
 
-      // Open first-level submenu
-      const level1Trigger = screen.getByRole('menuitem', { name: 'Level 1' });
-      await userEvent.hover(level1Trigger);
+        await flushMicrotasks();
 
-      await waitFor(() => {
-        expect(screen.getByTestId('submenu-1')).not.to.equal(null);
-      });
+        expect(screen.getByText('Item 1')).not.to.equal(null);
 
-      // Open second-level submenu
-      const level2Trigger = screen.getByRole('menuitem', { name: 'Level 2' });
-      await userEvent.hover(level2Trigger);
+        fireEvent.mouseLeave(anchor);
 
-      await waitFor(() => {
-        expect(screen.getByTestId('submenu-2')).not.to.equal(null);
-      });
+        clock.tick(50);
 
-      // Hover a sibling item in the parent submenu to close the second-level submenu
-      const parentSibling = screen.getByRole('menuitem', { name: 'Parent Sibling' });
-      // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
-      fireEvent.mouseMove(parentSibling);
+        expect(screen.getByText('Item 1')).not.to.equal(null);
 
-      await waitFor(() => {
-        expect(() => screen.getByTestId('submenu-2')).to.throw();
-      });
+        clock.tick(50);
 
-      // Now unhover the parent submenu container; it should remain open
-      const submenu1 = screen.getByTestId('submenu-1');
-      fireEvent.mouseLeave(submenu1);
-
-      // Parent submenu should still be open
-      await waitFor(() => {
-        expect(screen.getByTestId('submenu-1')).not.to.equal(null);
+        expect(screen.queryByText('Item 1')).to.equal(null);
       });
     });
-  });
 
-  describe('prop: closeDelay', () => {
-    const { render: renderFakeTimers, clock } = createRenderer();
+    describe.skipIf(isJSDOM)('mouse interaction', () => {
+      afterEach(async () => {
+        const { cleanup } = await import('vitest-browser-react');
+        cleanup();
+      });
 
-    clock.withFakeTimers();
+      it('triggers a menu item and closes the menu on click, drag, release', async () => {
+        const openChangeSpy = spy();
+        const clickSpy = spy();
 
-    it('should close after delay', async () => {
-      await renderFakeTimers(
-        <Menu.Root>
-          <Menu.Trigger openOnHover delay={0} closeDelay={100} />
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>Content</Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
+        const items = [
+          <Menu.Item key="1" data-testid="item-1">
+            1
+          </Menu.Item>,
+          <Menu.Item key="2" data-testid="item-2" onClick={clickSpy}>
+            2
+          </Menu.Item>,
+          <Menu.Item key="3" data-testid="item-3">
+            3
+          </Menu.Item>,
+        ];
 
-      const anchor = screen.getByRole('button');
+        await render(
+          <div>
+            <MenuTestSubject
+              rootProps={{ onOpenChange: openChangeSpy }}
+              popupProps={{ children: items }}
+            />
+          </div>,
+        );
 
-      fireEvent.mouseEnter(anchor);
-      fireEvent.mouseMove(anchor);
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-      await flushMicrotasks();
+        fireEvent.mouseDown(trigger);
 
-      expect(screen.getByText('Content')).not.to.equal(null);
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).not.to.equal(null);
+        });
 
-      fireEvent.mouseLeave(anchor);
+        await wait(200);
 
-      clock.tick(50);
+        const item2 = screen.getByTestId('item-2');
+        fireEvent.mouseUp(item2);
 
-      expect(screen.getByText('Content')).not.to.equal(null);
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).to.equal(null);
+        });
 
-      clock.tick(50);
+        expect(clickSpy.callCount).to.equal(1);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+        expect(openChangeSpy.callCount).to.equal(2);
+        expect(openChangeSpy.firstCall.args[0]).to.equal(true);
+        expect(openChangeSpy.lastCall.args[0]).to.equal(false);
+        expect(openChangeSpy.lastCall.args[1].reason).to.equal(REASONS.itemPress);
+      });
+
+      it('closes the menu on click, drag outside, release', async () => {
+        const { userEvent: user } = await import('@vitest/browser/context');
+        const { render: vbrRender } = await import('vitest-browser-react');
+
+        const openChangeSpy = spy();
+
+        const items = [
+          <Menu.Item key="1" data-testid="item-1">
+            1
+          </Menu.Item>,
+          <Menu.Item key="2" data-testid="item-2">
+            2
+          </Menu.Item>,
+          <Menu.Item key="3" data-testid="item-3">
+            3
+          </Menu.Item>,
+        ];
+
+        vbrRender(
+          <div>
+            <MenuTestSubject
+              rootProps={{ onOpenChange: openChangeSpy }}
+              popupProps={{ children: items }}
+            />
+            <div data-testid="outside">Outside</div>
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        const outsideElement = screen.getByTestId('outside');
+
+        await user.dragAndDrop(trigger, outsideElement);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).to.equal(null);
+        });
+
+        expect(openChangeSpy.callCount).to.equal(2);
+        expect(openChangeSpy.firstCall.args[0]).to.equal(true);
+        expect(openChangeSpy.lastCall.args[0]).to.equal(false);
+        expect(openChangeSpy.lastCall.args[1].reason).to.equal(REASONS.cancelOpen);
+      });
+    });
+
+    describe('BaseUIChangeEventDetails', () => {
+      it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+        await render(
+          <MenuTestSubject
+            rootProps={{
+              onOpenChange: (nextOpen, eventDetails) => {
+                if (nextOpen) {
+                  eventDetails.cancel();
+                }
+              },
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await userEvent.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).to.equal(null);
+        });
+      });
     });
   });
 
@@ -1578,98 +1357,91 @@ describe('<Menu.Root />', () => {
       expect(screen.queryByRole('menuitem', { name: 'Add to Library' })).toHaveFocus();
     });
   });
-
-  describe.skipIf(isJSDOM)('mouse interaction', () => {
-    afterEach(async () => {
-      const { cleanup } = await import('vitest-browser-react');
-      cleanup();
-    });
-
-    it('triggers a menu item and closes the menu on click, drag, release', async () => {
-      const openChangeSpy = spy();
-      const clickSpy = spy();
-
-      await render(
-        <div>
-          <Menu.Root onOpenChange={openChangeSpy}>
-            <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup data-testid="menu">
-                  <Menu.Item data-testid="item-1">1</Menu.Item>
-                  <Menu.Item data-testid="item-2" onClick={clickSpy}>
-                    2
-                  </Menu.Item>
-                  <Menu.Item data-testid="item-3">3</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        </div>,
-      );
-
-      const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-      fireEvent.mouseDown(trigger);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('menu')).not.to.equal(null);
-      });
-
-      await wait(200);
-
-      const item2 = screen.getByTestId('item-2');
-      fireEvent.mouseUp(item2);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('menu')).to.equal(null);
-      });
-
-      expect(clickSpy.callCount).to.equal(1);
-
-      expect(openChangeSpy.callCount).to.equal(2);
-      expect(openChangeSpy.firstCall.args[0]).to.equal(true);
-      expect(openChangeSpy.lastCall.args[0]).to.equal(false);
-      expect(openChangeSpy.lastCall.args[1].reason).to.equal(REASONS.itemPress);
-    });
-
-    it('closes the menu on click, drag outside, release', async () => {
-      const { userEvent: user } = await import('@vitest/browser/context');
-      const { render: vbrRender } = await import('vitest-browser-react');
-
-      const openChangeSpy = spy();
-
-      vbrRender(
-        <div>
-          <Menu.Root onOpenChange={openChangeSpy}>
-            <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup data-testid="menu">
-                  <Menu.Item>1</Menu.Item>
-                  <Menu.Item>2</Menu.Item>
-                  <Menu.Item>3</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-          <div data-testid="outside">Outside</div>
-        </div>,
-      );
-
-      const trigger = screen.getByRole('button', { name: 'Toggle' });
-      const outsideElement = screen.getByTestId('outside');
-
-      await user.dragAndDrop(trigger, outsideElement);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('menu')).to.equal(null);
-      });
-
-      expect(openChangeSpy.callCount).to.equal(2);
-      expect(openChangeSpy.firstCall.args[0]).to.equal(true);
-      expect(openChangeSpy.lastCall.args[0]).to.equal(false);
-      expect(openChangeSpy.lastCall.args[1].reason).to.equal(REASONS.cancelOpen);
-    });
-  });
 });
+
+function ContainedTriggerMenu(props: TestMenuProps) {
+  const { triggerProps, ...rest } = props;
+  return (
+    <TestMenu {...rest}>
+      <Menu.Trigger {...triggerProps}>Toggle</Menu.Trigger>
+    </TestMenu>
+  );
+}
+
+function DetachedTriggerMenu(props: TestMenuProps) {
+  const { triggerProps, ...rest } = props;
+  const menuHandle = useRefWithInit(() => new Menu.Handle()).current;
+
+  return (
+    <React.Fragment>
+      <TestMenu {...rest} rootProps={{ ...rest.rootProps, handle: menuHandle }}></TestMenu>
+      <Menu.Trigger handle={menuHandle} {...triggerProps}>
+        Toggle
+      </Menu.Trigger>
+    </React.Fragment>
+  );
+}
+
+type TestMenuProps = {
+  rootProps?: Menu.Root.Props;
+  portalProps?: Menu.Portal.Props;
+  popupProps?: Menu.Popup.Props;
+  triggerProps?: Menu.Trigger.Props;
+  submenuProps?: Menu.SubmenuRoot.Props;
+  submenuTriggerProps?: Menu.SubmenuTrigger.Props;
+  children?: React.ReactNode;
+};
+
+function TestMenu(props: TestMenuProps) {
+  const { children, rootProps, portalProps, submenuProps, submenuTriggerProps, popupProps } = props;
+  return (
+    <Menu.Root {...rootProps}>
+      {children}
+      <Menu.Portal {...portalProps}>
+        <Menu.Positioner data-testid="menu-positioner">
+          <Menu.Popup data-testid="menu" {...popupProps}>
+            {popupProps?.children ?? (
+              <React.Fragment>
+                <Menu.Item data-testid="item-1">Item 1</Menu.Item>
+                <Menu.Item data-testid="item-2">Item 2</Menu.Item>
+                <Menu.Item data-testid="item-3" disabled>
+                  Item 3
+                </Menu.Item>
+                <Menu.SubmenuRoot {...submenuProps}>
+                  <Menu.SubmenuTrigger data-testid="submenu-trigger" {...submenuTriggerProps}>
+                    Item 4
+                  </Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu">
+                        <Menu.Item data-testid="item-4_1">Item 4.1</Menu.Item>
+                        <Menu.Item data-testid="item-4_2">Item 4.2</Menu.Item>
+                        <Menu.SubmenuRoot {...submenuProps}>
+                          <Menu.SubmenuTrigger
+                            data-testid="nested-submenu-trigger"
+                            {...submenuTriggerProps}
+                          >
+                            Item 4.3
+                          </Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup data-testid="nested-submenu">
+                                <Menu.Item data-testid="item-4_3_1">Item 4.3.1</Menu.Item>
+                                <Menu.Item data-testid="item-4_3_2">Item 4.3.2</Menu.Item>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+                <Menu.Item data-testid="item-5">Item 5</Menu.Item>
+              </React.Fragment>
+            )}
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
+  );
+}
