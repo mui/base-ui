@@ -9,6 +9,7 @@ import { useButton } from '../../use-button';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { findItemIndex } from '../../utils/itemEquality';
 
 /**
@@ -56,7 +57,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
             return;
           }
 
-          const eventDetails = createChangeEventDetails('chip-remove-press', event.nativeEvent);
+          const eventDetails = createChangeEventDetails(REASONS.chipRemovePress, event.nativeEvent);
 
           // If the removed chip was the active item, clear highlight
           const activeIndex = store.state.activeIndex;
@@ -88,7 +89,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
             return;
           }
 
-          const eventDetails = createChangeEventDetails('chip-remove-press', event.nativeEvent);
+          const eventDetails = createChangeEventDetails(REASONS.chipRemovePress, event.nativeEvent);
 
           if (event.key === 'Enter' || event.key === ' ') {
             // If the removed chip was the active item, clear highlight
@@ -124,13 +125,18 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
   return element;
 });
 
-export namespace ComboboxChipRemove {
-  export interface State {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-  }
+export interface ComboboxChipRemoveState {
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
+export interface ComboboxChipRemoveProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ComboboxChipRemove.State> {}
+
+export namespace ComboboxChipRemove {
+  export type State = ComboboxChipRemoveState;
+  export type Props = ComboboxChipRemoveProps;
 }

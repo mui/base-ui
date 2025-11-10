@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -9,10 +9,12 @@ import { useButton } from '../../use-button';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { stopEvent } from '../../floating-ui-react/utils';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
@@ -40,15 +42,15 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const {
     state: fieldState,
     disabled: fieldDisabled,
-    labelId,
     setTouched,
     setFocused,
     validationMode,
+    validation,
   } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
   const store = useComboboxRootContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
-  const fieldControlValidation = useStore(store, selectors.fieldControlValidation);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const listElement = useStore(store, selectors.listElement);
@@ -66,9 +68,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
-  const trackPointerType = useEventCallback((event: React.PointerEvent) => {
+  function trackPointerType(event: React.PointerEvent) {
     currentPointerTypeRef.current = event.pointerType;
-  });
+  }
 
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,
@@ -84,7 +86,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     [fieldState, open, disabled],
   );
 
-  const setTriggerElement = useEventCallback((element) => {
+  const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);
   });
 
@@ -97,6 +99,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       {
         tabIndex: inputInsidePopup ? 0 : -1,
         disabled,
+        role: inputInsidePopup ? 'combobox' : undefined,
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': open ? listElement?.id : undefined,
@@ -119,7 +122,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           if (validationMode === 'onBlur') {
             const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
-            fieldControlValidation.commitValidation(valueToValidate);
+            validation.commit(valueToValidate);
           }
         },
         onMouseDown(event) {
@@ -142,7 +145,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           const nextOpen = !open;
           store.state.setOpen(
             nextOpen,
-            createChangeEventDetails('trigger-press', event.nativeEvent),
+            createChangeEventDetails(REASONS.triggerPress, event.nativeEvent),
           );
 
           if (nextOpen && currentPointerTypeRef.current !== 'touch') {
@@ -158,15 +161,13 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             stopEvent(event);
             store.state.setOpen(
               true,
-              createChangeEventDetails('list-navigation', event.nativeEvent),
+              createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );
             store.state.inputRef.current?.focus();
           }
         },
       },
-      fieldControlValidation
-        ? fieldControlValidation.getValidationProps(elementProps)
-        : elementProps,
+      validation ? validation.getValidationProps(elementProps) : elementProps,
       getButtonProps,
     ],
     stateAttributesMapping,
@@ -175,23 +176,28 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   return element;
 });
 
-export namespace ComboboxTrigger {
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the popup is open.
-     */
-    open: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-  }
+export interface ComboboxTriggerState extends FieldRoot.State {
+  /**
+   * Whether the popup is open.
+   */
+  open: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface ComboboxTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ComboboxTrigger.State> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+export namespace ComboboxTrigger {
+  export type State = ComboboxTriggerState;
+  export type Props = ComboboxTriggerProps;
 }

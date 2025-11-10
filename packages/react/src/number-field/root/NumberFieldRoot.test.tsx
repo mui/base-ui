@@ -6,6 +6,7 @@ import { NumberField as NumberFieldBase } from '@base-ui-components/react/number
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { REASONS } from '../../utils/reasons';
 
 describe('<NumberField />', () => {
   const { render } = createRenderer();
@@ -134,6 +135,102 @@ describe('<NumberField />', () => {
       fireEvent.change(input, { target: { value: '' } });
       expect(onValueChange.callCount).to.equal(1);
       expect(onValueChange.firstCall.args[0]).to.equal(null);
+    });
+
+    it('includes the reason for parseable typing', async () => {
+      const onValueChange = spy();
+      await render(<NumberField onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '12' } });
+
+      expect(onValueChange).to.have.property('callCount', 1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal(REASONS.inputChange);
+    });
+
+    it('includes the reason when clearing the value', async () => {
+      const onValueChange = spy();
+      await render(<NumberField defaultValue={5} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+
+      expect(onValueChange).to.have.property('callCount', 1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal(REASONS.inputClear);
+    });
+
+    it('includes the reason for keyboard increments', async () => {
+      const onValueChange = spy();
+      await render(<NumberField defaultValue={1} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      await act(async () => {
+        input.focus();
+      });
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      expect(onValueChange).to.have.property('callCount', 1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('keyboard');
+    });
+
+    it('includes the reason for increment button presses', async () => {
+      const onValueChange = spy();
+      await render(<NumberField defaultValue={1} onValueChange={onValueChange} />);
+      const incrementButton = screen.getByRole('button', { name: 'Increase' });
+
+      fireEvent.click(incrementButton);
+
+      expect(onValueChange.callCount).to.equal(1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('increment-press');
+    });
+
+    it('includes the reason for decrement button presses', async () => {
+      const onValueChange = spy();
+      await render(<NumberField defaultValue={1} onValueChange={onValueChange} />);
+      const decrementButton = screen.getByRole('button', { name: 'Decrease' });
+
+      fireEvent.click(decrementButton);
+
+      expect(onValueChange.callCount).to.equal(1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('decrement-press');
+    });
+
+    it('includes the reason for wheel scrubbing', async () => {
+      const onValueChange = spy();
+      await render(<NumberField allowWheelScrub defaultValue={4} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      await act(async () => {
+        input.focus();
+      });
+      fireEvent.wheel(input, { deltaY: -100 });
+
+      expect(onValueChange.callCount).to.equal(1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('wheel');
     });
   });
 
@@ -431,8 +528,10 @@ describe('<NumberField />', () => {
 
   describe('prop: name', () => {
     it('should set the name attribute on the hidden input', async () => {
-      const { container } = await render(<NumberField name="test" />);
-      const hiddenInput = container.querySelector('input[type=hidden]');
+      await render(<NumberField name="test" />);
+      const hiddenInput = screen.getByText('', {
+        selector: 'input[type=hidden]',
+      });
       expect(hiddenInput).to.have.attribute('name', 'test');
     });
   });
@@ -844,7 +943,6 @@ describe('<NumberField />', () => {
         return (
           <Form
             errors={errors}
-            onClearErrors={setErrors}
             onSubmit={(event) => {
               event.preventDefault();
               setErrors({ quantity: 'server error' });
@@ -870,22 +968,19 @@ describe('<NumberField />', () => {
       expect(screen.queryByTestId('error')).to.have.text('server error');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Form.Props['errors']>({
-          test: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="test" data-testid="field">
-              <NumberField defaultValue={1} />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      await render(<App />);
+    it('clears external errors on change', async () => {
+      await render(
+        <Form
+          errors={{
+            test: 'test',
+          }}
+        >
+          <Field.Root name="test" data-testid="field">
+            <NumberField defaultValue={1} />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       const input = screen.getByRole('textbox');
 
@@ -1030,7 +1125,7 @@ describe('<NumberField />', () => {
 
     it('prop: validate', async () => {
       await render(
-        <Field.Root validate={() => 'error'}>
+        <Field.Root validationMode="onBlur" validate={() => 'error'}>
           <NumberFieldBase.Root>
             <NumberFieldBase.Input />
           </NumberFieldBase.Root>
@@ -1048,52 +1143,144 @@ describe('<NumberField />', () => {
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
 
-    it('prop: validationMode=onChange', async () => {
-      await render(
-        <Field.Root
-          validationMode="onChange"
-          validate={(value) => {
-            return value === 1 ? 'error' : null;
-          }}
-        >
-          <NumberFieldBase.Root>
-            <NumberFieldBase.Input data-testid="input" />
-          </NumberFieldBase.Root>
-        </Field.Root>,
-      );
+    describe('prop: validationMode', () => {
+      it('onSubmit', async () => {
+        await render(
+          <Form>
+            <Field.Root validate={(value) => (value === 1 ? 'custom error' : null)}>
+              <NumberFieldBase.Root required>
+                <NumberFieldBase.Input data-testid="input" />
+              </NumberFieldBase.Root>
+              <Field.Error data-testid="error" match="valueMissing">
+                valueMissing error
+              </Field.Error>
+              <Field.Error data-testid="error" match="customError" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
 
-      const input = screen.getByTestId('input');
+        const input = screen.getByRole('textbox');
+        expect(input).not.to.have.attribute('aria-invalid');
 
-      expect(input).not.to.have.attribute('aria-invalid');
+        fireEvent.change(input, { target: { value: '1' } });
+        fireEvent.blur(input);
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
 
-      fireEvent.change(input, { target: { value: '1' } });
+        fireEvent.change(input, { target: { value: '' } });
+        fireEvent.blur(input);
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
 
-      expect(input).to.have.attribute('aria-invalid', 'true');
-    });
+        fireEvent.click(screen.getByText('submit'));
+        expect(input).to.have.attribute('aria-invalid', 'true');
+        expect(screen.queryByTestId('error')).to.have.text('valueMissing error');
 
-    it('prop: validationMode=onBlur', async () => {
-      await render(
-        <Field.Root
-          validationMode="onBlur"
-          validate={(value) => {
-            return value === 1 ? 'error' : null;
-          }}
-        >
-          <NumberFieldBase.Root>
-            <NumberFieldBase.Input data-testid="input" />
-          </NumberFieldBase.Root>
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
+        fireEvent.change(input, { target: { value: '2' } });
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
+        // re-invalidate the field value
+        fireEvent.change(input, { target: { value: '1' } });
+        expect(input).to.have.attribute('aria-invalid', 'true');
+        expect(screen.queryByTestId('error')).to.have.text('custom error');
 
-      const input = screen.getByTestId('input');
+        fireEvent.change(input, { target: { value: '3' } });
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
 
-      expect(input).not.to.have.attribute('aria-invalid');
+        fireEvent.change(input, { target: { value: '' } });
+        expect(input).to.have.attribute('aria-invalid', 'true');
+        expect(screen.queryByTestId('error')).to.have.text('valueMissing error');
+      });
 
-      fireEvent.change(input, { target: { value: '1' } });
-      fireEvent.blur(input);
+      it('onChange', async () => {
+        await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => {
+              return value === 1 ? 'error' : null;
+            }}
+          >
+            <NumberFieldBase.Root>
+              <NumberFieldBase.Input data-testid="input" />
+            </NumberFieldBase.Root>
+          </Field.Root>,
+        );
 
-      expect(input).to.have.attribute('aria-invalid', 'true');
+        const input = screen.getByTestId('input');
+
+        expect(input).not.to.have.attribute('aria-invalid');
+
+        fireEvent.change(input, { target: { value: '1' } });
+
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('revalidates when the controlled value changes externally', async () => {
+        const validateSpy = spy((value: unknown) =>
+          (value as number | null) === 5 ? 'error' : null,
+        );
+
+        function App() {
+          const [value, setValue] = React.useState<number | null>(null);
+
+          return (
+            <React.Fragment>
+              <Field.Root validationMode="onChange" validate={validateSpy} name="quantity">
+                <NumberFieldBase.Root value={value} onValueChange={(next) => setValue(next)}>
+                  <NumberFieldBase.Input data-testid="input" />
+                </NumberFieldBase.Root>
+              </Field.Root>
+              <button type="button" onClick={() => setValue(5)}>
+                Set externally
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(<App />);
+
+        const input = screen.getByTestId('input');
+        const toggle = screen.getByText('Set externally');
+
+        expect(input).not.to.have.attribute('aria-invalid');
+        const initialCallCount = validateSpy.callCount;
+
+        fireEvent.click(toggle);
+
+        expect(validateSpy.callCount).to.equal(initialCallCount + 1);
+        expect(validateSpy.lastCall.args[0]).to.equal(5);
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('onBlur', async () => {
+        await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              return value === 1 ? 'error' : null;
+            }}
+          >
+            <NumberFieldBase.Root required>
+              <NumberFieldBase.Input data-testid="input" />
+            </NumberFieldBase.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        expect(input).not.to.have.attribute('aria-invalid');
+
+        fireEvent.change(input, { target: { value: '1' } });
+        expect(input).not.to.have.attribute('aria-invalid');
+        fireEvent.blur(input);
+        expect(input).to.have.attribute('aria-invalid', 'true');
+        // revalidation
+        fireEvent.change(input, { target: { value: '2' } });
+        expect(input).not.to.have.attribute('aria-invalid');
+        expect(screen.queryByTestId('error')).to.equal(null);
+      });
     });
 
     it('disables the input when disabled=true', async () => {

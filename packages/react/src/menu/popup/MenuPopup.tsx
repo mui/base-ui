@@ -15,6 +15,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 
@@ -35,29 +36,26 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 ) {
   const { render, className, finalFocus, ...elementProps } = componentProps;
 
-  const {
-    open,
-    setOpen,
-    popupRef,
-    transitionStatus,
-    popupProps,
-    mounted,
-    instantType,
-    triggerElement,
-    onOpenChangeComplete,
-    parent,
-    lastOpenChangeReason,
-    rootId,
-  } = useMenuRootContext();
+  const { store } = useMenuRootContext();
   const { side, align, floatingContext } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
 
+  const open = store.useState('open');
+  const transitionStatus = store.useState('transitionStatus');
+  const popupProps = store.useState('popupProps');
+  const mounted = store.useState('mounted');
+  const instantType = store.useState('instantType');
+  const triggerElement = store.useState('triggerElement');
+  const parent = store.useState('parent');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const rootId = store.useState('rootId');
+
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
@@ -69,7 +67,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       domEvent: Event | undefined;
       reason: MenuRoot.ChangeEventReason;
     }) {
-      setOpen(false, createChangeEventDetails(event.reason, event.domEvent));
+      store.setOpen(false, createChangeEventDetails(event.reason, event.domEvent));
     }
 
     menuEvents.on('close', handleClose);
@@ -77,7 +75,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     return () => {
       menuEvents.off('close', handleClose);
     };
-  }, [menuEvents, setOpen]);
+  }, [menuEvents, store]);
 
   const state: MenuPopup.State = React.useMemo(
     () => ({
@@ -93,7 +91,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, popupRef],
+    ref: [forwardedRef, store.context.popupRef],
     stateAttributesMapping,
     props: [
       popupProps,
@@ -111,7 +109,10 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   });
 
   let returnFocus = parent.type === undefined || parent.type === 'context-menu';
-  if (triggerElement || (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press')) {
+  if (
+    triggerElement ||
+    (parent.type === 'menubar' && lastOpenChangeReason !== REASONS.outsidePress)
+  ) {
     returnFocus = true;
   }
 
@@ -129,36 +130,39 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   );
 });
 
-export namespace MenuPopup {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    children?: React.ReactNode;
-    /**
-     * @ignore
-     */
-    id?: string;
-    /**
-     * Determines the element to focus when the menu is closed.
-     *
-     * - `false`: Do not move focus.
-     * - `true`: Move focus based on the default behavior (trigger or previously focused element).
-     * - `RefObject`: Move focus to the ref element.
-     * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
-     *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
-     */
-    finalFocus?:
-      | boolean
-      | React.RefObject<HTMLElement | null>
-      | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
-  }
+export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopup.State> {
+  children?: React.ReactNode;
+  /**
+   * @ignore
+   */
+  id?: string;
+  /**
+   * Determines the element to focus when the menu is closed.
+   *
+   * - `false`: Do not move focus.
+   * - `true`: Move focus based on the default behavior (trigger or previously focused element).
+   * - `RefObject`: Move focus to the ref element.
+   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+   *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
+   */
+  finalFocus?:
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
+}
 
-  export type State = {
-    transitionStatus: TransitionStatus;
-    side: Side;
-    align: Align;
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-    nested: boolean;
-  };
+export type MenuPopupState = {
+  transitionStatus: TransitionStatus;
+  side: Side;
+  align: Align;
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+  nested: boolean;
+};
+
+export namespace MenuPopup {
+  export type Props = MenuPopupProps;
+  export type State = MenuPopupState;
 }

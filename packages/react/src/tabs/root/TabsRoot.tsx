@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -11,7 +11,8 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -54,7 +55,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabsTab.ActivationDirection>('none');
 
-  const onValueChange = useEventCallback(
+  const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
       onValueChangeProp?.(newValue, eventDetails);
 
@@ -191,40 +192,46 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 });
 
+export type TabsRootOrientation = BaseOrientation;
+
+export interface TabsRootState {
+  orientation: TabsRoot.Orientation;
+  tabActivationDirection: TabsTab.ActivationDirection;
+}
+
+export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.State> {
+  /**
+   * The value of the currently active `Tab`. Use when the component is controlled.
+   * When the value is `null`, no Tab will be active.
+   */
+  value?: TabsTab.Value;
+  /**
+   * The default value. Use when the component is not controlled.
+   * When the value is `null`, no Tab will be active.
+   * @default 0
+   */
+  defaultValue?: TabsTab.Value;
+  /**
+   * The component orientation (layout flow direction).
+   * @default 'horizontal'
+   */
+  orientation?: TabsRoot.Orientation;
+  /**
+   * Callback invoked when new value is being set.
+   */
+  onValueChange?: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;
+}
+
+export type TabsRootChangeEventReason = typeof REASONS.none;
+export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
+  TabsRoot.ChangeEventReason,
+  { activationDirection: TabsTab.ActivationDirection }
+>;
+
 export namespace TabsRoot {
-  export type Orientation = BaseOrientation;
-
-  export type State = {
-    orientation: Orientation;
-    tabActivationDirection: TabsTab.ActivationDirection;
-  };
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The value of the currently selected `Tab`. Use when the component is controlled.
-     * When the value is `null`, no Tab will be selected.
-     */
-    value?: TabsTab.Value;
-    /**
-     * The default value. Use when the component is not controlled.
-     * When the value is `null`, no Tab will be selected.
-     * @default 0
-     */
-    defaultValue?: TabsTab.Value;
-    /**
-     * The component orientation (layout flow direction).
-     * @default 'horizontal'
-     */
-    orientation?: Orientation;
-    /**
-     * Callback invoked when new value is being set.
-     */
-    onValueChange?: (value: TabsTab.Value, eventDetails: ChangeEventDetails) => void;
-  }
-
-  export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<
-    ChangeEventReason,
-    { activationDirection: TabsTab.ActivationDirection }
-  >;
+  export type State = TabsRootState;
+  export type Props = TabsRootProps;
+  export type Orientation = TabsRootOrientation;
+  export type ChangeEventReason = TabsRootChangeEventReason;
+  export type ChangeEventDetails = TabsRootChangeEventDetails;
 }

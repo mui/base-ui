@@ -116,18 +116,21 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
   );
 });
 
-export namespace PreviewCardPositioner {
-  export interface State {
-    /**
-     * Whether the preview card is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-  }
+export interface PreviewCardPositionerState {
+  /**
+   * Whether the preview card is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+}
 
-  export interface Props
-    extends useAnchorPositioning.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+export interface PreviewCardPositionerProps
+  extends useAnchorPositioning.SharedParameters,
+    BaseUIComponentProps<'div', PreviewCardPositioner.State> {}
+
+export namespace PreviewCardPositioner {
+  export type State = PreviewCardPositionerState;
+  export type Props = PreviewCardPositionerProps;
 }

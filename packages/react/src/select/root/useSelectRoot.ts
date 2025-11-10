@@ -3,9 +3,9 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { warn } from '@base-ui-components/utils/warn';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStore, Store } from '@base-ui-components/utils/store';
 import {
   useClick,
@@ -16,19 +16,20 @@ import {
   useTypeahead,
   FloatingRootContext,
 } from '../../floating-ui-react';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
 import type { SelectRootConditionalProps, SelectRoot } from './SelectRoot';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
+import { useValueChanged } from '../../utils/useValueChanged';
 
 export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   params: useSelectRoot.Parameters<Value, Multiple>,
@@ -51,26 +52,18 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const { clearErrors } = useFormContext();
   const {
     setDirty,
+    shouldValidateOnChange,
     validityData,
-    validationMode,
-    setControlId,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
+    validation,
   } = useFieldRootContext();
-  const fieldControlValidation = useFieldControlValidation();
-
-  const id = useBaseUiId(idProp);
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  useIsoLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
+  const id = useLabelableId({ id: idProp });
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: params.value,
@@ -150,29 +143,23 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
 
-  const controlRef = useLatestRef(store.state.triggerElement);
-  const commitValidation = fieldControlValidation.commitValidation;
+  const controlRef = useValueAsRef(store.state.triggerElement);
+  const commit = validation.commit;
 
   useField({
     id,
-    commitValidation,
+    commit,
     value,
     controlRef,
     name,
     getValue: () => value,
   });
 
-  const prevValueRef = React.useRef(value);
-
   useIsoLayoutEffect(() => {
     setFilled(value !== null);
   }, [value, setFilled]);
 
-  useIsoLayoutEffect(() => {
-    if (prevValueRef.current === value) {
-      return;
-    }
-
+  useValueChanged(value, () => {
     if (multiple) {
       // For multiple selection, update the label and keep track of the last selected
       // item via `selectedIndex`, which is needed when the popup (re)opens.
@@ -191,13 +178,13 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       // Store the last selected index for later use when closing the popup.
       lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;
 
-      store.apply({
+      store.update({
         label: labels.join(', '),
       });
     } else {
       const index = findItemIndex(valuesRef.current, value as Value, isItemEqualToValue);
 
-      store.apply({
+      store.update({
         selectedIndex: index === -1 ? null : index,
         label: labelsRef.current[index] ?? '',
       });
@@ -205,30 +192,15 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
-    commitValidation(value, validationMode !== 'onChange');
 
-    if (validationMode === 'onChange') {
-      commitValidation(value);
+    if (shouldValidateOnChange()) {
+      commit(value);
+    } else {
+      commit(value, true);
     }
-  }, [
-    value,
-    commitValidation,
-    clearErrors,
-    name,
-    validationMode,
-    store,
-    setDirty,
-    validityData.initialValue,
-    setFilled,
-    multiple,
-    isItemEqualToValue,
-  ]);
+  });
 
-  useIsoLayoutEffect(() => {
-    prevValueRef.current = value;
-  }, [value]);
-
-  const setOpen = useEventCallback(
+  const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
       params.onOpenChange?.(nextOpen, eventDetails);
 
@@ -258,7 +230,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     },
   );
 
-  const handleUnmount = useEventCallback(() => {
+  const handleUnmount = useStableCallback(() => {
     setMounted(false);
     store.set('activeIndex', null);
     onOpenChangeComplete?.(false);
@@ -277,7 +249,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const setValue = useEventCallback(
+  const setValue = useStableCallback(
     (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
       params.onValueChange?.(nextValue, eventDetails);
 
@@ -294,7 +266,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
    * Does nothing until at least one item has reported its index (so that
    * `valuesRef`/`labelsRef` are populated).
    */
-  const syncSelectedState = useEventCallback(() => {
+  const syncSelectedState = useStableCallback(() => {
     if (!hasRegisteredRef.current) {
       return;
     }
@@ -323,7 +295,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         computedSelectedIndex = lastIndex === -1 ? null : lastIndex;
       }
 
-      store.apply({
+      store.update({
         selectedIndex: computedSelectedIndex,
         label: labels.join(', '),
       });
@@ -332,7 +304,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       const hasIndex = index !== -1;
 
       if (hasIndex || value === null) {
-        store.apply({
+        store.update({
           selectedIndex: hasIndex ? index : null,
           label: hasIndex ? (labelsRef.current[index] ?? '') : '',
         });
@@ -353,7 +325,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
    * Called by each <Select.Item> once it knows its stable index. After the first
    * call, the root is able to resolve labels and selected indices.
    */
-  const registerItemIndex = useEventCallback((index: number) => {
+  const registerItemIndex = useStableCallback((index: number) => {
     hasRegisteredRef.current = true;
 
     if (multiple) {
@@ -368,7 +340,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   // Keep store in sync whenever `value` changes after registration.
   useIsoLayoutEffect(syncSelectedState, [value, syncSelectedState]);
 
-  const handleScrollArrowVisibility = useEventCallback(() => {
+  const handleScrollArrowVisibility = useStableCallback(() => {
     const scroller = store.state.listElement || popupRef.current;
     if (!scroller) {
       return;
@@ -433,7 +405,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index], createChangeEventDetails('none'));
+        setValue(valuesRef.current[index], createChangeEventDetails(REASONS.none));
       }
     },
     onTypingChange(typing) {
@@ -453,14 +425,14 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   useOnFirstRender(() => {
     // These should be initialized at store creation, but there is an interdependency
     // between some values used in floating hooks above.
-    store.apply({
+    store.update({
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
     });
   });
 
   useIsoLayoutEffect(() => {
-    store.apply({
+    store.update({
       id,
       modal,
       multiple,
@@ -517,7 +489,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       typingRef,
       selectionRef,
       selectedItemTextRef,
-      fieldControlValidation,
+      validation,
       registerItemIndex,
       onOpenChangeComplete,
       keyboardActiveRef,
@@ -546,7 +518,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       typingRef,
       selectionRef,
       selectedItemTextRef,
-      fieldControlValidation,
+      validation,
       registerItemIndex,
       onOpenChangeComplete,
       keyboardActiveRef,
@@ -562,13 +534,19 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   };
 }
 
-export namespace useSelectRoot {
-  export interface Parameters<Value, Multiple extends boolean | undefined = false>
-    extends Omit<SelectRootConditionalProps<Value, Multiple>, 'children' | 'inputRef'> {}
+export interface UseSelectRootParameters<Value, Multiple extends boolean | undefined = false>
+  extends Omit<SelectRootConditionalProps<Value, Multiple>, 'children' | 'inputRef'> {}
 
-  export type ReturnValue = {
-    rootContext: SelectRootContext;
-    floatingContext: FloatingRootContext;
-    value: any;
-  };
+export type UseSelectRootReturnValue = {
+  rootContext: SelectRootContext;
+  floatingContext: FloatingRootContext;
+  value: any;
+};
+
+export namespace useSelectRoot {
+  export type Parameters<
+    Value,
+    Multiple extends boolean | undefined = false,
+  > = UseSelectRootParameters<Value, Multiple>;
+  export type ReturnValue = UseSelectRootReturnValue;
 }

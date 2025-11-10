@@ -6,6 +6,8 @@ import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { MenuStore } from '../store/MenuStore';
+import { REASONS } from '../../utils/reasons';
 
 export const REGULAR_ITEM = {
   type: 'regular-item' as const,
@@ -17,9 +19,8 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     disabled = false,
     highlighted,
     id,
+    store,
     menuEvents,
-    allowMouseUpTriggerRef,
-    typingRef,
     nativeButton,
     itemMetadata,
     nodeId,
@@ -62,19 +63,19 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
             itemMetadata.setActive();
           },
           onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
-            if (event.key === ' ' && typingRef.current) {
+            if (event.key === ' ' && store.context.typingRef.current) {
               event.preventBaseUIHandler();
             }
           },
           onClick(event) {
             if (closeOnClick) {
-              menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
+              menuEvents.emit('close', { domEvent: event, reason: REASONS.itemPress });
             }
           },
           onMouseUp(event) {
             if (
               itemRef.current &&
-              allowMouseUpTriggerRef.current &&
+              store.context.allowMouseUpTriggerRef.current &&
               (!isContextMenu || event.button === 2)
             ) {
               // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
@@ -93,10 +94,9 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
       id,
       highlighted,
       getButtonProps,
-      typingRef,
       closeOnClick,
       menuEvents,
-      allowMouseUpTriggerRef,
+      store,
       isContextMenu,
       itemMetadata,
       nodeId,
@@ -114,71 +114,67 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
   );
 }
 
+export interface UseMenuItemParameters {
+  /**
+   * Whether to close the menu when the item is clicked.
+   */
+  closeOnClick: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Determines if the menu item is highlighted.
+   */
+  highlighted: boolean;
+  /**
+   * The id of the menu item.
+   */
+  id: string | undefined;
+  /**
+   * The FloatingEvents instance of the menu's root.
+   */
+  menuEvents: FloatingEvents;
+  /**
+   * Whether the component renders a native `<button>` element when replacing it
+   * via the `render` prop.
+   * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+   * @default false
+   */
+  nativeButton: boolean;
+  /**
+   * Additional data specific to the item type.
+   */
+  itemMetadata: useMenuItem.Metadata;
+  /**
+   * The node id of the menu positioner.
+   */
+  nodeId: string | undefined;
+  store: MenuStore;
+}
+
+export type UseMenuItemMetadata =
+  | typeof REGULAR_ITEM
+  | {
+      type: 'submenu-trigger';
+      setActive: () => void;
+    };
+
+export interface UseMenuItemReturnValue {
+  /**
+   * Resolver for the root slot's props.
+   * @param externalProps event handlers for the root slot
+   * @returns props that should be spread on the root slot
+   */
+  getItemProps: (externalProps?: HTMLProps) => HTMLProps;
+  /**
+   * The ref to the component's root DOM element.
+   */
+  itemRef: React.RefCallback<Element> | null;
+}
+
 export namespace useMenuItem {
-  export interface Parameters {
-    /**
-     * Whether to close the menu when the item is clicked.
-     */
-    closeOnClick: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Determines if the menu item is highlighted.
-     */
-    highlighted: boolean;
-    /**
-     * The id of the menu item.
-     */
-    id: string | undefined;
-    /**
-     * The FloatingEvents instance of the menu's root.
-     */
-    menuEvents: FloatingEvents;
-    /**
-     * Whether to treat mouseup events as clicks.
-     */
-    allowMouseUpTriggerRef: React.RefObject<boolean>;
-    /**
-     * A ref that is set to `true` when the user is using the typeahead feature.
-     */
-    typingRef: React.RefObject<boolean>;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default false
-     */
-    nativeButton: boolean;
-    /**
-     * Additional data specific to the item type.
-     */
-    itemMetadata: Metadata;
-    /**
-     * The node id of the menu positioner.
-     */
-    nodeId: string | undefined;
-  }
-
-  export type Metadata =
-    | typeof REGULAR_ITEM
-    | {
-        type: 'submenu-trigger';
-        setActive: () => void;
-        allowMouseEnterEnabled: boolean;
-      };
-
-  export interface ReturnValue {
-    /**
-     * Resolver for the root slot's props.
-     * @param externalProps event handlers for the root slot
-     * @returns props that should be spread on the root slot
-     */
-    getItemProps: (externalProps?: HTMLProps) => HTMLProps;
-    /**
-     * The ref to the component's root DOM element.
-     */
-    itemRef: React.RefCallback<Element> | null;
-  }
+  export type Parameters = UseMenuItemParameters;
+  export type Metadata = UseMenuItemMetadata;
+  export type ReturnValue = UseMenuItemReturnValue;
 }

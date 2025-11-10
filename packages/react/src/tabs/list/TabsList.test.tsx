@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act } from '@mui/internal-test-utils';
+import { act, screen } from '@mui/internal-test-utils';
 import { Tabs } from '@base-ui-components/react/tabs';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -13,8 +13,8 @@ describe('<Tabs.List />', () => {
   }));
 
   describe('accessibility attributes', () => {
-    it('sets the aria-selected attribute on the selected tab', async () => {
-      const { getByText } = await render(
+    it('sets the aria-selected attribute on the active tab', async () => {
+      await render(
         <Tabs.Root defaultValue={1}>
           <Tabs.List>
             <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
@@ -24,9 +24,9 @@ describe('<Tabs.List />', () => {
         </Tabs.Root>,
       );
 
-      const tab1 = getByText('Tab 1');
-      const tab2 = getByText('Tab 2');
-      const tab3 = getByText('Tab 3');
+      const tab1 = screen.getByText('Tab 1');
+      const tab2 = screen.getByText('Tab 2');
+      const tab3 = screen.getByText('Tab 3');
 
       expect(tab1).to.have.attribute('aria-selected', 'true');
       expect(tab2).to.have.attribute('aria-selected', 'false');
@@ -59,7 +59,7 @@ describe('<Tabs.List />', () => {
   });
 
   it('can be named via `aria-label`', async () => {
-    const { getByRole } = await render(
+    await render(
       <Tabs.Root defaultValue={0}>
         <Tabs.List aria-label="string label">
           <Tabs.Tab value={0} />
@@ -67,11 +67,11 @@ describe('<Tabs.List />', () => {
       </Tabs.Root>,
     );
 
-    expect(getByRole('tablist')).toHaveAccessibleName('string label');
+    expect(screen.getByRole('tablist')).toHaveAccessibleName('string label');
   });
 
   it('can be named via `aria-labelledby`', async () => {
-    const { getByRole } = await render(
+    await render(
       <React.Fragment>
         <h3 id="label-id">complex name</h3>
         <Tabs.Root defaultValue={0}>
@@ -82,6 +82,6 @@ describe('<Tabs.List />', () => {
       </React.Fragment>,
     );
 
-    expect(getByRole('tablist')).toHaveAccessibleName('complex name');
+    expect(screen.getByRole('tablist')).toHaveAccessibleName('complex name');
   });
 });

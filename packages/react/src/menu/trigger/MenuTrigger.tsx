@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { contains } from '../../floating-ui-react/utils';
 import { useFloatingTree } from '../../floating-ui-react/index';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -15,6 +14,7 @@ import { useButton } from '../../use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
+import { REASONS } from '../../utils/reasons';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -36,17 +36,14 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     ...elementProps
   } = componentProps;
 
-  const {
-    triggerProps: rootTriggerProps,
-    disabled: menuDisabled,
-    setTriggerElement,
-    open,
-    allowMouseUpTriggerRef,
-    positionerRef,
-    parent,
-    lastOpenChangeReason,
-    rootId,
-  } = useMenuRootContext();
+  const { store } = useMenuRootContext();
+
+  const rootTriggerProps = store.useState('triggerProps');
+  const menuDisabled = store.useState('disabled');
+  const open = store.useState('open');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const rootId = store.useState('rootId');
+  const parent = store.useState('parent');
 
   const disabled = disabledProp || menuDisabled;
 
@@ -58,28 +55,27 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     native: nativeButton,
   });
 
-  const handleRef = useMergedRefs(buttonRef, setTriggerElement);
   const { events: menuEvents } = useFloatingTree()!;
 
   React.useEffect(() => {
     if (!open && parent.type === undefined) {
-      allowMouseUpTriggerRef.current = false;
+      store.context.allowMouseUpTriggerRef.current = false;
     }
-  }, [allowMouseUpTriggerRef, open, parent.type]);
+  }, [store, open, parent.type]);
 
-  const handleDocumentMouseUp = useEventCallback((mouseEvent: MouseEvent) => {
+  const handleDocumentMouseUp = useStableCallback((mouseEvent: MouseEvent) => {
     if (!triggerRef.current) {
       return;
     }
 
     allowMouseUpTriggerTimeout.clear();
-    allowMouseUpTriggerRef.current = false;
+    store.context.allowMouseUpTriggerRef.current = false;
 
     const mouseUpTarget = mouseEvent.target as Element | null;
 
     if (
       contains(triggerRef.current, mouseUpTarget) ||
-      contains(positionerRef.current, mouseUpTarget) ||
+      contains(store.select('positionerElement'), mouseUpTarget) ||
       mouseUpTarget === triggerRef.current
     ) {
       return;
@@ -100,11 +96,11 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       return;
     }
 
-    menuEvents.emit('close', { domEvent: mouseEvent, reason: 'cancel-open' });
+    menuEvents.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
   });
 
   React.useEffect(() => {
-    if (open && lastOpenChangeReason === 'trigger-hover') {
+    if (open && lastOpenChangeReason === REASONS.triggerHover) {
       const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
     }
@@ -118,7 +114,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         isMenubar ? { role: 'menuitem' } : {},
         {
           'aria-haspopup': 'menu' as const,
-          ref: handleRef,
+          ref: buttonRef,
           onMouseDown: (event: React.MouseEvent) => {
             if (open) {
               return;
@@ -126,7 +122,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
             // mousedown -> mouseup on menu item should not trigger it within 200ms.
             allowMouseUpTriggerTimeout.start(200, () => {
-              allowMouseUpTriggerRef.current = true;
+              store.context.allowMouseUpTriggerRef.current = true;
             });
 
             const doc = ownerDocument(event.currentTarget);
@@ -139,12 +135,12 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     },
     [
       getButtonProps,
-      handleRef,
       open,
-      allowMouseUpTriggerRef,
       allowMouseUpTriggerTimeout,
       handleDocumentMouseUp,
       isMenubar,
+      store,
+      buttonRef,
     ],
   );
 
@@ -156,7 +152,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     [disabled, open],
   );
 
-  const ref = [triggerRef, forwardedRef, buttonRef];
+  const ref = [triggerRef, forwardedRef, buttonRef, store.useStateSetter('triggerElement')];
   const props = [rootTriggerProps, elementProps, getTriggerProps];
 
   const element = useRenderElement('button', componentProps, {
@@ -184,20 +180,25 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   return element;
 });
 
-export namespace MenuTrigger {
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface MenuTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', MenuTrigger.State> {
+  children?: React.ReactNode;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+}
 
-  export type State = {
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-  };
+export type MenuTriggerState = {
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+};
+
+export namespace MenuTrigger {
+  export type Props = MenuTriggerProps;
+  export type State = MenuTriggerState;
 }

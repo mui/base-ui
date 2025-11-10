@@ -20,6 +20,7 @@ import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { MenuOpenEventDetails } from '../utils/types';
 
 /**
@@ -50,25 +51,20 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     ...elementProps
   } = componentProps;
 
-  const {
-    open,
-    setOpen,
-    floatingRootContext,
-    setPositionerElement,
-    itemDomElements,
-    itemLabels,
-    mounted,
-    modal,
-    lastOpenChangeReason,
-    parent,
-    setHoverEnabled,
-    triggerElement,
-  } = useMenuRootContext();
+  const { store } = useMenuRootContext();
 
   const keepMounted = useMenuPortalContext();
   const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
   const contextMenuContext = useContextMenuRootContext(true);
+
+  const parent = store.useState('parent');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const mounted = store.useState('mounted');
+  const open = store.useState('open');
+  const modal = store.useState('modal');
+  const triggerElement = store.useState('triggerElement');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
@@ -138,18 +134,18 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     function onMenuOpenChange(details: MenuOpenEventDetails) {
       if (details.open) {
         if (details.parentNodeId === nodeId) {
-          setHoverEnabled(false);
+          store.set('hoverEnabled', false);
         }
         if (details.nodeId !== nodeId && details.parentNodeId === parentNodeId) {
-          setOpen(false, createChangeEventDetails('sibling-open'));
+          store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
         }
       } else if (details.parentNodeId === nodeId) {
         // Re-enable hover on the parent when a child closes, except when the child
         // closed due to hovering a different sibling item in this parent (sibling-open).
         // Keeping hover disabled in that scenario prevents the parent from closing
         // immediately when the pointer then leaves it.
-        if (details.reason !== 'sibling-open') {
-          setHoverEnabled(true);
+        if (details.reason !== REASONS.siblingOpen) {
+          store.set('hoverEnabled', true);
         }
       }
     }
@@ -159,7 +155,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     return () => {
       menuEvents.off('menuopenchange', onMenuOpenChange);
     };
-  }, [menuEvents, nodeId, parentNodeId, setOpen, setHoverEnabled]);
+  }, [store, menuEvents, nodeId, parentNodeId]);
 
   React.useEffect(() => {
     if (parentNodeId == null) {
@@ -171,8 +167,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         return;
       }
 
-      const reason: MenuRoot.ChangeEventReason = details.reason ?? 'sibling-open';
-      setOpen(false, createChangeEventDetails(reason));
+      const reason: MenuRoot.ChangeEventReason = details.reason ?? REASONS.siblingOpen;
+      store.setOpen(false, createChangeEventDetails(reason));
     }
 
     menuEvents.on('menuopenchange', onParentClose);
@@ -180,7 +176,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     return () => {
       menuEvents.off('menuopenchange', onParentClose);
     };
-  }, [menuEvents, parentNodeId, setOpen]);
+  }, [menuEvents, parentNodeId, store]);
 
   // Close unrelated child submenus when hovering a different item in the parent menu.
   React.useEffect(() => {
@@ -191,8 +187,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         return;
       }
 
-      if (triggerElement && event.target && triggerElement !== event.target) {
-        setOpen(false, createChangeEventDetails('sibling-open'));
+      if (event.target && triggerElement && triggerElement !== event.target) {
+        store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
       }
     }
 
@@ -200,18 +196,18 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     return () => {
       menuEvents.off('itemhover', onItemHover);
     };
-  }, [menuEvents, parentNodeId, triggerElement, open, setOpen]);
+  }, [menuEvents, parentNodeId, open, triggerElement, store]);
 
   React.useEffect(() => {
     const eventDetails: MenuOpenEventDetails = {
       open,
       nodeId,
       parentNodeId,
-      reason: lastOpenChangeReason,
+      reason: store.select('lastOpenChangeReason'),
     };
 
     menuEvents.emit('menuopenchange', eventDetails);
-  }, [menuEvents, open, nodeId, parentNodeId, lastOpenChangeReason]);
+  }, [menuEvents, open, nodeId, parentNodeId, store]);
 
   const state: MenuPositioner.State = React.useMemo(
     () => ({
@@ -246,7 +242,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const element = useRenderElement('div', componentProps, {
     state,
     stateAttributesMapping: popupStateMapping,
-    ref: [forwardedRef, setPositionerElement],
+    ref: [forwardedRef, store.useStateSetter('positionerElement')],
     props: {
       ...positionerProps,
       ...elementProps,
@@ -256,7 +252,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const shouldRenderBackdrop =
     mounted &&
     parent.type !== 'menu' &&
-    ((parent.type !== 'menubar' && modal && lastOpenChangeReason !== 'trigger-hover') ||
+    ((parent.type !== 'menubar' && modal && lastOpenChangeReason !== REASONS.triggerHover) ||
       (parent.type === 'menubar' && parent.context.modal));
 
   // cuts a hole in the backdrop to allow pointer interaction with the menubar or dropdown menu trigger element
@@ -281,7 +277,10 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         />
       )}
       <FloatingNode id={nodeId}>
-        <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
+        <CompositeList
+          elementsRef={store.context.itemDomElements}
+          labelsRef={store.context.itemLabels}
+        >
           {element}
         </CompositeList>
       </FloatingNode>
@@ -289,19 +288,22 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   );
 });
 
-export namespace MenuPositioner {
-  export interface State {
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-    nested: boolean;
-  }
+export interface MenuPositionerState {
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+  nested: boolean;
+}
 
-  export interface Props
-    extends useAnchorPositioning.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+export interface MenuPositionerProps
+  extends useAnchorPositioning.SharedParameters,
+    BaseUIComponentProps<'div', MenuPositioner.State> {}
+
+export namespace MenuPositioner {
+  export type State = MenuPositionerState;
+  export type Props = MenuPositionerProps;
 }

@@ -16,8 +16,13 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: Menu.Popup.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Menu.Popup.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Menu.Popup.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Menu.Popup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.Popup.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.Popup.State) => ReactElement)",

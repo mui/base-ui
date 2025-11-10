@@ -5,10 +5,12 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { stringifyAsValue } from '../../utils/resolveValueLabel';
 
 /**
@@ -17,6 +19,12 @@ import { stringifyAsValue } from '../../utils/resolveValueLabel';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
+export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
+  props: SelectRootControlledProps<Value, Multiple>,
+): React.JSX.Element;
+export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
+  props: SelectRootUncontrolledProps<Value, Multiple>,
+): React.JSX.Element;
 export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   props: SelectRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
@@ -68,9 +76,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const store = rootContext.store;
   const isMultiple = multiple ?? false;
 
-  const { setDirty, validityData, validationMode, controlId } = useFieldRootContext();
+  const { setDirty, shouldValidateOnChange, validityData } = useFieldRootContext();
+  const { controlId } = useLabelableContext();
 
-  const ref = useMergedRefs(inputRef, rootContext.fieldControlValidation.inputRef);
+  const ref = useMergedRefs(inputRef, rootContext.validation.inputRef);
 
   const serializedValue = React.useMemo(() => {
     if (isMultiple && Array.isArray(value) && value.length === 0) {
@@ -78,6 +87,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     }
     return stringifyAsValue(value, itemToStringValue);
   }, [isMultiple, value, itemToStringValue]);
+
+  const hasMultipleSelection = isMultiple && Array.isArray(value) && value.length > 0;
 
   const hiddenInputs = React.useMemo(() => {
     if (!isMultiple || !Array.isArray(value) || !rootContext.name) {
@@ -102,20 +113,20 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       <SelectFloatingContext.Provider value={floatingContext}>
         {children}
         <input
-          {...rootContext.fieldControlValidation.getInputValidationProps({
+          {...rootContext.validation.getInputValidationProps({
             onFocus() {
               // Move focus to the trigger element when the hidden input is focused.
               store.state.triggerElement?.focus();
             },
             // Handle browser autofill.
-            onChange(event: React.ChangeEvent<HTMLSelectElement>) {
+            onChange(event: React.ChangeEvent<HTMLInputElement>) {
               // Workaround for https://github.com/facebook/react/issues/9023
               if (event.nativeEvent.defaultPrevented) {
                 return;
               }
 
               const nextValue = event.target.value;
-              const details = createChangeEventDetails('none', event.nativeEvent);
+              const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
               function handleChange() {
                 if (isMultiple) {
@@ -136,8 +147,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                   setDirty(matchingValue !== validityData.initialValue);
                   rootContext.setValue?.(matchingValue, details);
 
-                  if (validationMode === 'onChange') {
-                    rootContext.fieldControlValidation.commitValidation(matchingValue);
+                  if (shouldValidateOnChange()) {
+                    rootContext.validation.commit(matchingValue);
                   }
                 }
               }
@@ -145,17 +156,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               store.set('forceMount', true);
               queueMicrotask(handleChange);
             },
-            id: id || controlId || undefined,
-            name: isMultiple ? undefined : rootContext.name,
-            value: serializedValue,
-            disabled: rootContext.disabled,
-            required: rootContext.required,
-            readOnly: rootContext.readOnly,
-            ref,
-            style: visuallyHidden,
-            tabIndex: -1,
-            'aria-hidden': true,
           })}
+          id={id || controlId || undefined}
+          name={isMultiple ? undefined : rootContext.name}
+          value={serializedValue}
+          disabled={rootContext.disabled}
+          required={rootContext.required && !hasMultipleSelection}
+          readOnly={rootContext.readOnly}
+          ref={ref}
+          style={visuallyHidden}
+          tabIndex={-1}
+          aria-hidden
         />
         {hiddenInputs}
       </SelectFloatingContext.Provider>
@@ -163,7 +174,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 }
 
-interface SelectRootProps<Value> {
+interface SelectRootCommonProps<Value> {
   children?: React.ReactNode;
   /**
    * A ref to access the hidden input element.
@@ -198,13 +209,13 @@ interface SelectRootProps<Value> {
    */
   multiple?: boolean;
   /**
-   * The value of the select.
+   * The value of the select. Use when controlled.
    */
   value?: Value;
   /**
-   * Callback fired when the value of the select changes. Use when controlled.
+   * Event handler called when the value of the select changes.
    */
-  onValueChange?: (value: Value, eventDetails: SelectRoot.ChangeEventDetails) => void;
+  onValueChange?: (value: Value, eventDetails: SelectRootChangeEventDetails) => void;
   /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
@@ -222,7 +233,7 @@ interface SelectRootProps<Value> {
   /**
    * Event handler called when the select popup is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
+  onOpenChange?: (open: boolean, eventDetails: SelectRootChangeEventDetails) => void;
   /**
    * Event handler called after any animations complete when the select popup is opened or closed.
    */
@@ -244,7 +255,7 @@ interface SelectRootProps<Value> {
    * Instead, the `unmount` function must be called to unmount the select manually.
    * Useful when the select's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<SelectRoot.Actions>;
+  actionsRef?: React.RefObject<SelectRootActions>;
   /**
    * Data structure of the items rendered in the select popup.
    * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.
@@ -281,8 +292,8 @@ type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple ext
   ? Value[]
   : Value;
 
-export type SelectRootConditionalProps<Value, Multiple extends boolean | undefined = false> = Omit<
-  SelectRootProps<Value>,
+type SelectRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
+  SelectRootCommonProps<Value>,
   'multiple' | 'value' | 'defaultValue' | 'onValueChange'
 > & {
   /**
@@ -291,46 +302,83 @@ export type SelectRootConditionalProps<Value, Multiple extends boolean | undefin
    */
   multiple?: Multiple;
   /**
-   * The value of the select.
-   */
-  value?: SelectValueType<Value, Multiple>;
-  /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
    * To render a controlled select, use the `value` prop instead.
    * @default null
    */
   defaultValue?: SelectValueType<Value, Multiple> | null;
+};
+
+type SelectRootControlledProps<Value, Multiple extends boolean | undefined> = SelectRootBaseProps<
+  Value,
+  Multiple
+> & {
   /**
-   * Callback fired when the value of the select changes. Use when controlled.
+   * The value of the select. Use when controlled.
+   */
+  value: SelectValueType<Value, Multiple>;
+  /**
+   * Event handler called when the value of the select changes.
    */
   onValueChange?: (
     value: SelectValueType<Value, Multiple>,
-    eventDetails: SelectRoot.ChangeEventDetails,
+    eventDetails: SelectRootChangeEventDetails,
   ) => void;
 };
 
+type SelectRootUncontrolledProps<Value, Multiple extends boolean | undefined> = SelectRootBaseProps<
+  Value,
+  Multiple
+> & {
+  /**
+   * The value of the select. Use when controlled.
+   */
+  value?: undefined;
+  /**
+   * Event handler called when the value of the select changes.
+   */
+  onValueChange?: (
+    value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
+    eventDetails: SelectRootChangeEventDetails,
+  ) => void;
+};
+
+export type SelectRootConditionalProps<Value, Multiple extends boolean | undefined = false> =
+  | SelectRootControlledProps<Value, Multiple>
+  | SelectRootUncontrolledProps<Value, Multiple>;
+
+export type SelectRootProps<
+  Value,
+  Multiple extends boolean | undefined = false,
+> = SelectRootConditionalProps<Value, Multiple>;
+
+export interface SelectRootState {}
+
+export interface SelectRootActions {
+  unmount: () => void;
+}
+
+export type SelectRootChangeEventReason =
+  | typeof REASONS.triggerPress
+  | typeof REASONS.outsidePress
+  | typeof REASONS.escapeKey
+  | typeof REASONS.windowResize
+  | typeof REASONS.itemPress
+  | typeof REASONS.focusOut
+  | typeof REASONS.listNavigation
+  | typeof REASONS.cancelOpen
+  | typeof REASONS.none;
+
+export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
+
 export namespace SelectRoot {
-  export type Props<
+  export type Props<Value, Multiple extends boolean | undefined = false> = SelectRootProps<
     Value,
-    Multiple extends boolean | undefined = false,
-  > = SelectRootConditionalProps<Value, Multiple>;
-
-  export interface State {}
-
-  export interface Actions {
-    unmount: () => void;
-  }
-
-  export type ChangeEventReason =
-    | 'trigger-press'
-    | 'outside-press'
-    | 'escape-key'
-    | 'window-resize'
-    | 'item-press'
-    | 'focus-out'
-    | 'list-navigation'
-    | 'cancel-open'
-    | 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+    Multiple
+  >;
+  export type State = SelectRootState;
+  export type Actions = SelectRootActions;
+  export type ChangeEventReason = SelectRootChangeEventReason;
+  export type ChangeEventDetails = SelectRootChangeEventDetails;
 }

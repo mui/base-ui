@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { ReactStore } from '@base-ui-components/utils/store';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 
 export default function Playground() {
   const [open, setOpen] = React.useState(false);
@@ -81,7 +81,7 @@ function ControllableComponent(props: Props) {
   const open = store.useState('open');
   const value = store.useState('value');
 
-  const handleClick = useEventCallback(() => {
+  const handleClick = useStableCallback(() => {
     store.set('open', !open);
     props.onOpenChange?.(!open, 'toggle-button');
   });

@@ -56,6 +56,10 @@ function getShortPropType(name: string, type: string | undefined) {
     return { type: 'string | function', detailedType: true };
   }
 
+  if (name === 'style') {
+    return { type: 'React.CSSProperties | function', detailedType: true };
+  }
+
   if (name === 'render') {
     return { type: 'ReactElement | function', detailedType: true };
   }
@@ -184,8 +188,8 @@ export async function PropsReferenceAccordion({
               {prop.type && (
                 <Accordion.Scrollable className="px-3 flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
                   {hasExpandedType || detailedType ? (
-                    <ReferenceTableTooltip.Root delay={300} hoverable={false}>
-                      <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
+                    <ReferenceTableTooltip.Root hoverable={false}>
+                      <ReferenceTableTooltip.Trigger render={<ShortPropType />} delay={300} />
                       <ReferenceTableTooltip.Popup>
                         {hasExpandedType ? <PropDetailedType /> : <PropType />}
                       </ReferenceTableTooltip.Popup>

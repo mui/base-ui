@@ -70,24 +70,28 @@ export const SelectValue = React.forwardRef(function SelectValue(
   return element;
 });
 
-export namespace SelectValue {
-  export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    /**
-     * Accepts a function that returns a `ReactNode` to format the selected value.
-     * @example
-     * ```tsx
-     * <Select.Value>
-     *   {(value: string | null) => value ? labels[value] : 'No value'}
-     * </Select.Value>
-     * ```
-     */
-    children?: React.ReactNode | ((value: any) => React.ReactNode);
-  }
+export interface SelectValueState {
+  /**
+   * The value of the currently selected item.
+   */
+  value: any;
+}
 
-  export interface State {
-    /**
-     * The value of the currently selected item.
-     */
-    value: any;
-  }
+export interface SelectValueProps
+  extends Omit<BaseUIComponentProps<'span', SelectValue.State>, 'children'> {
+  /**
+   * Accepts a function that returns a `ReactNode` to format the selected value.
+   * @example
+   * ```tsx
+   * <Select.Value>
+   *   {(value: string | null) => value ? labels[value] : 'No value'}
+   * </Select.Value>
+   * ```
+   */
+  children?: React.ReactNode | ((value: any) => React.ReactNode);
+}
+
+export namespace SelectValue {
+  export type State = SelectValueState;
+  export type Props = SelectValueProps;
 }

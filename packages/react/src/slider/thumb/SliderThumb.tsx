@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
@@ -23,6 +23,8 @@ import {
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { type LabelableContext } from '../../labelable-provider/LabelableContext';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
@@ -108,13 +110,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   } = componentProps;
 
   const id = useBaseUiId(idProp);
-  const inputId = `${id}-input`;
 
   const {
     active: activeIndex,
     controlRef,
     disabled: contextDisabled,
-    fieldControlValidation,
+    validation,
     formatOptionsRef,
     handleInputChange,
     inset,
@@ -144,18 +145,14 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const vertical = orientation === 'vertical';
   const rtl = direction === 'rtl';
 
-  const { controlId, setControlId, setTouched, setFocused, validationMode } = useFieldRootContext();
+  const { setTouched, setFocused, validationMode } = useFieldRootContext();
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  useIsoLayoutEffect(() => {
-    setControlId(inputId);
-
-    return () => {
-      setControlId(undefined);
-    };
-  }, [controlId, inputId, setControlId]);
+  const defaultInputId = useBaseUiId();
+  const labelableId = useLabelableId();
+  const inputId = range ? defaultInputId : labelableId;
 
   const thumbMetadata = React.useMemo(
     () => ({
@@ -178,7 +175,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   useOnMount(() => setIsMounted(true));
 
-  const getInsetPosition = useEventCallback(() => {
+  const getInsetPosition = useStableCallback(() => {
     const control = controlRef.current;
     const thumb = thumbRef.current;
     if (!control || !thumb) {
@@ -190,12 +187,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const side = vertical ? 'height' : 'width';
     // the total travel distance adjusted to account for the thumb size
     const controlSize = controlRect[side] - thumbRect[side];
-    // console.log('controlSize', controlSize);
     // px distance from the starting edge (inline-start or bottom) to the thumb center
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
-    // console.log('nextPositionPercent', nextPositionPercent);
     setPositionPercent(nextPositionPercent);
     if (index === 0) {
       setIndicatorPosition((prevPosition) => [nextPositionPercent, prevPosition[1]]);
@@ -306,9 +301,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         setFocused(false);
 
         if (validationMode === 'onBlur') {
-          fieldControlValidation.commitValidation(
-            getSliderValue(thumbValue, index, min, max, range, sliderValues),
-          );
+          validation.commit(getSliderValue(thumbValue, index, min, max, range, sliderValues));
         }
       },
       onKeyDown(event: React.KeyboardEvent) {
@@ -391,10 +384,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       type: 'range',
       value: thumbValue ?? '',
     },
-    fieldControlValidation.getInputValidationProps,
+    validation.getInputValidationProps,
   );
 
-  const mergedInputRef = useMergedRefs(inputRef, fieldControlValidation.inputRef, inputRefProp);
+  const mergedInputRef = useMergedRefs(inputRef, validation.inputRef, inputRefProp);
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -451,56 +444,60 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 });
 
 export interface ThumbMetadata {
-  inputId: string | undefined;
+  inputId: LabelableContext['controlId'];
+}
+
+export interface SliderThumbState extends SliderRoot.State {}
+
+export interface SliderThumbProps
+  extends Omit<BaseUIComponentProps<'div', SliderThumb.State>, 'onBlur' | 'onFocus'> {
+  /**
+   * Whether the thumb should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * A function which returns a string value for the [`aria-label`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label) attribute of the `input`.
+   */
+  getAriaLabel?: ((index: number) => string) | null;
+  /**
+   * A function which returns a string value for the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.
+   * This is important for screen reader users.
+   */
+  getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
+  /**
+   * The index of the thumb which corresponds to the index of its value in the
+   * `value` or `defaultValue` array.
+   * This prop is required to support server-side rendering for range sliders
+   * with multiple thumbs.
+   * @example
+   * ```tsx
+   * <Slider.Root value={[10, 20]}>
+   *   <Slider.Thumb index={0} />
+   *   <Slider.Thumb index={1} />
+   * </Slider.Root>
+   * ```
+   */
+  index?: number | undefined;
+  /**
+   * A ref to access the nested input element.
+   */
+  inputRef?: React.Ref<HTMLInputElement>;
+  /**
+   * A blur handler forwarded to the `input`.
+   */
+  onBlur?: React.FocusEventHandler<HTMLInputElement>;
+  /**
+   * A focus handler forwarded to the `input`.
+   */
+  onFocus?: React.FocusEventHandler<HTMLInputElement>;
+  /**
+   * Optional tab index attribute forwarded to the `input`.
+   */
+  tabIndex?: number;
 }
 
 export namespace SliderThumb {
-  export interface State extends SliderRoot.State {}
-
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'onBlur' | 'onFocus'> {
-    /**
-     * Whether the thumb should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * A function which returns a string value for the [`aria-label`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label) attribute of the `input`.
-     */
-    getAriaLabel?: ((index: number) => string) | null;
-    /**
-     * A function which returns a string value for the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.
-     * This is important for screen reader users.
-     */
-    getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
-    /**
-     * The index of the thumb which corresponds to the index of its value in the
-     * `value` or `defaultValue` array.
-     * This prop is required to support server-side rendering for range sliders
-     * with multiple thumbs.
-     * @example
-     * ```tsx
-     * <Slider.Root value={[10, 20]}>
-     *   <Slider.Thumb index={0} />
-     *   <Slider.Thumb index={1} />
-     * </Slider.Root>
-     * ```
-     */
-    index?: number | undefined;
-    /**
-     * A ref to access the nested input element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
-    /**
-     * A blur handler forwarded to the `input`.
-     */
-    onBlur?: React.FocusEventHandler<HTMLInputElement>;
-    /**
-     * A focus handler forwarded to the `input`.
-     */
-    onFocus?: React.FocusEventHandler<HTMLInputElement>;
-    /**
-     * Optional tab index attribute forwarded to the `input`.
-     */
-    tabIndex?: number;
-  }
+  export type State = SliderThumbState;
+  export type Props = SliderThumbProps;
 }

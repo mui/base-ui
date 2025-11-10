@@ -267,6 +267,11 @@ export function Main() {
                       ))}
                     </div>
                   )}
+                  <span
+                    data-testid="emoji-picker-active-index"
+                    data-active-index={activeIndex ?? ''}
+                    style={{ display: 'none' }}
+                  />
                 </div>
               </FloatingFocusManager>
             )}

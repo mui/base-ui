@@ -8,6 +8,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 
 /**
  * Positions the tooltip against the trigger.
@@ -37,9 +38,15 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     ...elementProps
   } = componentProps;
 
-  const { open, setPositionerElement, mounted, floatingRootContext, trackCursorAxis, hoverable } =
-    useTooltipRootContext();
+  const { store } = useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
+
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const trackCursorAxis = store.useState('trackCursorAxis');
+  const hoverable = store.useState('hoverable');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const instantType = store.useState('instantType');
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -57,6 +64,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     trackAnchor,
     keepMounted,
     collisionAvoidance,
+    adaptiveOrigin,
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {
@@ -90,8 +98,16 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
       side: positioner.side,
       align: positioner.align,
       anchorHidden: positioner.anchorHidden,
+      instant: trackCursorAxis !== 'none' ? 'tracking-cursor' : instantType,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden],
+    [
+      open,
+      positioner.side,
+      positioner.align,
+      positioner.anchorHidden,
+      trackCursorAxis,
+      instantType,
+    ],
   );
 
   const contextValue: TooltipPositionerContext = React.useMemo(
@@ -107,7 +123,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [positioner.props, elementProps],
-    ref: [forwardedRef, setPositionerElement],
+    ref: [forwardedRef, store.useStateSetter('positionerElement')],
     stateAttributesMapping: popupStateMapping,
   });
 
@@ -118,25 +134,32 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   );
 });
 
-export namespace TooltipPositioner {
-  export interface State {
-    /**
-     * Whether the tooltip is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-  }
+export interface TooltipPositionerState {
+  /**
+   * Whether the tooltip is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+  /**
+   * Whether CSS transitions should be disabled.
+   */
+  instant: string | undefined;
+}
 
-  export interface Props
-    extends BaseUIComponentProps<'div', State>,
-      Omit<useAnchorPositioning.SharedParameters, 'side'> {
-    /**
-     * Which side of the anchor element to align the popup against.
-     * May automatically change to avoid collisions.
-     * @default 'top'
-     */
-    side?: Side;
-  }
+export interface TooltipPositionerProps
+  extends BaseUIComponentProps<'div', TooltipPositioner.State>,
+    Omit<useAnchorPositioning.SharedParameters, 'side'> {
+  /**
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
+   * @default 'top'
+   */
+  side?: Side;
+}
+
+export namespace TooltipPositioner {
+  export type State = TooltipPositionerState;
+  export type Props = TooltipPositionerProps;
 }

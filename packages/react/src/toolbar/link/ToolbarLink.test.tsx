@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { Toolbar } from '@base-ui-components/react/toolbar';
 import { screen } from '@mui/internal-test-utils';
@@ -38,13 +37,13 @@ describe('<Toolbar.Link />', () => {
 
   describe('ARIA attributes', () => {
     it('renders an anchor', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Toolbar.Root>
           <Toolbar.Link data-testid="link" href="https://base-ui.com" />
         </Toolbar.Root>,
       );
 
-      expect(getByTestId('link')).to.equal(screen.getByRole('link'));
+      expect(screen.getByTestId('link')).to.equal(screen.getByRole('link'));
     });
   });
 });

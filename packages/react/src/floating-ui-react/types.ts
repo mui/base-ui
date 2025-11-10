@@ -11,7 +11,7 @@ import type { ExtendedUserProps } from './hooks/useInteractions';
 export * from '.';
 export type { FloatingDelayGroupProps } from './components/FloatingDelayGroup';
 export type { FloatingFocusManagerProps } from './components/FloatingFocusManager';
-export type { FloatingPortalProps, UseFloatingPortalNodeProps } from './components/FloatingPortal';
+export type { UseFloatingPortalNodeProps } from './components/FloatingPortal';
 export type { UseClientPointProps } from './hooks/useClientPoint';
 export type { UseDismissProps } from './hooks/useDismiss';
 export type { UseFocusProps } from './hooks/useFocus';
@@ -86,18 +86,6 @@ type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
 
-export type OpenChangeReason =
-  | 'outside-press'
-  | 'escape-key'
-  | 'ancestor-scroll'
-  | 'reference-press'
-  | 'click'
-  | 'hover'
-  | 'focus'
-  | 'focus-out'
-  | 'list-navigation'
-  | 'safe-polygon';
-
 export type Delay = number | Partial<{ open: number; close: number }>;
 
 export type NarrowedElement<T> = T extends Element ? T : Element;
@@ -139,6 +127,7 @@ export interface FloatingRootContext<RT extends ReferenceType = ReferenceType> {
     domReference: Element | null;
     reference: RT | null;
     floating: HTMLElement | null;
+    triggers?: Element[];
   };
   events: FloatingEvents;
   floatingId: string | undefined;
@@ -180,6 +169,7 @@ export interface ElementProps {
   item?:
     | React.HTMLProps<HTMLElement>
     | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>);
+  trigger?: React.HTMLProps<Element>;
 }
 
 export type ReferenceType = Element | VirtualElement;

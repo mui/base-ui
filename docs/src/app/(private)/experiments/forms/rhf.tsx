@@ -49,7 +49,6 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
 export default function ExampleForm() {
   const { settings } = useExperimentSettings<Settings>();
 
-  const [errors, setErrors] = React.useState({});
   const [loading, setLoading] = React.useState(false);
 
   const { handleSubmit, control, reset, setError, setFocus } = useForm<FormValues>({
@@ -94,12 +93,7 @@ export default function ExampleForm() {
       <h1>react-hook-form</h1>
 
       <hr style={{ margin: '1rem 0' }} />
-      <Form
-        className={styles.Form}
-        errors={errors}
-        onClearErrors={setErrors}
-        onSubmit={handleSubmit(submitForm)}
-      >
+      <Form className={styles.Form} onSubmit={handleSubmit(submitForm)}>
         <Controller
           name="username"
           control={control}
@@ -109,7 +103,13 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>Username</Field.Label>
                 <Field.Control
                   placeholder="Required"
@@ -132,7 +132,13 @@ export default function ExampleForm() {
           control={control}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>
                   <Checkbox.Root
                     checked={field.value}
@@ -160,7 +166,13 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>
                   <Checkbox.Root
                     checked={field.value}
@@ -188,7 +200,13 @@ export default function ExampleForm() {
           control={control}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>
                   <Switch.Root
                     checked={field.value}
@@ -219,7 +237,13 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>Volume</Field.Label>
                 <Slider.Root
                   value={field.value}
@@ -258,7 +282,13 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>Quantity</Field.Label>
                 <NumberField.Root
                   value={field.value}
@@ -291,7 +321,13 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
+                className={styles.Field}
+              >
                 <Field.Label className={styles.Label}>Country</Field.Label>
                 <Select.Root
                   value={field.value}
@@ -357,6 +393,8 @@ export default function ExampleForm() {
               <Field.Root
                 name={field.name}
                 invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
                 render={<Fieldset.Root />}
                 className={styles.Field}
               >
@@ -408,6 +446,8 @@ export default function ExampleForm() {
               <Field.Root
                 name={field.name}
                 invalid={fieldState.invalid}
+                touched={fieldState.isTouched}
+                dirty={fieldState.isDirty}
                 render={<Fieldset.Root />}
                 className={styles.Field}
               >

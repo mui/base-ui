@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { Orientation } from '../../utils/types';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
-import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot } from './SliderRoot';
 
@@ -14,7 +14,7 @@ export interface SliderRootContext {
   controlRef: React.RefObject<HTMLElement | null>;
   dragging: boolean;
   disabled: boolean;
-  fieldControlValidation: useFieldControlValidation.ReturnValue;
+  validation: UseFieldValidationReturnValue;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   handleInputChange: (
     valueInput: number,
@@ -31,6 +31,7 @@ export interface SliderRootContext {
    */
   largeStep: number;
   lastChangedValueRef: React.RefObject<number | readonly number[] | null>;
+  lastChangeReasonRef: React.RefObject<SliderRoot.ChangeEventReason>;
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
@@ -72,7 +73,7 @@ export interface SliderRootContext {
   /**
    * Callback fired when dragging and invokes onValueChange.
    */
-  setValue: (newValue: number | number[], activeThumb: number, event: Event) => void;
+  setValue: (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => void;
   state: SliderRoot.State;
   /**
    * The step increment of the slider when incrementing or decrementing. It will snap

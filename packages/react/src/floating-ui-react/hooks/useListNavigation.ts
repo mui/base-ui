@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   activeElement,
@@ -26,6 +26,7 @@ import {
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { Dimensions, ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
 
@@ -144,7 +145,7 @@ export interface UseListNavigationProps {
    * navigating via arrow keys, specify an empty array.
    * @default undefined
    */
-  disabledIndices?: Array<number> | ((index: number) => boolean);
+  disabledIndices?: ReadonlyArray<number> | ((index: number) => boolean);
   /**
    * Determines whether focus can escape the list, such that nothing is selected
    * after navigating beyond the boundary of the list. In some
@@ -280,7 +281,7 @@ export function useListNavigation(
   }
 
   const floatingFocusElement = getFloatingFocusElement(elements.floating);
-  const floatingFocusElementRef = useLatestRef(floatingFocusElement);
+  const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
 
   const parentId = useFloatingParentNodeId();
   const tree = useFloatingTree();
@@ -296,7 +297,7 @@ export function useListNavigation(
   const keyRef = React.useRef<null | string>(null);
   const isPointerModalityRef = React.useRef(true);
 
-  const onNavigate = useEventCallback((event?: React.SyntheticEvent) => {
+  const onNavigate = useStableCallback((event?: React.SyntheticEvent) => {
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
@@ -306,12 +307,12 @@ export function useListNavigation(
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
 
-  const disabledIndicesRef = useLatestRef(disabledIndices);
-  const latestOpenRef = useLatestRef(open);
-  const scrollItemIntoViewRef = useLatestRef(scrollItemIntoView);
-  const selectedIndexRef = useLatestRef(selectedIndex);
+  const disabledIndicesRef = useValueAsRef(disabledIndices);
+  const latestOpenRef = useValueAsRef(open);
+  const scrollItemIntoViewRef = useValueAsRef(scrollItemIntoView);
+  const selectedIndexRef = useValueAsRef(selectedIndex);
 
-  const focusItem = useEventCallback(() => {
+  const focusItem = useStableCallback(() => {
     function runFocus(item: HTMLElement) {
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
@@ -431,12 +432,13 @@ export function useListNavigation(
             }
             runs += 1;
           } else {
+            // initially focus the first non-disabled item
             indexRef.current =
               keyRef.current == null ||
               isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
               nested
-                ? getMinListIndex(listRef, disabledIndicesRef.current)
-                : getMaxListIndex(listRef, disabledIndicesRef.current);
+                ? getMinListIndex(listRef)
+                : getMaxListIndex(listRef);
             keyRef.current = null;
             onNavigate();
           }
@@ -524,7 +526,11 @@ export function useListNavigation(
         }
       },
       onPointerLeave(event) {
-        if (!isPointerModalityRef.current || event.pointerType === 'touch') {
+        if (
+          !latestOpenRef.current ||
+          !isPointerModalityRef.current ||
+          event.pointerType === 'touch'
+        ) {
           return;
         }
 
@@ -556,7 +562,7 @@ export function useListNavigation(
     );
   }, [parentId, tree, parentOrientation]);
 
-  const commonOnKeyDown = useEventCallback((event: React.KeyboardEvent) => {
+  const commonOnKeyDown = useStableCallback((event: React.KeyboardEvent) => {
     isPointerModalityRef.current = false;
     forceSyncFocusRef.current = true;
 
@@ -582,7 +588,7 @@ export function useListNavigation(
         stopEvent(event);
       }
 
-      onOpenChange(false, createChangeEventDetails('list-navigation', event.nativeEvent));
+      onOpenChange(false, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
 
       if (isHTMLElement(elements.domReference)) {
         if (virtual) {
@@ -790,7 +796,7 @@ export function useListNavigation(
         // Close submenu on Shift+Tab
         if (event.key === 'Tab' && event.shiftKey && open && !virtual) {
           stopEvent(event);
-          onOpenChange(false, createChangeEventDetails('list-navigation', event.nativeEvent));
+          onOpenChange(false, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
 
           if (isHTMLElement(elements.domReference)) {
             elements.domReference.focus();
@@ -871,7 +877,10 @@ export function useListNavigation(
               indexRef.current = getMinListIndex(listRef, disabledIndicesRef.current);
               onNavigate(event);
             } else {
-              onOpenChange(true, createChangeEventDetails('list-navigation', event.nativeEvent));
+              onOpenChange(
+                true,
+                createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+              );
             }
           }
 
@@ -886,7 +895,7 @@ export function useListNavigation(
           stopEvent(event);
 
           if (!open && openOnArrowKeyDown) {
-            onOpenChange(true, createChangeEventDetails('list-navigation', event.nativeEvent));
+            onOpenChange(true, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
           } else {
             commonOnKeyDown(event);
           }

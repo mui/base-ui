@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useId } from '@base-ui-components/utils/useId';
 
 import type { FloatingRootContext, ReferenceElement, ContextData } from '../types';
@@ -15,6 +15,7 @@ export interface UseFloatingRootContextOptions {
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
+    triggers?: Element[];
   };
   /**
    * Whether to prevent the auto-emitted `openchange` event.
@@ -47,7 +48,7 @@ export function useFloatingRootContext(
     elementsProp.reference,
   );
 
-  const onOpenChange = useEventCallback(
+  const onOpenChange = useStableCallback(
     (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
       dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
       if (!options.noEmit) {
@@ -56,9 +57,11 @@ export function useFloatingRootContext(
           reason: eventDetails.reason,
           nativeEvent: eventDetails.event,
           nested,
+          triggerElement: eventDetails.trigger,
         };
         events.emit('openchange', details);
       }
+
       onOpenChangeProp?.(newOpen, eventDetails);
     },
   );
@@ -75,8 +78,9 @@ export function useFloatingRootContext(
       reference: positionReference || elementsProp.reference || null,
       floating: elementsProp.floating || null,
       domReference: elementsProp.reference as Element | null,
+      triggers: elementsProp.triggers ?? [],
     }),
-    [positionReference, elementsProp.reference, elementsProp.floating],
+    [positionReference, elementsProp.reference, elementsProp.floating, elementsProp.triggers],
   );
 
   return React.useMemo<FloatingRootContext>(

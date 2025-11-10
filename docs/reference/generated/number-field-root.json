@@ -19,7 +19,7 @@
     },
     "onValueChange": {
       "type": "((value: number | null, eventDetails: NumberField.Root.ChangeEventDetails) => void)",
-      "description": "Callback fired when the number value changes.",
+      "description": "Callback fired when the number value changes.\n\nThe `eventDetails.reason` indicates what triggered the change:\n- `'input-change'` for parseable typing or programmatic text updates\n- `'input-clear'` when the field becomes empty\n- `'input-blur'` when formatting or clamping occurs on blur\n- `'input-paste'` for paste interactions\n- `'keyboard'` for keyboard input\n- `'increment-press'` / `'decrement-press'` for button presses on the increment and decrement controls\n- `'wheel'` for wheel-based scrubbing\n- `'scrub'` for scrub area drags",
       "detailedType": "| ((\n    value: number | null,\n    eventDetails: NumberField.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onValueCommitted": {
@@ -105,9 +105,13 @@
       "detailedType": "string | undefined"
     },
     "className": {
-      "type": "string | ((state: NumberField.Root.State) => string)",
+      "type": "string | ((state: NumberField.Root.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: NumberField.Root.State) => string)"
+      "detailedType": "| string\n| ((state: NumberField.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: NumberField.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: NumberField.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NumberField.Root.State) => ReactElement)",

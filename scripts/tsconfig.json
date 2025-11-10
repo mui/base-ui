@@ -5,6 +5,6 @@
     "module": "preserve",
     "moduleResolution": "bundler"
   },
-  "include": ["**/*.ts", "**/*.mjs", "**/*.mts", "../package.json"],
+  "include": ["**/*.ts", "**/*.mts", "../package.json", "../*.mjs", "../*.mts"],
   "exclude": ["**/node_modules"]
 }

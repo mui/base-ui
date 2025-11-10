@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -6,13 +7,15 @@ export default function ExampleVirtualizedAutocomplete() {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
 
-  const scrollElementRef = React.useRef<HTMLDivElement>(null);
+  const deferredSearchValue = React.useDeferredValue(searchValue);
 
-  const { contains } = Autocomplete.useFilter({ sensitivity: 'base' });
+  const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
+
+  const { contains } = Autocomplete.useFilter();
 
   const filteredItems = React.useMemo(() => {
-    return virtualItems.filter((item) => contains(item, searchValue));
-  }, [contains, searchValue]);
+    return virtualizedItems.filter((item) => contains(item, deferredSearchValue, getItemLabel));
+  }, [contains, deferredSearchValue]);
 
   const virtualizer = useVirtualizer({
     enabled: open,
@@ -22,10 +25,12 @@ export default function ExampleVirtualizedAutocomplete() {
     overscan: 20,
     paddingStart: 8,
     paddingEnd: 8,
+    scrollPaddingEnd: 8,
+    scrollPaddingStart: 8,
   });
 
   const handleScrollElementRef = React.useCallback(
-    (element: HTMLDivElement) => {
+    (element: HTMLDivElement | null) => {
       scrollElementRef.current = element;
       if (element) {
         virtualizer.measure();
@@ -40,12 +45,14 @@ export default function ExampleVirtualizedAutocomplete() {
   return (
     <Autocomplete.Root
       virtualized
-      items={virtualItems}
+      items={virtualizedItems}
+      filteredItems={filteredItems}
       open={open}
       onOpenChange={setOpen}
       value={searchValue}
       onValueChange={setSearchValue}
       openOnInputClick
+      itemToStringValue={getItemLabel}
       onItemHighlighted={(item, { reason, index }) => {
         if (!item) {
           return;
@@ -54,6 +61,7 @@ export default function ExampleVirtualizedAutocomplete() {
         const isStart = index === 0;
         const isEnd = index === filteredItems.length - 1;
         const shouldScroll = reason === 'none' || (reason === 'keyboard' && (isStart || isEnd));
+
         if (shouldScroll) {
           queueMicrotask(() => {
             virtualizer.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });
@@ -62,7 +70,7 @@ export default function ExampleVirtualizedAutocomplete() {
       }}
     >
       <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
-        Search 10,000 items (virtualized)
+        Search 10,000 items
         <Autocomplete.Input className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" />
       </label>
 
@@ -77,7 +85,7 @@ export default function ExampleVirtualizedAutocomplete() {
                 <div
                   role="presentation"
                   ref={handleScrollElementRef}
-                  className="h-[min(22rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-pt-2"
+                  className="h-[min(22rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-p-2"
                   style={{ '--total-size': totalSizePx } as React.CSSProperties}
                 >
                   <div
@@ -95,6 +103,8 @@ export default function ExampleVirtualizedAutocomplete() {
                         <Autocomplete.Item
                           key={virtualItem.key}
                           index={virtualItem.index}
+                          data-index={virtualItem.index}
+                          ref={virtualizer.measureElement}
                           value={item}
                           className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded data-[highlighted]:before:bg-gray-900"
                           aria-setsize={filteredItems.length}
@@ -104,11 +114,10 @@ export default function ExampleVirtualizedAutocomplete() {
                             top: 0,
                             left: 0,
                             width: '100%',
-                            height: `${virtualItem.size}px`,
                             transform: `translateY(${virtualItem.start}px)`,
                           }}
                         >
-                          {item}
+                          {item.name}
                         </Autocomplete.Item>
                       );
                     })}
@@ -123,7 +132,17 @@ export default function ExampleVirtualizedAutocomplete() {
   );
 }
 
-const virtualItems = Array.from({ length: 10000 }, (_, i) => {
-  const indexLabel = String(i + 1).padStart(4, '0');
-  return `Item ${indexLabel}`;
+interface VirtualizedItem {
+  id: string;
+  name: string;
+}
+
+function getItemLabel(item: VirtualizedItem | null) {
+  return item ? item.name : '';
+}
+
+const virtualizedItems: VirtualizedItem[] = Array.from({ length: 10000 }, (_, index) => {
+  const id = String(index + 1);
+  const indexLabel = id.padStart(4, '0');
+  return { id, name: `Item ${indexLabel}` };
 });

@@ -6,7 +6,9 @@
   content="A high-quality, unstyled React checkbox group component that provides a shared state for a series of checkboxes."
 />
 
-<Demo path="./demos/hero" />
+import { DemoCheckboxGroupHero } from './demos/hero';
+
+<DemoCheckboxGroupHero />
 
 ## Anatomy
 
@@ -21,50 +23,60 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 </CheckboxGroup>;
 ```
 
-## API reference
-
-<Reference component="CheckboxGroup" />
-
 ## Examples
 
 ### Parent checkbox
 
-A checkbox that controls other checkboxes within a `CheckboxGroup` can be created:
+A checkbox that controls other checkboxes within a `<CheckboxGroup>` can be created:
 
-1. Make `CheckboxGroup` a controlled component
-2. Pass an array of all the child checkbox `value`s to the `CheckboxGroup`'s `allValues` prop
-3. Add the `parent` boolean prop to the parent `Checkbox`
+1. Make `<CheckboxGroup>` a controlled component
+2. Pass an array of all the child checkbox values to the `allValues` prop on the `<CheckboxGroup>` component
+3. Add the `parent` boolean prop to the parent `<Checkbox>`
 
-<Demo path="./demos/parent" />
+import { DemoCheckboxGroupParent } from './demos/parent';
+
+<DemoCheckboxGroupParent />
 
 ### Nested parent checkbox
 
-<Demo compact path="./demos/nested" />
+import { DemoCheckboxGroupNested } from './demos/nested';
+
+<DemoCheckboxGroupNested compact />
 
 ### Form integration
 
 To use checkbox group in a form:
 
-1. Pass the group's `name` to a `Field`
-2. Use `Field.Label` to label each checkbox
-3. Use the `render` prop to render the field as a `Fieldset` in order to label the group
+1. Pass the group's `name` to `<Field>`
+2. Use the `render` prop to compose `<Fieldset>` and `<CheckboxGroup>`
+3. Use `<Field.Item>` to wrap each checkbox in the group
 
 ```tsx title="Using CheckboxGroup in a form"
 <Form>
-  <Field.Root name="toppings" render={<Fieldset.Root />}>
-    <Fieldset.Legend>Toppings</Fieldset.Legend>
-    <CheckboxGroup>
-      <Field.Label>
-        <Checkbox.Root value="anchovies" />
-        Anchovies
-      </Field.Label>
-      <Field.Label>
-        <Checkbox.Root value="olives" />
-        Olives
-      </Field.Label>
-    <CheckboxGroup>
+  <Field.Root name="toppings">
+    <Fieldset.Root render={<CheckboxGroup />}>
+      <Fieldset.Legend>Toppings</Fieldset.Legend>
+      <Field.Item>
+        <Field.Label>
+          <Checkbox.Root value="anchovies" />
+          Anchovies
+        </Field.Label>
+      </Field.Item>
+      <Field.Item>
+        <Field.Label>
+          <Checkbox.Root value="olives" />
+          Olives
+        </Field.Label>
+      </Field.Item>
+    </Fieldset.Root>
   </Field.Root>
 </Form>
 ```
 
-<Demo compact path="./demos/form" />
+import { DemoCheckboxGroupForm } from './demos/form';
+
+<DemoCheckboxGroupForm compact />
+
+## API reference
+
+<Reference component="CheckboxGroup" />

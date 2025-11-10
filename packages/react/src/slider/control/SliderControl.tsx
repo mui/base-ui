@@ -3,12 +3,16 @@ import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
 import { clamp } from '../../utils/clamp';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+} from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useSliderRootContext } from '../root/SliderRootContext';
@@ -29,12 +33,17 @@ function getControlOffset(styles: CSSStyleDeclaration | null, vertical: boolean)
     };
   }
 
+  function parseSize(value: string | null | undefined) {
+    const parsed = value != null ? parseFloat(value) : 0;
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+
   const start = !vertical ? 'InlineStart' : 'Top';
   const end = !vertical ? 'InlineEnd' : 'Bottom';
 
   return {
-    start: parseFloat(styles[`border${start}Width`]) + parseFloat(styles[`padding${start}`]),
-    end: parseFloat(styles[`border${end}Width`]) + parseFloat(styles[`padding${end}`]),
+    start: parseSize(styles[`border${start}Width`]) + parseSize(styles[`padding${start}`]),
+    end: parseSize(styles[`border${end}Width`]) + parseSize(styles[`padding${end}`]),
   };
 }
 
@@ -80,9 +89,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const {
     disabled,
     dragging,
-    fieldControlValidation,
+    validation,
     inset,
     lastChangedValueRef,
+    lastChangeReasonRef,
     max,
     min,
     minStepsBetweenValues,
@@ -108,7 +118,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   const controlRef = React.useRef<HTMLElement>(null);
   const stylesRef = React.useRef<CSSStyleDeclaration>(null);
-  const setStylesRef = useEventCallback((element: HTMLElement | null) => {
+  const setStylesRef = useStableCallback((element: HTMLElement | null) => {
     if (element && stylesRef.current == null) {
       if (stylesRef.current == null) {
         stylesRef.current = getComputedStyle(element);
@@ -124,7 +134,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   // This value should be equal to the radius or half the width/height of the thumb.
   const insetThumbOffsetRef = React.useRef(0);
 
-  const getFingerState = useEventCallback((fingerCoords: Coords): FingerState | null => {
+  const getFingerState = useStableCallback((fingerCoords: Coords): FingerState | null => {
     const control = controlRef.current;
 
     if (!control) {
@@ -173,7 +183,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     };
   });
 
-  const startPressing = useEventCallback((fingerCoords: Coords) => {
+  const startPressing = useStableCallback((fingerCoords: Coords) => {
     const pressedThumbIndex = pressedThumbIndexRef.current;
     let closestThumbIndex = pressedThumbIndex;
 
@@ -222,13 +232,13 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
   });
 
-  const focusThumb = useEventCallback((thumbIndex: number) => {
+  const focusThumb = useStableCallback((thumbIndex: number) => {
     thumbRefs.current?.[thumbIndex]
       ?.querySelector<HTMLInputElement>('input[type="range"]')
       ?.focus({ preventScroll: true });
   });
 
-  const handleTouchMove = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
+  const handleTouchMove = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
     const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
 
     if (fingerCoords == null) {
@@ -239,7 +249,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     // Cancel move in case some other element consumed a pointerup event and it was not fired.
     if (nativeEvent.type === 'pointermove' && (nativeEvent as PointerEvent).buttons === 0) {
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       handleTouchEnd(nativeEvent);
       return;
     }
@@ -255,11 +264,16 @@ export const SliderControl = React.forwardRef(function SliderControl(
         setDragging(true);
       }
 
-      setValue(finger.value, finger.thumbIndex, nativeEvent);
+      setValue(
+        finger.value,
+        createChangeEventDetails(REASONS.drag, nativeEvent, undefined, {
+          activeThumbIndex: finger.thumbIndex,
+        }),
+      );
     }
   });
 
-  const handleTouchEnd = useEventCallback((nativeEvent: TouchEvent | PointerEvent) => {
+  function handleTouchEnd(nativeEvent: TouchEvent | PointerEvent) {
     setActive(-1);
     setDragging(false);
 
@@ -279,10 +293,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
       return;
     }
 
-    fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
+    const commitReason = lastChangeReasonRef.current;
+
+    validation.commit(lastChangedValueRef.current ?? finger.value);
     onValueCommitted(
       lastChangedValueRef.current ?? finger.value,
-      createGenericEventDetails('none', nativeEvent),
+      createGenericEventDetails(commitReason, nativeEvent),
     );
 
     if (
@@ -295,9 +311,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
     touchIdRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
-  });
+  }
 
-  const handleTouchStart = useEventCallback((nativeEvent: TouchEvent) => {
+  const handleTouchStart = useStableCallback((nativeEvent: TouchEvent) => {
     if (disabled) {
       return;
     }
@@ -320,7 +336,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
       }
 
       focusThumb(finger.thumbIndex);
-      setValue(finger.value, finger.thumbIndex, nativeEvent);
+      setValue(
+        finger.value,
+        createChangeEventDetails(REASONS.trackPress, nativeEvent, undefined, {
+          activeThumbIndex: finger.thumbIndex,
+        }),
+      );
     }
 
     moveCountRef.current = 0;
@@ -329,7 +350,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     doc.addEventListener('touchend', handleTouchEnd, { passive: true });
   });
 
-  const stopListening = useEventCallback(() => {
+  const stopListening = useStableCallback(() => {
     const doc = ownerDocument(controlRef.current);
     doc.removeEventListener('pointermove', handleTouchMove);
     doc.removeEventListener('pointerup', handleTouchEnd);
@@ -411,7 +432,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
             const pressedOnAnyThumb = pressedThumbCenterOffsetRef.current != null;
             if (!pressedOnAnyThumb) {
-              setValue(finger.value, finger.thumbIndex, event.nativeEvent);
+              setValue(
+                finger.value,
+                createChangeEventDetails(REASONS.trackPress, event.nativeEvent, undefined, {
+                  activeThumbIndex: finger.thumbIndex,
+                }),
+              );
             }
           }
 
@@ -439,6 +465,8 @@ interface FingerState {
   thumbIndex: number;
 }
 
+export interface SliderControlProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+
 export namespace SliderControl {
-  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
+  export type Props = SliderControlProps;
 }

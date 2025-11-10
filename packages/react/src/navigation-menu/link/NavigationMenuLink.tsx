@@ -9,6 +9,7 @@ import {
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * A link in the navigation menu that can be used to navigate to a different page or section.
@@ -44,7 +45,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
     tabIndex: undefined,
     onClick(event) {
       if (closeOnClick) {
-        setValue(null, createChangeEventDetails('link-press', event.nativeEvent));
+        setValue(null, createChangeEventDetails(REASONS.linkPress, event.nativeEvent));
       }
     },
     onBlur(event) {
@@ -59,7 +60,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
           { popupElement, rootRef, tree, nodeId },
         )
       ) {
-        setValue(null, createChangeEventDetails('focus-out', event.nativeEvent));
+        setValue(null, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
       }
     },
   };
@@ -76,24 +77,28 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   );
 });
 
-export namespace NavigationMenuLink {
-  export interface State {
-    /**
-     * Whether the link is the currently active page.
-     */
-    active: boolean;
-  }
+export interface NavigationMenuLinkState {
+  /**
+   * Whether the link is the currently active page.
+   */
+  active: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'a', State> {
-    /**
-     * Whether the link is the currently active page.
-     * @default false
-     */
-    active?: boolean;
-    /**
-     * Whether to close the navigation menu when the link is clicked.
-     * @default false
-     */
-    closeOnClick?: boolean;
-  }
+export interface NavigationMenuLinkProps
+  extends BaseUIComponentProps<'a', NavigationMenuLink.State> {
+  /**
+   * Whether the link is the currently active page.
+   * @default false
+   */
+  active?: boolean;
+  /**
+   * Whether to close the navigation menu when the link is clicked.
+   * @default false
+   */
+  closeOnClick?: boolean;
+}
+
+export namespace NavigationMenuLink {
+  export type State = NavigationMenuLinkState;
+  export type Props = NavigationMenuLinkProps;
 }

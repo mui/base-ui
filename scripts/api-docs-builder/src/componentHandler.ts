@@ -1,6 +1,25 @@
+import fs from 'fs';
+import path from 'path';
 import * as tae from 'typescript-api-extractor';
 import { formatProperties, formatEnum } from './formatter';
 import memberOrder from './order.json';
+
+const componentsDir = path.resolve(process.cwd(), '../../packages/react/src');
+
+function kebabToPascal(str: string): string {
+  return str
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
+}
+
+const componentGroupNames = fs
+  .readdirSync(componentsDir, { withFileTypes: true })
+  .filter((dirent) => dirent.isDirectory())
+  .map((dirent) => kebabToPascal(dirent.name))
+  .sort((a, b) => b.length - a.length);
+
+const namespaceAliasMap = buildNamespaceAliasMap();
 
 export async function formatComponentData(component: tae.ExportNode, allExports: tae.ExportNode[]) {
   const description = component.documentation?.description?.replace(/\n\nDocumentation: .*$/ms, '');
@@ -27,7 +46,9 @@ export async function formatComponentData(component: tae.ExportNode, allExports:
 
   // Post-process type strings to align naming across re-exports and hide internal suffixes.
   const componentGroup = extractComponentGroup(component.name);
-  return rewriteTypeStringsDeep(raw, componentGroup);
+  const formatted = rewriteTypeStringsDeep(raw, componentGroup) as typeof raw;
+  formatted.name = component.name;
+  return formatted;
 }
 
 export function isPublicComponent(exportNode: tae.ExportNode) {
@@ -72,6 +93,12 @@ function sortObjectByKeys<T>(obj: Record<string, T>, order: string[]): Record<st
 }
 
 function extractComponentGroup(componentExportName: string): string {
+  const directMatch = componentGroupNames.find((name) => componentExportName.startsWith(name));
+
+  if (directMatch) {
+    return directMatch;
+  }
+
   const match = componentExportName.match(/^[A-Z][a-z0-9]*/);
   return match ? match[0] : componentExportName;
 }
@@ -85,7 +112,113 @@ function rewriteTypeValue(value: string, componentGroup: string): string {
     next = next.replaceAll(/\bCombobox\./g, 'Autocomplete.');
   }
 
+  next = applyNamespaceAliases(next, componentGroup);
+  next = applyComponentNamespaceShorthand(next, componentGroup);
+
   return dedupeUnionMembers(next);
+}
+
+function applyNamespaceAliases(value: string, componentGroup: string): string {
+  const orderedGroups = new Set<string>([componentGroup]);
+  for (const group of namespaceAliasMap.keys()) {
+    orderedGroups.add(group);
+  }
+
+  let result = value;
+  for (const group of orderedGroups) {
+    const aliases = namespaceAliasMap.get(group);
+    if (!aliases) {
+      continue;
+    }
+
+    const locals = Array.from(aliases.keys()).sort((a, b) => b.length - a.length);
+    for (const local of locals) {
+      const publicName = aliases.get(local)!;
+      const escapedLocal = escapeForRegex(local);
+
+      result = result.replace(
+        new RegExp(`\\b${escapedLocal}\\.(?=[A-Za-z])`, 'g'),
+        `${publicName}.`,
+      );
+
+      result = result.replace(
+        new RegExp(`\\b${escapedLocal}([A-Z][A-Za-z0-9]*)\\b`, 'g'),
+        `${publicName}.$1`,
+      );
+
+      result = result.replace(new RegExp(`\\b${escapedLocal}\\b`, 'g'), publicName);
+    }
+  }
+
+  return result;
+}
+
+function applyComponentNamespaceShorthand(value: string, componentGroup: string): string {
+  if (!componentGroup) {
+    return value;
+  }
+
+  const escapedGroup = escapeForRegex(componentGroup);
+  return value.replace(
+    new RegExp(`\\b${escapedGroup}(Props|State)\\b`, 'g'),
+    `${componentGroup}.$1`,
+  );
+}
+
+function escapeForRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildNamespaceAliasMap() {
+  const files = collectIndexPartsFiles(componentsDir);
+  const map = new Map<string, Map<string, string>>();
+
+  for (const file of files) {
+    const groupDir = path.basename(path.dirname(file));
+    const groupName = kebabToPascal(groupDir);
+    const aliases = map.get(groupName) ?? new Map<string, string>();
+
+    const content = fs.readFileSync(file, 'utf8');
+    const exportRegex = /export\s*\{([^}]+)\}\s*from\s*['"][^'"\n]+['"];?/g;
+
+    for (const match of content.matchAll(exportRegex)) {
+      const entries = match[1]
+        .split(',')
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+
+      for (const entry of entries) {
+        const [local, alias] = entry.split(/\s+as\s+/).map((part) => part.trim());
+        if (!local || !alias) {
+          continue;
+        }
+
+        aliases.set(local, `${groupName}.${alias}`);
+      }
+    }
+
+    if (aliases.size > 0) {
+      map.set(groupName, aliases);
+    }
+  }
+
+  return map;
+}
+
+function collectIndexPartsFiles(dir: string): string[] {
+  const result: string[] = [];
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      result.push(...collectIndexPartsFiles(fullPath));
+    } else if (entry.isFile() && entry.name === 'index.parts.ts') {
+      result.push(fullPath);
+    }
+  }
+
+  return result;
 }
 
 function dedupeUnionMembers(value: string): string {

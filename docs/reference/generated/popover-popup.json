@@ -13,8 +13,13 @@
       "detailedType": "| boolean\n| React.RefObject<HTMLElement | null>\n| ((\n    closeType: InteractionType,\n  ) => boolean | void | HTMLElement | null)\n| undefined"
     },
     "className": {
-      "type": "string | ((state: Popover.Popup.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Popover.Popup.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Popover.Popup.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Popover.Popup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Popover.Popup.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Popover.Popup.State) => ReactElement)",
@@ -48,5 +53,12 @@
       "description": "Present when the popup is animating out."
     }
   },
-  "cssVariables": {}
+  "cssVariables": {
+    "--popup-height": {
+      "description": "The height of the popup."
+    },
+    "--popup-width": {
+      "description": "The width of the popup."
+    }
+  }
 }

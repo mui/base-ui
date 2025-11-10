@@ -63,8 +63,10 @@ function extractMetadata() {
  * Plugin to transform JSX elements to markdown or remove them from the tree
  */
 function transformJsx() {
-  return (tree, file) => {
-    // Handle JSX flow elements (block-level JSX)
+  return async (tree, file) => {
+    // First pass: collect all demos to process and handle other components
+    const demosToProcess = [];
+
     visit(
       tree,
       [
@@ -75,20 +77,30 @@ function transformJsx() {
         'mdxJsxTextElement',
       ],
       (node, index, parent) => {
+        if (node.type === 'mdxjsEsm') {
+          if (node.data.estree.type === 'Program') {
+            const estree = node.data.estree;
+            if (estree.body[0].type === 'ImportDeclaration') {
+              // Collect demo for processing
+              const importPath = estree.body[0].source.value;
+              demosToProcess.push({
+                index,
+                parent,
+                importPath,
+              });
+              return visit.CONTINUE;
+            }
+          }
+        }
+
+        if (node.name?.startsWith('Demo')) {
+          // Remove Demo components - they are handled by the import statement
+          parent.children.splice(index, 1);
+          return [visit.SKIP, index];
+        }
+
         // Process different component types
         switch (node.name) {
-          case 'Demo': {
-            // Get the file path for context
-            const filePath = file.path || '';
-
-            // Process the demo component using our dedicated processor
-            const demoContent = processDemo(node, filePath);
-
-            // Replace the demo component with the generated content
-            parent.children.splice(index, 1, ...demoContent);
-            return visit.CONTINUE;
-          }
-
           case 'Reference': {
             // Process the reference component using our dedicated processor
             const tables = processReference(node, parent, index);
@@ -160,11 +172,25 @@ function transformJsx() {
           }
 
           default: {
-            throw new Error(`Unknown component: ${node.name}`);
+            if (node.name) {
+              throw new Error(`Unknown component: ${node.name}`);
+            }
+            return visit.CONTINUE;
           }
         }
       },
     );
+
+    // Process all demos in parallel
+    const demoResults = await Promise.all(
+      demosToProcess.map(async ({ importPath }) => processDemo(file.path || '', importPath)),
+    );
+
+    // Replace demo imports with their processed content (in reverse order to avoid index shifting)
+    for (let i = demosToProcess.length - 1; i >= 0; i -= 1) {
+      const { index, parent } = demosToProcess[i];
+      parent.children.splice(index, 1, ...demoResults[i]);
+    }
 
     return tree;
   };

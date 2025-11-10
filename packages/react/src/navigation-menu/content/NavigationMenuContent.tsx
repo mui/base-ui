@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { FloatingNode } from '../../floating-ui-react';
-import { contains } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import {
   useNavigationMenuRootContext,
@@ -90,8 +90,12 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     [currentContentRef],
   );
 
-  const commonProps: HTMLProps = {
-    onFocus() {
+  const commonProps: HTMLProps<HTMLDivElement> = {
+    onFocus(event) {
+      const target = getTarget(event.nativeEvent) as Element | null;
+      if (target?.hasAttribute('data-base-ui-focus-guard')) {
+        return;
+      }
       setFocusInside(true);
     },
     onBlur(event) {
@@ -132,21 +136,25 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
   );
 });
 
-export namespace NavigationMenuContent {
-  export interface State {
-    /**
-     * If `true`, the component is open.
-     */
-    open: boolean;
-    /**
-     * The transition status of the component.
-     */
-    transitionStatus: TransitionStatus;
-    /**
-     * The direction of the activation.
-     */
-    activationDirection: 'left' | 'right' | 'up' | 'down' | null;
-  }
+export interface NavigationMenuContentState {
+  /**
+   * If `true`, the component is open.
+   */
+  open: boolean;
+  /**
+   * The transition status of the component.
+   */
+  transitionStatus: TransitionStatus;
+  /**
+   * The direction of the activation.
+   */
+  activationDirection: 'left' | 'right' | 'up' | 'down' | null;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface NavigationMenuContentProps
+  extends BaseUIComponentProps<'div', NavigationMenuContent.State> {}
+
+export namespace NavigationMenuContent {
+  export type State = NavigationMenuContentState;
+  export type Props = NavigationMenuContentProps;
 }
