@@ -2,14 +2,14 @@
   "name": "ProgressLabel",
   "description": "An accessible label for the progress bar.\nRenders a `<span>` element.",
   "props": {
-    "style": {
-      "type": "CSSProperties | ((state: Progress.Root.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Progress.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
-    },
     "className": {
       "type": "string | ((state: Progress.Root.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Progress.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Progress.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Progress.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Progress.Root.State) => ReactElement)",

@@ -3,7 +3,8 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
-import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { DialogStore } from '../store/DialogStore';
 import { DialogHandle } from '../store/DialogHandle';
 import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
@@ -129,13 +130,13 @@ export interface DialogRootActions {
 }
 
 export type DialogRootChangeEventReason =
-  | 'trigger-press'
-  | 'outside-press'
-  | 'escape-key'
-  | 'close-press'
-  | 'focus-out'
-  | 'imperative-action'
-  | 'none';
+  | typeof REASONS.triggerPress
+  | typeof REASONS.outsidePress
+  | typeof REASONS.escapeKey
+  | typeof REASONS.closePress
+  | typeof REASONS.focusOut
+  | typeof REASONS.imperativeAction
+  | typeof REASONS.none;
 
 export type DialogRootChangeEventDetails =
   BaseUIChangeEventDetails<DialogRoot.ChangeEventReason> & {

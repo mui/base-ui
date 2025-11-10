@@ -13,7 +13,8 @@ import { fieldValidityMapping } from '../field/utils/constants';
 import { useField } from '../field/useField';
 import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
-import { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import { REASONS } from '../utils/reasons';
 import { useFormContext } from '../form/FormContext';
 import { useValueChanged } from '../utils/useValueChanged';
 import { areArraysEqual } from '../utils/areArraysEqual';
@@ -197,7 +198,7 @@ export interface CheckboxGroupProps extends BaseUIComponentProps<'div', Checkbox
   disabled?: boolean;
 }
 
-export type CheckboxGroupChangeEventReason = 'none';
+export type CheckboxGroupChangeEventReason = typeof REASONS.none;
 export type CheckboxGroupChangeEventDetails =
   BaseUIChangeEventDetails<CheckboxGroup.ChangeEventReason>;
 

@@ -16,10 +16,6 @@
       "type": "RefObject<HTMLFormElement>",
       "detailedType": "React.RefObject<HTMLFormElement> | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Form.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Form.State) => CSSProperties | undefined)\n| undefined"
-    },
     "validationMode": {
       "type": "FormValidationMode",
       "default": "'onSubmit'",
@@ -29,6 +25,10 @@
     "className": {
       "type": "string | ((state: Form.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Form.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Form.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Form.State) => ReactElement)",

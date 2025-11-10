@@ -11,10 +11,9 @@ import { fieldValidityMapping } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useField } from '../useField';
-import {
-  BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * The form control to label and validate.
@@ -113,7 +112,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
-          setValue(inputValue, createChangeEventDetails('none', event.nativeEvent));
+          setValue(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
           setDirty(inputValue !== validityData.initialValue);
           setFilled(inputValue !== '');
         },
@@ -154,7 +153,7 @@ export interface FieldControlProps extends BaseUIComponentProps<'input', FieldCo
   defaultValue?: React.ComponentProps<'input'>['defaultValue'];
 }
 
-export type FieldControlChangeEventReason = 'none';
+export type FieldControlChangeEventReason = typeof REASONS.none;
 
 export type FieldControlChangeEventDetails =
   BaseUIChangeEventDetails<FieldControl.ChangeEventReason>;
