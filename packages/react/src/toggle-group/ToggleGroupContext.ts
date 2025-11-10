@@ -2,6 +2,7 @@
 import * as React from 'react';
 import type { Orientation } from '../utils/types';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIEventReasons } from '../utils/reasons';
 import { ToggleGroupValueType } from './ToggleGroup';
 
 export interface ToggleGroupContext<Value, Multiple extends boolean | undefined = false> {
@@ -9,7 +10,7 @@ export interface ToggleGroupContext<Value, Multiple extends boolean | undefined 
   setGroupValue: (
     newValue: Value,
     nextPressed: boolean,
-    eventDetails: BaseUIChangeEventDetails<'none'>,
+    eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
   ) => void;
   disabled: boolean;
   orientation: Orientation;

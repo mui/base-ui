@@ -7,6 +7,7 @@ import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStateAttributesMapping } from './stateAttributesMapping';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups all parts of the collapsible.
@@ -108,7 +109,7 @@ export interface CollapsibleRootProps
   render?: BaseUIComponentProps<'div', CollapsibleRootState>['render'] | null;
 }
 
-export type CollapsibleRootChangeEventReason = 'trigger-press' | 'none';
+export type CollapsibleRootChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;
 export type CollapsibleRootChangeEventDetails =
   BaseUIChangeEventDetails<CollapsibleRootChangeEventReason>;
 

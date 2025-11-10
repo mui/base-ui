@@ -9,6 +9,7 @@ import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import { REASONS } from '../utils/reasons';
 
 const stateAttributesMapping = {
   multiple(value: boolean) {
@@ -66,9 +67,12 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<
   });
 
   const setGroupValue = useStableCallback(
-    (newValue: Value, nextPressed: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => {
-      let newGroupValue: ToggleGroupValueType<Value, Multiple>;
-
+    (
+      newValue: string,
+      nextPressed: boolean,
+      eventDetails: BaseUIChangeEventDetails<typeof REASONS.none>,
+    ) => {
+      let newGroupValue: ToggleGroupValueType<Value, Multiple>;      
       if (multiple) {
         if (nextPressed) {
           newGroupValue = (groupValue as ToggleGroupValueType<Value, true>).concat(
@@ -211,7 +215,7 @@ export interface ToggleGroupProps<Value, Multiple extends boolean | undefined = 
   multiple?: Multiple;
 }
 
-export type ToggleGroupChangeEventReason = 'none';
+export type ToggleGroupChangeEventReason = typeof REASONS.none;
 
 export type ToggleGroupChangeEventDetails = BaseUIChangeEventDetails<ToggleGroup.ChangeEventReason>;
 

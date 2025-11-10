@@ -9,6 +9,7 @@ import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { CompositeItem } from '../../composite/item/CompositeItem';
+import { REASONS } from '../../utils/reasons';
 
 describe('<Combobox.Root />', () => {
   beforeEach(() => {
@@ -113,7 +114,7 @@ describe('<Combobox.Root />', () => {
 
         expect(onOpenChange.callCount).to.equal(1);
         expect(onOpenChange.lastCall.args[0]).to.equal(false);
-        expect(onOpenChange.lastCall.args[1].reason).to.equal('item-press');
+        expect(onOpenChange.lastCall.args[1].reason).to.equal(REASONS.itemPress);
         expect(onOpenChange.lastCall.args[1].event instanceof MouseEvent).to.equal(true);
       });
 
@@ -154,7 +155,7 @@ describe('<Combobox.Root />', () => {
 
         expect(onOpenChange.callCount).to.equal(1);
         expect(onOpenChange.lastCall.args[0]).to.equal(false);
-        expect(onOpenChange.lastCall.args[1].reason).to.equal('item-press');
+        expect(onOpenChange.lastCall.args[1].reason).to.equal(REASONS.itemPress);
         expect(onOpenChange.lastCall.args[1].event instanceof KeyboardEvent).to.equal(true);
       });
 
@@ -1819,7 +1820,7 @@ describe('<Combobox.Root />', () => {
       expect(screen.queryByRole('listbox')).to.equal(null);
       expect(input).to.have.value('');
       expect(onInput.lastCall.args[0]).to.equal('');
-      expect(onInput.lastCall.args[1].reason).to.equal('input-clear');
+      expect(onInput.lastCall.args[1].reason).to.equal(REASONS.inputClear);
     });
 
     it('"single" clears typed input on close when no selection made (input outside popup)', async () => {
@@ -1850,7 +1851,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
       expect(input).to.have.value('');
       expect(onInput.lastCall.args[0]).to.equal('');
-      expect(onInput.lastCall.args[1].reason).to.equal('input-clear');
+      expect(onInput.lastCall.args[1].reason).to.equal(REASONS.inputClear);
     });
   });
 

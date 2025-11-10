@@ -11,6 +11,7 @@ import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../utils/createBaseUIEventDetails';
+import { REASONS } from '../utils/reasons';
 
 /**
  * A two-state button that can be on or off.
@@ -81,7 +82,7 @@ export const Toggle = React.forwardRef(function Toggle<Value>(
       'aria-pressed': pressed,
       onClick(event: React.MouseEvent) {
         const nextPressed = !pressed;
-        const details = createChangeEventDetails('none', event.nativeEvent);
+        const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
         onPressedChange(nextPressed, details);
 
@@ -166,7 +167,7 @@ export interface ToggleProps<Value>
   value?: Value;
 }
 
-export type ToggleChangeEventReason = 'none';
+export type ToggleChangeEventReason = typeof REASONS.none;
 
 export type ToggleChangeEventDetails = BaseUIChangeEventDetails<Toggle.ChangeEventReason>;
 

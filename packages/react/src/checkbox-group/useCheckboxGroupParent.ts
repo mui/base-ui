@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIEventReasons } from '../utils/reasons';
 
 const EMPTY: string[] = [];
 
@@ -107,7 +108,10 @@ export function useCheckboxGroupParent(
 export interface UseCheckboxGroupParentParameters {
   allValues?: string[];
   value?: string[];
-  onValueChange?: (value: string[], eventDetails: BaseUIChangeEventDetails<'none'>) => void;
+  onValueChange?: (
+    value: string[],
+    eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+  ) => void;
 }
 
 export interface UseCheckboxGroupParentReturnValue {
@@ -119,7 +123,10 @@ export interface UseCheckboxGroupParentReturnValue {
     indeterminate: boolean;
     checked: boolean;
     'aria-controls': string;
-    onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
+    onCheckedChange: (
+      checked: boolean,
+      eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+    ) => void;
   };
   getChildProps: (
     value: string,
@@ -127,7 +134,10 @@ export interface UseCheckboxGroupParentReturnValue {
   ) => {
     id: string;
     checked: boolean;
-    onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
+    onCheckedChange: (
+      checked: boolean,
+      eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+    ) => void;
   };
 }
 
