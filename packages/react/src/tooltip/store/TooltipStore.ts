@@ -9,6 +9,7 @@ import { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { PopupTriggerMap } from '../../utils/popupStoreUtils';
+import { REASONS } from '../../utils/reasons';
 
 export type State<Payload> = {
   readonly open: boolean;
@@ -86,9 +87,10 @@ export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, t
   ) => {
     const reason = eventDetails.reason;
 
-    const isHover = reason === 'trigger-hover';
-    const isFocusOpen = nextOpen && reason === 'trigger-focus';
-    const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
+    const isHover = reason === REASONS.triggerHover;
+    const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
+    const isDismissClose =
+      !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
 
     (eventDetails as TooltipRoot.ChangeEventDetails).preventUnmountOnClose = () => {
       this.set('preventUnmountingOnClose', true);
@@ -105,7 +107,7 @@ export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, t
         this.set('instantType', 'focus');
       } else if (isDismissClose) {
         this.set('instantType', 'dismiss');
-      } else if (reason === 'trigger-hover') {
+      } else if (reason === REASONS.triggerHover) {
         this.set('instantType', undefined);
       }
 

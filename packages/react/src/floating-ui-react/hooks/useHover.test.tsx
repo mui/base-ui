@@ -15,6 +15,7 @@ import { isJSDOM } from '@base-ui-components/utils/detectBrowser';
 import { useFloating, useHover, useInteractions } from '../index';
 import type { UseHoverProps } from './useHover';
 import { Popover } from '../../../test/floating-ui-tests/Popover';
+import { REASONS } from '../../utils/reasons';
 
 vi.useFakeTimers();
 
@@ -286,7 +287,7 @@ describe.skipIf(!isJSDOM)('useHover', () => {
         open: isOpen,
         onOpenChange(nextOpen, data) {
           setIsOpen(nextOpen);
-          expect(data?.reason).toBe('trigger-hover');
+          expect(data?.reason).toBe(REASONS.triggerHover);
         },
       });
 

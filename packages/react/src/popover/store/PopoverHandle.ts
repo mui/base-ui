@@ -1,4 +1,5 @@
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { PopoverStore } from './PopoverStore';
 
 export class PopoverHandle<Payload> {
@@ -29,7 +30,7 @@ export class PopoverHandle<Payload> {
 
     this.store.setOpen(
       true,
-      createChangeEventDetails('imperative-action', undefined, triggerElement),
+      createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
     );
   }
 
@@ -37,7 +38,10 @@ export class PopoverHandle<Payload> {
    * Closes the popover.
    */
   close() {
-    this.store.setOpen(false, createChangeEventDetails('imperative-action', undefined, undefined));
+    this.store.setOpen(
+      false,
+      createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
+    );
   }
 
   /**

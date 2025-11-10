@@ -12,6 +12,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxClear.State> = {
@@ -106,12 +107,15 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
           const keyboardActiveRef = store.state.keyboardActiveRef;
 
-          store.state.setInputValue('', createChangeEventDetails('clear-press', event.nativeEvent));
+          store.state.setInputValue(
+            '',
+            createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
+          );
 
           if (selectionMode !== 'none') {
             store.state.setSelectedValue(
               Array.isArray(selectedValue) ? [] : null,
-              createChangeEventDetails('clear-press', event.nativeEvent),
+              createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
             );
             store.state.setIndices({
               activeIndex: null,

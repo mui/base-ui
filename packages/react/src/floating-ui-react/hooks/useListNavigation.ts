@@ -26,6 +26,7 @@ import {
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { Dimensions, ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
 
@@ -587,7 +588,7 @@ export function useListNavigation(
         stopEvent(event);
       }
 
-      onOpenChange(false, createChangeEventDetails('list-navigation', event.nativeEvent));
+      onOpenChange(false, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
 
       if (isHTMLElement(elements.domReference)) {
         if (virtual) {
@@ -795,7 +796,7 @@ export function useListNavigation(
         // Close submenu on Shift+Tab
         if (event.key === 'Tab' && event.shiftKey && open && !virtual) {
           stopEvent(event);
-          onOpenChange(false, createChangeEventDetails('list-navigation', event.nativeEvent));
+          onOpenChange(false, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
 
           if (isHTMLElement(elements.domReference)) {
             elements.domReference.focus();
@@ -876,7 +877,10 @@ export function useListNavigation(
               indexRef.current = getMinListIndex(listRef, disabledIndicesRef.current);
               onNavigate(event);
             } else {
-              onOpenChange(true, createChangeEventDetails('list-navigation', event.nativeEvent));
+              onOpenChange(
+                true,
+                createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+              );
             }
           }
 
@@ -891,7 +895,7 @@ export function useListNavigation(
           stopEvent(event);
 
           if (!open && openOnArrowKeyDown) {
-            onOpenChange(true, createChangeEventDetails('list-navigation', event.nativeEvent));
+            onOpenChange(true, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
           } else {
             commonOnKeyDown(event);
           }

@@ -30,6 +30,7 @@ import {
 } from '../utils';
 import type { FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
@@ -507,7 +508,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           (isUntrappedTypeableCombobox || relatedTarget !== getPreviouslyFocusedElement())
         ) {
           preventReturnFocusRef.current = true;
-          onOpenChange(false, createChangeEventDetails('focus-out', event));
+          onOpenChange(false, createChangeEventDetails(REASONS.focusOut, event));
         }
       });
     }
@@ -706,11 +707,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
       }
 
-      if (details.reason === 'trigger-hover' && details.nativeEvent.type === 'mouseleave') {
+      if (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave') {
         preventReturnFocusRef.current = true;
       }
 
-      if (details.reason !== 'outside-press') {
+      if (details.reason !== REASONS.outsidePress) {
         return;
       }
 
