@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, waitFor, screen } from '@mui/internal-test-utils';
+import { act, waitFor, screen, fireEvent } from '@mui/internal-test-utils';
+import { spy } from 'sinon';
 import { Menu } from '@base-ui-components/react/menu';
 import { createRenderer, isJSDOM } from '#test-utils';
 
@@ -10,6 +11,14 @@ describe('<MenuRoot />', () => {
   });
 
   const { render } = createRenderer();
+
+  async function wait(ms: number) {
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, ms);
+      });
+    });
+  }
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
     type NumberPayload = { payload: number | undefined };
@@ -230,6 +239,249 @@ describe('<MenuRoot />', () => {
       );
 
       expect(screen.getByTestId('popup-content').textContent).to.equal('2');
+    });
+
+    describe('nested menus', () => {
+      it('supports keyboard navigation from any trigger', async () => {
+        const { user } = await render(
+          <Menu.Root>
+            <Menu.Trigger>Trigger 1</Menu.Trigger>
+            <Menu.Trigger>Trigger 2</Menu.Trigger>
+
+            <Menu.Portal>
+              <Menu.Positioner data-testid="menu">
+                <Menu.Popup>
+                  <Menu.Item>Standalone</Menu.Item>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger data-testid="submenu-trigger">More</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner data-testid="submenu">
+                        <Menu.Popup>
+                          <Menu.Item data-testid="submenu-item">Nested</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+        const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+        await user.click(trigger1);
+        await screen.findByTestId('menu');
+
+        await user.keyboard('[ArrowDown]');
+        await user.keyboard('[ArrowDown]');
+
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await waitFor(() => {
+          expect(submenuTrigger).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+
+        const submenuItem = await screen.findByTestId('submenu-item');
+        await waitFor(() => {
+          expect(submenuItem).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowLeft]');
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu')).to.equal(null);
+        });
+        expect(submenuTrigger).toHaveFocus();
+
+        await user.keyboard('[Escape]');
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).to.equal(null);
+        });
+
+        await user.click(trigger2);
+        await screen.findByTestId('menu');
+      });
+
+      it('opens a submenu with the mouse when hover is disabled', async () => {
+        const { user } = await render(
+          <Menu.Root>
+            <Menu.Trigger>Trigger 1</Menu.Trigger>
+            <Menu.Trigger>Trigger 2</Menu.Trigger>
+
+            <Menu.Portal>
+              <Menu.Positioner data-testid="menu">
+                <Menu.Popup>
+                  <Menu.Item>Standalone</Menu.Item>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger data-testid="submenu-trigger" openOnHover={false}>
+                      More
+                    </Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner data-testid="submenu">
+                        <Menu.Popup>
+                          <Menu.Item data-testid="submenu-item">Nested</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+        const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+        await user.click(trigger1);
+        await screen.findByTestId('menu');
+        expect(screen.queryByTestId('submenu')).to.equal(null);
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+        await user.click(submenuTrigger);
+
+        const submenuItem = await screen.findByTestId('submenu-item');
+        expect(submenuItem.textContent).to.equal('Nested');
+
+        await user.click(submenuItem);
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).to.equal(null);
+        });
+
+        await user.click(trigger2);
+        await screen.findByTestId('menu');
+        expect(screen.queryByTestId('submenu')).to.equal(null);
+      });
+
+      it('closes every level when clicking outside the deepest submenu', async () => {
+        const { user } = await render(
+          <div>
+            <Menu.Root>
+              <Menu.Trigger>Trigger 1</Menu.Trigger>
+              <Menu.Trigger>Trigger 2</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="level-1">
+                  <Menu.Popup>
+                    <Menu.Item>Item 1</Menu.Item>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger data-testid="submenu-trigger-1">
+                        Level 2
+                      </Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner data-testid="level-2">
+                          <Menu.Popup>
+                            <Menu.Item>Item 2</Menu.Item>
+                            <Menu.SubmenuRoot>
+                              <Menu.SubmenuTrigger data-testid="submenu-trigger-2">
+                                Level 3
+                              </Menu.SubmenuTrigger>
+                              <Menu.Portal>
+                                <Menu.Positioner data-testid="level-3">
+                                  <Menu.Popup>
+                                    <Menu.Item>Deep Item</Menu.Item>
+                                  </Menu.Popup>
+                                </Menu.Positioner>
+                              </Menu.Portal>
+                            </Menu.SubmenuRoot>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <button data-testid="outside">Outside</button>
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+        await user.click(trigger);
+        await screen.findByTestId('level-1');
+
+        await user.keyboard('[ArrowDown]');
+        await user.keyboard('[ArrowDown]');
+
+        const submenuTrigger1 = await screen.findByTestId('submenu-trigger-1');
+        await waitFor(() => {
+          expect(submenuTrigger1).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await screen.findByTestId('level-2');
+
+        await user.keyboard('[ArrowDown]');
+        const submenuTrigger2 = await screen.findByTestId('submenu-trigger-2');
+        await waitFor(() => {
+          expect(submenuTrigger2).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await screen.findByTestId('level-3');
+
+        await user.click(screen.getByTestId('outside'));
+        await waitFor(() => {
+          expect(screen.queryByTestId('level-1')).to.equal(null);
+          expect(screen.queryByTestId('level-2')).to.equal(null);
+          expect(screen.queryByTestId('level-3')).to.equal(null);
+        });
+      });
+
+      it('allows selecting nested items via click, drag, release', async () => {
+        const clickSpy = spy();
+        const { user } = await render(
+          <Menu.Root>
+            <Menu.Trigger>Trigger 1</Menu.Trigger>
+            <Menu.Trigger>Trigger 2</Menu.Trigger>
+
+            <Menu.Portal>
+              <Menu.Positioner data-testid="menu">
+                <Menu.Popup>
+                  <Menu.Item>Item 1</Menu.Item>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger data-testid="submenu-trigger">More</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner data-testid="submenu">
+                        <Menu.Popup>
+                          <Menu.Item data-testid="submenu-item" onClick={clickSpy}>
+                            Nested Action
+                          </Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+        fireEvent.mouseDown(trigger1);
+
+        await screen.findByTestId('menu');
+
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await user.hover(submenuTrigger);
+        await screen.findByTestId('submenu');
+
+        // Wait 200ms to enable mouseup on menu items
+        await wait(200);
+
+        const submenuItem = await screen.findByTestId('submenu-item');
+        fireEvent.mouseUp(submenuItem);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).to.equal(null);
+        });
+        expect(clickSpy.callCount).to.equal(1);
+
+        const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+        await user.click(trigger2);
+        await screen.findByTestId('menu');
+      });
     });
   });
 
@@ -480,6 +732,252 @@ describe('<MenuRoot />', () => {
       );
 
       expect(screen.getByTestId('popup-content').textContent).to.equal('2');
+    });
+
+    describe('nested menus', () => {
+      it('supports keyboard navigation regardless of which trigger opened the menu', async () => {
+        const testMenu = Menu.createHandle();
+        const { user } = await render(
+          <div>
+            <Menu.Trigger handle={testMenu}>Trigger 1</Menu.Trigger>
+            <Menu.Trigger handle={testMenu}>Trigger 2</Menu.Trigger>
+
+            <Menu.Root handle={testMenu}>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="menu">
+                  <Menu.Popup>
+                    <Menu.Item>Standalone</Menu.Item>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger data-testid="submenu-trigger">More</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner data-testid="submenu">
+                          <Menu.Popup>
+                            <Menu.Item data-testid="submenu-item">Nested</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>,
+        );
+
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+        const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+        await user.click(trigger1);
+        await screen.findByTestId('menu');
+
+        await user.keyboard('[ArrowDown]');
+        await user.keyboard('[ArrowDown]');
+
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await waitFor(() => {
+          expect(submenuTrigger).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        const submenuItem = await screen.findByTestId('submenu-item');
+        await waitFor(() => expect(submenuItem).toHaveFocus());
+
+        await user.keyboard('[ArrowLeft]');
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu')).to.equal(null);
+        });
+        expect(submenuTrigger).toHaveFocus();
+
+        await user.keyboard('[Escape]');
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).to.equal(null);
+        });
+
+        await user.click(trigger2);
+        await screen.findByTestId('menu');
+      });
+
+      it('opens submenus on click when hover is disabled', async () => {
+        const testMenu = Menu.createHandle();
+        const { user } = await render(
+          <div>
+            <Menu.Trigger handle={testMenu}>Trigger 1</Menu.Trigger>
+            <Menu.Trigger handle={testMenu}>Trigger 2</Menu.Trigger>
+
+            <Menu.Root handle={testMenu}>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="menu">
+                  <Menu.Popup>
+                    <Menu.Item>Standalone</Menu.Item>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger data-testid="submenu-trigger" openOnHover={false}>
+                        More
+                      </Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner data-testid="submenu">
+                          <Menu.Popup>
+                            <Menu.Item data-testid="submenu-item">Nested</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>,
+        );
+
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+        const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+        await user.click(trigger1);
+        await screen.findByTestId('menu');
+        expect(screen.queryByTestId('submenu')).to.equal(null);
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+        await user.click(submenuTrigger);
+
+        const submenuItem = await screen.findByTestId('submenu-item');
+        expect(submenuItem.textContent).to.equal('Nested');
+
+        await user.click(submenuItem);
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).to.equal(null);
+        });
+
+        await user.click(trigger2);
+        await screen.findByTestId('menu');
+        expect(screen.queryByTestId('submenu')).to.equal(null);
+      });
+
+      it('closes the nested tree on outside click', async () => {
+        const testMenu = Menu.createHandle();
+        const { user } = await render(
+          <div>
+            <Menu.Trigger handle={testMenu}>Trigger 1</Menu.Trigger>
+            <Menu.Trigger handle={testMenu}>Trigger 2</Menu.Trigger>
+
+            <Menu.Root handle={testMenu}>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="level-1">
+                  <Menu.Popup>
+                    <Menu.Item>Item 1</Menu.Item>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger data-testid="submenu-trigger-1">
+                        Level 2
+                      </Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner data-testid="level-2">
+                          <Menu.Popup>
+                            <Menu.Item>Item 2</Menu.Item>
+                            <Menu.SubmenuRoot>
+                              <Menu.SubmenuTrigger data-testid="submenu-trigger-2">
+                                Level 3
+                              </Menu.SubmenuTrigger>
+                              <Menu.Portal>
+                                <Menu.Positioner data-testid="level-3">
+                                  <Menu.Popup>
+                                    <Menu.Item>Deep Item</Menu.Item>
+                                  </Menu.Popup>
+                                </Menu.Positioner>
+                              </Menu.Portal>
+                            </Menu.SubmenuRoot>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <button data-testid="outside">Outside</button>
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+        await user.click(trigger);
+        await screen.findByTestId('level-1');
+
+        await user.keyboard('[ArrowDown]');
+        await user.keyboard('[ArrowDown]');
+
+        const submenuTrigger1 = await screen.findByTestId('submenu-trigger-1');
+        await waitFor(() => expect(submenuTrigger1).toHaveFocus());
+
+        await user.keyboard('[ArrowRight]');
+        await screen.findByTestId('level-2');
+
+        await user.keyboard('[ArrowDown]');
+        const submenuTrigger2 = await screen.findByTestId('submenu-trigger-2');
+        await waitFor(() => expect(submenuTrigger2).toHaveFocus());
+
+        await user.keyboard('[ArrowRight]');
+        await screen.findByTestId('level-3');
+
+        await user.click(screen.getByTestId('outside'));
+        await waitFor(() => {
+          expect(screen.queryByTestId('level-1')).to.equal(null);
+          expect(screen.queryByTestId('level-2')).to.equal(null);
+          expect(screen.queryByTestId('level-3')).to.equal(null);
+        });
+      });
+
+      it('selects nested items with click, drag, release', async () => {
+        const testMenu = Menu.createHandle();
+        const clickSpy = spy();
+        const { user } = await render(
+          <div>
+            <Menu.Trigger handle={testMenu}>Trigger 1</Menu.Trigger>
+            <Menu.Trigger handle={testMenu}>Trigger 2</Menu.Trigger>
+
+            <Menu.Root handle={testMenu}>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="menu">
+                  <Menu.Popup>
+                    <Menu.Item>Item 1</Menu.Item>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger data-testid="submenu-trigger">More</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner data-testid="submenu">
+                          <Menu.Popup>
+                            <Menu.Item data-testid="submenu-item" onClick={clickSpy}>
+                              Nested Action
+                            </Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>,
+        );
+
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+        fireEvent.mouseDown(trigger1);
+        await screen.findByTestId('menu');
+
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+        await user.hover(submenuTrigger);
+        await screen.findByTestId('submenu');
+
+        // Wait 200ms to enable mouseup on menu items
+        await wait(200);
+
+        const submenuItem = await screen.findByTestId('submenu-item');
+        fireEvent.mouseUp(submenuItem);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).to.equal(null);
+        });
+        expect(clickSpy.callCount).to.equal(1);
+
+        const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+        await user.click(trigger2);
+        await screen.findByTestId('menu');
+      });
     });
   });
 
