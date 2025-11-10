@@ -65,6 +65,9 @@
     },
     "data-focused": {
       "description": "Present when the select trigger is focused (when wrapped in Field.Root)."
+    },
+    "data-placeholder": {
+      "description": "Present when the select doesn't have a value."
     }
   },
   "cssVariables": {}
