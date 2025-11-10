@@ -326,7 +326,7 @@ const { control, handleSubmit } = useForm<FormValues>({
 });
 ```
 
-### Integrating Base UI components
+### Integrate components
 
 Use the `<Controller>` component to integrate with any `<Field>` component, forwarding the `name`, `field`, and `fieldState` render props to the appropriate part:
 
@@ -445,7 +445,7 @@ import { DemoTanstackForm } from './demos/tanstack-form';
 
 <DemoTanstackForm showExtraPlaygroundLink />
 
-### Create a form instance
+### Initialize the form
 
 Create a form instance with the `useForm` hook, assigning the initial value of each field by their name in the `defaultValues` parameter:
 
@@ -468,7 +468,7 @@ const form = useForm<FormValues>({
 });
 ```
 
-### Integrate Base UI components
+### Integrate components
 
 Use the `<form.Field>` component from the form instance to integrate with Base UI components using the `children` prop, forwarding the various `field` render props to the appropriate part:
 
@@ -507,7 +507,7 @@ const form = useForm(/* defaultValues, other parameters */)
 
 The Base UI `<Form>` component is not needed when using TanStack Form.
 
-### Form validators
+### Form validation
 
 To configure a native `<form>`-like validation strategy:
 
@@ -550,7 +550,7 @@ const form = useForm({
 });
 ```
 
-### Field validators
+### Field validation
 
 You can pass additional validator functions to individual `<form.Field>` components to add validations on top of the form-level validators:
 
@@ -577,7 +577,7 @@ const form = useForm();
 >
 ```
 
-### Submission handling
+### Submitting data
 
 To submit the form:
 
