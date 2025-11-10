@@ -4,13 +4,8 @@
   "props": {
     "errors": {
       "type": "Errors",
-      "description": "An object where the keys correspond to the `name` attribute of the form fields,\nand the values correspond to the error(s) related to that field.",
+      "description": "Validation errors returned externally, typically after submission by a server or a form action.\nThis should be an object where keys correspond to the `name` attribute on `<Field.Root>`,\nand values correspond to error(s) related to that field.",
       "detailedType": "{} | undefined"
-    },
-    "onClearErrors": {
-      "type": "((errors: Errors) => void)",
-      "description": "Event handler called when the `errors` object is cleared.",
-      "detailedType": "((errors: Errors) => void) | undefined"
     },
     "onFormSubmit": {
       "type": "((formValues: Record<string, any>, eventDetails: Form.SubmitEventDetails) => void)",
@@ -21,10 +16,6 @@
       "type": "RefObject<HTMLFormElement>",
       "detailedType": "React.RefObject<HTMLFormElement> | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Form.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Form.State) => CSSProperties | undefined)\n| undefined"
-    },
     "validationMode": {
       "type": "FormValidationMode",
       "default": "'onSubmit'",
@@ -34,6 +25,10 @@
     "className": {
       "type": "string | ((state: Form.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Form.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Form.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Form.State) => ReactElement)",

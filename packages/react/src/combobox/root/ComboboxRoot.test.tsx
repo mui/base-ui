@@ -3218,34 +3218,31 @@ describe('<Combobox.Root />', () => {
       expect(input).to.have.attribute('data-invalid', '');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
-          combobox: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="combobox">
-              <Combobox.Root>
-                <Combobox.Input data-testid="input" />
-                <Combobox.Portal>
-                  <Combobox.Positioner>
-                    <Combobox.Popup>
-                      <Combobox.List>
-                        <Combobox.Item value="a">a</Combobox.Item>
-                        <Combobox.Item value="b">b</Combobox.Item>
-                      </Combobox.List>
-                    </Combobox.Popup>
-                  </Combobox.Positioner>
-                </Combobox.Portal>
-              </Combobox.Root>
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      const { user } = await renderFakeTimers(<App />);
+    it('clears external errors on change', async () => {
+      const { user } = await renderFakeTimers(
+        <Form
+          errors={{
+            combobox: 'test',
+          }}
+        >
+          <Field.Root name="combobox">
+            <Combobox.Root>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="a">a</Combobox.Item>
+                      <Combobox.Item value="b">b</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       expect(screen.getByTestId('error')).to.have.text('test');
 

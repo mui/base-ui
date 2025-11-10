@@ -172,7 +172,6 @@ export interface AutocompleteRootProps<ItemValue>
     | 'highlightItemOnHover'
     | 'actionsRef'
     | 'onOpenChange'
-    | 'onInputValueChange'
   > {
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
@@ -240,13 +239,6 @@ export interface AutocompleteRootProps<ItemValue>
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?: (open: boolean, eventDetails: AutocompleteRootChangeEventDetails) => void;
-  /**
-   * Event handler called when the input value changes.
-   */
-  onInputValueChange?: (
-    inputValue: string,
-    eventDetails: AutocompleteRootChangeEventDetails,
-  ) => void;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.

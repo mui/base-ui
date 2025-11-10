@@ -16,10 +16,6 @@
       "description": "Callback invoked when new value is being set.",
       "detailedType": "| ((\n    value: Tabs.Tab.Value,\n    eventDetails: Tabs.Root.ChangeEventDetails<\n      'none',\n      {\n        activationDirection: Tabs.Tab.ActivationDirection\n      }\n    >,\n  ) => void)\n| undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Tabs.Root.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Tabs.Root.State) => CSSProperties | undefined)\n| undefined"
-    },
     "orientation": {
       "type": "Tabs.Root.Orientation",
       "default": "'horizontal'",
@@ -30,6 +26,10 @@
       "type": "string | ((state: Tabs.Root.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Tabs.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Tabs.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Tabs.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Tabs.Root.State) => ReactElement)",

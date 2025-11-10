@@ -1833,22 +1833,19 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   });
 
   describe('Form', () => {
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
-          test: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="test" data-testid="field">
-              <TestSlider data-testid="slider" defaultValue={50} />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      const { user } = await render(<App />);
+    it('clears external errors on change', async () => {
+      const { user } = await render(
+        <Form
+          errors={{
+            test: 'test',
+          }}
+        >
+          <Field.Root name="test" data-testid="field">
+            <TestSlider data-testid="slider" defaultValue={50} />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       const slider = screen.getByRole('slider');
 

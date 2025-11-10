@@ -2,10 +2,6 @@
   "name": "ToolbarRoot",
   "description": "A container for grouping a set of controls, such as buttons, toggle groups, or menus.\nRenders a `<div>` element.",
   "props": {
-    "style": {
-      "type": "CSSProperties | ((state: Toolbar.Root.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Toolbar.Root.State) => CSSProperties | undefined)\n| undefined"
-    },
     "disabled": {
       "type": "boolean",
       "detailedType": "boolean | undefined"
@@ -26,6 +22,10 @@
       "type": "string | ((state: Toolbar.Root.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Toolbar.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Toolbar.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toolbar.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Root.State) => ReactElement)",

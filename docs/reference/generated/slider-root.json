@@ -36,10 +36,6 @@
       "type": "RefObject<HTMLDivElement>",
       "detailedType": "React.RefObject<HTMLDivElement> | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Slider.Root.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Slider.Root.State) => CSSProperties | undefined)\n| undefined"
-    },
     "thumbAlignment": {
       "type": "'center' | 'edge' | 'edge-client-only'",
       "default": "'center'",
@@ -97,6 +93,10 @@
       "type": "string | ((state: Slider.Root.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Slider.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Slider.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Slider.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Slider.Root.State) => ReactElement)",
