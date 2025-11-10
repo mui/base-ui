@@ -14,6 +14,7 @@ import { useButton } from '../../use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
+import { REASONS } from '../../utils/reasons';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -95,11 +96,11 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       return;
     }
 
-    menuEvents.emit('close', { domEvent: mouseEvent, reason: 'cancel-open' });
+    menuEvents.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
   });
 
   React.useEffect(() => {
-    if (open && lastOpenChangeReason === 'trigger-hover') {
+    if (open && lastOpenChangeReason === REASONS.triggerHover) {
       const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
     }

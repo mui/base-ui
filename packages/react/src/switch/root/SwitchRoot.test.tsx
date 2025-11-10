@@ -311,22 +311,19 @@ describe('<Switch.Root />', () => {
       expect(error).to.have.text('required');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
-          test: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="test" data-testid="field">
-              <Switch.Root data-testid="switch" />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      await render(<App />);
+    it('clears external errors on change', async () => {
+      await render(
+        <Form
+          errors={{
+            test: 'test',
+          }}
+        >
+          <Field.Root name="test" data-testid="field">
+            <Switch.Root data-testid="switch" />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       const switchElement = screen.getByTestId('switch');
 
@@ -498,6 +495,39 @@ describe('<Switch.Root />', () => {
 
       fireEvent.click(button);
 
+      expect(button).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('revalidates when a controlled value changes externally', async () => {
+      const validateSpy = spy((value: unknown) => ((value as boolean) ? 'error' : null));
+
+      function App() {
+        const [checked, setChecked] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <Field.Root validationMode="onChange" validate={validateSpy} name="newsletters">
+              <Switch.Root data-testid="button" checked={checked} onCheckedChange={setChecked} />
+            </Field.Root>
+            <button type="button" onClick={() => setChecked((prev) => !prev)}>
+              Toggle externally
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const button = screen.getByTestId('button');
+      const toggle = screen.getByText('Toggle externally');
+
+      expect(button).not.to.have.attribute('aria-invalid');
+      const initialCallCount = validateSpy.callCount;
+
+      fireEvent.click(toggle);
+
+      expect(validateSpy.callCount).to.equal(initialCallCount + 1);
+      expect(validateSpy.lastCall.args[0]).to.equal(true);
       expect(button).to.have.attribute('aria-invalid', 'true');
     });
 

@@ -14,6 +14,7 @@ import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping'
 import { stopEvent } from '../../floating-ui-react/utils';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
@@ -44,12 +45,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     setTouched,
     setFocused,
     validationMode,
+    validation,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
   const store = useComboboxRootContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
-  const fieldControlValidation = useStore(store, selectors.fieldControlValidation);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const listElement = useStore(store, selectors.listElement);
@@ -121,7 +122,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           if (validationMode === 'onBlur') {
             const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
-            fieldControlValidation.commitValidation(valueToValidate);
+            validation.commit(valueToValidate);
           }
         },
         onMouseDown(event) {
@@ -144,7 +145,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           const nextOpen = !open;
           store.state.setOpen(
             nextOpen,
-            createChangeEventDetails('trigger-press', event.nativeEvent),
+            createChangeEventDetails(REASONS.triggerPress, event.nativeEvent),
           );
 
           if (nextOpen && currentPointerTypeRef.current !== 'touch') {
@@ -160,15 +161,13 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             stopEvent(event);
             store.state.setOpen(
               true,
-              createChangeEventDetails('list-navigation', event.nativeEvent),
+              createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );
             store.state.inputRef.current?.focus();
           }
         },
       },
-      fieldControlValidation
-        ? fieldControlValidation.getValidationProps(elementProps)
-        : elementProps,
+      validation ? validation.getValidationProps(elementProps) : elementProps,
       getButtonProps,
     ],
     stateAttributesMapping,

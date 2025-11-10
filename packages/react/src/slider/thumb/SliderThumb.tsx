@@ -115,7 +115,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     active: activeIndex,
     controlRef,
     disabled: contextDisabled,
-    fieldControlValidation,
+    validation,
     formatOptionsRef,
     handleInputChange,
     inset,
@@ -301,9 +301,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         setFocused(false);
 
         if (validationMode === 'onBlur') {
-          fieldControlValidation.commitValidation(
-            getSliderValue(thumbValue, index, min, max, range, sliderValues),
-          );
+          validation.commit(getSliderValue(thumbValue, index, min, max, range, sliderValues));
         }
       },
       onKeyDown(event: React.KeyboardEvent) {
@@ -386,10 +384,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       type: 'range',
       value: thumbValue ?? '',
     },
-    fieldControlValidation.getInputValidationProps,
+    validation.getInputValidationProps,
   );
 
-  const mergedInputRef = useMergedRefs(inputRef, fieldControlValidation.inputRef, inputRefProp);
+  const mergedInputRef = useMergedRefs(inputRef, validation.inputRef, inputRefProp);
 
   const element = useRenderElement('div', componentProps, {
     state,

@@ -5,86 +5,61 @@
  * into markdown code blocks for documentation.
  */
 
-import fs from 'fs';
 import path from 'path';
+import {
+  loadServerCodeMeta,
+  resolveModulePathWithFs,
+} from '@mui/internal-docs-infra/pipeline/loadServerCodeMeta';
+import {
+  loadCodeVariant,
+  flattenCodeVariant,
+} from '@mui/internal-docs-infra/pipeline/loadCodeVariant';
+import { loadServerSource } from '@mui/internal-docs-infra/pipeline/loadServerSource';
 import * as mdx from './mdxNodeHelpers.mjs';
 
 /**
- * Read all files from a directory
- * @param {string} directory - The directory to read
- * @returns {Array<string>} Array of file paths
- */
-function readDirFiles(directory) {
-  return fs
-    .readdirSync(directory)
-    .filter((file) => !fs.statSync(path.join(directory, file)).isDirectory())
-    .map((file) => path.join(directory, file));
-}
-
-/**
- * Create a code block for a file with a comment header
- * @param {string} filePath - Path to the file
- * @param {string} relativePath - Relative path to show in the comment
- * @returns {Object} Code node with the file content
- */
-function createFileCodeBlock(filePath, relativePath) {
-  const content = fs.readFileSync(filePath, 'utf-8');
-  const extension = path.extname(filePath).slice(1);
-
-  // Add comment header with filename
-  const commentedContent = `/* ${relativePath} */\n${content}`;
-
-  // Create code block with appropriate language
-  return mdx.code(commentedContent, extension);
-}
-
-/**
  * Transforms a Demo component into markdown code blocks
- * @param {Object} node - The Demo JSX node from MDX
  * @param {string} mdxFilePath - Path to the MDX file containing the Demo component
- * @returns {Array} Array of markdown nodes to replace the Demo component
+ * @param {string} demoPath - Path to the demo directory
+ * @returns {Promise<Array>} Array of markdown nodes to replace the Demo component
  */
-export function processDemo(node, mdxFilePath) {
-  // Extract path attribute
-  const pathAttr = node.attributes?.find((attr) => attr.name === 'path')?.value;
-
-  if (!pathAttr) {
-    throw new Error('Missing "path" prop on the "<Demo />" component.');
-  }
-
+export async function processDemo(mdxFilePath, demoPath) {
   // Resolve demo path relative to the MDX file
   const mdxDir = path.dirname(mdxFilePath);
-  const demoPath = path.resolve(mdxDir, pathAttr);
-
-  // Check if the demo folder exists
-  if (!fs.existsSync(demoPath)) {
-    throw new Error(`Demo folder not found at "${demoPath}"`);
-  }
+  demoPath = path.resolve(mdxDir, demoPath);
+  const demoModule = await resolveModulePathWithFs(demoPath).catch((err) => {
+    throw new Error(`Failed to resolve demo module at "${demoPath}": ${err.message}`);
+  });
+  const demoModulePath = typeof demoModule === 'string' ? demoModule : demoModule.import;
+  const codeMeta = await loadServerCodeMeta(demoModulePath).catch((err) => {
+    throw new Error(`Failed to load code meta for demo at "${demoModulePath}": ${err.message}`);
+  });
 
   // Define implementation types and their configurations
   const implementationTypes = [
     {
-      id: 'tailwind',
+      id: 'Tailwind',
       title: 'Tailwind',
       description: 'This example shows how to implement the component using Tailwind CSS.',
     },
     {
-      id: 'css-modules',
+      id: 'CssModules',
       title: 'CSS Modules',
       description: 'This example shows how to implement the component using CSS Modules.',
+      firstFile: 'index.module.css',
     },
   ];
+  const implementationTypesMap = implementationTypes.reduce((acc, impl) => {
+    acc[impl.id] = impl;
+    return acc;
+  }, {});
 
-  // Find which implementation types exist in the demo folder
-  const availableImplementations = implementationTypes.filter((type) => {
-    const typePath = path.join(demoPath, type.id);
-    return fs.existsSync(typePath);
-  });
+  const availableImplementations = Object.keys(codeMeta);
 
   // Throw error if no implementation types are found
   if (availableImplementations.length === 0) {
     throw new Error(
-      `No implementation types found at "${demoPath}". Expected one of: ${implementationTypes.map((t) => t.id).join(', ')}`,
+      `No implementation types found in "${demoModulePath}". Expected one of: ${implementationTypes.map((t) => t.id).join(', ')}`,
     );
   }
 
@@ -95,26 +70,96 @@ export function processDemo(node, mdxFilePath) {
 
   /**
    * Process a specific implementation type
-   * @param {string} folderPath - Path to the implementation folder
+   * @param {string} variantName - Name of the variant (e.g., 'tailwind', 'css-modules')
+   * @param {string | { url?: string } | undefined} variantCodeOrUrl
    * @param {string} title - Title for the section heading
    * @param {string} description - Description text for the section
+   * @param {string | undefined} firstFile - Optional filename to display first
    */
-  function processImplementation(folderPath, title, description) {
-    result.push(mdx.heading(3, title));
-    result.push(mdx.paragraph(description));
+  async function processImplementation(
+    variantName,
+    variantCodeOrUrl,
+    title,
+    description,
+    firstFile,
+  ) {
+    const implementationResult = [];
 
-    const files = readDirFiles(folderPath);
+    if (!variantCodeOrUrl) {
+      throw new Error(`No code variant found for "${variantName}" in demo at "${demoModulePath}"`);
+    }
 
-    files.forEach((file) => {
-      const relativePath = path.relative(folderPath, file);
-      result.push(createFileCodeBlock(file, relativePath));
+    implementationResult.push(mdx.heading(3, title));
+    implementationResult.push(mdx.paragraph(description));
+
+    /** @type {string | undefined} */
+    let url;
+    if (typeof variantCodeOrUrl === 'string') {
+      url = variantCodeOrUrl;
+    } else {
+      url = variantCodeOrUrl.url;
+    }
+
+    const { code: variantCode } = await loadCodeVariant(url, variantName, variantCodeOrUrl, {
+      loadSource: loadServerSource,
+      disableParsing: true,
     });
+
+    const flattenedFiles = flattenCodeVariant(variantCode);
+
+    const allFiles = Object.entries(flattenedFiles).map(([filePath, fileData]) => ({
+      fileName: filePath,
+      content: fileData.source,
+      extension: path.extname(filePath).slice(1),
+    }));
+
+    // Reorder files if firstFile is specified
+    let files = allFiles;
+    if (firstFile) {
+      const firstFileIndex = allFiles.findIndex((file) => file.fileName === firstFile);
+      if (firstFileIndex > 0) {
+        const [firstFileEntry] = allFiles.splice(firstFileIndex, 1);
+        files = [firstFileEntry, ...allFiles];
+      }
+    }
+
+    files.forEach(({ fileName, content, extension }) => {
+      const commentedContent = `/* ${fileName} */\n${content}`;
+      implementationResult.push(mdx.code(commentedContent, extension));
+    });
+
+    return implementationResult;
   }
 
   // Process each available implementation type
-  availableImplementations.forEach((impl) => {
-    const implPath = path.join(demoPath, impl.id);
-    processImplementation(implPath, impl.title, impl.description);
+  const implementationResults = await Promise.all(
+    availableImplementations.map(async (implName) => {
+      const implMeta = implementationTypesMap[implName];
+      if (!implMeta) {
+        throw new Error(`Unknown implementation type "${implName}" in demo at "${demoModulePath}"`);
+      }
+
+      return [
+        implName,
+        await processImplementation(
+          implName,
+          codeMeta[implName],
+          implMeta.title,
+          implMeta.description,
+          implMeta.firstFile,
+        ),
+      ];
+    }),
+  );
+
+  const implementations = implementationResults.reduce((acc, [implName, implementationResult]) => {
+    acc[implName] = implementationResult;
+    return acc;
+  }, {});
+  implementationTypes.forEach(({ id }) => {
+    if (implementations[id]) {
+      result.push(...implementations[id]);
+    }
   });
 
   return result;

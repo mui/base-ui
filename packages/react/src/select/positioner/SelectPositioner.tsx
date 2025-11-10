@@ -17,6 +17,7 @@ import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
@@ -182,7 +183,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       return;
     }
 
-    const eventDetails = createChangeEventDetails('none');
+    const eventDetails = createChangeEventDetails(REASONS.none);
 
     if (prevSize !== 0 && !store.state.multiple && value !== null) {
       const valueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);

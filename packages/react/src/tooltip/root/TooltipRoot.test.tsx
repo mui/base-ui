@@ -12,6 +12,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
+import { REASONS } from '../../utils/reasons';
 
 function Root(props: Tooltip.Root.Props) {
   return <Tooltip.Root {...props} />;
@@ -869,7 +870,7 @@ describe('<Tooltip.Root />', () => {
         <Root
           defaultOpen
           onOpenChange={(nextOpen, eventDetails) => {
-            if (!nextOpen && eventDetails.reason === 'escape-key') {
+            if (!nextOpen && eventDetails.reason === REASONS.escapeKey) {
               eventDetails.allowPropagation();
             }
           }}
@@ -1160,6 +1161,7 @@ describe('<Tooltip.Root />', () => {
       const popupId = randomStringValue();
       const { user } = await render(
         <div>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <Tooltip.Trigger handle={testTooltip} delay={0}>
             Trigger 1
           </Tooltip.Trigger>
@@ -1421,6 +1423,7 @@ describe('<Tooltip.Root />', () => {
       const triggerId = randomStringValue();
       await render(
         <React.Fragment>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <Tooltip.Trigger handle={testTooltip} payload={1}>
             Trigger 1
           </Tooltip.Trigger>

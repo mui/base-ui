@@ -21,6 +21,7 @@ import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -60,7 +61,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     store,
     setOpen,
     selectionRef,
-    fieldControlValidation,
+    validation,
     readOnly,
     alignItemWithTriggerActiveRef,
     disabled: selectDisabled,
@@ -147,7 +148,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         setFocused(true);
         // The popup element shouldn't obscure the focused trigger.
         if (open && alignItemWithTriggerActiveRef.current) {
-          setOpen(false, createChangeEventDetails('focus-out', event.nativeEvent));
+          setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
         }
 
         // Saves a re-render on initial click: `forceMount === true` mounts
@@ -164,7 +165,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         setFocused(false);
 
         if (validationMode === 'onBlur') {
-          fieldControlValidation.commitValidation(value);
+          validation.commit(value);
         }
       },
       onPointerMove({ pointerType }) {
@@ -211,7 +212,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
+          setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
         }
 
         // Firefox can fire this upon mousedown
@@ -220,7 +221,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         });
       },
     },
-    fieldControlValidation.getValidationProps,
+    validation.getValidationProps,
     elementProps,
     getButtonProps,
   );

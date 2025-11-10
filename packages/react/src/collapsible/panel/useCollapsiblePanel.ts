@@ -4,10 +4,11 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
-import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { AnimationFrame, useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { warn } from '@base-ui-components/utils/warn';
 import { HTMLProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
@@ -42,6 +43,8 @@ export function useCollapsiblePanel(
   const latestAnimationNameRef = React.useRef<string>(null);
   const shouldCancelInitialOpenAnimationRef = React.useRef(open);
   const shouldCancelInitialOpenTransitionRef = React.useRef(open);
+
+  const endingStyleFrame = useAnimationFrame();
 
   /**
    * When opening, the `hidden` attribute is removed immediately.
@@ -208,25 +211,47 @@ export function useCollapsiblePanel(
       /* closing */
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
-      abortControllerRef.current = new AbortController();
-      const signal = abortControllerRef.current.signal;
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+      const signal = abortController.signal;
 
-      let frame2 = -1;
-      const frame1 = AnimationFrame.request(() => {
-        // Wait until the `[data-ending-style]` attribute is added.
-        frame2 = AnimationFrame.request(() => {
+      let attributeObserver: MutationObserver | null = null;
+
+      const endingStyleAttribute = CollapsiblePanelDataAttributes.endingStyle;
+
+      // Wait for `[data-ending-style]` to be applied.
+      attributeObserver = new MutationObserver((mutationList) => {
+        const hasEndingStyle = mutationList.some(
+          (mutation) =>
+            mutation.type === 'attributes' && mutation.attributeName === endingStyleAttribute,
+        );
+
+        if (hasEndingStyle) {
+          attributeObserver?.disconnect();
+          attributeObserver = null;
           runOnceAnimationsFinish(() => {
             setDimensions({ height: 0, width: 0 });
             panel.style.removeProperty('content-visibility');
             setMounted(false);
-            abortControllerRef.current = null;
+            if (abortControllerRef.current === abortController) {
+              abortControllerRef.current = null;
+            }
           }, signal);
-        });
+        }
+      });
+
+      attributeObserver.observe(panel, {
+        attributes: true,
+        attributeFilter: [endingStyleAttribute],
       });
 
       return () => {
-        AnimationFrame.cancel(frame1);
-        AnimationFrame.cancel(frame2);
+        attributeObserver?.disconnect();
+        endingStyleFrame.cancel();
+        if (abortControllerRef.current === abortController) {
+          abortController.abort();
+          abortControllerRef.current = null;
+        }
       };
     }
 
@@ -236,6 +261,7 @@ export function useCollapsiblePanel(
   }, [
     abortControllerRef,
     animationTypeRef,
+    endingStyleFrame,
     hiddenUntilFound,
     keepMounted,
     mounted,
@@ -244,7 +270,6 @@ export function useCollapsiblePanel(
     runOnceAnimationsFinish,
     setDimensions,
     setMounted,
-    transitionDimensionRef,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -365,7 +390,7 @@ export function useCollapsiblePanel(
       function handleBeforeMatch(event: Event) {
         isBeforeMatchRef.current = true;
         setOpen(true);
-        onOpenChange(true, createChangeEventDetails('none', event));
+        onOpenChange(true, createChangeEventDetails(REASONS.none, event));
       }
 
       panel.addEventListener('beforematch', handleBeforeMatch);

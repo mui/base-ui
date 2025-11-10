@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
@@ -11,7 +12,6 @@ export default function ExampleForm() {
     <Form
       className="flex w-full max-w-64 flex-col gap-4"
       errors={errors}
-      onClearErrors={setErrors}
       onSubmit={async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);

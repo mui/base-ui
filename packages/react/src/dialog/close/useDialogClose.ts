@@ -4,6 +4,7 @@ import { useButton } from '../../use-button/useButton';
 import { mergeProps } from '../../merge-props';
 import type { HTMLProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import type { DialogRoot } from '../root/DialogRoot';
 
 export function useDialogClose(params: useDialogClose.Parameters): useDialogClose.ReturnValue {
@@ -11,7 +12,7 @@ export function useDialogClose(params: useDialogClose.Parameters): useDialogClos
 
   function handleClick(event: React.MouseEvent) {
     if (open) {
-      setOpen(false, createChangeEventDetails('close-press', event.nativeEvent));
+      setOpen(false, createChangeEventDetails(REASONS.closePress, event.nativeEvent));
     }
   }
 

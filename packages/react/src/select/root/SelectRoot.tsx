@@ -10,6 +10,7 @@ import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { stringifyAsValue } from '../../utils/resolveValueLabel';
 
 /**
@@ -78,7 +79,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const { setDirty, shouldValidateOnChange, validityData } = useFieldRootContext();
   const { controlId } = useLabelableContext();
 
-  const ref = useMergedRefs(inputRef, rootContext.fieldControlValidation.inputRef);
+  const ref = useMergedRefs(inputRef, rootContext.validation.inputRef);
 
   const serializedValue = React.useMemo(() => {
     if (isMultiple && Array.isArray(value) && value.length === 0) {
@@ -112,20 +113,20 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       <SelectFloatingContext.Provider value={floatingContext}>
         {children}
         <input
-          {...rootContext.fieldControlValidation.getInputValidationProps({
+          {...rootContext.validation.getInputValidationProps({
             onFocus() {
               // Move focus to the trigger element when the hidden input is focused.
               store.state.triggerElement?.focus();
             },
             // Handle browser autofill.
-            onChange(event: React.ChangeEvent<HTMLSelectElement>) {
+            onChange(event: React.ChangeEvent<HTMLInputElement>) {
               // Workaround for https://github.com/facebook/react/issues/9023
               if (event.nativeEvent.defaultPrevented) {
                 return;
               }
 
               const nextValue = event.target.value;
-              const details = createChangeEventDetails('none', event.nativeEvent);
+              const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
               function handleChange() {
                 if (isMultiple) {
@@ -147,7 +148,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                   rootContext.setValue?.(matchingValue, details);
 
                   if (shouldValidateOnChange()) {
-                    rootContext.fieldControlValidation.commitValidation(matchingValue);
+                    rootContext.validation.commit(matchingValue);
                   }
                 }
               }
@@ -155,17 +156,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               store.set('forceMount', true);
               queueMicrotask(handleChange);
             },
-            id: id || controlId || undefined,
-            name: isMultiple ? undefined : rootContext.name,
-            value: serializedValue,
-            disabled: rootContext.disabled,
-            required: rootContext.required && !hasMultipleSelection,
-            readOnly: rootContext.readOnly,
-            ref,
-            style: visuallyHidden,
-            tabIndex: -1,
-            'aria-hidden': true,
           })}
+          id={id || controlId || undefined}
+          name={isMultiple ? undefined : rootContext.name}
+          value={serializedValue}
+          disabled={rootContext.disabled}
+          required={rootContext.required && !hasMultipleSelection}
+          readOnly={rootContext.readOnly}
+          ref={ref}
+          style={visuallyHidden}
+          tabIndex={-1}
+          aria-hidden
         />
         {hiddenInputs}
       </SelectFloatingContext.Provider>
@@ -359,15 +360,15 @@ export interface SelectRootActions {
 }
 
 export type SelectRootChangeEventReason =
-  | 'trigger-press'
-  | 'outside-press'
-  | 'escape-key'
-  | 'window-resize'
-  | 'item-press'
-  | 'focus-out'
-  | 'list-navigation'
-  | 'cancel-open'
-  | 'none';
+  | typeof REASONS.triggerPress
+  | typeof REASONS.outsidePress
+  | typeof REASONS.escapeKey
+  | typeof REASONS.windowResize
+  | typeof REASONS.itemPress
+  | typeof REASONS.focusOut
+  | typeof REASONS.listNavigation
+  | typeof REASONS.cancelOpen
+  | typeof REASONS.none;
 
 export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
 

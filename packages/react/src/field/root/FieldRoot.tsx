@@ -9,14 +9,12 @@ import { useFormContext } from '../../form/FormContext';
 import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useFieldValidation } from './useFieldValidation';
 
 /**
- * Groups all parts of the field.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
+ * @internal
  */
-export const FieldRoot = React.forwardRef(function FieldRoot(
+const FieldRootInner = React.forwardRef(function FieldRootInner(
   componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -102,6 +100,18 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     [disabled, touched, dirty, valid, filled, focused],
   );
 
+  const validation = useFieldValidation({
+    setValidityData,
+    validate,
+    validityData,
+    validationDebounceTime,
+    invalid,
+    markedDirtyRef,
+    state,
+    name,
+    shouldValidateOnChange,
+  });
+
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
       invalid,
@@ -123,6 +133,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
       shouldValidateOnChange,
       state,
       markedDirtyRef,
+      validation,
     }),
     [
       invalid,
@@ -142,6 +153,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
       validationDebounceTime,
       shouldValidateOnChange,
       state,
+      validation,
     ],
   );
 
@@ -152,9 +164,22 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     stateAttributesMapping: fieldValidityMapping,
   });
 
+  return <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>;
+});
+
+/**
+ * Groups all parts of the field.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
+ */
+export const FieldRoot = React.forwardRef(function FieldRoot(
+  componentProps: FieldRoot.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
   return (
     <LabelableProvider>
-      <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>
+      <FieldRootInner {...componentProps} ref={forwardedRef} />
     </LabelableProvider>
   );
 });
@@ -209,7 +234,7 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.St
    */
   validate?: (
     value: unknown,
-    formValues: Record<string, unknown>,
+    formValues: Form.Values,
   ) => string | string[] | null | Promise<string | string[] | null>;
   /**
    * Determines when the field should be validated.

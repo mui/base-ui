@@ -1227,34 +1227,31 @@ describe('<Select.Root />', () => {
       expect(error).to.have.text('required');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
-          select: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="select">
-              <Select.Root>
-                <Select.Trigger data-testid="trigger">
-                  <Select.Value />
-                </Select.Trigger>
-                <Select.Portal>
-                  <Select.Positioner>
-                    <Select.Popup>
-                      <Select.Item value="a">a</Select.Item>
-                      <Select.Item value="b">b</Select.Item>
-                    </Select.Popup>
-                  </Select.Positioner>
-                </Select.Portal>
-              </Select.Root>
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      const { user } = await renderFakeTimers(<App />);
+    it('clears external errors on change', async () => {
+      const { user } = await renderFakeTimers(
+        <Form
+          errors={{
+            select: 'test',
+          }}
+        >
+          <Field.Root name="select">
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       expect(screen.getByTestId('error')).to.have.text('test');
 
@@ -1590,6 +1587,52 @@ describe('<Select.Root />', () => {
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{Enter}');
 
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('revalidates when the controlled value changes externally', async () => {
+      const validateSpy = spy((value: unknown) => ((value as string) === 'b' ? 'error' : null));
+
+      function App() {
+        const [value, setValue] = React.useState('a');
+
+        return (
+          <React.Fragment>
+            <Field.Root validationMode="onChange" validate={validateSpy} name="flavor">
+              <Select.Root value={value} onValueChange={(next) => setValue(next as string)}>
+                <Select.Trigger data-testid="trigger">
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.Item value="a">Option A</Select.Item>
+                      <Select.Item value="b">Option B</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </Field.Root>
+            <button type="button" onClick={() => setValue('b')}>
+              Select externally
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const trigger = screen.getByTestId('trigger');
+      const toggle = screen.getByText('Select externally');
+
+      expect(trigger).not.to.have.attribute('aria-invalid');
+      const initialCallCount = validateSpy.callCount;
+
+      fireEvent.click(toggle);
+      await flushMicrotasks();
+
+      expect(validateSpy.callCount).to.equal(initialCallCount + 1);
+      expect(validateSpy.lastCall.args[0]).to.equal('b');
       expect(trigger).to.have.attribute('aria-invalid', 'true');
     });
 

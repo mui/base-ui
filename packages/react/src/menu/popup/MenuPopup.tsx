@@ -15,6 +15,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 
@@ -108,7 +109,10 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   });
 
   let returnFocus = parent.type === undefined || parent.type === 'context-menu';
-  if (triggerElement || (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press')) {
+  if (
+    triggerElement ||
+    (parent.type === 'menubar' && lastOpenChangeReason !== REASONS.outsidePress)
+  ) {
     returnFocus = true;
   }
 

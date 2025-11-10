@@ -12,6 +12,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { REASONS } from '../../utils/reasons';
 import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -177,7 +178,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       context={positioner.context}
       openInteractionType={openMethod}
       modal={modal === 'trap-focus'}
-      disabled={!mounted || openReason === 'trigger-hover'}
+      disabled={!mounted || openReason === REASONS.triggerHover}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       restoreFocus="popup"

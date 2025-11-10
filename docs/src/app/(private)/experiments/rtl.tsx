@@ -1,5 +1,6 @@
 'use client';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import clsx from 'clsx';
+import { DirectionProvider, useDirection } from '@base-ui-components/react/direction-provider';
 import { Menu } from '@base-ui-components/react/menu';
 import { Popover } from '@base-ui-components/react/popover';
 import { PreviewCard } from '@base-ui-components/react/preview-card';
@@ -20,17 +21,12 @@ export default function RtlNestedMenu() {
         <Menu.Root>
           <Menu.Trigger className={c.trigger}>Menu.Trigger</Menu.Trigger>
           <Menu.Portal>
-            <Menu.Positioner side="bottom" align="start" className={c.positioner} dir={dir}>
+            <MenuPositioner side="bottom" align="start">
               <Menu.Popup className={c.popup}>
-                <Menu.Root>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={c.submenutrigger}>Text color</Menu.SubmenuTrigger>
                   <Menu.Portal>
-                    <Menu.Positioner
-                      align="start"
-                      side="inline-end"
-                      className={c.positioner}
-                      dir={dir}
-                    >
+                    <MenuPositioner align="start" side="inline-end">
                       <Menu.Popup className={c.popup}>
                         <Menu.Item
                           className={c.item}
@@ -51,31 +47,21 @@ export default function RtlNestedMenu() {
                           Accent
                         </Menu.Item>
                       </Menu.Popup>
-                    </Menu.Positioner>
+                    </MenuPositioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
 
-                <Menu.Root>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={c.submenutrigger}>Style</Menu.SubmenuTrigger>
                   <Menu.Portal>
-                    <Menu.Positioner
-                      align="start"
-                      side="inline-end"
-                      className={c.positioner}
-                      dir={dir}
-                    >
+                    <MenuPositioner align="start" side="inline-end">
                       <Menu.Popup className={c.popup}>
-                        <Menu.Root>
+                        <Menu.SubmenuRoot>
                           <Menu.SubmenuTrigger className={c.submenutrigger}>
                             Heading
                           </Menu.SubmenuTrigger>
                           <Menu.Portal>
-                            <Menu.Positioner
-                              align="start"
-                              side="inline-end"
-                              className={c.positioner}
-                              dir={dir}
-                            >
+                            <MenuPositioner align="start" side="inline-end">
                               <Menu.Popup className={c.popup}>
                                 <Menu.Item
                                   className={c.item}
@@ -96,26 +82,21 @@ export default function RtlNestedMenu() {
                                   Level 3
                                 </Menu.Item>
                               </Menu.Popup>
-                            </Menu.Positioner>
+                            </MenuPositioner>
                           </Menu.Portal>
-                        </Menu.Root>
+                        </Menu.SubmenuRoot>
                         <Menu.Item
                           className={c.item}
                           onClick={createHandleMenuClick('Style/Paragraph')}
                         >
                           Paragraph
                         </Menu.Item>
-                        <Menu.Root>
+                        <Menu.SubmenuRoot>
                           <Menu.SubmenuTrigger className={c.submenutrigger}>
                             List
                           </Menu.SubmenuTrigger>
                           <Menu.Portal>
-                            <Menu.Positioner
-                              align="start"
-                              side="inline-end"
-                              className={c.positioner}
-                              dir={dir}
-                            >
+                            <MenuPositioner align="start" side="inline-end">
                               <Menu.Popup className={c.popup}>
                                 <Menu.Item
                                   className={c.item}
@@ -130,19 +111,19 @@ export default function RtlNestedMenu() {
                                   Unordered
                                 </Menu.Item>
                               </Menu.Popup>
-                            </Menu.Positioner>
+                            </MenuPositioner>
                           </Menu.Portal>
-                        </Menu.Root>
+                        </Menu.SubmenuRoot>
                       </Menu.Popup>
-                    </Menu.Positioner>
+                    </MenuPositioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
 
                 <Menu.Item className={c.item} onClick={createHandleMenuClick('Clear formatting')}>
                   Clear formatting
                 </Menu.Item>
               </Menu.Popup>
-            </Menu.Positioner>
+            </MenuPositioner>
           </Menu.Portal>
         </Menu.Root>
 
@@ -151,13 +132,7 @@ export default function RtlNestedMenu() {
             PreviewCard.Trigger
           </PreviewCard.Trigger>
           <PreviewCard.Portal>
-            <PreviewCard.Positioner
-              sideOffset={8}
-              side="inline-end"
-              align="center"
-              className={c.positioner}
-              dir={dir}
-            >
+            <PreviewCardPositioner sideOffset={8} side="inline-end" align="center">
               <PreviewCard.Popup className={c.popup}>
                 <img
                   src="https://pbs.twimg.com/profile_images/1798056009291997184/B-prVmUP_400x400.jpg"
@@ -178,7 +153,7 @@ export default function RtlNestedMenu() {
                 </div>
                 <PreviewCard.Arrow className={c.arrow} />
               </PreviewCard.Popup>
-            </PreviewCard.Positioner>
+            </PreviewCardPositioner>
           </PreviewCard.Portal>
         </PreviewCard.Root>
 
@@ -196,5 +171,21 @@ export default function RtlNestedMenu() {
         </Popover.Root>
       </DirectionProvider>
     </div>
+  );
+}
+
+function MenuPositioner({ className, ...props }: Menu.Positioner.Props) {
+  const direction = useDirection();
+  return <Menu.Positioner className={clsx('outline-none', className)} dir={direction} {...props} />;
+}
+
+function PreviewCardPositioner({ className, ...props }: PreviewCard.Positioner.Props) {
+  const direction = useDirection();
+  return (
+    <PreviewCard.Positioner
+      className={clsx('outline-none', className)}
+      dir={direction}
+      {...props}
+    />
   );
 }
