@@ -20,10 +20,6 @@
       "description": "Callback fired when the value changes.",
       "detailedType": "| ((\n    value: unknown,\n    eventDetails: Radio.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: RadioGroup.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: RadioGroup.State) => CSSProperties | undefined)\n| undefined"
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -51,6 +47,10 @@
       "type": "string | ((state: RadioGroup.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: RadioGroup.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: RadioGroup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: RadioGroup.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: RadioGroup.State) => ReactElement)",

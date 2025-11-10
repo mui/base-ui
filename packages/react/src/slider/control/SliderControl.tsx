@@ -9,7 +9,11 @@ import { activeElement, contains } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
 import { clamp } from '../../utils/clamp';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+} from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useSliderRootContext } from '../root/SliderRootContext';
@@ -30,12 +34,17 @@ function getControlOffset(styles: CSSStyleDeclaration | null, vertical: boolean)
     };
   }
 
+  function parseSize(value: string | null | undefined) {
+    const parsed = value != null ? parseFloat(value) : 0;
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+
   const start = !vertical ? 'InlineStart' : 'Top';
   const end = !vertical ? 'InlineEnd' : 'Bottom';
 
   return {
-    start: parseFloat(styles[`border${start}Width`]) + parseFloat(styles[`padding${start}`]),
-    end: parseFloat(styles[`border${end}Width`]) + parseFloat(styles[`padding${end}`]),
+    start: parseSize(styles[`border${start}Width`]) + parseSize(styles[`padding${start}`]),
+    end: parseSize(styles[`border${end}Width`]) + parseSize(styles[`padding${end}`]),
   };
 }
 
@@ -84,6 +93,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     validation,
     inset,
     lastChangedValueRef,
+    lastChangeReasonRef,
     max,
     min,
     minStepsBetweenValues,
@@ -291,7 +301,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
         setDragging(true);
       }
 
-      setValue(finger.value, finger.thumbIndex, nativeEvent);
+      setValue(
+        finger.value,
+        createChangeEventDetails(REASONS.drag, nativeEvent, undefined, {
+          activeThumbIndex: finger.thumbIndex,
+        }),
+      );
 
       latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
 
@@ -313,10 +328,11 @@ export const SliderControl = React.forwardRef(function SliderControl(
     const finger = fingerCoords != null ? getFingerState(fingerCoords) : null;
 
     if (finger != null) {
+      const commitReason = lastChangeReasonRef.current;
       validation.commit(lastChangedValueRef.current ?? finger.value);
       onValueCommitted(
         lastChangedValueRef.current ?? finger.value,
-        createGenericEventDetails('none', nativeEvent),
+        createGenericEventDetails(commitReason, nativeEvent),
       );
     }
 
@@ -356,7 +372,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
       }
 
       focusThumb(finger.thumbIndex);
-      setValue(finger.value, finger.thumbIndex, nativeEvent);
+      setValue(
+        finger.value,
+        createChangeEventDetails(REASONS.trackPress, nativeEvent, undefined, {
+          activeThumbIndex: finger.thumbIndex,
+        }),
+      );
 
       latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
 
@@ -454,7 +475,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
             const pressedOnAnyThumb = pressedThumbCenterOffsetRef.current != null;
             if (!pressedOnAnyThumb) {
-              setValue(finger.value, finger.thumbIndex, event.nativeEvent);
+              setValue(
+                finger.value,
+                createChangeEventDetails(REASONS.trackPress, event.nativeEvent, undefined, {
+                  activeThumbIndex: finger.thumbIndex,
+                }),
+              );
 
               latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
 

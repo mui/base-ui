@@ -35,6 +35,7 @@ export interface SliderRootContext {
    */
   largeStep: number;
   lastChangedValueRef: React.RefObject<number | readonly number[] | null>;
+  lastChangeReasonRef: React.RefObject<SliderRoot.ChangeEventReason>;
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
@@ -77,7 +78,7 @@ export interface SliderRootContext {
   /**
    * Callback fired when dragging and invokes onValueChange.
    */
-  setValue: (newValue: number | number[], activeThumb: number, event: Event) => void;
+  setValue: (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => void;
   state: SliderRoot.State;
   /**
    * The step increment of the slider when incrementing or decrementing. It will snap

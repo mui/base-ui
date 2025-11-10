@@ -8,6 +8,7 @@ import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 interface ContextValue {
   hasProvider: boolean;
@@ -198,7 +199,7 @@ export function useDelayGroup(
       timeout.clear();
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
-      prevContext?.onOpenChange(false, createChangeEventDetails('none'));
+      prevContext?.onOpenChange(false, createChangeEventDetails(REASONS.none));
     } else {
       setIsInstantPhase(false);
       prevContext?.setIsInstantPhase(false);

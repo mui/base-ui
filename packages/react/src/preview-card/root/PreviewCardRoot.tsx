@@ -12,7 +12,8 @@ import {
 } from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -74,11 +75,11 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
 
   const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => {
-      const isHover = eventDetails.reason === 'trigger-hover';
-      const isFocusOpen = nextOpen && eventDetails.reason === 'trigger-focus';
+      const isHover = eventDetails.reason === REASONS.triggerHover;
+      const isFocusOpen = nextOpen && eventDetails.reason === REASONS.triggerFocus;
       const isDismissClose =
         !nextOpen &&
-        (eventDetails.reason === 'trigger-press' || eventDetails.reason === 'escape-key');
+        (eventDetails.reason === REASONS.triggerPress || eventDetails.reason === REASONS.escapeKey);
 
       onOpenChange(nextOpen, eventDetails);
 
@@ -100,7 +101,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
 
       if (isFocusOpen || isDismissClose) {
         setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else if (eventDetails.reason === 'trigger-hover') {
+      } else if (eventDetails.reason === REASONS.triggerHover) {
         setInstantTypeState(undefined);
       }
     },
@@ -127,7 +128,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
       close: closeDelayWithDefault,
     },
   });
-  const focus = useFocusWithDelay(context, { delay: OPEN_DELAY });
+  const focus = useFocusWithDelay(context, { delay: delayWithDefault });
   const dismiss = useDismiss(context);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, dismiss]);
@@ -222,12 +223,12 @@ export interface PreviewCardRootActions {
 }
 
 export type PreviewCardRootChangeEventReason =
-  | 'trigger-hover'
-  | 'trigger-focus'
-  | 'trigger-press'
-  | 'outside-press'
-  | 'escape-key'
-  | 'none';
+  | typeof REASONS.triggerHover
+  | typeof REASONS.triggerFocus
+  | typeof REASONS.triggerPress
+  | typeof REASONS.outsidePress
+  | typeof REASONS.escapeKey
+  | typeof REASONS.none;
 
 export type PreviewCardRootChangeEventDetails =
   BaseUIChangeEventDetails<PreviewCardRoot.ChangeEventReason>;

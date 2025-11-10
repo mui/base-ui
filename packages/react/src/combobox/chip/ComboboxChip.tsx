@@ -11,6 +11,7 @@ import { ComboboxChipContext } from './ComboboxChipContext';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * An individual chip that represents a value in a multiselectable input.
@@ -58,14 +59,17 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
       store.state.setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
       store.state.setSelectedValue(
         selectedValue.filter((_: any, i: number) => i !== index),
-        createChangeEventDetails('none', event.nativeEvent),
+        createChangeEventDetails(REASONS.none, event.nativeEvent),
       );
     } else if (event.key === 'Enter' || event.key === ' ') {
       stopEvent(event);
       nextIndex = undefined;
     } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       stopEvent(event);
-      store.state.setOpen(true, createChangeEventDetails('list-navigation', event.nativeEvent));
+      store.state.setOpen(
+        true,
+        createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+      );
       nextIndex = undefined;
     } else if (
       // Check for printable characters (letters, numbers, symbols)

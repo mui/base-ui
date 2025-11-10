@@ -9,6 +9,7 @@ import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { CompositeItem } from '../../composite/item/CompositeItem';
+import { REASONS } from '../../utils/reasons';
 
 describe('<Combobox.Root />', () => {
   beforeEach(() => {
@@ -113,7 +114,7 @@ describe('<Combobox.Root />', () => {
 
         expect(onOpenChange.callCount).to.equal(1);
         expect(onOpenChange.lastCall.args[0]).to.equal(false);
-        expect(onOpenChange.lastCall.args[1].reason).to.equal('item-press');
+        expect(onOpenChange.lastCall.args[1].reason).to.equal(REASONS.itemPress);
         expect(onOpenChange.lastCall.args[1].event instanceof MouseEvent).to.equal(true);
       });
 
@@ -154,7 +155,7 @@ describe('<Combobox.Root />', () => {
 
         expect(onOpenChange.callCount).to.equal(1);
         expect(onOpenChange.lastCall.args[0]).to.equal(false);
-        expect(onOpenChange.lastCall.args[1].reason).to.equal('item-press');
+        expect(onOpenChange.lastCall.args[1].reason).to.equal(REASONS.itemPress);
         expect(onOpenChange.lastCall.args[1].event instanceof KeyboardEvent).to.equal(true);
       });
 
@@ -1819,7 +1820,7 @@ describe('<Combobox.Root />', () => {
       expect(screen.queryByRole('listbox')).to.equal(null);
       expect(input).to.have.value('');
       expect(onInput.lastCall.args[0]).to.equal('');
-      expect(onInput.lastCall.args[1].reason).to.equal('input-clear');
+      expect(onInput.lastCall.args[1].reason).to.equal(REASONS.inputClear);
     });
 
     it('"single" clears typed input on close when no selection made (input outside popup)', async () => {
@@ -1850,7 +1851,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
       expect(input).to.have.value('');
       expect(onInput.lastCall.args[0]).to.equal('');
-      expect(onInput.lastCall.args[1].reason).to.equal('input-clear');
+      expect(onInput.lastCall.args[1].reason).to.equal(REASONS.inputClear);
     });
   });
 
@@ -3217,34 +3218,31 @@ describe('<Combobox.Root />', () => {
       expect(input).to.have.attribute('data-invalid', '');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
-          combobox: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="combobox">
-              <Combobox.Root>
-                <Combobox.Input data-testid="input" />
-                <Combobox.Portal>
-                  <Combobox.Positioner>
-                    <Combobox.Popup>
-                      <Combobox.List>
-                        <Combobox.Item value="a">a</Combobox.Item>
-                        <Combobox.Item value="b">b</Combobox.Item>
-                      </Combobox.List>
-                    </Combobox.Popup>
-                  </Combobox.Positioner>
-                </Combobox.Portal>
-              </Combobox.Root>
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      const { user } = await renderFakeTimers(<App />);
+    it('clears external errors on change', async () => {
+      const { user } = await renderFakeTimers(
+        <Form
+          errors={{
+            combobox: 'test',
+          }}
+        >
+          <Field.Root name="combobox">
+            <Combobox.Root>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="a">a</Combobox.Item>
+                      <Combobox.Item value="b">b</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       expect(screen.getByTestId('error')).to.have.text('test');
 

@@ -20,6 +20,7 @@ import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { MenuOpenEventDetails } from '../utils/types';
 
 /**
@@ -136,14 +137,14 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
           store.set('hoverEnabled', false);
         }
         if (details.nodeId !== nodeId && details.parentNodeId === parentNodeId) {
-          store.setOpen(false, createChangeEventDetails('sibling-open'));
+          store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
         }
       } else if (details.parentNodeId === nodeId) {
         // Re-enable hover on the parent when a child closes, except when the child
         // closed due to hovering a different sibling item in this parent (sibling-open).
         // Keeping hover disabled in that scenario prevents the parent from closing
         // immediately when the pointer then leaves it.
-        if (details.reason !== 'sibling-open') {
+        if (details.reason !== REASONS.siblingOpen) {
           store.set('hoverEnabled', true);
         }
       }
@@ -166,7 +167,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         return;
       }
 
-      const reason: MenuRoot.ChangeEventReason = details.reason ?? 'sibling-open';
+      const reason: MenuRoot.ChangeEventReason = details.reason ?? REASONS.siblingOpen;
       store.setOpen(false, createChangeEventDetails(reason));
     }
 
@@ -187,7 +188,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
 
       if (event.target && triggerElement && triggerElement !== event.target) {
-        store.setOpen(false, createChangeEventDetails('sibling-open'));
+        store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
       }
     }
 
@@ -251,7 +252,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const shouldRenderBackdrop =
     mounted &&
     parent.type !== 'menu' &&
-    ((parent.type !== 'menubar' && modal && lastOpenChangeReason !== 'trigger-hover') ||
+    ((parent.type !== 'menubar' && modal && lastOpenChangeReason !== REASONS.triggerHover) ||
       (parent.type === 'menubar' && parent.context.modal));
 
   // cuts a hole in the backdrop to allow pointer interaction with the menubar or dropdown menu trigger element

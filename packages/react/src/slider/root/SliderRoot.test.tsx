@@ -11,6 +11,7 @@ import { Slider } from '@base-ui-components/react/slider';
 import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { REASONS } from '../../utils/reasons';
 import {
   ARROW_RIGHT,
   ARROW_LEFT,
@@ -629,6 +630,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.args[0][1].activeThumbIndex).to.equal(0);
       expect(handleValueCommitted.callCount).to.equal(1);
       expect(handleValueCommitted.args[0][0]).to.equal(10);
+      expect(handleValueCommitted.args[0][1].reason).to.equal(REASONS.trackPress);
 
       await act(async () => {
         slider.focus();
@@ -637,6 +639,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       fireEvent.change(slider, { target: { value: 23 } });
       expect(handleValueChange.callCount).to.equal(2);
       expect(handleValueCommitted.callCount).to.equal(2);
+      expect(handleValueCommitted.args[1][1].reason).to.equal(REASONS.inputChange);
     });
 
     it.skipIf(isJSDOM || isWebKit)('should support touch events', async () => {
@@ -755,6 +758,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         );
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueCommitted.callCount).to.equal(1);
+        expect(handleValueCommitted.firstCall.args[1].reason).to.equal('drag');
       },
     );
 
@@ -994,6 +998,66 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(0);
     });
 
+    it('provides the change reason for input events', async () => {
+      const handleValueChange = spy();
+      await render(<TestSlider defaultValue={30} onValueChange={handleValueChange} />);
+
+      const slider = screen.getByRole('slider');
+      fireEvent.change(slider, { target: { value: '35' } });
+
+      expect(handleValueChange).to.have.property('callCount', 1);
+      const [, details] = handleValueChange.firstCall.args as [
+        number,
+        SliderRoot.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal(REASONS.inputChange);
+      expect(details.activeThumbIndex).to.equal(0);
+    });
+
+    it('provides the change reason for keyboard interactions', async () => {
+      const handleValueChange = spy();
+      await render(<TestSlider defaultValue={40} onValueChange={handleValueChange} />);
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
+
+      expect(handleValueChange).to.have.property('callCount', 1);
+      const [, details] = handleValueChange.firstCall.args as [
+        number,
+        SliderRoot.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('keyboard');
+    });
+
+    it('provides the change reason for track presses', async () => {
+      const handleValueChange = spy();
+      await render(<TestSlider defaultValue={0} onValueChange={handleValueChange} />);
+
+      const sliderControl = screen.getByTestId('control');
+      stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
+
+      fireEvent.pointerDown(sliderControl, {
+        pointerId: 1,
+        pointerType: 'mouse',
+        button: 0,
+        buttons: 1,
+        clientX: 80,
+        clientY: 0,
+      });
+
+      await waitFor(() => {
+        expect(handleValueChange.callCount).to.equal(1);
+      });
+      const [, details] = handleValueChange.firstCall.args as [
+        number | number[],
+        SliderRoot.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal(REASONS.trackPress);
+    });
+
     it.skipIf(isJSDOM)('drags the intended thumb when 3 thumbs are present', async () => {
       const handleValueChange = spy();
 
@@ -1174,6 +1238,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         expect(handleValueChange.args[1][0]).to.equal(15);
         expect(handleValueCommitted.callCount).to.equal(1);
         expect(handleValueCommitted.args[0][0]).to.equal(15);
+        expect(handleValueCommitted.args[0][1].reason).to.equal('drag');
       },
     );
   });
@@ -1768,22 +1833,19 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   });
 
   describe('Form', () => {
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
-          test: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="test" data-testid="field">
-              <TestSlider data-testid="slider" defaultValue={50} />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      const { user } = await render(<App />);
+    it('clears external errors on change', async () => {
+      const { user } = await render(
+        <Form
+          errors={{
+            test: 'test',
+          }}
+        >
+          <Field.Root name="test" data-testid="field">
+            <TestSlider data-testid="slider" defaultValue={50} />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       const slider = screen.getByRole('slider');
 

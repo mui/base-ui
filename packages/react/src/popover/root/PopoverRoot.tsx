@@ -20,6 +20,7 @@ import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
@@ -82,7 +83,8 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   }, [store, resolvedTriggerId, open]);
 
   useScrollLock({
-    enabled: open && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch',
+    enabled:
+      open && modal === true && openReason !== REASONS.triggerHover && openMethod !== 'touch',
     mounted,
     open,
     referenceElement: positionerElement,
@@ -116,7 +118,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   });
 
   const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createPopoverEventDetails('imperative-action'));
+    store.setOpen(false, createPopoverEventDetails(REASONS.imperativeAction));
   }, [store, createPopoverEventDetails]);
 
   useOpenChangeComplete({
@@ -266,15 +268,15 @@ export interface PopoverRootActions {
 }
 
 export type PopoverRootChangeEventReason =
-  | 'trigger-hover'
-  | 'trigger-focus'
-  | 'trigger-press'
-  | 'outside-press'
-  | 'escape-key'
-  | 'close-press'
-  | 'focus-out'
-  | 'imperative-action'
-  | 'none';
+  | typeof REASONS.triggerHover
+  | typeof REASONS.triggerFocus
+  | typeof REASONS.triggerPress
+  | typeof REASONS.outsidePress
+  | typeof REASONS.escapeKey
+  | typeof REASONS.closePress
+  | typeof REASONS.focusOut
+  | typeof REASONS.imperativeAction
+  | typeof REASONS.none;
 export type PopoverRootChangeEventDetails =
   BaseUIChangeEventDetails<PopoverRoot.ChangeEventReason> & {
     preventUnmountOnClose(): void;

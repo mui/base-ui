@@ -18,13 +18,13 @@
       "detailedType": "number | number[] | undefined"
     },
     "onValueChange": {
-      "type": "((value: number | number[], eventDetails: { reason: 'none', event: ReasonToEvent, cancel: (() => void), allowPropagation: (() => void), isCanceled: boolean, isPropagationAllowed: boolean, trigger: HTMLElement | undefined } & { activeThumbIndex: number }) => void)",
-      "description": "Callback function that is fired when the slider's value changed.\nYou can pull out the new value by accessing `event.target.value` (any).",
-      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: {\n      reason: 'none'\n      event: ReasonToEvent\n      cancel: () => void\n      allowPropagation: () => void\n      isCanceled: boolean\n      isPropagationAllowed: boolean\n      trigger: HTMLElement | undefined\n    } & { activeThumbIndex: number },\n  ) => void)\n| undefined"
+      "type": "((value: number | number[], eventDetails: Slider.Root.ChangeEventDetails) => void)",
+      "description": "Callback function that is fired when the slider's value changed.\nYou can pull out the new value by accessing `event.target.value` (any).\n\nThe `eventDetails.reason` indicates what triggered the change:\n\n- `'input-change'` when the hidden range input emits a change event (for example, via form integration)\n- `'track-press'` when the control track is pressed\n- `'drag'` while dragging a thumb\n- `'keyboard'` for keyboard input\n- `'none'` when the change is triggered without a specific interaction",
+      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onValueCommitted": {
       "type": "((value: number | number[], eventDetails: Slider.Root.CommitEventDetails) => void)",
-      "description": "Callback function that is fired when the `pointerup` is triggered.\n**Warning**: This is a generic event not a change event.",
+      "description": "Callback function that is fired when the `pointerup` is triggered.\n**Warning**: This is a generic event not a change event.\n\nThe `eventDetails.reason` indicates what triggered the commit:\n\n- `'drag'` while dragging a thumb\n- `'track-press'` when the control track is pressed\n- `'keyboard'` for keyboard input\n- `'input-change'` when the hidden range input emits a change event (for example, via form integration)\n- `'none'` when the commit occurs without a specific interaction",
       "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.CommitEventDetails,\n  ) => void)\n| undefined"
     },
     "locale": {
@@ -35,10 +35,6 @@
     "ref": {
       "type": "RefObject<HTMLDivElement>",
       "detailedType": "React.RefObject<HTMLDivElement> | undefined"
-    },
-    "style": {
-      "type": "CSSProperties | ((state: Slider.Root.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Slider.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "thumbAlignment": {
       "type": "'center' | 'edge' | 'edge-client-only'",
@@ -103,6 +99,10 @@
       "type": "string | ((state: Slider.Root.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Slider.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Slider.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Slider.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Slider.Root.State) => ReactElement)",

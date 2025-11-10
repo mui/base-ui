@@ -23,10 +23,6 @@
       "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed.",
       "detailedType": "boolean | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: ToggleGroup.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: ToggleGroup.State) => CSSProperties | undefined)\n| undefined"
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -48,6 +44,10 @@
       "type": "string | ((state: ToggleGroup.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: ToggleGroup.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: ToggleGroup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: ToggleGroup.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: ToggleGroup.State) => ReactElement)",

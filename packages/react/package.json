@@ -93,7 +93,7 @@
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
-    "@mui/internal-test-utils": "^2.0.14",
+    "@mui/internal-test-utils": "^2.0.15",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/chai": "^5.2.3",
@@ -106,7 +106,7 @@
     "clsx": "^2.1.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router": "^7.9.4",
+    "react-router": "^7.9.5",
     "sinon": "^21.0.0",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4",

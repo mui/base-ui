@@ -716,29 +716,26 @@ describe('<RadioGroup />', () => {
       expect(error).to.have.text('required');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
-          test: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="test" data-testid="field">
-              <RadioGroup data-testid="radio-group">
-                <Field.Item>
-                  <Radio.Root value="a" data-testid="item-a" />
-                </Field.Item>
-                <Field.Item>
-                  <Radio.Root value="b" data-testid="item-b" />
-                </Field.Item>
-              </RadioGroup>
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      await renderFakeTimers(<App />);
+    it('clears external errors on change', async () => {
+      await renderFakeTimers(
+        <Form
+          errors={{
+            test: 'test',
+          }}
+        >
+          <Field.Root name="test" data-testid="field">
+            <RadioGroup data-testid="radio-group">
+              <Field.Item>
+                <Radio.Root value="a" data-testid="item-a" />
+              </Field.Item>
+              <Field.Item>
+                <Radio.Root value="b" data-testid="item-b" />
+              </Field.Item>
+            </RadioGroup>
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       const itemA = screen.getByTestId('item-a');
       const radioGroup = screen.getByTestId('radio-group');
