@@ -140,8 +140,10 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
 
     if (
-      (activateOnFocus && !isPressingRef.current) || // keyboard or touch focus
-      (isPressingRef.current && isMainButtonRef.current) // mouse focus
+      (activateOnFocus &&
+        (!isPressingRef.current || // keyboard or touch focus
+        isPressingRef.current && isMainButtonRef.current) // mouse focus
+      )
     ) {
       onTabActivation(
         tabValue,

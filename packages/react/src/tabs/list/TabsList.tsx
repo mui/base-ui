@@ -23,7 +23,7 @@ export const TabsList = React.forwardRef(function TabsList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    activateOnFocus = true,
+    activateOnFocus = false,
     className,
     loop = true,
     render,
