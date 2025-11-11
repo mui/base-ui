@@ -7,6 +7,7 @@ export * from './checkbox';
 export * from './checkbox-group';
 export * from './collapsible';
 export * from './combobox';
+export * from './command-palette';
 export * from './context-menu';
 export * from './dialog';
 export * from './direction-provider';

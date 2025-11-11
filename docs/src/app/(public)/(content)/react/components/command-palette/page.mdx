@@ -1,0 +1,210 @@
+# Command Palette
+
+<Subtitle>A searchable interface for quickly finding and executing commands.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React command palette component for building searchable command interfaces."
+/>
+
+import { DemoCommandPaletteHero } from './demos/hero';
+
+<DemoCommandPaletteHero />
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { CommandPalette } from '@base-ui-components/react/command-palette';
+
+<CommandPalette.Root items={items}>
+  <CommandPalette.Trigger />
+  <CommandPalette.Portal>
+    <CommandPalette.Popup>
+      <CommandPalette.Input />
+      <CommandPalette.List>
+        <CommandPalette.Item itemId="..." />
+      </CommandPalette.List>
+      <CommandPalette.Empty />
+    </CommandPalette.Popup>
+  </CommandPalette.Portal>
+</CommandPalette.Root>;
+```
+
+## Examples
+
+### Basic usage
+
+The command palette requires an array of items with `id`, `label`, and `onSelect` properties.
+
+```tsx title="Basic command palette"
+import * as React from 'react';
+import { CommandPalette, useCommandPaletteItems } from '@base-ui-components/react/command-palette';
+
+const items = [
+  { id: '1', label: 'New File', onSelect: () => console.log('New File') },
+  { id: '2', label: 'Open File', onSelect: () => console.log('Open File') },
+  { id: '3', label: 'Save', onSelect: () => console.log('Save') },
+];
+
+function CommandPaletteContent() {
+  const filteredItems = useCommandPaletteItems();
+
+  return (
+    <>
+      <CommandPalette.Input />
+      <CommandPalette.List>
+        {filteredItems.map((item) => (
+          <CommandPalette.Item key={item.id} itemId={item.id}>
+            {item.label}
+          </CommandPalette.Item>
+        ))}
+      </CommandPalette.List>
+      <CommandPalette.Empty>No results found</CommandPalette.Empty>
+    </>
+  );
+}
+
+export default function Example() {
+  return (
+    <CommandPalette.Root items={items}>
+      <CommandPalette.Trigger>Open Command Palette</CommandPalette.Trigger>
+      <CommandPalette.Portal>
+        <CommandPalette.Popup>
+          <CommandPaletteContent />
+        </CommandPalette.Popup>
+      </CommandPalette.Portal>
+    </CommandPalette.Root>
+  );
+}
+```
+
+### State
+
+By default, CommandPalette is an uncontrolled component that manages its own state.
+
+```tsx title="Uncontrolled command palette"
+function CommandPaletteContent() {
+  const filteredItems = useCommandPaletteItems();
+  return (
+    <>
+      <CommandPalette.Input />
+      <CommandPalette.List>
+        {filteredItems.map((item) => (
+          <CommandPalette.Item key={item.id} itemId={item.id}>
+            {item.label}
+          </CommandPalette.Item>
+        ))}
+      </CommandPalette.List>
+    </>
+  );
+}
+
+<CommandPalette.Root items={items}>
+  <CommandPalette.Trigger>Open</CommandPalette.Trigger>
+  <CommandPalette.Portal>
+    <CommandPalette.Popup>
+      <CommandPaletteContent />
+    </CommandPalette.Popup>
+  </CommandPalette.Portal>
+</CommandPalette.Root>;
+```
+
+Use `open` and `onOpenChange` props if you need to access or control the state of the command palette.
+
+```tsx title="Controlled command palette"
+const [open, setOpen] = React.useState(false);
+return (
+  <CommandPalette.Root items={items} open={open} onOpenChange={setOpen}>
+    <CommandPalette.Trigger>Open</CommandPalette.Trigger>
+    <CommandPalette.Portal>
+      <CommandPalette.Popup>
+        <CommandPalette.Input />
+        <CommandPalette.List>
+          {items.map((item) => (
+            <CommandPalette.Item key={item.id} itemId={item.id}>
+              {item.label}
+            </CommandPalette.Item>
+          ))}
+        </CommandPalette.List>
+      </CommandPalette.Popup>
+    </CommandPalette.Portal>
+  </CommandPalette.Root>
+);
+```
+
+### Custom filter
+
+You can provide a custom filter function to control how items are filtered based on the search query.
+
+```tsx title="Custom filter function"
+<CommandPalette.Root
+  items={items}
+  filterFn={(query, items) => {
+    if (!query) return items;
+    const lowerQuery = query.toLowerCase();
+    return items.filter((item) => {
+      // Custom filtering logic
+      return (
+        item.label.toLowerCase().includes(lowerQuery) ||
+        item.keywords?.some((k) => k.toLowerCase().includes(lowerQuery))
+      );
+    });
+  }}
+>
+  {/* ... */}
+</CommandPalette.Root>
+```
+
+### Keywords
+
+Items can include `keywords` to improve searchability beyond just the label.
+
+```tsx title="Items with keywords"
+const items = [
+  {
+    id: '1',
+    label: 'Save',
+    keywords: ['save', 'write', 'store'],
+    onSelect: () => console.log('Save'),
+  },
+  {
+    id: '2',
+    label: 'Open',
+    keywords: ['open', 'load', 'import'],
+    onSelect: () => console.log('Open'),
+  },
+];
+```
+
+### Keyboard shortcuts
+
+The command palette supports keyboard navigation:
+
+- **Arrow Up/Down**: Navigate through items
+- **Enter**: Select the highlighted item
+- **Escape**: Close the command palette
+- **Type**: Filter items by query
+
+### Imperative control
+
+You can control the command palette imperatively using a handle.
+
+```tsx title="Imperative control"
+const handle = CommandPalette.createHandle();
+
+// Open the command palette
+handle.open();
+
+// Close the command palette
+handle.close();
+
+// Check if open
+if (handle.isOpen) {
+  // ...
+}
+
+<CommandPalette.Root items={items} handle={handle}>
+  {/* ... */}
+</CommandPalette.Root>;
+```

@@ -105,6 +105,11 @@ export const nav: NavGroup[] = [
         href: '/react/components/combobox',
       },
       {
+        label: 'Command Palette',
+        href: '/react/components/command-palette',
+        isNew: true,
+      },
+      {
         label: 'Context Menu',
         href: '/react/components/context-menu',
       },
