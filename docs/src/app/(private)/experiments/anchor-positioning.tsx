@@ -31,7 +31,7 @@ export default function AnchorPositioning() {
   const [sticky, setSticky] = React.useState(false);
   const [constrainSize, setConstrainSize] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
-  const [disableAnchorTracking, setDisableAnchorTracking] = React.useState(true);
+  const [disableAnchorTracking, setDisableAnchorTracking] = React.useState(false);
   const [collisionAvoidance, setCollisionAvoidance] = React.useState<
     useAnchorPositioning.Parameters['collisionAvoidance']
   >({
