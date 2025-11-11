@@ -786,10 +786,10 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
-  describe('prop: hoverable', () => {
-    it('applies pointer-events: none to the positioner when not hoverable', async () => {
+  describe('prop: disableHoverablePopup', () => {
+    it('applies pointer-events: none to the positioner when `disableHoverablePopup = true`', async () => {
       await render(
-        <Root hoverable={false}>
+        <Root disableHoverablePopup>
           <Tooltip.Trigger delay={0} />
           <Tooltip.Portal>
             <Tooltip.Positioner data-testid="positioner">
@@ -810,9 +810,9 @@ describe('<Tooltip.Root />', () => {
       expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('none');
     });
 
-    it('does not apply pointer-events: none to the positioner when hoverable', async () => {
+    it('does not apply pointer-events: none to the positioner when `disableHoverablePopup = false`', async () => {
       await render(
-        <Root hoverable>
+        <Root disableHoverablePopup={false}>
           <Tooltip.Trigger delay={0} />
           <Tooltip.Portal>
             <Tooltip.Positioner data-testid="positioner">

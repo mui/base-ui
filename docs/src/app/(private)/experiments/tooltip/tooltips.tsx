@@ -16,7 +16,7 @@ interface Settings {
   delay: number;
   closeDelay: number;
   side: 'top' | 'bottom' | 'left' | 'right';
-  hoverable: boolean;
+  disableHoverablePopup: boolean;
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';
   keepMounted: boolean;
 }
@@ -40,21 +40,30 @@ export default function TooltipsExperiment() {
         <h2>Uncontrolled, single trigger</h2>
         <Tooltip.Provider>
           <div className={styles.Panel}>
-            <Tooltip.Root hoverable={settings.hoverable} trackCursorAxis={settings.trackCursorAxis}>
+            <Tooltip.Root
+              disableHoverablePopup={settings.disableHoverablePopup}
+              trackCursorAxis={settings.trackCursorAxis}
+            >
               <TooltipTriggerButton delay={settings.delay} closeDelay={settings.closeDelay}>
                 <BoldIcon />
               </TooltipTriggerButton>
               <TooltipContent>Bold</TooltipContent>
             </Tooltip.Root>
 
-            <Tooltip.Root hoverable={settings.hoverable} trackCursorAxis={settings.trackCursorAxis}>
+            <Tooltip.Root
+              disableHoverablePopup={settings.disableHoverablePopup}
+              trackCursorAxis={settings.trackCursorAxis}
+            >
               <TooltipTriggerButton delay={settings.delay} closeDelay={settings.closeDelay}>
                 <ItalicIcon />
               </TooltipTriggerButton>
               <TooltipContent>Italic</TooltipContent>
             </Tooltip.Root>
 
-            <Tooltip.Root hoverable={settings.hoverable} trackCursorAxis={settings.trackCursorAxis}>
+            <Tooltip.Root
+              disableHoverablePopup={settings.disableHoverablePopup}
+              trackCursorAxis={settings.trackCursorAxis}
+            >
               <TooltipTriggerButton delay={settings.delay} closeDelay={settings.closeDelay}>
                 <UnderlineIcon />
               </TooltipTriggerButton>
@@ -71,7 +80,7 @@ export default function TooltipsExperiment() {
             <Tooltip.Root
               open={singleTriggerOpen}
               onOpenChange={(nextOpen) => setSingleTriggerOpen(nextOpen)}
-              hoverable={settings.hoverable}
+              disableHoverablePopup={settings.disableHoverablePopup}
               trackCursorAxis={settings.trackCursorAxis}
             >
               <TooltipTriggerButton delay={settings.delay} closeDelay={settings.closeDelay}>
@@ -94,7 +103,10 @@ export default function TooltipsExperiment() {
         <h2>Uncontrolled, multiple triggers within Root</h2>
         <Tooltip.Provider>
           <div className={styles.Panel}>
-            <Tooltip.Root hoverable={settings.hoverable} trackCursorAxis={settings.trackCursorAxis}>
+            <Tooltip.Root
+              disableHoverablePopup={settings.disableHoverablePopup}
+              trackCursorAxis={settings.trackCursorAxis}
+            >
               {({ payload }) => (
                 <React.Fragment>
                   <TooltipTriggerButton
@@ -137,7 +149,7 @@ export default function TooltipsExperiment() {
                 setControlledWithinRootTriggerId(eventDetails.trigger?.id ?? null);
               }}
               triggerId={controlledWithinRootTriggerId}
-              hoverable={settings.hoverable}
+              disableHoverablePopup={settings.disableHoverablePopup}
               trackCursorAxis={settings.trackCursorAxis}
             >
               {({ payload }) => (
@@ -218,7 +230,7 @@ export default function TooltipsExperiment() {
 
         <Tooltip.Root
           handle={tooltip1Handle}
-          hoverable={settings.hoverable}
+          disableHoverablePopup={settings.disableHoverablePopup}
           trackCursorAxis={settings.trackCursorAxis}
         >
           {({ payload }) => <TooltipContent>{payload as string}</TooltipContent>}
@@ -267,7 +279,7 @@ export default function TooltipsExperiment() {
             setControlledDetachedOpen(open);
             setControlledDetachedTriggerId(eventDetails.trigger?.id ?? null);
           }}
-          hoverable={settings.hoverable}
+          disableHoverablePopup={settings.disableHoverablePopup}
           trackCursorAxis={settings.trackCursorAxis}
         >
           {({ payload }) => <TooltipContent>{payload as string}</TooltipContent>}
@@ -378,9 +390,9 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     options: ['top', 'bottom', 'left', 'right'],
     default: 'top',
   },
-  hoverable: {
+  disableHoverablePopup: {
     type: 'boolean',
-    label: 'Hoverable',
+    label: 'Disable hoverable popup',
     default: true,
   },
   trackCursorAxis: {
