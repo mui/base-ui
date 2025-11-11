@@ -54,9 +54,9 @@ function CommandPaletteContent() {
     <>
       <CommandPalette.Input />
       <CommandPalette.List>
-        {filteredItems.map((item) => (
-          <CommandPalette.Item key={item.id} itemId={item.id}>
-            {item.label}
+        {filteredItems.map(({ id, label }) => (
+          <CommandPalette.Item key={id} itemId={id}>
+            {label}
           </CommandPalette.Item>
         ))}
       </CommandPalette.List>
@@ -90,9 +90,9 @@ function CommandPaletteContent() {
     <>
       <CommandPalette.Input />
       <CommandPalette.List>
-        {filteredItems.map((item) => (
-          <CommandPalette.Item key={item.id} itemId={item.id}>
-            {item.label}
+        {filteredItems.map(({ id, label }) => (
+          <CommandPalette.Item key={id} itemId={id}>
+            {label}
           </CommandPalette.Item>
         ))}
       </CommandPalette.List>
@@ -121,9 +121,9 @@ return (
       <CommandPalette.Popup>
         <CommandPalette.Input />
         <CommandPalette.List>
-          {items.map((item) => (
-            <CommandPalette.Item key={item.id} itemId={item.id}>
-              {item.label}
+          {items.map(({ id, label }) => (
+            <CommandPalette.Item key={id} itemId={id}>
+              {label}
             </CommandPalette.Item>
           ))}
         </CommandPalette.List>
@@ -141,13 +141,14 @@ You can provide a custom filter function to control how items are filtered based
 <CommandPalette.Root
   items={items}
   filterFn={(query, items) => {
-    if (!query) return items;
+    if (!query) {
+      return items;
+    }
     const lowerQuery = query.toLowerCase();
-    return items.filter((item) => {
-      // Custom filtering logic
+    return items.filter(({ label, keywords }) => {
       return (
-        item.label.toLowerCase().includes(lowerQuery) ||
-        item.keywords?.some((k) => k.toLowerCase().includes(lowerQuery))
+        label.toLowerCase().includes(lowerQuery) ||
+        keywords?.some((k) => k.toLowerCase().includes(lowerQuery))
       );
     });
   }}
