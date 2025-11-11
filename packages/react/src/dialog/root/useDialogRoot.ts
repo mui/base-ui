@@ -144,7 +144,8 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
           return store.context.internalBackdropRef.current || store.context.backdropRef.current
             ? store.context.internalBackdropRef.current === eventTarget ||
                 store.context.backdropRef.current === eventTarget ||
-                contains(eventTarget, popupElement)
+                (contains(eventTarget, popupElement) &&
+                  !eventTarget?.hasAttribute('data-base-ui-portal'))
             : true;
         }
         return true;
