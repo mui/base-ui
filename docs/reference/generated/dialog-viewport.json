@@ -2,6 +2,12 @@
   "name": "DialogViewport",
   "description": "A positioning container for the dialog popup that can be made scrollable.\nRenders a `<div>` element.",
   "props": {
+    "disableScrollLockElements": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the wrapper elements used for scroll locking on iOS should be disabled.\nThis can be useful if you want to implement your own scroll lock on iOS, or to customize the elements.",
+      "detailedType": "boolean | undefined"
+    },
     "className": {
       "type": "string | ((state: Dialog.Viewport.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

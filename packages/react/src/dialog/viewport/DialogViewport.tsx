@@ -9,6 +9,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { DialogViewportDataAttributes } from './DialogViewportDataAttributes';
+import { styleDisableScrollbar } from '../../utils/styles';
 
 const stateAttributesMapping: StateAttributesMapping<DialogViewport.State> = {
   ...baseMapping,
@@ -21,6 +22,25 @@ const stateAttributesMapping: StateAttributesMapping<DialogViewport.State> = {
   },
 };
 
+const SCROLLER_STYLES: React.CSSProperties = {
+  width: '100%',
+  height: '100%',
+  overflowY: 'auto',
+  overscrollBehavior: 'none',
+  scrollbarWidth: 'none',
+};
+
+const OVERFLOW_WRAPPER_STYLES: React.CSSProperties = {
+  height: 'calc(100% + 1px)',
+};
+
+const STICKY_CONTAINER_STYLES: React.CSSProperties = {
+  position: 'sticky' as const,
+  top: 0,
+  bottom: 0,
+  height: 'calc(100% - 1px)',
+};
+
 /**
  * A positioning container for the dialog popup that can be made scrollable.
  * Renders a `<div>` element.
@@ -31,7 +51,13 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   componentProps: DialogViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    children,
+    disableScrollLockElements = false,
+    ...elementProps
+  } = componentProps;
 
   const keepMounted = useDialogPortalContext();
   const { store } = useDialogRootContext();
@@ -65,7 +91,24 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
       {
         role: 'presentation',
         hidden: !mounted,
-        children,
+        children: disableScrollLockElements ? (
+          children
+        ) : (
+          <React.Fragment>
+            {styleDisableScrollbar.element}
+            <div
+              className={styleDisableScrollbar.className}
+              style={{
+                pointerEvents: open ? 'auto' : 'none',
+                ...SCROLLER_STYLES,
+              }}
+            >
+              <div style={OVERFLOW_WRAPPER_STYLES}>
+                <div style={STICKY_CONTAINER_STYLES}>{children}</div>
+              </div>
+            </div>
+          </React.Fragment>
+        ),
       },
       elementProps,
     ],
@@ -88,7 +131,14 @@ export interface DialogViewportState {
   nestedDialogOpen: boolean;
 }
 
-export interface DialogViewportProps extends BaseUIComponentProps<'div', DialogViewportState> {}
+export interface DialogViewportProps extends BaseUIComponentProps<'div', DialogViewportState> {
+  /**
+   * Whether the wrapper elements used for scroll locking on iOS should be disabled.
+   * This can be useful if you want to implement your own scroll lock on iOS, or to customize the elements.
+   * @default false
+   */
+  disableScrollLockElements?: boolean;
+}
 
 export namespace DialogViewport {
   export type State = DialogViewportState;

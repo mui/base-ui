@@ -62,6 +62,11 @@
 .Viewport {
   position: fixed;
   inset: 0;
+}
+
+.PopupContainer {
+  position: fixed;
+  inset: 0;
   display: grid;
   place-items: center;
   padding: 2.5rem 1rem;

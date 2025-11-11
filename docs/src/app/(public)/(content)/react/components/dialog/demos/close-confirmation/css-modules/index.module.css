@@ -139,6 +139,11 @@
   }
 }
 
+.Viewport {
+  position: fixed;
+  inset: 0;
+}
+
 .Title {
   margin-top: -0.375rem;
   margin-bottom: 0.25rem;

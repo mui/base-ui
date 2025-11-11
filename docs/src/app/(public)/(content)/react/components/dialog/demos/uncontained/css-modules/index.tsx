@@ -8,12 +8,14 @@ export default function ExampleUncontainedDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Viewport className={styles.Viewport}>
-          <Dialog.Popup className={styles.PopupRoot}>
-            <Dialog.Close className={styles.Close} aria-label="Close">
-              <XIcon className={styles.CloseIcon} />
-            </Dialog.Close>
-            <div className={styles.Popup} />
-          </Dialog.Popup>
+          <div className={styles.PopupContainer}>
+            <Dialog.Popup className={styles.PopupRoot}>
+              <Dialog.Close className={styles.Close} aria-label="Close">
+                <XIcon className={styles.CloseIcon} />
+              </Dialog.Close>
+              <div className={styles.Popup} />
+            </Dialog.Popup>
+          </div>
         </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
