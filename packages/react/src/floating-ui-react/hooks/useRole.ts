@@ -45,10 +45,6 @@ export function useRole(context: FloatingRootContext, props: UseRoleProps = {}):
     [elements.floating, defaultFloatingId],
   );
 
-  const triggerIds = (
-    elements.triggers?.map((trigger) => trigger.id).filter(Boolean) as string[]
-  ).join(' ');
-
   const ariaRole = (componentRoleToAriaRoleMap.get(role) ?? role) as AriaRole | false | undefined;
 
   const parentId = useFloatingParentNodeId();
@@ -98,10 +94,10 @@ export function useRole(context: FloatingRootContext, props: UseRoleProps = {}):
     return {
       ...floatingProps,
       ...(ariaRole === 'menu' && {
-        'aria-labelledby': triggerIds.length > 0 ? triggerIds : referenceId,
+        'aria-labelledby': referenceId,
       }),
     };
-  }, [ariaRole, floatingId, referenceId, role, triggerIds]);
+  }, [ariaRole, floatingId, referenceId, role]);
 
   const item: ElementProps['item'] = React.useCallback(
     ({ active, selected }: ExtendedUserProps) => {
