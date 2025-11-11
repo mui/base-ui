@@ -33,11 +33,6 @@ export interface SelectRootContext {
   }>;
   selectedItemTextRef: React.MutableRefObject<HTMLSpanElement | null>;
   validation: UseFieldValidationReturnValue;
-  /**
-   * Called by each <Select.Item> when it knows its stable list index.
-   * Allows the root to map option values to their DOM positions.
-   */
-  registerItemIndex: (index: number) => void;
   onOpenChangeComplete?: (open: boolean) => void;
   keyboardActiveRef: React.MutableRefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;

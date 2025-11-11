@@ -37,7 +37,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     keepMounted: keepMountedProp,
     loop = true,
     onValueChange: onValueChangeProp,
-    multiple = true,
+    multiple = false,
     orientation = 'vertical',
     value: valueProp,
     defaultValue: defaultValueProp,
