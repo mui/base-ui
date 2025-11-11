@@ -15,9 +15,12 @@ export default function ExampleVirtualizedCombobox() {
 
   const { contains } = Combobox.useFilter({ value });
 
+  const resolvedSearchValue =
+    searchValue === '' || deferredSearchValue === '' ? searchValue : deferredSearchValue;
+
   const filteredItems = React.useMemo(() => {
-    return virtualizedItems.filter((item) => contains(item, deferredSearchValue, getItemLabel));
-  }, [contains, deferredSearchValue]);
+    return virtualizedItems.filter((item) => contains(item, resolvedSearchValue, getItemLabel));
+  }, [contains, resolvedSearchValue]);
 
   const virtualizer = useVirtualizer({
     enabled: open,
@@ -42,7 +45,6 @@ export default function ExampleVirtualizedCombobox() {
   );
 
   const totalSize = virtualizer.getTotalSize();
-  const totalSizePx = `${totalSize}px`;
 
   return (
     <Combobox.Root
@@ -87,12 +89,12 @@ export default function ExampleVirtualizedCombobox() {
                   role="presentation"
                   ref={handleScrollElementRef}
                   className={styles.Scroller}
-                  style={{ '--total-size': totalSizePx } as React.CSSProperties}
+                  style={{ '--total-size': `${totalSize}px` } as React.CSSProperties}
                 >
                   <div
                     role="presentation"
                     className={styles.VirtualizedPlaceholder}
-                    style={{ height: totalSizePx }}
+                    style={{ height: totalSize }}
                   >
                     {virtualizer.getVirtualItems().map((virtualItem) => {
                       const item = filteredItems[virtualItem.index];
@@ -115,6 +117,7 @@ export default function ExampleVirtualizedCombobox() {
                             top: 0,
                             left: 0,
                             width: '100%',
+                            height: virtualItem.size,
                             transform: `translateY(${virtualItem.start}px)`,
                           }}
                         >
