@@ -74,7 +74,10 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   );
 
   const handleClick = useStableCallback((event: React.MouseEvent) => {
-    const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent);
+    const details = {
+      ...createChangeEventDetails(REASONS.itemPress, event.nativeEvent),
+      preventUnmountOnClose: () => {},
+    };
     setSelectedValue(value, details);
   });
 

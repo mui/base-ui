@@ -75,7 +75,10 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   );
 
   const handleClick = useStableCallback((event: React.MouseEvent) => {
-    const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent);
+    const details = {
+      ...createChangeEventDetails(REASONS.itemPress, event.nativeEvent),
+      preventUnmountOnClose: () => {},
+    };
 
     onCheckedChange?.(!checked, details);
 

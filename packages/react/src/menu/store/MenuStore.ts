@@ -46,6 +46,7 @@ type Context = {
   itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   itemLabels: React.RefObject<(string | null)[]>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
+  preventUnmountingRef: React.RefObject<boolean>;
 
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
 };
@@ -144,6 +145,7 @@ export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, type
         itemDomElements: { current: [] },
         itemLabels: { current: [] },
         allowMouseUpTriggerRef: { current: false },
+        preventUnmountingRef: { current: false },
         onOpenChangeComplete: undefined,
       },
       selectors,

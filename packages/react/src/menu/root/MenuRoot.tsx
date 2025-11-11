@@ -27,7 +27,10 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import {
   ContextMenuRootContext,
@@ -265,14 +268,21 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const allowTouchToCloseTimeout = useTimeout();
 
   const setOpen = useStableCallback(
-    (nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) => {
+    (
+      nextOpen: boolean,
+      eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
+    ) => {
       const reason = eventDetails.reason;
 
       if (open === nextOpen && eventDetails.trigger === activeTriggerElement) {
         return;
       }
 
-      onOpenChange?.(nextOpen, eventDetails);
+      (eventDetails as MenuRoot.ChangeEventDetails).preventUnmountOnClose = () => {
+        store.context.preventUnmountingRef.current = true;
+      };
+
+      onOpenChange?.(nextOpen, eventDetails as MenuRoot.ChangeEventDetails);
 
       if (eventDetails.isCanceled) {
         return;
@@ -364,7 +374,28 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     },
   );
 
-  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  const createMenuEventDetails = React.useCallback(
+    (reason: MenuRoot.ChangeEventReason) => {
+      const details: MenuRoot.ChangeEventDetails =
+        createChangeEventDetails<MenuRoot.ChangeEventReason>(reason) as MenuRoot.ChangeEventDetails;
+      details.preventUnmountOnClose = () => {
+        store.context.preventUnmountingRef.current = true;
+      };
+
+      return details;
+    },
+    [store],
+  );
+
+  const handleImperativeClose = React.useCallback(() => {
+    store.setOpen(false, createMenuEventDetails(REASONS.imperativeAction));
+  }, [store, createMenuEventDetails]);
+
+  React.useImperativeHandle(
+    props.actionsRef,
+    () => ({ unmount: handleUnmount, close: handleImperativeClose }),
+    [handleUnmount, handleImperativeClose],
+  );
 
   let ctx: ContextMenuRootContext | undefined;
   if (parent.type === 'context-menu') {
@@ -517,7 +548,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     () =>
       getFloatingProps({
         onMouseEnter() {
-          // TODO: verify openOnHover behavior
           if (parent.type === 'menu') {
             disableHoverTimeout.request(() => store.set('hoverEnabled', false));
           }
@@ -627,8 +657,9 @@ export interface MenuRootProps<Payload = unknown> {
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the menu will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the menu manually.
-   * Useful when the menu's animation is controlled by an external library.
+   *    Instead, the `unmount` function must be called to unmount the menu manually.
+   *   Useful when the menu's animation is controlled by an external library.
+   * - `close`: When specified, the menu can be closed imperatively.
    */
   actionsRef?: React.RefObject<MenuRoot.Actions>;
   /**
@@ -670,9 +701,12 @@ export type MenuRootChangeEventReason =
   | typeof REASONS.closePress
   | typeof REASONS.siblingOpen
   | typeof REASONS.cancelOpen
+  | typeof REASONS.imperativeAction
   | typeof REASONS.none;
 
-export type MenuRootChangeEventDetails = BaseUIChangeEventDetails<MenuRoot.ChangeEventReason>;
+export type MenuRootChangeEventDetails = BaseUIChangeEventDetails<MenuRoot.ChangeEventReason> & {
+  preventUnmountOnClose(): void;
+};
 
 export type MenuRootOrientation = 'horizontal' | 'vertical';
 
