@@ -17,7 +17,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 ) {
   const {
     disabled = false,
-    loop = true,
+    focusLoop = true,
     orientation = 'horizontal',
     className,
     render,
@@ -63,7 +63,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
         refs={[forwardedRef]}
         props={[defaultProps, elementProps]}
         disabledIndices={disabledIndices}
-        loop={loop}
+        focusLoop={focusLoop}
         onMapChange={setItemMap}
         orientation={orientation}
       />
@@ -94,7 +94,7 @@ export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRoo
    *
    * @default true
    */
-  loop?: boolean;
+  focusLoop?: boolean;
 }
 
 export namespace ToolbarRoot {

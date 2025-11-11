@@ -27,7 +27,7 @@ export const Menubar = React.forwardRef(function Menubar(
 ) {
   const {
     orientation = 'horizontal',
-    loop = true,
+    focusLoop = true,
     render,
     className,
     modal = true,
@@ -97,7 +97,7 @@ export const Menubar = React.forwardRef(function Menubar(
             refs={[forwardedRef, setContentElement, contentRef]}
             props={[{ role: 'menubar', id }, interactionTypeProps, elementProps]}
             orientation={orientation}
-            loop={loop}
+            focusLoop={focusLoop}
             highlightItemOnHover={hasSubmenuOpen}
           />
         </MenubarContent>
@@ -171,7 +171,7 @@ export interface MenubarProps extends BaseUIComponentProps<'div', Menubar.State>
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loop?: boolean;
+  focusLoop?: boolean;
 }
 
 export namespace Menubar {

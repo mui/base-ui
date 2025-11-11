@@ -11,7 +11,7 @@ export interface AccordionRootContext {
   handleValueChange: (newValue: number | string, nextOpen: boolean) => void;
   hiddenUntilFound: boolean;
   keepMounted: boolean;
-  loop: boolean;
+  focusLoop: boolean;
   orientation: Orientation;
   state: AccordionRoot.State;
   value: AccordionValue;
