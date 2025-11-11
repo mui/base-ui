@@ -241,7 +241,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     [fieldState, open, disabled, readOnly, value],
   );
 
-  return useRenderElement('div', componentProps, {
+  return useRenderElement('button', componentProps, {
     ref: [forwardedRef, triggerRef],
     state,
     stateAttributesMapping,
