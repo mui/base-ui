@@ -512,6 +512,49 @@ describe('<RadioGroup />', () => {
 
         expect(input).to.have.attribute('name', 'field-radio');
       });
+
+      it('revalidates when the controlled value changes externally', async () => {
+        const validateSpy = spy((value: unknown) => ((value as string) === 'b' ? 'error' : null));
+
+        function App() {
+          const [value, setValue] = React.useState('a');
+
+          return (
+            <React.Fragment>
+              <Field.Root validationMode="onChange" validate={validateSpy} name="choices">
+                <RadioGroup
+                  value={value}
+                  onValueChange={(nextValue) => setValue(nextValue as string)}
+                >
+                  <Field.Item>
+                    <Radio.Root value="a" data-testid="radio" />
+                  </Field.Item>
+                  <Field.Item>
+                    <Radio.Root value="b" data-testid="radio" />
+                  </Field.Item>
+                </RadioGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setValue('b')}>
+                Select externally
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(<App />);
+
+        const radioGroup = screen.getByRole('radiogroup');
+        const toggle = screen.getByText('Select externally');
+
+        expect(radioGroup).not.to.have.attribute('aria-invalid');
+        const initialCallCount = validateSpy.callCount;
+
+        fireEvent.click(toggle);
+
+        expect(validateSpy.callCount).to.equal(initialCallCount + 1);
+        expect(validateSpy.lastCall.args[0]).to.equal('b');
+        expect(radioGroup).to.have.attribute('aria-invalid', 'true');
+      });
     });
 
     describe('Field.Label', () => {
@@ -673,29 +716,26 @@ describe('<RadioGroup />', () => {
       expect(error).to.have.text('required');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
-          test: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="test" data-testid="field">
-              <RadioGroup data-testid="radio-group">
-                <Field.Item>
-                  <Radio.Root value="a" data-testid="item-a" />
-                </Field.Item>
-                <Field.Item>
-                  <Radio.Root value="b" data-testid="item-b" />
-                </Field.Item>
-              </RadioGroup>
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      await renderFakeTimers(<App />);
+    it('clears external errors on change', async () => {
+      await renderFakeTimers(
+        <Form
+          errors={{
+            test: 'test',
+          }}
+        >
+          <Field.Root name="test" data-testid="field">
+            <RadioGroup data-testid="radio-group">
+              <Field.Item>
+                <Radio.Root value="a" data-testid="item-a" />
+              </Field.Item>
+              <Field.Item>
+                <Radio.Root value="b" data-testid="item-b" />
+              </Field.Item>
+            </RadioGroup>
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       const itemA = screen.getByTestId('item-a');
       const radioGroup = screen.getByTestId('radio-group');

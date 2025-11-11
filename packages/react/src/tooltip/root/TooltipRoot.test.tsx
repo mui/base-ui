@@ -12,6 +12,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
+import { REASONS } from '../../utils/reasons';
 
 function Root(props: Tooltip.Root.Props) {
   return <Tooltip.Root {...props} />;
@@ -785,10 +786,10 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
-  describe('prop: hoverable', () => {
-    it('applies pointer-events: none to the positioner when not hoverable', async () => {
+  describe('prop: disableHoverablePopup', () => {
+    it('applies pointer-events: none to the positioner when `disableHoverablePopup = true`', async () => {
       await render(
-        <Root hoverable={false}>
+        <Root disableHoverablePopup>
           <Tooltip.Trigger delay={0} />
           <Tooltip.Portal>
             <Tooltip.Positioner data-testid="positioner">
@@ -809,9 +810,9 @@ describe('<Tooltip.Root />', () => {
       expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('none');
     });
 
-    it('does not apply pointer-events: none to the positioner when hoverable', async () => {
+    it('does not apply pointer-events: none to the positioner when `disableHoverablePopup = false`', async () => {
       await render(
-        <Root hoverable>
+        <Root disableHoverablePopup={false}>
           <Tooltip.Trigger delay={0} />
           <Tooltip.Portal>
             <Tooltip.Positioner data-testid="positioner">
@@ -869,7 +870,7 @@ describe('<Tooltip.Root />', () => {
         <Root
           defaultOpen
           onOpenChange={(nextOpen, eventDetails) => {
-            if (!nextOpen && eventDetails.reason === 'escape-key') {
+            if (!nextOpen && eventDetails.reason === REASONS.escapeKey) {
               eventDetails.allowPropagation();
             }
           }}
@@ -1160,6 +1161,7 @@ describe('<Tooltip.Root />', () => {
       const popupId = randomStringValue();
       const { user } = await render(
         <div>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <Tooltip.Trigger handle={testTooltip} delay={0}>
             Trigger 1
           </Tooltip.Trigger>
@@ -1421,6 +1423,7 @@ describe('<Tooltip.Root />', () => {
       const triggerId = randomStringValue();
       await render(
         <React.Fragment>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <Tooltip.Trigger handle={testTooltip} payload={1}>
             Trigger 1
           </Tooltip.Trigger>

@@ -8,10 +8,6 @@
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
       "detailedType": "boolean | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Menu.Trigger.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Menu.Trigger.State) => CSSProperties | undefined)\n| undefined"
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -26,6 +22,10 @@
       "type": "string | ((state: Menu.Trigger.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Menu.Trigger.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Menu.Trigger.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.Trigger.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.Trigger.State) => ReactElement)",

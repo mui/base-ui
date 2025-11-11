@@ -300,6 +300,49 @@ describe('<CheckboxGroup />', () => {
       checkboxes.forEach((checkbox) => expect(checkbox).to.have.attribute('aria-invalid', 'true'));
     });
 
+    it('revalidates when the controlled value changes externally', async () => {
+      const validateSpy = spy((value: unknown) => {
+        const values = value as string[];
+        return values.includes('one') ? 'error' : null;
+      });
+
+      function App() {
+        const [selected, setSelected] = React.useState<string[]>([]);
+
+        return (
+          <React.Fragment>
+            <Field.Root validationMode="onChange" validate={validateSpy} name="apple">
+              <CheckboxGroup value={selected}>
+                <Field.Item>
+                  <Checkbox.Root value="one" data-testid="checkbox" />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="two" data-testid="checkbox" />
+                </Field.Item>
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setSelected(['one'])}>
+              Select externally
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      render(<App />);
+
+      const checkboxes = screen.getAllByTestId('checkbox');
+      const toggle = screen.getByText('Select externally');
+
+      checkboxes.forEach((checkbox) => expect(checkbox).not.to.have.attribute('aria-invalid'));
+      const initialCallCount = validateSpy.callCount;
+
+      fireEvent.click(toggle);
+
+      expect(validateSpy.callCount).to.equal(initialCallCount + 1);
+      expect(validateSpy.lastCall.args[0]).to.deep.equal(['one']);
+      checkboxes.forEach((checkbox) => expect(checkbox).to.have.attribute('aria-invalid', 'true'));
+    });
+
     it('prop: validationMode=onBlur', async () => {
       const validateSpy = spy((value) => {
         const v = value as string[];
@@ -504,7 +547,6 @@ describe('<CheckboxGroup />', () => {
         return (
           <Form
             errors={errors}
-            onClearErrors={setErrors}
             onSubmit={(event) => {
               event.preventDefault();
               setErrors({ group: 'server error' });

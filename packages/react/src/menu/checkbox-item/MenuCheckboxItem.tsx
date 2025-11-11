@@ -13,6 +13,7 @@ import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/typ
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 
 /**
@@ -77,7 +78,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   );
 
   const handleClick = useStableCallback((event: React.MouseEvent) => {
-    const details = createChangeEventDetails('item-press', event.nativeEvent);
+    const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent);
 
     onCheckedChange?.(!checked, details);
 

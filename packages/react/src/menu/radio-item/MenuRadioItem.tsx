@@ -13,6 +13,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * A menu item that works like a radio button in a given group.
@@ -76,7 +77,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   );
 
   const handleClick = useStableCallback((event: React.MouseEvent) => {
-    const details = createChangeEventDetails('item-press', event.nativeEvent);
+    const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent);
     setSelectedValue(value, details);
   });
 
