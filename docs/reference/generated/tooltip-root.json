@@ -55,9 +55,9 @@
       "description": "Whether the tooltip is disabled.",
       "detailedType": "boolean | undefined"
     },
-    "hoverable": {
+    "disableHoverablePopup": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Whether the tooltip contents can be hovered without closing the tooltip.",
       "detailedType": "boolean | undefined"
     },

@@ -17,10 +17,6 @@
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button.",
       "detailedType": "boolean | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Menu.SubmenuTrigger.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Menu.SubmenuTrigger.State,\n  ) => CSSProperties | undefined)\n| undefined"
-    },
     "id": {
       "type": "string",
       "detailedType": "string | undefined"
@@ -29,6 +25,10 @@
       "type": "string | ((state: Menu.SubmenuTrigger.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Menu.SubmenuTrigger.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Menu.SubmenuTrigger.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Menu.SubmenuTrigger.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.SubmenuTrigger.State) => ReactElement)",

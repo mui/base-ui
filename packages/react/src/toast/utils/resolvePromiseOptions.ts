@@ -1,12 +1,12 @@
-import { useToastManager } from '../useToastManager';
+import type { ToastManagerUpdateOptions } from '../useToastManager';
 
 export function resolvePromiseOptions<T, Data extends object>(
   options:
     | string
-    | useToastManager.UpdateOptions<Data>
-    | ((result: T) => string | useToastManager.UpdateOptions<Data>),
+    | ToastManagerUpdateOptions<Data>
+    | ((result: T) => string | ToastManagerUpdateOptions<Data>),
   result?: T,
-): useToastManager.UpdateOptions<Data> {
+): ToastManagerUpdateOptions<Data> {
   if (typeof options === 'string') {
     return {
       description: options,

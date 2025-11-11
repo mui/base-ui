@@ -25,6 +25,7 @@ import {
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
@@ -43,7 +44,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { HTMLProps } from '../../utils/types';
-import { useValueChanged } from './utils/useValueChanged';
+import { useValueChanged } from '../../utils/useValueChanged';
 import { NOOP } from '../../utils/noop';
 import {
   stringifyAsLabel,
@@ -472,7 +473,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const setInputValue = useStableCallback(
     (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
-      hadInputClearRef.current = eventDetails.reason === 'input-clear';
+      hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
 
       props.onInputValueChange?.(next, eventDetails);
 
@@ -482,7 +483,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
-      if (eventDetails.reason === 'input-change') {
+      if (eventDetails.reason === REASONS.inputChange) {
         const hasQuery = next.trim() !== '';
         if (hasQuery) {
           setQueryChangedAfterOpen(true);
@@ -527,7 +528,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           }
           // Clear the input immediately on close while retaining filtering via closeQuery for exit animations
           // if the input is outside the popup.
-          setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
+          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
         }
       }
 
@@ -561,7 +562,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (
         selectionMode === 'single' &&
         nextValue != null &&
-        eventDetails.reason !== 'input-change' &&
+        eventDetails.reason !== REASONS.inputChange &&
         queryChangedAfterOpen
       ) {
         setCloseQuery(query);
@@ -582,7 +583,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const targetEl = getTarget(event) as HTMLElement | null;
       const overrideEvent = selectionEventRef.current ?? event;
       selectionEventRef.current = null;
-      const eventDetails = createChangeEventDetails('item-press', overrideEvent);
+      const eventDetails = createChangeEventDetails(REASONS.itemPress, overrideEvent);
 
       // Let the link handle the click.
       const href = targetEl?.closest('a')?.getAttribute('href');
@@ -612,7 +613,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         }
 
         if (store.state.inputInsidePopup) {
-          setInputValue('', createChangeEventDetails('input-clear', eventDetails.event));
+          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
         } else {
           setOpen(false, eventDetails);
         }
@@ -656,7 +657,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       inputRef.current.value !== '' &&
       !hadInputClearRef.current
     ) {
-      setInputValue('', createChangeEventDetails('input-clear'));
+      setInputValue('', createChangeEventDetails(REASONS.inputClear));
     }
 
     // Single selection mode:
@@ -665,13 +666,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (selectionMode === 'single') {
       if (store.state.inputInsidePopup) {
         if (inputRef.current && inputRef.current.value !== '') {
-          setInputValue('', createChangeEventDetails('input-clear'));
+          setInputValue('', createChangeEventDetails(REASONS.inputClear));
         }
       } else {
         const stringVal = stringifyAsLabel(selectedValue, itemToStringLabel);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
-          const reason = stringVal === '' ? 'input-clear' : 'none';
+          const reason = stringVal === '' ? REASONS.inputClear : REASONS.none;
           setInputValue(stringVal, createChangeEventDetails(reason));
         }
       }
@@ -768,7 +769,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
         store.state.onItemHighlighted(
           undefined,
-          createGenericEventDetails('none', undefined, { index: -1 }),
+          createGenericEventDetails(REASONS.none, undefined, { index: -1 }),
         );
       }
       return;
@@ -779,7 +780,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         lastHighlightRef.current = INITIAL_LAST_HIGHLIGHT;
         store.state.onItemHighlighted(
           undefined,
-          createGenericEventDetails('none', undefined, { index: -1 }),
+          createGenericEventDetails(REASONS.none, undefined, { index: -1 }),
         );
       }
       store.set('activeIndex', null);
@@ -796,7 +797,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
       store.state.onItemHighlighted(
         nextActiveValue,
-        createGenericEventDetails('none', undefined, { index: storeActiveIndex }),
+        createGenericEventDetails(REASONS.none, undefined, { index: storeActiveIndex }),
       );
     }
   }, [
@@ -851,7 +852,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (!store.state.inputInsidePopup) {
       const stringVal = stringifyAsLabel(fallback, itemToStringLabel);
       if (inputRef.current && inputRef.current.value !== stringVal) {
-        setInputValue(stringVal, createChangeEventDetails('none'));
+        setInputValue(stringVal, createChangeEventDetails(REASONS.none));
       }
     }
   }, [
@@ -892,7 +893,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
 
       if (inputValue !== nextInputValue) {
-        setInputValue(nextInputValue, createChangeEventDetails('none'));
+        setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
       }
     }
   });
@@ -905,7 +906,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
 
     if (inputValue !== nextInputValue) {
-      setInputValue(nextInputValue, createChangeEventDetails('none'));
+      setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
     }
   });
 
@@ -1070,7 +1071,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     onMatch(index) {
       const nextSelectedValue = valuesRef.current[index];
       if (nextSelectedValue !== undefined) {
-        setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
+        setSelectedValue(nextSelectedValue, createChangeEventDetails(REASONS.none));
       }
     },
   });
@@ -1216,6 +1217,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           onFocus() {
             if (inputInsidePopup) {
               triggerElement?.focus();
+              return;
             }
 
             (inputRef.current || triggerElement)?.focus();
@@ -1228,7 +1230,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             }
 
             const nextValue = event.target.value;
-            const details = createChangeEventDetails('input-change', event.nativeEvent);
+            const details = createChangeEventDetails(REASONS.inputChange, event.nativeEvent);
 
             function handleChange() {
               // Browser autofill only writes a single scalar value.
@@ -1545,21 +1547,20 @@ export namespace AriaCombobox {
   export type HighlightEventReason = 'keyboard' | 'pointer' | 'none';
   export type HighlightEventDetails = BaseUIGenericEventDetails<
     HighlightEventReason,
-    Event,
     { index: number }
   >;
 
   export type ChangeEventReason =
-    | 'trigger-press'
-    | 'outside-press'
-    | 'item-press'
-    | 'escape-key'
-    | 'list-navigation'
-    | 'focus-out'
-    | 'input-change'
-    | 'input-clear'
-    | 'clear-press'
-    | 'chip-remove-press'
-    | 'none';
+    | typeof REASONS.triggerPress
+    | typeof REASONS.outsidePress
+    | typeof REASONS.itemPress
+    | typeof REASONS.escapeKey
+    | typeof REASONS.listNavigation
+    | typeof REASONS.focusOut
+    | typeof REASONS.inputChange
+    | typeof REASONS.inputClear
+    | typeof REASONS.clearPress
+    | typeof REASONS.chipRemovePress
+    | typeof REASONS.none;
   export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }

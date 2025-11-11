@@ -25,6 +25,8 @@ import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
+import { useValueChanged } from '../../utils/useValueChanged';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
@@ -171,6 +173,22 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }, [checked, groupIndeterminate, setFilled]);
 
+  useValueChanged(checked, () => {
+    if (groupContext && !parent) {
+      return;
+    }
+
+    clearErrors(name);
+    setFilled(checked);
+    setDirty(checked !== validityData.initialValue);
+
+    if (shouldValidateOnChange()) {
+      validation.commit(checked);
+    } else {
+      validation.commit(checked, true);
+    }
+  });
+
   function onFocus() {
     setFocused(true);
   }
@@ -222,7 +240,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         }
 
         const nextChecked = event.target.checked;
-        const details = createChangeEventDetails('none', event.nativeEvent);
+        const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
         groupOnChange?.(nextChecked, details);
         onCheckedChange(nextChecked, details);
@@ -231,19 +249,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           return;
         }
 
-        clearErrors(name);
-        setDirty(nextChecked !== validityData.initialValue);
         setCheckedState(nextChecked);
-
-        if (!groupContext) {
-          setFilled(nextChecked);
-
-          if (shouldValidateOnChange()) {
-            validation.commit(nextChecked);
-          } else {
-            validation.commit(nextChecked, true);
-          }
-        }
 
         if (value && groupValue && setGroupValue && !parent) {
           const nextGroupValue = nextChecked
@@ -251,13 +257,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
             : groupValue.filter((item) => item !== value);
 
           setGroupValue(nextGroupValue, details);
-          setFilled(nextGroupValue.length > 0);
-
-          if (shouldValidateOnChange()) {
-            validation.commit(nextGroupValue);
-          } else {
-            validation.commit(nextGroupValue, true);
-          }
         }
       },
       onFocus() {
@@ -425,7 +424,7 @@ export interface CheckboxRootProps
   value?: string;
 }
 
-export type CheckboxRootChangeEventReason = 'none';
+export type CheckboxRootChangeEventReason = typeof REASONS.none;
 export type CheckboxRootChangeEventDetails =
   BaseUIChangeEventDetails<CheckboxRoot.ChangeEventReason>;
 

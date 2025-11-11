@@ -10,6 +10,7 @@ import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { REASONS } from '../../utils/reasons';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -162,13 +163,16 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      {mounted && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch' && (
-        <InternalBackdrop
-          ref={store.context.internalBackdropRef}
-          inert={inertValue(!open)}
-          cutout={triggerElement}
-        />
-      )}
+      {mounted &&
+        modal === true &&
+        openReason !== REASONS.triggerHover &&
+        openMethod !== 'touch' && (
+          <InternalBackdrop
+            ref={store.context.internalBackdropRef}
+            inert={inertValue(!open)}
+            cutout={triggerElement}
+          />
+        )}
       <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>
   );

@@ -13,6 +13,7 @@ import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 const rootStateAttributesMapping = {
   value: () => null,
@@ -78,7 +79,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
   });
 
   const handleValueChange = useStableCallback((newValue: number | string, nextOpen: boolean) => {
-    const details = createChangeEventDetails('none');
+    const details = createChangeEventDetails(REASONS.none);
     if (!multiple) {
       const nextValue = value[0] === newValue ? [] : [newValue];
       onValueChange(nextValue, details);
@@ -226,7 +227,7 @@ export interface AccordionRootProps extends BaseUIComponentProps<'div', Accordio
   orientation?: Orientation;
 }
 
-export type AccordionRootChangeEventReason = 'trigger-press' | 'none';
+export type AccordionRootChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;
 
 export type AccordionRootChangeEventDetails =
   BaseUIChangeEventDetails<AccordionRoot.ChangeEventReason>;
