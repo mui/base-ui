@@ -657,7 +657,7 @@ describe('<Accordion.Root />', () => {
       const onValueChange = spy();
 
       const { user } = await render(
-        <Accordion.Root onValueChange={onValueChange}>
+        <Accordion.Root onValueChange={onValueChange} multiple>
           <Accordion.Item value={0}>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -692,7 +692,7 @@ describe('<Accordion.Root />', () => {
       const onValueChange = spy();
 
       const { user } = await render(
-        <Accordion.Root onValueChange={onValueChange}>
+        <Accordion.Root onValueChange={onValueChange} multiple>
           <Accordion.Item value="one">
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
