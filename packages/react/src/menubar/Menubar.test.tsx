@@ -62,7 +62,7 @@ describe('<Menubar />', () => {
         const { userEvent: user } = await import('@vitest/browser/context');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<ContainedTriggerMenubar />);
+        vbrRender(<MenubarTestSubject />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -124,7 +124,7 @@ describe('<Menubar />', () => {
         });
 
         // Now hover over the share submenu trigger
-        const shareTrigger = screen.getByTestId('share-trigger');
+        const shareTrigger = await screen.findByTestId('share-trigger');
         await user.hover(shareTrigger);
 
         // The share submenu should open
