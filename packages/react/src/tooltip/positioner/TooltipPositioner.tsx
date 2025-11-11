@@ -44,7 +44,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const trackCursorAxis = store.useState('trackCursorAxis');
-  const hoverable = store.useState('hoverable');
+  const disableHoverablePopup = store.useState('disableHoverablePopup');
   const floatingRootContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
 
@@ -70,7 +70,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const defaultProps: HTMLProps = React.useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
-    if (!open || trackCursorAxis === 'both' || !hoverable) {
+    if (!open || trackCursorAxis === 'both' || disableHoverablePopup) {
       hiddenStyles.pointerEvents = 'none';
     }
 
@@ -82,7 +82,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
         ...hiddenStyles,
       },
     };
-  }, [open, trackCursorAxis, hoverable, mounted, positioning.positionerStyles]);
+  }, [open, trackCursorAxis, disableHoverablePopup, mounted, positioning.positionerStyles]);
 
   const positioner = React.useMemo(
     () => ({
