@@ -21,8 +21,7 @@ import {
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../utils/types';
-import { mergeProps } from '../../merge-props';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../composite/item/CompositeItem';
@@ -248,42 +247,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const localInteractionProps = useInteractions([click, hover, focus]);
 
-  const isMenubar = parent.type === 'menubar';
-
-  const getTriggerProps = React.useCallback(
-    (externalProps?: HTMLProps): HTMLProps => {
-      return mergeProps(
-        isMenubar ? { role: 'menuitem' } : {},
-        {
-          'aria-haspopup': 'menu' as const,
-          ref: buttonRef,
-          onMouseDown: (event: React.MouseEvent) => {
-            if (store.select('open')) {
-              return;
-            }
-
-            // mousedown -> mouseup on menu item should not trigger it within 200ms.
-            allowMouseUpTriggerTimeout.start(200, () => {
-              store.context.allowMouseUpTriggerRef.current = true;
-            });
-
-            const doc = ownerDocument(event.currentTarget);
-            doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
-          },
-        },
-        externalProps,
-        getButtonProps,
-      );
-    },
-    [
-      getButtonProps,
-      allowMouseUpTriggerTimeout,
-      handleDocumentMouseUp,
-      isMenubar,
-      store,
-      buttonRef,
-    ],
-  );
+  const isInMenubar = parent.type === 'menubar';
 
   const state: MenuTrigger.State = React.useMemo(
     () => ({
@@ -303,22 +267,38 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const props = [
     localInteractionProps.getReferenceProps(),
     isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
-    // TODO: figure out why 'aria-expanded' from useRole doesn't work
-    { id: thisTriggerId, 'aria-expanded': isOpenedByThisTrigger ? 'true' : 'false' },
+    {
+      'aria-haspopup': 'menu' as const,
+      id: thisTriggerId,
+      onMouseDown: (event: React.MouseEvent) => {
+        if (store.select('open')) {
+          return;
+        }
+
+        // mousedown -> mouseup on menu item should not trigger it within 200ms.
+        allowMouseUpTriggerTimeout.start(200, () => {
+          store.context.allowMouseUpTriggerRef.current = true;
+        });
+
+        const doc = ownerDocument(event.currentTarget);
+        doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
+      },
+    },
+    isInMenubar ? { role: 'menuitem' } : {},
     mixedToggleHandlers,
     elementProps,
-    getTriggerProps,
+    getButtonProps,
   ];
 
   const element = useRenderElement('button', componentProps, {
-    enabled: !isMenubar,
+    enabled: !isInMenubar,
     stateAttributesMapping: pressableTriggerOpenStateMapping,
     state,
     ref,
     props,
   });
 
-  if (isMenubar) {
+  if (isInMenubar) {
     return (
       <CompositeItem
         tag="button"

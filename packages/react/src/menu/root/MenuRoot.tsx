@@ -535,12 +535,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       return triggerProps;
     }
 
-    const {
-      role: roleDiscarded,
-      ['aria-expanded']: ariaExpandedDiscarded,
-      ['aria-controls']: ariaControlsDiscarded,
-      ...rest
-    } = triggerProps;
+    const { role: roleDiscarded, ['aria-controls']: ariaControlsDiscarded, ...rest } = triggerProps;
     return rest;
   }, [getTriggerProps]);
 
