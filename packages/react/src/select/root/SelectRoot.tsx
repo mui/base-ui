@@ -10,6 +10,7 @@ import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { stringifyAsValue } from '../../utils/resolveValueLabel';
 
 /**
@@ -125,7 +126,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               }
 
               const nextValue = event.target.value;
-              const details = createChangeEventDetails('none', event.nativeEvent);
+              const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
               function handleChange() {
                 if (isMultiple) {
@@ -359,15 +360,15 @@ export interface SelectRootActions {
 }
 
 export type SelectRootChangeEventReason =
-  | 'trigger-press'
-  | 'outside-press'
-  | 'escape-key'
-  | 'window-resize'
-  | 'item-press'
-  | 'focus-out'
-  | 'list-navigation'
-  | 'cancel-open'
-  | 'none';
+  | typeof REASONS.triggerPress
+  | typeof REASONS.outsidePress
+  | typeof REASONS.escapeKey
+  | typeof REASONS.windowResize
+  | typeof REASONS.itemPress
+  | typeof REASONS.focusOut
+  | typeof REASONS.listNavigation
+  | typeof REASONS.cancelOpen
+  | typeof REASONS.none;
 
 export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
 

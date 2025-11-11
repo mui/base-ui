@@ -64,7 +64,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
         setPrevFocusElement(
           activeElement(ownerDocument(viewportRef.current)) as HTMLElement | null,
         );
-        viewportRef.current?.focus();
+        viewportRef.current?.focus({ preventScroll: true });
         pauseTimers();
         setFocused(true);
       }

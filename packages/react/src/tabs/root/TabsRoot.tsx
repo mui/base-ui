@@ -11,7 +11,8 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -221,7 +222,7 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.Stat
   onValueChange?: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;
 }
 
-export type TabsRootChangeEventReason = 'none';
+export type TabsRootChangeEventReason = typeof REASONS.none;
 export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
   TabsRoot.ChangeEventReason,
   { activationDirection: TabsTab.ActivationDirection }

@@ -7,14 +7,14 @@
       "description": "Callback fired when the loading status changes.",
       "detailedType": "((status: ImageLoadingStatus) => void) | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Avatar.Root.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Avatar.Root.State) => CSSProperties | undefined)\n| undefined"
-    },
     "className": {
       "type": "string | ((state: Avatar.Root.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Avatar.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Avatar.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Avatar.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)",

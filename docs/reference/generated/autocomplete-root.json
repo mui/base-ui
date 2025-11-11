@@ -38,16 +38,28 @@
       "description": "Event handler called when the popup is opened or closed.",
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Autocomplete.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
-    "actionsRef": {
-      "type": "RefObject<Autocomplete.Root.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the autocomplete will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the autocomplete manually.\nUseful when the autocomplete's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<Autocomplete.Root.Actions>\n| undefined"
-    },
     "autoHighlight": {
       "type": "boolean | 'always'",
       "default": "false",
       "description": "Whether the first matching item is highlighted automatically.\n- `true`: highlight after the user types and keep the highlight while the query changes.\n- `'always'`: always highlight the first item.",
       "detailedType": "boolean | 'always' | undefined"
+    },
+    "keepHighlight": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the highlighted item should be preserved when the pointer leaves the list.",
+      "detailedType": "boolean | undefined"
+    },
+    "highlightItemOnHover": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether moving the pointer over items should highlight them.",
+      "detailedType": "boolean | undefined"
+    },
+    "actionsRef": {
+      "type": "RefObject<Autocomplete.Root.Actions>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the autocomplete will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the autocomplete manually.\nUseful when the autocomplete's animation is controlled by an external library.",
+      "detailedType": "| React.RefObject<Autocomplete.Root.Actions>\n| undefined"
     },
     "filter": {
       "type": "((itemValue: any, query: string, itemToString: ((itemValue: any) => string) | undefined) => boolean) | ((itemValue: ItemValue, query: string, itemToString: ((itemValue: ItemValue) => string) | undefined) => boolean) | null",
@@ -65,12 +77,6 @@
       "description": "Whether list items are presented in a grid layout.\nWhen enabled, arrow keys navigate across rows and columns inferred from DOM rows.",
       "detailedType": "boolean | undefined"
     },
-    "highlightItemOnHover": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether moving the pointer over items should highlight them.",
-      "detailedType": "boolean | undefined"
-    },
     "inline": {
       "type": "boolean",
       "default": "false",
@@ -86,12 +92,6 @@
       "type": "({ items: any[] })[] | ItemValue[]",
       "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
       "detailedType": "{ items: any[] }[] | ItemValue[] | undefined"
-    },
-    "keepHighlight": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the highlighted item should be preserved when the pointer leaves the list.",
-      "detailedType": "boolean | undefined"
     },
     "limit": {
       "type": "number",
@@ -115,11 +115,6 @@
       "default": "'list'",
       "description": "Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.\n- `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.\n- `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).\n- `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).\n- `none`: items are static (not filtered), and the input value will not change based on the active item.",
       "detailedType": "'none' | 'list' | 'both' | 'inline' | undefined"
-    },
-    "onInputValueChange": {
-      "type": "((inputValue: string, eventDetails: Autocomplete.Root.ChangeEventDetails) => void)",
-      "description": "Event handler called when the input value changes.",
-      "detailedType": "| ((\n    inputValue: string,\n    eventDetails: Autocomplete.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemHighlighted": {
       "type": "((highlightedValue: any | undefined, eventDetails: Autocomplete.Root.HighlightEventDetails) => void) | ((highlightedValue: ItemValue | undefined, eventDetails: Autocomplete.Root.HighlightEventDetails) => void)",
