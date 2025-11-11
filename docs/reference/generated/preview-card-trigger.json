@@ -2,6 +2,18 @@
   "name": "PreviewCardTrigger",
   "description": "A link that opens the preview card.\nRenders an `<a>` element.",
   "props": {
+    "delay": {
+      "type": "number",
+      "default": "600",
+      "description": "How long to wait before the preview card opens. Specified in milliseconds.",
+      "detailedType": "number | undefined"
+    },
+    "closeDelay": {
+      "type": "number",
+      "default": "300",
+      "description": "How long to wait before closing the preview card. Specified in milliseconds.",
+      "detailedType": "number | undefined"
+    },
     "className": {
       "type": "string | ((state: PreviewCard.Trigger.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
