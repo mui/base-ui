@@ -5,14 +5,17 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
 import type { PreviewCardRoot } from './PreviewCardRoot';
 
+export interface PreviewCardTriggerDelayConfig {
+  delay?: number;
+  closeDelay?: number;
+}
+
 export interface PreviewCardRootContext {
   open: boolean;
   setOpen: (open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
-  delay: number;
-  closeDelay: number;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
   triggerProps: HTMLProps;
@@ -21,6 +24,7 @@ export interface PreviewCardRootContext {
   transitionStatus: TransitionStatus;
   popupRef: React.RefObject<HTMLElement | null>;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  writeDelayRefs: (config?: PreviewCardTriggerDelayConfig) => void;
 }
 
 export const PreviewCardRootContext = React.createContext<PreviewCardRootContext | undefined>(

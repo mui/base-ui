@@ -10,7 +10,7 @@ import {
   useInteractions,
   useFloatingRootContext,
 } from '../../floating-ui-react';
-import { PreviewCardRootContext } from './PreviewCardContext';
+import { PreviewCardRootContext, type PreviewCardTriggerDelayConfig } from './PreviewCardContext';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -29,14 +29,17 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
     open: externalOpen,
     defaultOpen,
     onOpenChange: onOpenChangeProp,
-    delay,
-    closeDelay,
     onOpenChangeComplete,
     actionsRef,
   } = props;
 
-  const delayWithDefault = delay ?? OPEN_DELAY;
-  const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
+  const delayRef = React.useRef(OPEN_DELAY);
+  const closeDelayRef = React.useRef(CLOSE_DELAY);
+
+  const writeDelayRefs = useStableCallback((config?: PreviewCardTriggerDelayConfig) => {
+    delayRef.current = config?.delay ?? OPEN_DELAY;
+    closeDelayRef.current = config?.closeDelay ?? CLOSE_DELAY;
+  });
 
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
@@ -117,18 +120,18 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
   });
 
   const instantType = instantTypeState;
-  const computedRestMs = delayWithDefault;
+
+  const getDelayValue = () => delayRef.current;
+  const getCloseDelayValue = () => closeDelayRef.current;
 
   const hover = useHover(context, {
     mouseOnly: true,
     move: false,
     handleClose: safePolygon(),
-    restMs: computedRestMs,
-    delay: {
-      close: closeDelayWithDefault,
-    },
+    restMs: getDelayValue,
+    delay: () => ({ close: getCloseDelayValue() }),
   });
-  const focus = useFocusWithDelay(context, { delay: delayWithDefault });
+  const focus = useFocusWithDelay(context, { delay: getDelayValue });
   const dismiss = useDismiss(context);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, dismiss]);
@@ -149,8 +152,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
       instantType,
       transitionStatus,
       onOpenChangeComplete,
-      delay: delayWithDefault,
-      closeDelay: closeDelayWithDefault,
+      writeDelayRefs,
     }),
     [
       open,
@@ -164,8 +166,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
       instantType,
       transitionStatus,
       onOpenChangeComplete,
-      delayWithDefault,
-      closeDelayWithDefault,
+      writeDelayRefs,
     ],
   );
 
@@ -199,16 +200,6 @@ export interface PreviewCardRootProps {
    * Event handler called after any animations complete when the preview card is opened or closed.
    */
   onOpenChangeComplete?: (open: boolean) => void;
-  /**
-   * How long to wait before the preview card opens. Specified in milliseconds.
-   * @default 600
-   */
-  delay?: number;
-  /**
-   * How long to wait before closing the preview card. Specified in milliseconds.
-   * @default 300
-   */
-  closeDelay?: number;
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the preview card will not be unmounted when closed.
