@@ -35,11 +35,11 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
       handle?.store ??
       new DialogStore<Payload>({
         modal: true,
-        dismissible: false,
+        disablePointerDismissal: true,
       });
 
     if (handle?.store) {
-      dialogStore.update({ modal: true, dismissible: false });
+      dialogStore.update({ modal: true, disablePointerDismissal: true });
     }
 
     return dialogStore;
@@ -73,7 +73,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
 export interface AlertDialogRootProps<Payload = unknown>
   extends Omit<
     DialogRoot.Props<Payload>,
-    'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef' | 'handle'
+    'modal' | 'disablePointerDismissal' | 'onOpenChange' | 'actionsRef' | 'handle'
   > {
   /**
    * Event handler called when the dialog is opened or closed.

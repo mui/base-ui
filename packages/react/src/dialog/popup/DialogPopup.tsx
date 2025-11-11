@@ -38,7 +38,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const { store } = useDialogRootContext();
 
   const descriptionElementId = store.useState('descriptionElementId');
-  const dismissible = store.useState('dismissible');
+  const disablePointerDismissal = store.useState('disablePointerDismissal');
   const floatingRootContext = store.useState('floatingRootContext');
   const rootPopupProps = store.useState('popupProps');
   const modal = store.useState('modal');
@@ -116,7 +116,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       context={floatingRootContext}
       openInteractionType={openMethod}
       disabled={!mounted}
-      closeOnFocusOut={dismissible}
+      closeOnFocusOut={!disablePointerDismissal}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       modal={modal !== false}
