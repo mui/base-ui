@@ -24,7 +24,7 @@ export interface PreviewCardRootContext {
   transitionStatus: TransitionStatus;
   popupRef: React.RefObject<HTMLElement | null>;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
-  writeDelayRefs: (config?: PreviewCardTriggerDelayConfig) => void;
+  writeDelayRefs: (config: PreviewCardTriggerDelayConfig) => void;
 }
 
 export const PreviewCardRootContext = React.createContext<PreviewCardRootContext | undefined>(

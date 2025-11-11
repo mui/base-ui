@@ -36,9 +36,9 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
   const delayRef = React.useRef(OPEN_DELAY);
   const closeDelayRef = React.useRef(CLOSE_DELAY);
 
-  const writeDelayRefs = useStableCallback((config?: PreviewCardTriggerDelayConfig) => {
-    delayRef.current = config?.delay ?? OPEN_DELAY;
-    closeDelayRef.current = config?.closeDelay ?? CLOSE_DELAY;
+  const writeDelayRefs = useStableCallback((config: PreviewCardTriggerDelayConfig) => {
+    delayRef.current = config.delay ?? OPEN_DELAY;
+    closeDelayRef.current = config.closeDelay ?? CLOSE_DELAY;
   });
 
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
