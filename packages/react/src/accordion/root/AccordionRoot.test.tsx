@@ -501,9 +501,9 @@ describe('<Accordion.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('prop: multiple', () => {
-    it('multiple items can be open by default', async () => {
+    it('multiple items can be open when `multiple = true`', async () => {
       const { user } = await render(
-        <Accordion.Root>
+        <Accordion.Root multiple>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
