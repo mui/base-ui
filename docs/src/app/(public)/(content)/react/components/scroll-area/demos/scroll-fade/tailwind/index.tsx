@@ -26,7 +26,7 @@ export default function ExampleScrollAreaScrollFade() {
           </p>
         </ScrollArea.Content>
       </ScrollArea.Viewport>
-      <ScrollArea.Scrollbar className="pointer-events-none m-2 flex w-1 justify-center rounded bg-gray-200 opacity-0 transition-opacity delay-300 data-[hovering]:pointer-events-auto data-[hovering]:opacity-100 data-[hovering]:delay-0 data-[hovering]:duration-75 data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:delay-0 data-[scrolling]:duration-75 before:absolute before:h-full before:w-5 before:content-['']">
+      <ScrollArea.Scrollbar className="pointer-events-none m-2 flex w-1 justify-center rounded bg-gray-200 opacity-0 transition-opacity duration-150 data-[hovering]:pointer-events-auto data-[hovering=true]:pointer-events-auto data-[hovering]:opacity-100 data-[hovering=true]:opacity-100 data-[scrolling]:pointer-events-auto data-[scrolling=true]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling=true]:opacity-100 data-[scrolling]:duration-0 data-[scrolling=true]:duration-0 before:absolute before:h-full before:w-5 before:content-['']">
         <ScrollArea.Thumb className="w-full rounded bg-gray-500" />
       </ScrollArea.Scrollbar>
     </ScrollArea.Root>

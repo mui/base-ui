@@ -56,6 +56,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     listRef,
     labelsRef,
     alignItemWithTriggerActiveRef,
+    selectedItemTextRef,
     valuesRef,
     initialValueRef,
     popupRef,
@@ -193,6 +194,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
           initial != null && itemIncludes(valuesRef.current, initial, isItemEqualToValue);
         const nextValue = hasInitial ? initial : null;
         setValue(nextValue, eventDetails);
+
+        if (nextValue === null) {
+          store.set('selectedIndex', null);
+          selectedItemTextRef.current = null;
+        }
       }
     }
 
@@ -203,6 +209,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         nextValue.some((v) => !itemIncludes(value, v, isItemEqualToValue))
       ) {
         setValue(nextValue, eventDetails);
+
+        if (nextValue.length === 0) {
+          store.set('selectedIndex', null);
+          selectedItemTextRef.current = null;
+        }
       }
     }
 

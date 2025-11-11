@@ -75,6 +75,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const focusTimeout = useTimeout();
 
+  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
+
+  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
+
+  function trackPointerType(event: React.PointerEvent) {
+    currentPointerTypeRef.current = event.pointerType;
+  }
+
   const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
     listRef: store.state.labelsRef,
@@ -92,14 +100,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     enabled: !readOnly && !comboboxDisabled,
     event: 'mousedown',
   });
-
-  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
-
-  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
-
-  function trackPointerType(event: React.PointerEvent) {
-    currentPointerTypeRef.current = event.pointerType;
-  }
 
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,

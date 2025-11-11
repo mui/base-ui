@@ -17,7 +17,7 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { compareItemEquality, itemIncludes, removeItem } from '../../utils/itemEquality';
+import { compareItemEquality, removeItem } from '../../utils/itemEquality';
 
 /**
  * An individual option in the select popup.
@@ -55,7 +55,6 @@ export const SelectItem = React.memo(
       selectionRef,
       typingRef,
       valuesRef,
-      registerItemIndex,
       keyboardActiveRef,
       multiple,
     } = useSelectRootContext();
@@ -64,15 +63,14 @@ export const SelectItem = React.memo(
 
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const selected = useStore(store, selectors.isSelected, listItem.index, value);
-    const rootValue = useStore(store, selectors.value);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
-    const itemRef = React.useRef<HTMLDivElement | null>(null);
     const index = listItem.index;
-    const indexRef = useValueAsRef(index);
-
     const hasRegistered = index !== -1;
+
+    const itemRef = React.useRef<HTMLDivElement | null>(null);
+    const indexRef = useValueAsRef(index);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
@@ -88,18 +86,22 @@ export const SelectItem = React.memo(
     }, [hasRegistered, index, value, valuesRef]);
 
     useIsoLayoutEffect(() => {
-      if (hasRegistered) {
-        if (multiple) {
-          const isValueSelected =
-            Array.isArray(rootValue) && itemIncludes(rootValue, value, isItemEqualToValue);
-          if (isValueSelected) {
-            registerItemIndex(index);
-          }
-        } else if (compareItemEquality(rootValue, value, isItemEqualToValue)) {
-          registerItemIndex(index);
-        }
+      if (!hasRegistered) {
+        return undefined;
       }
-    }, [hasRegistered, index, registerItemIndex, value, rootValue, multiple, isItemEqualToValue]);
+
+      const selectedValue = store.state.value;
+
+      let candidate = selectedValue;
+      if (multiple && Array.isArray(selectedValue) && selectedValue.length > 0) {
+        candidate = selectedValue[selectedValue.length - 1];
+      }
+
+      if (candidate !== undefined && compareItemEquality(candidate, value, isItemEqualToValue)) {
+        store.set('selectedIndex', index);
+      }
+      return undefined;
+    }, [hasRegistered, index, multiple, isItemEqualToValue, store, value]);
 
     const state: SelectItem.State = React.useMemo(
       () => ({
@@ -113,8 +115,8 @@ export const SelectItem = React.memo(
     const rootProps = getItemProps({ active: highlighted, selected });
     // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
     // cause the index state to be stuck when leaving the select popup.
-    delete rootProps.onFocus;
-    delete rootProps.id;
+    rootProps.onFocus = undefined;
+    rootProps.id = undefined;
 
     const lastKeyRef = React.useRef<string | null>(null);
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
@@ -127,8 +129,9 @@ export const SelectItem = React.memo(
     });
 
     function commitSelection(event: MouseEvent) {
+      const selectedValue = store.state.value;
       if (multiple) {
-        const currentValue = Array.isArray(rootValue) ? rootValue : [];
+        const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
         const nextValue = selected
           ? removeItem(currentValue, value, isItemEqualToValue)
           : [...currentValue, value];
@@ -239,8 +242,9 @@ export const SelectItem = React.memo(
         indexRef,
         textRef,
         selectedByFocus,
+        hasRegistered,
       }),
-      [selected, indexRef, textRef, selectedByFocus],
+      [selected, indexRef, textRef, selectedByFocus, hasRegistered],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;
