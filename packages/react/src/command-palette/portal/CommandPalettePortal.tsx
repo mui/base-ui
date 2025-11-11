@@ -31,7 +31,7 @@ export const CommandPalettePortal = React.forwardRef(function CommandPalettePort
 
   const shouldRender = mounted || keepMounted;
 
-  React.useEffect(() => {
+  React.useEffect((): (() => void) | void => {
     if (!shouldRender || !containerElement) {
       setPortalNode(null);
       return;

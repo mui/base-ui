@@ -21,7 +21,7 @@ function CommandPaletteContent() {
   const filteredItems = useCommandPaletteItems();
 
   return (
-    <>
+    <React.Fragment>
       <CommandPalette.Input className={styles.Input} placeholder="Search commands..." />
       <CommandPalette.List className={styles.List}>
         {filteredItems.map(({ id, label }) => (
@@ -31,7 +31,7 @@ function CommandPaletteContent() {
         ))}
       </CommandPalette.List>
       <CommandPalette.Empty className={styles.Empty}>No results found</CommandPalette.Empty>
-    </>
+    </React.Fragment>
   );
 }
 

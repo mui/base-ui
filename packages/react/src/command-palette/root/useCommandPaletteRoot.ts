@@ -36,7 +36,7 @@ export function useCommandPaletteRoot(
   }, [store]);
 
   // Handle click outside to close the command palette
-  React.useEffect(() => {
+  React.useEffect((): (() => void) | void => {
     if (!open || !mounted) {
       return;
     }

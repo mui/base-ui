@@ -21,10 +21,6 @@ export const CommandPaletteEmpty = React.forwardRef(function CommandPaletteEmpty
 
   const shouldShow = filteredItemsLength === 0 && query.trim().length > 0;
 
-  if (!shouldShow) {
-    return null;
-  }
-
   const state = React.useMemo<CommandPaletteEmpty.State>(
     () => ({
       empty: true,
@@ -32,7 +28,7 @@ export const CommandPaletteEmpty = React.forwardRef(function CommandPaletteEmpty
     [],
   );
 
-  return useRenderElement('div', componentProps, {
+  const jsx = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -43,6 +39,8 @@ export const CommandPaletteEmpty = React.forwardRef(function CommandPaletteEmpty
       elementProps,
     ],
   });
+
+  return shouldShow ? jsx : null;
 });
 
 export interface CommandPaletteEmptyState {
