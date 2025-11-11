@@ -76,6 +76,10 @@ export interface FloatingTreeProps {
   externalTree?: FloatingTreeStore;
 }
 
+/**
+ * Stores and manages floating elements in a tree structure.
+ * This is a backing store for the `FloatingTree` component.
+ */
 export class FloatingTreeStore<RT extends ReferenceType = ReferenceType> {
   public readonly nodesRef: React.RefObject<Array<FloatingNodeType<RT>>> = { current: [] };
 
