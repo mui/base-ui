@@ -66,6 +66,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     alignItemWithTriggerActiveRef,
     disabled: selectDisabled,
     keyboardActiveRef,
+    serializedValue,
   } = useSelectRootContext();
 
   const disabled = fieldDisabled || selectDisabled || disabledProp;
@@ -75,7 +76,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const triggerProps = useStore(store, selectors.triggerProps);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
-  const serializedValue = useStore(store, selectors.serializedValue);
 
   const positionerRef = useValueAsRef(positionerElement);
 
