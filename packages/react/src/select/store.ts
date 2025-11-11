@@ -2,6 +2,7 @@ import { Store, createSelector } from '@base-ui-components/utils/store';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import { compareItemEquality } from '../utils/itemEquality';
+import { stringifyAsValue } from '../utils/resolveValueLabel';
 
 export type State = {
   id: string | undefined;
@@ -98,4 +99,12 @@ export const selectors = {
   scrollDownArrowVisible: createSelector((state: State) => state.scrollDownArrowVisible),
 
   hasScrollArrows: createSelector((state: State) => state.hasScrollArrows),
+
+  serializedValue: createSelector((state: State) => {
+    const { multiple, value, itemToStringValue } = state;
+    if (multiple && Array.isArray(value) && value.length === 0) {
+      return '';
+    }
+    return stringifyAsValue(value, itemToStringValue);
+  }),
 };

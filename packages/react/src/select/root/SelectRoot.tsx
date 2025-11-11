@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -12,6 +13,7 @@ import {
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { stringifyAsValue } from '../../utils/resolveValueLabel';
+import { selectors } from '../store';
 
 /**
  * Groups all parts of the select.
@@ -81,12 +83,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const ref = useMergedRefs(inputRef, rootContext.validation.inputRef);
 
-  const serializedValue = React.useMemo(() => {
-    if (isMultiple && Array.isArray(value) && value.length === 0) {
-      return '';
-    }
-    return stringifyAsValue(value, itemToStringValue);
-  }, [isMultiple, value, itemToStringValue]);
+  const serializedValue = useStore(store, selectors.serializedValue);
 
   const hasMultipleSelection = isMultiple && Array.isArray(value) && value.length > 0;
 

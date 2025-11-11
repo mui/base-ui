@@ -6,7 +6,6 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStore } from '@base-ui-components/utils/store';
-import { stringifyAsValue } from '../../utils/resolveValueLabel';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -64,7 +63,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     selectionRef,
     validation,
     readOnly,
-    multiple,
     alignItemWithTriggerActiveRef,
     disabled: selectDisabled,
     keyboardActiveRef,
@@ -77,6 +75,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const triggerProps = useStore(store, selectors.triggerProps);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
+  const serializedValue = useStore(store, selectors.serializedValue);
 
   const positionerRef = useValueAsRef(positionerElement);
 
@@ -88,17 +87,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     disabled,
     native: nativeButton,
   });
-
-  const isMultiple = multiple ?? false;
-
-  const itemToStringValue = useStore(store, selectors.itemToStringValue);
-
-  const serializedValue = React.useMemo(() => {
-    if (isMultiple && Array.isArray(value) && value.length === 0) {
-      return '';
-    }
-    return stringifyAsValue(value, itemToStringValue);
-  }, [isMultiple, value, itemToStringValue]);
 
   const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);
