@@ -45,7 +45,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor,
+    disableAnchorTracking,
     alignItemWithTrigger = true,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     ...elementProps
@@ -116,10 +116,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor:
-      trackAnchor === undefined && alignItemWithTriggerActive
-        ? false
-        : (trackAnchor ?? !alignItemWithTriggerActive),
+    disableAnchorTracking: disableAnchorTracking ?? alignItemWithTriggerActive,
     collisionAvoidance,
     keepMounted: true,
   });

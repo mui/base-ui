@@ -31,7 +31,7 @@ export default function AnchorPositioning() {
   const [sticky, setSticky] = React.useState(false);
   const [constrainSize, setConstrainSize] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
-  const [trackAnchor, setTrackAnchor] = React.useState(true);
+  const [disableAnchorTracking, setDisableAnchorTracking] = React.useState(true);
   const [collisionAvoidance, setCollisionAvoidance] = React.useState<
     useAnchorPositioning.Parameters['collisionAvoidance']
   >({
@@ -72,7 +72,7 @@ export default function AnchorPositioning() {
     collisionPadding,
     sticky,
     arrowPadding,
-    trackAnchor,
+    disableAnchorTracking,
     collisionAvoidance,
     mounted: true,
     keepMounted: true,
@@ -140,7 +140,7 @@ export default function AnchorPositioning() {
     </div>
   );
 
-  const popupNode = trackAnchor ? popup : ReactDOM.createPortal(popup, document.body);
+  const popupNode = !disableAnchorTracking ? popup : ReactDOM.createPortal(popup, document.body);
 
   return (
     <div style={{ fontFamily: 'sans-serif', margin: 50 }}>
@@ -313,10 +313,10 @@ export default function AnchorPositioning() {
           <label>
             <input
               type="checkbox"
-              checked={trackAnchor}
-              onChange={() => setTrackAnchor((prev) => !prev)}
+              checked={disableAnchorTracking}
+              onChange={() => setDisableAnchorTracking((prev) => !prev)}
             />
-            Track anchor
+            Disable tracking anchor
           </label>
 
           <fieldset>
