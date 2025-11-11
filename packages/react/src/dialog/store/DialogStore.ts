@@ -13,7 +13,7 @@ export type State<Payload> = {
   readonly open: boolean;
   readonly mounted: boolean;
   readonly modal: boolean | 'trap-focus';
-  readonly dismissible: boolean;
+  readonly disablePointerDismissal: boolean;
   readonly transitionStatus: TransitionStatus;
   readonly openMethod: InteractionType | null;
   readonly nested: boolean;
@@ -48,7 +48,7 @@ const selectors = {
   modal: createSelector((state: State<unknown>) => state.modal),
   nested: createSelector((state: State<unknown>) => state.nested),
   nestedOpenDialogCount: createSelector((state: State<unknown>) => state.nestedOpenDialogCount),
-  dismissible: createSelector((state: State<unknown>) => state.dismissible),
+  disablePointerDismissal: createSelector((state: State<unknown>) => state.disablePointerDismissal),
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
   titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
@@ -72,7 +72,7 @@ const selectors = {
 
 export type DialogStoreOptions = {
   modal?: State<unknown>['modal'];
-  dismissible?: State<unknown>['dismissible'];
+  disablePointerDismissal?: State<unknown>['disablePointerDismissal'];
 };
 
 export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
@@ -127,9 +127,9 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
 }
 
 function createInitialState<Payload>(options: DialogStoreOptions = {}): State<Payload> {
-  const { modal = true, dismissible = true } = options;
+  const { modal = true, disablePointerDismissal = false } = options;
   return {
-    dismissible,
+    disablePointerDismissal,
     modal,
     open: false,
     nested: false,

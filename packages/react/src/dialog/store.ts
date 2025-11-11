@@ -27,7 +27,7 @@ export type State = {
   /**
    * Determines whether the dialog should close on outside clicks.
    */
-  dismissible: boolean;
+  disablePointerDismissal: boolean;
   /**
    * Determines what triggered the dialog to open.
    */
@@ -90,7 +90,7 @@ const selectors = {
   modal: createSelector((state: State) => state.modal),
   nested: createSelector((state: State) => state.nested),
   nestedOpenDialogCount: createSelector((state: State) => state.nestedOpenDialogCount),
-  dismissible: createSelector((state: State) => state.dismissible),
+  disablePointerDismissal: createSelector((state: State) => state.disablePointerDismissal),
   openMethod: createSelector((state: State) => state.openMethod),
   descriptionElementId: createSelector((state: State) => state.descriptionElementId),
   titleElementId: createSelector((state: State) => state.titleElementId),
