@@ -17,7 +17,7 @@
     "disableAnchorTracking": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to disable the popup to tracks any layout shift of its positioning anchor.",
+      "description": "Whether to disable the popup from tracking any layout shift of its positioning anchor.",
       "detailedType": "boolean | undefined"
     },
     "align": {

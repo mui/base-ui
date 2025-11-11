@@ -631,7 +631,7 @@ export interface UseAnchorPositioningSharedParameters {
    */
   arrowPadding?: number;
   /**
-   * Whether to disable the popup to tracks any layout shift of its positioning anchor.
+   * Whether to disable the popup from tracking any layout shift of its positioning anchor.
    * @default false
    */
   disableAnchorTracking?: boolean;
