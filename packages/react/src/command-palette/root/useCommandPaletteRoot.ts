@@ -38,12 +38,12 @@ export function useCommandPaletteRoot(
   // Handle click outside to close the command palette
   React.useEffect((): (() => void) | void => {
     if (!open || !mounted) {
-      return;
+      return undefined;
     }
 
     const popupElement = store.state.popupElement;
     if (!popupElement) {
-      return;
+      return undefined;
     }
 
     const doc = ownerDocument(popupElement);

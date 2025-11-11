@@ -34,7 +34,7 @@ export const CommandPalettePortal = React.forwardRef(function CommandPalettePort
   React.useEffect((): (() => void) | void => {
     if (!shouldRender || !containerElement) {
       setPortalNode(null);
-      return;
+      return undefined;
     }
 
     const node = document.createElement('div');
