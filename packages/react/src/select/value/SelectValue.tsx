@@ -24,11 +24,12 @@ export const SelectValue = React.forwardRef(function SelectValue(
 ) {
   const { className, render, children: childrenProp, ...elementProps } = componentProps;
 
-  const { store, valueRef, serializedValue } = useSelectRootContext();
+  const { store, valueRef } = useSelectRootContext();
 
   const value = useStore(store, selectors.value);
   const items = useStore(store, selectors.items);
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
+  const serializedValue = useStore(store, selectors.serializedValue);
 
   const state: SelectValue.State = React.useMemo(
     () => ({
