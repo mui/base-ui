@@ -11,7 +11,7 @@
   outline: 0;
   border: 1px solid var(--color-gray-200);
   border-radius: 0.375rem;
-  background-color: white;
+  background-color: canvas;
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.5rem;
