@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { FloatingFocusManager } from '../../floating-ui-react';
+import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -51,6 +51,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const rootId = store.useState('rootId');
   const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const closeDelay = store.useState('closeDelay');
 
   useOpenChangeComplete({
     open,
@@ -76,6 +77,15 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       floatingTreeRoot.events.off('close', handleClose);
     };
   }, [floatingTreeRoot.events, store]);
+
+  const hoverEnabled = store.useState('hoverEnabled');
+  const disabled = store.useState('disabled');
+
+  useHoverFloatingInteraction(floatingContext, {
+    enabled:
+      hoverEnabled && !disabled && parent.type !== 'context-menu' && parent.type !== 'menubar',
+    closeDelay,
+  });
 
   const state: MenuPopup.State = React.useMemo(
     () => ({

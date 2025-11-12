@@ -241,10 +241,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     state,
     stateAttributesMapping: popupStateMapping,
     ref: [forwardedRef, store.useStateSetter('positionerElement')],
-    props: {
-      ...positionerProps,
-      ...elementProps,
-    },
+    props: [positionerProps, elementProps],
   });
 
   const shouldRenderBackdrop =

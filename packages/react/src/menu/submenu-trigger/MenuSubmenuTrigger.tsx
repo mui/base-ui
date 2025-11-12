@@ -1,6 +1,11 @@
 'use client';
 import * as React from 'react';
-import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
+import {
+  safePolygon,
+  useClick,
+  useHoverReferenceInteraction,
+  useInteractions,
+} from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -59,6 +64,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
+  store.useSyncedValue('closeDelay', closeDelay);
+
   const parentMenuStore = submenuRootContext.parentMenu;
 
   const itemProps = parentMenuStore.useState('itemProps');
@@ -83,7 +90,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     nodeId: menuPositionerContext?.nodeId,
   });
 
-  const hover = useHover(floatingRootContext, {
+  const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     enabled: hoverEnabled && openOnHover && !disabled,
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
@@ -102,7 +109,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     stickIfOpen: false,
   });
 
-  const localInteractionProps = useInteractions([click, hover]);
+  const localInteractionProps = useInteractions([click]);
 
   delete rootTriggerProps.id;
 
@@ -116,6 +123,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     stateAttributesMapping: triggerOpenStateMapping,
     props: [
       localInteractionProps.getReferenceProps(),
+      hoverProps,
       rootTriggerProps,
       itemProps,
       {

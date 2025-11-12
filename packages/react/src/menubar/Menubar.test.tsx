@@ -133,7 +133,7 @@ describe('<Menubar />', () => {
         });
       });
 
-      it.only('should open another menu on hover when a nested submenu is open', async () => {
+      it('should open another menu on hover when a nested submenu is open', async () => {
         const { userEvent: user } = await import('@vitest/browser/context');
         const { render: vbrRender } = await import('vitest-browser-react');
 

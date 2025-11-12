@@ -36,6 +36,7 @@ export type State<Payload> = {
   activeTriggerProps: HTMLProps;
   inactiveTriggerProps: HTMLProps;
   activeTriggerId: string | null;
+  closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
 };
 
@@ -119,6 +120,7 @@ const selectors = {
   inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
   payload: createSelector((state: State<unknown>) => state.payload),
   triggers: createSelector((state: State<unknown>) => state.triggers),
+  closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
   keyboardEventRelay: createSelector(
     (state: State<unknown>): React.KeyboardEventHandler<any> | undefined => {
       if (state.keyboardEventRelay) {
@@ -233,5 +235,6 @@ function createInitialState<Payload>(): State<Payload> {
     triggers: new Map<string, HTMLElement>(),
     activeTriggerId: null,
     keyboardEventRelay: undefined,
+    closeDelay: 0,
   };
 }

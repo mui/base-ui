@@ -68,6 +68,7 @@ export default function Experiment() {
 
       <h2>In Menubar</h2>
       <div>
+        <h3>Detached</h3>
         <Menubar className={styles.Menubar}>
           {topLevelContentKeys.map((contentKey) => (
             <Menu.Trigger
@@ -81,17 +82,15 @@ export default function Experiment() {
           ))}
         </Menubar>
 
+        <h3>Multiple contained</h3>
         <Menubar className={styles.Menubar}>
-          {topLevelContentKeys.map((contentKey) => (
-            <Menu.Trigger
-              className={styles.MenuTrigger}
-              handle={menu1Handle}
-              payload={contentKey}
-              key={contentKey}
-            >
-              {contentKey}
-            </Menu.Trigger>
-          ))}
+          <ReusableMenu>
+            {topLevelContentKeys.map((contentKey) => (
+              <Menu.Trigger className={styles.MenuTrigger} payload={contentKey} key={contentKey}>
+                {contentKey}
+              </Menu.Trigger>
+            ))}
+          </ReusableMenu>
         </Menubar>
 
         <h2>In Toolbar</h2>
@@ -153,28 +152,31 @@ export default function Experiment() {
   );
 }
 
-function ReusableMenu(props: { handle: Menu.Handle<ContentKey> }) {
-  const { handle } = props;
+function ReusableMenu(props: { handle?: Menu.Handle<ContentKey>; children?: React.ReactNode }) {
+  const { handle, children } = props;
 
   return (
     <Menu.Root handle={handle}>
       {({ payload: contentKey }) => {
         const items = contentKey ? contents[contentKey] : undefined;
         return (
-          <Menu.Portal>
-            <Menu.Positioner sideOffset={8} className={demoStyles.Positioner}>
-              <Menu.Popup className={demoStyles.Popup}>
-                <Menu.Arrow className={demoStyles.Arrow}>
-                  <ArrowSvg />
-                </Menu.Arrow>
-                {items ? (
-                  items.map((item, index) => renderMenuContentItem(item, `item-${index}`))
-                ) : (
-                  <div className={styles.MenuSection}>No content for this trigger.</div>
-                )}
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
+          <React.Fragment>
+            {children}
+            <Menu.Portal>
+              <Menu.Positioner sideOffset={8} className={demoStyles.Positioner}>
+                <Menu.Popup className={demoStyles.Popup}>
+                  <Menu.Arrow className={demoStyles.Arrow}>
+                    <ArrowSvg />
+                  </Menu.Arrow>
+                  {items ? (
+                    items.map((item, index) => renderMenuContentItem(item, `item-${index}`))
+                  ) : (
+                    <div className={styles.MenuSection}>No content for this trigger.</div>
+                  )}
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </React.Fragment>
         );
       }}
     </Menu.Root>

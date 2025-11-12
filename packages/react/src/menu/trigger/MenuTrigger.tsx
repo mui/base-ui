@@ -4,13 +4,14 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { contains } from '../../floating-ui-react/utils';
 import {
   safePolygon,
   useClick,
   useFloatingTree,
   useFocus,
-  useHover,
+  useHoverReferenceInteraction,
   useInteractions,
 } from '../../floating-ui-react/index';
 import {
@@ -103,7 +104,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
   const menuDisabled = store.useState('disabled');
   const floatingRootContext = store.useState('floatingRootContext');
-  const hoverEnabled = store.useState('hoverEnabled');
   const parentMenubarHasSubmenuOpen = parent.type === 'menubar' && parent.context.hasSubmenuOpen;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -136,6 +136,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         floatingNodeId,
         floatingParentNodeId,
         keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
+        closeDelay,
       });
     }
   }, [
@@ -146,6 +147,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     floatingNodeId,
     floatingParentNodeId,
     compositeRootContext?.relayKeyboardEvent,
+    closeDelay,
   ]);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -204,9 +206,8 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen ?? false;
 
-  const hover = useHover(floatingRootContext, {
+  const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     enabled:
-      hoverEnabled &&
       openOnHover &&
       !disabled &&
       parent.type !== 'context-menu' &&
@@ -218,6 +219,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     delay: { close: closeDelay },
     triggerElement,
     externalTree: floatingTreeRoot,
+    isActiveTrigger: isTriggerActive,
   });
 
   // Whether to ignore clicks to open the menu.
@@ -245,7 +247,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     mouseDownAction: 'open',
   });
 
-  const localInteractionProps = useInteractions([click, hover, focus]);
+  const localInteractionProps = useInteractions([click, focus]);
 
   const isInMenubar = parent.type === 'menubar';
 
@@ -266,6 +268,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, setTriggerElement];
   const props = [
     localInteractionProps.getReferenceProps(),
+    hoverProps ?? EMPTY_OBJECT,
     isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
     {
       'aria-haspopup': 'menu' as const,
