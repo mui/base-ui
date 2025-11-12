@@ -11,7 +11,7 @@ import styles from './dialog.module.css';
 
 interface Settings {
   modal: boolean;
-  dismissible: boolean;
+  disablePointerDismissal: boolean;
   keepMounted: boolean;
   renderBackdrop?: boolean;
 }
@@ -65,7 +65,10 @@ export default function DialogExperiment() {
 
       <h2>Uncontrolled, single trigger</h2>
       <div className={styles.Container}>
-        <Dialog.Root modal={settings.modal} dismissible={settings.dismissible}>
+        <Dialog.Root
+          modal={settings.modal}
+          disablePointerDismissal={settings.disablePointerDismissal}
+        >
           <StyledTrigger>Invites</StyledTrigger>
           {renderDialogContent('Invites', settings)}
         </Dialog.Root>
@@ -75,7 +78,7 @@ export default function DialogExperiment() {
       <div className={styles.Container}>
         <Dialog.Root
           modal={settings.modal}
-          dismissible={settings.dismissible}
+          disablePointerDismissal={settings.disablePointerDismissal}
           open={singleTriggerOpen}
           onOpenChange={(nextOpen) => setSingleTriggerOpen(nextOpen)}
         >
@@ -93,7 +96,10 @@ export default function DialogExperiment() {
 
       <h2>Uncontrolled, multiple triggers within Root</h2>
       <div className={styles.Container}>
-        <Dialog.Root modal={settings.modal} dismissible={settings.dismissible}>
+        <Dialog.Root
+          modal={settings.modal}
+          disablePointerDismissal={settings.disablePointerDismissal}
+        >
           {({ payload }) => (
             <React.Fragment>
               <StyledTrigger payload={triggerLabels[0]}>{triggerLabels[0]}</StyledTrigger>
@@ -109,7 +115,7 @@ export default function DialogExperiment() {
       <div className={styles.Container}>
         <Dialog.Root
           modal={settings.modal}
-          dismissible={settings.dismissible}
+          disablePointerDismissal={settings.disablePointerDismissal}
           open={controlledWithinRootOpen}
           onOpenChange={(nextOpen, eventDetails) => {
             setControlledWithinRootOpen(nextOpen);
@@ -276,7 +282,7 @@ function StyledDialog(props: StyledDialogProps<keyof typeof dialogContents>) {
       onOpenChange={onOpenChange}
       triggerId={triggerId}
       modal={settings.modal}
-      dismissible={settings.dismissible}
+      disablePointerDismissal={settings.disablePointerDismissal}
     >
       {({ payload }) => renderDialogContent(payload as keyof typeof dialogContents, settings)}
     </Dialog.Root>
@@ -318,10 +324,10 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     label: 'Modal',
     default: true,
   },
-  dismissible: {
+  disablePointerDismissal: {
     type: 'boolean',
-    label: 'Dismissible',
-    default: true,
+    label: 'Disable pointer dismissal',
+    default: false,
   },
   keepMounted: {
     type: 'boolean',

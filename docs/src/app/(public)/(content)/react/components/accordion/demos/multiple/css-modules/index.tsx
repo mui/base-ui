@@ -4,7 +4,7 @@ import styles from '../../_index.module.css';
 
 export default function ExampleAccordion() {
   return (
-    <Accordion.Root className={styles.Accordion}>
+    <Accordion.Root className={styles.Accordion} multiple>
       <Accordion.Item className={styles.Item}>
         <Accordion.Header className={styles.Header}>
           <Accordion.Trigger className={styles.Trigger}>
