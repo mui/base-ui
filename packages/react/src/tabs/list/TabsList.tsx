@@ -23,7 +23,7 @@ export const TabsList = React.forwardRef(function TabsList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    activateOnFocus = true,
+    activateOnFocus = false,
     className,
     loop = true,
     render,
@@ -202,7 +202,7 @@ export interface TabsListProps extends BaseUIComponentProps<'div', TabsList.Stat
   /**
    * Whether to automatically change the active tab on arrow key focus.
    * Otherwise, tabs will be activated using Enter or Spacebar key press.
-   * @default true
+   * @default false
    */
   activateOnFocus?: boolean;
   /**
