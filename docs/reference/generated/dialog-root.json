@@ -28,9 +28,9 @@
       "description": "ID of the trigger that the dialog is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.",
       "detailedType": "string | null | undefined"
     },
-    "dismissible": {
+    "disablePointerDismissal": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Determines whether the dialog should close on outside clicks.",
       "detailedType": "boolean | undefined"
     },

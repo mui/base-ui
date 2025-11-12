@@ -28,7 +28,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     orientation,
     dense,
     itemSizes,
-    loop,
+    loopFocus,
     cols,
     enableHomeAndEndKeys,
     onMapChange: onMapChangeProp,
@@ -53,7 +53,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
   } = useCompositeRoot({
     itemSizes,
     cols,
-    loop,
+    loopFocus,
     dense,
     orientation,
     highlightedIndex: highlightedIndexProp,
@@ -107,7 +107,7 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   tag?: keyof React.JSX.IntrinsicElements;
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
-  loop?: boolean;
+  loopFocus?: boolean;
   highlightedIndex?: number;
   onHighlightedIndexChange?: (index: number) => void;
   itemSizes?: Dimensions[];

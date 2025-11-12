@@ -39,6 +39,12 @@
       "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.",
       "detailedType": "{} | undefined"
     },
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
+      "detailedType": "boolean | undefined"
+    },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the menu is closed.",
@@ -53,12 +59,6 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the component should ignore user interaction.",
-      "detailedType": "boolean | undefined"
-    },
-    "loop": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
       "detailedType": "boolean | undefined"
     },
     "orientation": {

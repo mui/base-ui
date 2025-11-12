@@ -117,7 +117,7 @@ export function useAnchorPositioning(
     collisionPadding: collisionPaddingParam = 5,
     sticky = false,
     arrowPadding = 5,
-    trackAnchor = true,
+    disableAnchorTracking = false,
     // Private parameters
     keepMounted = false,
     floatingRootContext,
@@ -384,10 +384,10 @@ export function useAnchorPositioning(
 
   const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
-      elementResize: trackAnchor && typeof ResizeObserver !== 'undefined',
-      layoutShift: trackAnchor && typeof IntersectionObserver !== 'undefined',
+      elementResize: !disableAnchorTracking && typeof ResizeObserver !== 'undefined',
+      layoutShift: !disableAnchorTracking && typeof IntersectionObserver !== 'undefined',
     }),
-    [trackAnchor],
+    [disableAnchorTracking],
   );
 
   const {
@@ -634,10 +634,10 @@ export interface UseAnchorPositioningSharedParameters {
    */
   arrowPadding?: number;
   /**
-   * Whether the popup tracks any layout shift of its positioning anchor.
-   * @default true
+   * Whether to disable the popup from tracking any layout shift of its positioning anchor.
+   * @default false
    */
-  trackAnchor?: boolean;
+  disableAnchorTracking?: boolean;
   /**
    * Determines how to handle collisions when positioning the popup.
    *
@@ -661,7 +661,7 @@ export interface UseAnchorPositioningParameters extends useAnchorPositioning.Sha
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
   floatingRootContext?: FloatingRootContext;
   mounted: boolean;
-  trackAnchor: boolean;
+  disableAnchorTracking: boolean;
   nodeId?: string;
   adaptiveOrigin?: Middleware;
   collisionAvoidance: CollisionAvoidance;

@@ -57,7 +57,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     defaultOpen = false,
     disabled: disabledProp = false,
     modal: modalProp,
-    loop = true,
+    loopFocus = true,
     orientation = 'vertical',
     actionsRef,
     closeParentOnEsc = true,
@@ -226,13 +226,10 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  useScrollLock({
-    enabled:
-      open && modal && lastOpenChangeReason !== REASONS.triggerHover && openMethod !== 'touch',
-    mounted,
-    open,
-    referenceElement: positionerElement,
-  });
+  useScrollLock(
+    open && modal && lastOpenChangeReason !== REASONS.triggerHover && openMethod !== 'touch',
+    positionerElement,
+  );
 
   useIsoLayoutEffect(() => {
     if (!open && !hoverEnabled) {
@@ -474,7 +471,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     listRef: store.context.itemDomElements,
     activeIndex,
     nested: parent.type !== undefined,
-    loop,
+    loopFocus,
     orientation,
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
     rtl: direction === 'rtl',
@@ -612,7 +609,7 @@ export interface MenuRootProps<Payload = unknown> {
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loop?: boolean;
+  loopFocus?: boolean;
   /**
    * Determines if the menu enters a modal state when open.
    * - `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
