@@ -43,7 +43,6 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   const selectionMode = useStore(store, selectors.selectionMode);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
-  const clearRef = useStore(store, selectors.clearRef);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
 
@@ -78,7 +77,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   useOpenChangeComplete({
     open: visible,
-    ref: clearRef,
+    ref: store.state.clearRef,
     onComplete() {
       if (!visible) {
         setMounted(false);
@@ -88,7 +87,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, clearRef],
+    ref: [forwardedRef, buttonRef, store.state.clearRef],
     props: [
       {
         tabIndex: -1,
