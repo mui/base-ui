@@ -62,6 +62,9 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
 
     const htmlStyles = win.getComputedStyle(html);
     const bodyStyles = win.getComputedStyle(body);
+    const htmlScrollbarGutterValue = htmlStyles.scrollbarGutter || '';
+    const hasBothEdges = htmlScrollbarGutterValue.includes('both-edges');
+    const scrollbarGutterValue = hasBothEdges ? 'stable both-edges' : 'stable';
 
     scrollTop = html.scrollTop;
     scrollLeft = html.scrollLeft;
@@ -106,38 +109,39 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
      */
 
     if (supportsStableScrollbarGutter) {
-      html.style.scrollbarGutter = 'stable';
+      html.style.scrollbarGutter = scrollbarGutterValue;
       elementToLock.style.overflowY = 'hidden';
       elementToLock.style.overflowX = 'hidden';
-    } else {
-      Object.assign(html.style, {
-        scrollbarGutter: 'stable',
-        overflowY: 'hidden',
-        overflowX: 'hidden',
-      });
-
-      if (isScrollableY || hasConstantOverflowY) {
-        html.style.overflowY = 'scroll';
-      }
-      if (isScrollableX || hasConstantOverflowX) {
-        html.style.overflowX = 'scroll';
-      }
-
-      Object.assign(body.style, {
-        position: 'relative',
-        height:
-          marginY || scrollbarHeight ? `calc(100dvh - ${marginY + scrollbarHeight}px)` : '100dvh',
-        width: marginX || scrollbarWidth ? `calc(100vw - ${marginX + scrollbarWidth}px)` : '100vw',
-        boxSizing: 'border-box',
-        overflow: 'hidden',
-        scrollBehavior: 'unset',
-      });
-
-      body.scrollTop = scrollTop;
-      body.scrollLeft = scrollLeft;
-      html.setAttribute('data-base-ui-scroll-locked', '');
-      html.style.scrollBehavior = 'unset';
+      return;
     }
+
+    Object.assign(html.style, {
+      scrollbarGutter: scrollbarGutterValue,
+      overflowY: 'hidden',
+      overflowX: 'hidden',
+    });
+
+    if (isScrollableY || hasConstantOverflowY) {
+      html.style.overflowY = 'scroll';
+    }
+    if (isScrollableX || hasConstantOverflowX) {
+      html.style.overflowX = 'scroll';
+    }
+
+    Object.assign(body.style, {
+      position: 'relative',
+      height:
+        marginY || scrollbarHeight ? `calc(100dvh - ${marginY + scrollbarHeight}px)` : '100dvh',
+      width: marginX || scrollbarWidth ? `calc(100vw - ${marginX + scrollbarWidth}px)` : '100vw',
+      boxSizing: 'border-box',
+      overflow: 'hidden',
+      scrollBehavior: 'unset',
+    });
+
+    body.scrollTop = scrollTop;
+    body.scrollLeft = scrollLeft;
+    html.setAttribute('data-base-ui-scroll-locked', '');
+    html.style.scrollBehavior = 'unset';
   }
 
   function cleanup() {
