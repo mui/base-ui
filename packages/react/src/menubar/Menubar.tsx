@@ -51,12 +51,7 @@ export const Menubar = React.forwardRef(function Menubar(
     }
   }, [hasSubmenuOpen, resetOpenInteractionType]);
 
-  useScrollLock({
-    enabled: modal && hasSubmenuOpen && openMethod !== 'touch',
-    open: hasSubmenuOpen,
-    mounted: hasSubmenuOpen,
-    referenceElement: contentElement,
-  });
+  useScrollLock(modal && hasSubmenuOpen && openMethod !== 'touch', contentElement);
 
   const id = useBaseUiId(idProp);
 
