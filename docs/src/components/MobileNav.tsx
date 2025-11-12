@@ -41,7 +41,7 @@ function PopupImpl(props: React.PropsWithChildren) {
   const [forceScrollLock, setForceScrollLock] = React.useState(false);
   const setOpen = React.useContext(MobileNavStateCallback);
   const rem = React.useRef(16);
-  useScrollLock({ enabled: forceScrollLock, open: forceScrollLock, mounted: forceScrollLock });
+  useScrollLock(forceScrollLock);
 
   React.useEffect(() => {
     rem.current = parseFloat(getComputedStyle(document.documentElement).fontSize);
