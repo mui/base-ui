@@ -52,6 +52,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
+  const activeTriggerElement = store.useState('activeTriggerElement');
 
   useOpenChangeComplete({
     open,
@@ -135,6 +136,13 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       initialFocus={parent.type !== 'menu'}
       restoreFocus
       externalTree={floatingTreeRoot}
+      previousFocusableElement={activeTriggerElement}
+      nextFocusableElement={
+        parent.type !== 'menu' ? store.context.triggerFocusTargetRef : undefined
+      }
+      beforeContentFocusGuardRef={
+        parent.type !== 'menu' ? store.context.beforeContentFocusGuardRef : undefined
+      }
     >
       {element}
     </FloatingFocusManager>

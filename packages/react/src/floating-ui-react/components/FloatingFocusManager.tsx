@@ -227,7 +227,7 @@ export interface FloatingFocusManagerProps {
   previousFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null;
   /**
    * Ref to the focus guard preceding the floating element content.
-   * Can be usefult to focus the popup progammatically.
+   * Can be useful to focus the popup progammatically.
    */
   beforeContentFocusGuardRef?: React.RefObject<HTMLSpanElement | null>;
   /**

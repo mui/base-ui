@@ -1,11 +1,19 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import { FocusableElement } from 'tabbable';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
-import { contains } from '../../floating-ui-react/utils';
+import {
+  contains,
+  getNextTabbable,
+  getTabbableAfterElement,
+  getTabbableBeforeElement,
+  isOutsideEvent,
+} from '../../floating-ui-react/utils';
 import {
   safePolygon,
   useClick,
@@ -37,6 +45,8 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { FocusGuard } from '../../utils/FocusGuard';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -104,6 +114,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
   const menuDisabled = store.useState('disabled');
   const floatingRootContext = store.useState('floatingRootContext');
+  const positionerElement = store.useState('positionerElement');
   const parentMenubarHasSubmenuOpen = parent.type === 'menubar' && parent.context.hasSubmenuOpen;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -286,12 +297,65 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         const doc = ownerDocument(event.currentTarget);
         doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
       },
+      key: thisTriggerId,
     },
     isInMenubar ? { role: 'menuitem' } : {},
     mixedToggleHandlers,
     elementProps,
     getButtonProps,
   ];
+
+  const preFocusGuardRef = React.useRef<HTMLElement>(null);
+
+  const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
+    ReactDOM.flushSync(() => {
+      store.setOpen(
+        false,
+        createChangeEventDetails(
+          REASONS.focusOut,
+          event.nativeEvent,
+          event.currentTarget as HTMLElement,
+        ),
+      );
+    });
+
+    const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
+      preFocusGuardRef.current,
+    );
+    previousTabbable?.focus();
+  });
+
+  const handleFocusTargetFocus = useStableCallback((event: React.FocusEvent) => {
+    if (positionerElement && isOutsideEvent(event, positionerElement)) {
+      store.context.beforeContentFocusGuardRef.current?.focus();
+    } else {
+      ReactDOM.flushSync(() => {
+        store.setOpen(
+          false,
+          createChangeEventDetails(
+            REASONS.focusOut,
+            event.nativeEvent,
+            event.currentTarget as HTMLElement,
+          ),
+        );
+      });
+
+      let nextTabbable = getTabbableAfterElement(triggerElement);
+
+      while (
+        (nextTabbable !== null && contains(positionerElement, nextTabbable)) ||
+        nextTabbable?.hasAttribute('aria-hidden')
+      ) {
+        const prevTabbable = nextTabbable;
+        nextTabbable = getNextTabbable(nextTabbable);
+        if (nextTabbable === prevTabbable) {
+          break;
+        }
+      }
+
+      nextTabbable?.focus();
+    }
+  });
 
   const element = useRenderElement('button', componentProps, {
     enabled: !isInMenubar,
@@ -312,6 +376,24 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         props={props}
         stateAttributesMapping={pressableTriggerOpenStateMapping}
       />
+    );
+  }
+
+  if (isOpenedByThisTrigger) {
+    return (
+      <React.Fragment>
+        <FocusGuard
+          ref={preFocusGuardRef}
+          onFocus={handlePreFocusGuardFocus}
+          key={`${thisTriggerId}-pre-focus-guard`}
+        />
+        {element}
+        <FocusGuard
+          ref={store.context.triggerFocusTargetRef}
+          onFocus={handleFocusTargetFocus}
+          key={`${thisTriggerId}-post-focus-guard`}
+        />
+      </React.Fragment>
     );
   }
 
