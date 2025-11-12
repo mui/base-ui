@@ -175,13 +175,10 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  useScrollLock({
-    enabled:
-      open && modal && lastOpenChangeReason !== REASONS.triggerHover && openMethod !== 'touch',
-    mounted,
-    open,
-    referenceElement: positionerElement,
-  });
+  useScrollLock(
+    open && modal && lastOpenChangeReason !== REASONS.triggerHover && openMethod !== 'touch',
+    positionerElement,
+  );
 
   useIsoLayoutEffect(() => {
     if (!open && !hoverEnabled) {
