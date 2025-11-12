@@ -212,7 +212,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             store.state.setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
           }
 
-          doc.addEventListener('mouseup', handleMouseUp, { once: true });
+          if (store.state.inputInsidePopup) {
+            doc.addEventListener('mouseup', handleMouseUp, { once: true });
+          }
         },
         onKeyDown(event) {
           if (disabled || readOnly) {
