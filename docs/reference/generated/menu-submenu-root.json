@@ -29,6 +29,12 @@
       "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu.",
       "detailedType": "boolean | undefined"
     },
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
+      "detailedType": "boolean | undefined"
+    },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the menu is closed.",
@@ -57,12 +63,6 @@
       "default": "0",
       "description": "How long to wait before closing the menu that was opened on hover.\nSpecified in milliseconds.\n\nRequires the `openOnHover` prop.",
       "detailedType": "number | undefined"
-    },
-    "loop": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
-      "detailedType": "boolean | undefined"
     },
     "orientation": {
       "type": "Menu.Root.Orientation",
