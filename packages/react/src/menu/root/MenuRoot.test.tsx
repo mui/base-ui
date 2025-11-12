@@ -40,13 +40,15 @@ describe('<Menu.Root />', () => {
     expectedPopupRole: 'menu',
   });
 
+  // All these tests run for contained and detached triggers.
+  // The rendered menubar has the same structure in most cases.
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerMenu },
     { name: 'detached triggers', Component: DetachedTriggerMenu },
-  ])('when using $name', ({ Component: MenuTestSubject }) => {
+  ])('when using $name', ({ Component: TestMenu }) => {
     describe('keyboard navigation', () => {
       it('changes the highlighted item using the arrow keys', async () => {
-        await render(<MenuTestSubject />);
+        await render(<TestMenu />);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await act(async () => {
@@ -80,7 +82,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('changes the highlighted item using the Home and End keys', async () => {
-        await render(<MenuTestSubject />);
+        await render(<TestMenu />);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await act(async () => {
@@ -107,7 +109,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('includes disabled items during keyboard navigation', async () => {
-        await render(<MenuTestSubject />);
+        await render(<TestMenu />);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await act(async () => {
@@ -157,7 +159,7 @@ describe('<Menu.Root />', () => {
           ];
 
           const { user } = await render(
-            <MenuTestSubject rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+            <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
           );
 
           const items = screen.getAllByRole('menuitem');
@@ -202,9 +204,7 @@ describe('<Menu.Root />', () => {
             </Menu.Item>,
           ];
 
-          const { user } = await render(
-            <MenuTestSubject popupProps={{ children: itemElements }} />,
-          );
+          const { user } = await render(<TestMenu popupProps={{ children: itemElements }} />);
 
           const trigger = screen.getByRole('button', { name: 'Toggle' });
           await user.click(trigger);
@@ -259,7 +259,7 @@ describe('<Menu.Root />', () => {
           ];
 
           const { user } = await render(
-            <MenuTestSubject rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+            <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
           );
 
           const items = screen.getAllByRole('menuitem');
@@ -296,7 +296,7 @@ describe('<Menu.Root />', () => {
           ];
 
           const { user } = await render(
-            <MenuTestSubject rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+            <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
           );
 
           const items = screen.getAllByRole('menuitem');
@@ -333,7 +333,7 @@ describe('<Menu.Root />', () => {
           ];
 
           const { user } = await render(
-            <MenuTestSubject rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+            <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
           );
 
           const items = screen.getAllByRole('menuitem');
@@ -373,7 +373,7 @@ describe('<Menu.Root />', () => {
           ];
 
           const { user } = await render(
-            <MenuTestSubject rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+            <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
           );
 
           const items = screen.getAllByRole('menuitem');
@@ -408,10 +408,7 @@ describe('<Menu.Root />', () => {
           async () => {
             const { user } = await render(
               <DirectionProvider direction={direction}>
-                <MenuTestSubject
-                  rootProps={{ open: true, orientation }}
-                  submenuProps={{ orientation }}
-                />
+                <TestMenu rootProps={{ open: true, orientation }} submenuProps={{ orientation }} />
               </DirectionProvider>,
             );
 
@@ -447,9 +444,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('opens submenu on click when openOnHover is false', async () => {
-        const { user } = await render(
-          <MenuTestSubject submenuTriggerProps={{ openOnHover: false }} />,
-        );
+        const { user } = await render(<TestMenu submenuTriggerProps={{ openOnHover: false }} />);
 
         const mainTrigger = screen.getByRole('button', { name: 'Toggle' });
         await user.click(mainTrigger);
@@ -465,7 +460,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('closes submenus when focus is lost by shift-tabbing from a nested menu', async () => {
-        const { user } = await render(<MenuTestSubject />);
+        const { user } = await render(<TestMenu />);
 
         const mainTrigger = screen.getByRole('button', { name: 'Toggle' });
         await user.click(mainTrigger);
@@ -502,7 +497,7 @@ describe('<Menu.Root />', () => {
       it('closes the entire tree when clicking outside the deepest submenu', async () => {
         const { user } = await render(
           <div>
-            <MenuTestSubject />
+            <TestMenu />
             <button data-testid="outside">Outside</button>
           </div>,
         );
@@ -549,7 +544,7 @@ describe('<Menu.Root />', () => {
 
     describe('focus management', () => {
       it('focuses the first item after the menu is opened by keyboard', async () => {
-        await render(<MenuTestSubject />);
+        await render(<TestMenu />);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await act(async () => {
@@ -568,7 +563,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('focuses the first item when down arrow key opens the menu', async () => {
-        const { user } = await render(<MenuTestSubject />);
+        const { user } = await render(<TestMenu />);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await act(async () => {
@@ -586,7 +581,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('focuses the last item when up arrow key opens the menu', async () => {
-        const { user } = await render(<MenuTestSubject />);
+        const { user } = await render(<TestMenu />);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
 
@@ -611,7 +606,7 @@ describe('<Menu.Root />', () => {
         const { user } = await render(
           <div>
             <input type="text" />
-            <MenuTestSubject />
+            <TestMenu />
             <input type="text" />
           </div>,
         );
@@ -634,7 +629,7 @@ describe('<Menu.Root />', () => {
         const { user } = await render(
           <div>
             <input type="text" />
-            <MenuTestSubject portalProps={{ keepMounted: true }} />
+            <TestMenu portalProps={{ keepMounted: true }} />
             <input type="text" />
           </div>,
         );
@@ -653,7 +648,7 @@ describe('<Menu.Root />', () => {
 
     describe('prop: closeParentOnEsc', () => {
       it('does not close the parent menu when the Escape key is pressed by default', async () => {
-        const { user } = await render(<MenuTestSubject />);
+        const { user } = await render(<TestMenu />);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await act(async () => {
@@ -696,9 +691,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('closes the parent menu when the Escape key is pressed  if `closeParentOnEsc=true`', async () => {
-        const { user } = await render(
-          <MenuTestSubject submenuProps={{ closeParentOnEsc: true }} />,
-        );
+        const { user } = await render(<TestMenu submenuProps={{ closeParentOnEsc: true }} />);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await act(async () => {
@@ -741,7 +734,7 @@ describe('<Menu.Root />', () => {
       it('should render an internal backdrop when `true`', async () => {
         const { user } = await render(
           <div>
-            <MenuTestSubject rootProps={{ modal: true }} />
+            <TestMenu rootProps={{ modal: true }} />
             <button>Outside</button>
           </div>,
         );
@@ -762,7 +755,7 @@ describe('<Menu.Root />', () => {
       it('should not render an internal backdrop when `false`', async () => {
         const { user } = await render(
           <div>
-            <MenuTestSubject rootProps={{ modal: false }} />
+            <TestMenu rootProps={{ modal: false }} />
             <button>Outside</button>
           </div>,
         );
@@ -789,7 +782,7 @@ describe('<Menu.Root />', () => {
           },
         };
 
-        const { user } = await render(<MenuTestSubject rootProps={{ actionsRef }} />);
+        const { user } = await render(<TestMenu rootProps={{ actionsRef }} />);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await act(() => {
@@ -831,7 +824,7 @@ describe('<Menu.Root />', () => {
           return (
             <div>
               <button onClick={() => setOpen(false)}>Close</button>
-              <MenuTestSubject rootProps={{ open, onOpenChangeComplete }} />
+              <TestMenu rootProps={{ open, onOpenChangeComplete }} />
             </div>
           );
         }
@@ -874,7 +867,7 @@ describe('<Menu.Root />', () => {
               {/* eslint-disable-next-line react/no-danger */}
               <style dangerouslySetInnerHTML={{ __html: style }} />
               <button onClick={() => setOpen(false)}>Close</button>
-              <MenuTestSubject
+              <TestMenu
                 rootProps={{ open, onOpenChangeComplete }}
                 popupProps={{ className: 'animation-test-indicator' }}
               />
@@ -909,7 +902,7 @@ describe('<Menu.Root />', () => {
           return (
             <div>
               <button onClick={() => setOpen(true)}>Open</button>
-              <MenuTestSubject rootProps={{ open, onOpenChangeComplete }} />
+              <TestMenu rootProps={{ open, onOpenChangeComplete }} />
             </div>
           );
         }
@@ -952,7 +945,7 @@ describe('<Menu.Root />', () => {
               {/* eslint-disable-next-line react/no-danger */}
               <style dangerouslySetInnerHTML={{ __html: style }} />
               <button onClick={() => setOpen(true)}>Open</button>
-              <MenuTestSubject
+              <TestMenu
                 rootProps={{ open, onOpenChange: setOpen, onOpenChangeComplete }}
                 popupProps={{ className: 'animation-test-indicator' }}
               />
@@ -976,7 +969,7 @@ describe('<Menu.Root />', () => {
       it('does not get called on mount when not open', async () => {
         const onOpenChangeComplete = spy();
 
-        await render(<MenuTestSubject rootProps={{ onOpenChangeComplete }} />);
+        await render(<TestMenu rootProps={{ onOpenChangeComplete }} />);
 
         expect(onOpenChangeComplete.callCount).to.equal(0);
       });
@@ -984,7 +977,7 @@ describe('<Menu.Root />', () => {
 
     describe('prop: openOnHover', () => {
       it('should open the menu when the trigger is hovered', async () => {
-        await render(<MenuTestSubject triggerProps={{ openOnHover: true, delay: 0 }} />);
+        await render(<TestMenu triggerProps={{ openOnHover: true, delay: 0 }} />);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
 
@@ -1001,10 +994,7 @@ describe('<Menu.Root />', () => {
 
       it('should close the menu when the trigger is no longer hovered', async () => {
         await render(
-          <MenuTestSubject
-            rootProps={{ modal: false }}
-            triggerProps={{ openOnHover: true, delay: 0 }}
-          />,
+          <TestMenu rootProps={{ modal: false }} triggerProps={{ openOnHover: true, delay: 0 }} />,
         );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -1028,7 +1018,7 @@ describe('<Menu.Root />', () => {
 
       it('should not close when submenu is hovered after root menu is hovered', async () => {
         await render(
-          <MenuTestSubject
+          <TestMenu
             triggerProps={{ openOnHover: true, delay: 0 }}
             submenuTriggerProps={{ delay: 0 }}
           />,
@@ -1139,7 +1129,7 @@ describe('<Menu.Root />', () => {
 
       it('should close after delay', async () => {
         await renderFakeTimers(
-          <MenuTestSubject triggerProps={{ openOnHover: true, delay: 0, closeDelay: 100 }} />,
+          <TestMenu triggerProps={{ openOnHover: true, delay: 0, closeDelay: 100 }} />,
         );
 
         const anchor = screen.getByRole('button');
@@ -1187,7 +1177,7 @@ describe('<Menu.Root />', () => {
 
         await render(
           <div>
-            <MenuTestSubject
+            <TestMenu
               rootProps={{ onOpenChange: openChangeSpy }}
               popupProps={{ children: items }}
             />
@@ -1239,7 +1229,7 @@ describe('<Menu.Root />', () => {
 
         vbrRender(
           <div>
-            <MenuTestSubject
+            <TestMenu
               rootProps={{ onOpenChange: openChangeSpy }}
               popupProps={{ children: items }}
             />
@@ -1266,7 +1256,7 @@ describe('<Menu.Root />', () => {
     describe('BaseUIChangeEventDetails', () => {
       it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
         await render(
-          <MenuTestSubject
+          <TestMenu
             rootProps={{
               onOpenChange: (nextOpen, eventDetails) => {
                 if (nextOpen) {
@@ -1362,9 +1352,9 @@ describe('<Menu.Root />', () => {
 function ContainedTriggerMenu(props: TestMenuProps) {
   const { triggerProps, ...rest } = props;
   return (
-    <TestMenu {...rest}>
+    <TestMenuContents {...rest}>
       <Menu.Trigger {...triggerProps}>Toggle</Menu.Trigger>
-    </TestMenu>
+    </TestMenuContents>
   );
 }
 
@@ -1374,7 +1364,10 @@ function DetachedTriggerMenu(props: TestMenuProps) {
 
   return (
     <React.Fragment>
-      <TestMenu {...rest} rootProps={{ ...rest.rootProps, handle: menuHandle }}></TestMenu>
+      <TestMenuContents
+        {...rest}
+        rootProps={{ ...rest.rootProps, handle: menuHandle }}
+      ></TestMenuContents>
       <Menu.Trigger handle={menuHandle} {...triggerProps}>
         Toggle
       </Menu.Trigger>
@@ -1392,7 +1385,7 @@ type TestMenuProps = {
   children?: React.ReactNode;
 };
 
-function TestMenu(props: TestMenuProps) {
+function TestMenuContents(props: TestMenuProps) {
   const { children, rootProps, portalProps, submenuProps, submenuTriggerProps, popupProps } = props;
   return (
     <Menu.Root {...rootProps}>

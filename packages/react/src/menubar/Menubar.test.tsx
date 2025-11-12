@@ -22,11 +22,13 @@ describe('<Menubar />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  // All these tests run for contained, detached and multiple contained triggers.
+  // The rendered menubar has the same structure in most cases.
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerMenubar },
     { name: 'detached triggers', Component: DetachedTriggerMenubar },
     { name: 'multiple contained triggers', Component: MultipleContainedTriggersMenubar },
-  ])('when using $name', ({ Component: MenubarTestSubject }) => {
+  ])('when using $name', ({ Component: TestMenubar }) => {
     describe.skipIf(isJSDOM)('click interactions', () => {
       afterEach(async () => {
         const { cleanup } = await import('vitest-browser-react');
@@ -37,7 +39,7 @@ describe('<Menubar />', () => {
         const { userEvent: user } = await import('@vitest/browser/context');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<MenubarTestSubject />);
+        vbrRender(<TestMenubar />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -62,7 +64,7 @@ describe('<Menubar />', () => {
         const { userEvent: user } = await import('@vitest/browser/context');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<MenubarTestSubject />);
+        vbrRender(<TestMenubar />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -76,7 +78,7 @@ describe('<Menubar />', () => {
         const { userEvent: user } = await import('@vitest/browser/context');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<MenubarTestSubject />);
+        vbrRender(<TestMenubar />);
 
         // First click to open the file menu
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -113,7 +115,7 @@ describe('<Menubar />', () => {
         const { userEvent: user } = await import('@vitest/browser/context');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<MenubarTestSubject />);
+        vbrRender(<TestMenubar />);
 
         // First click to open the file menu
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -137,7 +139,7 @@ describe('<Menubar />', () => {
         const { userEvent: user } = await import('@vitest/browser/context');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<MenubarTestSubject />);
+        vbrRender(<TestMenubar />);
 
         // First click to open the file menu
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -174,7 +176,7 @@ describe('<Menubar />', () => {
 
     describe('focus behavior', () => {
       it('focuses a menubar item without immediately opening the menu', async () => {
-        const { user } = await render(<MenubarTestSubject />);
+        const { user } = await render(<TestMenubar />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -203,7 +205,7 @@ describe('<Menubar />', () => {
         const { userEvent: user } = await import('@vitest/browser/context');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<MenubarTestSubject />);
+        vbrRender(<TestMenubar />);
 
         const viewTrigger = screen.getByTestId('view-trigger');
 
@@ -229,7 +231,7 @@ describe('<Menubar />', () => {
         const { userEvent: user } = await import('@vitest/browser/context');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<MenubarTestSubject />);
+        vbrRender(<TestMenubar />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
         const viewTrigger = screen.getByTestId('view-trigger');
@@ -257,7 +259,7 @@ describe('<Menubar />', () => {
 
     describe('keyboard interactions', () => {
       it('should navigate between menubar items with arrow keys', async () => {
-        const { user } = await render(<MenubarTestSubject />);
+        const { user } = await render(<TestMenubar />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
         const editTrigger = screen.getByTestId('edit-trigger');
@@ -282,7 +284,7 @@ describe('<Menubar />', () => {
       });
 
       it('should open the menu with Space key', async () => {
-        const { user } = await render(<MenubarTestSubject />);
+        const { user } = await render(<TestMenubar />);
         const fileTrigger = screen.getByTestId('file-trigger');
 
         // Focus the file trigger
@@ -300,7 +302,7 @@ describe('<Menubar />', () => {
       });
 
       it('should navigate within the menu using arrow keys', async () => {
-        const { user } = await render(<MenubarTestSubject />);
+        const { user } = await render(<TestMenubar />);
         const fileTrigger = screen.getByTestId('file-trigger');
 
         // Focus and open file menu
@@ -336,7 +338,7 @@ describe('<Menubar />', () => {
       });
 
       it('should open the submenu with right arrow key', async () => {
-        const { user } = await render(<MenubarTestSubject />);
+        const { user } = await render(<TestMenubar />);
         const fileTrigger = screen.getByTestId('file-trigger');
 
         // Focus and open file menu
@@ -378,7 +380,7 @@ describe('<Menubar />', () => {
       });
 
       it.skipIf(isJSDOM)('should close the menu with Escape key', async () => {
-        const { user } = await render(<MenubarTestSubject />);
+        const { user } = await render(<TestMenubar />);
         const fileTrigger = screen.getByTestId('file-trigger');
 
         // Focus and open file menu
@@ -403,7 +405,7 @@ describe('<Menubar />', () => {
       });
 
       it('should close submenu with left arrow key and return focus to submenu trigger', async () => {
-        const { user } = await render(<MenubarTestSubject />);
+        const { user } = await render(<TestMenubar />);
         const fileTrigger = screen.getByTestId('file-trigger');
 
         // Focus and open file menu
@@ -540,7 +542,7 @@ describe('<Menubar />', () => {
       it.skipIf(!isJSDOM)(
         'should navigate between menus using left/right arrow keys when menus are open',
         async () => {
-          const { user } = await render(<MenubarTestSubject />);
+          const { user } = await render(<TestMenubar />);
           const fileTrigger = screen.getByTestId('file-trigger');
 
           // Focus and open file menu
@@ -570,7 +572,7 @@ describe('<Menubar />', () => {
 
     describe.skipIf(!isJSDOM)('mixed mouse and keyboard interactions', () => {
       it('should allow keyboard navigation after opening a menu with mouse click', async () => {
-        const { user } = await render(<MenubarTestSubject />);
+        const { user } = await render(<TestMenubar />);
 
         // Open the menu with a mouse click
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -597,7 +599,7 @@ describe('<Menubar />', () => {
       });
 
       it('should allow clicking a menu trigger then navigating to another menu with keyboard', async () => {
-        const { user } = await render(<MenubarTestSubject />);
+        const { user } = await render(<TestMenubar />);
 
         // Open the file menu with a mouse click
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -623,7 +625,7 @@ describe('<Menubar />', () => {
     describe.skipIf(!isJSDOM)('prop: loopFocus', () => {
       describe('when loopFocus == true', () => {
         it('should loop around to the first item after the last one', async () => {
-          const { user } = await render(<MenubarTestSubject loopFocus />);
+          const { user } = await render(<TestMenubar loopFocus />);
 
           const firstItem = screen.getByTestId('file-trigger');
           await act(async () => {
@@ -641,7 +643,7 @@ describe('<Menubar />', () => {
         });
 
         it('should loop around to the last item after the first one', async () => {
-          const { user } = await render(<MenubarTestSubject loopFocus />);
+          const { user } = await render(<TestMenubar loopFocus />);
 
           const fileTrigger = screen.getByTestId('file-trigger');
           await act(async () => {
@@ -662,7 +664,7 @@ describe('<Menubar />', () => {
 
       describe('when loopFocus == false', () => {
         it('should stay on the last item when navigating beyond it', async () => {
-          const { user } = await render(<MenubarTestSubject loopFocus={false} />);
+          const { user } = await render(<TestMenubar loopFocus={false} />);
 
           const fileTrigger = screen.getByTestId('file-trigger');
           await act(async () => {
@@ -688,7 +690,7 @@ describe('<Menubar />', () => {
         });
 
         it('should stay on the first item when navigating before it', async () => {
-          const { user } = await render(<MenubarTestSubject loopFocus={false} />);
+          const { user } = await render(<TestMenubar loopFocus={false} />);
 
           const firstItem = screen.getByTestId('file-trigger');
           await act(async () => {
@@ -703,7 +705,7 @@ describe('<Menubar />', () => {
 
     describe('prop: disabled', () => {
       it('disables child menus when menubar is disabled', async () => {
-        const { user } = await render(<MenubarTestSubject disabled />);
+        const { user } = await render(<TestMenubar disabled />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -724,7 +726,7 @@ describe('<Menubar />', () => {
     it.skipIf(isJSDOM)(
       'correctly opens new menu on hover after clicking on its trigger and entering from hover (#2222)',
       async () => {
-        const { user } = await render(<MenubarTestSubject />);
+        const { user } = await render(<TestMenubar />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
         const editTrigger = screen.getByTestId('edit-trigger');
@@ -762,12 +764,12 @@ describe('<Menubar />', () => {
 
     describe('role', () => {
       it('sets role="menubar" on the root element', async () => {
-        await render(<MenubarTestSubject />);
+        await render(<TestMenubar />);
         expect(screen.queryByRole('menubar')).not.to.equal(null);
       });
 
       it('sets role="menuitem" on menu triggers', async () => {
-        await render(<MenubarTestSubject />);
+        await render(<TestMenubar />);
         const menuItems = screen.getAllByRole('menuitem');
         expect(menuItems).to.have.length(3);
       });
