@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 import { headingRank } from 'hast-util-heading-rank';
 import { toString } from 'hast-util-to-string';
 import { visit, CONTINUE, EXIT } from 'unist-util-visit';
@@ -16,7 +17,6 @@ export function rehypeConcatHeadings() {
       if (headingRank(node) === 3) {
         let index = parent.children.indexOf(node);
 
-        // eslint-disable-next-line no-plusplus
         while (index--) {
           const candidate = toString(parent.children[index]);
           if (SEMVER_PATTERN.test(candidate) && !node.properties.id) {
@@ -40,13 +40,13 @@ export function rehypeConcatHeadings() {
 
       if (headingRank(node) === 3) {
         let index = parent.children.indexOf(node);
-        // eslint-disable-next-line no-plusplus
         while (index--) {
           const candidate = parent.children[index];
           if (headingRank(candidate) === 2) {
-            const text = toString(candidate);
-            if (text === 'React Hook Form' || text === 'TanStack Form') {
-              node.properties.id = `${stringToUrl(text)}-${stringToUrl(toString(node))}`;
+            const h2Text = toString(candidate);
+            if (h2Text === 'React Hook Form' || h2Text === 'TanStack Form') {
+              const h3Text = toString(node);
+              node.properties.id = stringToUrl(`${h2Text} ${h3Text}`);
               break;
             }
           }
