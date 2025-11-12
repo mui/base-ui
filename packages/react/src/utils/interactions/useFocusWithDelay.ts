@@ -8,7 +8,7 @@ import { REASONS } from '../reasons';
 import { activeElement, contains, getDocument } from '../../floating-ui-react/utils';
 
 interface UseFocusWithDelayProps {
-  delay?: number;
+  delay?: number | (() => number | undefined);
 }
 
 /**
@@ -49,7 +49,8 @@ export function useFocusWithDelay(
     () => ({
       onFocus(event) {
         const { nativeEvent } = event;
-        timeout.start(delay ?? 0, () => {
+        const delayValue = typeof delay === 'function' ? delay() : delay;
+        timeout.start(delayValue ?? 0, () => {
           onOpenChange(true, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
         });
       },

@@ -15,7 +15,7 @@ export function createHandle<Payload>(): DialogHandle<Payload> {
   return new DialogHandle<Payload>(
     new DialogStore<Payload>({
       modal: true,
-      dismissible: false,
+      disablePointerDismissal: true,
     }),
   );
 }

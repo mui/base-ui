@@ -32,7 +32,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     disabled = false,
     defaultOpen = false,
     open: openProp,
-    hoverable = true,
+    disableHoverablePopup = false,
     trackCursorAxis = 'none',
     actionsRef,
     onOpenChange,
@@ -184,7 +184,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
 
   store.useSyncedValues({
     trackCursorAxis,
-    hoverable,
+    disableHoverablePopup,
     floatingRootContext,
     activeTriggerProps: getReferenceProps(),
     inactiveTriggerProps: getTriggerProps(),
@@ -229,15 +229,14 @@ export interface TooltipRootProps<Payload = unknown> {
   onOpenChangeComplete?: (open: boolean) => void;
   /**
    * Whether the tooltip contents can be hovered without closing the tooltip.
-   * @default true
+   * @default false
    */
-  hoverable?: boolean;
+  disableHoverablePopup?: boolean;
   /**
    * Determines which axis the tooltip should track the cursor on.
    * @default 'none'
    */
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
-
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the tooltip will not be unmounted when closed.

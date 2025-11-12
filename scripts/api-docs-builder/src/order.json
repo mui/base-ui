@@ -95,7 +95,7 @@
     "delay",
     "closeDelay",
     "timeout",
-    "hoverable",
+    "disableHoverablePopup",
     "loop",
     "orientation",
     "inputRef",

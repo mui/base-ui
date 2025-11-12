@@ -41,7 +41,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor = true,
+    disableAnchorTracking = false,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
@@ -74,18 +74,13 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor,
+    disableAnchorTracking,
     keepMounted,
     collisionAvoidance,
     lazyFlip: true,
   });
 
-  useScrollLock({
-    enabled: open && modal,
-    mounted,
-    open,
-    referenceElement: triggerElement,
-  });
+  useScrollLock(open && modal, triggerElement);
 
   const defaultProps: HTMLProps = React.useMemo(() => {
     const style: React.CSSProperties = {

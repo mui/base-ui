@@ -257,6 +257,7 @@ export interface SelectTriggerState extends FieldRoot.State {
   /** The value of the currently selected item. */
   value: any;
 }
+
 export interface SelectTriggerProps
   extends NonNativeButtonProps,
     BaseUIComponentProps<'div', SelectTrigger.State> {
