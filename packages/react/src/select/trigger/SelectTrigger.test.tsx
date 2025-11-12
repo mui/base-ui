@@ -8,7 +8,7 @@ describe('<Select.Trigger />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Select.Trigger />, () => ({
-    refInstanceof: window.HTMLDivElement,
+    refInstanceof: window.HTMLButtonElement,
     button: true,
     render(node) {
       return render(<Select.Root open>{node}</Select.Root>);
