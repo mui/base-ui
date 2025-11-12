@@ -59,6 +59,7 @@ import {
   removeItem,
 } from '../../utils/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * @internal
@@ -881,6 +882,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       validation.commit(selectedValue);
     } else {
       validation.commit(selectedValue, true);
+    }
+
+    if (
+      selectionMode === 'multiple' &&
+      store.state.selectedIndex !== null &&
+      (!Array.isArray(selectedValue) || selectedValue.length === 0)
+    ) {
+      setIndices({ selectedIndex: null });
     }
 
     if (selectionMode === 'single' && !hasInputValue && !inputInsidePopup) {
