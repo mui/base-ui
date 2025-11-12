@@ -16,6 +16,8 @@ export default function ExampleAsyncSingleCombobox() {
 
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
+  const trimmedSearchValue = searchValue.trim();
+
   const items = React.useMemo(() => {
     if (!selectedValue || searchResults.some((user) => user.id === selectedValue.id)) {
       return searchResults;
@@ -25,8 +27,6 @@ export default function ExampleAsyncSingleCombobox() {
   }, [searchResults, selectedValue]);
 
   function getStatus() {
-    const trimmedSearchValue = searchValue.trim();
-
     if (isPending) {
       return (
         <React.Fragment>
@@ -52,8 +52,6 @@ export default function ExampleAsyncSingleCombobox() {
   }
 
   function getEmptyMessage() {
-    const trimmedSearchValue = searchValue.trim();
-
     if (trimmedSearchValue === '' || isPending || searchResults.length > 0 || error) {
       return null;
     }

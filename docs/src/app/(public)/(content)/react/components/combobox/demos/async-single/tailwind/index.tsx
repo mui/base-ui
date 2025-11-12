@@ -11,9 +11,9 @@ export default function ExampleAsyncSingleCombobox() {
   const [error, setError] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();
 
-  const abortControllerRef = React.useRef<AbortController | null>(null);
-
   const { contains } = Combobox.useFilter();
+
+  const abortControllerRef = React.useRef<AbortController | null>(null);
 
   const trimmedSearchValue = searchValue.trim();
 
