@@ -132,6 +132,44 @@ describe('<Menubar />', () => {
           expect(screen.queryByTestId('share-menu')).not.to.equal(null);
         });
       });
+
+      it.only('should open another menu on hover when a nested submenu is open', async () => {
+        const { userEvent: user } = await import('@vitest/browser/context');
+        const { render: vbrRender } = await import('vitest-browser-react');
+
+        vbrRender(<MenubarTestSubject />);
+
+        // First click to open the file menu
+        const fileTrigger = screen.getByTestId('file-trigger');
+        await user.click(fileTrigger);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('file-menu')).not.to.equal(null);
+        });
+
+        // Now hover over the share submenu trigger
+        const shareTrigger = await screen.findByTestId('share-trigger');
+        await user.hover(shareTrigger);
+
+        // The share submenu should open
+        await waitFor(() => {
+          expect(screen.queryByTestId('share-menu')).not.to.equal(null);
+        });
+
+        // Hover over the first item in the share submenu
+        await user.hover(screen.getByTestId('share-item-1'));
+
+        // Now hover over the edit menubar trigger
+        const editTrigger = screen.getByTestId('edit-trigger');
+        await user.hover(editTrigger);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('edit-menu')).not.to.equal(null);
+        });
+
+        expect(screen.queryByTestId('file-menu')).to.equal(null);
+        expect(screen.queryByTestId('share-menu')).to.equal(null);
+      });
     });
 
     describe('focus behavior', () => {
