@@ -41,7 +41,7 @@ import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { EMPTY_ARRAY } from '../../utils/constants';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { HTMLProps } from '../../utils/types';
 import { useValueChanged } from '../../utils/useValueChanged';
@@ -122,13 +122,42 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     disabled: fieldDisabled,
     validation,
   } = useFieldRootContext();
+
   const id = useLabelableId({ id: idProp });
+  const collatorFilter = useCoreFilter({ locale });
+
+  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
+  const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
+
+  const listRef = React.useRef<Array<HTMLElement | null>>([]);
+  const labelsRef = React.useRef<Array<string | null>>([]);
+  const popupRef = React.useRef<HTMLDivElement | null>(null);
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const keyboardActiveRef = React.useRef(true);
+  const hadInputClearRef = React.useRef(false);
+  const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const clearRef = React.useRef<HTMLButtonElement | null>(null);
+  const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
+  const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
+  const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
+
+  /**
+   * Contains the currently visible list of item values post-filtering.
+   */
+  const valuesRef = React.useRef<any[]>([]);
+  /**
+   * Contains all item values in a stable, unfiltered order.
+   * This is only used when `items` prop is not provided.
+   * It accumulates values on first mount and does not remove them on unmount due to
+   * filtering, providing a stable index for selected value tracking.
+   */
+  const allValuesRef = React.useRef<any[]>([]);
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
-  const commit = validation.commit;
+  const hasItems = items !== undefined;
 
   let autoHighlightMode: false | 'input-change' | 'always';
   if (autoHighlight === 'always') {
@@ -136,10 +165,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   } else {
     autoHighlightMode = autoHighlight ? 'input-change' : false;
   }
-  const autoHighlightEnabled = autoHighlightMode !== false;
-  const autoHighlightBehavior = autoHighlightMode;
-  const keepHighlightOnPointerLeave = keepHighlight;
-  const highlightOnHoverOption = highlightItemOnHover;
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
     controlled: selectedValueProp,
@@ -147,10 +172,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     name: 'Combobox',
     state: 'selectedValue',
   });
-
-  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
-
-  const collatorFilter = useCoreFilter({ locale });
 
   const filter = React.useMemo(() => {
     if (filterProp === null) {
@@ -190,7 +211,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     controlled: inputValueProp,
     default: initialDefaultInputValue,
     name: 'Combobox',
-    state: 'value',
+    state: 'inputValue',
   });
 
   const [open, setOpenUnwrapped] = useControlled({
@@ -199,8 +220,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     name: 'Combobox',
     state: 'open',
   });
-
-  const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
 
   const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
   const isGrouped = isGroupedItems(items);
@@ -291,32 +310,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return filteredItems as Value[];
   }, [filteredItems, isGrouped]);
 
-  const hasItems = items !== undefined;
-
-  const listRef = React.useRef<Array<HTMLElement | null>>([]);
-  const labelsRef = React.useRef<Array<string | null>>([]);
-  const popupRef = React.useRef<HTMLDivElement | null>(null);
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const keyboardActiveRef = React.useRef(true);
-  const hadInputClearRef = React.useRef(false);
-  const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
-  const clearRef = React.useRef<HTMLButtonElement | null>(null);
-  const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
-  const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
-  const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
-
-  /**
-   * Contains the currently visible list of item values post-filtering.
-   */
-  const valuesRef = React.useRef<any[]>([]);
-  /**
-   * Contains all item values in a stable, unfiltered order.
-   * This is only used when `items` prop is not provided.
-   * It accumulates values on first mount and does not remove them on unmount due to
-   * filtering, providing a stable index for selected value tracking.
-   */
-  const allValuesRef = React.useRef<any[]>([]);
-
   const store = useRefWithInit(
     () =>
       new Store<StoreState>({
@@ -376,13 +369,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         setIndices: NOOP,
         onItemHighlighted: NOOP,
         handleSelection: NOOP,
-        getItemProps() {
-          return {};
-        },
+        getItemProps: () => EMPTY_OBJECT,
         forceMount: NOOP,
         requestSubmit: NOOP,
       }),
   ).current;
+
+  const formValue = selectionMode === 'none' ? inputValue : selectedValue;
 
   const onItemHighlighted = useStableCallback(onItemHighlightedProp);
   const onOpenChangeComplete = useStableCallback(onOpenChangeCompleteProp);
@@ -405,6 +398,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
+  useField({
+    id,
+    name,
+    commit: validation.commit,
+    value: formValue,
+    controlRef: inputInsidePopup ? triggerRef : inputRef,
+    getValue: () => formValue,
+  });
+
   const forceMount = useStableCallback(() => {
     if (items) {
       // Ensure typeahead works on a closed list.
@@ -422,23 +424,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (selectedValue !== initialSelectedValueRef.current) {
       forceMount();
     }
-  }, [forceMount, selectedValue, initialSelectedValueRef]);
-
-  function updateValue(nextValue: any) {
-    clearErrors(name);
-    setDirty(nextValue !== validityData.initialValue);
-  }
-
-  const formValue = selectionMode === 'none' ? inputValue : selectedValue;
-
-  useField({
-    id,
-    commit,
-    value: formValue,
-    controlRef: inputInsidePopup ? triggerRef : inputRef,
-    name,
-    getValue: () => formValue,
-  });
+  }, [forceMount, selectedValue]);
 
   const setIndices = useStableCallback(
     (options: {
@@ -491,7 +477,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         // Defer index updates until after the filtered items have been derived to ensure
         // `onItemHighlighted` receives the latest item.
         pendingQueryHighlightRef.current = { hasQuery };
-        if (hasQuery && autoHighlightBehavior && store.state.activeIndex == null) {
+        if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
           store.set('activeIndex', 0);
         }
       }
@@ -744,10 +730,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
       if (pendingHighlight.hasQuery) {
-        if (autoHighlightEnabled) {
+        if (autoHighlightMode) {
           store.set('activeIndex', 0);
         }
-      } else if (autoHighlightBehavior === 'always') {
+      } else if (autoHighlightMode === 'always') {
         store.set('activeIndex', 0);
       }
       pendingQueryHighlightRef.current = null;
@@ -761,7 +747,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
-      if (autoHighlightBehavior === 'always' && candidateItems.length > 0) {
+      if (autoHighlightMode === 'always' && candidateItems.length > 0) {
         store.set('activeIndex', 0);
         return;
       }
@@ -800,17 +786,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         createGenericEventDetails(REASONS.none, undefined, { index: storeActiveIndex }),
       );
     }
-  }, [
-    activeIndex,
-    autoHighlightBehavior,
-    autoHighlightEnabled,
-    flatFilteredItems,
-    inline,
-    items,
-    open,
-    store,
-    valuesRef,
-  ]);
+  }, [activeIndex, autoHighlightMode, flatFilteredItems, inline, items, open, store]);
 
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
@@ -868,6 +844,24 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     setInputValue,
   ]);
 
+  useIsoLayoutEffect(() => {
+    if (selectionMode === 'none') {
+      setFilled(String(inputValue) !== '');
+      return;
+    }
+    setFilled(
+      multiple ? Array.isArray(selectedValue) && selectedValue.length > 0 : selectedValue != null,
+    );
+  }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
+
+  // Ensures that the active index is not set to 0 when the list is empty.
+  // This avoids needing to press ArrowDown twice under certain conditions.
+  React.useEffect(() => {
+    if (hasItems && autoHighlightMode && flatFilteredItems.length === 0) {
+      setIndices({ activeIndex: null });
+    }
+  }, [hasItems, autoHighlightMode, flatFilteredItems.length, setIndices]);
+
   useValueChanged(query, () => {
     if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
@@ -881,13 +875,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     clearErrors(name);
-    commit?.(selectedValue, true);
+    setDirty(selectedValue !== validityData.initialValue);
 
     if (shouldValidateOnChange()) {
-      commit?.(selectedValue);
+      validation.commit(selectedValue);
+    } else {
+      validation.commit(selectedValue, true);
     }
 
-    updateValue(selectedValue);
+    if (
+      selectionMode === 'multiple' &&
+      store.state.selectedIndex !== null &&
+      (!Array.isArray(selectedValue) || selectedValue.length === 0)
+    ) {
+      setIndices({ activeIndex: null, selectedIndex: null });
+    }
 
     if (selectionMode === 'single' && !hasInputValue && !inputInsidePopup) {
       const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
@@ -898,8 +900,23 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   });
 
+  useValueChanged(inputValue, () => {
+    if (selectionMode !== 'none') {
+      return;
+    }
+
+    clearErrors(name);
+    setDirty(inputValue !== validityData.initialValue);
+
+    if (shouldValidateOnChange()) {
+      validation.commit(inputValue);
+    } else {
+      validation.commit(inputValue, true);
+    }
+  });
+
   useValueChanged(items, () => {
-    if (selectionMode !== 'single' || hasInputValue || inputInsidePopup) {
+    if (selectionMode !== 'single' || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
       return;
     }
 
@@ -909,39 +926,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
     }
   });
-
-  useValueChanged(inputValue, () => {
-    if (selectionMode !== 'none') {
-      return;
-    }
-
-    clearErrors(name);
-    commit?.(inputValue, true);
-
-    if (shouldValidateOnChange()) {
-      commit?.(inputValue);
-    }
-
-    updateValue(inputValue);
-  });
-
-  useIsoLayoutEffect(() => {
-    if (selectionMode === 'none') {
-      setFilled(String(inputValue) !== '');
-    } else {
-      setFilled(
-        multiple ? Array.isArray(selectedValue) && selectedValue.length > 0 : selectedValue != null,
-      );
-    }
-  }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
-
-  // Ensures that the active index is not set to 0 when the list is empty.
-  // This avoids needing to press ArrowDown twice under certain conditions.
-  React.useEffect(() => {
-    if (hasItems && autoHighlightBehavior && flatFilteredItems.length === 0) {
-      setIndices({ activeIndex: null });
-    }
-  }, [hasItems, autoHighlightBehavior, flatFilteredItems.length, setIndices]);
 
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
@@ -1024,10 +1008,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     selectedIndex,
     virtual: true,
     loop: true,
-    allowEscape: !autoHighlightEnabled,
+    allowEscape: !autoHighlightMode,
     focusItemOnOpen:
-      queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightEnabled) ? false : 'auto',
-    focusItemOnHover: highlightOnHoverOption,
+      queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
+    focusItemOnHover: highlightItemOnHover,
     // `cols` > 1 enables grid navigation.
     // Since <Combobox.Row> infers column sizes (and is required when building a grid),
     // it works correctly even with a value of `2`.
@@ -1041,12 +1025,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
-      if (
-        keepHighlightOnPointerLeave &&
-        nextActiveIndex === null &&
-        event &&
-        event.type === 'pointerleave'
-      ) {
+      if (keepHighlight && nextActiveIndex === null && event && event.type === 'pointerleave') {
         return;
       }
 

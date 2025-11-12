@@ -98,6 +98,22 @@ import { DemoComboboxGrouped } from './demos/grouped';
 
 <DemoComboboxGrouped compact />
 
+### Async search (single)
+
+Load items from a remote source by fetching on input changes. Keep the selected item in the `items` list so it remains available while new results stream in. This pattern avoids needing to load items upfront.
+
+import { DemoComboboxAsyncSingle } from './demos/async-single';
+
+<DemoComboboxAsyncSingle compact />
+
+### Async search (multiple)
+
+Load items from a remote source by fetching on input changes while supporting multiple selections. Selected items remain available in the list while new matches stream in. This pattern avoids needing to load items upfront.
+
+import { DemoComboboxAsyncMultiple } from './demos/async-multiple';
+
+<DemoComboboxAsyncMultiple compact />
+
 ### Creatable
 
 Create a new item when the filter matches no items, opening a creation `<Dialog>`.

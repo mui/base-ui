@@ -49,29 +49,25 @@ export const ComboboxItem = React.memo(
     const isRow = useComboboxRowContext();
     const { flatFilteredItems } = useComboboxDerivedItemsContext();
 
+    const open = useStore(store, selectors.open);
     const selectionMode = useStore(store, selectors.selectionMode);
     const readOnly = useStore(store, selectors.readOnly);
     const virtualized = useStore(store, selectors.virtualized);
-    const listRef = useStore(store, selectors.listRef);
-    const valuesRef = useStore(store, selectors.valuesRef);
-    const allValuesRef = useStore(store, selectors.allValuesRef);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const selectable = selectionMode !== 'none';
     const index =
       indexProp ??
       (virtualized ? findItemIndex(flatFilteredItems, value, isItemEqualToValue) : listItem.index);
+    const hasRegistered = listItem.index !== -1;
 
     const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
     const matchesSelectedValue = useStore(store, selectors.isSelected, value);
-    const rootSelectedValue = useStore(store, selectors.selectedValue);
     const items = useStore(store, selectors.items);
     const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-
-    const hasRegistered = listItem.index !== -1;
 
     const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
     const selected = matchesSelectedValue && selectable;
@@ -82,49 +78,48 @@ export const ComboboxItem = React.memo(
         return undefined;
       }
 
-      const list = listRef.current;
+      const list = store.state.listRef.current;
       list[index] = itemRef.current;
 
       return () => {
         delete list[index];
       };
-    }, [hasRegistered, virtualized, index, listRef, indexProp]);
+    }, [hasRegistered, virtualized, index, indexProp, store]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered || items) {
         return undefined;
       }
 
-      const visibleMap = valuesRef.current;
+      const visibleMap = store.state.valuesRef.current;
       visibleMap[index] = value;
 
       // Stable registry that doesn't depend on filtering. Assume that no
       // filtering had occurred at this point; otherwise, an `items` prop is
       // required.
       if (selectionMode !== 'none') {
-        allValuesRef.current.push(value);
+        store.state.allValuesRef.current.push(value);
       }
 
       return () => {
         delete visibleMap[index];
       };
-    }, [hasRegistered, items, index, value, valuesRef, allValuesRef, selectionMode]);
+    }, [hasRegistered, items, index, value, store, selectionMode]);
 
-    // When items are uncontrolled (no `items` prop), ensure selectedIndex is
-    // derived from the mounted item whose value matches the selected value.
     useIsoLayoutEffect(() => {
-      if (!hasRegistered || items) {
+      if (!hasRegistered || items || !open) {
         return;
       }
 
-      const lastSelectedValue = Array.isArray(rootSelectedValue)
-        ? rootSelectedValue[rootSelectedValue.length - 1]
-        : rootSelectedValue;
+      const selectedValue = store.state.selectedValue;
+      const lastSelectedValue = Array.isArray(selectedValue)
+        ? selectedValue[selectedValue.length - 1]
+        : selectedValue;
 
       if (compareItemEquality(lastSelectedValue, value, isItemEqualToValue)) {
         store.set('selectedIndex', index);
       }
-    }, [hasRegistered, items, store, index, value, rootSelectedValue, isItemEqualToValue]);
+    }, [hasRegistered, items, open, store, index, value, isItemEqualToValue]);
 
     const state: ComboboxItem.State = React.useMemo(
       () => ({
@@ -136,8 +131,8 @@ export const ComboboxItem = React.memo(
     );
 
     const rootProps = getItemProps({ active: highlighted, selected });
-    delete rootProps.id;
-    delete rootProps.onFocus;
+    rootProps.id = undefined;
+    rootProps.onFocus = undefined;
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,
