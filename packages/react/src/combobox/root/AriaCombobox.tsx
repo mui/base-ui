@@ -59,7 +59,6 @@ import {
   removeItem,
 } from '../../utils/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
-import { REASONS } from '../../utils/reasons';
 
 /**
  * @internal
