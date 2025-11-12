@@ -883,6 +883,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       validation.commit(selectedValue, true);
     }
 
+    if (
+      selectionMode === 'multiple' &&
+      store.state.selectedIndex !== null &&
+      (!Array.isArray(selectedValue) || selectedValue.length === 0)
+    ) {
+      setIndices({ activeIndex: null, selectedIndex: null });
+    }
+
     if (selectionMode === 'single' && !hasInputValue && !inputInsidePopup) {
       const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
 
@@ -908,7 +916,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   useValueChanged(items, () => {
-    if (selectionMode !== 'single' || hasInputValue || inputInsidePopup) {
+    if (selectionMode !== 'single' || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
       return;
     }
 

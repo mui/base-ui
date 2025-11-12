@@ -371,11 +371,11 @@ export function useListNavigation(
     }
 
     if (open && elements.floating) {
+      indexRef.current = selectedIndex ?? -1;
       if (focusItemOnOpenRef.current && selectedIndex != null) {
         // Regardless of the pointer modality, we want to ensure the selected
         // item comes into view when the floating element is opened.
         forceScrollIntoViewRef.current = true;
-        indexRef.current = selectedIndex;
         onNavigate();
       }
     } else if (previousMountedRef.current) {
