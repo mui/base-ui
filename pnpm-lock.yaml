@@ -187,11 +187,14 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.2)(react@19.2.0)
       '@mui/internal-docs-infra':
-        specifier: ^0.2.3-canary.12
-        version: 0.2.3-canary.12(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+        specifier: file://../../mui-public/packages/docs-infra/build/
+        version: file:../mui-public/packages/docs-infra/build(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@next/mdx':
         specifier: ^16.0.1
         version: 16.0.1(@mdx-js/loader@3.1.1(webpack@5.102.1))(@mdx-js/react@3.1.1(@types/react@19.2.2)(react@19.2.0))
+      '@orama/orama':
+        specifier: ^3.1.16
+        version: 3.1.16
       '@react-spring/web':
         specifier: ^10.0.3
         version: 10.0.3(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -2278,8 +2281,8 @@ packages:
       prettier: ^3.5.3
       typescript: ^5.0.0
 
-  '@mui/internal-docs-infra@0.2.3-canary.12':
-    resolution: {integrity: sha512-KDF8/6rDU1PPm+IPi1Tlr2P3CJv8ji4bd3RL1r9c9qHQNdcxO86E8sFtfGRMm7uK+1cZjQ7lsqNEy0KiOXkHeg==}
+  '@mui/internal-docs-infra@file:../mui-public/packages/docs-infra/build':
+    resolution: {directory: ../mui-public/packages/docs-infra/build, type: directory}
     engines: {node: '>=22.12.0'}
     peerDependencies:
       '@types/react': ^19.2.2
@@ -2813,6 +2816,10 @@ packages:
 
   '@octokit/types@16.0.0':
     resolution: {integrity: sha512-sKq+9r1Mm4efXW1FCk7hFSeJo4QKreL/tTbR0rz/qx/r1Oa2VV83LTA/H/MuCOX7uCIJmQVRKBcbmWoySjAnSg==}
+
+  '@orama/orama@3.1.16':
+    resolution: {integrity: sha512-scSmQBD8eANlMUOglxHrN1JdSW8tDghsPuS83otqealBiIeMukCQMOf/wc0JJjDXomqwNdEQFLXLGHrU6PGxuA==}
+    engines: {node: '>= 20.0.0'}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -8127,6 +8134,9 @@ packages:
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
 
+  proper-lockfile@4.1.2:
+    resolution: {integrity: sha512-TjNPblN4BwAWMXU8s9AEz4JmQxnD1NNL7bNOY/AKUzyamc379FWASUhc/K1pL2noVb+XmZKLL68cjzLsiOAMaA==}
+
   property-information@7.1.0:
     resolution: {integrity: sha512-TwEZ+X+yCJmYfL7TPUOcvBZ4QfoT5YenQiJuX//0th53DE6w0xxLEtfK3iyryQFddXuvkIk51EEgrJQ0WJkOmQ==}
 
@@ -11993,7 +12003,7 @@ snapshots:
       - stylelint
       - supports-color
 
-  '@mui/internal-docs-infra@0.2.3-canary.12(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
+  '@mui/internal-docs-infra@file:../mui-public/packages/docs-infra/build(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@babel/standalone': 7.28.5
@@ -12007,6 +12017,7 @@ snapshots:
       lz-string: 1.5.0
       path-module: 0.1.2
       prettier: 3.6.2
+      proper-lockfile: 4.1.2
       react: 19.2.0
       uint8-to-base64: 0.2.1
       unist-util-visit: 5.0.0
@@ -12573,6 +12584,8 @@ snapshots:
   '@octokit/types@16.0.0':
     dependencies:
       '@octokit/openapi-types': 27.0.0
+
+  '@orama/orama@3.1.16': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -18867,6 +18880,12 @@ snapshots:
       loose-envify: 1.4.0
       object-assign: 4.1.1
       react-is: 16.13.1
+
+  proper-lockfile@4.1.2:
+    dependencies:
+      graceful-fs: 4.2.11
+      retry: 0.12.0
+      signal-exit: 3.0.7
 
   property-information@7.1.0: {}
 

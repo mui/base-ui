@@ -5,6 +5,7 @@ import { nav } from '../nav';
 import { NpmIcon } from '../icons/NpmIcon';
 import { Logo } from './Logo';
 import { SkipNav } from './SkipNav';
+import { Search } from './Search';
 
 export const HEADER_HEIGHT = 48;
 
@@ -17,6 +18,7 @@ export function Header() {
           <Logo aria-label="Base UI" />
         </NextLink>
         <div className="flex gap-6 max-show-side-nav:hidden">
+          <Search />
           <a
             className="HeaderLink"
             href="https://www.npmjs.com/package/@base-ui-components/react"
@@ -30,9 +32,12 @@ export function Header() {
             GitHub
           </a>
         </div>
-        <div className="flex show-side-nav:hidden">
+        <div className="flex items-center gap-2 show-side-nav:hidden">
+          <div className="pr-4 pl-4">
+            <Search />
+          </div>
           <MobileNav.Root>
-            <MobileNav.Trigger className="HeaderButton">
+            <MobileNav.Trigger className="HeaderButton whitespace-nowrap">
               <span className="flex w-4 flex-col items-center gap-1">
                 <span className="h-0.5 w-3.5 bg-current" />
                 <span className="h-0.5 w-3.5 bg-current" />
