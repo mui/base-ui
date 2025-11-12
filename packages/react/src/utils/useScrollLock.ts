@@ -234,31 +234,9 @@ const SCROLL_LOCKER = new ScrollLocker();
  * Locks the scroll of the document when enabled.
  *
  * @param enabled - Whether to enable the scroll lock.
+ * @param referenceElement - Element to use as a reference for lock calculations.
  */
-export function useScrollLock(params: {
-  enabled: boolean;
-  mounted: boolean;
-  open: boolean;
-  referenceElement?: Element | null;
-}) {
-  const { enabled = true, mounted, open, referenceElement = null } = params;
-
-  // https://github.com/mui/base-ui/issues/1135
-  useIsoLayoutEffect(() => {
-    if (enabled && isWebKit && mounted && !open) {
-      const doc = ownerDocument(referenceElement);
-      const originalUserSelect = doc.body.style.userSelect;
-      const originalWebkitUserSelect = doc.body.style.webkitUserSelect;
-      doc.body.style.userSelect = 'none';
-      doc.body.style.webkitUserSelect = 'none';
-      return () => {
-        doc.body.style.userSelect = originalUserSelect;
-        doc.body.style.webkitUserSelect = originalWebkitUserSelect;
-      };
-    }
-    return undefined;
-  }, [enabled, mounted, open, referenceElement]);
-
+export function useScrollLock(enabled: boolean = true, referenceElement: Element | null = null) {
   useIsoLayoutEffect(() => {
     if (!enabled) {
       return undefined;
