@@ -8,6 +8,7 @@ import { AnimationFrame, useAnimationFrame } from '@base-ui-components/utils/use
 import { warn } from '@base-ui-components/utils/warn';
 import { HTMLProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
@@ -389,7 +390,7 @@ export function useCollapsiblePanel(
       function handleBeforeMatch(event: Event) {
         isBeforeMatchRef.current = true;
         setOpen(true);
-        onOpenChange(true, createChangeEventDetails('none', event));
+        onOpenChange(true, createChangeEventDetails(REASONS.none, event));
       }
 
       panel.addEventListener('beforematch', handleBeforeMatch);

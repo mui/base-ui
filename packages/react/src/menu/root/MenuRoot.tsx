@@ -31,6 +31,7 @@ import { useScrollLock } from '../../utils/useScrollLock';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import {
   ContextMenuRootContext,
   useContextMenuRootContext,
@@ -174,12 +175,10 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  useScrollLock({
-    enabled: open && modal && lastOpenChangeReason !== 'trigger-hover' && openMethod !== 'touch',
-    mounted,
-    open,
-    referenceElement: positionerElement,
-  });
+  useScrollLock(
+    open && modal && lastOpenChangeReason !== REASONS.triggerHover && openMethod !== 'touch',
+    positionerElement,
+  );
 
   useIsoLayoutEffect(() => {
     if (!open && !hoverEnabled) {
@@ -263,7 +262,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       // Prevent the menu from closing on mobile devices that have a delayed click event.
       // In some cases the menu, when tapped, will fire the focus event first and then the click event.
       // Without this guard, the menu will close immediately after opening.
-      if (nextOpen && reason === 'trigger-focus') {
+      if (nextOpen && reason === REASONS.triggerFocus) {
         allowTouchToCloseRef.current = false;
         allowTouchToCloseTimeout.start(300, () => {
           allowTouchToCloseRef.current = true;
@@ -274,10 +273,10 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       }
 
       const isKeyboardClick =
-        (reason === 'trigger-press' || reason === 'item-press') &&
+        (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
         (nativeEvent as MouseEvent).detail === 0 &&
         nativeEvent?.isTrusted;
-      const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
+      const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
       function changeState() {
         store.set('open', nextOpen);
@@ -285,7 +284,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
         openEventRef.current = eventDetails.event ?? null;
       }
 
-      if (reason === 'trigger-hover') {
+      if (reason === REASONS.triggerHover) {
         // Only allow "patient" clicks to close the menu if it's open.
         // If they clicked within 500ms of the menu opening, keep it open.
         setStickIfOpen(true);
@@ -300,11 +299,11 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
       if (
         parent.type === 'menubar' &&
-        (reason === 'trigger-focus' ||
-          reason === 'focus-out' ||
-          reason === 'trigger-hover' ||
-          reason === 'list-navigation' ||
-          reason === 'sibling-open')
+        (reason === REASONS.triggerFocus ||
+          reason === REASONS.focusOut ||
+          reason === REASONS.triggerHover ||
+          reason === REASONS.listNavigation ||
+          reason === REASONS.siblingOpen)
       ) {
         store.set('instantType', 'group');
       } else if (isKeyboardClick || isDismissClose) {
@@ -623,18 +622,18 @@ export interface MenuRootActions {
 }
 
 export type MenuRootChangeEventReason =
-  | 'trigger-hover'
-  | 'trigger-focus'
-  | 'trigger-press'
-  | 'outside-press'
-  | 'focus-out'
-  | 'list-navigation'
-  | 'escape-key'
-  | 'item-press'
-  | 'close-press'
-  | 'sibling-open'
-  | 'cancel-open'
-  | 'none';
+  | typeof REASONS.triggerHover
+  | typeof REASONS.triggerFocus
+  | typeof REASONS.triggerPress
+  | typeof REASONS.outsidePress
+  | typeof REASONS.focusOut
+  | typeof REASONS.listNavigation
+  | typeof REASONS.escapeKey
+  | typeof REASONS.itemPress
+  | typeof REASONS.closePress
+  | typeof REASONS.siblingOpen
+  | typeof REASONS.cancelOpen
+  | typeof REASONS.none;
 
 export type MenuRootChangeEventDetails = BaseUIChangeEventDetails<MenuRoot.ChangeEventReason>;
 

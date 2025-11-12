@@ -6,6 +6,7 @@ import { NumberField as NumberFieldBase } from '@base-ui-components/react/number
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { REASONS } from '../../utils/reasons';
 
 describe('<NumberField />', () => {
   const { render } = createRenderer();
@@ -134,6 +135,102 @@ describe('<NumberField />', () => {
       fireEvent.change(input, { target: { value: '' } });
       expect(onValueChange.callCount).to.equal(1);
       expect(onValueChange.firstCall.args[0]).to.equal(null);
+    });
+
+    it('includes the reason for parseable typing', async () => {
+      const onValueChange = spy();
+      await render(<NumberField onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '12' } });
+
+      expect(onValueChange).to.have.property('callCount', 1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal(REASONS.inputChange);
+    });
+
+    it('includes the reason when clearing the value', async () => {
+      const onValueChange = spy();
+      await render(<NumberField defaultValue={5} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+
+      expect(onValueChange).to.have.property('callCount', 1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal(REASONS.inputClear);
+    });
+
+    it('includes the reason for keyboard increments', async () => {
+      const onValueChange = spy();
+      await render(<NumberField defaultValue={1} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      await act(async () => {
+        input.focus();
+      });
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      expect(onValueChange).to.have.property('callCount', 1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('keyboard');
+    });
+
+    it('includes the reason for increment button presses', async () => {
+      const onValueChange = spy();
+      await render(<NumberField defaultValue={1} onValueChange={onValueChange} />);
+      const incrementButton = screen.getByRole('button', { name: 'Increase' });
+
+      fireEvent.click(incrementButton);
+
+      expect(onValueChange.callCount).to.equal(1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('increment-press');
+    });
+
+    it('includes the reason for decrement button presses', async () => {
+      const onValueChange = spy();
+      await render(<NumberField defaultValue={1} onValueChange={onValueChange} />);
+      const decrementButton = screen.getByRole('button', { name: 'Decrease' });
+
+      fireEvent.click(decrementButton);
+
+      expect(onValueChange.callCount).to.equal(1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('decrement-press');
+    });
+
+    it('includes the reason for wheel scrubbing', async () => {
+      const onValueChange = spy();
+      await render(<NumberField allowWheelScrub defaultValue={4} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      await act(async () => {
+        input.focus();
+      });
+      fireEvent.wheel(input, { deltaY: -100 });
+
+      expect(onValueChange.callCount).to.equal(1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('wheel');
     });
   });
 
@@ -846,7 +943,6 @@ describe('<NumberField />', () => {
         return (
           <Form
             errors={errors}
-            onClearErrors={setErrors}
             onSubmit={(event) => {
               event.preventDefault();
               setErrors({ quantity: 'server error' });
@@ -872,22 +968,19 @@ describe('<NumberField />', () => {
       expect(screen.queryByTestId('error')).to.have.text('server error');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Form.Props['errors']>({
-          test: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="test" data-testid="field">
-              <NumberField defaultValue={1} />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      await render(<App />);
+    it('clears external errors on change', async () => {
+      await render(
+        <Form
+          errors={{
+            test: 'test',
+          }}
+        >
+          <Field.Root name="test" data-testid="field">
+            <NumberField defaultValue={1} />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       const input = screen.getByRole('textbox');
 

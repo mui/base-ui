@@ -14,6 +14,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
 
@@ -21,7 +22,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const { store, parentContext, actionsRef, triggerIdProp } = params;
 
   const open = store.useState('open');
-  const dismissible = store.useState('dismissible');
+  const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
   const popupElement = store.useState('popupElement');
@@ -77,7 +78,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   });
 
   const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createDialogEventDetails('imperative-action'));
+    store.setOpen(false, createDialogEventDetails(REASONS.imperativeAction));
   }, [store, createDialogEventDetails]);
 
   useOpenChangeComplete({
@@ -134,7 +135,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
         return false;
       }
       const target = getTarget(event) as Element | null;
-      if (isTopmost && dismissible) {
+      if (isTopmost && !disablePointerDismissal) {
         const eventTarget = target as Element | null;
         // Only close if the click occurred on the dialog's owning backdrop.
         // This supports multiple modal dialogs that aren't nested in the React tree:
@@ -153,12 +154,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     escapeKey: isTopmost,
   });
 
-  useScrollLock({
-    enabled: open && modal === true,
-    mounted,
-    open,
-    referenceElement: popupElement,
-  });
+  useScrollLock(open && modal === true, popupElement);
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([role, dismiss]);
 

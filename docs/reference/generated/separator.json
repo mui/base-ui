@@ -2,10 +2,6 @@
   "name": "Separator",
   "description": "A separator element accessible to screen readers.\nRenders a `<div>` element.",
   "props": {
-    "style": {
-      "type": "CSSProperties | ((state: Separator.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Separator.State) => CSSProperties | undefined)\n| undefined"
-    },
     "orientation": {
       "type": "Orientation",
       "default": "'horizontal'",
@@ -16,6 +12,10 @@
       "type": "string | ((state: Separator.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Separator.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Separator.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Separator.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Separator.State) => ReactElement)",

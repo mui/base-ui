@@ -52,7 +52,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const activeTrigger = store.useState('activeTriggerElement');
   const floatingRootContext = store.useState('floatingRootContext');
   const disabled = disabledProp ?? store.useState('disabled');
-  const hoverable = store.useState('hoverable');
+  const disableHoverablePopup = store.useState('disableHoverablePopup');
   const trackCursorAxis = store.useState('trackCursorAxis');
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -66,7 +66,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     enabled: !disabled,
     mouseOnly: true,
     move: false,
-    handleClose: hoverable && trackCursorAxis !== 'both' ? safePolygon() : null,
+    handleClose: !disableHoverablePopup && trackCursorAxis !== 'both' ? safePolygon() : null,
     restMs() {
       const providerDelay = providerContext?.delay;
       const groupOpenValue =

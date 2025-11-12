@@ -1227,34 +1227,31 @@ describe('<Select.Root />', () => {
       expect(error).to.have.text('required');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
-          select: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="select">
-              <Select.Root>
-                <Select.Trigger data-testid="trigger">
-                  <Select.Value />
-                </Select.Trigger>
-                <Select.Portal>
-                  <Select.Positioner>
-                    <Select.Popup>
-                      <Select.Item value="a">a</Select.Item>
-                      <Select.Item value="b">b</Select.Item>
-                    </Select.Popup>
-                  </Select.Positioner>
-                </Select.Portal>
-              </Select.Root>
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      const { user } = await renderFakeTimers(<App />);
+    it('clears external errors on change', async () => {
+      const { user } = await renderFakeTimers(
+        <Form
+          errors={{
+            select: 'test',
+          }}
+        >
+          <Field.Root name="select">
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       expect(screen.getByTestId('error')).to.have.text('test');
 
@@ -2280,6 +2277,43 @@ describe('<Select.Root />', () => {
       expect(handleValueChange.args[0][0]).to.deep.equal(['b']);
       expect(optionA).not.to.have.attribute('data-selected');
       expect(optionB).to.have.attribute('data-selected', '');
+    });
+
+    it('keeps the active index on a deselected item in multiple mode', async () => {
+      const { user } = await render(
+        <Select.Root multiple value={['a']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+
+      const optionB = await screen.findByRole('option', { name: 'b' });
+
+      await user.click(optionB);
+
+      await waitFor(() => {
+        expect(optionB).to.have.attribute('data-highlighted');
+      });
+
+      await user.click(optionB);
+
+      await waitFor(() => {
+        expect(optionB).to.have.attribute('data-highlighted');
+      });
     });
 
     it('should handle defaultValue as array in multiple mode', async () => {

@@ -17,6 +17,7 @@ import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
@@ -44,7 +45,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor,
+    disableAnchorTracking,
     alignItemWithTrigger = true,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     ...elementProps
@@ -55,6 +56,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     listRef,
     labelsRef,
     alignItemWithTriggerActiveRef,
+    selectedItemTextRef,
     valuesRef,
     initialValueRef,
     popupRef,
@@ -95,12 +97,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
-  useScrollLock({
-    enabled: (alignItemWithTriggerActive || modal) && open && !touchModality,
-    mounted,
-    open,
-    referenceElement: triggerElement,
-  });
+  useScrollLock((alignItemWithTriggerActive || modal) && open && !touchModality, triggerElement);
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -115,10 +112,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor:
-      trackAnchor === undefined && alignItemWithTriggerActive
-        ? false
-        : (trackAnchor ?? !alignItemWithTriggerActive),
+    disableAnchorTracking: disableAnchorTracking ?? alignItemWithTriggerActive,
     collisionAvoidance,
     keepMounted: true,
   });
@@ -182,7 +176,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       return;
     }
 
-    const eventDetails = createChangeEventDetails('none');
+    const eventDetails = createChangeEventDetails(REASONS.none);
 
     if (prevSize !== 0 && !store.state.multiple && value !== null) {
       const valueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
@@ -192,6 +186,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
           initial != null && itemIncludes(valuesRef.current, initial, isItemEqualToValue);
         const nextValue = hasInitial ? initial : null;
         setValue(nextValue, eventDetails);
+
+        if (nextValue === null) {
+          store.set('selectedIndex', null);
+          selectedItemTextRef.current = null;
+        }
       }
     }
 
@@ -202,6 +201,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         nextValue.some((v) => !itemIncludes(value, v, isItemEqualToValue))
       ) {
         setValue(nextValue, eventDetails);
+
+        if (nextValue.length === 0) {
+          store.set('selectedIndex', null);
+          selectedItemTextRef.current = null;
+        }
       }
     }
 

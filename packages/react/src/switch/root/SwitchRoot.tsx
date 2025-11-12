@@ -18,6 +18,7 @@ import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
 import { useValueChanged } from '../../utils/useValueChanged';
 
@@ -173,7 +174,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
             }
 
             const nextChecked = event.target.checked;
-            const eventDetails = createChangeEventDetails('none', event.nativeEvent);
+            const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
             onCheckedChange?.(nextChecked, eventDetails);
 
@@ -292,7 +293,7 @@ export interface SwitchRootProps
    */
   required?: boolean;
 }
-export type SwitchRootChangeEventReason = 'none';
+export type SwitchRootChangeEventReason = typeof REASONS.none;
 export type SwitchRootChangeEventDetails = BaseUIChangeEventDetails<SwitchRoot.ChangeEventReason>;
 
 export namespace SwitchRoot {
