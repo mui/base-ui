@@ -249,7 +249,7 @@ const [errors, setErrors] = React.useState();
 
 <Form
   errors={errors}
-  onSubmit={(event) => {
+  onSubmit={async (event) => {
     event.preventDefault();
     const response = await submitToServer(/* data */);
     setErrors(response.errors);
