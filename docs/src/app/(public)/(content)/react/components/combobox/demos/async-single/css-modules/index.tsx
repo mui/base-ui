@@ -21,7 +21,7 @@ export default function ExampleAsyncSingleCombobox() {
       return searchResults;
     }
 
-    return [selectedValue, ...searchResults];
+    return [...searchResults, selectedValue];
   }, [searchResults, selectedValue]);
 
   function getStatus() {
