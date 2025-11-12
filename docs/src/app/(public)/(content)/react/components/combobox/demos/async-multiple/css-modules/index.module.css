@@ -115,8 +115,7 @@
     transform 0.1s;
   transform-origin: var(--transform-origin);
 
-  &[data-starting-style],
-  &[data-ending-style] {
+  &[data-starting-style] {
     opacity: 0;
     transform: scale(0.95);
   }
