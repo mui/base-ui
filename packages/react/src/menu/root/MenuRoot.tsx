@@ -57,7 +57,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     defaultOpen = false,
     disabled: disabledProp = false,
     modal: modalProp,
-    focusLoop = true,
+    loopFocus = true,
     orientation = 'vertical',
     actionsRef,
     openOnHover: openOnHoverProp,
@@ -432,7 +432,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     listRef: store.context.itemDomElements,
     activeIndex,
     nested: parent.type !== undefined,
-    focusLoop,
+    loopFocus,
     orientation,
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
     rtl: direction === 'rtl',
@@ -555,7 +555,7 @@ export interface MenuRootProps {
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  focusLoop?: boolean;
+  loopFocus?: boolean;
   /**
    * Determines if the menu enters a modal state when open.
    * - `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.

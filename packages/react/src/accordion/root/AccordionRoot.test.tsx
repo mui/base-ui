@@ -467,10 +467,10 @@ describe('<Accordion.Root />', () => {
       expect(input.selectionEnd).to.equal(0);
     });
 
-    describe('prop: focusLoop', () => {
+    describe('prop: loopFocus', () => {
       it('can disable focus looping between triggers', async () => {
         const { user } = await render(
-          <Accordion.Root focusLoop={false}>
+          <Accordion.Root loopFocus={false}>
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>

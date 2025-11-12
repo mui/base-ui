@@ -32,7 +32,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
   const {
     defaultValue: defaultValueProp,
     disabled: disabledProp = false,
-    focusLoop = true,
+    loopFocus = true,
     onValueChange,
     orientation = 'horizontal',
     multiple = false,
@@ -129,7 +129,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
           refs={[forwardedRef]}
           props={[defaultProps, elementProps]}
           stateAttributesMapping={stateAttributesMapping}
-          focusLoop={focusLoop}
+          loopFocus={loopFocus}
         />
       )}
     </ToggleGroupContext.Provider>
@@ -175,7 +175,7 @@ export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGrou
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  focusLoop?: boolean;
+  loopFocus?: boolean;
   /**
    * When `false` only one item in the group can be pressed. If any item in
    * the group becomes pressed, the others will become unpressed.

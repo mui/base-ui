@@ -10,7 +10,7 @@ import {
 
 interface Props {
   orientation?: 'horizontal' | 'both';
-  focusLoop?: boolean;
+  loopFocus?: boolean;
   rtl?: boolean;
 }
 
@@ -29,7 +29,7 @@ interface Props {
  */
 
 /** @internal */
-export function Main({ orientation = 'horizontal', focusLoop = false, rtl = false }: Props) {
+export function Main({ orientation = 'horizontal', loopFocus = false, rtl = false }: Props) {
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
 
@@ -61,7 +61,7 @@ export function Main({ orientation = 'horizontal', focusLoop = false, rtl = fals
       onNavigate: setActiveIndex,
       cols: 7,
       orientation,
-      focusLoop,
+      loopFocus,
       rtl,
       openOnArrowKeyDown: false,
       disabledIndices,

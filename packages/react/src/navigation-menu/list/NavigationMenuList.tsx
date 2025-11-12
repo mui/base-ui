@@ -73,7 +73,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
         state={state}
         refs={[forwardedRef]}
         props={[dismissProps?.floating || EMPTY_OBJECT, defaultProps, elementProps]}
-        focusLoop={false}
+        loopFocus={false}
         orientation={orientation}
         tag="ul"
       />

@@ -72,7 +72,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     native: nativeButton,
   });
 
-  const { accordionItemRefs, direction, focusLoop, orientation } = useAccordionRootContext();
+  const { accordionItemRefs, direction, loopFocus, orientation } = useAccordionRootContext();
 
   const isRtl = direction === 'rtl';
   const isHorizontal = orientation === 'horizontal';
@@ -112,7 +112,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
         const thisIndex = triggers.indexOf(event.target as HTMLButtonElement);
 
         function toNext() {
-          if (focusLoop) {
+          if (loopFocus) {
             nextIndex = thisIndex + 1 > lastIndex ? 0 : thisIndex + 1;
           } else {
             nextIndex = Math.min(thisIndex + 1, lastIndex);
@@ -120,7 +120,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
         }
 
         function toPrev() {
-          if (focusLoop) {
+          if (loopFocus) {
             nextIndex = thisIndex === 0 ? lastIndex : thisIndex - 1;
           } else {
             nextIndex = thisIndex - 1;
@@ -171,7 +171,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
         }
       },
     }),
-    [accordionItemRefs, disabled, handleTrigger, id, isHorizontal, isRtl, focusLoop, open, panelId],
+    [accordionItemRefs, disabled, handleTrigger, id, isHorizontal, isRtl, loopFocus, open, panelId],
   );
 
   const element = useRenderElement('button', componentProps, {

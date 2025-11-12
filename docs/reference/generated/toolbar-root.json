@@ -2,7 +2,7 @@
   "name": "ToolbarRoot",
   "description": "A container for grouping a set of controls, such as buttons, toggle groups, or menus.\nRenders a `<div>` element.",
   "props": {
-    "focusLoop": {
+    "loopFocus": {
       "type": "boolean",
       "default": "true",
       "description": "If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.",

@@ -1023,7 +1023,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     activeIndex,
     selectedIndex,
     virtual: true,
-    focusLoop: true,
+    loopFocus: true,
     allowEscape: !autoHighlightEnabled,
     focusItemOnOpen:
       queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightEnabled) ? false : 'auto',

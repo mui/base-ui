@@ -25,7 +25,7 @@ export const TabsList = React.forwardRef(function TabsList(
   const {
     activateOnFocus = true,
     className,
-    focusLoop = true,
+    loopFocus = true,
     render,
     ...elementProps
   } = componentProps;
@@ -103,7 +103,7 @@ export const TabsList = React.forwardRef(function TabsList(
         stateAttributesMapping={tabsStateAttributesMapping}
         highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
-        focusLoop={focusLoop}
+        loopFocus={loopFocus}
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
@@ -210,7 +210,7 @@ export interface TabsListProps extends BaseUIComponentProps<'div', TabsList.Stat
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  focusLoop?: boolean;
+  loopFocus?: boolean;
 }
 
 export namespace TabsList {

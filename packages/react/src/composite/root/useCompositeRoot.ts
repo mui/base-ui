@@ -39,7 +39,7 @@ import { HTMLProps } from '../../utils/types';
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
-  focusLoop?: boolean;
+  loopFocus?: boolean;
   highlightedIndex?: number;
   onHighlightedIndexChange?: (index: number) => void;
   dense?: boolean;
@@ -77,7 +77,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
     itemSizes,
     cols = 1,
-    focusLoop = true,
+    loopFocus = true,
     dense = false,
     orientation = 'both',
     direction,
@@ -223,7 +223,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               {
                 event,
                 orientation,
-                focusLoop,
+                loopFocus,
                 cols,
                 // treat undefined (empty grid spaces) as disabled indices so we
                 // don't end up in them
@@ -288,9 +288,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           nextIndex === highlightedIndex &&
           (forwardKeys.includes(event.key) || backwardKeys.includes(event.key))
         ) {
-          if (focusLoop && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
+          if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
-          } else if (focusLoop && nextIndex === minIndex && backwardKeys.includes(event.key)) {
+          } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
           } else {
             nextIndex = findNonDisabledListIndex(elementsRef, {
@@ -328,7 +328,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       highlightedIndex,
       isGrid,
       itemSizes,
-      focusLoop,
+      loopFocus,
       mergedRef,
       modifierKeys,
       onHighlightedIndexChange,

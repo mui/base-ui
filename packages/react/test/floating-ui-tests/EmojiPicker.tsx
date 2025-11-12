@@ -149,7 +149,7 @@ export function Main() {
       activeIndex,
       cols: 3,
       orientation: 'horizontal',
-      focusLoop: true,
+      loopFocus: true,
       focusItemOnOpen: false,
       virtual: true,
       allowEscape: true,

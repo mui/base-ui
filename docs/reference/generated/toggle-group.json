@@ -17,7 +17,7 @@
       "description": "Callback fired when the pressed states of the toggle group changes.",
       "detailedType": "| ((\n    groupValue: any[],\n    eventDetails: Toggle.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
-    "focusLoop": {
+    "loopFocus": {
       "type": "boolean",
       "default": "true",
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",

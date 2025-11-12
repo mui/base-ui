@@ -29,7 +29,7 @@
       "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu.",
       "detailedType": "boolean | undefined"
     },
-    "focusLoop": {
+    "loopFocus": {
       "type": "boolean",
       "default": "true",
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",

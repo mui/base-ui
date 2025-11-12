@@ -643,10 +643,10 @@ describe('<Menubar />', () => {
     });
   });
 
-  describe.skipIf(!isJSDOM)('prop: focusLoop', () => {
-    describe('when focusLoop == true', () => {
+  describe.skipIf(!isJSDOM)('prop: loopFocus', () => {
+    describe('when loopFocus == true', () => {
       it('should loop around to the first item after the last one', async () => {
-        const { user } = await render(<TestMenubar focusLoop />);
+        const { user } = await render(<TestMenubar loopFocus />);
 
         const firstItem = screen.getByTestId('file-trigger');
         await act(async () => {
@@ -664,7 +664,7 @@ describe('<Menubar />', () => {
       });
 
       it('should loop around to the last item after the first one', async () => {
-        const { user } = await render(<TestMenubar focusLoop />);
+        const { user } = await render(<TestMenubar loopFocus />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
         await act(async () => {
@@ -683,9 +683,9 @@ describe('<Menubar />', () => {
       });
     });
 
-    describe('when focusLoop == false', () => {
+    describe('when loopFocus == false', () => {
       it('should stay on the last item when navigating beyond it', async () => {
-        const { user } = await render(<TestMenubar focusLoop={false} />);
+        const { user } = await render(<TestMenubar loopFocus={false} />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
         await act(async () => {
@@ -711,7 +711,7 @@ describe('<Menubar />', () => {
       });
 
       it('should stay on the first item when navigating before it', async () => {
-        const { user } = await render(<TestMenubar focusLoop={false} />);
+        const { user } = await render(<TestMenubar loopFocus={false} />);
 
         const firstItem = screen.getByTestId('file-trigger');
         await act(async () => {
