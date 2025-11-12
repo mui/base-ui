@@ -82,13 +82,10 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     }
   }, [store, resolvedTriggerId, open]);
 
-  useScrollLock({
-    enabled:
-      open && modal === true && openReason !== REASONS.triggerHover && openMethod !== 'touch',
-    mounted,
-    open,
-    referenceElement: positionerElement,
-  });
+  useScrollLock(
+    open && modal === true && openReason !== REASONS.triggerHover && openMethod !== 'touch',
+    positionerElement,
+  );
 
   React.useEffect(() => {
     if (!open) {
