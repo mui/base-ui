@@ -30,7 +30,7 @@ export default function ExampleAsyncSingleCombobox() {
       return (
         <React.Fragment>
           <span
-            aria-hidden="true"
+            aria-hidden
             className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent rtl:border-r-current rtl:border-l-transparent"
           />
           Searching...
