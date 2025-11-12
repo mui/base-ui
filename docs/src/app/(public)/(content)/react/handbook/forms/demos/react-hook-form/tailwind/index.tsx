@@ -47,7 +47,7 @@ function ReactHookForm() {
     },
   });
 
-  async function submitForm(data: FormValues) {
+  function submitForm(data: FormValues) {
     toastManager.add({
       title: 'Form submitted',
       description: 'The form contains these values:',

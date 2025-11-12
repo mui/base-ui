@@ -22,7 +22,7 @@ function ExampleForm() {
   return (
     <Form
       aria-label="Launch new cloud server"
-      onFormSubmit={async (formValues) => {
+      onFormSubmit={(formValues) => {
         toastManager.add({
           title: 'Form submitted',
           description: 'The form contains these values:',
@@ -217,7 +217,7 @@ function ExampleForm() {
       </Field.Root>
 
       <Field.Root name="backupSchedule">
-        <Fieldset.Root render={<CheckboxGroup />}>
+        <Fieldset.Root render={<CheckboxGroup defaultValue={[]} />}>
           <Fieldset.Legend className="mb-2">Backup schedule</Fieldset.Legend>
           <div className="flex gap-4">
             {['daily', 'weekly', 'monthly'].map((val) => {
