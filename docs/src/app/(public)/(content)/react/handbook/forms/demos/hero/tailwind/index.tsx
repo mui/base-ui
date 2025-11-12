@@ -216,13 +216,13 @@ function ExampleForm() {
         </Field.Label>
       </Field.Root>
 
-      <Field.Root name="backupSchedule">
+      <Field.Root name="allowedNetworkProtocols">
         <Fieldset.Root render={<CheckboxGroup defaultValue={[]} />}>
-          <Fieldset.Legend className="mb-2">Backup schedule</Fieldset.Legend>
+          <Fieldset.Legend className="mb-2">Allowed network protocols</Fieldset.Legend>
           <div className="flex gap-4">
-            {['daily', 'weekly', 'monthly'].map((val) => {
+            {['http', 'https', 'ssh'].map((val) => {
               return (
-                <Field.Label key={val} className="capitalize">
+                <Field.Label key={val} className="uppercase">
                   <Checkbox.Root value={val}>
                     <Checkbox.Indicator>
                       <Check className="size-3" />

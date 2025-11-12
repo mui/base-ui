@@ -26,7 +26,7 @@ interface FormValues {
   scalingThreshold: number[];
   storageType: 'ssd' | 'hdd';
   restartOnFailure: boolean;
-  backupSchedule: string[];
+  allowedNetworkProtocols: string[];
 }
 
 const defaultValues: FormValues = {
@@ -38,7 +38,7 @@ const defaultValues: FormValues = {
   scalingThreshold: [0.2, 0.8],
   storageType: 'ssd',
   restartOnFailure: true,
-  backupSchedule: [],
+  allowedNetworkProtocols: [],
 };
 
 function TanstackForm() {
@@ -420,7 +420,7 @@ function TanstackForm() {
       />
 
       <form.Field
-        name="backupSchedule"
+        name="allowedNetworkProtocols"
         children={(field) => {
           return (
             <Field.Root
@@ -434,11 +434,11 @@ function TanstackForm() {
                   <CheckboxGroup value={field.state.value} onValueChange={field.handleChange} />
                 }
               >
-                <Fieldset.Legend className="mb-2">Backup schedule</Fieldset.Legend>
+                <Fieldset.Legend className="mb-2">Allowed network protocols</Fieldset.Legend>
                 <div className="flex gap-4">
-                  {['daily', 'weekly', 'monthly'].map((checkboxValue) => {
+                  {['http', 'https', 'ssh'].map((checkboxValue) => {
                     return (
-                      <Field.Label key={checkboxValue} className="capitalize">
+                      <Field.Label key={checkboxValue} className="uppercase">
                         <Checkbox.Root value={checkboxValue} onBlur={field.handleBlur}>
                           <Checkbox.Indicator>
                             <Check className="size-3" />

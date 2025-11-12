@@ -27,7 +27,7 @@ interface FormValues {
   scalingThreshold: number[];
   storageType: 'ssd' | 'hdd';
   restartOnFailure: boolean;
-  backupSchedule: string[];
+  allowedNetworkProtocols: string[];
 }
 
 function ReactHookForm() {
@@ -43,7 +43,7 @@ function ReactHookForm() {
       scalingThreshold: [0.2, 0.8],
       storageType: 'ssd',
       restartOnFailure: true,
-      backupSchedule: [],
+      allowedNetworkProtocols: [],
     },
   });
 
@@ -353,7 +353,7 @@ function ReactHookForm() {
       />
 
       <Controller
-        name="backupSchedule"
+        name="allowedNetworkProtocols"
         control={control}
         render={({
           field: { ref, name, value, onBlur, onChange },
@@ -361,14 +361,14 @@ function ReactHookForm() {
         }) => (
           <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
             <Fieldset.Root render={<CheckboxGroup value={value} onValueChange={onChange} />}>
-              <Fieldset.Legend className="mb-2">Backup schedule</Fieldset.Legend>
+              <Fieldset.Legend className="mb-2">Allowed network protocols</Fieldset.Legend>
               <div className="flex gap-4">
-                {['daily', 'weekly', 'monthly'].map((val) => {
+                {['http', 'https', 'ssh'].map((val) => {
                   return (
-                    <Field.Label key={val} className="capitalize">
+                    <Field.Label key={val} className="uppercase">
                       <Checkbox.Root
                         value={val}
-                        inputRef={val === 'daily' ? ref : undefined}
+                        inputRef={val === 'http' ? ref : undefined}
                         onBlur={onBlur}
                       >
                         <Checkbox.Indicator>
