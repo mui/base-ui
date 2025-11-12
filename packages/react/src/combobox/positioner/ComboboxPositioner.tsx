@@ -81,12 +81,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     lazyFlip: true,
   });
 
-  useScrollLock({
-    enabled: open && modal && openMethod !== 'touch',
-    mounted,
-    open,
-    referenceElement: triggerElement,
-  });
+  useScrollLock(open && modal && openMethod !== 'touch', triggerElement);
 
   const defaultProps: HTMLProps = React.useMemo(() => {
     const style: React.CSSProperties = {

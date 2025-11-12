@@ -154,12 +154,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     escapeKey: isTopmost,
   });
 
-  useScrollLock({
-    enabled: open && modal === true,
-    mounted,
-    open,
-    referenceElement: popupElement,
-  });
+  useScrollLock(open && modal === true, popupElement);
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([role, dismiss]);
 
