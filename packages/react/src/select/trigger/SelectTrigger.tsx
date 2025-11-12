@@ -7,7 +7,7 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -45,7 +45,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     render,
     className,
     disabled: disabledProp = false,
-    nativeButton = false,
+    nativeButton = true,
     ...elementProps
   } = componentProps;
 
@@ -241,7 +241,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     [fieldState, open, disabled, readOnly, value],
   );
 
-  return useRenderElement('div', componentProps, {
+  return useRenderElement('button', componentProps, {
     ref: [forwardedRef, triggerRef],
     state,
     stateAttributesMapping,
@@ -259,7 +259,7 @@ export interface SelectTriggerState extends FieldRoot.State {
 }
 
 export interface SelectTriggerProps
-  extends NonNativeButtonProps,
+  extends NativeButtonProps,
     BaseUIComponentProps<'div', SelectTrigger.State> {
   children?: React.ReactNode;
   /** Whether the component should ignore user interaction. */
