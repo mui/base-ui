@@ -41,17 +41,12 @@ To use a radio group in a form:
     <Fieldset.Root render={<RadioGroup />}>
       <Fieldset.Legend>Shipping method</Fieldset.Legend>
       <Field.Item>
-        <Field.Label>
-          <Radio.Root value="standard" />
-          Standard
-        </Field.Label>
+        <Radio.Root value="standard" />
+        <Field.Label>Standard</Field.Label>
       </Field.Item>
       <Field.Item>
-        <Field.Label>
-          <Radio.Root value="express" />
-          Express
-        </Field.Label>
-        ` `{' '}
+        <Radio.Root value="express" />
+        <Field.Label>Express</Field.Label>
       </Field.Item>
     </Fieldset.Root>
   </Field.Root>
