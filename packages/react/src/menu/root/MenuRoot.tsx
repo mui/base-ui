@@ -167,18 +167,13 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   }, [allowOutsidePressDismissalTimeout, open, parent.type]);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
   store.useSyncedValues({ mounted, transitionStatus });
 
-  const {
-    openMethod,
-    triggerProps: interactionTypeProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  const { triggerProps: interactionTypeProps, reset: resetOpenInteractionType } =
+    useOpenInteractionType(open);
 
-  useScrollLock(
-    open && modal && lastOpenChangeReason !== REASONS.triggerHover && openMethod !== 'touch',
-    positionerElement,
-  );
+  useScrollLock(open && modal && lastOpenChangeReason !== REASONS.triggerHover, positionerElement);
 
   useIsoLayoutEffect(() => {
     if (!open && !hoverEnabled) {

@@ -52,7 +52,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const activeTriggerElement = store.useState('activeTriggerElement');
   const payload = store.useState('payload') as Payload | undefined;
   const openReason = store.useState('openReason');
-  const openMethod = store.useState('openMethod');
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -82,10 +81,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     }
   }, [store, resolvedTriggerId, open]);
 
-  useScrollLock(
-    open && modal === true && openReason !== REASONS.triggerHover && openMethod !== 'touch',
-    positionerElement,
-  );
+  useScrollLock(open && modal === true && openReason !== REASONS.triggerHover, positionerElement);
 
   React.useEffect(() => {
     if (!open) {
