@@ -174,12 +174,12 @@ describe('<Tabs.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
-    it('should call onValueChange on pointerdown', async () => {
+    it('when `activateOnFocus = true` should call onValueChange on pointerdown', async () => {
       const handleChange = spy();
       const handlePointerDown = spy();
       const { user } = await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
-          <Tabs.List>
+          <Tabs.List activateOnFocus>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} onPointerDown={handlePointerDown} />
           </Tabs.List>
@@ -241,12 +241,12 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.callCount).to.equal(0);
     });
 
-    it('should call onValueChange if an unactive tab gets focused', async () => {
+    it('when `activateOnFocus = true` should call onValueChange if an unactive tab gets focused', async () => {
       const handleChange = spy();
 
       await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
-          <Tabs.List>
+          <Tabs.List activateOnFocus>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
           </Tabs.List>
@@ -491,7 +491,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={0}
                     >
-                      <Tabs.List onKeyDown={handleKeyDown}>
+                      <Tabs.List onKeyDown={handleKeyDown} activateOnFocus>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} />
                         <Tabs.Tab value={2} />
@@ -526,7 +526,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={1}
                     >
-                      <Tabs.List onKeyDown={handleKeyDown}>
+                      <Tabs.List onKeyDown={handleKeyDown} activateOnFocus>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} />
                         <Tabs.Tab value={2} />
@@ -701,7 +701,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={2}
                     >
-                      <Tabs.List onKeyDown={handleKeyDown}>
+                      <Tabs.List onKeyDown={handleKeyDown} activateOnFocus>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} />
                         <Tabs.Tab value={2} />
@@ -736,7 +736,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={1}
                     >
-                      <Tabs.List onKeyDown={handleKeyDown}>
+                      <Tabs.List onKeyDown={handleKeyDown} activateOnFocus>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} />
                         <Tabs.Tab value={2} />
@@ -878,7 +878,7 @@ describe('<Tabs.Root />', () => {
 
           await render(
             <Tabs.Root onValueChange={handleChange} value={2}>
-              <Tabs.List onKeyDown={handleKeyDown}>
+              <Tabs.List onKeyDown={handleKeyDown} activateOnFocus>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
                 <Tabs.Tab value={2} />
@@ -967,7 +967,7 @@ describe('<Tabs.Root />', () => {
 
           await render(
             <Tabs.Root onValueChange={handleChange} value={0}>
-              <Tabs.List onKeyDown={handleKeyDown}>
+              <Tabs.List onKeyDown={handleKeyDown} activateOnFocus>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
                 <Tabs.Tab value={2} />
