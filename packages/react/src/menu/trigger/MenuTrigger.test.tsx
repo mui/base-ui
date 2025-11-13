@@ -137,11 +137,11 @@ describe('<Menu.Trigger />', () => {
     it('has the aria-expanded=true attribute when open', async () => {
       await render(
         <Menu.Root open>
-          <Menu.Trigger />
+          <Menu.Trigger>Toggle</Menu.Trigger>
         </Menu.Root>,
       );
 
-      const button = screen.getByRole('button');
+      const button = screen.getByRole('button', { name: 'Toggle' });
       expect(button).to.have.attribute('aria-expanded', 'true');
     });
   });
