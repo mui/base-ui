@@ -1,0 +1,25 @@
+{
+  "name": "CommandPalettePortal",
+  "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.\nRenders a `<div>` element.",
+  "props": {
+    "container": {
+      "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
+      "default": "document.body",
+      "description": "A parent element to render the portal element into.",
+      "detailedType": "| HTMLElement\n| ShadowRoot\n| React.RefObject<HTMLElement | ShadowRoot | null>\n| null\n| undefined"
+    },
+    "children": {
+      "type": "ReactNode",
+      "description": "The content to render in the portal.",
+      "detailedType": "React.ReactNode"
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the portal will keep its content mounted even when the command palette is closed.",
+      "detailedType": "boolean | undefined"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

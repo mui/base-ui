@@ -81,5 +81,6 @@
   "80": "Base UI: PopoverHandle.open: No trigger found with id \"%s\".",
   "81": "Base UI: TooltipHandle.open: No trigger found with id \"%s\".",
   "82": "Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.",
-  "83": "Base UI: ToastPositionerContext is missing. ToastPositioner parts must be placed within <Toast.Positioner>."
+  "83": "Base UI: ToastPositionerContext is missing. ToastPositioner parts must be placed within <Toast.Positioner>.",
+  "84": "Base UI: CommandPaletteRootContext is missing. CommandPalette parts must be placed within <CommandPalette.Root>."
 }

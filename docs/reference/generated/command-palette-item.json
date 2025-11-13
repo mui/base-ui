@@ -1,0 +1,33 @@
+{
+  "name": "CommandPaletteItem",
+  "description": "An individual command item in the command palette.\nRenders a `<li>` element.",
+  "props": {
+    "itemId": {
+      "type": "string",
+      "required": true,
+      "description": "The ID of the command item from the items array.\nThis is used to match the item with the data in the store."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the item should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
+    "className": {
+      "type": "string | ((state: CommandPaletteItemState) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: CommandPaletteItemState) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: CommandPaletteItemState) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: CommandPaletteItemState,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: CommandPaletteItemState) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: CommandPaletteItemState,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

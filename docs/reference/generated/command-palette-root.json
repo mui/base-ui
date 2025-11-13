@@ -1,0 +1,54 @@
+{
+  "name": "CommandPaletteRoot",
+  "description": "Groups all parts of the command palette.\nDoesn't render its own HTML element.",
+  "props": {
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the command palette is initially open.\nTo render a controlled command palette, use the `open` prop instead.",
+      "detailedType": "boolean | undefined"
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Whether the command palette is currently open.",
+      "detailedType": "boolean | undefined"
+    },
+    "onOpenChange": {
+      "type": "((open: boolean, eventDetails: CommandPalette.Root.ChangeEventDetails) => void)",
+      "description": "Event handler called when the command palette is opened or closed.",
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: CommandPalette.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "actionsRef": {
+      "type": "RefObject<CommandPalette.Root.Actions>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the command palette will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the command palette manually.\n- `close`: Closes the command palette.",
+      "detailedType": "| React.RefObject<CommandPalette.Root.Actions>\n| undefined"
+    },
+    "filterFn": {
+      "type": "((query: string, items: CommandPaletteItem[]) => CommandPaletteItem[])",
+      "description": "Custom filter function for filtering items based on query.\nIf not provided, a default filter is used that matches against label and keywords.",
+      "detailedType": "| ((\n    query: string,\n    items: CommandPaletteItem[],\n  ) => CommandPaletteItem[])\n| undefined"
+    },
+    "handle": {
+      "type": "CommandPaletteHandle",
+      "description": "A handle to associate the command palette with external controls.\nCan be created with the CommandPalette.createHandle() method.\n\n```tsx\nconst handle = CommandPalette.createHandle();\n\n// ...\n\n<CommandPalette.Root handle={handle}>...</CommandPalette.Root>\n```",
+      "detailedType": "{} | undefined"
+    },
+    "items": {
+      "type": "CommandPaletteItem[]",
+      "description": "The list of command items to display.",
+      "detailedType": "CommandPaletteItem[] | undefined"
+    },
+    "onOpenChangeComplete": {
+      "type": "((open: boolean) => void)",
+      "description": "Event handler called after any animations complete when the command palette is opened or closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
+    },
+    "children": {
+      "type": "ReactNode",
+      "description": "The content of the command palette.",
+      "detailedType": "React.ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
