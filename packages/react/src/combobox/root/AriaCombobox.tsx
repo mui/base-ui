@@ -497,6 +497,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // if there are no items to show.
       if (
         eventDetails.reason === 'escape-key' &&
+        hasItems &&
         flatFilteredItems.length === 0 &&
         !store.state.emptyRef.current
       ) {
