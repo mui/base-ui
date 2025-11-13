@@ -178,14 +178,7 @@ export const ComboboxItem = React.memo(
         const pointerStartedOnItem = didPointerDownRef.current;
         didPointerDownRef.current = false;
 
-        if (
-          disabled ||
-          readOnly ||
-          event.button !== 0 ||
-          pointerStartedOnItem ||
-          !highlighted ||
-          !store.state.inputInsidePopup
-        ) {
+        if (disabled || readOnly || event.button !== 0 || pointerStartedOnItem || !highlighted) {
           return;
         }
 

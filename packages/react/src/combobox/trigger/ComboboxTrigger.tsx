@@ -163,15 +163,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           // Ensure items are registered for initial selection highlight.
           store.state.forceMount();
 
-          if (!store.state.inputInsidePopup) {
-            event.preventDefault();
-          }
-
           if (open) {
             return;
           }
 
           if (currentPointerTypeRef.current !== 'touch') {
+            event.preventDefault();
             store.state.inputRef.current?.focus();
           }
 

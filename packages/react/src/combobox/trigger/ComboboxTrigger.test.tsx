@@ -280,7 +280,7 @@ describe('<Combobox.Trigger />', () => {
   });
 
   describe('drag selection', () => {
-    it('does not commit selection when the input is outside the popup', async () => {
+    it('commits selection when the input is outside the popup', async () => {
       const handleValueChange = spy();
 
       await render(
@@ -313,8 +313,9 @@ describe('<Combobox.Trigger />', () => {
       fireEvent.mouseUp(option, { button: 0 });
 
       await waitFor(() => {
-        expect(handleValueChange.callCount).to.equal(0);
+        expect(handleValueChange.callCount).to.equal(1);
       });
+      expect(handleValueChange.firstCall.args[0]).to.equal('beta');
     });
 
     it('commits selection when the input is inside the popup and the pointer is released over an item', async () => {
