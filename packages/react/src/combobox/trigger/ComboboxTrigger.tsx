@@ -168,8 +168,11 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           if (currentPointerTypeRef.current !== 'touch') {
-            event.preventDefault();
             store.state.inputRef.current?.focus();
+
+            if (!inputInsidePopup) {
+              event.preventDefault();
+            }
           }
 
           const doc = ownerDocument(event.currentTarget);
@@ -209,7 +212,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             store.state.setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
           }
 
-          if (store.state.inputInsidePopup) {
+          if (inputInsidePopup) {
             doc.addEventListener('mouseup', handleMouseUp, { once: true });
           }
         },
