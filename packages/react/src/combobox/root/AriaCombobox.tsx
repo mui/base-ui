@@ -132,6 +132,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const emptyRef = React.useRef<HTMLDivElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
@@ -322,6 +323,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         listRef,
         labelsRef,
         popupRef,
+        emptyRef,
         inputRef,
         keyboardActiveRef,
         chipsContainerRef,
@@ -488,6 +490,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     (nextOpen: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => {
       if (open === nextOpen) {
         return;
+      }
+
+      // If the `Empty` component is not used, the positioner or popup should be hidden
+      // with CSS. In this case, allow the Escape key to bubble to close a parent popup
+      // if there are no items to show.
+      if (
+        eventDetails.reason === 'escape-key' &&
+        hasItems &&
+        flatFilteredItems.length === 0 &&
+        !store.state.emptyRef.current
+      ) {
+        eventDetails.allowPropagation();
       }
 
       props.onOpenChange?.(nextOpen, eventDetails);
