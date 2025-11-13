@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
@@ -31,7 +32,12 @@ let scrollAreaOverflowVarsRegistered = false;
  * under the "Improving CSS variable performance" section.
  */
 function removeCSSVariableInheritance() {
-  if (scrollAreaOverflowVarsRegistered) {
+  if (
+    scrollAreaOverflowVarsRegistered ||
+    // When `inherits: false`, specifying `inherit` on child elements doesn't work
+    // in Safari. To let CSS features work correctly, this optimization must be skipped.
+    isWebKit
+  ) {
     return;
   }
 
