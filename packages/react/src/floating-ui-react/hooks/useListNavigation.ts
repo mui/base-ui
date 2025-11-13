@@ -805,7 +805,7 @@ export function useListNavigation(
         // Close submenu on Shift+Tab
         if (event.key === 'Tab' && event.shiftKey && open && !virtual) {
           stopEvent(event);
-          onOpenChange(false, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
+          onOpenChange(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
 
           if (isHTMLElement(elements.domReference)) {
             elements.domReference.focus();
