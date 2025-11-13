@@ -13,7 +13,10 @@ import { DemoComboboxHero } from './demos/hero';
 ## Usage guidelines
 
 - **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
+
 - **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
+
+- **Form controls must have an accessible name**: The input must have a meaningful label. Prefer using [`<Field>`](/react/components/field) to provide a visible text label and description, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
 
 ## Anatomy
 
@@ -97,6 +100,22 @@ Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to 
 import { DemoComboboxGrouped } from './demos/grouped';
 
 <DemoComboboxGrouped compact />
+
+### Async search (single)
+
+Load items from a remote source by fetching on input changes. Keep the selected item in the `items` list so it remains available while new results stream in. This pattern avoids needing to load items upfront.
+
+import { DemoComboboxAsyncSingle } from './demos/async-single';
+
+<DemoComboboxAsyncSingle compact />
+
+### Async search (multiple)
+
+Load items from a remote source by fetching on input changes while supporting multiple selections. Selected items remain available in the list while new matches stream in. This pattern avoids needing to load items upfront.
+
+import { DemoComboboxAsyncMultiple } from './demos/async-multiple';
+
+<DemoComboboxAsyncMultiple compact />
 
 ### Creatable
 

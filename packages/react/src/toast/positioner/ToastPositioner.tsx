@@ -44,7 +44,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     collisionPadding = positionerProps.collisionPadding ?? 5,
     arrowPadding = positionerProps.arrowPadding ?? 5,
     sticky = positionerProps.sticky ?? false,
-    trackAnchor = positionerProps.trackAnchor ?? true,
+    disableAnchorTracking = positionerProps.disableAnchorTracking ?? false,
     collisionAvoidance = positionerProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE,
     ...elementProps
   } = props;
@@ -81,7 +81,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     collisionPadding,
     sticky,
     arrowPadding,
-    trackAnchor,
+    disableAnchorTracking,
     keepMounted: true,
     collisionAvoidance,
   });

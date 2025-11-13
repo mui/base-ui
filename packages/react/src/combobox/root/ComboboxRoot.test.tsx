@@ -7,9 +7,55 @@ import { Combobox } from '@base-ui-components/react/combobox';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
+import { useStore } from '@base-ui-components/utils/store';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { REASONS } from '../../utils/reasons';
+import { useComboboxRootContext } from './ComboboxRootContext';
+import { selectors } from '../store';
+
+function AsyncItemsCombobox() {
+  const [items, setItems] = React.useState(['Apple', 'Banana', 'Cherry']);
+  const [selectedValue, setSelectedValue] = React.useState<string | null>(null);
+
+  return (
+    <Combobox.Root
+      items={items}
+      onValueChange={(value: string | null) => {
+        setSelectedValue(value);
+      }}
+      onOpenChangeComplete={(open) => {
+        if (!open && selectedValue) {
+          setItems([selectedValue]);
+        }
+      }}
+    >
+      <Combobox.Input data-testid="input" />
+      <Combobox.Portal>
+        <Combobox.Positioner>
+          <Combobox.Popup>
+            <Combobox.List>
+              {(item: string) => (
+                <Combobox.Item key={item} value={item}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
+  );
+}
+
+function SelectedIndexProbe() {
+  const store = useComboboxRootContext();
+  const selectedIndex = useStore(store, selectors.selectedIndex);
+
+  return (
+    <div data-testid="selected-index">{selectedIndex === null ? 'null' : `${selectedIndex}`}</div>
+  );
+}
 
 describe('<Combobox.Root />', () => {
   beforeEach(() => {
@@ -200,6 +246,23 @@ describe('<Combobox.Root />', () => {
           expect(screen.queryByRole('listbox')).to.equal(null);
         });
         expect(input).to.have.attribute('aria-expanded', 'false');
+      });
+
+      it('syncs selected index when items change after close', async () => {
+        const { user } = await render(<AsyncItemsCombobox />);
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+        await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+        await user.click(screen.getByRole('option', { name: 'Cherry' }));
+        await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
+
+        await user.click(input);
+        await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+        const cherryOption = screen.getByRole('option', { name: 'Cherry' });
+        expect(cherryOption).to.have.attribute('data-selected', '');
       });
 
       it('should not auto-close popup when open state is controlled', async () => {
@@ -399,6 +462,52 @@ describe('<Combobox.Root />', () => {
 
         expect(handleValueChange.callCount).to.equal(2);
         expect(handleValueChange.args[1][0]).to.deep.equal(['a', 'b']);
+      });
+
+      it('resets selectedIndex when clearing all selections while open', async () => {
+        const items = ['apple', 'banana', 'cherry'];
+
+        function App() {
+          const [value, setValue] = React.useState(items.slice(0, 2));
+
+          return (
+            <Combobox.Root items={items} multiple value={value} onValueChange={setValue}>
+              <Combobox.Input data-testid="input" />
+              <SelectedIndexProbe />
+              <button type="button" data-testid="clear" onClick={() => setValue([])}>
+                Clear
+              </button>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        expect(screen.queryByRole('listbox')).to.equal(null);
+
+        await user.click(screen.getByTestId('input'));
+
+        expect(await screen.findByRole('listbox')).not.to.equal(null);
+        expect(screen.getByTestId('selected-index').textContent).to.equal('1');
+
+        await user.click(screen.getByTestId('clear'));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).to.equal('null');
+        });
       });
 
       it('should create multiple hidden inputs for form submission', async () => {

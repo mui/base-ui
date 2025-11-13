@@ -5,7 +5,7 @@ import { Select } from '@base-ui-components/react/select';
 export default function ObjectValueSelect() {
   return (
     <Select.Root defaultValue={shippingMethods[0]} itemToStringValue={(item) => item.id}>
-      <Select.Trigger className="flex min-h-10 min-w-[16rem] items-start justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 py-2 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
+      <Select.Trigger className="flex min-h-10 min-w-[16rem] items-start justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 py-2 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
         <Select.Value>
           {(method: ShippingMethod) => (
             <span className="flex flex-col items-start gap-0.5">

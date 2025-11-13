@@ -21,7 +21,7 @@ function hasInsetScrollbars(referenceElement: Element | null) {
   return win.innerWidth - doc.documentElement.clientWidth > 0;
 }
 
-function preventScrollBasic(referenceElement: Element | null) {
+function preventScrollOverlayScrollbars(referenceElement: Element | null) {
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
   const body = doc.body;
@@ -38,7 +38,7 @@ function preventScrollBasic(referenceElement: Element | null) {
   };
 }
 
-function preventScrollStandard(referenceElement: Element | null) {
+function preventScrollInsetScrollbars(referenceElement: Element | null) {
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
   const body = doc.body;
@@ -47,6 +47,10 @@ function preventScrollStandard(referenceElement: Element | null) {
   let scrollTop = 0;
   let scrollLeft = 0;
   const resizeFrame = AnimationFrame.create();
+
+  // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
+  const supportsStableScrollbarGutter =
+    typeof CSS !== 'undefined' && CSS.supports?.('scrollbar-gutter', 'stable');
 
   // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
   if (isWebKit && (win.visualViewport?.scale ?? 1) !== 1) {
@@ -58,6 +62,9 @@ function preventScrollStandard(referenceElement: Element | null) {
 
     const htmlStyles = win.getComputedStyle(html);
     const bodyStyles = win.getComputedStyle(body);
+    const htmlScrollbarGutterValue = htmlStyles.scrollbarGutter || '';
+    const hasBothEdges = htmlScrollbarGutterValue.includes('both-edges');
+    const scrollbarGutterValue = hasBothEdges ? 'stable both-edges' : 'stable';
 
     scrollTop = html.scrollTop;
     scrollLeft = html.scrollLeft;
@@ -79,10 +86,6 @@ function preventScrollStandard(referenceElement: Element | null) {
       scrollBehavior: body.style.scrollBehavior,
     };
 
-    // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
-    const supportsStableScrollbarGutter =
-      typeof CSS !== 'undefined' && CSS.supports?.('scrollbar-gutter', 'stable');
-
     const isScrollableY = html.scrollHeight > html.clientHeight;
     const isScrollableX = html.scrollWidth > html.clientWidth;
     const hasConstantOverflowY =
@@ -98,23 +101,32 @@ function preventScrollStandard(referenceElement: Element | null) {
     // with whitespace. Warn if <body> has margins?
     const marginY = parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
     const marginX = parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight);
+    const elementToLock = isOverflowElement(html) ? html : body;
 
     /*
      * DOM writes:
      * Do not read the DOM past this point!
      */
 
+    if (supportsStableScrollbarGutter) {
+      html.style.scrollbarGutter = scrollbarGutterValue;
+      elementToLock.style.overflowY = 'hidden';
+      elementToLock.style.overflowX = 'hidden';
+      return;
+    }
+
     Object.assign(html.style, {
-      scrollbarGutter: 'stable',
-      overflowY:
-        !supportsStableScrollbarGutter && (isScrollableY || hasConstantOverflowY)
-          ? 'scroll'
-          : 'hidden',
-      overflowX:
-        !supportsStableScrollbarGutter && (isScrollableX || hasConstantOverflowX)
-          ? 'scroll'
-          : 'hidden',
+      scrollbarGutter: scrollbarGutterValue,
+      overflowY: 'hidden',
+      overflowX: 'hidden',
     });
+
+    if (isScrollableY || hasConstantOverflowY) {
+      html.style.overflowY = 'scroll';
+    }
+    if (isScrollableX || hasConstantOverflowX) {
+      html.style.overflowX = 'scroll';
+    }
 
     Object.assign(body.style, {
       position: 'relative',
@@ -135,10 +147,13 @@ function preventScrollStandard(referenceElement: Element | null) {
   function cleanup() {
     Object.assign(html.style, originalHtmlStyles);
     Object.assign(body.style, originalBodyStyles);
-    html.scrollTop = scrollTop;
-    html.scrollLeft = scrollLeft;
-    html.removeAttribute('data-base-ui-scroll-locked');
-    html.style.scrollBehavior = originalHtmlScrollBehavior;
+
+    if (!supportsStableScrollbarGutter) {
+      html.scrollTop = scrollTop;
+      html.scrollLeft = scrollLeft;
+      html.removeAttribute('data-base-ui-scroll-locked');
+      html.style.scrollBehavior = originalHtmlScrollBehavior;
+    }
   }
 
   function handleResize() {
@@ -199,7 +214,7 @@ class ScrollLocker {
       return;
     }
 
-    const isOverflowHiddenLock = isIOS || !hasInsetScrollbars(referenceElement);
+    const hasOverlayScrollbars = isIOS || !hasInsetScrollbars(referenceElement);
 
     // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
     // side effects and bugs that arise on iOS, it must be researched extensively before
@@ -207,9 +222,9 @@ class ScrollLocker {
     // - Textboxes must scroll into view when focused, nor cause a glitchy scroll animation.
     // - The navbar must not force itself into view and cause layout shift.
     // - Scroll containers must not flicker upon closing a popup when it has an exit animation.
-    this.restore = isOverflowHiddenLock
-      ? preventScrollBasic(referenceElement)
-      : preventScrollStandard(referenceElement);
+    this.restore = hasOverlayScrollbars
+      ? preventScrollOverlayScrollbars(referenceElement)
+      : preventScrollInsetScrollbars(referenceElement);
   }
 }
 
@@ -219,31 +234,9 @@ const SCROLL_LOCKER = new ScrollLocker();
  * Locks the scroll of the document when enabled.
  *
  * @param enabled - Whether to enable the scroll lock.
+ * @param referenceElement - Element to use as a reference for lock calculations.
  */
-export function useScrollLock(params: {
-  enabled: boolean;
-  mounted: boolean;
-  open: boolean;
-  referenceElement?: Element | null;
-}) {
-  const { enabled = true, mounted, open, referenceElement = null } = params;
-
-  // https://github.com/mui/base-ui/issues/1135
-  useIsoLayoutEffect(() => {
-    if (enabled && isWebKit && mounted && !open) {
-      const doc = ownerDocument(referenceElement);
-      const originalUserSelect = doc.body.style.userSelect;
-      const originalWebkitUserSelect = doc.body.style.webkitUserSelect;
-      doc.body.style.userSelect = 'none';
-      doc.body.style.webkitUserSelect = 'none';
-      return () => {
-        doc.body.style.userSelect = originalUserSelect;
-        doc.body.style.webkitUserSelect = originalWebkitUserSelect;
-      };
-    }
-    return undefined;
-  }, [enabled, mounted, open, referenceElement]);
-
+export function useScrollLock(enabled: boolean = true, referenceElement: Element | null = null) {
   useIsoLayoutEffect(() => {
     if (!enabled) {
       return undefined;
