@@ -23,9 +23,12 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   const { render, className, id: idProp, ...elementProps } = componentProps;
 
   const fieldRootContext = useFieldRootContext(false);
-  const { controlId, setLabelId, labelId } = useLabelableContext();
+
+  const { controlId, setLabelId, labelId, fieldItemControlRef } = useLabelableContext();
 
   const id = useBaseUiId(idProp);
+
+  const labelRef = React.useRef<HTMLLabelElement>(null);
 
   useIsoLayoutEffect(() => {
     if (controlId != null || idProp) {
@@ -37,7 +40,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   }, [controlId, id, idProp, setLabelId]);
 
   const element = useRenderElement('label', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, labelRef],
     state: fieldRootContext.state,
     props: [
       {
@@ -52,6 +55,12 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
           // Prevent text selection when double clicking label.
           if (!event.defaultPrevented && event.detail > 1) {
             event.preventDefault();
+          }
+        },
+        onClick(event) {
+          const target = getTarget(event.nativeEvent) as HTMLElement | null;
+          if (target != null && target === labelRef.current) {
+            fieldItemControlRef.current?.click();
           }
         },
       },
