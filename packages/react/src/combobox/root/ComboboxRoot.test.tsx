@@ -1889,6 +1889,187 @@ describe('<Combobox.Root />', () => {
       expect(screen.queryByText('alphabet')).not.to.equal(null);
       expect(screen.queryByText('alpine')).not.to.equal(null);
     });
+
+    it('resets filtered results after selecting when using a custom search stringifier', async () => {
+      type Movie = { id: number; english: string; romaji: string };
+      const movies: Movie[] = [
+        { id: 1, english: 'Spirited Away', romaji: 'Sen to Chihiro no Kamikakushi' },
+        { id: 2, english: 'My Neighbor Totoro', romaji: 'Tonari no Totoro' },
+        { id: 3, english: 'Princess Mononoke', romaji: 'Mononoke Hime' },
+      ];
+
+      const stringifyMovie = (movie: Movie | null) =>
+        movie ? `${movie.english} ${movie.romaji}` : '';
+
+      function MultilingualFilterCombobox() {
+        const [value, setValue] = React.useState<Movie | null>(null);
+        const { contains } = Combobox.useFilter({ value });
+
+        const filter = React.useCallback(
+          (item: Movie | null, query: string) => {
+            if (!item) {
+              return false;
+            }
+            return contains(item, query, stringifyMovie);
+          },
+          [contains],
+        );
+
+        return (
+          <Combobox.Root
+            items={movies}
+            value={value}
+            onValueChange={setValue}
+            filter={filter}
+            itemToStringLabel={(movie) => movie?.english ?? ''}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(movie: Movie) => (
+                      <Combobox.Item key={movie.id} value={movie}>
+                        {movie.english}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<MultilingualFilterCombobox />);
+      const input = screen.getByRole('combobox');
+
+      await user.click(input);
+      await screen.findByRole('listbox');
+
+      await user.type(input, 'tonari');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'Spirited Away' })).to.equal(null);
+      });
+
+      await user.click(screen.getByRole('option', { name: 'My Neighbor Totoro' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+
+      await user.click(input);
+      await screen.findByRole('listbox');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'Spirited Away' })).not.to.equal(null);
+      });
+    });
+
+    it('resets external filteredItems when reopening after a selection', async () => {
+      interface TestItem {
+        id: number;
+        label: string;
+        label2: string;
+      }
+
+      const testItems: TestItem[] = [
+        {
+          id: 1,
+          label: 'apple',
+          label2: 'one',
+        },
+        {
+          id: 2,
+          label: 'orange',
+          label2: 'two',
+        },
+        {
+          id: 3,
+          label: 'banana',
+          label2: 'three',
+        },
+      ];
+
+      function getItemLabelToFilter(item: TestItem | null) {
+        return item ? `${item.label} ${item.label2}` : '';
+      }
+
+      function getItemLabelToDisplay(item: TestItem | null) {
+        return item ? item.label || item.label2 : '';
+      }
+
+      function FilteredItemsCombobox() {
+        const [searchValue, setSearchValue] = React.useState('');
+        const [value, setValue] = React.useState<TestItem | null>(null);
+
+        const deferredSearchValue = React.useDeferredValue(searchValue);
+
+        const { contains } = Combobox.useFilter({ value });
+
+        const resolvedSearchValue =
+          searchValue === '' || deferredSearchValue === '' ? searchValue : deferredSearchValue;
+
+        const filteredItems = React.useMemo(() => {
+          return testItems.filter((item) =>
+            contains(item, resolvedSearchValue, getItemLabelToFilter),
+          );
+        }, [contains, resolvedSearchValue]);
+
+        return (
+          <Combobox.Root
+            items={testItems}
+            filteredItems={filteredItems}
+            inputValue={searchValue}
+            onInputValueChange={setSearchValue}
+            value={value}
+            onValueChange={setValue}
+            itemToStringLabel={getItemLabelToDisplay}
+            isItemEqualToValue={(item, v) => item?.id === v?.id}
+          >
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner sideOffset={4}>
+                <Combobox.Popup>
+                  <Combobox.Empty>No items found.</Combobox.Empty>
+                  <Combobox.List>
+                    {(item: TestItem) => (
+                      <Combobox.Item key={item.id} value={item}>
+                        <Combobox.ItemIndicator></Combobox.ItemIndicator>
+                        {item.label}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<FilteredItemsCombobox />);
+      const input = screen.getByRole('combobox');
+
+      await user.click(input);
+      await user.type(input, 'one');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'orange' })).to.equal(null);
+      });
+
+      await user.click(screen.getByRole('option', { name: 'apple' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+
+      await user.click(input);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'orange' })).not.to.equal(null);
+      });
+    });
   });
 
   describe('prop: openOnInputClick', () => {

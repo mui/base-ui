@@ -221,8 +221,22 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     state: 'open',
   });
 
-  const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
   const isGrouped = isGroupedItems(items);
+  const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
+
+  const selectedLabelString =
+    selectionMode === 'single' ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
+
+  const shouldBypassFiltering =
+    selectionMode === 'single' &&
+    !queryChangedAfterOpen &&
+    query !== '' &&
+    selectedLabelString !== '' &&
+    selectedLabelString.length === query.length &&
+    collatorFilter.contains(selectedLabelString, query);
+
+  const filterQuery = shouldBypassFiltering ? '' : query;
+  const shouldIgnoreExternalFiltering = filteredItemsProp !== undefined && shouldBypassFiltering;
 
   const flatItems: readonly any[] = React.useMemo(() => {
     if (!items) {
@@ -237,7 +251,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [items, isGrouped]);
 
   const filteredItems: Value[] | Group<Value>[] = React.useMemo(() => {
-    if (filteredItemsProp) {
+    if (filteredItemsProp && !shouldIgnoreExternalFiltering) {
       return filteredItemsProp as Value[] | Group<Value>[];
     }
 
@@ -256,9 +270,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         }
 
         const candidateItems =
-          query === ''
+          filterQuery === ''
             ? group.items
-            : group.items.filter((item) => filter(item, query, itemToStringLabel));
+            : group.items.filter((item) => filter(item, filterQuery, itemToStringLabel));
 
         if (candidateItems.length === 0) {
           continue;
@@ -277,7 +291,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return resultingGroups;
     }
 
-    if (query === '') {
+    if (filterQuery === '') {
       return limit > -1
         ? flatItems.slice(0, limit)
         : // The cast here is done as `flatItems` is readonly.
@@ -294,13 +308,23 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (limit > -1 && limitedItems.length >= limit) {
         break;
       }
-      if (filter(item, query, itemToStringLabel)) {
+      if (filter(item, filterQuery, itemToStringLabel)) {
         limitedItems.push(item);
       }
     }
 
     return limitedItems;
-  }, [filteredItemsProp, items, isGrouped, query, limit, filter, itemToStringLabel, flatItems]);
+  }, [
+    filteredItemsProp,
+    shouldIgnoreExternalFiltering,
+    items,
+    isGrouped,
+    filterQuery,
+    limit,
+    filter,
+    itemToStringLabel,
+    flatItems,
+  ]);
 
   const flatFilteredItems: Value[] = React.useMemo(() => {
     if (isGrouped) {
