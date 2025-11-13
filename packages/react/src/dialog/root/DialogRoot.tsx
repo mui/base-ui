@@ -22,7 +22,7 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
     defaultOpen = false,
     onOpenChange,
     onOpenChangeComplete,
-    dismissible = true,
+    disablePointerDismissal = false,
     modal = true,
     actionsRef,
     handle,
@@ -37,7 +37,7 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
-  store.useSyncedValues({ dismissible, nested, modal });
+  store.useSyncedValues({ disablePointerDismissal, nested, modal });
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
@@ -90,9 +90,9 @@ export interface DialogRootProps<Payload = unknown> {
   onOpenChangeComplete?: (open: boolean) => void;
   /**
    * Determines whether the dialog should close on outside clicks.
-   * @default true
+   * @default false
    */
-  dismissible?: boolean;
+  disablePointerDismissal?: boolean;
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the dialog will not be unmounted when closed.
