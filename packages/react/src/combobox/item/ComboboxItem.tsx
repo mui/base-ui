@@ -108,7 +108,12 @@ export const ComboboxItem = React.memo(
     }, [hasRegistered, items, index, value, store, selectionMode]);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered || items || !open) {
+      if (!open) {
+        didPointerDownRef.current = false;
+        return;
+      }
+
+      if (!hasRegistered || items) {
         return;
       }
 
