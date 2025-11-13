@@ -10,6 +10,10 @@ import { DemoCheckboxBasic } from './demos/hero';
 
 <DemoCheckboxBasic />
 
+## Usage guidelines
+
+- **Do not wrap in a label**: A checkbox should not be wrapped in a `<label>` element, because it renders both a `<button>` and an `<input>`, which would result in invalid HTML. Instead, use a separate `<label>` element and link it to the checkbox using the `htmlFor` attribute.
+
 ## Anatomy
 
 Import the component and assemble its parts:

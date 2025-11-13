@@ -10,6 +10,10 @@ import { DemoRadioHero } from './demos/hero';
 
 <DemoRadioHero />
 
+## Usage guidelines
+
+- **Do not wrap in a label**: A radio should not be wrapped in a `<label>` element, because it renders both a `<button>` and an `<input>`, which would result in invalid HTML. Instead, use a separate `<label>` element and link it to the radio using the `htmlFor` attribute.
+
 ## Anatomy
 
 Radio is always placed within Radio Group. Import the components and place them together:
