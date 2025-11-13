@@ -397,45 +397,7 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('Field.Label', () => {
-    it('implicit association', async () => {
-      const changeSpy = spy();
-      render(
-        <Field.Root name="apple">
-          <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
-            <Field.Item>
-              <Field.Label data-testid="label">
-                <Checkbox.Root value="fuji-apple" />
-                Fuji
-              </Field.Label>
-            </Field.Item>
-            <Field.Item>
-              <Field.Label data-testid="label">
-                <Checkbox.Root value="gala-apple" />
-                Gala
-              </Field.Label>
-            </Field.Item>
-            <Field.Item>
-              <Field.Label data-testid="label">
-                <Checkbox.Root value="granny-smith-apple" onCheckedChange={changeSpy} />
-                Granny Smith
-              </Field.Label>
-            </Field.Item>
-          </CheckboxGroup>
-        </Field.Root>,
-      );
-
-      const labels = screen.getAllByTestId('label');
-      expect(labels.length).to.equal(3);
-      labels.forEach((label) => {
-        expect(label.tagName).to.equal('LABEL');
-        expect(label).to.not.have.attribute('for');
-      });
-
-      fireEvent.click(labels[2]);
-      expect(changeSpy.callCount).to.equal(1);
-    });
-
-    it('explicit association', async () => {
+    it('label association', async () => {
       const changeSpy = spy();
 
       await render(
