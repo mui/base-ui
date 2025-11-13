@@ -582,7 +582,7 @@ describe('<RadioGroup />', () => {
         const labels = screen.getAllByTestId('label');
         expect(labels.length).to.equal(2);
         labels.forEach((label) => {
-          expect(label).to.not.have.attribute('for');
+          expect(label).to.have.attribute('for');
         });
 
         fireEvent.click(screen.getByText('Apple'));
