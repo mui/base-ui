@@ -116,10 +116,14 @@ describe('<Combobox.Root />', () => {
     const input = await waitFor(() =>
       screen.getAllByRole('combobox').find((element) => element.tagName === 'INPUT'),
     );
-    expect(input).toHaveFocus();
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
 
     await user.click(trigger);
-    expect(trigger).toHaveFocus();
+    await waitFor(() => {
+      expect(trigger).toHaveFocus();
+    });
   });
 
   describe('selection behavior', () => {
@@ -232,12 +236,15 @@ describe('<Combobox.Root />', () => {
         const trigger = screen.getByTestId('trigger');
         await user.click(trigger);
 
-        expect(screen.getByRole('listbox')).not.to.equal(null);
+        expect(await screen.findByRole('listbox')).not.to.equal(null);
         expect(input).to.have.attribute('aria-expanded', 'true');
 
-        await user.click(screen.getByText('apple'));
+        const appleOption = await screen.findByText('apple');
+        await user.click(appleOption);
 
-        expect(screen.queryByRole('listbox')).to.equal(null);
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).to.equal(null);
+        });
         expect(input).to.have.attribute('aria-expanded', 'false');
       });
 
@@ -339,7 +346,9 @@ describe('<Combobox.Root />', () => {
         const trigger = screen.getByTestId('trigger');
 
         await user.click(trigger);
-        await user.click(screen.getByText('apple'));
+
+        const appleOption = await screen.findByText('apple');
+        await user.click(appleOption);
 
         expect(input).to.have.value('apple');
 
@@ -378,7 +387,8 @@ describe('<Combobox.Root />', () => {
         const trigger = screen.getByTestId('trigger');
 
         await user.click(trigger);
-        await user.click(screen.getByText('apple'));
+        const appleOption = await screen.findByText('apple');
+        await user.click(appleOption);
 
         expect(input).to.have.value('apple');
 
