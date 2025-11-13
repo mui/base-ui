@@ -1,5 +1,216 @@
 # Versions
 
+## v1.0.0-beta.5
+
+_Nov 13, 2025_
+
+### Accordion
+
+- **Breaking change:** Change `multiple` prop to be false by default and add a demo (#3141) by @mnajdova
+- Fix flaky exit transition (#3101) by @atomiks
+
+### Alert Dialog
+
+- Fix `initialFocus` as function being called on close (#2949) by @atomiks
+- Support detached triggers (#2974) by @michaldudak
+- Place `overflow: hidden` on `<body>` for overlay scrollbars (#3083) by @atomiks
+
+### All Components
+
+- **Breaking change:** Replace `trackAnchor` with `disableAnchorTracking`.
+  If you were using `trackAnchor={false}`, be sure to update your usage to `disableAnchorTracking` instead.
+  (#3188) by @mnajdova
+- **Breaking change:** Rename `loop` to `loopFocus` (#3186) by @mnajdova
+- Fix type portability (#2912) by @atomiks
+- Accepts style prop as function (#3038) by @mnajdova
+
+### Autocomplete
+
+- **Breaking change:** Refactor `alwaysSubmitOnEnter` to `submitOnItemClick` prop.
+  If you were using `alwaysSubmitOnEnter`, be sure to update your usage to `submitOnItemClick` instead.
+  (#3018) by @atomiks
+- Prevent blocking filtering while composing text on Android (#2944) by @atomiks
+- Add empty state to `List.State` (#2934) by @atomiks
+- Fix `initialFocus` as function being called on close (#2949) by @atomiks
+- Add `role="combobox"` to Trigger if Input is inside Popup (#2973) by @atomiks
+- Fix stale `onItemHighlighted` data when filtering with `autoHighlight` (#2829) by @atomiks
+- Add empty and side styling attributes on `Input` (#2926) by @atomiks
+- Fix Value component return type for React 17 (#3050) by @atomiks
+- Support `autoHighlight: "always"`, and add `keepHighlight`, `highlightItemOnHover` props (#2976) by @atomiks
+- Keep focus on input when pressing list element (#3092) by @atomiks
+- Allow `<kbd>Esc</kbd>` to bubble if `Empty` is not used (#2935) by @atomiks
+
+### Button
+
+- New `Button` component (#2363) by @atomiks
+
+### Collapsible
+
+- Fix `starting-style` state (#2985) by @atomiks
+
+### Combobox
+
+- Take into account `isItemEqualToValue` when selecting an option in multiple mode (#2893) by @epr3
+- Move `CompositeList` to `List` component to make `Input` work with composites (#2883) by @chuganzy
+- Fix `onValueChange` type inference when `value` is unspecified (#2897) by @atomiks
+- Fix `required` form submission with multiple values (#2925) by @atomiks
+- Fix `<kbd>Home</kbd>`/`<kbd>End</kbd>` Input scroll in Chrome/Safari (#2928) by @atomiks
+- Prevent blocking filtering while composing text on Android (#2944) by @atomiks
+- Add empty state to `List.State` (#2934) by @atomiks
+- Fix `initialFocus` as function being called on close (#2949) by @atomiks
+- Add `role="combobox"` to Trigger if Input is inside Popup (#2973) by @atomiks
+- Fix Field control ref when input is inside popup (#2971) by @atomiks
+- Fix stale `onItemHighlighted` data when filtering with `autoHighlight` (#2829) by @atomiks
+- Add empty and side styling attributes on `Input` (#2926) by @atomiks
+- Fix Value component return type for React 17 (#3050) by @atomiks
+- Fix input value derivation on `value` and `items` prop updates (#3067) by @atomiks
+- Support `autoHighlight: "always"`, and add `keepHighlight`, `highlightItemOnHover` props (#2976) by @atomiks
+- Keep focus on input when pressing list element (#3092) by @atomiks
+- Fix support of dialog + combobox pattern (#3049) by @atomiks
+- Support drag-to-select (#3167) by @atomiks
+- Allow `<kbd>Esc</kbd>` to bubble if `Empty` is not used (#2935) by @atomiks
+
+### Composite
+
+- Rollback `CompositeList` to use counter-based update (#2880) by @chuganzy
+
+### Context Menu
+
+- Add open state to trigger (#3195) by @atomiks
+- Fix ignored positioner anchor prop (#3202) by @atomiks
+
+### Dialog
+
+- **Breaking change:** Replace `dismissible` with `disablePointerDismissal`.
+  If you were using `dismissible={false}`, be sure to replace it with `disablePointerDismissal`.
+  (#3190) by @mnajdova
+- Fix `initialFocus` as function being called on close (#2949) by @atomiks
+- Support detached triggers (#2974) by @michaldudak
+- Place `overflow: hidden` on `<body>` for overlay scrollbars (#3083) by @atomiks
+
+### Field
+
+- **Breaking change:** Add `'onSubmit'` validation mode.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#3013) by @mj12albert
+- Add `dirty` and `touched` props (#2950) by @mj12albert
+- New `Field.Item` part (#2810) by @mj12albert
+- Fix `validationMode="onChange"` not clearing custom error state (#3048) by @mj12albert
+- Fix external `onChange` validation mode errors (#3137) by @atomiks
+
+### Form
+
+- **Breaking change:** Add `'onSubmit'` validation mode.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#3013) by @mj12albert
+- **Breaking change:** Drop `onClearErrors` prop and always clear `errors` on change.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#3136) by @mj12albert
+- Add `onFormSubmit` callback (#3131) by @mj12albert
+
+### Menu
+
+- **Breaking change:** Support detached triggers.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#3170) by @michaldudak
+- Ignore disabled item on initial focusing (#2604) by @mnajdova
+- Fix stealing focus from dialogs on close (#2920) by @atomiks
+- Place `overflow: hidden` on `<body>` for overlay scrollbars (#3083) by @atomiks
+
+### Menubar
+
+- Mark disabled in Menubar Context as required (#2924) by @ZeeshanTamboli
+
+### Navigation Menu
+
+- Fix nested popup dismiss actions (#2978) by @atomiks
+- Fix error on React 17 (#3204) by @atomiks
+
+### Number Field
+
+- Granular change reasons (#3132) by @atomiks
+
+### Popover
+
+- **Breaking change:** Support detached triggers and multiple triggers per popover.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#2336) by @michaldudak
+- Fix `initialFocus` as function being called on close (#2949) by @atomiks
+- Fix swiping or scrolling on nested popup dismissing popover on touch (#3011) by @atomiks
+- Update the handle API (#3065) by @michaldudak
+- Place `overflow: hidden` on `<body>` for overlay scrollbars (#3083) by @atomiks
+
+### Portal
+
+- Create portal elements inside React (#2889) by @atomiks
+
+### Preview Card
+
+- **Breaking change:** Move delay props to trigger.
+  If you were using `delay` or `closeDelay` props, be sure to move them to from `Root` to the `Trigger` component.
+  (#3182) by @atomiks
+
+### Scroll Area
+
+- **Breaking change:** Improve CSS vars performance.
+  The CSS variables are now on the `<ScrollArea.Viewport>` part, not `<ScrollArea.Root>`, which is where they'll typically be used to reduce how many inherit CSS properties need to be specified (e.g. on pseudo-elements), and as stated, children no longer inherit the variables.
+  (#3156) by @atomiks
+
+### Select
+
+- **Breaking change:** Make the trigger native button by default.
+  The trigger will now render a `<button>` element, be sure to adjust your code if necessary.
+  (#3177) by @mnajdova
+- Add `open` state type on `Select.Icon` interface (#2919) by @komkanit
+- Fix `onValueChange` type inference when `value` is unspecified (#2897) by @atomiks
+- Fix `required` form submission with multiple values (#2925) by @atomiks
+- Avoid re-rendering on popup height expansion (#2972) by @atomiks
+- Place `overflow: hidden` on `<body>` for overlay scrollbars (#3083) by @atomiks
+- Add `data-placeholder` attribute (#2737) by @seongminn
+
+### Slider
+
+- **Breaking change:** Add `thumbCollisionBehavior` prop.
+  When using multiple thumbs, moving them with mouse will now push the other thumbs to avoid collisions.
+  If you prefer different behavior, check which `thumbCollisionBehavior` prop value best suits your use case.
+  (#2856) by @atomiks
+- Granular change reasons (#3132) by @atomiks
+
+### Tabs
+
+- **Breaking change:** Fix selected/active state naming consistency.
+  - Renamed `[data-selected]` to `[data-active]` in `Tabs.Tab`
+  - Removed `[data-highlighted]` (`:focus-visible` was already the recommendation in styles)
+  - `selectedTabPosition`/`selectedTabSize` are now `activeTabPosition`/`activeTabSize` in `Tabs.Indicator.State`
+  (#3024) by @atomiks
+- **Breaking change:** Change `activateOnFocus` to false.
+  If you need your Tabs to active on focus, be sure to add `activateOnFocus` prop.
+  (#3176) by @mnajdova
+- Fix Next.js 16 error from `Math.random` id generation (#3051) by @atomiks
+
+### Toast
+
+- Allow `React.ReactNode` for `title`/`description` properties (#2929) by @atomiks
+- Add ability to anchor to an element (#3096) by @atomiks
+
+### Toolbar
+
+- **Breaking change:** Drop `cols` prop.
+  This prop was not supposed to be exposed.
+  (#3133) by @mj12albert
+
+### Tooltip
+
+- **Breaking change:** Support detached triggers.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#3071) by @michaldudak
+- **Breaking change:** Change `hoverable` to `disableHoverablePopup`.
+  In case you need to disable the hoverable popup behavior, be sure to add the `disableHoverablePopup` prop.
+  (#3178) by @mnajdova
+- Fix `data-instant` ending transition of same tooltip (#2962) by @atomiks
+
+All contributors of this release in alphabetical order: @atomiks, @brijeshb42, @chuganzy, @dav-is, @epr3, @fredericoo, @Janpot, @komkanit, @LukasTy, @michaldudak, @mj12albert, @mnajdova, @oliviertassinari, @romgrk, @seongminn, @sukvvon, @ZeeshanTamboli
+
 ## v1.0.0-beta.4
 
 _Oct 1, 2025_
