@@ -64,6 +64,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const readOnly = useStore(store, selectors.readOnly);
   const listElement = useStore(store, selectors.listElement);
   const triggerProps = useStore(store, selectors.triggerProps);
+  const triggerElement = useStore(store, selectors.triggerElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
@@ -83,7 +84,22 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     currentPointerTypeRef.current = event.pointerType;
   }
 
-  const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
+  const triggerFloatingContext = React.useMemo(() => {
+    if (!triggerElement || triggerElement === floatingRootContext.elements.domReference) {
+      return floatingRootContext;
+    }
+
+    return {
+      ...floatingRootContext,
+      elements: {
+        ...floatingRootContext.elements,
+        reference: triggerElement,
+        domReference: triggerElement,
+      },
+    };
+  }, [floatingRootContext, triggerElement]);
+
+  const { reference: triggerTypeaheadProps } = useTypeahead(triggerFloatingContext, {
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
     listRef: store.state.labelsRef,
     activeIndex,
@@ -96,7 +112,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     },
   });
 
-  const { reference: triggerClickProps } = useClick(floatingRootContext, {
+  const { reference: triggerClickProps } = useClick(triggerFloatingContext, {
     enabled: !readOnly && !comboboxDisabled,
     event: 'mousedown',
   });
@@ -163,10 +179,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           // Ensure items are registered for initial selection highlight.
           store.state.forceMount();
 
-          if (open) {
-            return;
-          }
-
           if (currentPointerTypeRef.current !== 'touch') {
             store.state.inputRef.current?.focus();
 
@@ -175,10 +187,13 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             }
           }
 
+          if (open) {
+            return;
+          }
+
           const doc = ownerDocument(event.currentTarget);
 
           function handleMouseUp(mouseEvent: MouseEvent) {
-            const triggerElement = store.state.triggerElement;
             if (!triggerElement) {
               return;
             }
