@@ -24,13 +24,13 @@ import { RadioRootContext } from './RadioRootContext';
 
 /**
  * Represents the radio button itself.
- * Renders a `<button>` element and a hidden `<input>` beside.
+ * Renders a `<span>` element and a hidden `<input>` beside.
  *
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
 export const RadioRoot = React.forwardRef(function RadioRoot(
   componentProps: RadioRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const {
     render,
@@ -40,7 +40,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     required: requiredProp = false,
     value,
     inputRef: inputRefProp,
-    nativeButton = true,
+    nativeButton = false,
     id: idProp,
     ...elementProps
   } = componentProps;
@@ -66,7 +66,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     disabled: fieldDisabled,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const { getDescriptionProps } = useLabelableContext();
+  const { getDescriptionProps, registerFieldItemControlRef } = useLabelableContext();
 
   const disabled = fieldDisabled || fieldItemContext.disabled || disabledGroup || disabledProp;
   const readOnly = readOnlyGroup || readOnlyProp;
@@ -86,7 +86,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const id = useLabelableId({
     id: idProp,
-    implicit: true,
+    implicit: false,
     controlRef: radioRef,
   });
 
@@ -165,6 +165,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
         setFilled(true);
         setCheckedValue(value, details);
       },
+      onFocus() {
+        radioRef.current?.focus();
+      },
     }),
     [
       checked,
@@ -197,7 +200,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const isRadioGroup = setCheckedValue !== NOOP;
 
-  const refs = [forwardedRef, registerControlRef, radioRef, buttonRef];
+  const refs = [forwardedRef, registerControlRef, registerFieldItemControlRef, radioRef, buttonRef];
   const props = [
     rootProps,
     getDescriptionProps,
@@ -206,7 +209,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     getButtonProps,
   ];
 
-  const element = useRenderElement('button', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     enabled: !isRadioGroup,
     state,
     ref: refs,
@@ -218,7 +221,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     <RadioRootContext.Provider value={contextValue}>
       {isRadioGroup ? (
         <CompositeItem
-          tag="button"
+          tag="span"
           render={render}
           className={className}
           state={state}
