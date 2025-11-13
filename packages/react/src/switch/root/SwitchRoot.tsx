@@ -24,7 +24,7 @@ import { useValueChanged } from '../../utils/useValueChanged';
 
 /**
  * Represents the switch itself.
- * Renders a `<button>` element and a hidden `<input>` beside.
+ * Renders a `<span>` element and a hidden `<input>` beside.
  *
  * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
  */
@@ -39,7 +39,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     id: idProp,
     inputRef: externalInputRef,
     name: nameProp,
-    nativeButton = true,
+    nativeButton = false,
     onCheckedChange: onCheckedChangeProp,
     readOnly = false,
     required = false,
@@ -62,8 +62,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     name: fieldName,
     validation,
   } = useFieldRootContext();
-
-  const { labelId } = useLabelableContext();
+  const { labelId, registerFieldItemControlRef } = useLabelableContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -77,7 +76,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const id = useLabelableId({
     id: idProp,
-    implicit: true,
+    implicit: false,
     controlRef: switchRef,
   });
 
@@ -120,19 +119,20 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     native: nativeButton,
   });
 
-  const rootProps: React.ComponentPropsWithRef<'button'> = {
+  const rootProps: React.ComponentPropsWithRef<'span'> = {
     id,
     role: 'switch',
-    disabled,
     'aria-checked': checked,
     'aria-readonly': readOnly || undefined,
     'aria-labelledby': labelId,
     onFocus() {
-      setFocused(true);
+      if (!disabled) {
+        setFocused(true);
+      }
     },
     onBlur() {
       const element = inputRef.current;
-      if (!element) {
+      if (!element || disabled) {
         return;
       }
 
@@ -144,11 +144,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       }
     },
     onClick(event) {
-      if (event.defaultPrevented || readOnly) {
+      if (event.defaultPrevented || readOnly || disabled) {
         return;
       }
 
       event.preventDefault();
+
       inputRef?.current?.click();
     },
   };
@@ -211,9 +212,9 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     [fieldState, checked, disabled, readOnly, required],
   );
 
-  const element = useRenderElement('button', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     state,
-    ref: [forwardedRef, switchRef, buttonRef],
+    ref: [forwardedRef, registerFieldItemControlRef, switchRef, buttonRef],
     props: [rootProps, validation.getValidationProps, elementProps, getButtonProps],
     stateAttributesMapping,
   });
