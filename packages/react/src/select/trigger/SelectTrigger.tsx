@@ -75,6 +75,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const triggerProps = useStore(store, selectors.triggerProps);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
+  const serializedValue = useStore(store, selectors.serializedValue);
 
   const positionerRef = useValueAsRef(positionerElement);
 
@@ -237,8 +238,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       disabled,
       value,
       readOnly,
+      placeholder: !serializedValue,
     }),
-    [fieldState, open, disabled, readOnly, value],
+    [fieldState, open, disabled, value, readOnly, serializedValue],
   );
 
   return useRenderElement('button', componentProps, {

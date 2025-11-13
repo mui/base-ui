@@ -67,7 +67,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   let alignOffset = alignOffsetProp;
   let align = alignProp;
   if (parent.type === 'context-menu') {
-    anchor = parent.context?.anchor ?? anchorProp;
+    anchor = anchorProp ?? parent.context?.anchor;
     align = align ?? 'start';
     if (!side && align !== 'center') {
       alignOffset = componentProps.alignOffset ?? 2;

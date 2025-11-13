@@ -53,6 +53,7 @@ import { Toast } from '@base-ui-components/react/toast';
 - `<Toast.Provider>` can be wrapped around your entire app, ensuring all toasts are rendered in the same viewport.
 - <kbd>F6</kbd> lets users jump into the toast viewport landmark region to navigate toasts with
   keyboard focus.
+- The `data-swipe-ignore` attribute can be manually added to elements inside of a toast to prevent swipe-to-dismiss gestures on them. Interactive elements are automatically prevented.
 
 ## Global manager
 
@@ -298,11 +299,11 @@ const toastManager = Toast.useToastManager();
 <PropsReferenceTable
   data={{
     title: {
-      type: 'string',
+      type: 'React.ReactNode',
       description: 'The title of the toast.',
     },
     description: {
-      type: 'string',
+      type: 'React.ReactNode',
       description: 'The description of the toast.',
     },
     type: {
