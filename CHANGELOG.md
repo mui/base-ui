@@ -182,7 +182,7 @@ _Nov 13, 2025_
   - Renamed `[data-selected]` to `[data-active]` in `Tabs.Tab`
   - Removed `[data-highlighted]` (`:focus-visible` was already the recommendation in styles)
   - `selectedTabPosition`/`selectedTabSize` are now `activeTabPosition`/`activeTabSize` in `Tabs.Indicator.State`
-  (#3024) by @atomiks
+    (#3024) by @atomiks
 - **Breaking change:** Change `activateOnFocus` to false.
   If you need your Tabs to active on focus, be sure to add `activateOnFocus` prop.
   (#3176) by @mnajdova
