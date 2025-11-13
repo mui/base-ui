@@ -284,6 +284,48 @@ describe('<Slider.Thumb />', () => {
     });
   });
 
+  describe('stacking order', () => {
+    it('relies on DOM order before any thumb is used', async () => {
+      await render(
+        <Slider.Root defaultValue={[20, 20]}>
+          <Slider.Control>
+            <Slider.Thumb data-testid="thumb-0" />
+            <Slider.Thumb data-testid="thumb-1" />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(screen.getByTestId('thumb-0').style.zIndex).to.equal('');
+      expect(screen.getByTestId('thumb-1').style.zIndex).to.equal('');
+    });
+
+    it('keeps the most recently active thumb on top after focus moves away', async () => {
+      const { user } = await render(
+        <Slider.Root defaultValue={[20, 20]}>
+          <Slider.Control>
+            <Slider.Thumb data-testid="thumb-0" />
+            <Slider.Thumb data-testid="thumb-1" />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const [thumb0, thumb1] = [screen.getByTestId('thumb-0'), screen.getByTestId('thumb-1')];
+
+      await user.keyboard('[Tab]');
+      expect(screen.getAllByRole('slider')[0]).toHaveFocus();
+      expect(thumb0.style.zIndex).to.equal('2');
+
+      await user.keyboard('[Tab]');
+      expect(screen.getAllByRole('slider')[1]).toHaveFocus();
+      expect(thumb1.style.zIndex).to.equal('2');
+
+      await user.keyboard('[Tab]');
+      expect(document.body).toHaveFocus();
+      expect(thumb1.style.zIndex).to.equal('1');
+      expect(thumb0.style.zIndex).to.equal('');
+    });
+  });
+
   /**
    * Browser tests render with 1024px width by default, so most tests here set
    * the component to `width: 100px` to make the asserted values more readable.
@@ -392,40 +434,186 @@ describe('<Slider.Thumb />', () => {
         expect(computedStyles.thumb2.getPropertyValue('left')).to.equal('700px');
       });
 
-      it('thumbs cannot be dragged past each other', async () => {
-        await render(
-          <Slider.Root
-            defaultValue={[20, 40]}
-            style={{
-              width: '1000px',
-            }}
-          >
-            <Slider.Control data-testid="control">
-              <Slider.Track>
-                <Slider.Indicator />
-                <Slider.Thumb data-testid="thumb1" />
-                <Slider.Thumb />
-              </Slider.Track>
-            </Slider.Control>
-          </Slider.Root>,
-        );
+      describe('thumbCollisionBehavior', () => {
+        function getSliderValues() {
+          return screen
+            .getAllByRole('slider')
+            .map((input) => Number(input.getAttribute('aria-valuenow')));
+        }
 
-        const sliderControl = screen.getByTestId('control');
+        it('prevents thumbs from passing each other when set to "none"', async () => {
+          await render(
+            <Slider.Root
+              defaultValue={[20, 40]}
+              thumbCollisionBehavior="none"
+              style={{
+                width: '1000px',
+              }}
+            >
+              <Slider.Control data-testid="control">
+                <Slider.Track>
+                  <Slider.Indicator />
+                  <Slider.Thumb index={0} data-testid="thumb1" />
+                  <Slider.Thumb index={1} />
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>,
+          );
 
-        const computedStyles = getComputedStyle(screen.getByTestId('thumb1'));
+          const sliderControl = screen.getByTestId('control');
 
-        stub(sliderControl, 'getBoundingClientRect').callsFake(() => getHorizontalSliderRect(1000));
+          stub(sliderControl, 'getBoundingClientRect').callsFake(() =>
+            getHorizontalSliderRect(1000),
+          );
 
-        fireEvent.touchStart(
-          sliderControl,
-          createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
-        );
-        fireEvent.touchMove(
-          document.body,
-          createTouches([{ identifier: 1, clientX: 600, clientY: 0 }]),
-        );
+          fireEvent.touchStart(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
+          );
+          fireEvent.touchMove(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 600, clientY: 0 }]),
+          );
+          fireEvent.touchEnd(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 600, clientY: 0 }]),
+          );
 
-        expect(computedStyles.getPropertyValue('left')).to.equal('400px');
+          expect(getSliderValues()).to.deep.equal([40, 40]);
+        });
+
+        it('pushes adjacent thumbs forward when set to "push"', async () => {
+          await render(
+            <Slider.Root
+              defaultValue={[20, 40]}
+              thumbCollisionBehavior="push"
+              style={{
+                width: '1000px',
+              }}
+            >
+              <Slider.Control data-testid="control">
+                <Slider.Track>
+                  <Slider.Indicator />
+                  <Slider.Thumb index={0} data-testid="thumb1" />
+                  <Slider.Thumb index={1} />
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>,
+          );
+
+          const sliderControl = screen.getByTestId('control');
+
+          stub(sliderControl, 'getBoundingClientRect').callsFake(() =>
+            getHorizontalSliderRect(1000),
+          );
+
+          fireEvent.touchStart(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
+          );
+          fireEvent.touchMove(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 650, clientY: 0 }]),
+          );
+          fireEvent.touchEnd(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 650, clientY: 0 }]),
+          );
+
+          expect(getSliderValues()).to.deep.equal([65, 65]);
+        });
+
+        it('allows thumbs to swap when set to "swap"', async () => {
+          await render(
+            <Slider.Root
+              defaultValue={[20, 40]}
+              thumbCollisionBehavior="swap"
+              style={{
+                width: '1000px',
+              }}
+            >
+              <Slider.Control data-testid="control">
+                <Slider.Track>
+                  <Slider.Indicator />
+                  <Slider.Thumb index={0} data-testid="thumb1" />
+                  <Slider.Thumb index={1} />
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>,
+          );
+
+          const sliderControl = screen.getByTestId('control');
+
+          stub(sliderControl, 'getBoundingClientRect').callsFake(() =>
+            getHorizontalSliderRect(1000),
+          );
+
+          fireEvent.touchStart(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
+          );
+          fireEvent.touchMove(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 700, clientY: 0 }]),
+          );
+          fireEvent.touchEnd(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 700, clientY: 0 }]),
+          );
+
+          expect(getSliderValues()).to.deep.equal([40, 70]);
+        });
+
+        it('maintains minimum steps between values when swapping', async () => {
+          await render(
+            <Slider.Root
+              defaultValue={[20, 40, 60]}
+              minStepsBetweenValues={10}
+              thumbCollisionBehavior="swap"
+              style={{
+                width: '1000px',
+              }}
+            >
+              <Slider.Control data-testid="control">
+                <Slider.Track>
+                  <Slider.Indicator />
+                  <Slider.Thumb index={0} data-testid="thumb1" />
+                  <Slider.Thumb index={1} />
+                  <Slider.Thumb index={2} />
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>,
+          );
+
+          const sliderControl = screen.getByTestId('control');
+
+          stub(sliderControl, 'getBoundingClientRect').callsFake(() =>
+            getHorizontalSliderRect(1000),
+          );
+
+          fireEvent.touchStart(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
+          );
+          fireEvent.touchMove(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 500, clientY: 0 }]),
+          );
+          fireEvent.touchMove(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 550, clientY: 0 }]),
+          );
+          fireEvent.touchMove(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 800, clientY: 0 }]),
+          );
+          fireEvent.touchEnd(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 800, clientY: 0 }]),
+          );
+
+          expect(getSliderValues()).to.deep.equal([30, 50, 80]);
+        });
       });
     });
 
