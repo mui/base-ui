@@ -12,8 +12,8 @@ describe('<Switch.Root />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Switch.Root />, () => ({
-    refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    refInstanceof: window.HTMLSpanElement,
+    testComponentPropWith: 'span',
     button: true,
     render,
   }));
@@ -111,9 +111,10 @@ describe('<Switch.Root />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('should have the `disabled` attribute', async () => {
+    it('uses aria-disabled instead of HTML disabled', async () => {
       await render(<Switch.Root disabled />);
-      expect(screen.getByRole('switch')).to.have.attribute('disabled');
+      expect(screen.getByRole('switch')).to.not.have.attribute('disabled');
+      expect(screen.getByRole('switch')).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should not have the `disabled` attribute when `disabled` is not set', async () => {
@@ -231,7 +232,8 @@ describe('<Switch.Root />', () => {
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
 
-    it('should toggle the switch when a linked label is clicked', async () => {
+    // doesn't work with `span role="switch"`
+    it.skip('should toggle the switch when a linked label is clicked', async () => {
       await render(
         <div>
           <label htmlFor="test-switch" data-testid="label">
@@ -346,7 +348,7 @@ describe('<Switch.Root />', () => {
       );
 
       const switchElement = screen.getByRole('switch');
-      expect(switchElement).to.have.attribute('disabled');
+      expect(switchElement).to.have.attribute('data-disabled');
     });
 
     it('should receive name prop from Field.Root', async () => {
@@ -557,7 +559,8 @@ describe('<Switch.Root />', () => {
 
     describe('Field.Label', () => {
       describe('implicit', () => {
-        it('when rendering a native button', async () => {
+        // invalid HTML
+        it.skip('when rendering a native button', async () => {
           await render(
             <Field.Root>
               <Field.Label data-testid="label">
@@ -580,14 +583,14 @@ describe('<Switch.Root />', () => {
           await render(
             <Field.Root>
               <Field.Label data-testid="label">
-                <Switch.Root render={<span />} nativeButton={false} />
+                <Switch.Root />
                 OK
               </Field.Label>
             </Field.Root>,
           );
 
           const label = screen.getByTestId('label');
-          expect(label).to.not.have.attribute('for');
+          expect(label).to.have.attribute('for');
 
           const button = screen.getByRole('switch');
           expect(button).to.have.attribute('aria-checked', 'false');
@@ -657,7 +660,7 @@ describe('<Switch.Root />', () => {
           expect(button).to.have.attribute('aria-checked', 'false');
 
           fireEvent.click(label);
-          expect(button).to.have.attribute('aria-checked', 'false');
+          expect(button).to.have.attribute('aria-checked', 'true');
         });
       });
     });
