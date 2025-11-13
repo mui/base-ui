@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { getTarget } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
@@ -59,7 +59,11 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
         },
         onClick(event) {
           const target = getTarget(event.nativeEvent) as HTMLElement | null;
-          if (target != null && target === labelRef.current) {
+          if (
+            fieldItemControlRef.current != null &&
+            target !== fieldItemControlRef.current &&
+            !contains(fieldItemControlRef.current, target)
+          ) {
             fieldItemControlRef.current?.click();
           }
         },

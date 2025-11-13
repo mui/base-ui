@@ -152,6 +152,15 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
       inputRef?.current?.click();
     },
+    onKeyDown(event) {
+      if (event.defaultPrevented || readOnly || disabled) {
+        return;
+      }
+
+      if (event.key === 'Enter') {
+        inputRef?.current?.click();
+      }
+    },
   };
 
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
