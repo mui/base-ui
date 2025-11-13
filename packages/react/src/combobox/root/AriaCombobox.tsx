@@ -155,6 +155,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
+  const single = selectionMode === 'single';
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const hasItems = items !== undefined;
 
@@ -179,18 +180,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (filterProp !== undefined) {
       return filterProp;
     }
-    if (selectionMode === 'single' && !queryChangedAfterOpen) {
+    if (single && !queryChangedAfterOpen) {
       return createSingleSelectionCollatorFilter(collatorFilter, itemToStringLabel, selectedValue);
     }
     return createCollatorItemFilter(collatorFilter, itemToStringLabel);
-  }, [
-    filterProp,
-    selectionMode,
-    selectedValue,
-    queryChangedAfterOpen,
-    collatorFilter,
-    itemToStringLabel,
-  ]);
+  }, [filterProp, single, selectedValue, queryChangedAfterOpen, collatorFilter, itemToStringLabel]);
 
   // If neither inputValue nor defaultInputValue are provided, derive it from the
   // selected value for single mode so the input reflects the selection on mount.
@@ -199,7 +193,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (hasInputValue) {
         return defaultInputValueProp ?? '';
       }
-      if (selectionMode === 'single') {
+      if (single) {
         return stringifyAsLabel(selectedValue, itemToStringLabel);
       }
       return '';
@@ -223,11 +217,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const isGrouped = isGroupedItems(items);
   const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
 
-  const selectedLabelString =
-    selectionMode === 'single' ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
+  const selectedLabelString = single ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
 
   const shouldBypassFiltering =
-    selectionMode === 'single' &&
+    single &&
     !queryChangedAfterOpen &&
     query !== '' &&
     selectedLabelString !== '' &&
@@ -521,13 +514,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
 
       if (!nextOpen && queryChangedAfterOpen) {
-        if (selectionMode === 'single') {
+        if (single) {
           setCloseQuery(query);
           // Avoid a flicker when closing the popup with an empty query.
           if (query === '') {
             setQueryChangedAfterOpen(false);
           }
-        } else if (selectionMode === 'multiple') {
+        } else if (multiple) {
           if (inline || inputInsidePopup) {
             setIndices({ activeIndex: null });
           } else {
@@ -558,7 +551,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       const shouldFillInput =
         (selectionMode === 'none' && popupRef.current && fillInputOnItemPress) ||
-        (selectionMode === 'single' && !store.state.inputInsidePopup);
+        (single && !store.state.inputInsidePopup);
 
       if (shouldFillInput) {
         setInputValue(
@@ -568,7 +561,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
 
       if (
-        selectionMode === 'single' &&
+        single &&
         nextValue != null &&
         eventDetails.reason !== REASONS.inputChange &&
         queryChangedAfterOpen
@@ -660,7 +653,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // If the user typed a filter and didn't select in multiple mode, clear the input
     // after close completes to avoid mid-exit flicker and start fresh on next open.
     if (
-      selectionMode === 'multiple' &&
+      multiple &&
       inputRef.current &&
       inputRef.current.value !== '' &&
       !hadInputClearRef.current
@@ -671,7 +664,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // Single selection mode:
     // - If input is rendered inside the popup, clear it so the next open is blank
     // - If input is outside the popup, sync it to the selected value
-    if (selectionMode === 'single') {
+    if (single) {
       if (store.state.inputInsidePopup) {
         if (inputRef.current && inputRef.current.value !== '') {
           setInputValue('', createChangeEventDetails(REASONS.inputClear));
@@ -906,14 +899,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     if (
-      selectionMode === 'multiple' &&
+      multiple &&
       store.state.selectedIndex !== null &&
       (!Array.isArray(selectedValue) || selectedValue.length === 0)
     ) {
       setIndices({ activeIndex: null, selectedIndex: null });
     }
 
-    if (selectionMode === 'single' && !hasInputValue && !inputInsidePopup) {
+    if (single && !hasInputValue && !inputInsidePopup) {
       const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
 
       if (inputValue !== nextInputValue) {
@@ -938,7 +931,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   useValueChanged(items, () => {
-    if (selectionMode !== 'single' || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
+    if (!single || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
       return;
     }
 
