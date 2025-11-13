@@ -13,7 +13,7 @@ import { DemoCheckboxBasic } from './demos/hero';
 ## Usage guidelines
 
 - **Form controls must have an accessible name**: The checkbox must have a meaningful label. Prefer using [`<Field>`](/react/components/field) to provide a visible text label and description, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
-- **Do not wrap in a label**: A checkbox should not be wrapped in a `<label>` element, because it renders both a `<button>` and an `<input>`, which would result in invalid HTML. Instead, use a separate `<label>` element and link it to the checkbox using the `htmlFor` attribute.
+- **Do not wrap in a `<label>`:** The checkbox renders both a `<button>` and an `<input>`, which makes wrapping it in a `<label>` invalid HTML. Instead, keep the `<label>` separate and associate it using `htmlFor`, or use a [`<Field>`](/react/components/field) with a `<Field.Label>` to provide the accessible name.
 
 ## Anatomy
 
