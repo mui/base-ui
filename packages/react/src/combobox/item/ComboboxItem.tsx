@@ -38,6 +38,7 @@ export const ComboboxItem = React.memo(
       ...elementProps
     } = componentProps;
 
+    const didPointerDownRef = React.useRef(false);
     const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
       index: indexProp,
@@ -107,7 +108,12 @@ export const ComboboxItem = React.memo(
     }, [hasRegistered, items, index, value, store, selectionMode]);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered || items || !open) {
+      if (!open) {
+        didPointerDownRef.current = false;
+        return;
+      }
+
+      if (!hasRegistered || items) {
         return;
       }
 
@@ -140,6 +146,19 @@ export const ComboboxItem = React.memo(
       native: nativeButton,
     });
 
+    function commitSelection(nativeEvent: MouseEvent) {
+      function selectItem() {
+        store.state.handleSelection(nativeEvent, value);
+      }
+
+      if (store.state.submitOnItemClick) {
+        ReactDOM.flushSync(selectItem);
+        store.state.requestSubmit();
+      } else {
+        selectItem();
+      }
+    }
+
     const defaultProps: HTMLProps = {
       id,
       role: isRow ? 'gridcell' : 'option',
@@ -149,7 +168,8 @@ export const ComboboxItem = React.memo(
       // Warn if the user renders a natively focusable element like `<button>`,
       // as it should be a `<div>` instead.
       tabIndex: undefined,
-      onPointerDown(event) {
+      onPointerDownCapture(event) {
+        didPointerDownRef.current = true;
         event.preventDefault();
       },
       onClick(event) {
@@ -157,16 +177,17 @@ export const ComboboxItem = React.memo(
           return;
         }
 
-        function selectItem() {
-          store.state.handleSelection(event.nativeEvent, value);
+        commitSelection(event.nativeEvent);
+      },
+      onMouseUp(event) {
+        const pointerStartedOnItem = didPointerDownRef.current;
+        didPointerDownRef.current = false;
+
+        if (disabled || readOnly || event.button !== 0 || pointerStartedOnItem || !highlighted) {
+          return;
         }
 
-        if (store.state.submitOnItemClick) {
-          ReactDOM.flushSync(selectItem);
-          store.state.requestSubmit();
-        } else {
-          selectItem();
-        }
+        commitSelection(event.nativeEvent);
       },
     };
 

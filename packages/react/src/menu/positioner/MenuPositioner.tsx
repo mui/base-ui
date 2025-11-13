@@ -46,7 +46,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor = true,
+    disableAnchorTracking = false,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
@@ -71,7 +71,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   let alignOffset = alignOffsetProp;
   let align = alignProp;
   if (parent.type === 'context-menu') {
-    anchor = parent.context?.anchor ?? anchorProp;
+    anchor = anchorProp ?? parent.context?.anchor;
     align = align ?? 'start';
     if (!side && align !== 'center') {
       alignOffset = componentProps.alignOffset ?? 2;
@@ -106,7 +106,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     sticky,
     nodeId,
     keepMounted,
-    trackAnchor,
+    disableAnchorTracking,
     collisionAvoidance,
     shiftCrossAxis: contextMenu,
   });

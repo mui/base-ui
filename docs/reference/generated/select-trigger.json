@@ -4,8 +4,8 @@
   "props": {
     "nativeButton": {
       "type": "boolean",
-      "default": "false",
-      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button.",
+      "default": "true",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
       "detailedType": "boolean | undefined"
     },
     "disabled": {
@@ -65,6 +65,9 @@
     },
     "data-focused": {
       "description": "Present when the select trigger is focused (when wrapped in Field.Root)."
+    },
+    "data-placeholder": {
+      "description": "Present when the select doesn't have a value."
     }
   },
   "cssVariables": {}
