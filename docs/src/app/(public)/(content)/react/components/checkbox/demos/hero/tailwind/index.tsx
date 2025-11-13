@@ -3,8 +3,9 @@ import { Checkbox } from '@base-ui-components/react/checkbox';
 
 export default function ExampleCheckbox() {
   return (
-    <label className="flex items-center gap-2 text-base text-gray-900">
+    <div className="flex items-center gap-2 text-base text-gray-900">
       <Checkbox.Root
+        id="notifications"
         defaultChecked
         className="flex size-5 items-center justify-center rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
       >
@@ -12,8 +13,8 @@ export default function ExampleCheckbox() {
           <CheckIcon className="size-3" />
         </Checkbox.Indicator>
       </Checkbox.Root>
-      Enable notifications
-    </label>
+      <label htmlFor="notifications">Enable notifications</label>
+    </div>
   );
 }
 
