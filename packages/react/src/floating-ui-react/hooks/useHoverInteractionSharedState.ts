@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 
-import type { ContextData, FloatingRootContext } from '../types';
+import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
 import { createAttribute } from '../utils/createAttribute';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 import { getEmptyContext } from './useFloatingRootContext';
@@ -23,6 +23,7 @@ export interface HoverInteractionSharedState {
   restTimeoutPendingRef: React.RefObject<boolean>;
   openChangeTimeout: ReturnType<typeof useTimeout>;
   restTimeout: ReturnType<typeof useTimeout>;
+  handleCloseOptionsRef: React.RefObject<SafePolygonOptions | undefined>;
 }
 
 type HoverContextData = ContextData & {
@@ -43,6 +44,7 @@ export function useHoverInteractionSharedState(
   const restTimeoutPendingRef = React.useRef(false);
   const timeout = useTimeout();
   const restTimeout = useTimeout();
+  const handleCloseOptionsRef = React.useRef<SafePolygonOptions | undefined>(undefined);
 
   return React.useMemo(() => {
     const data = ctx.dataRef.current as HoverContextData;
@@ -58,6 +60,7 @@ export function useHoverInteractionSharedState(
         restTimeoutPendingRef,
         openChangeTimeout: timeout,
         restTimeout,
+        handleCloseOptionsRef,
       };
     }
 
@@ -73,5 +76,6 @@ export function useHoverInteractionSharedState(
     restTimeoutPendingRef,
     timeout,
     restTimeout,
+    handleCloseOptionsRef,
   ]);
 }

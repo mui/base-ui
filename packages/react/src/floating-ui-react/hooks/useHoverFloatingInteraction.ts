@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { isElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
@@ -8,6 +9,11 @@ import { getDocument, getTarget, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
+import {
+  FloatingTreeStore,
+  useFloatingParentNodeId,
+  useFloatingTree,
+} from '../components/FloatingTree';
 import {
   isInteractiveElement,
   safePolygonIdentifier,
@@ -27,6 +33,10 @@ export type UseHoverFloatingInteractionProps = {
    * @default 0
    */
   closeDelay?: number | (() => number);
+  /**
+   * An optional external floating tree to use instead of the default context.
+   */
+  externalTree?: FloatingTreeStore;
 };
 
 const clickLikeEvents = new Set(['click', 'mousedown']);
@@ -39,7 +49,7 @@ export function useHoverFloatingInteraction(
   parameters: UseHoverFloatingInteractionProps = {},
 ): void {
   const { open, onOpenChange, dataRef, events, elements } = context;
-  const { enabled = true, closeDelay: closeDelayProp = 0 } = parameters;
+  const { enabled = true, closeDelay: closeDelayProp = 0, externalTree } = parameters;
 
   const {
     pointerTypeRef,
@@ -51,7 +61,11 @@ export function useHoverFloatingInteraction(
     restTimeoutPendingRef,
     openChangeTimeout: openChangeTimeout,
     restTimeout,
+    handleCloseOptionsRef,
   } = useHoverInteractionSharedState(context);
+
+  const tree = useFloatingTree(externalTree);
+  const parentId = useFloatingParentNodeId();
 
   const isClickLikeOpenEvent = useStableCallback(() => {
     if (interactedInsideRef.current) {
@@ -59,6 +73,11 @@ export function useHoverFloatingInteraction(
     }
 
     return dataRef.current.openEvent ? clickLikeEvents.has(dataRef.current.openEvent.type) : false;
+  });
+
+  const isHoverOpen = useStableCallback(() => {
+    const type = dataRef.current.openEvent?.type;
+    return type?.includes('mouse') && type !== 'mousedown';
   });
 
   const closeWithDelay = React.useCallback(
@@ -149,6 +168,56 @@ export function useHoverFloatingInteraction(
   React.useEffect(() => {
     return clearPointerEvents;
   }, [clearPointerEvents]);
+
+  useIsoLayoutEffect(() => {
+    if (!enabled) {
+      return undefined;
+    }
+
+    if (
+      open &&
+      handleCloseOptionsRef.current?.blockPointerEvents &&
+      isHoverOpen() &&
+      isElement(elements.domReference) &&
+      elements.floating
+    ) {
+      performedPointerEventsMutationRef.current = true;
+      const body = getDocument(elements.floating).body;
+      body.setAttribute(safePolygonIdentifier, '');
+
+      const ref = elements.domReference as HTMLElement | SVGSVGElement;
+      const floatingEl = elements.floating;
+
+      const parentFloating = tree?.nodesRef.current.find((node) => node.id === parentId)?.context
+        ?.elements.floating;
+
+      if (parentFloating) {
+        parentFloating.style.pointerEvents = '';
+      }
+
+      body.style.pointerEvents = 'none';
+      ref.style.pointerEvents = 'auto';
+      floatingEl.style.pointerEvents = 'auto';
+
+      return () => {
+        body.style.pointerEvents = '';
+        ref.style.pointerEvents = '';
+        floatingEl.style.pointerEvents = '';
+      };
+    }
+
+    return undefined;
+  }, [
+    enabled,
+    open,
+    elements.domReference,
+    elements.floating,
+    handleCloseOptionsRef,
+    isHoverOpen,
+    tree,
+    parentId,
+    performedPointerEventsMutationRef,
+  ]);
 
   React.useEffect(() => {
     if (!enabled) {

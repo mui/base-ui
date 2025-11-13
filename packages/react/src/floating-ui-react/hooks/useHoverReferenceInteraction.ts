@@ -67,12 +67,18 @@ export function useHoverReferenceInteraction(
     restTimeoutPendingRef,
     openChangeTimeout,
     restTimeout,
+    handleCloseOptionsRef,
   } = useHoverInteractionSharedState(ctx);
 
   const handleCloseRef = useValueAsRef(handleClose);
   const delayRef = useValueAsRef(delay);
   const openRef = useValueAsRef(open);
   const restMsRef = useValueAsRef(restMs);
+
+  if (isActiveTrigger) {
+    // eslint-disable-next-line no-underscore-dangle
+    handleCloseOptionsRef.current = handleCloseRef.current?.__options;
+  }
 
   const isClickLikeOpenEvent = useStableCallback(() => {
     if (interactedInsideRef.current) {
