@@ -158,6 +158,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
 
+  const serializedValue = React.useMemo(() => {
+    if (multiple && Array.isArray(value) && value.length === 0) {
+      return '';
+    }
+    return stringifyAsValue(value, itemToStringValue);
+  }, [multiple, value, itemToStringValue]);
+
   const controlRef = useValueAsRef(store.state.triggerElement);
 
   useField({
@@ -449,13 +456,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   const ref = useMergedRefs(inputRef, validation.inputRef);
-
-  const serializedValue = React.useMemo(() => {
-    if (multiple && Array.isArray(value) && value.length === 0) {
-      return '';
-    }
-    return stringifyAsValue(value, itemToStringValue);
-  }, [multiple, value, itemToStringValue]);
 
   const hasMultipleSelection = multiple && Array.isArray(value) && value.length > 0;
 

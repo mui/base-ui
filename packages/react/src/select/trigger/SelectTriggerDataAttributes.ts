@@ -45,4 +45,8 @@ export enum SelectTriggerDataAttributes {
    * Present when the select trigger is focused (when wrapped in Field.Root).
    */
   focused = 'data-focused',
+  /**
+   * Present when the select doesn't have a value.
+   */
+  placeholder = 'data-placeholder',
 }
