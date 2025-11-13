@@ -151,7 +151,7 @@ export interface UseListNavigationProps {
    * after navigating beyond the boundary of the list. In some
    * autocomplete/combobox components, this may be desired, as screen
    * readers will return to the input.
-   * `loop` must be `true`.
+   * `loopFocus` must be `true`.
    * @default false
    */
   allowEscape?: boolean;
@@ -160,7 +160,7 @@ export interface UseListNavigationProps {
    * or last item.
    * @default false
    */
-  loop?: boolean;
+  loopFocus?: boolean;
   /**
    * If the list is nested within another one (e.g. a nested submenu), the
    * navigation semantics change.
@@ -244,7 +244,7 @@ export function useListNavigation(
     enabled = true,
     selectedIndex = null,
     allowEscape = false,
-    loop = false,
+    loopFocus = false,
     nested = false,
     rtl = false,
     virtual = false,
@@ -263,7 +263,7 @@ export function useListNavigation(
 
   if (process.env.NODE_ENV !== 'production') {
     if (allowEscape) {
-      if (!loop) {
+      if (!loopFocus) {
         console.warn('`useListNavigation` looping must be enabled to allow escaping.');
       }
 
@@ -653,7 +653,7 @@ export function useListNavigation(
             {
               event,
               orientation,
-              loop,
+              loopFocus,
               rtl,
               cols,
               // treat undefined (empty grid spaces) as disabled indices so we
@@ -719,7 +719,7 @@ export function useListNavigation(
       }
 
       if (isMainOrientationToEndKey(event.key, orientation, rtl)) {
-        if (loop) {
+        if (loopFocus) {
           if (currentIndex >= maxIndex) {
             if (allowEscape && currentIndex !== listRef.current.length) {
               indexRef.current = -1;
@@ -743,7 +743,7 @@ export function useListNavigation(
             }),
           );
         }
-      } else if (loop) {
+      } else if (loopFocus) {
         if (currentIndex <= minIndex) {
           if (allowEscape && currentIndex !== -1) {
             indexRef.current = listRef.current.length;

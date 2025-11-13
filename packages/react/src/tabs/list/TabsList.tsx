@@ -23,9 +23,9 @@ export const TabsList = React.forwardRef(function TabsList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    activateOnFocus = true,
+    activateOnFocus = false,
     className,
-    loop = true,
+    loopFocus = true,
     render,
     ...elementProps
   } = componentProps;
@@ -103,7 +103,7 @@ export const TabsList = React.forwardRef(function TabsList(
         stateAttributesMapping={tabsStateAttributesMapping}
         highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
-        loop={loop}
+        loopFocus={loopFocus}
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
@@ -202,7 +202,7 @@ export interface TabsListProps extends BaseUIComponentProps<'div', TabsList.Stat
   /**
    * Whether to automatically change the active tab on arrow key focus.
    * Otherwise, tabs will be activated using Enter or Spacebar key press.
-   * @default true
+   * @default false
    */
   activateOnFocus?: boolean;
   /**
@@ -210,7 +210,7 @@ export interface TabsListProps extends BaseUIComponentProps<'div', TabsList.Stat
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loop?: boolean;
+  loopFocus?: boolean;
 }
 
 export namespace TabsList {
