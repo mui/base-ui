@@ -345,6 +345,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       elementsRef,
       disabledIndices,
       onMapChange,
+      relayKeyboardEvent: props.onKeyDown!,
     }),
     [props, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices, onMapChange],
   );

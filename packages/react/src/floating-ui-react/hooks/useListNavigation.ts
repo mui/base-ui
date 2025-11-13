@@ -23,7 +23,11 @@ import {
   findNonDisabledListIndex,
 } from '../utils';
 
-import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
+import {
+  FloatingTreeStore,
+  useFloatingParentNodeId,
+  useFloatingTree,
+} from '../components/FloatingTree';
 import type { Dimensions, ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -225,6 +229,10 @@ export interface UseListNavigationProps {
    * The id of the root component.
    */
   id?: string | undefined;
+  /**
+   * External FlatingTree to use when the one provided by context can't be used.
+   */
+  externalTree?: FloatingTreeStore;
 }
 
 /**
@@ -259,6 +267,7 @@ export function useListNavigation(
     itemSizes,
     dense = false,
     id,
+    externalTree,
   } = props;
 
   if (process.env.NODE_ENV !== 'production') {
@@ -284,7 +293,7 @@ export function useListNavigation(
   const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
 
   const parentId = useFloatingParentNodeId();
-  const tree = useFloatingTree();
+  const tree = useFloatingTree(externalTree);
 
   useIsoLayoutEffect(() => {
     context.dataRef.current.orientation = orientation;
@@ -796,7 +805,7 @@ export function useListNavigation(
         // Close submenu on Shift+Tab
         if (event.key === 'Tab' && event.shiftKey && open && !virtual) {
           stopEvent(event);
-          onOpenChange(false, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
+          onOpenChange(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
 
           if (isHTMLElement(elements.domReference)) {
             elements.domReference.focus();
@@ -879,7 +888,11 @@ export function useListNavigation(
             } else {
               onOpenChange(
                 true,
-                createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+                createChangeEventDetails(
+                  REASONS.listNavigation,
+                  event.nativeEvent,
+                  event.currentTarget as HTMLElement,
+                ),
               );
             }
           }
@@ -895,7 +908,14 @@ export function useListNavigation(
           stopEvent(event);
 
           if (!open && openOnArrowKeyDown) {
-            onOpenChange(true, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
+            onOpenChange(
+              true,
+              createChangeEventDetails(
+                REASONS.listNavigation,
+                event.nativeEvent,
+                event.currentTarget as HTMLElement,
+              ),
+            );
           } else {
             commonOnKeyDown(event);
           }
@@ -937,7 +957,7 @@ export function useListNavigation(
   ]);
 
   return React.useMemo(
-    () => (enabled ? { reference, floating, item } : {}),
+    () => (enabled ? { reference, floating, item, trigger: reference } : {}),
     [enabled, reference, floating, item],
   );
 }

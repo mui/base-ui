@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import {
   FloatingNode,
   FloatingTree,
@@ -104,7 +103,6 @@ export const Menubar = React.forwardRef(function Menubar(
 function MenubarContent(props: React.PropsWithChildren<{}>) {
   const nodeId = useFloatingNodeId();
   const { events: menuEvents } = useFloatingTree()!;
-  const openSubmenusRef = React.useRef(new Set<string>());
   const rootContext = useMenubarContext();
 
   React.useEffect(() => {
@@ -114,22 +112,11 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
       }
 
       if (details.open) {
-        openSubmenusRef.current.add(details.nodeId);
-      } else {
-        openSubmenusRef.current.delete(details.nodeId);
-      }
-
-      const isAnyOpen = openSubmenusRef.current.size > 0;
-      if (isAnyOpen) {
-        rootContext.setHasSubmenuOpen(true);
-      } else if (rootContext.hasSubmenuOpen) {
-        // wait for the next frame to set the state to make sure another menu doesn't open
-        // immediately after the previous one is closed
-        AnimationFrame.request(() => {
-          if (openSubmenusRef.current.size === 0) {
-            rootContext.setHasSubmenuOpen(false);
-          }
-        });
+        if (!rootContext.hasSubmenuOpen) {
+          rootContext.setHasSubmenuOpen(true);
+        }
+      } else if (details.reason !== 'sibling-open' && details.reason !== 'list-navigation') {
+        rootContext.setHasSubmenuOpen(false);
       }
     }
 
