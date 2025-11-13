@@ -279,6 +279,12 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
         store.context.preventUnmountingRef.current = true;
       };
 
+      // Do not immediately reset the activeTriggerId to allow
+      // exit animations to play and focus to be returned correctly.
+      if (!nextOpen && eventDetails.trigger == null) {
+        eventDetails.trigger = activeTriggerElement ?? undefined;
+      }
+
       onOpenChange?.(nextOpen, eventDetails as MenuRoot.ChangeEventDetails);
 
       if (eventDetails.isCanceled) {
