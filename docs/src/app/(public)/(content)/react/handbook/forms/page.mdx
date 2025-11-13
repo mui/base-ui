@@ -34,21 +34,6 @@ import { Slider } from '@base-ui-components/react/slider';
 </Form>;
 ```
 
-You can implicitly label `<Checkbox>`, `<Radio>` and `<Switch>` components by enclosing them with `<Field.Label>`:
-
-```tsx title="Implicitly labeling a switch"
-import { Field } from '@base-ui-components/react/field';
-import { Switch } from '@base-ui-components/react/switch';
-
-<Field.Root>
-  <Field.Label>
-    <Switch.Root />
-    Developer mode
-    <Field.Description>Enables extra tools for web developers</Field.Description>
-  </Field.Label>
-</Field.Root>;
-```
-
 Compose `<Fieldset>` with components that contain multiple `<input>` elements, such as `<CheckboxGroup>`, `<RadioGroup>`, and `<Slider>` with multiple thumbs, using `<Fieldset.Legend>` to label the group:
 
 ```tsx {10-11, 18, 22-23, 26} title="Composing range slider and radio group with fieldset"
@@ -82,9 +67,9 @@ import { Slider } from '@base-ui-components/react/slider';
 </Form>;
 ```
 
-Optionally use `<Field.Item>` in checkbox or radio groups to individually label each control when not implicitly labeled:
+Use `<Field.Item>` in checkbox or radio groups to individually label each control:
 
-```tsx {10,14-15,19} title="Explicitly labeling checkboxes in a checkbox group"
+```tsx {10,14-15,19} title="Labeling checkboxes in a checkbox group"
 import { Form } from '@base-ui-components/react/form';
 import { Field } from '@base-ui-components/react/field';
 import { Fieldset } from '@base-ui-components/react/fieldset';

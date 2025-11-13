@@ -192,28 +192,28 @@ function ExampleForm() {
       <Field.Root name="storageType">
         <Fieldset.Root render={<RadioGroup className="gap-4" defaultValue="ssd" />}>
           <Fieldset.Legend className="-mt-px">Storage type</Fieldset.Legend>
-          <Field.Label>
+          <Field.Item>
             <Radio.Root value="ssd">
               <Radio.Indicator />
             </Radio.Root>
-            SSD
-          </Field.Label>
-          <Field.Label>
+            <Field.Label>SSD</Field.Label>
+          </Field.Item>
+          <Field.Item>
             <Radio.Root value="hdd">
               <Radio.Indicator />
             </Radio.Root>
-            HDD
-          </Field.Label>
+            <Field.Label>HDD</Field.Label>
+          </Field.Item>
         </Fieldset.Root>
       </Field.Root>
 
       <Field.Root name="restartOnFailure">
-        <Field.Label className="gap-4">
-          Restart on failure
+        <Field.Item className="gap-4">
+          <Field.Label>Restart on failure</Field.Label>
           <Switch.Root defaultChecked>
             <Switch.Thumb />
           </Switch.Root>
-        </Field.Label>
+        </Field.Item>
       </Field.Root>
 
       <Field.Root name="allowedNetworkProtocols">
@@ -222,14 +222,14 @@ function ExampleForm() {
           <div className="flex gap-4">
             {['http', 'https', 'ssh'].map((val) => {
               return (
-                <Field.Label key={val} className="uppercase">
+                <Field.Item key={val}>
                   <Checkbox.Root value={val}>
                     <Checkbox.Indicator>
                       <Check className="size-3" />
                     </Checkbox.Indicator>
                   </Checkbox.Root>
-                  {val}
-                </Field.Label>
+                  <Field.Label className="uppercase">{val}</Field.Label>
+                </Field.Item>
               );
             })}
           </div>

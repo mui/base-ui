@@ -6,15 +6,21 @@ export function Root({ className, ...props }: Field.Root.Props) {
   return <Field.Root className={clsx('flex flex-col items-start gap-1', className)} {...props} />;
 }
 
-export function Label({ className, ...props }: Field.Label.Props) {
+export function Item({ className, ...props }: Field.Item.Props) {
   return (
-    <Field.Label
+    <Field.Item
       className={clsx(
-        'text-sm font-medium text-gray-900 has-[[role="checkbox"]]:flex has-[[role="checkbox"]]:items-center has-[[role="checkbox"]]:gap-2 has-[[role="radio"]]:flex has-[[role="radio"]]:items-center has-[[role="radio"]]:gap-2 has-[[role="switch"]]:flex has-[[role="switch"]]:items-center has-[[role="radio"]]:font-normal',
+        'has-[[role="checkbox"]]:flex has-[[role="checkbox"]]:items-center has-[[role="checkbox"]]:gap-2 has-[[role="radio"]]:flex has-[[role="radio"]]:items-center has-[[role="radio"]]:gap-2 has-[[role="switch"]]:flex has-[[role="switch"]]:items-center has-[[role="radio"]]:font-normal',
         className,
       )}
       {...props}
     />
+  );
+}
+
+export function Label({ className, ...props }: Field.Label.Props) {
+  return (
+    <Field.Label className={clsx('text-sm font-medium text-gray-900', className)} {...props} />
   );
 }
 
