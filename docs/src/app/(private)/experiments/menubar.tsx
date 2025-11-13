@@ -12,7 +12,7 @@ import classes from './menubar.module.css';
 
 interface Settings {
   modal: boolean;
-  loop: boolean;
+  loopFocus: boolean;
   orientation: 'horizontal' | 'vertical';
 }
 
@@ -32,7 +32,7 @@ export default function MenubarExperiment() {
       <h1>Menubar</h1>
       <Menubar
         className={classes.Root}
-        loop={settings.loop}
+        loopFocus={settings.loopFocus}
         orientation={settings.orientation}
         modal={settings.modal}
       >
@@ -188,9 +188,9 @@ export default function MenubarExperiment() {
 }
 
 export const settingsMetadata: SettingsMetadata<Settings> = {
-  loop: {
+  loopFocus: {
     type: 'boolean',
-    label: 'Loop',
+    label: 'Focus loop',
     default: true,
   },
   modal: {

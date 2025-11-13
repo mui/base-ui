@@ -19,9 +19,16 @@ export type DemoProps = ContentProps<{
   defaultOpen?: boolean;
   compact?: boolean;
   className?: string;
+  showExtraPlaygroundLink?: boolean;
 }>;
 
-export function Demo({ defaultOpen = false, compact = false, className, ...demoProps }: DemoProps) {
+export function Demo({
+  defaultOpen = false,
+  compact = false,
+  showExtraPlaygroundLink = false,
+  className,
+  ...demoProps
+}: DemoProps) {
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const onCopied = React.useCallback(() => {
     /* eslint-disable no-restricted-syntax */
@@ -48,12 +55,28 @@ export function Demo({ defaultOpen = false, compact = false, className, ...demoP
     }
   }, []);
 
+  const externalPlaygroundLink = fallbackToCodeSandbox ? (
+    <GhostButton aria-label="Open in CodeSandbox" type="button" onClick={demo.openCodeSandbox}>
+      CodeSandbox
+      <ExternalLinkIcon />
+    </GhostButton>
+  ) : (
+    <GhostButton aria-label="Open in StackBlitz" type="button" onClick={demo.openStackBlitz}>
+      StackBlitz
+      <ExternalLinkIcon />
+    </GhostButton>
+  );
+
   return (
     <div className={clsx('DemoRoot', className)}>
       {demo.allFilesSlugs.map(({ slug }) => (
         <span key={slug} id={slug} className="scroll-mt-4" />
       ))}
-      <DemoPlayground component={demo.component} variant={demo.selectedVariant} />
+      <DemoPlayground component={demo.component} variant={demo.selectedVariant}>
+        {showExtraPlaygroundLink && (
+          <span className="absolute top-3 right-4.5">{externalPlaygroundLink}</span>
+        )}
+      </DemoPlayground>
       <Collapsible.Root open={demo.expanded} onOpenChange={demo.setExpanded}>
         <div role="figure" aria-label="Component demo code">
           {(compact ? demo.expanded : true) && (
@@ -76,25 +99,7 @@ export function Demo({ defaultOpen = false, compact = false, className, ...demoP
                   selectedTransform={demo.selectedTransform}
                   selectTransform={demo.selectTransform}
                 />
-                {fallbackToCodeSandbox ? (
-                  <GhostButton
-                    aria-label="Open in CodeSandbox"
-                    type="button"
-                    onClick={demo.openCodeSandbox}
-                  >
-                    CodeSandbox
-                    <ExternalLinkIcon />
-                  </GhostButton>
-                ) : (
-                  <GhostButton
-                    aria-label="Open in StackBlitz"
-                    type="button"
-                    onClick={demo.openStackBlitz}
-                  >
-                    StackBlitz
-                    <ExternalLinkIcon />
-                  </GhostButton>
-                )}
+                {externalPlaygroundLink}
                 <GhostButton aria-label="Copy code" onClick={demo.copy}>
                   Copy
                   <span className="flex size-3.5 items-center justify-center">
