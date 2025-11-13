@@ -31,10 +31,8 @@ To use a single checkbox in a form, pass the checkbox's `name` to `<Field>` and 
 ```tsx title="Using Checkbox in a form"
 <Form>
   <Field.Root name="stayLoggedIn">
-    <Field.Label>
-      <Checkbox.Root />
-      Stay logged in for 7 days
-    </Field.Label>
+    <Checkbox.Root />
+    <Field.Label>Stay logged in for 7 days</Field.Label>
   </Field.Root>
 </Form>
 ```

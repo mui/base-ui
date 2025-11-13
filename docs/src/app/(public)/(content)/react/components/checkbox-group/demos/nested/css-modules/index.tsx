@@ -27,8 +27,9 @@ export default function PermissionsForm() {
       className={styles.CheckboxGroup}
       style={{ marginLeft: '1rem' }}
     >
-      <label className={styles.Item} id="permissions-caption" style={{ marginLeft: '-1rem' }}>
+      <div className={styles.Item} style={{ marginLeft: '-1rem' }}>
         <Checkbox.Root
+          id="permissions"
           className={styles.Checkbox}
           parent
           indeterminate={
@@ -49,26 +50,28 @@ export default function PermissionsForm() {
             )}
           />
         </Checkbox.Root>
-        User Permissions
-      </label>
+        <label id="permissions-caption" htmlFor="permissions">
+          Permissions
+        </label>
+      </div>
 
-      <label className={styles.Item}>
-        <Checkbox.Root value="view-dashboard" className={styles.Checkbox}>
+      <div className={styles.Item}>
+        <Checkbox.Root id="view-dashboard" value="view-dashboard" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        View Dashboard
-      </label>
+        <label htmlFor="view-dashboard">View Dashboard</label>
+      </div>
 
-      <label className={styles.Item}>
-        <Checkbox.Root value="access-reports" className={styles.Checkbox}>
+      <div className={styles.Item}>
+        <Checkbox.Root id="access-reports" value="access-reports" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        Access Reports
-      </label>
+        <label htmlFor="access-reports">Access Reports</label>
+      </div>
 
       <CheckboxGroup
         aria-labelledby="manage-users-caption"
@@ -85,8 +88,8 @@ export default function PermissionsForm() {
         allValues={userManagementPermissions}
         style={{ marginLeft: '1rem' }}
       >
-        <label className={styles.Item} id="manage-users-caption" style={{ marginLeft: '-1rem' }}>
-          <Checkbox.Root className={styles.Checkbox} parent>
+        <div className={styles.Item} style={{ marginLeft: '-1rem' }}>
+          <Checkbox.Root id="manage-users" className={styles.Checkbox} parent>
             <Checkbox.Indicator
               className={styles.Indicator}
               render={(props, state) => (
@@ -100,44 +103,46 @@ export default function PermissionsForm() {
               )}
             />
           </Checkbox.Root>
-          Manage Users
-        </label>
+          <label id="manage-users-caption" htmlFor="manage-users">
+            Manage Users
+          </label>
+        </div>
 
-        <label className={styles.Item}>
-          <Checkbox.Root value="create-user" className={styles.Checkbox}>
+        <div className={styles.Item}>
+          <Checkbox.Root id="create-user" value="create-user" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
               <CheckIcon className={styles.Icon} />
             </Checkbox.Indicator>
           </Checkbox.Root>
-          Create User
-        </label>
+          <label htmlFor="create-user">Create User</label>
+        </div>
 
-        <label className={styles.Item}>
-          <Checkbox.Root value="edit-user" className={styles.Checkbox}>
+        <div className={styles.Item}>
+          <Checkbox.Root id="edit-user" value="edit-user" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
               <CheckIcon className={styles.Icon} />
             </Checkbox.Indicator>
           </Checkbox.Root>
-          Edit User
-        </label>
+          <label htmlFor="edit-user">Edit User</label>
+        </div>
 
-        <label className={styles.Item}>
-          <Checkbox.Root value="delete-user" className={styles.Checkbox}>
+        <div className={styles.Item}>
+          <Checkbox.Root id="delete-user" value="delete-user" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
               <CheckIcon className={styles.Icon} />
             </Checkbox.Indicator>
           </Checkbox.Root>
-          Delete User
-        </label>
+          <label htmlFor="delete-user">Delete User</label>
+        </div>
 
-        <label className={styles.Item}>
-          <Checkbox.Root value="assign-roles" className={styles.Checkbox}>
+        <div className={styles.Item}>
+          <Checkbox.Root id="assign-roles" value="assign-roles" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
               <CheckIcon className={styles.Icon} />
             </Checkbox.Indicator>
           </Checkbox.Root>
-          Assign Roles
-        </label>
+          <label htmlFor="assign-roles">Assign Roles</label>
+        </div>
       </CheckboxGroup>
     </CheckboxGroup>
   );

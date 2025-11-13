@@ -55,18 +55,14 @@ To use checkbox group in a form:
 <Form>
   <Field.Root name="toppings">
     <Fieldset.Root render={<CheckboxGroup />}>
-      <Fieldset.Legend>Toppings</Fieldset.Legend>
+      <Fieldset.Legend>Extra toppings</Fieldset.Legend>
       <Field.Item>
-        <Field.Label>
-          <Checkbox.Root value="anchovies" />
-          Anchovies
-        </Field.Label>
+        <Checkbox.Root value="anchovies" />
+        <Field.Label>Anchovies</Field.Label>
       </Field.Item>
       <Field.Item>
-        <Field.Label>
-          <Checkbox.Root value="olives" />
-          Olives
-        </Field.Label>
+        <Checkbox.Root value="olives" />
+        <Field.Label>Olives</Field.Label>
       </Field.Item>
     </Fieldset.Root>
   </Field.Root>

@@ -4,22 +4,22 @@ import { Checkbox } from '@base-ui-components/react/checkbox';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import styles from './index.module.css';
 
-const fruits = ['fuji-apple', 'gala-apple', 'granny-smith-apple'];
+const fruits = ['cavendish-banana', 'red-banana', 'burro-banana'];
 
 export default function ExampleCheckboxGroup() {
   const [value, setValue] = React.useState<string[]>([]);
 
   return (
     <CheckboxGroup
-      aria-labelledby="apples-caption"
+      aria-labelledby="bananas-caption"
       value={value}
       onValueChange={setValue}
       allValues={fruits}
       className={styles.CheckboxGroup}
       style={{ marginLeft: '1rem' }}
     >
-      <label className={styles.Item} id="apples-caption" style={{ marginLeft: '-1rem' }}>
-        <Checkbox.Root className={styles.Checkbox} name="apples" parent>
+      <div className={styles.Item} style={{ marginLeft: '-1rem' }}>
+        <Checkbox.Root id="bananas" name="bananas" parent className={styles.Checkbox}>
           <Checkbox.Indicator
             className={styles.Indicator}
             render={(props, state) => (
@@ -33,35 +33,37 @@ export default function ExampleCheckboxGroup() {
             )}
           />
         </Checkbox.Root>
-        Apples
-      </label>
+        <label id="bananas-caption" htmlFor="bananas">
+          Bananas
+        </label>
+      </div>
 
-      <label className={styles.Item}>
-        <Checkbox.Root value="fuji-apple" className={styles.Checkbox}>
+      <div className={styles.Item}>
+        <Checkbox.Root id="cavendish-banana" value="cavendish-banana" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        Fuji
-      </label>
+        <label htmlFor="cavendish-banana">Cavendish</label>
+      </div>
 
-      <label className={styles.Item}>
-        <Checkbox.Root value="gala-apple" className={styles.Checkbox}>
+      <div className={styles.Item}>
+        <Checkbox.Root id="red-banana" value="red-banana" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        Gala
-      </label>
+        <label htmlFor="red-banana">Red</label>
+      </div>
 
-      <label className={styles.Item}>
-        <Checkbox.Root value="granny-smith-apple" className={styles.Checkbox}>
+      <div className={styles.Item}>
+        <Checkbox.Root id="burro-banana" value="burro-banana" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        Granny Smith
-      </label>
+        <label htmlFor="burro-banana">Burro</label>
+      </div>
     </CheckboxGroup>
   );
 }
