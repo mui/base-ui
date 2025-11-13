@@ -38,7 +38,7 @@ _Nov 13, 2025_
 - Fix Value component return type for React 17 (#3050) by @atomiks
 - Support `autoHighlight: "always"`, and add `keepHighlight`, `highlightItemOnHover` props (#2976) by @atomiks
 - Keep focus on input when pressing list element (#3092) by @atomiks
-- Allow `<kbd>Esc</kbd>` to bubble if `Empty` is not used (#2935) by @atomiks
+- Allow <kbd>Esc</kbd> to bubble if `Empty` is not used (#2935) by @atomiks
 
 ### Button
 
@@ -54,7 +54,7 @@ _Nov 13, 2025_
 - Move `CompositeList` to `List` component to make `Input` work with composites (#2883) by @chuganzy
 - Fix `onValueChange` type inference when `value` is unspecified (#2897) by @atomiks
 - Fix `required` form submission with multiple values (#2925) by @atomiks
-- Fix `<kbd>Home</kbd>`/`<kbd>End</kbd>` Input scroll in Chrome/Safari (#2928) by @atomiks
+- Fix <kbd>Home</kbd>/<kbd>End</kbd> Input scroll in Chrome/Safari (#2928) by @atomiks
 - Prevent blocking filtering while composing text on Android (#2944) by @atomiks
 - Add empty state to `List.State` (#2934) by @atomiks
 - Fix `initialFocus` as function being called on close (#2949) by @atomiks
@@ -68,7 +68,7 @@ _Nov 13, 2025_
 - Keep focus on input when pressing list element (#3092) by @atomiks
 - Fix support of dialog + combobox pattern (#3049) by @atomiks
 - Support drag-to-select (#3167) by @atomiks
-- Allow `<kbd>Esc</kbd>` to bubble if `Empty` is not used (#2935) by @atomiks
+- Allow <kbd>Esc</kbd> to bubble if `Empty` is not used (#2935) by @atomiks
 
 ### Composite
 
