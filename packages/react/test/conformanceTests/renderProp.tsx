@@ -36,7 +36,10 @@ export function testRenderProp(
 
       await render(
         React.cloneElement(element, {
-          render: (props: {}) => <Wrapper {...props} data-test-value={testValue} />,
+          render: (props: any) => {
+            const { key, ...propsWithoutKey } = props;
+            return <Wrapper key={key} {...propsWithoutKey} data-test-value={testValue} />;
+          },
           ...(button && { nativeButton }),
         }),
       );
@@ -80,7 +83,10 @@ export function testRenderProp(
           ref: (el: HTMLElement | null) => {
             instanceFromRef = el;
           },
-          render: (props: {}) => <Wrapper {...props} />,
+          render: (props: any) => {
+            const { key, ...propsWithoutKey } = props;
+            return <Wrapper key={key} {...propsWithoutKey} />;
+          },
           'data-testid': 'wrapped',
           ...(button && { nativeButton }),
         });

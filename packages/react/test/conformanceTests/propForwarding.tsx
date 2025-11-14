@@ -44,7 +44,10 @@ export function testPropForwarding(
 
       await render(
         React.cloneElement(element, {
-          render: (props: any) => <Element {...props} data-testid="custom-root" />,
+          render: (props: any) => {
+            const { key, ...propsWithoutKey } = props;
+            return <Element key={key} {...propsWithoutKey} data-testid="custom-root" />;
+          },
           ...otherProps,
         }),
       );
@@ -95,9 +98,17 @@ export function testPropForwarding(
     it('forwards the custom `style` attribute defined on the render function', async () => {
       await render(
         React.cloneElement(element, {
-          render: (props: any) => (
-            <Element {...props} style={{ color: 'green' }} data-testid="custom-root" />
-          ),
+          render: (props: any) => {
+            const { key, ...propsWithoutKey } = props;
+            return (
+              <Element
+                key={key}
+                {...propsWithoutKey}
+                style={{ color: 'green' }}
+                data-testid="custom-root"
+              />
+            );
+          },
           ...(button && { nativeButton }),
         }),
       );

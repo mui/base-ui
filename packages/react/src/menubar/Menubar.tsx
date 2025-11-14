@@ -14,6 +14,15 @@ import { useOpenInteractionType } from '../utils/useOpenInteractionType';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { MenuOpenEventDetails } from '../menu/utils/types';
+import { StateAttributesMapping } from '../utils/getStateAttributesProps';
+
+const menubarStateAttributesMapping: StateAttributesMapping<Menubar.State> = {
+  hasSubmenuOpen(value) {
+    return {
+      'data-has-submenu-open': value ? 'true' : 'false',
+    };
+  },
+};
 
 /**
  * The container for menus.
@@ -58,8 +67,9 @@ export const Menubar = React.forwardRef(function Menubar(
     () => ({
       orientation,
       modal,
+      hasSubmenuOpen,
     }),
-    [orientation, modal],
+    [orientation, modal, hasSubmenuOpen],
   );
 
   const contentRef = React.useRef<HTMLDivElement>(null);
@@ -88,6 +98,7 @@ export const Menubar = React.forwardRef(function Menubar(
             render={render}
             className={className}
             state={state}
+            stateAttributesMapping={menubarStateAttributesMapping}
             refs={[forwardedRef, setContentElement, contentRef]}
             props={[{ role: 'menubar', id }, interactionTypeProps, elementProps]}
             orientation={orientation}
@@ -130,7 +141,20 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
   return <FloatingNode id={nodeId}>{props.children}</FloatingNode>;
 }
 
-export interface MenubarState {}
+export interface MenubarState {
+  /**
+   * The orientation of the menubar.
+   */
+  orientation: MenuRoot.Orientation;
+  /**
+   * Whether the menubar is modal.
+   */
+  modal: boolean;
+  /**
+   * Whether any submenu within the menubar is open.
+   */
+  hasSubmenuOpen: boolean;
+}
 
 export interface MenubarProps extends BaseUIComponentProps<'div', Menubar.State> {
   /**
