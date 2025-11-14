@@ -2,7 +2,7 @@
 
 ## v1.0.0-beta.5
 
-_Nov 13, 2025_
+_Nov 17, 2025_
 
 ### All Components
 
