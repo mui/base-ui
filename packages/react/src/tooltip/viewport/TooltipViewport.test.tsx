@@ -212,9 +212,8 @@ describe('<Tooltip.Viewport />', () => {
       await act(async () => trigger3.focus());
       await act(async () => trigger1.focus());
 
-      const content = await screen.findByText('Content 1');
-      await waitFor(() => {
-        expect(content).toBeVisible();
+      await waitFor(async () => {
+        expect(await screen.findByText('Content 1')).toBeVisible();
       });
     });
 
