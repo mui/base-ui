@@ -189,11 +189,8 @@ class ScrollLocker {
 
   release = () => {
     this.lockCount -= 1;
-    if (this.lockCount === 0) {
-      this.timeoutLock.cancel();
-      if (this.restore) {
-        this.timeoutUnlock.start(0, this.unlock);
-      }
+    if (this.lockCount === 0 && this.restore) {
+      this.timeoutUnlock.start(0, this.unlock);
     }
   };
 
