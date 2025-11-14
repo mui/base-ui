@@ -277,7 +277,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         role: 'checkbox',
         'aria-checked': groupIndeterminate ? 'mixed' : checked,
         'aria-readonly': readOnly || undefined,
-        'aria-required': required || undefined,
         'aria-labelledby': labelId,
         [PARENT_CHECKBOX as string]: parent ? '' : undefined,
         onFocus() {
