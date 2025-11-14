@@ -538,7 +538,7 @@ describe('<Switch.Root />', () => {
 
     describe('Field.Label', () => {
       describe('implicit', () => {
-        it('when rendering a non-native button', async () => {
+        it('sets `for` on the label', async () => {
           await render(
             <Field.Root>
               <Field.Label data-testid="label">
@@ -549,13 +549,17 @@ describe('<Switch.Root />', () => {
           );
 
           const label = screen.getByTestId('label');
-          expect(label).to.have.attribute('for');
+          expect(label.getAttribute('for')).not.to.equal(null);
 
-          const button = screen.getByRole('switch');
-          expect(button).to.have.attribute('aria-checked', 'false');
+          const input = document.querySelector('input[type="checkbox"]');
+          expect(label.getAttribute('for')).to.equal(input?.getAttribute('id'));
+
+          const switchEl = screen.getByRole('switch');
+          expect(switchEl.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+          expect(switchEl).to.have.attribute('aria-checked', 'false');
 
           fireEvent.click(screen.getByText('OK'));
-          expect(button).to.have.attribute('aria-checked', 'true');
+          expect(switchEl).to.have.attribute('aria-checked', 'true');
         });
       });
 
@@ -564,22 +568,23 @@ describe('<Switch.Root />', () => {
           await render(
             <Field.Root>
               <Field.Label data-testid="label">Label</Field.Label>
-              <Switch.Root data-testid="button" />
+              <Switch.Root />
             </Field.Root>,
           );
 
           const label = screen.getByTestId('label');
-          const button = screen.getByRole('switch');
+          const switchEl = screen.getByRole('switch');
+          const input = document.querySelector('input[type="checkbox"]');
 
           expect(label.getAttribute('for')).not.to.equal(null);
 
-          expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
-          expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+          expect(label.getAttribute('for')).to.equal(input?.getAttribute('id'));
+          expect(switchEl.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
 
-          expect(button).to.have.attribute('aria-checked', 'false');
+          expect(switchEl).to.have.attribute('aria-checked', 'false');
 
           fireEvent.click(label);
-          expect(button).to.have.attribute('aria-checked', 'true');
+          expect(switchEl).to.have.attribute('aria-checked', 'true');
         });
 
         it('when rendering a non-native button', async () => {
@@ -592,10 +597,10 @@ describe('<Switch.Root />', () => {
 
           const label = screen.getByTestId('label');
           expect(label.getAttribute('for')).not.to.equal(null);
-
-          const button = screen.getByRole('switch');
-          expect(button.getAttribute('id')).to.equal(label.getAttribute('for'));
-          expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+          const input = document.querySelector('input[type="checkbox"]');
+          expect(input?.getAttribute('id')).to.equal(label.getAttribute('for'));
+          const switchEl = screen.getByRole('switch');
+          expect(switchEl.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
         });
 
         it('when rendering a non-native label', async () => {
@@ -608,18 +613,20 @@ describe('<Switch.Root />', () => {
           );
 
           const label = screen.getByTestId('label');
-          const button = screen.getByRole('switch');
+          const switchEl = screen.getByRole('switch');
+          const input = document.querySelector('input[type="checkbox"]');
 
           expect(label.getAttribute('for')).not.to.equal(null);
           expect(label.getAttribute('id')).not.to.equal(null);
 
-          expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
-          expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+          expect(label.getAttribute('for')).to.equal(input?.getAttribute('id'));
+          expect(switchEl.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
 
-          expect(button).to.have.attribute('aria-checked', 'false');
+          expect(switchEl).to.have.attribute('aria-checked', 'false');
 
+          // non-native labels cannot toggle a non-native-button switch
           fireEvent.click(label);
-          expect(button).to.have.attribute('aria-checked', 'true');
+          expect(switchEl).to.not.have.attribute('aria-checked', 'true');
         });
       });
     });
