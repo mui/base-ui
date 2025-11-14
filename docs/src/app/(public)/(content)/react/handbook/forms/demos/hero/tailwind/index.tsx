@@ -192,18 +192,22 @@ function ExampleForm() {
       <Field.Root name="storageType">
         <Fieldset.Root render={<RadioGroup className="gap-4" defaultValue="ssd" />}>
           <Fieldset.Legend className="-mt-px">Storage type</Fieldset.Legend>
-          <Field.Label>
-            <Radio.Root value="ssd">
-              <Radio.Indicator />
-            </Radio.Root>
-            SSD
-          </Field.Label>
-          <Field.Label>
-            <Radio.Root value="hdd">
-              <Radio.Indicator />
-            </Radio.Root>
-            HDD
-          </Field.Label>
+          <Field.Item>
+            <Field.Label>
+              <Radio.Root value="ssd">
+                <Radio.Indicator />
+              </Radio.Root>
+              SSD
+            </Field.Label>
+          </Field.Item>
+          <Field.Item>
+            <Field.Label>
+              <Radio.Root value="hdd">
+                <Radio.Indicator />
+              </Radio.Root>
+              HDD
+            </Field.Label>
+          </Field.Item>
         </Fieldset.Root>
       </Field.Root>
 
@@ -222,14 +226,16 @@ function ExampleForm() {
           <div className="flex gap-4">
             {['http', 'https', 'ssh'].map((val) => {
               return (
-                <Field.Label key={val} className="uppercase">
-                  <Checkbox.Root value={val}>
-                    <Checkbox.Indicator>
-                      <Check className="size-3" />
-                    </Checkbox.Indicator>
-                  </Checkbox.Root>
-                  {val}
-                </Field.Label>
+                <Field.Item key={val}>
+                  <Field.Label className="uppercase">
+                    <Checkbox.Root value={val}>
+                      <Checkbox.Indicator>
+                        <Check className="size-3" />
+                      </Checkbox.Indicator>
+                    </Checkbox.Root>
+                    {val}
+                  </Field.Label>
+                </Field.Item>
               );
             })}
           </div>
