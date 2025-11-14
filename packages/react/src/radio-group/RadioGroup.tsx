@@ -9,12 +9,13 @@ import { useBaseUiId } from '../utils/useBaseUiId';
 import { contains } from '../floating-ui-react/utils';
 import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useFormContext } from '../form/FormContext';
 import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
-import { useLabelableContext } from '../labelable-provider/LabelableContext';
 import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRoot } from '../field/root/FieldRoot';
+import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
+import { useFormContext } from '../form/FormContext';
+import { useLabelableContext } from '../labelable-provider/LabelableContext';
 import { mergeProps } from '../merge-props';
 import { useValueChanged } from '../utils/useValueChanged';
 import { RadioGroupContext } from './RadioGroupContext';
@@ -34,6 +35,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
+    'aria-labelledby': ariaLabelledbyProp,
     render,
     className,
     disabled: disabledProp,
@@ -63,6 +65,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
   const { clearErrors } = useFormContext();
+  const fieldsetContext = useFieldsetRootContext(true);
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -160,6 +163,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       disabled,
       readOnly,
       required,
+      'aria-labelledby': ariaLabelledbyProp ?? fieldsetContext?.legendId,
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHidden,

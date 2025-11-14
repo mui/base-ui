@@ -66,7 +66,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     disabled: fieldDisabled,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const { getDescriptionProps, registerLabelableControlRef } = useLabelableContext();
+  const { labelId, getDescriptionProps, registerLabelableControlRef } = useLabelableContext();
 
   const disabled = fieldDisabled || fieldItemContext.disabled || disabledGroup || disabledProp;
   const readOnly = readOnlyGroup || readOnlyProp;
@@ -97,6 +97,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     'aria-required': required || undefined,
     'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
+    'aria-labelledby': labelId,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
     id,
     disabled,

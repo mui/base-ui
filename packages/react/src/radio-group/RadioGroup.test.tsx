@@ -2,6 +2,7 @@ import * as React from 'react';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
 import { Radio } from '@base-ui-components/react/radio';
 import { Field } from '@base-ui-components/react/field';
+import { Fieldset } from '@base-ui-components/react/fieldset';
 import { Form } from '@base-ui-components/react/form';
 import {
   DirectionProvider,
@@ -679,6 +680,27 @@ describe('<RadioGroup />', () => {
         expect(radioB).to.have.attribute('data-checked', '');
         expect(radioGroup).to.not.have.attribute('aria-invalid');
       });
+    });
+  });
+
+  describe('Fieldset', () => {
+    it("labels the radio group's hidden input", async () => {
+      await render(
+        <Field.Root name="test">
+          <Fieldset.Root render={<RadioGroup />}>
+            <Fieldset.Legend>Legend</Fieldset.Legend>
+            <Field.Item>
+              <Radio.Root value="a" />
+            </Field.Item>
+          </Fieldset.Root>
+        </Field.Root>,
+      );
+
+      const hiddenInput = document.querySelector('input[value]');
+      expect(hiddenInput).to.not.equal(null);
+
+      const legend = screen.getByText('Legend');
+      expect(legend.getAttribute('id')).to.equal(hiddenInput?.getAttribute('aria-labelledby'));
     });
   });
 
