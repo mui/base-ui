@@ -62,7 +62,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     name: fieldName,
     validation,
   } = useFieldRootContext();
-  const { labelId, registerFieldItemControlRef } = useLabelableContext();
+  const { labelId, registerLabelableControlRef } = useLabelableContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -223,7 +223,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const element = useRenderElement('span', componentProps, {
     state,
-    ref: [forwardedRef, registerFieldItemControlRef, switchRef, buttonRef],
+    ref: [forwardedRef, registerLabelableControlRef, switchRef, buttonRef],
     props: [rootProps, validation.getValidationProps, elementProps, getButtonProps],
     stateAttributesMapping,
   });

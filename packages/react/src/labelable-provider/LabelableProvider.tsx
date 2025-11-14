@@ -32,11 +32,11 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
     [parentMessageIds, messageIds],
   );
 
-  const fieldItemControlRef = React.useRef<HTMLElement>(null);
+  const labelableControlRef = React.useRef<HTMLElement>(null);
 
-  const registerFieldItemControlRef = useStableCallback((element: HTMLElement | null) => {
+  const registerLabelableControlRef = useStableCallback((element: HTMLElement | null) => {
     if (element) {
-      fieldItemControlRef.current = element;
+      labelableControlRef.current = element;
     }
   });
 
@@ -49,8 +49,8 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       messageIds,
       setMessageIds,
       getDescriptionProps,
-      fieldItemControlRef,
-      registerFieldItemControlRef,
+      labelableControlRef,
+      registerLabelableControlRef,
     }),
     [
       controlId,
@@ -60,7 +60,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       messageIds,
       setMessageIds,
       getDescriptionProps,
-      registerFieldItemControlRef,
+      registerLabelableControlRef,
     ],
   );
 

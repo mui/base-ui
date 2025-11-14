@@ -24,7 +24,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
   const fieldRootContext = useFieldRootContext(false);
 
-  const { controlId, setLabelId, labelId, fieldItemControlRef } = useLabelableContext();
+  const { controlId, setLabelId, labelId, labelableControlRef } = useLabelableContext();
 
   const id = useBaseUiId(idProp);
 
@@ -60,12 +60,12 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
         onClick(event) {
           const target = getTarget(event.nativeEvent) as HTMLElement | null;
           if (
-            fieldItemControlRef.current != null &&
-            fieldItemControlRef.current.tagName !== 'BUTTON' &&
-            target !== fieldItemControlRef.current &&
-            !contains(fieldItemControlRef.current, target)
+            labelableControlRef.current != null &&
+            labelableControlRef.current.tagName !== 'BUTTON' &&
+            target !== labelableControlRef.current &&
+            !contains(labelableControlRef.current, target)
           ) {
-            fieldItemControlRef.current?.click();
+            labelableControlRef.current?.click();
           }
         },
       },
