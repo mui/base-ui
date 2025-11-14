@@ -167,7 +167,11 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
   return () => {
     resizeFrame.cancel();
     cleanup();
-    if (win && win.removeEventListener) {
+    // Sometimes this cleanup can be run after test teardown 
+    // because it is called in a `setTimeout(fn, 0)`,
+    // in which case `removeEventListener` wouldn't be available,
+    // so we check for it to avoid test failures.
+    if (win.removeEventListener) {
       win.removeEventListener('resize', handleResize);
     }
   };
