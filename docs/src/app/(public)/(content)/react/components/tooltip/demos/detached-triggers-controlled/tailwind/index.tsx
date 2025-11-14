@@ -16,7 +16,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
 
   return (
     <Tooltip.Provider>
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         <div className="flex">
           <Tooltip.Trigger
             className="
