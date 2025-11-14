@@ -8,6 +8,7 @@ import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useButton } from '../../use-button';
 import { SwitchRootContext } from './SwitchRootContext';
 import { stateAttributesMapping } from '../stateAttributesMapping';
@@ -74,7 +75,9 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
 
-  const id = useLabelableId({
+  const id = useBaseUiId();
+
+  const inputId = useLabelableId({
     id: idProp,
     implicit: false,
     controlRef: switchRef,
@@ -169,7 +172,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         {
           checked,
           disabled,
-          id: !name ? `${id}-input` : undefined,
+          id: inputId,
           name,
           required,
           style: visuallyHidden,
@@ -194,6 +197,9 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
             setCheckedState(nextChecked);
           },
+          onFocus() {
+            switchRef.current?.focus();
+          },
         },
         validation.getInputValidationProps,
       ),
@@ -201,7 +207,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       checked,
       disabled,
       handleInputRef,
-      id,
+      inputId,
       name,
       onCheckedChange,
       required,
