@@ -153,7 +153,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       inputRef?.current?.click();
     },
     onKeyDown(event) {
-      if (event.defaultPrevented || readOnly || disabled) {
+      if (nativeButton || event.defaultPrevented || readOnly || disabled) {
         return;
       }
 
@@ -257,7 +257,7 @@ export interface SwitchRootState extends FieldRoot.State {
 }
 export interface SwitchRootProps
   extends NativeButtonProps,
-    Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {
+    Omit<BaseUIComponentProps<'span', SwitchRoot.State>, 'onChange'> {
   /**
    * The id of the switch element.
    */
