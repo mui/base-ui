@@ -232,27 +232,6 @@ describe('<Switch.Root />', () => {
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
 
-    // doesn't work with `span role="switch"`
-    it.skip('should toggle the switch when a linked label is clicked', async () => {
-      await render(
-        <div>
-          <label htmlFor="test-switch" data-testid="label">
-            Toggle
-          </label>
-          <Switch.Root id="test-switch" />
-        </div>,
-      );
-
-      const switchElement = screen.getByRole('switch');
-      const label = screen.getByTestId('label');
-
-      expect(switchElement).to.have.attribute('aria-checked', 'false');
-
-      await user.click(label);
-
-      expect(switchElement).to.have.attribute('aria-checked', 'true');
-    });
-
     it('should include the switch value in the form submission', async ({ skip }) => {
       if (isJSDOM) {
         // FormData is not available in JSDOM
@@ -559,26 +538,6 @@ describe('<Switch.Root />', () => {
 
     describe('Field.Label', () => {
       describe('implicit', () => {
-        // invalid HTML
-        it.skip('when rendering a native button', async () => {
-          await render(
-            <Field.Root>
-              <Field.Label data-testid="label">
-                <Switch.Root data-testid="button" />
-              </Field.Label>
-            </Field.Root>,
-          );
-
-          const label = screen.getByTestId('label');
-          expect(label).to.not.have.attribute('for');
-
-          const button = screen.getByRole('switch');
-          expect(button).to.have.attribute('aria-checked', 'false');
-
-          fireEvent.click(label);
-          expect(button).to.have.attribute('aria-checked', 'true');
-        });
-
         it('when rendering a non-native button', async () => {
           await render(
             <Field.Root>
@@ -680,5 +639,26 @@ describe('<Switch.Root />', () => {
         screen.getByTestId('description').id,
       );
     });
+  });
+
+  it('can render a native button', async () => {
+    const { container, user } = await render(<Switch.Root render={<button />} nativeButton />);
+
+    const switchEl = screen.getByRole('switch');
+    expect(switchEl).to.have.attribute('aria-checked', 'false');
+    // eslint-disable-next-line testing-library/no-container
+    expect(container.querySelector('button')).to.equal(switchEl);
+
+    await user.keyboard('[Tab]');
+    expect(switchEl).toHaveFocus();
+
+    await user.keyboard('[Enter]');
+    expect(switchEl).to.have.attribute('aria-checked', 'true');
+
+    await user.keyboard('[Space]');
+    expect(switchEl).to.have.attribute('aria-checked', 'false');
+
+    await user.click(switchEl);
+    expect(switchEl).to.have.attribute('aria-checked', 'true');
   });
 });
