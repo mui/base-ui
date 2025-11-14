@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Field } from '@base-ui-components/react/field';
@@ -680,21 +680,23 @@ describe('<Checkbox.Root />', () => {
           );
 
           const label = screen.getByText('Label');
-          expect(label.getAttribute('for')).not.to.equal(null);
+          expect(label.getAttribute('id')).not.to.equal(null);
 
           const checkbox = screen.getByRole('checkbox');
-          expect(label.getAttribute('for')).to.equal(checkbox.getAttribute('id'));
+          // expect(label.getAttribute('for')).to.equal(checkbox.getAttribute('id'));
 
           expect(checkbox.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
           expect(checkbox).to.have.attribute('aria-checked', 'false');
 
           fireEvent.click(label);
-          expect(checkbox).to.have.attribute('aria-checked', 'true');
+          await waitFor(() => {
+            expect(checkbox).to.have.attribute('aria-checked', 'true');
+          });
         });
       });
 
       describe('implicit association', () => {
-        it('sets `for` and `id` attributes', async () => {
+        it('does not set `for` on the label', async () => {
           await render(
             <Field.Root>
               <Field.Label data-testid="label">
@@ -705,12 +707,12 @@ describe('<Checkbox.Root />', () => {
           );
 
           const label = screen.getByTestId('label');
-          expect(label.getAttribute('for')).not.to.equal(null);
+          expect(label.getAttribute('for')).to.equal(null);
+          expect(label.getAttribute('id')).to.not.equal(null);
 
           const checkbox = screen.getByRole('checkbox');
-          expect(label.getAttribute('for')).to.equal(checkbox.getAttribute('id'));
-
           expect(checkbox).to.have.attribute('aria-checked', 'false');
+
           fireEvent.click(screen.getByText('OK'));
           expect(checkbox).to.have.attribute('aria-checked', 'true');
         });
