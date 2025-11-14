@@ -91,14 +91,16 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     controlRef: radioRef,
   });
 
-  const rootProps: React.ComponentProps<'span'> = {
+  const rootProps: React.ComponentProps<'button'> = {
     role: 'radio',
     'aria-checked': checked,
+    'aria-required': required || undefined,
     'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
     'aria-labelledby': labelId,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
     id,
+    disabled,
     onKeyDown(event) {
       if (event.key === 'Enter') {
         event.preventDefault();
