@@ -84,7 +84,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     }
   }, [setFilled]);
 
-  const id = useLabelableId({
+  const id = useBaseUiId();
+  const inputId = useLabelableId({
     id: idProp,
     implicit: false,
     controlRef: radioRef,
@@ -97,7 +98,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
-    id: id ?? undefined,
+    id,
     disabled,
     onKeyDown(event) {
       if (event.key === 'Enter') {
@@ -129,13 +130,10 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     native: nativeButton,
   });
 
-  const inputId = useBaseUiId();
-
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
     () => ({
       type: 'radio',
       ref: mergedInputRef,
-      // Set `id` to stop Chrome warning about an unassociated input
       id: inputId,
       tabIndex: -1,
       style: visuallyHidden,

@@ -616,13 +616,15 @@ describe('<RadioGroup />', () => {
         const radios = screen.getAllByRole('radio');
         const labels = screen.getAllByTestId('label');
         const descriptions = screen.getAllByTestId('description');
+        const inputs = document.querySelectorAll('input[type="radio"]');
 
         radios.forEach((radio, index) => {
           const label = labels[index];
           const description = descriptions[index];
+          const input = inputs[index];
 
           expect(label.getAttribute('for')).to.not.equal(null);
-          expect(label.getAttribute('for')).to.equal(radio.getAttribute('id'));
+          expect(label.getAttribute('for')).to.equal(input?.getAttribute('id'));
           expect(description.getAttribute('id')).to.not.equal(null);
           expect(description.getAttribute('id')).to.equal(radio.getAttribute('aria-describedby'));
         });
