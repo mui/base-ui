@@ -69,6 +69,7 @@ _Nov 17, 2025_
 - Fix support of dialog + combobox pattern (#3049) by @atomiks
 - Support drag-to-select (#3167) by @atomiks
 - Allow <kbd>Esc</kbd> to bubble if `<Combobox.Empty>` is not used (#2935) by @atomiks
+- Fix stuck filtering with differing stringifiers (#3201) by @atomiks
 
 ### Context Menu
 
