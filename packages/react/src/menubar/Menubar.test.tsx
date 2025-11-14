@@ -183,24 +183,24 @@ describe('<Menubar />', () => {
       });
     });
 
-      describe('focus behavior', () => {
-        it('focuses a menubar item without immediately opening the menu', async () => {
-          const { user } = await render(<TestMenubar />);
+    describe('focus behavior', () => {
+      it('focuses a menubar item without immediately opening the menu', async () => {
+        const { user } = await render(<TestMenubar />);
 
-          await user.tab();
+        await user.tab();
 
-          await waitFor(() => {
-            const fileTrigger = screen.getByTestId('file-trigger');
-            expect(fileTrigger).toHaveFocus();
-            expect(screen.queryByTestId('file-menu')).to.equal(null);
-          });
+        await waitFor(() => {
+          const fileTrigger = screen.getByTestId('file-trigger');
+          expect(fileTrigger).toHaveFocus();
+          expect(screen.queryByTestId('file-menu')).to.equal(null);
+        });
 
-          await user.keyboard('{Enter}');
-          await waitFor(() => {
-            expect(screen.queryByTestId('file-menu')).not.to.equal(null);
-          });
+        await user.keyboard('{Enter}');
+        await waitFor(() => {
+          expect(screen.queryByTestId('file-menu')).not.to.equal(null);
         });
       });
+    });
 
     describe.skipIf(isJSDOM)('closeOnClick on nested items behavior', () => {
       afterEach(async () => {
