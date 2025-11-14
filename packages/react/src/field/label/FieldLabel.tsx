@@ -61,7 +61,6 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
           const target = getTarget(event.nativeEvent) as HTMLElement | null;
           if (
             labelableControlRef.current != null &&
-            labelableControlRef.current.tagName !== 'BUTTON' &&
             target !== labelableControlRef.current &&
             !contains(labelableControlRef.current, target)
           ) {

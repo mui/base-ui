@@ -257,29 +257,6 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).to.have.attribute('aria-checked', 'true');
     });
 
-    // doesn't work with span
-    it.skip('should toggle the checkbox when a linked label is clicked', async () => {
-      await render(
-        <div>
-          <label htmlFor="test-checkbox" data-testid="label">
-            Toggle
-          </label>
-          <Checkbox.Root id="test-checkbox" />
-        </div>,
-      );
-
-      const [checkbox] = screen.getAllByRole('checkbox');
-      const label = screen.getByTestId('label');
-
-      expect(checkbox).to.have.attribute('aria-checked', 'false');
-
-      await act(async () => {
-        label.click();
-      });
-
-      expect(checkbox).to.have.attribute('aria-checked', 'true');
-    });
-
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
         <Form>
@@ -717,28 +694,7 @@ describe('<Checkbox.Root />', () => {
       });
 
       describe('implicit association', () => {
-        it('native button', async () => {
-          await render(
-            <Field.Root>
-              <Field.Label data-testid="label">
-                <Checkbox.Root render={<button />} nativeButton />
-                OK
-              </Field.Label>
-            </Field.Root>,
-          );
-
-          const label = screen.getByTestId('label');
-          expect(label.getAttribute('for')).not.to.equal(null);
-
-          const checkbox = screen.getByRole('checkbox');
-          expect(label.getAttribute('for')).to.equal(checkbox.getAttribute('id'));
-
-          expect(checkbox).to.have.attribute('aria-checked', 'false');
-          fireEvent.click(screen.getByText('OK'));
-          expect(checkbox).to.have.attribute('aria-checked', 'true');
-        });
-
-        it('non-native button', async () => {
+        it('sets `for` and `id` attributes', async () => {
           await render(
             <Field.Root>
               <Field.Label data-testid="label">
@@ -797,5 +753,26 @@ describe('<Checkbox.Root />', () => {
     fireEvent.click(checkbox);
 
     expect(checkbox).to.have.attribute('aria-checked', 'false');
+  });
+
+  it('can render a native button', async () => {
+    const { container, user } = await render(<Checkbox.Root render={<button />} nativeButton />);
+
+    const checkbox = screen.getByRole('checkbox');
+    expect(checkbox).to.have.attribute('aria-checked', 'false');
+    // eslint-disable-next-line testing-library/no-container
+    expect(container.querySelector('button')).to.equal(checkbox);
+
+    await user.keyboard('[Tab]');
+    expect(checkbox).toHaveFocus();
+
+    await user.keyboard('[Enter]');
+    expect(checkbox).to.have.attribute('aria-checked', 'true');
+
+    await user.keyboard('[Space]');
+    expect(checkbox).to.have.attribute('aria-checked', 'false');
+
+    await user.click(checkbox);
+    expect(checkbox).to.have.attribute('aria-checked', 'true');
   });
 });
