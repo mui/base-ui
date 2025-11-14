@@ -4,32 +4,42 @@
     return;
   }
 
-  const list = indicator.closest('[role="tablist"]');
-  if (!list) {
+  const tabsList = indicator.closest('[role="tablist"]');
+  if (!tabsList) {
     return;
   }
 
-  const activeTab = list.querySelector('[data-active]');
+  const activeTab = tabsList.querySelector('[data-active]');
   if (!activeTab) {
     return;
   }
 
-  if (activeTab.offsetWidth === 0 || list.offsetWidth === 0) {
+  if (activeTab.offsetWidth === 0 || tabsList.offsetWidth === 0) {
     return;
   }
 
-  const direction = getComputedStyle(list).direction;
+  const direction = getComputedStyle(tabsList).direction;
+  let left = 0;
+  let right = 0;
+  let top = 0;
+  let bottom = 0;
+  let width = 0;
+  let height = 0;
 
-  const left = activeTab.offsetLeft - list.clientLeft;
-  const { width: rectWidth, height: rectHeight } = activeTab.getBoundingClientRect();
-  const width = Math.floor(rectWidth);
-  const height = Math.floor(rectHeight);
-  const right =
-    direction === 'ltr'
-      ? list.scrollWidth - activeTab.offsetLeft - width - list.clientLeft
-      : activeTab.offsetLeft - list.clientLeft;
-  const top = activeTab.offsetTop - list.clientTop;
-  const bottom = list.scrollHeight - activeTab.offsetTop - height - list.clientTop;
+  if (activeTab != null && tabsList != null) {
+    left = activeTab.offsetLeft;
+    top = activeTab.offsetTop;
+
+    const { width: computedWidth, height: computedHeight } = activeTab.getBoundingClientRect();
+    width = computedWidth;
+    height = computedHeight;
+
+    right =
+      direction === 'ltr'
+        ? tabsList.scrollWidth - activeTab.offsetLeft - width - tabsList.clientLeft
+        : activeTab.offsetLeft - tabsList.clientLeft;
+    bottom = tabsList.scrollHeight - activeTab.offsetTop - height - tabsList.clientTop;
+  }
 
   function setProp(name, value) {
     indicator.style.setProperty(`--active-tab-${name}`, `${value}px`);

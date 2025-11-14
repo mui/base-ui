@@ -9,8 +9,7 @@ import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
-
-const EMPTY_ARRAY: number[] = [];
+import { EMPTY_ARRAY } from '../../utils/constants';
 
 /**
  * Groups the individual tab buttons.
@@ -41,12 +40,12 @@ export const TabsList = React.forwardRef(function TabsList(
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
 
-  const tabsListRef = React.useRef<HTMLElement>(null);
+  const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
 
   const detectActivationDirection = useActivationDirectionDetector(
     value, // the old value
     orientation,
-    tabsListRef,
+    tabsListElement,
     getTabElementBySelectedValue,
   );
 
@@ -79,7 +78,7 @@ export const TabsList = React.forwardRef(function TabsList(
       highlightedTabIndex,
       onTabActivation,
       setHighlightedTabIndex,
-      tabsListRef,
+      tabsListElement,
       value,
     }),
     [
@@ -87,7 +86,7 @@ export const TabsList = React.forwardRef(function TabsList(
       highlightedTabIndex,
       onTabActivation,
       setHighlightedTabIndex,
-      tabsListRef,
+      tabsListElement,
       value,
     ],
   );
@@ -98,7 +97,7 @@ export const TabsList = React.forwardRef(function TabsList(
         render={render}
         className={className}
         state={state}
-        refs={[forwardedRef, tabsListRef]}
+        refs={[forwardedRef, setTabsListElement]}
         props={[defaultProps, elementProps]}
         stateAttributesMapping={tabsStateAttributesMapping}
         highlightedIndex={highlightedTabIndex}
@@ -107,7 +106,7 @@ export const TabsList = React.forwardRef(function TabsList(
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
-        disabledIndices={EMPTY_ARRAY}
+        disabledIndices={EMPTY_ARRAY as number[]}
       />
     </TabsListContext.Provider>
   );
@@ -127,27 +126,27 @@ function useActivationDirectionDetector(
   // the old value
   activeTabValue: any,
   orientation: TabsRoot.Orientation,
-  tabsListRef: React.RefObject<HTMLElement | null>,
+  tabsListElement: HTMLElement | null,
   getTabElement: (selectedValue: any) => HTMLElement | null,
 ): (newValue: any) => TabsTab.ActivationDirection {
-  const previousTabEdge = React.useRef<number | null>(null);
+  const [previousTabEdge, setPreviousTabEdge] = React.useState<number | null>(null);
 
   useIsoLayoutEffect(() => {
     // Whenever orientation changes, reset the state.
-    if (activeTabValue == null || tabsListRef.current == null) {
-      previousTabEdge.current = null;
+    if (activeTabValue == null || tabsListElement == null) {
+      setPreviousTabEdge(null);
       return;
     }
 
     const activeTab = getTabElement(activeTabValue);
     if (activeTab == null) {
-      previousTabEdge.current = null;
+      setPreviousTabEdge(null);
       return;
     }
 
-    const { left, top } = getInset(activeTab, tabsListRef.current);
-    previousTabEdge.current = orientation === 'horizontal' ? left : top;
-  }, [orientation, getTabElement, tabsListRef, activeTabValue]);
+    const { left, top } = getInset(activeTab, tabsListElement);
+    setPreviousTabEdge(orientation === 'horizontal' ? left : top);
+  }, [orientation, getTabElement, tabsListElement, activeTabValue]);
 
   return React.useCallback(
     (newValue: any) => {
@@ -156,35 +155,35 @@ function useActivationDirectionDetector(
       }
 
       if (newValue == null) {
-        previousTabEdge.current = null;
+        setPreviousTabEdge(null);
         return 'none';
       }
 
-      if (newValue != null && tabsListRef.current != null) {
+      if (newValue != null && tabsListElement != null) {
         const activeTabElement = getTabElement(newValue);
 
         if (activeTabElement != null) {
-          const { left, top } = getInset(activeTabElement, tabsListRef.current);
+          const { left, top } = getInset(activeTabElement, tabsListElement);
 
-          if (previousTabEdge.current == null) {
-            previousTabEdge.current = orientation === 'horizontal' ? left : top;
+          if (previousTabEdge == null) {
+            setPreviousTabEdge(orientation === 'horizontal' ? left : top);
             return 'none';
           }
 
           if (orientation === 'horizontal') {
-            if (left < previousTabEdge.current) {
-              previousTabEdge.current = left;
+            if (left < previousTabEdge) {
+              setPreviousTabEdge(left);
               return 'left';
             }
-            if (left > previousTabEdge.current) {
-              previousTabEdge.current = left;
+            if (left > previousTabEdge) {
+              setPreviousTabEdge(left);
               return 'right';
             }
-          } else if (top < previousTabEdge.current) {
-            previousTabEdge.current = top;
+          } else if (top < previousTabEdge) {
+            setPreviousTabEdge(top);
             return 'up';
-          } else if (top > previousTabEdge.current) {
-            previousTabEdge.current = top;
+          } else if (top > previousTabEdge) {
+            setPreviousTabEdge(top);
             return 'down';
           }
         }
@@ -192,7 +191,7 @@ function useActivationDirectionDetector(
 
       return 'none';
     },
-    [getTabElement, orientation, previousTabEdge, tabsListRef, activeTabValue],
+    [getTabElement, orientation, previousTabEdge, tabsListElement, activeTabValue],
   );
 }
 
