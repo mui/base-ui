@@ -69,15 +69,20 @@ const FORMATS: TemporalAdapterFormats = {
 
   // Digit formats without leading zeroes
   dayOfMonth: 'd',
+  hours24h: 'H',
+  hours12h: 'h',
 
   // Letter formats
+  month3Letters: 'MMM',
+  monthFullLetter: 'MMMM',
   weekday: 'EEEE',
   weekday3Letters: 'EEE',
+  weekday1Letter: 'EEEEE',
   meridiem: 'a',
 
   // Full formats
   localizedDateWithFullMonthAndWeekDay: 'PPPP',
-  fullMonthAndYear: 'MMMM yyyy',
+  localizedNumericDate: 'P', // Note: Day and month are padded on enUS unlike Luxon
 };
 
 declare module '@base-ui-components/react/types' {

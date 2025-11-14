@@ -42,15 +42,40 @@ export interface TemporalAdapterFormats {
    */
   dayOfMonth: string;
   /**
-   * The name of the day of the week.
+   * The hours without leading zeros, 24-hour clock.
+   * @example "1", "23"
+   */
+  hours24h: string;
+  /**
+   * The hours without leading zeros, 12-hour clock.
+   * @example "1", "11"
+   */
+  hours12h: string;
+  /**
+   * The abbreviated month name.
+   * @example "Aug"
+   */
+  month3Letters: string;
+  /**
+   * The full month name.
+   * @example "August"
+   */
+  monthFullLetter: string;
+  /**
+   * The week day name.
    * @example "Wednesday"
    */
   weekday: string;
   /**
-   * The abbreviated name of the day of the week.
+   * The abbreviated week day name.
    * @example "Wed"
    * */
   weekday3Letters: string;
+  /**
+   * The initial of the week day name.
+   * @example "W"
+   * */
+  weekday1Letter: string;
   /**
    * The meridiem.
    * @example "AM"
@@ -62,10 +87,10 @@ export interface TemporalAdapterFormats {
    */
   localizedDateWithFullMonthAndWeekDay: string;
   /**
-   * The non-localized month and year format.
-   * @example "August 2014"
+   * The localized numeric date format including year, month and day.
+   * @example "8/6/2014"
    */
-  fullMonthAndYear: string;
+  localizedNumericDate: string;
 }
 
 export type DateBuilderReturnType<T extends string | null> = [T] extends [null]

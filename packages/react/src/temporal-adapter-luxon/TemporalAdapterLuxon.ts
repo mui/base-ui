@@ -23,14 +23,20 @@ const FORMATS: TemporalAdapterFormats = {
 
   // Digit formats without leading zeroes
   dayOfMonth: 'd',
+  hours24h: 'H',
+  hours12h: 'h',
 
   // Letter formats
+  month3Letters: 'MMM',
+  monthFullLetter: 'MMMM',
   weekday: 'cccc',
   weekday3Letters: 'ccc',
+  weekday1Letter: 'ccccc',
   meridiem: 'a',
 
   // Full formats
   localizedDateWithFullMonthAndWeekDay: 'DDDD',
+  localizedNumericDate: 'D',
   fullMonthAndYear: 'MMMM yyyy',
 };
 

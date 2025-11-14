@@ -5,6 +5,7 @@ import { useStore } from '@base-ui-components/utils/store';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { formatMonthFullLetterAndYear } from '../../utils/temporal/date-helpers';
 import { useButton } from '../../use-button';
 import { TemporalSupportedObject } from '../../types/temporal';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
@@ -58,7 +59,11 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
     state,
     ref: [buttonRef, forwardedRef],
     props: [
-      { onClick: setTarget, tabIndex: 0, 'aria-label': adapter.format(target, 'fullMonthAndYear') },
+      {
+        onClick: setTarget,
+        tabIndex: 0,
+        'aria-label': formatMonthFullLetterAndYear(adapter, target),
+      },
       elementProps,
       getButtonProps,
     ],

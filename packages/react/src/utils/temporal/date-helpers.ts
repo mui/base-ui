@@ -90,3 +90,13 @@ export function isBeforeDay(
   const dateBWithCorrectTimezone = adapter.setTimezone(dateB, adapter.getTimezone(dateA));
   return adapter.isBefore(dateA, adapter.startOfDay(dateBWithCorrectTimezone));
 }
+
+export function formatMonthFullLetterAndYear(
+  adapter: TemporalAdapter,
+  date: TemporalSupportedObject,
+) {
+  const f = adapter.formats;
+  const dateFormat = `${f.monthFullLetter} ${f.yearPadded}`;
+
+  return adapter.formatByString(date, dateFormat);
+}

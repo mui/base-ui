@@ -9,6 +9,7 @@ import { useDateManager } from '../../utils/temporal/useDateManager';
 import { CalendarContext } from '../use-context/CalendarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
+import { formatMonthFullLetterAndYear } from '../../utils/temporal/date-helpers';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { selectors } from '../store';
@@ -114,7 +115,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
 
   // TODO: Improve localization support (right now it doesn't work well with RTL languages)
   const ariaLabel = React.useMemo(() => {
-    const formattedVisibleMonth = adapter.format(visibleMonth, 'fullMonthAndYear').toLowerCase();
+    const formattedVisibleMonth = formatMonthFullLetterAndYear(adapter, visibleMonth).toLowerCase();
     const prefix = ariaLabelProp ? `${ariaLabelProp}, ` : '';
 
     return `${prefix}${formattedVisibleMonth}`;
