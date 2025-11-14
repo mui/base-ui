@@ -73,8 +73,8 @@ _Nov 17, 2025_
 
 ### Context Menu
 
-- Add open state to trigger (#3195) by @atomiks
-- Fix ignored positioner anchor prop (#3202) by @atomiks
+- Add `open` state to `<ContextMenu.Trigger>` (#3195) by @atomiks
+- Fix ignored `anchor` prop on `<ContextMenu.Positioner>` (#3202) by @atomiks
 
 ### Dialog
 
