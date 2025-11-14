@@ -85,6 +85,9 @@ describe('<Menubar />', () => {
         await user.click(fileTrigger);
 
         await screen.findByTestId('file-menu');
+        await waitFor(() => {
+          expect(screen.getByRole('menubar')).to.have.attribute('data-has-submenu-open', 'true');
+        });
 
         // Now hover over the edit trigger, it should open because a submenu is already open
         const editTrigger = screen.queryByTestId('edit-trigger');
@@ -124,6 +127,9 @@ describe('<Menubar />', () => {
         await waitFor(() => {
           expect(screen.getByTestId('file-menu')).not.to.equal(null);
         });
+        await waitFor(() => {
+          expect(screen.getByRole('menubar')).to.have.attribute('data-has-submenu-open', 'true');
+        });
 
         // Now hover over the share submenu trigger
         const shareTrigger = await screen.findByTestId('share-trigger');
@@ -147,6 +153,9 @@ describe('<Menubar />', () => {
 
         await waitFor(() => {
           expect(screen.getByTestId('file-menu')).not.to.equal(null);
+        });
+        await waitFor(() => {
+          expect(screen.getByRole('menubar')).to.have.attribute('data-has-submenu-open', 'true');
         });
 
         // Now hover over the share submenu trigger
@@ -174,26 +183,24 @@ describe('<Menubar />', () => {
       });
     });
 
-    describe('focus behavior', () => {
-      it('focuses a menubar item without immediately opening the menu', async () => {
-        const { user } = await render(<TestMenubar />);
+      describe('focus behavior', () => {
+        it('focuses a menubar item without immediately opening the menu', async () => {
+          const { user } = await render(<TestMenubar />);
 
-        const fileTrigger = screen.getByTestId('file-trigger');
+          await user.tab();
 
-        // Focus the file trigger without clicking or pressing a key
-        await act(async () => {
-          fileTrigger.focus();
-        });
+          await waitFor(() => {
+            const fileTrigger = screen.getByTestId('file-trigger');
+            expect(fileTrigger).toHaveFocus();
+            expect(screen.queryByTestId('file-menu')).to.equal(null);
+          });
 
-        // Wait to ensure focus alone doesn't cause the menu to open
-        expect(screen.queryByTestId('file-menu')).to.equal(null);
-
-        await user.keyboard('{Enter}');
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.to.equal(null);
+          await user.keyboard('{Enter}');
+          await waitFor(() => {
+            expect(screen.queryByTestId('file-menu')).not.to.equal(null);
+          });
         });
       });
-    });
 
     describe.skipIf(isJSDOM)('closeOnClick on nested items behavior', () => {
       afterEach(async () => {
@@ -735,6 +742,9 @@ describe('<Menubar />', () => {
         await waitFor(() => {
           expect(screen.queryByTestId('file-menu')).not.to.equal(null);
         });
+        await waitFor(() => {
+          expect(screen.getByRole('menubar')).to.have.attribute('data-has-submenu-open', 'true');
+        });
 
         await user.hover(editTrigger);
 
@@ -747,11 +757,17 @@ describe('<Menubar />', () => {
         await waitFor(() => {
           expect(screen.queryByTestId('edit-menu')).to.equal(null);
         });
+        await waitFor(() => {
+          expect(screen.getByRole('menubar')).to.have.attribute('data-has-submenu-open', 'false');
+        });
 
         await user.click(fileTrigger);
 
         await waitFor(() => {
           expect(screen.queryByTestId('file-menu')).not.to.equal(null);
+        });
+        await waitFor(() => {
+          expect(screen.getByRole('menubar')).to.have.attribute('data-has-submenu-open', 'true');
         });
 
         await user.hover(editTrigger);
