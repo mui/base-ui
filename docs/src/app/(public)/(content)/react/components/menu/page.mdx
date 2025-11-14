@@ -133,43 +133,33 @@ Use the `render` prop to compose a menu item with an anchor element.
 
 ### Open a dialog
 
-In order to open a dialog using a menu, control the dialog state and open it imperatively using the `onClick` handler on the menu item.
+To open a dialog from a menu item, nest the `<Dialog.Root>` inside the `<Menu.Popup>` and compose the `<Dialog.Trigger>` with the `<Menu.Item>` using the `render` prop.
 
-```tsx {12-13,17-18,24-25,28-29} title="Connecting a dialog to a menu"
-import * as React from 'react';
+```tsx {8-18} {9}#strong title="Connecting a dialog to a menu"
 import { Dialog } from '@base-ui-components/react/dialog';
 import { Menu } from '@base-ui-components/react/menu';
 
-function ExampleMenu() {
-  const [dialogOpen, setDialogOpen] = React.useState(false);
+<Menu.Root>
+  <Menu.Trigger>Open menu</Menu.Trigger>
+  <Menu.Portal>
+    <Menu.Positioner>
+      <Menu.Popup>
+        <Menu.Item>Normal menu item</Menu.Item>
 
-  return (
-    <React.Fragment>
-      <Menu.Root>
-        <Menu.Trigger>Open menu</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              {/* Open the dialog when the menu item is clicked */}
-              <Menu.Item onClick={() => setDialogOpen(true)}>Open dialog</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>
-
-      {/* Control the dialog state */}
-      <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
-        <Dialog.Portal>
-          <Dialog.Backdrop />
-          <Dialog.Popup>
-            {/* prettier-ignore */}
-            {/* Rest of the dialog */}
-          </Dialog.Popup>
-        </Dialog.Portal>
-      </Dialog.Root>
-    </React.Fragment>
-  );
-}
+        <Dialog.Root>
+          <Menu.Item render={<Dialog.Trigger />}>Dialog trigger menu item</Menu.Item>
+          <Dialog.Portal>
+            <Dialog.Backdrop />
+            <Dialog.Popup>
+              {/* prettier-ignore */}
+              {/* Rest of the dialog */}
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      </Menu.Popup>
+    </Menu.Positioner>
+  </Menu.Portal>
+</Menu.Root>;
 ```
 
 ### Detached triggers
