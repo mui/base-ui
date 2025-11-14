@@ -88,14 +88,18 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const id = useBaseUiId(idProp);
 
-  const inputId = isGroupedWithParent && !parent ? `${parentContext.id}-${value}` : controlId;
+  const parentId = useBaseUiId();
+  let inputId = controlId;
+  if (isGroupedWithParent) {
+    inputId = parent ? parentId : `${parentContext.id}-${value}`;
+  }
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGroupedWithParent) {
     if (parent) {
       groupProps = groupContext.parent.getParentProps();
     } else if (value) {
-      groupProps = groupContext.parent.getChildProps(value, inputId ?? undefined);
+      groupProps = groupContext.parent.getChildProps(value);
     }
   }
 
@@ -135,16 +139,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       return undefined;
     }
 
-    const element = controlRef?.current;
-    if (!element || setControlId === NOOP) {
-      return undefined;
-    }
-
-    const implicit = element.closest('label') != null;
-
-    if ((groupContext && !parent) || (!groupContext && !implicit)) {
-      setControlId(inputId);
-    }
+    setControlId(inputId);
 
     return () => {
       setControlId(undefined);

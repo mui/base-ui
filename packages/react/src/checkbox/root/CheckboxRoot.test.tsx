@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Field } from '@base-ui-components/react/field';
@@ -682,21 +682,20 @@ describe('<Checkbox.Root />', () => {
           const label = screen.getByText('Label');
           expect(label.getAttribute('id')).not.to.equal(null);
 
-          const checkbox = screen.getByRole('checkbox');
-          // expect(label.getAttribute('for')).to.equal(checkbox.getAttribute('id'));
+          const input = document.querySelector('input[type="checkbox"]');
+          expect(label.getAttribute('for')).to.equal(input?.getAttribute('id'));
 
+          const checkbox = screen.getByRole('checkbox');
           expect(checkbox.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
           expect(checkbox).to.have.attribute('aria-checked', 'false');
 
           fireEvent.click(label);
-          await waitFor(() => {
-            expect(checkbox).to.have.attribute('aria-checked', 'true');
-          });
+          expect(checkbox).to.have.attribute('aria-checked', 'true');
         });
       });
 
       describe('implicit association', () => {
-        it('does not set `for` on the label', async () => {
+        it('sets `for` on the label', async () => {
           await render(
             <Field.Root>
               <Field.Label data-testid="label">
@@ -707,12 +706,15 @@ describe('<Checkbox.Root />', () => {
           );
 
           const label = screen.getByTestId('label');
-          expect(label.getAttribute('for')).to.equal(null);
-          expect(label.getAttribute('id')).to.not.equal(null);
+          const input = document.querySelector('input[type="checkbox"]');
+          expect(label.getAttribute('for')).to.not.equal(null);
+          expect(label.getAttribute('for')).to.equal(input?.getAttribute('id'));
 
           const checkbox = screen.getByRole('checkbox');
-          expect(checkbox).to.have.attribute('aria-checked', 'false');
+          expect(label.getAttribute('id')).to.not.equal(null);
+          expect(checkbox.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
 
+          expect(checkbox).to.have.attribute('aria-checked', 'false');
           fireEvent.click(screen.getByText('OK'));
           expect(checkbox).to.have.attribute('aria-checked', 'true');
         });
