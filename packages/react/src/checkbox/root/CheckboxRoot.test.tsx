@@ -21,11 +21,16 @@ describe('<Checkbox.Root />', () => {
   describe('ARIA attributes', () => {
     it('sets the correct aria attributes', async () => {
       const { setProps } = await render(<Checkbox.Root data-testid="test" required={false} />);
+      const checkbox = screen.getByRole('checkbox');
+      const input = document.querySelector('input[type="checkbox"');
 
-      expect(screen.getByRole('checkbox')).to.equal(screen.getByTestId('test'));
-      expect(screen.getByRole('checkbox')).to.have.attribute('aria-checked');
+      expect(checkbox).to.equal(screen.getByTestId('test'));
+      expect(checkbox).to.have.attribute('aria-checked');
+      expect(input).to.not.have.attribute('required');
       await setProps({ required: true });
-      expect(screen.getByRole('checkbox')).to.have.attribute('aria-required', 'true');
+      expect(input).to.have.attribute('required');
+      expect(checkbox).to.not.have.attribute('required');
+      expect(checkbox).to.not.have.attribute('aria-required');
     });
   });
 
