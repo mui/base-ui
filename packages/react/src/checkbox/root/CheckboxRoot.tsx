@@ -88,15 +88,14 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const id = useBaseUiId(idProp);
 
-  const checkboxId =
-    idProp ?? (isGroupedWithParent && !parent ? `${parentContext.id}-${value}` : controlId);
+  const inputId = isGroupedWithParent && !parent ? `${parentContext.id}-${value}` : controlId;
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGroupedWithParent) {
     if (parent) {
       groupProps = groupContext.parent.getParentProps();
     } else if (value) {
-      groupProps = groupContext.parent.getChildProps(value, checkboxId ?? undefined);
+      groupProps = groupContext.parent.getChildProps(value, inputId ?? undefined);
     }
   }
 
@@ -136,16 +135,21 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       return undefined;
     }
 
-    if (groupContext && !parent) {
-      setControlId(checkboxId);
-    } else {
-      setControlId(id);
+    const element = controlRef?.current;
+    if (!element || setControlId === NOOP) {
+      return undefined;
+    }
+
+    const implicit = element.closest('label') != null;
+
+    if ((groupContext && !parent) || (!groupContext && !implicit)) {
+      setControlId(inputId);
     }
 
     return () => {
       setControlId(undefined);
     };
-  }, [checkboxId, groupContext, id, idProp, isGroupedWithParent, setControlId, parent]);
+  }, [inputId, groupContext, setControlId, parent]);
 
   useField({
     enabled: !groupContext,
@@ -185,8 +189,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   });
 
-  const inputId = useBaseUiId();
-
   const inputProps = mergeProps<'input'>(
     {
       checked,
@@ -194,7 +196,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       // parent checkboxes unset `name` to be excluded from form submission
       name: parent ? undefined : name,
       // Set `id` to stop Chrome warning about an unassociated input
-      id: inputId,
+      id: inputId ?? undefined,
       required,
       ref: mergedInputRef,
       style: visuallyHidden,
@@ -276,7 +278,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ],
     props: [
       {
-        id: checkboxId ?? undefined,
+        id,
         role: 'checkbox',
         'aria-checked': groupIndeterminate ? 'mixed' : checked,
         'aria-readonly': readOnly || undefined,

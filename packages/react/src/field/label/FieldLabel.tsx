@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { getTarget } from '../../floating-ui-react/utils';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
@@ -31,13 +31,14 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   const labelRef = React.useRef<HTMLLabelElement>(null);
 
   useIsoLayoutEffect(() => {
-    if (controlId != null || idProp) {
+    if (id) {
       setLabelId(id);
     }
+
     return () => {
       setLabelId(undefined);
     };
-  }, [controlId, id, idProp, setLabelId]);
+  }, [id, labelableControlRef, setLabelId]);
 
   const element = useRenderElement('label', componentProps, {
     ref: [forwardedRef, labelRef],
@@ -55,16 +56,6 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
           // Prevent text selection when double clicking label.
           if (!event.defaultPrevented && event.detail > 1) {
             event.preventDefault();
-          }
-        },
-        onClick(event) {
-          const target = getTarget(event.nativeEvent) as HTMLElement | null;
-          if (
-            labelableControlRef.current != null &&
-            target !== labelableControlRef.current &&
-            !contains(labelableControlRef.current, target)
-          ) {
-            labelableControlRef.current?.click();
           }
         },
       },

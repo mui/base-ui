@@ -426,12 +426,16 @@ describe('<CheckboxGroup />', () => {
 
       const checkboxes = screen.getAllByRole('checkbox');
       const labels = screen.getAllByTestId('label');
+      const inputs = document.querySelectorAll('input[type="checkbox"]');
 
       checkboxes.forEach((checkbox, index) => {
         const label = labels[index];
+        const input = inputs[index];
 
         expect(label.getAttribute('for')).to.not.equal(null);
-        expect(label.getAttribute('for')).to.equal(checkbox.getAttribute('id'));
+        expect(label.getAttribute('for')).to.equal(input.getAttribute('id'));
+        expect(label.getAttribute('id')).to.not.equal(null);
+        expect(label.getAttribute('id')).to.equal(checkbox.getAttribute('aria-labelledby'));
       });
 
       fireEvent.click(labels[2]);
@@ -465,13 +469,17 @@ describe('<CheckboxGroup />', () => {
       const checkboxes = screen.getAllByRole('checkbox');
       const labels = screen.getAllByTestId('label');
       const descriptions = screen.getAllByTestId('description');
+      const inputs = document.querySelectorAll('input[type="checkbox"]');
 
       checkboxes.forEach((checkbox, index) => {
         const label = labels[index];
         const description = descriptions[index];
+        const input = inputs[index];
 
         expect(label.getAttribute('for')).to.not.equal(null);
-        expect(label.getAttribute('for')).to.equal(checkbox.getAttribute('id'));
+        expect(label.getAttribute('for')).to.equal(input.getAttribute('id'));
+        expect(label.getAttribute('id')).to.not.equal(null);
+        expect(label.getAttribute('id')).to.equal(checkbox.getAttribute('aria-labelledby'));
         expect(description.getAttribute('id')).to.not.equal(null);
         expect(description.getAttribute('id')).to.equal(checkbox.getAttribute('aria-describedby'));
       });
