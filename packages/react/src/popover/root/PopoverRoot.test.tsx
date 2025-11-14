@@ -8,6 +8,12 @@ import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
+async function wait(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 describe('<Popover.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -509,6 +515,7 @@ describe('<Popover.Root />', () => {
           const inputInside = screen.getByTestId('input-inside');
           await act(async () => inputInside.focus());
 
+          await wait(50);
           await user.tab({ shift: true });
 
           await waitFor(() => {
@@ -519,9 +526,8 @@ describe('<Popover.Root />', () => {
             expect(screen.queryByTestId('popup')).toBeVisible();
           });
 
-          await waitForNextAnimationFrame();
+          await wait(50);
           await user.keyboard('{Tab}');
-          await waitForNextAnimationFrame();
           await waitFor(() => {
             expect(screen.getByTestId('input-inside')).toHaveFocus();
           });
@@ -662,6 +668,7 @@ describe('<Popover.Root />', () => {
           const inputInside = screen.getByTestId('input-inside');
           await act(async () => inputInside.focus());
 
+          await wait(50);
           await user.tab({ shift: true });
 
           await waitFor(() => {
@@ -672,9 +679,9 @@ describe('<Popover.Root />', () => {
             expect(screen.queryByTestId('popup')).toBeVisible();
           });
 
-          await waitForNextAnimationFrame();
+          await wait(50);
           await user.keyboard('{Tab}');
-          await waitForNextAnimationFrame();
+
           await waitFor(() => {
             expect(screen.getByTestId('input-inside')).toHaveFocus();
           });

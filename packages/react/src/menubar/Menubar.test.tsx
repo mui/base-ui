@@ -8,6 +8,12 @@ import { Menubar } from '@base-ui-components/react/menubar';
 import { Menu } from '@base-ui-components/react/menu';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 
+async function wait(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 describe('<Menubar />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -131,6 +137,8 @@ describe('<Menubar />', () => {
           expect(screen.getByRole('menubar')).to.have.attribute('data-has-submenu-open', 'true');
         });
 
+        await wait(50);
+
         // Now hover over the share submenu trigger
         const shareTrigger = await screen.findByTestId('share-trigger');
         await user.hover(shareTrigger);
@@ -194,6 +202,8 @@ describe('<Menubar />', () => {
           expect(fileTrigger).toHaveFocus();
           expect(screen.queryByTestId('file-menu')).to.equal(null);
         });
+
+        await wait(50);
 
         await user.keyboard('{Enter}');
         await waitFor(() => {
