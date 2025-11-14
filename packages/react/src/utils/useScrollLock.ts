@@ -167,7 +167,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
   return () => {
     resizeFrame.cancel();
     cleanup();
-    if (win) {
+    if (win && win.removeEventListener) {
       win.removeEventListener('resize', handleResize);
     }
   };
