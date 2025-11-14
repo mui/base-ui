@@ -32,7 +32,7 @@ export const PARENT_CHECKBOX = 'data-parent';
 
 /**
  * Represents the checkbox itself.
- * Renders a `<button>` element and a hidden `<input>` beside.
+ * Renders a `<span>` element and a hidden `<input>` beside.
  *
  * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */
@@ -55,7 +55,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     render,
     required = false,
     value: valueProp,
-    nativeButton = true,
+    nativeButton = false,
     ...elementProps
   } = componentProps;
 
@@ -74,7 +74,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     validation: localValidation,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const { labelId, controlId, setControlId, getDescriptionProps } = useLabelableContext();
+  const { registerFieldItemControlRef, labelId, controlId, setControlId, getDescriptionProps } =
+    useLabelableContext();
 
   const groupContext = useCheckboxGroupContext();
   const parentContext = groupContext?.parent;
@@ -131,16 +132,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   // can't use useLabelableId because of optional groupContext and/or parent
   useIsoLayoutEffect(() => {
-    const element = controlRef?.current;
-    if (!element || setControlId === NOOP) {
+    if (setControlId === NOOP) {
       return undefined;
     }
 
-    const implicit = element.closest('label') != null;
-
-    if (implicit) {
-      setControlId(idProp ?? null);
-    } else if (groupContext && !parent) {
+    if (groupContext && !parent) {
       setControlId(checkboxId);
     } else {
       setControlId(id);
@@ -188,34 +184,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       validation.commit(checked, true);
     }
   });
-
-  function onFocus() {
-    setFocused(true);
-  }
-
-  function onBlur() {
-    const element = inputRef.current;
-    if (!element) {
-      return;
-    }
-
-    setTouched(true);
-    setFocused(false);
-
-    if (validationMode === 'onBlur') {
-      validation.commit(groupContext ? groupValue : element.checked);
-    }
-  }
-
-  function onClick(event: React.MouseEvent) {
-    if (event.defaultPrevented || readOnly) {
-      return;
-    }
-
-    event.preventDefault();
-
-    inputRef.current?.click();
-  }
 
   const inputId = useBaseUiId();
 
@@ -297,22 +265,59 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const stateAttributesMapping = useStateAttributesMapping(state);
 
-  const element = useRenderElement('button', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     state,
-    ref: [buttonRef, controlRef, forwardedRef, groupContext?.registerControlRef],
+    ref: [
+      buttonRef,
+      controlRef,
+      forwardedRef,
+      groupContext?.registerControlRef,
+      registerFieldItemControlRef,
+    ],
     props: [
       {
         id: checkboxId ?? undefined,
         role: 'checkbox',
-        disabled,
         'aria-checked': groupIndeterminate ? 'mixed' : checked,
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,
         'aria-labelledby': labelId,
         [PARENT_CHECKBOX as string]: parent ? '' : undefined,
-        onFocus,
-        onBlur,
-        onClick,
+        onFocus() {
+          setFocused(true);
+        },
+        onBlur() {
+          const inputEl = inputRef.current;
+          if (!inputEl) {
+            return;
+          }
+
+          setTouched(true);
+          setFocused(false);
+
+          if (validationMode === 'onBlur') {
+            validation.commit(groupContext ? groupValue : inputEl.checked);
+          }
+        },
+        onClick(event: React.MouseEvent) {
+          if (event.defaultPrevented || readOnly) {
+            return;
+          }
+
+          event.preventDefault();
+
+          inputRef.current?.click();
+        },
+
+        onKeyDown(event) {
+          if (nativeButton || event.defaultPrevented || readOnly || disabled) {
+            return;
+          }
+
+          if (event.key === 'Enter') {
+            inputRef?.current?.click();
+          }
+        },
       },
       getDescriptionProps,
       validation.getValidationProps,
@@ -359,7 +364,7 @@ export interface CheckboxRootState extends FieldRoot.State {
 
 export interface CheckboxRootProps
   extends NativeButtonProps,
-    Omit<BaseUIComponentProps<'button', CheckboxRoot.State>, 'onChange' | 'value'> {
+    Omit<BaseUIComponentProps<'span', CheckboxRoot.State>, 'onChange' | 'value'> {
   /**
    * The id of the input element.
    */

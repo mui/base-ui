@@ -249,7 +249,7 @@ export interface RadioRootState extends FieldRoot.State {
 }
 export interface RadioRootProps
   extends NativeButtonProps,
-    Omit<BaseUIComponentProps<'button', RadioRoot.State>, 'value'> {
+    Omit<BaseUIComponentProps<'span', RadioRoot.State>, 'value'> {
   /** The unique identifying value of the radio in a group. */
   value: any;
   /** Whether the component should ignore user interaction. */
