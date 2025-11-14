@@ -7,6 +7,15 @@
 
 **Nov 13, 2025**
 
+### All Components
+
+- **Breaking change:** Replace `trackAnchor` with `disableAnchorTracking`.<br />
+  If you were using `trackAnchor={false}`, be sure to update your usage to `disableAnchorTracking` instead.
+  ([#3188](https://github.com/mui/base-ui/pull/3188))
+- **Breaking change:** Rename `loop` to `loopFocus` ([#3186](https://github.com/mui/base-ui/pull/3186))
+- Fix type portability ([#2912](https://github.com/mui/base-ui/pull/2912))
+- Accept a function for the `style` prop ([#3038](https://github.com/mui/base-ui/pull/3038))
+
 ### Accordion
 
 - **Breaking change:** Change `multiple` prop to be false by default and add a demo ([#3141](https://github.com/mui/base-ui/pull/3141))
@@ -16,40 +25,27 @@
 
 - Fix `initialFocus` as function being called on close ([#2949](https://github.com/mui/base-ui/pull/2949))
 - Support detached triggers ([#2974](https://github.com/mui/base-ui/pull/2974))
-- Place `overflow: hidden` on `<body>` for overlay scrollbars ([#3083](https://github.com/mui/base-ui/pull/3083))
-
-### All Components
-
-- **Breaking change:** Replace `trackAnchor` with `disableAnchorTracking`.
-
-  If you were using `trackAnchor={false}`, be sure to update your usage to `disableAnchorTracking` instead.
-  ([#3188](https://github.com/mui/base-ui/pull/3188))
-
-- **Breaking change:** Rename `loop` to `loopFocus` ([#3186](https://github.com/mui/base-ui/pull/3186))
-- Fix type portability ([#2912](https://github.com/mui/base-ui/pull/2912))
-- Accepts `style` prop as function ([#3038](https://github.com/mui/base-ui/pull/3038))
+- Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. ([#3083](https://github.com/mui/base-ui/pull/3083))
 
 ### Autocomplete
 
-- **Breaking change:** Refactor `alwaysSubmitOnEnter` to `submitOnItemClick` prop.
-
+- **Breaking change:** Refactor `alwaysSubmitOnEnter` to `submitOnItemClick` prop.<br />
   If you were using `alwaysSubmitOnEnter`, be sure to update your usage to `submitOnItemClick` instead.
   ([#3018](https://github.com/mui/base-ui/pull/3018))
-
 - Prevent blocking filtering while composing text on Android ([#2944](https://github.com/mui/base-ui/pull/2944))
 - Add empty state to `List.State` ([#2934](https://github.com/mui/base-ui/pull/2934))
 - Fix `initialFocus` as function being called on close ([#2949](https://github.com/mui/base-ui/pull/2949))
-- Add `role="combobox"` to Trigger if Input is inside Popup ([#2973](https://github.com/mui/base-ui/pull/2973))
+- Add `role="combobox"` to `<Autocomplete.Trigger>` if `<Autocomplete.Input>` is inside Popup ([#2973](https://github.com/mui/base-ui/pull/2973))
 - Fix stale `onItemHighlighted` data when filtering with `autoHighlight` ([#2829](https://github.com/mui/base-ui/pull/2829))
-- Add empty and side styling attributes on `Input` ([#2926](https://github.com/mui/base-ui/pull/2926))
-- Fix Value component return type for React 17 ([#3050](https://github.com/mui/base-ui/pull/3050))
+- Add empty and side styling attributes on `<Autocomplete.Input>` ([#2926](https://github.com/mui/base-ui/pull/2926))
+- Fix `<Autocomplete.Value>` component return type for React 17 ([#3050](https://github.com/mui/base-ui/pull/3050))
 - Support `autoHighlight: "always"`, and add `keepHighlight`, `highlightItemOnHover` props ([#2976](https://github.com/mui/base-ui/pull/2976))
 - Keep focus on input when pressing list element ([#3092](https://github.com/mui/base-ui/pull/3092))
-- Allow <kbd>Esc</kbd> to bubble if `Empty` is not used ([#2935](https://github.com/mui/base-ui/pull/2935))
+- Allow <kbd>Esc</kbd> to bubble if `<Autocomplete.Empty>` is not used ([#2935](https://github.com/mui/base-ui/pull/2935))
 
 ### Button
 
-- New `Button` component ([#2363](https://github.com/mui/base-ui/pull/2363))
+- New `<Button>` component ([#2363](https://github.com/mui/base-ui/pull/2363))
 
 ### Collapsible
 
@@ -65,21 +61,17 @@
 - Prevent blocking filtering while composing text on Android ([#2944](https://github.com/mui/base-ui/pull/2944))
 - Add empty state to `List.State` ([#2934](https://github.com/mui/base-ui/pull/2934))
 - Fix `initialFocus` as function being called on close ([#2949](https://github.com/mui/base-ui/pull/2949))
-- Add `role="combobox"` to Trigger if Input is inside Popup ([#2973](https://github.com/mui/base-ui/pull/2973))
+- Add `role="combobox"` to `<Combobox.Trigger>` if `<Combobox.Input>` is inside Popup ([#2973](https://github.com/mui/base-ui/pull/2973))
 - Fix Field control ref when input is inside popup ([#2971](https://github.com/mui/base-ui/pull/2971))
 - Fix stale `onItemHighlighted` data when filtering with `autoHighlight` ([#2829](https://github.com/mui/base-ui/pull/2829))
-- Add empty and side styling attributes on `Input` ([#2926](https://github.com/mui/base-ui/pull/2926))
-- Fix Value component return type for React 17 ([#3050](https://github.com/mui/base-ui/pull/3050))
+- Add empty and side styling attributes on `<Combobox.Input>` ([#2926](https://github.com/mui/base-ui/pull/2926))
+- Fix `<Combobox.Value>` component return type for React 17 ([#3050](https://github.com/mui/base-ui/pull/3050))
 - Fix input value derivation on `value` and `items` prop updates ([#3067](https://github.com/mui/base-ui/pull/3067))
 - Support `autoHighlight: "always"`, and add `keepHighlight`, `highlightItemOnHover` props ([#2976](https://github.com/mui/base-ui/pull/2976))
 - Keep focus on input when pressing list element ([#3092](https://github.com/mui/base-ui/pull/3092))
 - Fix support of dialog + combobox pattern ([#3049](https://github.com/mui/base-ui/pull/3049))
 - Support drag-to-select ([#3167](https://github.com/mui/base-ui/pull/3167))
-- Allow <kbd>Esc</kbd> to bubble if `Empty` is not used ([#2935](https://github.com/mui/base-ui/pull/2935))
-
-### Composite
-
-- Rollback `CompositeList` to use counter-based update ([#2880](https://github.com/mui/base-ui/pull/2880))
+- Allow <kbd>Esc</kbd> to bubble if `<Combobox.Empty>` is not used ([#2935](https://github.com/mui/base-ui/pull/2935))
 
 ### Context Menu
 
@@ -88,39 +80,29 @@
 
 ### Dialog
 
-- **Breaking change:** Replace `dismissible` with `disablePointerDismissal`.
-
-  If you were using `dismissible={false}`, be sure to replace it with `disablePointerDismissal`.
+- **Breaking change:** Add `onSubmit` validation mode and make it the default over `onBlur`.<br />
+  Fields that use non-`required` attribute validation no longer validate the control on blur. Instead, validation first occurs `onSubmit`, and afterwards revalidation occurs `onChange`.
   ([#3190](https://github.com/mui/base-ui/pull/3190))
-
 - Fix `initialFocus` as function being called on close ([#2949](https://github.com/mui/base-ui/pull/2949))
 - Support detached triggers ([#2974](https://github.com/mui/base-ui/pull/2974))
-- Place `overflow: hidden` on `<body>` for overlay scrollbars ([#3083](https://github.com/mui/base-ui/pull/3083))
+- Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. ([#3083](https://github.com/mui/base-ui/pull/3083))
 
 ### Field
 
-- **Breaking change:** Add `'onSubmit'` validation mode.
-
-  TODO: DESCRIBE THE BREAKING CHANGE.
+- **Breaking change:** Add `onSubmit` validation mode and make it the default over `onBlur`.<br />
+  Fields that use non-`required` attribute validation no longer validate the control on blur. Instead, validation first occurs `onSubmit`, and afterwards revalidation occurs `onChange`.
   ([#3013](https://github.com/mui/base-ui/pull/3013))
-
 - Add `dirty` and `touched` props ([#2950](https://github.com/mui/base-ui/pull/2950))
-- New `Field.Item` part ([#2810](https://github.com/mui/base-ui/pull/2810))
+- New `<Field.Item>` part ([#2810](https://github.com/mui/base-ui/pull/2810))
 - Fix `validationMode="onChange"` not clearing custom error state ([#3048](https://github.com/mui/base-ui/pull/3048))
 - Fix external `onChange` validation mode errors ([#3137](https://github.com/mui/base-ui/pull/3137))
 
 ### Form
 
-- **Breaking change:** Add `'onSubmit'` validation mode.
-
-  TODO: DESCRIBE THE BREAKING CHANGE.
-  ([#3013](https://github.com/mui/base-ui/pull/3013))
-
-- **Breaking change:** Drop `onClearErrors` prop and always clear `errors` on change.
-
-  TODO: DESCRIBE THE BREAKING CHANGE.
+- Add `onSubmit` validation mode ([#3013](https://github.com/mui/base-ui/pull/3013))
+- **Breaking change:** Drop `onClearErrors` prop.<br />
+  Errors from the `errors` prop are always cleared when the value changes.
   ([#3136](https://github.com/mui/base-ui/pull/3136))
-
 - Add `onFormSubmit` callback ([#3131](https://github.com/mui/base-ui/pull/3131))
 
 ### Menu
@@ -132,11 +114,7 @@
 
 - Ignore disabled item on initial focusing ([#2604](https://github.com/mui/base-ui/pull/2604))
 - Fix stealing focus from dialogs on close ([#2920](https://github.com/mui/base-ui/pull/2920))
-- Place `overflow: hidden` on `<body>` for overlay scrollbars ([#3083](https://github.com/mui/base-ui/pull/3083))
-
-### Menubar
-
-- Mark disabled in Menubar Context as required ([#2924](https://github.com/mui/base-ui/pull/2924))
+- Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. ([#3083](https://github.com/mui/base-ui/pull/3083))
 
 ### Navigation Menu
 
@@ -157,7 +135,7 @@
 - Fix `initialFocus` as function being called on close ([#2949](https://github.com/mui/base-ui/pull/2949))
 - Fix swiping or scrolling on nested popup dismissing popover on touch ([#3011](https://github.com/mui/base-ui/pull/3011))
 - Update the handle API ([#3065](https://github.com/mui/base-ui/pull/3065))
-- Place `overflow: hidden` on `<body>` for overlay scrollbars ([#3083](https://github.com/mui/base-ui/pull/3083))
+- Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. ([#3083](https://github.com/mui/base-ui/pull/3083))
 
 ### Portal
 
@@ -165,55 +143,46 @@
 
 ### Preview Card
 
-- **Breaking change:** Move delay props to trigger.
-
-  If you were using `delay` or `closeDelay` props, be sure to move them to from `Root` to the `Trigger` component.
+- **Breaking change:** Move delay props to trigger.<br />
+  If you were using `delay` or `closeDelay` props, be sure to move them to from `<PreviewCard.Root>` to the `<PreviewCard.Trigger>` component.
   ([#3182](https://github.com/mui/base-ui/pull/3182))
 
 ### Scroll Area
 
-- **Breaking change:** Improve CSS vars performance.
-
+- **Breaking change:** Improve CSS vars performance.<br />
   The CSS variables are now on the `<ScrollArea.Viewport>` part, not `<ScrollArea.Root>`, which is where they'll typically be used to reduce how many inherit CSS properties need to be specified (e.g. on pseudo-elements), and as stated, children no longer inherit the variables.
   ([#3156](https://github.com/mui/base-ui/pull/3156))
 
 ### Select
 
-- **Breaking change:** Make the trigger native button by default.
-
+- **Breaking change:** Make the trigger native button by default.<br />
   The trigger will now render a `<button>` element, be sure to adjust your code if necessary.
   ([#3177](https://github.com/mui/base-ui/pull/3177))
-
 - Add `open` state type on `Select.Icon` interface ([#2919](https://github.com/mui/base-ui/pull/2919))
 - Fix `onValueChange` type inference when `value` is unspecified ([#2897](https://github.com/mui/base-ui/pull/2897))
 - Fix `required` form submission with multiple values ([#2925](https://github.com/mui/base-ui/pull/2925))
 - Avoid re-rendering on popup height expansion ([#2972](https://github.com/mui/base-ui/pull/2972))
-- Place `overflow: hidden` on `<body>` for overlay scrollbars ([#3083](https://github.com/mui/base-ui/pull/3083))
+- Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. ([#3083](https://github.com/mui/base-ui/pull/3083))
 - Add `data-placeholder` attribute ([#2737](https://github.com/mui/base-ui/pull/2737))
 
 ### Slider
 
-- **Breaking change:** Add `thumbCollisionBehavior` prop.
-
-  When using multiple thumbs, moving them with mouse will now push the other thumbs to avoid collisions.
-  If you prefer different behavior, check which `thumbCollisionBehavior` prop value best suits your use case.
+- **Breaking change:** Add `thumbCollisionBehavior` prop.<br />
+  When multiple thumbs overlap, moving them with mouse will now push the other thumbs to avoid collisions.
+  Other prop options include `swap` and `none` (the current behavior).
   ([#2856](https://github.com/mui/base-ui/pull/2856))
-
 - Granular change reasons ([#3132](https://github.com/mui/base-ui/pull/3132))
 
 ### Tabs
 
-- **Breaking change:** Fix selected/active state naming consistency.
-  - Renamed `[data-selected]` to `[data-active]` in `Tabs.Tab`
+- **Breaking change:** Fix selected/active state naming consistency.<br />
+  - Renamed `[data-selected]` to `[data-active]` in `<Tabs.Tab>`
   - Removed `[data-highlighted]` (`:focus-visible` was already the recommendation in styles)
   - `selectedTabPosition`/`selectedTabSize` are now `activeTabPosition`/`activeTabSize` in `Tabs.Indicator.State`
     ([#3024](https://github.com/mui/base-ui/pull/3024))
-
-- **Breaking change:** Change `activateOnFocus` to false.
-
-  If you need your Tabs to active on focus, be sure to add `activateOnFocus` prop.
+- **Breaking change:** Change `activateOnFocus` to false.<br />
+  If you need your Tabs to activate on focus, be sure to add `activateOnFocus` prop.
   ([#3176](https://github.com/mui/base-ui/pull/3176))
-
 - Fix Next.js 16 error from `Math.random` id generation ([#3051](https://github.com/mui/base-ui/pull/3051))
 
 ### Toast
