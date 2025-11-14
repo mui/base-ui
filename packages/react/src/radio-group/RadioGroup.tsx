@@ -35,7 +35,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    'aria-labelledby': ariaLabelledbyProp,
     render,
     className,
     disabled: disabledProp,
@@ -163,7 +162,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       disabled,
       readOnly,
       required,
-      'aria-labelledby': ariaLabelledbyProp ?? fieldsetContext?.legendId,
+      'aria-labelledby': elementProps['aria-labelledby'] ?? fieldsetContext?.legendId,
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHidden,
