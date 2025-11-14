@@ -74,7 +74,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     validation: localValidation,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const { registerFieldItemControlRef, labelId, controlId, setControlId, getDescriptionProps } =
+  const { registerLabelableControlRef, labelId, controlId, setControlId, getDescriptionProps } =
     useLabelableContext();
 
   const groupContext = useCheckboxGroupContext();
@@ -272,7 +272,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       controlRef,
       forwardedRef,
       groupContext?.registerControlRef,
-      registerFieldItemControlRef,
+      registerLabelableControlRef,
     ],
     props: [
       {
