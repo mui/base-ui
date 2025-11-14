@@ -99,6 +99,7 @@ function StickersRadioGroup() {
           </Radio.Root>
           Animate on interaction
           <Field.Description
+            aria-hidden // don't re-read
             className={styles.Description}
             render={<span />}
             style={{ gridColumn: '2/3' }}
