@@ -61,7 +61,7 @@
     "@babel/plugin-transform-react-constant-elements": "^7.27.1",
     "@base-ui-components/monorepo-tests": "workspace:*",
     "@mui/internal-netlify-cache": "^0.0.2-canary.1",
-    "@mui/internal-code-infra": "^0.0.3-canary.48",
+    "@mui/internal-code-infra": "^0.0.3-canary.49",
     "@mui/internal-test-utils": "^2.0.15",
     "@next/eslint-plugin-next": "15.5.6",
     "@octokit/rest": "^22.0.1",
