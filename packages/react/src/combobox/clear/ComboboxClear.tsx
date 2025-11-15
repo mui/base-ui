@@ -91,7 +91,6 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
     props: [
       {
         tabIndex: -1,
-        hidden: !mounted,
         children: 'x',
         disabled,
         'aria-readonly': readOnly || undefined,
