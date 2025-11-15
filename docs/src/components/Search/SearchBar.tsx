@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useRouter } from 'next/navigation';
 import { create, insertMultiple, search as performSearch } from '@orama/orama';
 import { stemmer, language } from '@orama/stemmers/english';
 import { stopwords as englishStopwords } from '@orama/stopwords/english';
@@ -26,6 +27,7 @@ export function SearchBar({
   sitemap: () => Promise<{ sitemap?: { schema: {}; data: {} } }>;
   enableKeyboardShortcut?: boolean;
 }) {
+  const router = useRouter();
   const [index, setIndex] = React.useState<any>(null);
   const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -262,12 +264,15 @@ export function SearchBar({
     [index],
   );
 
-  const handleItemClick = React.useCallback((result: SearchResult) => {
-    const url = `${result.prefix}${result.slug}`;
-    setDialogOpen(false);
-    setMounted(false);
-    window.location.href = url;
-  }, []);
+  const handleItemClick = React.useCallback(
+    (result: SearchResult) => {
+      const url = `${result.prefix}${result.slug}`;
+      setDialogOpen(false);
+      setMounted(false);
+      router.push(url);
+    },
+    [router],
+  );
 
   return (
     <React.Fragment>
