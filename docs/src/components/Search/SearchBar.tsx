@@ -1,9 +1,13 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { create, insertMultiple, search as performSearch } from '@orama/orama';
 import { stemmer, language } from '@orama/stemmers/english';
 import { stopwords as englishStopwords } from '@orama/stopwords/english';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
+import { Dialog } from '@base-ui-components/react/dialog';
+import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import './SearchBar.css';
 
 interface SearchResult {
   id: string;
@@ -17,12 +21,18 @@ interface SearchResult {
 
 export function SearchBar({
   sitemap: sitemapImport,
+  enableKeyboardShortcut = false,
 }: {
   sitemap: () => Promise<{ sitemap?: { schema: {}; data: {} } }>;
+  enableKeyboardShortcut?: boolean;
 }) {
   const [index, setIndex] = React.useState<any>(null);
   const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const popupRef = React.useRef<HTMLDivElement>(null);
+  const openingRef = React.useRef(false);
 
   React.useEffect(() => {
     sitemapImport().then(({ sitemap }) => {
@@ -139,17 +149,79 @@ export function SearchBar({
     });
   }, [sitemapImport]);
 
+  const handleOpenDialog = React.useCallback(() => {
+    // Prevent double-opening across all instances
+    if (openingRef.current) {
+      return;
+    }
+    openingRef.current = true;
+
+    if ('startViewTransition' in document) {
+      (document as any).startViewTransition(() => {
+        ReactDOM.flushSync(() => {
+          setMounted(true);
+          setDialogOpen(true);
+        });
+      });
+    } else {
+      setMounted(true);
+      setDialogOpen(true);
+    }
+
+    // Reset after a short delay
+    setTimeout(() => {
+      openingRef.current = false;
+    }, 100);
+  }, []);
+
+  const handleCloseDialog = React.useCallback((open: boolean) => {
+    if (!open) {
+      if ('startViewTransition' in document) {
+        const transition = (document as any).startViewTransition(() => {
+          ReactDOM.flushSync(() => {
+            setDialogOpen(false);
+          });
+        });
+        // Wait for the transition to finish before unmounting
+        transition.finished
+          .then(() => {
+            setMounted(false);
+          })
+          .catch(() => {
+            // Ignore errors from canceled transitions, but still unmount
+            setMounted(false);
+          });
+      } else {
+        setDialogOpen(false);
+        setMounted(false);
+      }
+    } else {
+      setMounted(true);
+      setDialogOpen(true);
+    }
+  }, []);
+
   React.useEffect(() => {
+    // Only enable keyboard shortcut if explicitly requested (for desktop version)
+    if (!enableKeyboardShortcut) {
+      return undefined;
+    }
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
         event.preventDefault();
-        inputRef.current?.focus();
+        event.stopPropagation();
+
+        // Only open if not already open/mounted/opening
+        if (!dialogOpen && !mounted && !openingRef.current) {
+          handleOpenDialog();
+        }
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [handleOpenDialog, enableKeyboardShortcut, dialogOpen, mounted]);
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
@@ -192,60 +264,106 @@ export function SearchBar({
 
   const handleItemClick = React.useCallback((result: SearchResult) => {
     const url = `${result.prefix}${result.slug}`;
+    setDialogOpen(false);
+    setMounted(false);
     window.location.href = url;
   }, []);
 
   return (
-    <Autocomplete.Root
-      items={searchResults}
-      onValueChange={handleValueChange}
-      itemToStringValue={(item) => (item ? item.title : '')}
-      filter={null}
-      autoHighlight
-    >
-      <label className="sr-only">Search documentation</label>
-      <div className="relative">
-        <Autocomplete.Input
-          ref={inputRef}
-          placeholder="Search"
-          className="h-7 w-full max-w-70 rounded-md border border-gray-200 bg-[canvas] pl-3 pr-3 text-sm font-normal text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 lg:pr-16"
-        />
+    <React.Fragment>
+      <button
+        type="button"
+        onClick={handleOpenDialog}
+        className={`search-button relative h-7 w-52 rounded-md border border-gray-200 bg-gray-50 pl-3 pr-3 text-left text-sm font-normal text-gray-900 hover:bg-gray-100 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 lg:pr-16 ${dialogOpen ? 'search-button-hidden' : ''}`}
+      >
+        <span className="text-gray-600">Search...</span>
         <div className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 gap-1 rounded border border-gray-300 bg-gray-50 px-1.5 lg:flex">
           <kbd className="text-xs text-gray-600">⌘</kbd>
           <kbd className="text-xs text-gray-600">K</kbd>
         </div>
-      </div>
+      </button>
 
-      <Autocomplete.Portal>
-        <Autocomplete.Positioner className="outline-none" sideOffset={4}>
-          <Autocomplete.Popup className="max-h-[min(var(--available-height),23rem)] w-[var(--anchor-width)] max-w-[var(--available-width)] overflow-y-auto overscroll-contain scroll-pb-2 scroll-pt-2 rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:-outline-offset-1 dark:shadow-none dark:outline-gray-300">
-            <Autocomplete.Empty className="empty:m-0 empty:p-0 px-4 py-2 text-[0.925rem] leading-4 text-gray-600">
-              No results found.
-            </Autocomplete.Empty>
-            <Autocomplete.List>
-              {(result: SearchResult) => (
-                <Autocomplete.Item
-                  key={result.id}
-                  value={result}
-                  onClick={() => handleItemClick(result)}
-                  className="flex cursor-default select-none flex-col gap-1 py-2 pl-4 pr-8 text-base leading-4 outline-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded data-[highlighted]:before:bg-gray-900"
-                >
-                  <div className="flex items-baseline justify-between gap-2">
-                    <strong className="font-semibold">{result.title}</strong>
-                    <span className="text-xs opacity-70">{result.score.toFixed(2)}</span>
-                  </div>
-                  <div className="text-sm opacity-70">
-                    {result.section} → {result.slug}
-                  </div>
-                  {result.description && (
-                    <div className="mt-0.5 text-sm opacity-80">{result.description}</div>
-                  )}
-                </Autocomplete.Item>
-              )}
-            </Autocomplete.List>
-          </Autocomplete.Popup>
-        </Autocomplete.Positioner>
-      </Autocomplete.Portal>
-    </Autocomplete.Root>
+      {mounted && (
+        <Dialog.Root open={dialogOpen} onOpenChange={handleCloseDialog}>
+          <Dialog.Portal>
+            <Dialog.Backdrop className="fixed inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/5%)_0,rgb(0_0_0/10%)_50%)] opacity-100 transition-[backdrop-filter,opacity] duration-600 ease-out-fast backdrop-blur-[1.5px] data-starting-style:backdrop-blur-0 data-starting-style:opacity-0 data-ending-style:backdrop-blur-0 data-ending-style:opacity-0 data-ending-style:duration-350 data-ending-style:ease-in-slow dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
+            <Dialog.Viewport className="group/dialog fixed inset-0">
+              <ScrollArea.Root
+                style={{ position: undefined }}
+                className="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none"
+              >
+                <ScrollArea.Viewport className="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none">
+                  <ScrollArea.Content className="flex min-h-full items-start justify-center">
+                    <Dialog.Popup
+                      ref={popupRef}
+                      initialFocus={inputRef}
+                      data-open={dialogOpen}
+                      className="search-dialog-popup outline-0 relative mx-auto my-18 w-[min(40rem,calc(100vw-2rem))] rounded-lg bg-gray-50 p-0 text-gray-900 shadow-[0_10px_64px_-10px_rgba(36,40,52,0.2),0_0.25px_0_1px_rgba(229,231,235,1)] transition-[transform,scale,opacity] duration-300 ease-out-fast data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:duration-250 data-ending-style:ease-in-slow dark:outline-1 dark:outline-gray-300 motion-reduce:transition-none"
+                    >
+                      <Autocomplete.Root
+                        items={searchResults}
+                        onValueChange={handleValueChange}
+                        itemToStringValue={(item) => (item ? item.title : '')}
+                        filter={null}
+                        autoHighlight
+                      >
+                        <div className="border-b border-gray-200 px-4 py-3">
+                          <label htmlFor="search-input" className="sr-only">
+                            Search...
+                          </label>
+                          <Autocomplete.Input
+                            id="search-input"
+                            ref={inputRef}
+                            placeholder="Search..."
+                            className="w-full border-0 bg-transparent text-base text-gray-900 placeholder:text-gray-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="py-2">
+                          {searchResults.length === 0 ? (
+                            <div className="px-4 py-6 text-center text-sm text-gray-600">
+                              No results found.
+                            </div>
+                          ) : (
+                            <Autocomplete.List>
+                              {(result: SearchResult) => (
+                                <Autocomplete.Item
+                                  key={result.id}
+                                  value={result}
+                                  onClick={() => handleItemClick(result)}
+                                  className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100 data-highlighted:bg-gray-900 data-highlighted:text-gray-50"
+                                >
+                                  <div className="flex items-baseline justify-between gap-2">
+                                    <strong className="font-semibold">{result.title}</strong>
+                                    <span className="text-xs opacity-70">
+                                      {result.score.toFixed(2)}
+                                    </span>
+                                  </div>
+                                  <div className="text-sm opacity-70">
+                                    {result.section} → {result.slug}
+                                  </div>
+                                  {result.description && (
+                                    <div className="mt-0.5 text-sm opacity-80">
+                                      {result.description}
+                                    </div>
+                                  )}
+                                </Autocomplete.Item>
+                              )}
+                            </Autocomplete.List>
+                          )}
+                        </div>
+                      </Autocomplete.Root>
+                    </Dialog.Popup>
+                  </ScrollArea.Content>
+                </ScrollArea.Viewport>
+                <ScrollArea.Scrollbar className="pointer-events-none absolute m-[0.4rem] flex w-1 justify-center rounded-2xl opacity-0 transition-opacity duration-250 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75 data-scrolling:delay-0 hover:pointer-events-auto hover:opacity-100 hover:duration-75 hover:delay-0 md:w-1.75 group-data-ending-style/dialog:opacity-0 group-data-ending-style/dialog:duration-300">
+                  <ScrollArea.Thumb className="w-full rounded-[inherit] bg-gray-500 before:absolute before:content-[''] before:top-1/2 before:left-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2" />
+                </ScrollArea.Scrollbar>
+              </ScrollArea.Root>
+            </Dialog.Viewport>
+          </Dialog.Portal>
+        </Dialog.Root>
+      )}
+    </React.Fragment>
   );
 }
