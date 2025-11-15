@@ -20,7 +20,7 @@ import { useFloatingRootContext } from './useFloatingRootContext';
 export function useFloating<RT extends ReferenceType = ReferenceType>(
   options: UseFloatingOptions = {},
 ): UseFloatingReturn<RT> {
-  const { nodeId } = options;
+  const { nodeId, externalTree } = options;
 
   const internalRootContext = useFloatingRootContext({
     ...options,
@@ -41,7 +41,7 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
   const domReference = (optionDomReference || domReferenceState) as NarrowedElement<RT>;
   const domReferenceRef = React.useRef<NarrowedElement<RT> | null>(null);
 
-  const tree = useFloatingTree();
+  const tree = useFloatingTree(externalTree);
 
   useIsoLayoutEffect(() => {
     if (domReference) {

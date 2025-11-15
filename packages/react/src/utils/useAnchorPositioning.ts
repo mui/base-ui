@@ -27,6 +27,7 @@ import {
 } from '../floating-ui-react/index';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
+import { FloatingTreeStore } from '../floating-ui-react/components/FloatingTree';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -126,6 +127,7 @@ export function useAnchorPositioning(
     nodeId,
     adaptiveOrigin,
     lazyFlip = false,
+    externalTree,
   } = params;
 
   const [mountSide, setMountSide] = React.useState<PhysicalSide | null>(null);
@@ -408,6 +410,7 @@ export function useAnchorPositioning(
       ? undefined
       : (...args) => autoUpdate(...args, autoUpdateOptions),
     nodeId,
+    externalTree,
   });
 
   const { sideX, sideY } = middlewareData.adaptiveOrigin || {};
@@ -664,6 +667,7 @@ export interface UseAnchorPositioningParameters extends useAnchorPositioning.Sha
   collisionAvoidance: CollisionAvoidance;
   shiftCrossAxis?: boolean;
   lazyFlip?: boolean;
+  externalTree?: FloatingTreeStore;
 }
 
 export interface UseAnchorPositioningReturnValue {

@@ -16,7 +16,6 @@ import {
   useInteractions,
   useListNavigation,
   useClick,
-  useTypeahead,
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
@@ -133,6 +132,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const emptyRef = React.useRef<HTMLDivElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
@@ -156,6 +156,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
+  const single = selectionMode === 'single';
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const hasItems = items !== undefined;
 
@@ -180,18 +181,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (filterProp !== undefined) {
       return filterProp;
     }
-    if (selectionMode === 'single' && !queryChangedAfterOpen) {
+    if (single && !queryChangedAfterOpen) {
       return createSingleSelectionCollatorFilter(collatorFilter, itemToStringLabel, selectedValue);
     }
     return createCollatorItemFilter(collatorFilter, itemToStringLabel);
-  }, [
-    filterProp,
-    selectionMode,
-    selectedValue,
-    queryChangedAfterOpen,
-    collatorFilter,
-    itemToStringLabel,
-  ]);
+  }, [filterProp, single, selectedValue, queryChangedAfterOpen, collatorFilter, itemToStringLabel]);
 
   // If neither inputValue nor defaultInputValue are provided, derive it from the
   // selected value for single mode so the input reflects the selection on mount.
@@ -200,7 +194,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (hasInputValue) {
         return defaultInputValueProp ?? '';
       }
-      if (selectionMode === 'single') {
+      if (single) {
         return stringifyAsLabel(selectedValue, itemToStringLabel);
       }
       return '';
@@ -221,8 +215,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     state: 'open',
   });
 
-  const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
   const isGrouped = isGroupedItems(items);
+  const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
+
+  const selectedLabelString = single ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
+
+  const shouldBypassFiltering =
+    single &&
+    !queryChangedAfterOpen &&
+    query !== '' &&
+    selectedLabelString !== '' &&
+    selectedLabelString.length === query.length &&
+    collatorFilter.contains(selectedLabelString, query);
+
+  const filterQuery = shouldBypassFiltering ? '' : query;
+  const shouldIgnoreExternalFiltering = filteredItemsProp !== undefined && shouldBypassFiltering;
 
   const flatItems: readonly any[] = React.useMemo(() => {
     if (!items) {
@@ -237,7 +244,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [items, isGrouped]);
 
   const filteredItems: Value[] | Group<Value>[] = React.useMemo(() => {
-    if (filteredItemsProp) {
+    if (filteredItemsProp && !shouldIgnoreExternalFiltering) {
       return filteredItemsProp as Value[] | Group<Value>[];
     }
 
@@ -256,9 +263,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         }
 
         const candidateItems =
-          query === ''
+          filterQuery === ''
             ? group.items
-            : group.items.filter((item) => filter(item, query, itemToStringLabel));
+            : group.items.filter((item) => filter(item, filterQuery, itemToStringLabel));
 
         if (candidateItems.length === 0) {
           continue;
@@ -277,7 +284,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return resultingGroups;
     }
 
-    if (query === '') {
+    if (filterQuery === '') {
       return limit > -1
         ? flatItems.slice(0, limit)
         : // The cast here is done as `flatItems` is readonly.
@@ -294,13 +301,23 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (limit > -1 && limitedItems.length >= limit) {
         break;
       }
-      if (filter(item, query, itemToStringLabel)) {
+      if (filter(item, filterQuery, itemToStringLabel)) {
         limitedItems.push(item);
       }
     }
 
     return limitedItems;
-  }, [filteredItemsProp, items, isGrouped, query, limit, filter, itemToStringLabel, flatItems]);
+  }, [
+    filteredItemsProp,
+    shouldIgnoreExternalFiltering,
+    items,
+    isGrouped,
+    filterQuery,
+    limit,
+    filter,
+    itemToStringLabel,
+    flatItems,
+  ]);
 
   const flatFilteredItems: Value[] = React.useMemo(() => {
     if (isGrouped) {
@@ -323,6 +340,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         listRef,
         labelsRef,
         popupRef,
+        emptyRef,
         inputRef,
         keyboardActiveRef,
         chipsContainerRef,
@@ -353,7 +371,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         popupProps: {},
         inputProps: {},
         triggerProps: {},
-        typeaheadTriggerProps: {},
         positionerElement: null,
         listElement: null,
         triggerElement: null,
@@ -492,6 +509,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
+      // If the `Empty` component is not used, the positioner or popup should be hidden
+      // with CSS. In this case, allow the Escape key to bubble to close a parent popup
+      // if there are no items to show.
+      if (
+        eventDetails.reason === 'escape-key' &&
+        hasItems &&
+        flatFilteredItems.length === 0 &&
+        !store.state.emptyRef.current
+      ) {
+        eventDetails.allowPropagation();
+      }
+
       props.onOpenChange?.(nextOpen, eventDetails);
 
       if (eventDetails.isCanceled) {
@@ -499,13 +528,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
 
       if (!nextOpen && queryChangedAfterOpen) {
-        if (selectionMode === 'single') {
+        if (single) {
           setCloseQuery(query);
           // Avoid a flicker when closing the popup with an empty query.
           if (query === '') {
             setQueryChangedAfterOpen(false);
           }
-        } else if (selectionMode === 'multiple') {
+        } else if (multiple) {
           if (inline || inputInsidePopup) {
             setIndices({ activeIndex: null });
           } else {
@@ -536,7 +565,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       const shouldFillInput =
         (selectionMode === 'none' && popupRef.current && fillInputOnItemPress) ||
-        (selectionMode === 'single' && !store.state.inputInsidePopup);
+        (single && !store.state.inputInsidePopup);
 
       if (shouldFillInput) {
         setInputValue(
@@ -546,7 +575,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
 
       if (
-        selectionMode === 'single' &&
+        single &&
         nextValue != null &&
         eventDetails.reason !== REASONS.inputChange &&
         queryChangedAfterOpen
@@ -638,7 +667,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // If the user typed a filter and didn't select in multiple mode, clear the input
     // after close completes to avoid mid-exit flicker and start fresh on next open.
     if (
-      selectionMode === 'multiple' &&
+      multiple &&
       inputRef.current &&
       inputRef.current.value !== '' &&
       !hadInputClearRef.current
@@ -649,7 +678,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // Single selection mode:
     // - If input is rendered inside the popup, clear it so the next open is blank
     // - If input is outside the popup, sync it to the selected value
-    if (selectionMode === 'single') {
+    if (single) {
       if (store.state.inputInsidePopup) {
         if (inputRef.current && inputRef.current.value !== '') {
           setInputValue('', createChangeEventDetails(REASONS.inputClear));
@@ -883,7 +912,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       validation.commit(selectedValue, true);
     }
 
-    if (selectionMode === 'single' && !hasInputValue && !inputInsidePopup) {
+    if (
+      multiple &&
+      store.state.selectedIndex !== null &&
+      (!Array.isArray(selectedValue) || selectedValue.length === 0)
+    ) {
+      setIndices({ activeIndex: null, selectedIndex: null });
+    }
+
+    if (single && !hasInputValue && !inputInsidePopup) {
       const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
 
       if (inputValue !== nextInputValue) {
@@ -908,7 +945,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   useValueChanged(items, () => {
-    if (selectionMode !== 'single' || hasInputValue || inputInsidePopup) {
+    if (!single || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
       return;
     }
 
@@ -999,7 +1036,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     activeIndex,
     selectedIndex,
     virtual: true,
-    loop: true,
+    loopFocus: true,
     allowEscape: !autoHighlightMode,
     focusItemOnOpen:
       queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
@@ -1034,19 +1071,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
-  const { reference: typeaheadTriggerProps } = useTypeahead(floatingRootContext, {
-    enabled: !open && !readOnly && !disabled && selectionMode === 'single',
-    listRef: labelsRef,
-    activeIndex,
-    selectedIndex,
-    onMatch(index) {
-      const nextSelectedValue = valuesRef.current[index];
-      if (nextSelectedValue !== undefined) {
-        setSelectedValue(nextSelectedValue, createChangeEventDetails(REASONS.none));
-      }
-    },
-  });
-
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
     role,
     click,
@@ -1060,7 +1084,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
-      typeaheadTriggerProps,
       getItemProps,
       setOpen,
       setInputValue,
@@ -1085,7 +1108,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
-      typeaheadTriggerProps,
       openMethod,
       getItemProps,
       selectionMode,
@@ -1119,7 +1141,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     getItemProps,
     openMethod,
     triggerProps,
-    typeaheadTriggerProps,
     selectionMode,
     name,
     disabled,

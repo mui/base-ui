@@ -1,13 +1,15 @@
 .Container {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .ButtonGroup {
   display: flex;
 }
 
-.Button {
+.IconButton {
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -138,7 +140,7 @@
   }
 }
 
-.ProgrammaticButton {
+.Button {
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -150,15 +152,12 @@
   border: 1px solid var(--color-gray-200);
   border-radius: 0.375rem;
   background-color: var(--color-gray-50);
-  color: var(--color-gray-900);
+  font-family: inherit;
   font-size: 1rem;
   font-weight: 500;
+  line-height: 1.5rem;
+  color: var(--color-gray-900);
   user-select: none;
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
-  }
 
   @media (hover: hover) {
     &:hover {
@@ -168,5 +167,10 @@
 
   &:active {
     background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
   }
 }

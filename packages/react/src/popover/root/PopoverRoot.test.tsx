@@ -8,6 +8,12 @@ import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
+async function wait(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 describe('<Popover.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -509,13 +515,22 @@ describe('<Popover.Root />', () => {
           const inputInside = screen.getByTestId('input-inside');
           await act(async () => inputInside.focus());
 
+          await wait(50);
           await user.tab({ shift: true });
 
-          expect(screen.getByRole('button')).toHaveFocus();
-          expect(screen.queryByTestId('popup')).to.toBeVisible();
+          await waitFor(() => {
+            expect(screen.getByRole('button')).toHaveFocus();
+          });
 
-          await user.tab();
-          expect(screen.getByTestId('input-inside')).toHaveFocus();
+          await waitFor(() => {
+            expect(screen.queryByTestId('popup')).toBeVisible();
+          });
+
+          await wait(50);
+          await user.keyboard('{Tab}');
+          await waitFor(() => {
+            expect(screen.getByTestId('input-inside')).toHaveFocus();
+          });
         },
       );
     });
@@ -588,7 +603,9 @@ describe('<Popover.Root />', () => {
             expect(screen.queryByTestId('popup')).toBeVisible();
           });
 
-          await user.tab();
+          await waitForNextAnimationFrame();
+          await user.keyboard('{Tab}');
+          await waitForNextAnimationFrame();
           await waitFor(() => {
             expect(screen.getByTestId('input-inside')).toHaveFocus();
           });
@@ -651,14 +668,23 @@ describe('<Popover.Root />', () => {
           const inputInside = screen.getByTestId('input-inside');
           await act(async () => inputInside.focus());
 
+          await wait(50);
           await user.tab({ shift: true });
 
-          expect(screen.getByRole('button')).toHaveFocus();
+          await waitFor(() => {
+            expect(screen.getByRole('button')).toHaveFocus();
+          });
 
-          expect(screen.queryByTestId('popup')).to.toBeVisible();
+          await waitFor(() => {
+            expect(screen.queryByTestId('popup')).toBeVisible();
+          });
 
-          await user.tab();
-          expect(screen.getByTestId('input-inside')).toHaveFocus();
+          await wait(50);
+          await user.keyboard('{Tab}');
+
+          await waitFor(() => {
+            expect(screen.getByTestId('input-inside')).toHaveFocus();
+          });
         },
       );
     });
@@ -1762,3 +1788,13 @@ describe('<Popover.Root />', () => {
     );
   });
 });
+
+async function waitForNextAnimationFrame() {
+  await new Promise<void>((resolve) => {
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => resolve());
+    } else {
+      setTimeout(() => resolve(), 0);
+    }
+  });
+}

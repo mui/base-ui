@@ -28,6 +28,7 @@
     "@orama/stopwords": "^3.1.16",
     "@react-spring/web": "^10.0.3",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",
+    "@tanstack/react-form": "^1.23.8",
     "@tanstack/react-virtual": "^3.13.12",
     "@types/mdx": "^2.0.13",
     "clipboard-copy": "^4.0.1",

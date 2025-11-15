@@ -10,7 +10,7 @@ import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
 import remarkGfm from 'remark-gfm';
 import remarkTypography from 'remark-typography';
 import { rehypeQuickNav } from 'docs/src/components/QuickNav/rehypeQuickNav.mjs';
-import { rehypeChangelog } from 'docs/src/components/QuickNav/rehypeChangelog.mjs';
+import { rehypeConcatHeadings } from 'docs/src/components/QuickNav/rehypeConcatHeadings.mjs';
 import { rehypeKbd } from 'docs/src/components/Kbd/rehypeKbd.mjs';
 import { rehypeReference } from 'docs/src/components/ReferenceTable/rehypeReference.mjs';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting/index.mjs';
@@ -47,7 +47,7 @@ const withMdx = nextMdx({
       rehypeReference,
       ...rehypeSyntaxHighlighting,
       rehypeSlug,
-      rehypeChangelog,
+      rehypeConcatHeadings,
       rehypeExtractToc,
       rehypeQuickNav,
       rehypeSubtitle,

@@ -5,8 +5,10 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
+import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { REASONS } from '../../utils/reasons';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 
@@ -33,6 +35,9 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     allowMouseUpTriggerRef,
     rootId,
   } = useContextMenuRootContext(false);
+
+  const { store } = useMenuRootContext(false);
+  const open = store.useState('open');
 
   const triggerRef = React.useRef<HTMLDivElement | null>(null);
   const touchPositionRef = React.useRef<{ x: number; y: number } | null>(null);
@@ -156,7 +161,15 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     };
   }, [backdropRef, internalBackdropRef]);
 
+  const state: ContextMenuTrigger.State = React.useMemo(
+    () => ({
+      open,
+    }),
+    [open],
+  );
+
   const element = useRenderElement('div', componentProps, {
+    state,
     ref: [triggerRef, forwardedRef],
     props: [
       {
@@ -171,12 +184,18 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       },
       elementProps,
     ],
+    stateAttributesMapping: pressableTriggerOpenStateMapping,
   });
 
   return element;
 });
 
-export interface ContextMenuTriggerState {}
+export type ContextMenuTriggerState = {
+  /**
+   * Whether the context menu is currently open.
+   */
+  open: boolean;
+};
 
 export interface ContextMenuTriggerProps
   extends BaseUIComponentProps<'div', ContextMenuTrigger.State> {}

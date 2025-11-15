@@ -6,7 +6,11 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { contains, getDocument, getTarget, isMouseLikePointerType } from '../utils';
 
-import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
+import {
+  FloatingTreeStore,
+  useFloatingParentNodeId,
+  useFloatingTree,
+} from '../components/FloatingTree';
 import type {
   Delay,
   ElementProps,
@@ -114,6 +118,10 @@ export interface UseHoverProps {
    * This allows to have multiple triggers per floating element (assuming `useHover` is called per trigger).
    */
   triggerElement?: HTMLElement | null;
+  /**
+   * External FlatingTree to use when the one provided by context can't be used.
+   */
+  externalTree?: FloatingTreeStore;
 }
 
 /**
@@ -134,9 +142,10 @@ export function useHover(
     restMs = 0,
     move = true,
     triggerElement = null,
+    externalTree,
   } = props;
 
-  const tree = useFloatingTree();
+  const tree = useFloatingTree(externalTree);
   const parentId = useFloatingParentNodeId();
   const handleCloseRef = useValueAsRef(handleClose);
   const delayRef = useValueAsRef(delay);

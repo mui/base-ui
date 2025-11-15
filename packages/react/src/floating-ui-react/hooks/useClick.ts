@@ -119,13 +119,17 @@ export function useClick(
           return;
         }
 
+        // Capture the currentTarget before the rAF.
+        // as React sets it to null after the event handler completes.
+        const eventCurrentTarget = event.currentTarget as HTMLElement;
+
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
           const details = createChangeEventDetails(
             REASONS.triggerPress,
             nativeEvent,
-            event.currentTarget as HTMLElement,
+            eventCurrentTarget,
           );
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {

@@ -35,7 +35,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     disabled = false,
     hiddenUntilFound: hiddenUntilFoundProp,
     keepMounted: keepMountedProp,
-    loop = true,
+    loopFocus = true,
     onValueChange: onValueChangeProp,
     multiple = false,
     orientation = 'vertical',
@@ -122,7 +122,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
       handleValueChange,
       hiddenUntilFound: hiddenUntilFoundProp ?? false,
       keepMounted: keepMountedProp ?? false,
-      loop,
+      loopFocus,
       orientation,
       state,
       value,
@@ -133,7 +133,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
       handleValueChange,
       hiddenUntilFoundProp,
       keepMountedProp,
-      loop,
+      loopFocus,
       orientation,
       state,
       value,
@@ -208,7 +208,7 @@ export interface AccordionRootProps extends BaseUIComponentProps<'div', Accordio
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loop?: boolean;
+  loopFocus?: boolean;
   /**
    * Event handler called when an accordion item is expanded or collapsed.
    * Provides the new value as an argument.

@@ -19,6 +19,7 @@ const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
   onHighlightedIndexChange: NOOP,
   highlightItemOnHover: false,
+  relayKeyboardEvent: NOOP,
 };
 
 const testToolbarContext: ToolbarRootContext = {
@@ -390,7 +391,7 @@ describe('<Toolbar.Button />', () => {
         const { user } = await render(
           <Toolbar.Root>
             <Select.Root defaultValue="a" onValueChange={onValueChange} onOpenChange={onOpenChange}>
-              <Toolbar.Button disabled render={<Select.Trigger />} />
+              <Toolbar.Button disabled render={<Select.Trigger nativeButton={false} />} />
               <Select.Portal>
                 <Select.Positioner>
                   <Select.Popup>

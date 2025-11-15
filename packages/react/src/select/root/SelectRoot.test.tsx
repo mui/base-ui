@@ -936,7 +936,7 @@ describe('<Select.Root />', () => {
       );
 
       const trigger = screen.getByRole('combobox');
-      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('disabled');
       expect(trigger).to.have.attribute('data-disabled');
 
       await user.keyboard('[Tab]');
@@ -973,7 +973,7 @@ describe('<Select.Root />', () => {
       const { user } = await render(<App />);
 
       const trigger = screen.getByRole('combobox');
-      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('disabled');
       expect(trigger).to.have.attribute('data-disabled');
 
       await user.keyboard('[Tab]');
@@ -985,7 +985,7 @@ describe('<Select.Root />', () => {
 
       await user.click(screen.getByRole('button', { name: 'toggle' }));
 
-      expect(trigger).to.not.have.attribute('aria-disabled');
+      expect(trigger).to.not.have.attribute('disabled');
       expect(trigger).to.not.have.attribute('data-disabled');
 
       await user.keyboard('[Tab]');
@@ -1114,7 +1114,7 @@ describe('<Select.Root />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('disabled');
     });
 
     it('should receive name prop from Field.Root', async () => {
