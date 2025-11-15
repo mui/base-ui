@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { create, insertMultiple, search as performSearch } from '@orama/orama';
+import { stemmer, language } from '@orama/stemmers/english';
+import { stopwords as englishStopwords } from '@orama/stopwords/english';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 
 interface SearchResult {
@@ -29,16 +31,106 @@ export function SearchBar({
         return;
       }
 
-      const searchIndex = create({ schema: sitemap.schema });
+      const searchIndex = create({
+        schema: {
+          ...sitemap.schema,
+          keywords: 'string',
+          sections: 'string',
+          subsections: 'string',
+          parts: 'string',
+          props: 'string',
+          dataAttributes: 'string',
+          cssVariables: 'string',
+        },
+        components: {
+          tokenizer: {
+            stemming: true,
+            language,
+            stemmer,
+            stopWords: englishStopwords,
+          },
+        },
+      });
+
+      /**
+       * Recursively extracts all section titles from a HeadingHierarchy structure
+       * @param hierarchy The heading hierarchy object
+       * @returns Array of all section titles (flattened)
+       */
+      function extractSubsections(hierarchy: any): string[] {
+        const subsections: string[] = [];
+
+        for (const section of Object.values(hierarchy)) {
+          const { title, children } = section as any;
+          subsections.push(title);
+
+          if (children && Object.keys(children).length > 0) {
+            subsections.push(...extractSubsections(children));
+          }
+        }
+
+        return subsections;
+      }
 
       // Flatten the sitemap data structure to a single array of pages
       const pages = Object.entries(sitemap.data).flatMap(
         ([_sectionKey, sectionData]: [string, any]) => {
-          return (sectionData.pages || []).map((page: any) => ({
-            ...page,
-            section: sectionData.title,
-            prefix: sectionData.prefix,
-          }));
+          return (sectionData.pages || []).map((page: any) => {
+            // Extract top-level sections and all subsections
+            const sections: string[] = [];
+            const subsections: string[] = [];
+
+            if (page.sections) {
+              // Top-level sections are the direct children
+              sections.push(...Object.values(page.sections).map((s: any) => s.title));
+
+              // Subsections are all nested children (recursively)
+              for (const section of Object.values(page.sections)) {
+                const { children } = section as any;
+                if (children && Object.keys(children).length > 0) {
+                  subsections.push(...extractSubsections(children));
+                }
+              }
+            }
+
+            const flattened: Record<string, string> = {};
+            if (page.keywords?.length > 0) {
+              flattened.keywords = page.keywords.join(' ');
+            }
+
+            if (sections?.length > 0) {
+              flattened.sections = sections.join(' ');
+            }
+
+            if (subsections?.length > 0) {
+              flattened.subsections = subsections.join(' ');
+            }
+
+            if (page.parts?.length > 0) {
+              flattened.parts = page.parts.join(' ');
+            }
+
+            if (page.props?.length > 0) {
+              flattened.props = page.props.join(' ');
+            }
+
+            if (page.dataAttributes?.length > 0) {
+              flattened.dataAttributes = page.dataAttributes.join(' ');
+            }
+
+            if (page.cssVariables?.length > 0) {
+              flattened.cssVariables = page.cssVariables.join(' ');
+            }
+
+            return {
+              title: page.title,
+              slug: page.slug,
+              description: page.description,
+              section: sectionData.title,
+              prefix: sectionData.prefix,
+              ...flattened,
+            };
+          });
         },
       );
 
@@ -68,7 +160,20 @@ export function SearchBar({
 
       const results = await performSearch(index, {
         term: value,
-        properties: ['title', 'description'],
+        tolerance: 1,
+        boost: {
+          slug: 2,
+          path: 2,
+          title: 2,
+          description: 2,
+          parts: 1.5,
+          props: 1.5,
+          dataAttributes: 1.5,
+          cssVariables: 1.5,
+          sections: 2,
+          subsections: 1.7,
+          keywords: 1.7,
+        },
       });
       const formattedResults: SearchResult[] = results.hits.map((hit: any) => ({
         id: hit.id,
@@ -95,6 +200,7 @@ export function SearchBar({
       items={searchResults}
       onValueChange={handleValueChange}
       itemToStringValue={(item) => (item ? item.title : '')}
+      filter={null}
       autoHighlight
     >
       <label className="sr-only">Search documentation</label>

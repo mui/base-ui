@@ -10,10 +10,20 @@ import * as tae from 'typescript-api-extractor';
 import { kebabCase } from 'es-toolkit/string';
 import ts from 'typescript';
 import { globby } from 'globby';
-import { isPublicComponent, formatComponentData } from './componentHandler';
+import { updatePageIndex } from '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata';
+import { isPublicComponent, formatComponentData, extractComponentGroup } from './componentHandler';
 import { isPublicHook, formatHookData } from './hookHandler';
 
 const isDebug = inspector.url() !== undefined;
+
+/**
+ * Converts PascalCase to Title Case
+ * @example pascalToTitleCase('AlertDialog') -> 'Alert Dialog'
+ * @example pascalToTitleCase('NumberField') -> 'Number Field'
+ */
+function pascalToTitleCase(str: string): string {
+  return str.replace(/([A-Z])/g, ' $1').trim();
+}
 
 interface RunOptions {
   files?: string[];
@@ -33,8 +43,34 @@ async function run(options: RunOptions) {
 
   const { exports, errorCount } = findAllExports(program, files);
 
+  // Track component groups, their parts, and API metadata
+  const componentPartsMap = new Map<string, Set<string>>();
+  const componentApiMap = new Map<string, any[]>(); // Store all API references for each group
+
   for (const exportNode of exports.filter(isPublicComponent)) {
     const componentApiReference = await formatComponentData(exportNode, exports);
+    const componentName = exportNode.name; // e.g., "AlertDialogPortal"
+
+    // Get the component group using the existing extraction logic
+    const componentGroup = extractComponentGroup(componentName);
+
+    // Extract the part name by removing the component group prefix
+    if (componentGroup && componentName.startsWith(componentGroup)) {
+      const partName = componentName.slice(componentGroup.length); // e.g., "Portal"
+
+      // Only track parts if:
+      // 1. There is a part name (not just the group name alone)
+      // 2. OR we already have other parts for this group
+      if (partName) {
+        if (!componentPartsMap.has(componentGroup)) {
+          componentPartsMap.set(componentGroup, new Set());
+          componentApiMap.set(componentGroup, []);
+        }
+        componentPartsMap.get(componentGroup)!.add(partName);
+        componentApiMap.get(componentGroup)!.push(componentApiReference);
+      }
+    }
+
     const json = JSON.stringify(componentApiReference, null, 2) + '\n';
     fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
   }
@@ -42,6 +78,85 @@ async function run(options: RunOptions) {
   for (const exportNode of exports.filter(isPublicHook)) {
     const json = JSON.stringify(await formatHookData(exportNode), null, 2) + '\n';
     fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
+  }
+
+  // Build the final components with parts map
+  // Only include components that have multiple parts
+  const componentsWithParts = new Map<
+    string,
+    {
+      parts: string[];
+      props: string[];
+      dataAttributes: string[];
+      cssVariables: string[];
+    }
+  >();
+
+  for (const [group, partsSet] of componentPartsMap) {
+    if (partsSet.size > 1) {
+      const sortedParts = Array.from(partsSet).sort();
+
+      // Collect and deduplicate props, dataAttributes, and cssVariables
+      const propsSet = new Set<string>();
+      const dataAttributesSet = new Set<string>();
+      const cssVariablesSet = new Set<string>();
+
+      const apiReferences = componentApiMap.get(group) || [];
+      for (const apiRef of apiReferences) {
+        // Collect props
+        if (apiRef.props) {
+          Object.keys(apiRef.props).forEach((prop) => propsSet.add(prop));
+        }
+
+        // Collect data attributes
+        if (apiRef.dataAttributes) {
+          Object.keys(apiRef.dataAttributes).forEach((attr) => dataAttributesSet.add(attr));
+        }
+
+        // Collect CSS variables
+        if (apiRef.cssVariables) {
+          Object.keys(apiRef.cssVariables).forEach((cssVar) => cssVariablesSet.add(cssVar));
+        }
+      }
+
+      componentsWithParts.set(group, {
+        parts: sortedParts,
+        props: Array.from(propsSet).sort(),
+        dataAttributes: Array.from(dataAttributesSet).sort(),
+        cssVariables: Array.from(cssVariablesSet).sort(),
+      });
+    }
+  }
+
+  // Update the components page index with parts metadata all at once
+  if (componentsWithParts.size > 0) {
+    const componentsPagePath = path.resolve(
+      path.dirname(path.dirname(path.dirname(options.configPath))),
+      'docs/src/app/(public)/(content)/react/components/page.mdx',
+    );
+
+    // Build metadata for all components
+    const allComponentsMetadata = Array.from(componentsWithParts.entries()).map(
+      ([componentName, metadata]) => ({
+        slug: kebabCase(componentName),
+        path: `./${kebabCase(componentName)}/page.mdx`,
+        title: pascalToTitleCase(componentName),
+        parts: metadata.parts,
+        props: metadata.props,
+        dataAttributes: metadata.dataAttributes,
+        cssVariables: metadata.cssVariables,
+      }),
+    );
+
+    // Update the index once with all components in a single operation
+    await updatePageIndex({
+      pagePath: componentsPagePath,
+      metadataList: allComponentsMetadata,
+    });
+
+    console.log(
+      `\nUpdated components index with parts metadata for ${componentsWithParts.size} component(s).`,
+    );
   }
 
   console.log(`\nProcessed ${files.length} files.`);

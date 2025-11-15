@@ -44,6 +44,10 @@
 
 A high-quality, unstyled React collapsible component that displays a panel controlled by a button.
 
+- Parts: Panel, Root, Trigger
+- Props: className, defaultOpen, disabled, hiddenUntilFound, keepMounted, nativeButton, onOpenChange, open, render, style
+- Data Attributes: data-closed, data-ending-style, data-open, data-panel-open, data-starting-style
+- CSS Variables: --collapsible-panel-height, --collapsible-panel-width
 - Sections:
   - Anatomy
   - API reference
@@ -54,14 +58,18 @@ A high-quality, unstyled React collapsible component that displays a panel contr
 
 A high-quality, unstyled React alert dialog component that requires user response to proceed.
 
+- Parts: Backdrop, Close, Description, Popup, Portal, Root, Title, Trigger, Viewport
+- Props: actionsRef, children, className, container, defaultOpen, defaultTriggerId, finalFocus, forceRender, handle, id, initialFocus, keepMounted, nativeButton, onOpenChange, onOpenChangeComplete, open, payload, render, style, triggerId
+- Data Attributes: data-closed, data-disabled, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-popup-open, data-starting-style
+- CSS Variables: --nested-dialogs
 - Sections:
   - Anatomy
   - Examples
-    - Open from a menu
+    - Open from a menu
     - Close confirmation
     - Detached triggers
     - Multiple triggers
-    - Controlled mode with multiple triggers
+    - Controlled mode with multiple triggers
   - API reference
 
 [Read more](./alert-dialog/page.mdx)
@@ -73,7 +81,7 @@ A high-quality, unstyled React button component that can be rendered as another 
 - Sections:
   - Anatomy
   - Examples
-    - Rendering as another tag
+    - Rendering as another tag
     - Loading states
   - API reference
 
@@ -93,6 +101,10 @@ A high-quality, unstyled React toggle group component that provides shared state
 
 A high-quality, unstyled React tooltip component that appears when an element is hovered or focused, showing a hint for sighted users.
 
+- Parts: Arrow, Popup, Portal, Positioner, Provider, Root, Trigger, Viewport
+- Props: actionsRef, align, alignOffset, anchor, arrowPadding, children, className, closeDelay, collisionAvoidance, collisionBoundary, collisionPadding, container, defaultOpen, defaultTriggerId, delay, disableAnchorTracking, disableHoverablePopup, disabled, handle, keepMounted, onOpenChange, onOpenChangeComplete, open, payload, positionMethod, render, side, sideOffset, sticky, style, timeout, trackCursorAxis, triggerId
+- Data Attributes: data-activation-direction, data-align, data-anchor-hidden, data-closed, data-current, data-ending-style, data-instant, data-open, data-popup-open, data-previous, data-side, data-starting-style, data-transitioning, data-uncentered
+- CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --popup-height, --popup-width, --transform-origin
 - Sections:
   - Accessibility guidelines
   - Anatomy
@@ -100,7 +112,7 @@ A high-quality, unstyled React tooltip component that appears when an element is
   - Examples
     - Detached triggers
     - Multiple triggers
-    - Controlled mode with multiple triggers
+    - Controlled mode with multiple triggers
     - Animating the Tooltip
       - Position and Size
       - Content
@@ -111,19 +123,23 @@ A high-quality, unstyled React tooltip component that appears when an element is
 
 A high-quality, unstyled React dialog component that opens on top of the entire page.
 
+- Parts: Backdrop, Close, Description, Popup, Portal, Root, Title, Trigger, Viewport
+- Props: actionsRef, children, className, container, defaultOpen, defaultTriggerId, disablePointerDismissal, finalFocus, forceRender, handle, id, initialFocus, keepMounted, modal, nativeButton, onOpenChange, onOpenChangeComplete, open, payload, render, style, triggerId
+- Data Attributes: data-closed, data-disabled, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-popup-open, data-starting-style
+- CSS Variables: --nested-dialogs
 - Sections:
   - Anatomy
   - Examples
     - State
-    - Open from a menu
+    - Open from a menu
     - Nested dialogs
     - Close confirmation
     - Outside scroll dialog
     - Inside scroll dialog
-    - Placing elements outside the popup
+    - Placing elements outside the popup
     - Detached triggers
     - Multiple triggers
-    - Controlled mode with multiple triggers
+    - Controlled mode with multiple triggers
   - API reference
 
 [Read more](./dialog/page.mdx)
@@ -132,6 +148,10 @@ A high-quality, unstyled React dialog component that opens on top of the entire 
 
 A high-quality, unstyled React navigation menu component that displays a collection of links and menus for website navigation.
 
+- Parts: Arrow, Backdrop, Content, Icon, Item, Link, List, Popup, Portal, Positioner, Root, Trigger, Viewport
+- Props: actionsRef, active, align, alignOffset, anchor, arrowPadding, className, closeDelay, closeOnClick, collisionAvoidance, collisionBoundary, collisionPadding, container, defaultValue, delay, disableAnchorTracking, keepMounted, nativeButton, onOpenChangeComplete, onValueChange, orientation, positionMethod, render, side, sideOffset, sticky, style, value
+- Data Attributes: data-activation-direction, data-active, data-align, data-anchor-hidden, data-closed, data-ending-style, data-instant, data-open, data-popup-open, data-pressed, data-side, data-starting-style, data-uncentered
+- CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --popup-height, --popup-width, --positioner-height, --positioner-width, --transform-origin
 - Sections:
   - Anatomy
   - Examples
@@ -156,6 +176,8 @@ A menu bar providing commands and options for your application.
 
 A high-quality, unstyled React context menu component that appears at the pointer on right click or long press.
 
+- Parts: Root, Trigger
+- Props: actionsRef, children, className, closeParentOnEsc, defaultOpen, disabled, loop, onOpenChange, onOpenChangeComplete, open, orientation, render, style
 - Sections:
   - Anatomy
   - Examples
@@ -168,6 +190,8 @@ A high-quality, unstyled React context menu component that appears at the pointe
 
 A high-quality, unstyled React fieldset component with an easily stylable legend.
 
+- Parts: Legend, Root
+- Props: className, render, style
 - Sections:
   - Anatomy
   - API reference
@@ -178,6 +202,9 @@ A high-quality, unstyled React fieldset component with an easily stylable legend
 
 A high-quality, unstyled React checkbox component that is easy to customize.
 
+- Parts: Indicator, Root
+- Props: checked, className, defaultChecked, disabled, id, indeterminate, inputRef, keepMounted, name, nativeButton, onCheckedChange, parent, readOnly, render, required, style, value
+- Data Attributes: data-checked, data-dirty, data-disabled, data-ending-style, data-filled, data-focused, data-invalid, data-readonly, data-required, data-starting-style, data-touched, data-unchecked, data-valid
 - Sections:
   - Anatomy
   - Examples
@@ -190,6 +217,10 @@ A high-quality, unstyled React checkbox component that is easy to customize.
 
 A high-quality, unstyled React combobox component that renders an input combined with a list of predefined items to select.
 
+- Parts: Arrow, Backdrop, Chip, ChipRemove, Chips, Clear, Collection, Empty, Group, GroupLabel, Icon, Input, Item, ItemIndicator, List, Popup, Portal, Positioner, Root, Row, Status, Trigger, Value
+- Props: actionsRef, align, alignOffset, anchor, arrowPadding, autoHighlight, children, className, collisionAvoidance, collisionBoundary, collisionPadding, container, defaultInputValue, defaultOpen, defaultValue, disableAnchorTracking, disabled, filter, filteredItems, finalFocus, grid, highlightItemOnHover, id, index, initialFocus, inline, inputRef, inputValue, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, keepHighlight, keepMounted, limit, locale, modal, multiple, name, nativeButton, onClick, onInputValueChange, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, positionMethod, readOnly, render, required, side, sideOffset, sticky, style, value, virtualized
+- Data Attributes: data-align, data-anchor-hidden, data-closed, data-dirty, data-disabled, data-empty, data-ending-style, data-filled, data-focused, data-highlighted, data-instant, data-invalid, data-list-empty, data-open, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-selected, data-side, data-starting-style, data-touched, data-uncentered, data-valid
+- CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
 - Sections:
   - Usage guidelines
   - Anatomy
@@ -221,6 +252,10 @@ A high-quality, unstyled React input component.
 
 A high-quality, unstyled React scroll area that provides a native scroll container with custom scrollbars.
 
+- Parts: Indicator, List, Panel, Root, Tab
+- Props: activateOnFocus, className, defaultValue, keepMounted, loop, nativeButton, onValueChange, orientation, render, renderBeforeHydration, style, value
+- Data Attributes: data-activation-direction, data-active, data-disabled, data-hidden, data-index, data-orientation
+- CSS Variables: --active-tab-bottom, --active-tab-height, --active-tab-left, --active-tab-right, --active-tab-top, --active-tab-width
 - Sections:
   - Anatomy
   - API reference
@@ -231,6 +266,10 @@ A high-quality, unstyled React scroll area that provides a native scroll contain
 
 A high-quality, unstyled React accordion component that displays a set of collapsible panels with headings.
 
+- Parts: Header, Item, Panel, Root, Trigger
+- Props: className, defaultValue, disabled, hiddenUntilFound, keepMounted, loop, multiple, nativeButton, onOpenChange, onValueChange, orientation, render, style, value
+- Data Attributes: data-disabled, data-ending-style, data-index, data-open, data-orientation, data-panel-open, data-starting-style
+- CSS Variables: --accordion-panel-height, --accordion-panel-width
 - Sections:
   - Anatomy
   - Examples
@@ -243,6 +282,9 @@ A high-quality, unstyled React accordion component that displays a set of collap
 
 A high-quality, unstyled React radio button component that is easy to style.
 
+- Parts: Indicator, Root
+- Props: className, disabled, inputRef, keepMounted, nativeButton, readOnly, render, required, style, value
+- Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
 - Sections:
   - Anatomy
   - Examples
@@ -256,6 +298,9 @@ A high-quality, unstyled React radio button component that is easy to style.
 
 A high-quality, unstyled React progress bar component that displays the status of a task that takes a long time.
 
+- Parts: Indicator, Label, Root, Track, Value
+- Props: aria-valuetext, children, className, format, getAriaValueText, locale, max, min, render, style, value
+- Data Attributes: data-complete, data-indeterminate, data-progressing
 - Sections:
   - Anatomy
   - API reference
@@ -290,13 +335,17 @@ A high-quality, unstyled React checkbox group component that provides a shared s
 
 A high-quality, unstyled React popover component that displays an accessible popup anchored to a button.
 
+- Parts: Arrow, Backdrop, Close, Description, Popup, Portal, Positioner, Root, Title, Trigger, Viewport
+- Props: actionsRef, align, alignOffset, anchor, arrowPadding, children, className, closeDelay, collisionAvoidance, collisionBoundary, collisionPadding, container, defaultOpen, defaultTriggerId, delay, disableAnchorTracking, finalFocus, handle, id, initialFocus, keepMounted, modal, nativeButton, onOpenChange, onOpenChangeComplete, open, openOnHover, payload, positionMethod, render, side, sideOffset, sticky, style, triggerId
+- Data Attributes: data-activation-direction, data-align, data-anchor-hidden, data-closed, data-current, data-ending-style, data-instant, data-open, data-popup-open, data-pressed, data-previous, data-side, data-starting-style, data-transitioning, data-uncentered
+- CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --popup-height, --popup-width, --positioner-height, --positioner-width, --transform-origin
 - Sections:
   - Anatomy
   - Examples
     - Opening on hover
     - Detached triggers
     - Multiple triggers
-    - Controlled mode with multiple triggers
+    - Controlled mode with multiple triggers
     - Animating the Popover
       - Position and Size
       - Content
@@ -321,8 +370,8 @@ A high-quality, unstyled React form component with consolidated error handling.
 - Sections:
   - Anatomy
   - Examples
-    - Submit with a Server Function
-    - Submit form values as a JavaScript object
+    - Submit with a Server Function
+    - Submit form values as a JavaScript object
     - Using with Zod
   - API reference
 
@@ -332,6 +381,9 @@ A high-quality, unstyled React form component with consolidated error handling.
 
 A high-quality, unstyled React field component that provides labelling and validation for form controls.
 
+- Parts: Control, Description, Error, Item, Label, Root, Validity
+- Props: children, className, defaultValue, dirty, disabled, invalid, match, name, onValueChange, render, style, touched, validate, validationDebounceTime, validationMode
+- Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
 - Sections:
   - Anatomy
   - API reference
@@ -342,6 +394,8 @@ A high-quality, unstyled React field component that provides labelling and valid
 
 A high-quality, unstyled React autocomplete component that renders an input with a list of filtered options.
 
+- Parts: Root, Value
+- Props: actionsRef, autoHighlight, children, defaultOpen, defaultValue, disabled, filter, filteredItems, grid, highlightItemOnHover, id, inline, inputRef, itemToStringValue, items, keepHighlight, limit, locale, modal, mode, name, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, submitOnItemClick, value, virtualized
 - Sections:
   - Usage guidelines
   - Anatomy
@@ -366,6 +420,10 @@ A high-quality, unstyled React autocomplete component that renders an input with
 
 A high-quality, unstyled React menu component that displays list of actions in a dropdown, enhanced with keyboard navigation.
 
+- Parts: Arrow, Backdrop, CheckboxItem, CheckboxItemIndicator, Group, GroupLabel, Item, Popup, Portal, Positioner, RadioGroup, RadioItem, RadioItemIndicator, Root, SubmenuRoot, SubmenuTrigger, Trigger
+- Props: actionsRef, align, alignOffset, anchor, arrowPadding, checked, children, className, closeDelay, closeOnClick, closeParentOnEsc, collisionAvoidance, collisionBoundary, collisionPadding, container, defaultChecked, defaultOpen, defaultValue, delay, disableAnchorTracking, disabled, finalFocus, id, keepMounted, label, loop, modal, nativeButton, onCheckedChange, onClick, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnHover, orientation, positionMethod, render, side, sideOffset, sticky, style, value
+- Data Attributes: data-align, data-anchor-hidden, data-checked, data-closed, data-disabled, data-ending-style, data-highlighted, data-instant, data-open, data-popup-open, data-pressed, data-side, data-starting-style, data-uncentered, data-unchecked
+- CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
 - Sections:
   - Anatomy
   - Examples
@@ -375,7 +433,7 @@ A high-quality, unstyled React menu component that displays list of actions in a
     - Close on click
     - Group labels
     - Nested menu
-    - Navigate to another page
+    - Navigate to another page
     - Open a dialog
   - API reference
 
@@ -385,6 +443,10 @@ A high-quality, unstyled React menu component that displays list of actions in a
 
 A high-quality, unstyled React toast component to generate notifications.
 
+- Parts: Action, Arrow, Close, Content, Description, Portal, Positioner, Provider, Root, Title, Viewport
+- Props: align, alignOffset, anchor, arrowPadding, children, className, collisionAvoidance, collisionBoundary, collisionPadding, container, disableAnchorTracking, limit, nativeButton, positionMethod, render, side, sideOffset, sticky, style, swipeDirection, timeout, toast, toastManager
+- Data Attributes: data-align, data-anchor-hidden, data-behind, data-ending-style, data-expanded, data-limited, data-side, data-starting-style, data-swipe-direction, data-swiping, data-type, data-uncentered
+- CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --toast-frontmost-height, --toast-height, --toast-index, --toast-offset-y, --toast-swipe-movement-x, --toast-swipe-movement-y, --transform-origin
 - Sections:
   - Anatomy
   - General usage
@@ -412,6 +474,10 @@ A high-quality, unstyled React toast component to generate notifications.
 
 A high-quality, unstyled React scroll area that provides a native scroll container with custom scrollbars.
 
+- Parts: Content, Corner, Root, Scrollbar, Thumb, Viewport
+- Props: className, keepMounted, orientation, overflowEdgeThreshold, render, style
+- Data Attributes: data-has-overflow-x, data-has-overflow-y, data-hovering, data-orientation, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start, data-scrolling
+- CSS Variables: --scroll-area-corner-height, --scroll-area-corner-width, --scroll-area-overflow-x-end, --scroll-area-overflow-x-start, --scroll-area-overflow-y-end, --scroll-area-overflow-y-start, --scroll-area-thumb-height, --scroll-area-thumb-width
 - Sections:
   - Anatomy
   - Examples
@@ -425,6 +491,9 @@ A high-quality, unstyled React scroll area that provides a native scroll contain
 
 A high-quality, unstyled React toolbar component that groups a set of buttons and controls.
 
+- Parts: Button, Group, Input, Link, Root, Separator
+- Props: className, defaultValue, disabled, focusableWhenDisabled, loop, nativeButton, orientation, render, style
+- Data Attributes: data-disabled, data-focusable, data-orientation
 - Sections:
   - Accessibility guidelines
   - Anatomy
@@ -440,6 +509,10 @@ A high-quality, unstyled React toolbar component that groups a set of buttons an
 
 A high-quality, unstyled React select component that allows you for choosing a predefined value in a dropdown menu.
 
+- Parts: Arrow, Backdrop, Group, GroupLabel, Icon, Item, ItemIndicator, ItemText, List, Popup, Portal, Positioner, Root, ScrollDownArrow, ScrollUpArrow, Trigger, Value
+- Props: actionsRef, align, alignItemWithTrigger, alignOffset, anchor, arrowPadding, children, className, collisionAvoidance, collisionBoundary, collisionPadding, container, defaultOpen, defaultValue, disableAnchorTracking, disabled, id, inputRef, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, keepMounted, label, modal, multiple, name, nativeButton, onOpenChange, onOpenChangeComplete, onValueChange, open, positionMethod, readOnly, render, required, side, sideOffset, sticky, style, value
+- Data Attributes: data-align, data-anchor-hidden, data-closed, data-direction, data-dirty, data-disabled, data-ending-style, data-filled, data-focused, data-highlighted, data-invalid, data-open, data-popup-open, data-pressed, data-readonly, data-required, data-selected, data-side, data-starting-style, data-touched, data-uncentered, data-valid, data-visible
+- CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
 - Sections:
   - Usage guidelines
   - Anatomy
@@ -456,6 +529,8 @@ A high-quality, unstyled React select component that allows you for choosing a p
 
 A high-quality, unstyled React avatar component that is easy to customize.
 
+- Parts: Fallback, Image, Root
+- Props: className, delay, onLoadingStatusChange, render, style
 - Sections:
   - Anatomy
   - API reference
@@ -466,6 +541,10 @@ A high-quality, unstyled React avatar component that is easy to customize.
 
 A high-quality, unstyled React preview card component that appears when a link is hovered, showing a preview for sighted users.
 
+- Parts: Arrow, Backdrop, Popup, Portal, Positioner, Root, Trigger
+- Props: actionsRef, align, alignOffset, anchor, arrowPadding, children, className, closeDelay, collisionAvoidance, collisionBoundary, collisionPadding, container, defaultOpen, delay, disableAnchorTracking, keepMounted, onOpenChange, onOpenChangeComplete, open, positionMethod, render, side, sideOffset, sticky, style
+- Data Attributes: data-align, data-anchor-hidden, data-closed, data-ending-style, data-open, data-popup-open, data-side, data-starting-style, data-uncentered
+- CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
 - Sections:
   - Anatomy
   - API reference
@@ -476,6 +555,9 @@ A high-quality, unstyled React preview card component that appears when a link i
 
 A high-quality, unstyled React switch component that indicates whether a setting is on or off.
 
+- Parts: Root, Thumb
+- Props: checked, className, defaultChecked, disabled, id, inputRef, name, nativeButton, onCheckedChange, readOnly, render, required, style
+- Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
 - Sections:
   - Anatomy
   - API reference
@@ -486,6 +568,9 @@ A high-quality, unstyled React switch component that indicates whether a setting
 
 A high-quality, unstyled React slider component that works like a range input and is easy to style.
 
+- Parts: Control, Indicator, Root, Thumb, Track, Value
+- Props: children, className, defaultValue, disabled, format, getAriaLabel, getAriaValueText, index, inputRef, largeStep, locale, max, min, minStepsBetweenValues, name, onBlur, onFocus, onValueChange, onValueCommitted, orientation, ref, render, step, style, tabIndex, thumbAlignment, value
+- Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-index, data-invalid, data-orientation, data-readonly, data-required, data-touched, data-valid
 - Sections:
   - Anatomy
   - Examples
@@ -499,6 +584,9 @@ A high-quality, unstyled React slider component that works like a range input an
 
 A high-quality, unstyled React number field component with increment and decrement buttons, and a scrub area.
 
+- Parts: Decrement, Group, Increment, Input, Root, ScrubArea, ScrubAreaCursor
+- Props: allowWheelScrub, aria-roledescription, className, defaultValue, direction, disabled, format, id, inputRef, largeStep, locale, max, min, name, nativeButton, onValueChange, onValueCommitted, pixelSensitivity, readOnly, render, required, smallStep, snapOnStep, step, style, teleportDistance, value
+- Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
 - Sections:
   - Anatomy
   - API reference
@@ -509,6 +597,8 @@ A high-quality, unstyled React number field component with increment and decreme
 
 A high-quality, unstyled React meter component that provides a graphical display of a numeric value.
 
+- Parts: Indicator, Label, Root, Track, Value
+- Props: aria-valuetext, children, className, format, getAriaValueText, locale, max, min, render, style, value
 - Sections:
   - Anatomy
   - API reference
