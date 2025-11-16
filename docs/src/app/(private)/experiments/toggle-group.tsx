@@ -5,7 +5,7 @@ import { Toggle } from '@base-ui-components/react/toggle';
 import classes from './toggle.module.css';
 
 export default function ToggleGroupDemo() {
-  const [value, setValue] = React.useState(['align-center']);
+  const [value, setValue] = React.useState('align-center');
   return (
     <div className={classes.grid}>
       <h4 style={{ margin: 0 }}>LTR</h4>
@@ -14,7 +14,7 @@ export default function ToggleGroupDemo() {
         value={value}
         onValueChange={(newValue) => {
           // one button must always remain pressed
-          if (newValue.length > 0) {
+          if (newValue) {
             setValue(newValue);
           }
         }}
