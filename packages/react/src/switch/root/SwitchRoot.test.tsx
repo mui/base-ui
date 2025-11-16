@@ -72,6 +72,21 @@ describe('<Switch.Root />', () => {
 
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
+
+    ['Enter', 'Space'].forEach((key) => {
+      it(`can be activated with ${key} key`, async () => {
+        const { user } = await render(<Switch.Root />);
+
+        const switchEl = screen.getByRole('switch');
+        expect(switchEl).to.have.attribute('aria-checked', 'false');
+
+        await user.keyboard('[Tab]');
+        expect(switchEl).toHaveFocus();
+
+        await user.keyboard(`[${key}]`);
+        expect(switchEl).to.have.attribute('aria-checked', 'true');
+      });
+    });
   });
 
   describe('extra props', () => {
