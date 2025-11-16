@@ -12,35 +12,38 @@ export default function ExampleRadioGroup() {
         Best apple
       </div>
 
-      <label className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <Radio.Root
+          id="fuji-apple"
           value="fuji-apple"
           className="flex size-5 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
         >
           <Radio.Indicator className="flex before:size-2 before:rounded-full before:bg-gray-50 data-[unchecked]:hidden" />
         </Radio.Root>
-        Fuji
-      </label>
+        <label htmlFor="fuji-apple">Fuji</label>
+      </div>
 
-      <label className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <Radio.Root
+          id="gala-apple"
           value="gala-apple"
           className="flex size-5 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
         >
           <Radio.Indicator className="flex before:size-2 before:rounded-full before:bg-gray-50 data-[unchecked]:hidden" />
         </Radio.Root>
-        Gala
-      </label>
+        <label htmlFor="gala-apple">Gala</label>
+      </div>
 
-      <label className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <Radio.Root
+          id="granny-smith-apple"
           value="granny-smith-apple"
           className="flex size-5 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
         >
           <Radio.Indicator className="flex before:size-2 before:rounded-full before:bg-gray-50 data-[unchecked]:hidden" />
         </Radio.Root>
-        Granny Smith
-      </label>
+        <label htmlFor="granny-smith-apple">Granny Smith</label>
+      </div>
     </RadioGroup>
   );
 }

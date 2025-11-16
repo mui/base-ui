@@ -312,18 +312,18 @@ function ReactHookForm() {
               }
             >
               <Fieldset.Legend className="-mt-px">Storage type</Fieldset.Legend>
-              <Field.Label>
+              <Field.Item>
                 <Radio.Root value="ssd" onBlur={onBlur}>
                   <Radio.Indicator />
                 </Radio.Root>
-                SSD
-              </Field.Label>
-              <Field.Label>
+                <Field.Label>SSD</Field.Label>
+              </Field.Item>
+              <Field.Item>
                 <Radio.Root value="hdd" onBlur={onBlur}>
                   <Radio.Indicator />
                 </Radio.Root>
-                HDD
-              </Field.Label>
+                <Field.Label>HDD</Field.Label>
+              </Field.Item>
             </Fieldset.Root>
           </Field.Root>
         )}
@@ -337,8 +337,8 @@ function ReactHookForm() {
           fieldState: { invalid, isTouched, isDirty },
         }) => (
           <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <Field.Label className="gap-4">
-              Restart on failure
+            <Field.Item className="gap-4">
+              <Field.Label>Restart on failure</Field.Label>
               <Switch.Root
                 checked={value}
                 inputRef={ref}
@@ -347,7 +347,7 @@ function ReactHookForm() {
               >
                 <Switch.Thumb />
               </Switch.Root>
-            </Field.Label>
+            </Field.Item>
           </Field.Root>
         )}
       />
@@ -365,7 +365,7 @@ function ReactHookForm() {
               <div className="flex gap-4">
                 {['http', 'https', 'ssh'].map((val) => {
                   return (
-                    <Field.Label key={val} className="uppercase">
+                    <Field.Item key={val}>
                       <Checkbox.Root
                         value={val}
                         inputRef={val === 'http' ? ref : undefined}
@@ -375,8 +375,10 @@ function ReactHookForm() {
                           <Check className="size-3" />
                         </Checkbox.Indicator>
                       </Checkbox.Root>
-                      {val}
-                    </Field.Label>
+                      <Field.Label key={val} className="uppercase">
+                        {val}
+                      </Field.Label>
+                    </Field.Item>
                   );
                 })}
               </div>

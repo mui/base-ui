@@ -13,8 +13,9 @@ export default function ExampleCheckboxGroup() {
         Apples
       </div>
 
-      <label className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <Checkbox.Root
+          id="fuji-apple"
           name="apple"
           value="fuji-apple"
           className="flex size-5 items-center justify-center rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
@@ -23,11 +24,12 @@ export default function ExampleCheckboxGroup() {
             <CheckIcon className="size-3" />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        Fuji
-      </label>
+        <label htmlFor="fuji-apple">Fuji</label>
+      </div>
 
-      <label className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <Checkbox.Root
+          id="gala-apple"
           name="apple"
           value="gala-apple"
           className="flex size-5 items-center justify-center rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
@@ -36,11 +38,12 @@ export default function ExampleCheckboxGroup() {
             <CheckIcon className="size-3" />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        Gala
-      </label>
+        <label htmlFor="gala-apple">Gala</label>
+      </div>
 
-      <label className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <Checkbox.Root
+          id="granny-smith-apple"
           name="apple"
           value="granny-smith-apple"
           className="flex size-5 items-center justify-center rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
@@ -49,8 +52,8 @@ export default function ExampleCheckboxGroup() {
             <CheckIcon className="size-3" />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        Granny Smith
-      </label>
+        <label htmlFor="granny-smith-apple">Granny Smith</label>
+      </div>
     </CheckboxGroup>
   );
 }

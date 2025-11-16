@@ -27,37 +27,31 @@ export default function FormCheckboxGroup() {
           }
         >
           <Fieldset.Legend className={styles.Legend}>Extra toppings</Fieldset.Legend>
-          <Field.Item>
-            <Field.Label className={styles.Item}>
-              <Checkbox.Root value="anchovies" className={styles.Checkbox}>
-                <Checkbox.Indicator className={styles.Indicator}>
-                  <CheckIcon className={styles.Icon} />
-                </Checkbox.Indicator>
-              </Checkbox.Root>
-              Anchovies
-            </Field.Label>
+          <Field.Item className={styles.Item}>
+            <Checkbox.Root value="anchovies" className={styles.Checkbox}>
+              <Checkbox.Indicator className={styles.Indicator}>
+                <CheckIcon className={styles.Icon} />
+              </Checkbox.Indicator>
+            </Checkbox.Root>
+            <Field.Label>Anchovies</Field.Label>
           </Field.Item>
 
-          <Field.Item>
-            <Field.Label className={styles.Item}>
-              <Checkbox.Root value="olives" className={styles.Checkbox}>
-                <Checkbox.Indicator className={styles.Indicator}>
-                  <CheckIcon className={styles.Icon} />
-                </Checkbox.Indicator>
-              </Checkbox.Root>
-              Olives
-            </Field.Label>
+          <Field.Item className={styles.Item}>
+            <Checkbox.Root value="olives" className={styles.Checkbox}>
+              <Checkbox.Indicator className={styles.Indicator}>
+                <CheckIcon className={styles.Icon} />
+              </Checkbox.Indicator>
+            </Checkbox.Root>
+            <Field.Label>Olives</Field.Label>
           </Field.Item>
 
-          <Field.Item>
-            <Field.Label className={styles.Item}>
-              <Checkbox.Root value="jalapenos" className={styles.Checkbox}>
-                <Checkbox.Indicator className={styles.Indicator}>
-                  <CheckIcon className={styles.Icon} />
-                </Checkbox.Indicator>
-              </Checkbox.Root>
-              Jalapeños
-            </Field.Label>
+          <Field.Item className={styles.Item}>
+            <Checkbox.Root value="jalapenos" className={styles.Checkbox}>
+              <Checkbox.Indicator className={styles.Indicator}>
+                <CheckIcon className={styles.Icon} />
+              </Checkbox.Indicator>
+            </Checkbox.Root>
+            <Field.Label>Jalapeños</Field.Label>
           </Field.Item>
         </Fieldset.Root>
       </Field.Root>

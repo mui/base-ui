@@ -14,32 +14,37 @@ export default function ExampleCheckboxGroup() {
         Apples
       </div>
 
-      <label className={styles.Item}>
-        <Checkbox.Root name="apple" value="fuji-apple" className={styles.Checkbox}>
+      <div className={styles.Item}>
+        <Checkbox.Root id="fuji-apple" name="apple" value="fuji-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        Fuji
-      </label>
+        <label htmlFor="fuji-apple">Fuji</label>
+      </div>
 
-      <label className={styles.Item}>
-        <Checkbox.Root name="apple" value="gala-apple" className={styles.Checkbox}>
+      <div className={styles.Item}>
+        <Checkbox.Root id="gala-apple" name="apple" value="gala-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        Gala
-      </label>
+        <label htmlFor="gala-apple">Gala</label>
+      </div>
 
-      <label className={styles.Item}>
-        <Checkbox.Root name="apple" value="granny-smith-apple" className={styles.Checkbox}>
+      <div className={styles.Item}>
+        <Checkbox.Root
+          id="granny-smith-apple"
+          name="apple"
+          value="granny-smith-apple"
+          className={styles.Checkbox}
+        >
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
-        Granny Smith
-      </label>
+        <label htmlFor="granny-smith-apple">Granny Smith</label>
+      </div>
     </CheckboxGroup>
   );
 }

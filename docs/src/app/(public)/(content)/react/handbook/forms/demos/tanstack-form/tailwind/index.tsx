@@ -375,12 +375,12 @@ function TanstackForm() {
               >
                 <Fieldset.Legend className="-mt-px">Storage type</Fieldset.Legend>
                 {['ssd', 'hdd'].map((radioValue) => (
-                  <Field.Label key={radioValue} className="uppercase">
+                  <Field.Item key={radioValue}>
                     <Radio.Root value={radioValue}>
                       <Radio.Indicator />
                     </Radio.Root>
-                    {radioValue}
-                  </Field.Label>
+                    <Field.Label className="uppercase">{radioValue}</Field.Label>
+                  </Field.Item>
                 ))}
               </Fieldset.Root>
               <Field.Error match={!field.state.meta.isValid}>
@@ -401,8 +401,8 @@ function TanstackForm() {
               dirty={field.state.meta.isDirty}
               touched={field.state.meta.isTouched}
             >
-              <Field.Label className="gap-4">
-                Restart on failure
+              <Field.Item className="gap-4">
+                <Field.Label>Restart on failure</Field.Label>
                 <Switch.Root
                   checked={field.state.value}
                   onCheckedChange={field.handleChange}
@@ -410,7 +410,7 @@ function TanstackForm() {
                 >
                   <Switch.Thumb />
                 </Switch.Root>
-              </Field.Label>
+              </Field.Item>
               <Field.Error match={!field.state.meta.isValid}>
                 {field.state.meta.errors.join(',')}
               </Field.Error>
@@ -438,14 +438,14 @@ function TanstackForm() {
                 <div className="flex gap-4">
                   {['http', 'https', 'ssh'].map((checkboxValue) => {
                     return (
-                      <Field.Label key={checkboxValue} className="uppercase">
+                      <Field.Item key={checkboxValue}>
                         <Checkbox.Root value={checkboxValue} onBlur={field.handleBlur}>
                           <Checkbox.Indicator>
                             <Check className="size-3" />
                           </Checkbox.Indicator>
                         </Checkbox.Root>
-                        {checkboxValue}
-                      </Field.Label>
+                        <Field.Label className="uppercase">{checkboxValue}</Field.Label>
+                      </Field.Item>
                     );
                   })}
                 </div>

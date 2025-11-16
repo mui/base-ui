@@ -13,26 +13,26 @@ export default function ExampleRadioGroup() {
         Best apple
       </div>
 
-      <label className={styles.Item}>
-        <Radio.Root value="fuji-apple" className={styles.Radio}>
+      <div className={styles.Item}>
+        <Radio.Root id="fuji-apple" value="fuji-apple" className={styles.Radio}>
           <Radio.Indicator className={styles.Indicator} />
         </Radio.Root>
-        Fuji
-      </label>
+        <label htmlFor="fuji-apple">Fuji</label>
+      </div>
 
-      <label className={styles.Item}>
-        <Radio.Root value="gala-apple" className={styles.Radio}>
+      <div className={styles.Item}>
+        <Radio.Root id="gala-apple" value="gala-apple" className={styles.Radio}>
           <Radio.Indicator className={styles.Indicator} />
         </Radio.Root>
-        Gala
-      </label>
+        <label htmlFor="gala-apple">Gala</label>
+      </div>
 
-      <label className={styles.Item}>
-        <Radio.Root value="granny-smith-apple" className={styles.Radio}>
+      <div className={styles.Item}>
+        <Radio.Root id="granny-smith-apple" value="granny-smith-apple" className={styles.Radio}>
           <Radio.Indicator className={styles.Indicator} />
         </Radio.Root>
-        Granny Smith
-      </label>
+        <label htmlFor="granny-smith-apple">Granny Smith</label>
+      </div>
     </RadioGroup>
   );
 }
