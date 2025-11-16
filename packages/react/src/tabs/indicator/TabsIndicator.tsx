@@ -34,7 +34,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   const { getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
     useTabsRootContext();
 
-  const { tabsListRef } = useTabsListContext();
+  const { tabsListElement } = useTabsListContext();
 
   const [isMounted, setIsMounted] = React.useState(false);
   const { value: activeTabValue } = useTabsRootContext();
@@ -46,12 +46,10 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   const rerender = useForcedRerendering();
 
   React.useEffect(() => {
-    if (value != null && tabsListRef.current != null && typeof ResizeObserver !== 'undefined') {
-      const resizeObserver = new ResizeObserver(() => {
-        rerender();
-      });
+    if (value != null && tabsListElement != null && typeof ResizeObserver !== 'undefined') {
+      const resizeObserver = new ResizeObserver(rerender);
 
-      resizeObserver.observe(tabsListRef.current);
+      resizeObserver.observe(tabsListElement);
 
       return () => {
         resizeObserver.disconnect();
@@ -59,7 +57,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     }
 
     return undefined;
-  }, [value, tabsListRef, rerender]);
+  }, [value, tabsListElement, rerender]);
 
   let left = 0;
   let right = 0;
@@ -70,27 +68,24 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   let isTabSelected = false;
 
-  if (value != null && tabsListRef.current != null) {
+  if (value != null && tabsListElement != null) {
     const activeTab = getTabElementBySelectedValue(value);
-    const tabsList = tabsListRef.current;
     isTabSelected = true;
 
     if (activeTab != null) {
-      // Use offset-based positioning, but determine size using sub-pixel
-      // precision and floor it to avoid potential overflow.
-      // See https://github.com/mui/base-ui/issues/2235.
-      left = activeTab.offsetLeft - tabsList.clientLeft;
-      top = activeTab.offsetTop - tabsList.clientTop;
+      left = activeTab.offsetLeft;
+      top = activeTab.offsetTop;
 
-      const { width: rectWidth, height: rectHeight } = activeTab.getBoundingClientRect();
-      width = Math.floor(rectWidth);
-      height = Math.floor(rectHeight);
+      const { width: computedWidth, height: computedHeight } = activeTab.getBoundingClientRect();
+      width = computedWidth;
+      height = computedHeight;
 
       right =
         direction === 'ltr'
-          ? tabsList.scrollWidth - activeTab.offsetLeft - width - tabsList.clientLeft
-          : activeTab.offsetLeft - tabsList.clientLeft;
-      bottom = tabsList.scrollHeight - activeTab.offsetTop - height - tabsList.clientTop;
+          ? tabsListElement.scrollWidth - activeTab.offsetLeft - width - tabsListElement.clientLeft
+          : activeTab.offsetLeft - tabsListElement.clientLeft;
+      bottom =
+        tabsListElement.scrollHeight - activeTab.offsetTop - height - tabsListElement.clientTop;
     }
   }
 
