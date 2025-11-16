@@ -11,7 +11,11 @@
 
 .InputWrapper {
   position: relative;
-  width: max-content;
+  width: 16rem;
+
+  @media (min-width: 500px) {
+    width: 20rem;
+  }
 
   &:has(.Clear) .Input {
     padding-right: calc(0.5rem + 1.5rem * 2);
@@ -21,7 +25,7 @@
 .Input {
   box-sizing: border-box;
   margin: 0;
-  width: 20rem;
+  width: 100%;
   height: 2.5rem;
   padding-left: 0.875rem;
   padding-right: calc(0.5rem + 1.5rem);
