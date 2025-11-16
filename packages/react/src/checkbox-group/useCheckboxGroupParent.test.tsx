@@ -74,7 +74,7 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('data-parent') == null && v.tagName === 'BUTTON');
+      .filter((v) => v.getAttribute('data-parent') == null);
 
     checkboxes.forEach((checkbox) => {
       expect(checkbox).to.have.attribute('aria-checked', 'false');
@@ -124,7 +124,7 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('data-parent') == null && v.tagName === 'BUTTON');
+      .filter((v) => v.getAttribute('data-parent') == null);
 
     const checkboxA = screen.getByTestId('checkboxA');
     expect(checkboxA).to.have.attribute('aria-checked', 'true');

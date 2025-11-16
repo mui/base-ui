@@ -43,3 +43,7 @@ export const Control = React.forwardRef<HTMLInputElement, Field.Control.Props>(
 export function Error({ className, ...props }: Field.Error.Props) {
   return <Field.Error className={clsx('text-sm text-red-800', className)} {...props} />;
 }
+
+export function Item(props: Field.Item.Props) {
+  return <Field.Item {...props} />;
+}

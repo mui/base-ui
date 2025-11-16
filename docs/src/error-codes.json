@@ -82,5 +82,6 @@
   "82": "Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.",
   "83": "Base UI: MenuHandle.open: No trigger found with id \"%s\".",
   "84": "Base UI: ToastPositionerContext is missing. ToastPositioner parts must be placed within <Toast.Positioner>.",
-  "85": "Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle."
+  "85": "Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.",
+  "86": "Base UI: FieldsetRootContext is missing. Fieldset parts must be placed within <Fieldset.Root>."
 }

@@ -152,9 +152,9 @@ describe('<CheckboxGroup />', () => {
       const green = screen.getByTestId('green');
       const blue = screen.getByTestId('blue');
 
-      expect(red).to.have.attribute('disabled', '');
-      expect(green).to.have.attribute('disabled', '');
-      expect(blue).to.have.attribute('disabled', '');
+      expect(red).to.have.attribute('aria-disabled', 'true');
+      expect(green).to.have.attribute('aria-disabled', 'true');
+      expect(blue).to.have.attribute('aria-disabled', 'true');
     });
 
     it('does not disable all checkboxes when `false`', () => {
@@ -174,9 +174,9 @@ describe('<CheckboxGroup />', () => {
       const green = screen.getByTestId('green');
       const blue = screen.getByTestId('blue');
 
-      expect(red).not.to.have.attribute('disabled', '');
-      expect(green).not.to.have.attribute('disabled', '');
-      expect(blue).not.to.have.attribute('disabled', '');
+      expect(red).not.to.have.attribute('aria-disabled', 'true');
+      expect(green).not.to.have.attribute('aria-disabled', 'true');
+      expect(blue).not.to.have.attribute('aria-disabled', 'true');
     });
 
     it('takes precedence over individual checkboxes', () => {
@@ -196,9 +196,9 @@ describe('<CheckboxGroup />', () => {
       const green = screen.getByTestId('green');
       const blue = screen.getByTestId('blue');
 
-      expect(red).to.have.attribute('disabled', '');
-      expect(green).to.have.attribute('disabled', '');
-      expect(blue).to.have.attribute('disabled', '');
+      expect(red).to.have.attribute('aria-disabled', 'true');
+      expect(green).to.have.attribute('aria-disabled', 'true');
+      expect(blue).to.have.attribute('aria-disabled', 'true');
     });
   });
 
@@ -424,11 +424,18 @@ describe('<CheckboxGroup />', () => {
         </Field.Root>,
       );
 
+      const checkboxes = screen.getAllByRole('checkbox');
       const labels = screen.getAllByTestId('label');
-      expect(labels.length).to.equal(3);
-      labels.forEach((label) => {
-        expect(label.tagName).to.equal('LABEL');
-        expect(label).to.not.have.attribute('for');
+      const inputs = document.querySelectorAll('input[type="checkbox"]');
+
+      checkboxes.forEach((checkbox, index) => {
+        const label = labels[index];
+        const input = inputs[index];
+
+        expect(label.getAttribute('for')).to.not.equal(null);
+        expect(label.getAttribute('for')).to.equal(input.getAttribute('id'));
+        expect(label.getAttribute('id')).to.not.equal(null);
+        expect(label.getAttribute('id')).to.equal(checkbox.getAttribute('aria-labelledby'));
       });
 
       fireEvent.click(labels[2]);
@@ -462,13 +469,17 @@ describe('<CheckboxGroup />', () => {
       const checkboxes = screen.getAllByRole('checkbox');
       const labels = screen.getAllByTestId('label');
       const descriptions = screen.getAllByTestId('description');
+      const inputs = document.querySelectorAll('input[type="checkbox"]');
 
       checkboxes.forEach((checkbox, index) => {
         const label = labels[index];
         const description = descriptions[index];
+        const input = inputs[index];
 
         expect(label.getAttribute('for')).to.not.equal(null);
-        expect(label.getAttribute('for')).to.equal(checkbox.getAttribute('id'));
+        expect(label.getAttribute('for')).to.equal(input.getAttribute('id'));
+        expect(label.getAttribute('id')).to.not.equal(null);
+        expect(label.getAttribute('id')).to.equal(checkbox.getAttribute('aria-labelledby'));
         expect(description.getAttribute('id')).to.not.equal(null);
         expect(description.getAttribute('id')).to.equal(checkbox.getAttribute('aria-describedby'));
       });

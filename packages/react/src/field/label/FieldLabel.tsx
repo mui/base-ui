@@ -23,21 +23,25 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   const { render, className, id: idProp, ...elementProps } = componentProps;
 
   const fieldRootContext = useFieldRootContext(false);
-  const { controlId, setLabelId, labelId } = useLabelableContext();
+
+  const { controlId, setLabelId, labelId, labelableControlRef } = useLabelableContext();
 
   const id = useBaseUiId(idProp);
 
+  const labelRef = React.useRef<HTMLLabelElement>(null);
+
   useIsoLayoutEffect(() => {
-    if (controlId != null || idProp) {
+    if (id) {
       setLabelId(id);
     }
+
     return () => {
       setLabelId(undefined);
     };
-  }, [controlId, id, idProp, setLabelId]);
+  }, [id, labelableControlRef, setLabelId]);
 
   const element = useRenderElement('label', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, labelRef],
     state: fieldRootContext.state,
     props: [
       {
