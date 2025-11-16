@@ -5,14 +5,8 @@ import { Menu } from '@base-ui-components/react/menu';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests, wait, waitSingleFrame } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
-
-async function wait(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
 
 describe('<Popover.Root />', () => {
   beforeEach(() => {
@@ -603,9 +597,9 @@ describe('<Popover.Root />', () => {
             expect(screen.queryByTestId('popup')).toBeVisible();
           });
 
-          await waitForNextAnimationFrame();
+          await waitSingleFrame();
           await user.keyboard('{Tab}');
-          await waitForNextAnimationFrame();
+          await waitSingleFrame();
           await waitFor(() => {
             expect(screen.getByTestId('input-inside')).toHaveFocus();
           });
@@ -1788,13 +1782,3 @@ describe('<Popover.Root />', () => {
     );
   });
 });
-
-async function waitForNextAnimationFrame() {
-  await new Promise<void>((resolve) => {
-    if (typeof requestAnimationFrame === 'function') {
-      requestAnimationFrame(() => resolve());
-    } else {
-      setTimeout(() => resolve(), 0);
-    }
-  });
-}
