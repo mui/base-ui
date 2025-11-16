@@ -33,7 +33,7 @@ const stateAttributesMapping: StateAttributesMapping<SelectTrigger.State> = {
 
 /**
  * A button that opens the select popup.
- * Renders a `<div>` element.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
@@ -134,7 +134,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return listElement?.id ?? getFloatingFocusElement(positionerElement)?.id;
   }, [listElement, positionerElement]);
 
-  const props: HTMLProps = mergeProps<'div'>(
+  const props: HTMLProps = mergeProps<'button'>(
     triggerProps,
     {
       role: 'combobox',
@@ -262,7 +262,7 @@ export interface SelectTriggerState extends FieldRoot.State {
 
 export interface SelectTriggerProps
   extends NativeButtonProps,
-    BaseUIComponentProps<'div', SelectTrigger.State> {
+    BaseUIComponentProps<'button', SelectTrigger.State> {
   children?: React.ReactNode;
   /** Whether the component should ignore user interaction. */
   disabled?: boolean;
