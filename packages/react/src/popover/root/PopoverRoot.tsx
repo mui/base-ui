@@ -135,6 +135,27 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     [handleUnmount, handleImperativeClose],
   );
 
+  React.useEffect(() => {
+    if (!triggerElement) {
+      return undefined;
+    }
+
+    const observer = new MutationObserver(() => {
+      const style = window.getComputedStyle(triggerElement);
+      if (style.display === 'none' || style.visibility === 'hidden') {
+        setOpen(false, undefined, 'cancel-open');
+      }
+    });
+
+    observer.observe(triggerElement, {
+      attributes: true,
+      attributeFilter: ['style', 'class'],
+      subtree: false,
+    });
+
+    return () => observer.disconnect();
+  }, [triggerElement, setOpen]);
+
   const floatingContext = useFloatingRootContext({
     elements: {
       reference: activeTriggerElement,
