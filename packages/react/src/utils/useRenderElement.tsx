@@ -83,9 +83,9 @@ function useRenderElementProps<
     if (!enabled) {
       useMergedRefs(null, null);
     } else if (Array.isArray(ref)) {
-      outProps.ref = useMergedRefsN([outProps.ref, getChildRef(renderProp), ...ref]);
+      outProps.ref = useMergedRefsN([outProps.ref, getElementRef(renderProp), ...ref]);
     } else {
-      outProps.ref = useMergedRefs(outProps.ref, getChildRef(renderProp), ref);
+      outProps.ref = useMergedRefs(outProps.ref, getElementRef(renderProp), ref);
     }
   }
 
@@ -138,7 +138,7 @@ function renderTag(Tag: string, props: Record<string, any>) {
   return React.createElement(Tag, props);
 }
 
-function getChildRef<ElementType extends React.ElementType, State>(
+export function getElementRef<ElementType extends React.ElementType, State>(
   render: BaseUIComponentProps<ElementType, State>['render'],
 ): React.RefCallback<any> | null {
   if (!React.isValidElement(render)) {

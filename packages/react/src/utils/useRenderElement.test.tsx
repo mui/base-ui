@@ -2,8 +2,9 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer } from '#test-utils';
+import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
 import type { BaseUIComponentProps } from '../utils/types';
-import { useRenderElement } from './useRenderElement';
+import { useRenderElement, getElementRef } from './useRenderElement';
 
 describe('useRenderElement', () => {
   const { render } = createRenderer();
@@ -69,5 +70,41 @@ describe('useRenderElement', () => {
     const element = container.firstElementChild;
 
     expect(element?.getAttribute('style')).to.equal('padding: 10px;');
+  });
+
+  describe('getElementRef', () => {
+    it('should return null when not used correctly', () => {
+      // @ts-expect-error
+      expect(getElementRef(false)).to.equal(null);
+      // @ts-expect-error
+      expect(getElementRef()).to.equal(null);
+      // @ts-expect-error
+      expect(getElementRef(1)).to.equal(null);
+
+      const children = [<div key="1" />, <div key="2" />];
+      // @ts-expect-error
+      expect(getElementRef(children)).to.equal(null);
+    });
+
+    it('should return the ref of a React element', () => {
+      const ref = React.createRef<HTMLDivElement>();
+      const element = <div ref={ref} />;
+      expect(getElementRef(element)).to.equal(ref);
+    });
+
+    it('should return undefined for a fragment', () => {
+      const element = (
+        <React.Fragment>
+          <p>Hello</p>
+          <p>Hello</p>
+        </React.Fragment>
+      );
+      expect(getElementRef(element)).to.equal(isReactVersionAtLeast(19) ? undefined : null);
+    });
+
+    it('should return undefined for element with no ref', () => {
+      const element = <div />;
+      expect(getElementRef(element)).to.equal(isReactVersionAtLeast(19) ? undefined : null);
+    });
   });
 });
