@@ -141,10 +141,11 @@ function renderTag(Tag: string, props: Record<string, any>) {
 function getChildRef<ElementType extends React.ElementType, State>(
   render: BaseUIComponentProps<ElementType, State>['render'],
 ): React.RefCallback<any> | null {
-  if (render && typeof render !== 'function') {
-    return isReactVersionAtLeast(19) ? render.props.ref : render.ref;
+  if (!React.isValidElement(render)) {
+    return null;
   }
-  return null;
+
+  return isReactVersionAtLeast(19) ? render.props?.ref : render.ref;
 }
 
 type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicElements
