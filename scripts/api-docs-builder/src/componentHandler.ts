@@ -92,7 +92,7 @@ function sortObjectByKeys<T>(obj: Record<string, T>, order: string[]): Record<st
   return sortedObj;
 }
 
-function extractComponentGroup(componentExportName: string): string {
+export function extractComponentGroup(componentExportName: string): string {
   const directMatch = componentGroupNames.find((name) => componentExportName.startsWith(name));
 
   if (directMatch) {

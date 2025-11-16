@@ -3,6 +3,8 @@ import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
 import { withDeploymentConfig } from '@mui/internal-docs-infra/withDocsInfra';
+import transformMarkdownMetadata from '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata';
+import transformMarkdownRelativePaths from '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths';
 import nextMdx from '@next/mdx';
 import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
 import remarkGfm from 'remark-gfm';
@@ -20,7 +22,27 @@ const workspaceRoot = path.resolve(currentDirectory, '../');
 
 const withMdx = nextMdx({
   options: {
-    remarkPlugins: [remarkGfm, remarkTypography],
+    remarkPlugins: [
+      remarkGfm,
+      remarkTypography,
+      [
+        transformMarkdownMetadata,
+        {
+          extractToIndex: {
+            include: ['src/app/react'],
+            exclude: [
+              'src/app/careers',
+              'src/app/production-error',
+              'src/app/test',
+              'src/app/experiments',
+              'src/app/playground',
+            ],
+            baseDir: path.dirname(url.fileURLToPath(import.meta.url)),
+          },
+        },
+      ],
+      transformMarkdownRelativePaths,
+    ],
     rehypePlugins: [
       rehypeReference,
       ...rehypeSyntaxHighlighting,
@@ -50,6 +72,10 @@ const nextConfig = {
   pageExtensions: ['mdx', 'tsx'],
   turbopack: {
     rules: {
+      './src/app/sitemap/index.ts': {
+        as: '*.ts',
+        loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedSitemap'],
+      },
       './src/app/**/demos/*/index.ts': {
         as: '*.ts',
         loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter'],
@@ -62,6 +88,10 @@ const nextConfig = {
   },
   webpack: (config, { defaultLoaders }) => {
     // for production builds
+    config.module.rules.push({
+      test: /\/sitemap\/index\.ts$/,
+      use: [defaultLoaders.babel, '@mui/internal-docs-infra/pipeline/loadPrecomputedSitemap'],
+    });
     config.module.rules.push({
       test: /\/demos\/[^/]+\/index\.ts$/,
       use: [
