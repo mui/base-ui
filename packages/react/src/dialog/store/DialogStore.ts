@@ -29,6 +29,7 @@ export type State<Payload> = {
   readonly activeTriggerProps: HTMLProps;
   readonly inactiveTriggerProps: HTMLProps;
   readonly popupProps: HTMLProps;
+  readonly role: 'dialog' | 'alertdialog';
 };
 
 type Context = {
@@ -68,17 +69,13 @@ const selectors = {
   payload: createSelector((state: State<unknown>) => state.payload),
   activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
   inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
-};
-
-export type DialogStoreOptions = {
-  modal?: State<unknown>['modal'];
-  disablePointerDismissal?: State<unknown>['disablePointerDismissal'];
+  role: createSelector((state: State<unknown>) => state.role),
 };
 
 export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
-  constructor(options?: DialogStoreOptions) {
+  constructor(initialState?: Partial<State<Payload>>) {
     super(
-      createInitialState<Payload>(options),
+      createInitialState<Payload>(initialState),
       {
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
@@ -126,11 +123,10 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
   };
 }
 
-function createInitialState<Payload>(options: DialogStoreOptions = {}): State<Payload> {
-  const { modal = true, disablePointerDismissal = false } = options;
+function createInitialState<Payload>(initialState: Partial<State<Payload>> = {}): State<Payload> {
   return {
-    disablePointerDismissal,
-    modal,
+    disablePointerDismissal: false,
+    modal: true,
     open: false,
     nested: false,
     popupElement: null,
@@ -148,5 +144,7 @@ function createInitialState<Payload>(options: DialogStoreOptions = {}): State<Pa
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
+    role: 'dialog',
+    ...initialState,
   };
 }
