@@ -201,7 +201,7 @@ _Nov 17, 2025_
   (#3178) by @mnajdova
 - Fix `data-instant` ending transition of same tooltip (#2962) by @atomiks
 
-All contributors of this release in alphabetical order: @atomiks, @brijeshb42, @chuganzy, @dav-is, @epr3, @fredericoo, @Janpot, @komkanit, @LukasTy, @michaldudak, @mj12albert, @mnajdova, @oliviertassinari, @romgrk, @seongminn, @sukvvon, @ZeeshanTamboli
+All contributors of this release in alphabetical order: @atomiks, @brianle1301, @brijeshb42, @chuganzy, @dav-is, @epr3, @fredericoo, @Janpot, @komkanit, @LukasTy, @michaldudak, @mj12albert, @mnajdova, @oliviertassinari, @romgrk, @seongminn, @sukvvon, @ZeeshanTamboli
 
 ## v1.0.0-beta.4
 
