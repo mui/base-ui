@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
 import { Select } from '@base-ui-components/react/select';
+import { mergeProps } from '../../merge-props';
 
 const objectItems = [
   { value: 'a', label: 'apple' },
@@ -200,3 +201,10 @@ function App3() {
     />
   );
 }
+
+mergeProps<typeof Select.Root<any>>(
+  {
+    value: '',
+  },
+  {},
+);

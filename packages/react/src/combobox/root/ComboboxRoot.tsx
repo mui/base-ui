@@ -154,7 +154,7 @@ type ComboboxRootUncontrolledProps<
   /**
    * The selected value of the combobox. Use when controlled.
    */
-  value?: undefined;
+  value?: any;
   /**
    * Event handler called when the selected value of the combobox changes.
    */
