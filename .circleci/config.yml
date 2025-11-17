@@ -43,6 +43,19 @@ default-context: &default-context
 #   restore_cache:
 #     key: v1-repo-{{ .Branch }}-{{ .Revision }}
 
+commands:
+  build-with-compiler:
+    description: 'Build packages with React Compiler'
+    steps:
+      - run:
+          name: Add compiler package
+          command: pnpm -F "./packages/*" add react-compiler-runtime
+      - run:
+          name: Build with compiler
+          command: pnpm -F "./packages/*" build --enableReactCompiler
+          environment:
+            MUI_REACT_COMPILER_MODE: 'infer'
+
 jobs:
   test_unit:
     <<: *default-job
@@ -197,6 +210,33 @@ jobs:
           command: pnpm -r test:package
       - code-infra/upload-size-snapshot
 
+  test_unit_compiler:
+    <<: *default-job
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - build-with-compiler
+      - run:
+          name: Run tests on JSDOM
+          command: pnpm test:jsdom:coverage
+          environment:
+            MUI_DISABLE_WORKSPACE_ALIASES: 1
+
+  test_browser_compiler:
+    <<: *default-job
+    executor:
+      name: code-infra/mui-node-browser
+      playwright-img-version: v1.56.1-noble
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - build-with-compiler
+      - run:
+          name: Run tests on headless Chromium
+          command: pnpm test:chromium --coverage
+          environment:
+            MUI_DISABLE_WORKSPACE_ALIASES: 1
+
 workflows:
   pipeline:
     when:
@@ -226,6 +266,12 @@ workflows:
       - test_package:
           <<: *default-context
           name: 'Package verification'
+      - test_unit_compiler:
+          <<: *default-context
+          name: 'JSDOM tests (React Compiler)'
+      - test_browser_compiler:
+          <<: *default-context
+          name: 'Browser tests (React Compiler)'
   react-18:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]
