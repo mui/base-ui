@@ -24,13 +24,13 @@ import { RadioRootContext } from './RadioRootContext';
 
 /**
  * Represents the radio button itself.
- * Renders a `<button>` element and a hidden `<input>` beside.
+ * Renders a `<span>` element and a hidden `<input>` beside.
  *
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
 export const RadioRoot = React.forwardRef(function RadioRoot(
   componentProps: RadioRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const {
     render,
@@ -40,7 +40,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     required: requiredProp = false,
     value,
     inputRef: inputRefProp,
-    nativeButton = true,
+    nativeButton = false,
     id: idProp,
     ...elementProps
   } = componentProps;
@@ -66,7 +66,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     disabled: fieldDisabled,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const { getDescriptionProps } = useLabelableContext();
+  const { labelId, getDescriptionProps, registerLabelableControlRef } = useLabelableContext();
 
   const disabled = fieldDisabled || fieldItemContext.disabled || disabledGroup || disabledProp;
   const readOnly = readOnlyGroup || readOnlyProp;
@@ -84,9 +84,10 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     }
   }, [setFilled]);
 
-  const id = useLabelableId({
+  const id = useBaseUiId();
+  const inputId = useLabelableId({
     id: idProp,
-    implicit: true,
+    implicit: false,
     controlRef: radioRef,
   });
 
@@ -96,8 +97,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     'aria-required': required || undefined,
     'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
+    'aria-labelledby': labelId,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
-    id: id ?? undefined,
+    id,
     disabled,
     onKeyDown(event) {
       if (event.key === 'Enter') {
@@ -129,13 +131,10 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     native: nativeButton,
   });
 
-  const inputId = useBaseUiId();
-
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
     () => ({
       type: 'radio',
       ref: mergedInputRef,
-      // Set `id` to stop Chrome warning about an unassociated input
       id: inputId,
       tabIndex: -1,
       style: visuallyHidden,
@@ -164,6 +163,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
         setDirty(value !== validityData.initialValue);
         setFilled(true);
         setCheckedValue(value, details);
+      },
+      onFocus() {
+        radioRef.current?.focus();
       },
     }),
     [
@@ -197,7 +199,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const isRadioGroup = setCheckedValue !== NOOP;
 
-  const refs = [forwardedRef, registerControlRef, radioRef, buttonRef];
+  const refs = [forwardedRef, registerControlRef, registerLabelableControlRef, radioRef, buttonRef];
   const props = [
     rootProps,
     getDescriptionProps,
@@ -206,7 +208,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     getButtonProps,
   ];
 
-  const element = useRenderElement('button', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     enabled: !isRadioGroup,
     state,
     ref: refs,
@@ -218,7 +220,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     <RadioRootContext.Provider value={contextValue}>
       {isRadioGroup ? (
         <CompositeItem
-          tag="button"
+          tag="span"
           render={render}
           className={className}
           state={state}
@@ -246,7 +248,7 @@ export interface RadioRootState extends FieldRoot.State {
 }
 export interface RadioRootProps
   extends NativeButtonProps,
-    Omit<BaseUIComponentProps<'button', RadioRoot.State>, 'value'> {
+    Omit<BaseUIComponentProps<'span', RadioRoot.State>, 'value'> {
   /** The unique identifying value of the radio in a group. */
   value: any;
   /** Whether the component should ignore user interaction. */

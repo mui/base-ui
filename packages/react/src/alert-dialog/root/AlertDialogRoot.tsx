@@ -36,6 +36,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
       new DialogStore<Payload>({
         modal: true,
         disablePointerDismissal: true,
+        role: 'alertdialog',
       });
 
     if (handle?.store) {

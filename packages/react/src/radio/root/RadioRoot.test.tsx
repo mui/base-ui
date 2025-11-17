@@ -8,8 +8,8 @@ describe('<Radio.Root />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Radio.Root value="" />, () => ({
-    refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    refInstanceof: window.HTMLSpanElement,
+    testComponentPropWith: 'span',
     button: true,
     render,
   }));

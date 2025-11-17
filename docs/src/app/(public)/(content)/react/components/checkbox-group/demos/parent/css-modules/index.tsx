@@ -7,18 +7,19 @@ import styles from './index.module.css';
 const fruits = ['fuji-apple', 'gala-apple', 'granny-smith-apple'];
 
 export default function ExampleCheckboxGroup() {
+  const id = React.useId();
   const [value, setValue] = React.useState<string[]>([]);
 
   return (
     <CheckboxGroup
-      aria-labelledby="apples-caption"
+      aria-labelledby={id}
       value={value}
       onValueChange={setValue}
       allValues={fruits}
       className={styles.CheckboxGroup}
       style={{ marginLeft: '1rem' }}
     >
-      <label className={styles.Item} id="apples-caption" style={{ marginLeft: '-1rem' }}>
+      <label className={styles.Item} id={id} style={{ marginLeft: '-1rem' }}>
         <Checkbox.Root className={styles.Checkbox} name="apples" parent>
           <Checkbox.Indicator
             className={styles.Indicator}

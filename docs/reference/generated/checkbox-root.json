@@ -1,6 +1,6 @@
 {
   "name": "CheckboxRoot",
-  "description": "Represents the checkbox itself.\nRenders a `<button>` element and a hidden `<input>` beside.",
+  "description": "Represents the checkbox itself.\nRenders a `<span>` element and a hidden `<input>` beside.",
   "props": {
     "name": {
       "type": "string",
