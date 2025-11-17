@@ -15,6 +15,7 @@
       grid-column: span 3;
       align-items: start;
     }
+  }
 
   .DescriptionTerm {
     @apply text-md;
