@@ -1,5 +1,4 @@
-# Default/Fallback
-# `npx browserslist --mobile-to-desktop "> 0.5%, last 2 versions, Firefox ESR, not dead"` when the last major is released.
+# `npx browserslist --mobile-to-desktop "baseline widely available"` when the last major is released.
 # On update, sync references where "#stable-snapshot" is mentioned in the codebase.
 [stable]
 and_chr 141
