@@ -291,6 +291,7 @@ export function SearchBar({
                     <Autocomplete.Root
                       items={searchResults}
                       onValueChange={handleValueChange}
+                      onOpenChange={handleCloseDialog}
                       itemToStringValue={(item) => (item ? item.title : '')}
                       filter={null}
                       autoHighlight
