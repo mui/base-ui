@@ -75,7 +75,7 @@ export function DemoVariantSelector({
           value={selectedVariant}
           onValueChange={handleVariantChange}
         >
-          <Select.Trigger aria-label="Styling method" type={undefined} />
+          <Select.Trigger aria-label="Styling method" />
           <Select.Popup>
             {variants.map((variantName) => (
               <Select.Item key={variantName} value={variantName}>
