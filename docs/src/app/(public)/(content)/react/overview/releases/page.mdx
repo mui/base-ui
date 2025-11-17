@@ -16,7 +16,7 @@
 - Fix type portability ([#2912](https://github.com/mui/base-ui/pull/2912))
 - Accept a function for the `style` prop ([#3038](https://github.com/mui/base-ui/pull/3038))
 - Create portal elements inside React ([#2889](https://github.com/mui/base-ui/pull/2889))
-- Avoid applying `hidden` attribute when kept mounted and invisible ([#3228](https://github.com/mui/base-ui/pull/3228))
+- Avoid applying `hidden` attribute to indicator elements when they specify `keepMounted` and are invisible ([#3228](https://github.com/mui/base-ui/pull/3228))
 - Fix crash in Next.js 16 when accessing `render.props.ref` ([#3231](https://github.com/mui/base-ui/pull/3231))
 
 ### Accordion
@@ -54,7 +54,7 @@
 
 ### Checkbox
 
-- **Breaking change:** Render root as `<span>` instead of `<button>`.
+- **Breaking change:** Render root as `<span>` instead of `<button>`
   ([#3205](https://github.com/mui/base-ui/pull/3205))
 
 ### Collapsible
@@ -154,9 +154,9 @@
   If you were using `delay` or `closeDelay` props, be sure to move them to from `<PreviewCard.Root>` to the `<PreviewCard.Trigger>` component.
   ([#3182](https://github.com/mui/base-ui/pull/3182))
 
-  ### Radio Group
+### Radio Group
 
-- **Breaking change:** Render root as `<span>` instead of `<button>`.
+- **Breaking change:** Render root as `<span>` instead of `<button>`
   ([#3205](https://github.com/mui/base-ui/pull/3205))
 
 ### Scroll Area
@@ -189,7 +189,7 @@
 
 ### Switch
 
-- **Breaking change:** Render root as `<span>` instead of `<button>`.
+- **Breaking change:** Render root as `<span>` instead of `<button>`
   ([#3205](https://github.com/mui/base-ui/pull/3205))
 
 ### Tabs

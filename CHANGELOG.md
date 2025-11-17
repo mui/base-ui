@@ -13,7 +13,7 @@ _Nov 17, 2025_
 - Fix type portability (#2912) by @atomiks
 - Accept a function for the `style` prop (#3038) by @mnajdova
 - Create portal elements inside React (#2889) by @atomiks
-- Avoid applying `hidden` attribute when kept mounted and invisible (#3228) by @atomiks
+- Avoid applying `hidden` attribute to indicator elements when they specify `keepMounted` and are invisible (#3228) by @atomiks
 - Fix crash in Next.js 16 when accessing `render.props.ref` (#3231) by @atomiks
 
 ### Accordion
@@ -51,7 +51,7 @@ _Nov 17, 2025_
 
 ### Checkbox
 
-- **Breaking change:** Render root as `<span>` instead of `<button>`.
+- **Breaking change:** Render root as `<span>` instead of `<button>`
   (#3205) by @mj12albert
 
 ### Collapsible
@@ -126,7 +126,6 @@ _Nov 17, 2025_
 - Ignore disabled item on initial focusing (#2604) by @mnajdova
 - Fix stealing focus from dialogs on close (#2920) by @atomiks
 - Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. (#3083) by @atomiks
-- Fix submenus sometimes not appearing on hover (#3232) by @michaldudak
 
 ### Navigation Menu
 
@@ -154,7 +153,7 @@ _Nov 17, 2025_
 
 ### Radio Group
 
-- **Breaking change:** Render root as `<span>` instead of `<button>`.
+- **Breaking change:** Render root as `<span>` instead of `<button>`
   (#3205) by @mj12albert
 
 ### Scroll Area
@@ -187,7 +186,7 @@ _Nov 17, 2025_
 
 ### Switch
 
-- **Breaking change:** Render root as `<span>` instead of `<button>`.
+- **Breaking change:** Render root as `<span>` instead of `<button>`
   (#3205) by @mj12albert
 
 ### Tabs
