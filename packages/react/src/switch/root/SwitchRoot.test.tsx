@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui-components/react/switch';
-import { userEvent } from '@testing-library/user-event';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
@@ -18,7 +17,7 @@ describe('<Switch.Root />', () => {
     render,
   }));
 
-  describe('interaction', () => {
+  describe('interactions', () => {
     it('should change its state when clicked', async () => {
       await render(<Switch.Root />);
       const switchElement = screen.getByRole('switch');
@@ -226,11 +225,9 @@ describe('<Switch.Root />', () => {
     expect(switchElement).not.to.have.attribute('name');
   });
 
-  describe('Form', () => {
-    const user = userEvent.setup();
-
-    it('should toggle the switch when a parent label is clicked', async () => {
-      await render(
+  describe('with native <label>', () => {
+    it('should toggle the switch when a wrapping <label> is clicked', async () => {
+      const { user } = await render(
         <label data-testid="label">
           <Switch.Root />
           Toggle
@@ -247,47 +244,65 @@ describe('<Switch.Root />', () => {
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
 
-    it('should include the switch value in the form submission', async ({ skip }) => {
-      if (isJSDOM) {
-        // FormData is not available in JSDOM
-        skip();
-      }
+    it('should toggle the switch when a explicitly linked <label> is clicked', async () => {
+      const { user } = await render(
+        <div>
+          <label data-testid="label" htmlFor="mySwitch">
+            Toggle
+          </label>
 
-      let stringifiedFormData = '';
+          <Switch.Root id="mySwitch" />
+        </div>,
+      );
 
-      await render(
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            stringifiedFormData = new URLSearchParams(formData as any).toString();
-          }}
-        >
-          <Switch.Root name="test-switch" />
+      const switchElement = screen.getByRole('switch');
+      const label = screen.getByTestId('label');
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
+
+      await user.click(label);
+
+      expect(switchElement).to.have.attribute('aria-checked', 'true');
+    });
+  });
+
+  describe('Form', () => {
+    // FormData is not available in JSDOM
+    it.skipIf(isJSDOM)('should include the switch value in form submission', async () => {
+      const submitSpy = spy((event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-switch');
+      });
+
+      const { user } = await render(
+        <Form onSubmit={submitSpy}>
+          <Field.Root name="test-switch">
+            <Switch.Root />
+          </Field.Root>
           <button type="submit">Submit</button>
-        </form>,
+        </Form>,
       );
 
       const switchElement = screen.getByRole('switch');
       const submitButton = screen.getByRole('button')!;
 
-      submitButton.click();
+      await user.click(submitButton);
 
-      expect(stringifiedFormData).to.equal('test-switch=off');
+      expect(submitSpy.callCount).to.equal(1);
+      expect(submitSpy.lastCall.returnValue).to.equal('off');
 
-      await act(async () => {
-        switchElement.click();
-      });
+      await user.click(switchElement);
+      await user.click(submitButton);
 
-      submitButton.click();
-
-      expect(stringifiedFormData).to.equal('test-switch=on');
+      expect(submitSpy.callCount).to.equal(2);
+      expect(submitSpy.lastCall.returnValue).to.equal('on');
     });
 
     it('triggers native HTML validation on submit', async () => {
-      await render(
+      const { user } = await render(
         <Form>
-          <Field.Root name="test" data-testid="field">
+          <Field.Root name="test">
             <Switch.Root name="switch" required />
             <Field.Error match="valueMissing" data-testid="error">
               required

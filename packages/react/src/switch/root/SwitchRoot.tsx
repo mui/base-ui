@@ -147,22 +147,13 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       }
     },
     onClick(event) {
-      if (event.defaultPrevented || readOnly || disabled) {
+      if (readOnly || disabled) {
         return;
       }
 
       event.preventDefault();
 
       inputRef?.current?.click();
-    },
-    onKeyDown(event) {
-      if (nativeButton || event.defaultPrevented || readOnly || disabled) {
-        return;
-      }
-
-      if (event.key === 'Enter') {
-        inputRef?.current?.click();
-      }
     },
   };
 
@@ -237,7 +228,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   return (
     <SwitchRootContext.Provider value={state}>
       {element}
-      {!checked && nameProp && <input type="hidden" name={nameProp} value="off" />}
+      {!checked && name && <input type="hidden" name={name} value="off" />}
       <input {...inputProps} />
     </SwitchRootContext.Provider>
   );
