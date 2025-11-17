@@ -31,7 +31,6 @@ export function SearchBar({
   const [index, setIndex] = React.useState<any>(null);
   const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [mounted, setMounted] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);
   const openingRef = React.useRef(false);
@@ -161,12 +160,10 @@ export function SearchBar({
     if ('startViewTransition' in document) {
       (document as any).startViewTransition(() => {
         ReactDOM.flushSync(() => {
-          setMounted(true);
           setDialogOpen(true);
         });
       });
     } else {
-      setMounted(true);
       setDialogOpen(true);
     }
 
@@ -179,26 +176,15 @@ export function SearchBar({
   const handleCloseDialog = React.useCallback((open: boolean) => {
     if (!open) {
       if ('startViewTransition' in document) {
-        const transition = (document as any).startViewTransition(() => {
+        (document as any).startViewTransition(() => {
           ReactDOM.flushSync(() => {
             setDialogOpen(false);
           });
         });
-        // Wait for the transition to finish before unmounting
-        transition.finished
-          .then(() => {
-            setMounted(false);
-          })
-          .catch(() => {
-            // Ignore errors from canceled transitions, but still unmount
-            setMounted(false);
-          });
       } else {
         setDialogOpen(false);
-        setMounted(false);
       }
     } else {
-      setMounted(true);
       setDialogOpen(true);
     }
   }, []);
@@ -215,7 +201,7 @@ export function SearchBar({
         event.stopPropagation();
 
         // Only open if not already open/mounted/opening
-        if (!dialogOpen && !mounted && !openingRef.current) {
+        if (!dialogOpen && !openingRef.current) {
           handleOpenDialog();
         }
       }
@@ -223,7 +209,7 @@ export function SearchBar({
 
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [handleOpenDialog, enableKeyboardShortcut, dialogOpen, mounted]);
+  }, [handleOpenDialog, enableKeyboardShortcut, dialogOpen]);
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
@@ -234,7 +220,7 @@ export function SearchBar({
 
       const results = await performSearch(index, {
         term: value,
-        tolerance: 1,
+        tolerance: 1, // how many character differences are allowed for typos
         boost: {
           slug: 2,
           path: 2,
@@ -268,7 +254,6 @@ export function SearchBar({
     (result: SearchResult) => {
       const url = `${result.prefix}${result.slug}`;
       setDialogOpen(false);
-      setMounted(false);
       router.push(url);
     },
     [router],
@@ -287,88 +272,85 @@ export function SearchBar({
           <kbd className="text-xs text-gray-600">K</kbd>
         </div>
       </button>
-
-      {mounted && (
-        <Dialog.Root open={dialogOpen} onOpenChange={handleCloseDialog}>
-          <Dialog.Portal>
-            <Dialog.Backdrop className="fixed inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/5%)_0,rgb(0_0_0/10%)_50%)] opacity-100 transition-[backdrop-filter,opacity] duration-600 ease-out-fast backdrop-blur-[1.5px] data-starting-style:backdrop-blur-0 data-starting-style:opacity-0 data-ending-style:backdrop-blur-0 data-ending-style:opacity-0 data-ending-style:duration-350 data-ending-style:ease-in-slow dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
-            <Dialog.Viewport className="group/dialog fixed inset-0">
-              <ScrollArea.Root
-                style={{ position: undefined }}
-                className="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none"
-              >
-                <ScrollArea.Viewport className="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none">
-                  <ScrollArea.Content className="flex min-h-full items-start justify-center">
-                    <Dialog.Popup
-                      ref={popupRef}
-                      initialFocus={inputRef}
-                      data-open={dialogOpen}
-                      className="search-dialog-popup outline-0 relative mx-auto my-18 w-[min(40rem,calc(100vw-2rem))] rounded-lg bg-gray-50 p-0 text-gray-900 shadow-[0_10px_64px_-10px_rgba(36,40,52,0.2),0_0.25px_0_1px_rgba(229,231,235,1)] transition-[transform,scale,opacity] duration-300 ease-out-fast data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:duration-250 data-ending-style:ease-in-slow dark:outline-1 dark:outline-gray-300 motion-reduce:transition-none"
+      <Dialog.Root open={dialogOpen} onOpenChange={handleCloseDialog}>
+        <Dialog.Portal>
+          <Dialog.Backdrop className="fixed inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/5%)_0,rgb(0_0_0/10%)_50%)] opacity-100 transition-[backdrop-filter,opacity] duration-600 ease-out-fast backdrop-blur-[1.5px] data-starting-style:backdrop-blur-0 data-starting-style:opacity-0 data-ending-style:backdrop-blur-0 data-ending-style:opacity-0 data-ending-style:duration-350 data-ending-style:ease-in-slow dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
+          <Dialog.Viewport className="group/dialog fixed inset-0">
+            <ScrollArea.Root
+              style={{ position: undefined }}
+              className="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none"
+            >
+              <ScrollArea.Viewport className="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none">
+                <ScrollArea.Content className="flex min-h-full items-start justify-center">
+                  <Dialog.Popup
+                    ref={popupRef}
+                    initialFocus={inputRef}
+                    data-open={dialogOpen}
+                    className="search-dialog-popup outline-0 relative mx-auto my-18 w-[min(40rem,calc(100vw-2rem))] rounded-lg bg-gray-50 p-0 text-gray-900 shadow-[0_10px_64px_-10px_rgba(36,40,52,0.2),0_0.25px_0_1px_rgba(229,231,235,1)] transition-[transform,scale,opacity] duration-300 ease-out-fast data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:duration-250 data-ending-style:ease-in-slow dark:outline-1 dark:outline-gray-300 motion-reduce:transition-none"
+                  >
+                    <Autocomplete.Root
+                      items={searchResults}
+                      onValueChange={handleValueChange}
+                      itemToStringValue={(item) => (item ? item.title : '')}
+                      filter={null}
+                      autoHighlight
                     >
-                      <Autocomplete.Root
-                        items={searchResults}
-                        onValueChange={handleValueChange}
-                        itemToStringValue={(item) => (item ? item.title : '')}
-                        filter={null}
-                        autoHighlight
-                      >
-                        <div className="border-b border-gray-200 px-4 py-3">
-                          <label htmlFor="search-input" className="sr-only">
-                            Search...
-                          </label>
-                          <Autocomplete.Input
-                            id="search-input"
-                            ref={inputRef}
-                            placeholder="Search..."
-                            className="w-full border-0 bg-transparent text-base text-gray-900 placeholder:text-gray-500 focus:outline-none"
-                          />
-                        </div>
+                      <div className="border-b border-gray-200 px-4 py-3">
+                        <label htmlFor="search-input" className="sr-only">
+                          Search...
+                        </label>
+                        <Autocomplete.Input
+                          id="search-input"
+                          ref={inputRef}
+                          placeholder="Search..."
+                          className="w-full border-0 bg-transparent text-base text-gray-900 placeholder:text-gray-500 focus:outline-none"
+                        />
+                      </div>
 
-                        <div className="py-2">
-                          {searchResults.length === 0 ? (
-                            <div className="px-4 py-6 text-center text-sm text-gray-600">
-                              No results found.
-                            </div>
-                          ) : (
-                            <Autocomplete.List>
-                              {(result: SearchResult) => (
-                                <Autocomplete.Item
-                                  key={result.id}
-                                  value={result}
-                                  onClick={() => handleItemClick(result)}
-                                  className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100 data-highlighted:bg-gray-900 data-highlighted:text-gray-50"
-                                >
-                                  <div className="flex items-baseline justify-between gap-2">
-                                    <strong className="font-semibold">{result.title}</strong>
-                                    <span className="text-xs opacity-70">
-                                      {result.score.toFixed(2)}
-                                    </span>
+                      <div className="py-2">
+                        {searchResults.length === 0 ? (
+                          <div className="px-4 py-6 text-center text-sm text-gray-600">
+                            No results found.
+                          </div>
+                        ) : (
+                          <Autocomplete.List>
+                            {(result: SearchResult) => (
+                              <Autocomplete.Item
+                                key={result.id}
+                                value={result}
+                                onClick={() => handleItemClick(result)}
+                                className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100 data-highlighted:bg-gray-900 data-highlighted:text-gray-50"
+                              >
+                                <div className="flex items-baseline justify-between gap-2">
+                                  <strong className="font-semibold">{result.title}</strong>
+                                  <span className="text-xs opacity-70">
+                                    {result.score.toFixed(2)}
+                                  </span>
+                                </div>
+                                <div className="text-sm opacity-70">
+                                  {result.section} → {result.slug}
+                                </div>
+                                {result.description && (
+                                  <div className="mt-0.5 text-sm opacity-80">
+                                    {result.description}
                                   </div>
-                                  <div className="text-sm opacity-70">
-                                    {result.section} → {result.slug}
-                                  </div>
-                                  {result.description && (
-                                    <div className="mt-0.5 text-sm opacity-80">
-                                      {result.description}
-                                    </div>
-                                  )}
-                                </Autocomplete.Item>
-                              )}
-                            </Autocomplete.List>
-                          )}
-                        </div>
-                      </Autocomplete.Root>
-                    </Dialog.Popup>
-                  </ScrollArea.Content>
-                </ScrollArea.Viewport>
-                <ScrollArea.Scrollbar className="pointer-events-none absolute m-[0.4rem] flex w-1 justify-center rounded-2xl opacity-0 transition-opacity duration-250 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75 data-scrolling:delay-0 hover:pointer-events-auto hover:opacity-100 hover:duration-75 hover:delay-0 md:w-1.75 group-data-ending-style/dialog:opacity-0 group-data-ending-style/dialog:duration-300">
-                  <ScrollArea.Thumb className="w-full rounded-[inherit] bg-gray-500 before:absolute before:content-[''] before:top-1/2 before:left-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2" />
-                </ScrollArea.Scrollbar>
-              </ScrollArea.Root>
-            </Dialog.Viewport>
-          </Dialog.Portal>
-        </Dialog.Root>
-      )}
+                                )}
+                              </Autocomplete.Item>
+                            )}
+                          </Autocomplete.List>
+                        )}
+                      </div>
+                    </Autocomplete.Root>
+                  </Dialog.Popup>
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar className="pointer-events-none absolute m-[0.4rem] flex w-1 justify-center rounded-2xl opacity-0 transition-opacity duration-250 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75 data-scrolling:delay-0 hover:pointer-events-auto hover:opacity-100 hover:duration-75 hover:delay-0 md:w-1.75 group-data-ending-style/dialog:opacity-0 group-data-ending-style/dialog:duration-300">
+                <ScrollArea.Thumb className="w-full rounded-[inherit] bg-gray-500 before:absolute before:content-[''] before:top-1/2 before:left-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2" />
+              </ScrollArea.Scrollbar>
+            </ScrollArea.Root>
+          </Dialog.Viewport>
+        </Dialog.Portal>
+      </Dialog.Root>
     </React.Fragment>
   );
 }
