@@ -703,7 +703,7 @@ type SelectRootUncontrolledProps<Value, Multiple extends boolean | undefined> = 
   /**
    * The value of the select. Use when controlled.
    */
-  value?: undefined;
+  value?: any;
   /**
    * Event handler called when the value of the select changes.
    */
