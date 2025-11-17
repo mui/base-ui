@@ -72,7 +72,7 @@ export async function CssVariablesReferenceTable({
             </Table.ColumnHeader>
             {/* A cell to maintain a layout consistent with the props table */}
             <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden>
-              <div className="invisible">{'-'}</div>
+              <span className="invisible">{'-'}</span>
             </Table.ColumnHeader>
           </Table.Row>
         </Table.Head>

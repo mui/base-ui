@@ -214,7 +214,7 @@ export async function PropsReferenceAccordion({
                   <PropDefault />
                 )}
               </Accordion.Scrollable>
-              <div className="flex justify-center max-xs:ml-auto max-xs:mr-3">
+              <span className="flex justify-center max-xs:ml-auto max-xs:mr-3">
                 <svg
                   className="AccordionIcon translate-y-px"
                   width="10"
@@ -225,7 +225,7 @@ export async function PropsReferenceAccordion({
                 >
                   <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
                 </svg>
-              </div>
+              </span>
             </Accordion.Trigger>
             <Accordion.Panel>
               <Accordion.Content>
