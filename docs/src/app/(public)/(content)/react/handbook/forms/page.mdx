@@ -1,9 +1,9 @@
 # Forms
 
 <Subtitle>A guide to building forms with Base UI components.</Subtitle>
-<Meta name="description" content="A guide to buildling forms with Base UI components." />
+<Meta name="description" content="A guide to building forms with Base UI components." />
 
-Base UI form control components extend the native [constraint validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api) so you can build forms for collecting user input or providing control over an interface. Integrates seamlessly with third-party libraries like [React Hook Form](#react-hook-form) and [TanStack Form](#tanstack-form).
+Base UI form control components extend the native [constraint validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api) so you can build forms for collecting user input or providing control over an interface. They also integrate seamlessly with third-party libraries like [React Hook Form](#react-hook-form) and [TanStack Form](#tanstack-form).
 
 import { DemoBaseUIForm } from './demos/hero';
 
@@ -100,7 +100,7 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
       <Field.Description>Daily at 00:00</Field.Description>
     </Field.Item>
     <Field.Item>
-      <Checkbox.Root value="weekly" />
+      <Checkbox.Root value="monthly" />
       <Field.Label>Monthly</Field.Label>
       <Field.Description>On the 5th of every month at 23:59</Field.Description>
     </Field.Item>
@@ -147,7 +147,7 @@ import { Form } from '@base-ui-components/react/form';
 />;
 ```
 
-When using `onFormSubmit`, form values as a JavaScript object and `eventDetails` are provided as arguments. Additionally `preventDefault()` is automatically called on the native submit event:
+When using `onFormSubmit`, you receive form values as a JavaScript object, with `eventDetails` provided as a second argument. Additionally, `preventDefault()` is automatically called on the native submit event:
 
 ```tsx {4-9} title="Submission using onFormSubmit"
 import { Form } from '@base-ui-components/react/form';
@@ -585,7 +585,7 @@ To submit the form:
 2. Call `form.handleSubmit()` from an event handler such as form `onSubmit` or `onClick` on a button.
 
 ```tsx {4-7, 13, 17} title="Form submission handler" "form.handleSubmit()"
-import { useForm } from '@tanstack/form';
+import { useForm } from '@tanstack/react-form';
 
 const form = useForm({
   onSubmit: async ({ value: formValues }) => {
