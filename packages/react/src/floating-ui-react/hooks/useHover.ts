@@ -23,7 +23,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
-import { getEmptyContext } from './useFloatingRootContext';
+import { getEmptyRootContext } from '../utils/getEmptyRootContext';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
@@ -133,7 +133,7 @@ export function useHover(
   context: FloatingRootContext | null,
   props: UseHoverProps = {},
 ): ElementProps {
-  const { open, onOpenChange, dataRef, events, elements } = context ?? getEmptyContext();
+  const { open, onOpenChange, dataRef, events, elements } = context ?? getEmptyRootContext();
   const {
     enabled = true,
     delay = 0,

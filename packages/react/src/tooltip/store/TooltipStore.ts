@@ -4,7 +4,7 @@ import { createSelector, ReactStore } from '@base-ui-components/utils/store';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { FloatingRootContext } from '../../floating-ui-react';
-import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
 import { type TooltipRoot } from '../root/TooltipRoot';
@@ -145,7 +145,7 @@ function createInitialState<Payload>(): State<Payload> {
     disabled: false,
     instantType: undefined,
     isInstantPhase: true,
-    floatingRootContext: getEmptyContext(),
+    floatingRootContext: getEmptyRootContext(),
     trackCursorAxis: 'none',
     transitionStatus: 'idle',
     disableHoverablePopup: false,

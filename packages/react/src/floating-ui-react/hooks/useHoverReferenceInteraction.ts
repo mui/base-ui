@@ -9,7 +9,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { UseHoverProps } from './useHover';
 import { getDelay } from './useHover';
-import { getEmptyContext } from './useFloatingRootContext';
+import { getEmptyRootContext } from '../utils/getEmptyRootContext';
 import { useFloatingTree } from '../components/FloatingTree';
 import {
   safePolygonIdentifier,
@@ -41,7 +41,7 @@ export function useHoverReferenceInteraction(
   context: FloatingRootContext | null,
   props: UseHoverReferenceInteractionProps = {},
 ): React.HTMLProps<Element> | undefined {
-  const ctx = context ?? getEmptyContext();
+  const ctx = context ?? getEmptyRootContext();
   const { open, onOpenChange, dataRef, elements } = ctx;
   const {
     enabled = true,

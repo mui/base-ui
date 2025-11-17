@@ -4,7 +4,7 @@ import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingRootContext } from '../../floating-ui-react';
-import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTree';
 import { TransitionStatus } from '../../utils/useTransitionStatus';
 import { HTMLProps } from '../../utils/types';
@@ -227,7 +227,7 @@ function createInitialState<Payload>(): State<Payload> {
     transitionStatus: 'idle',
     instantType: undefined,
     lastOpenChangeReason: null,
-    floatingRootContext: getEmptyContext(),
+    floatingRootContext: getEmptyRootContext(),
     floatingTreeRoot: new FloatingTreeStore(),
     floatingNodeId: undefined,
     floatingParentNodeId: null,
