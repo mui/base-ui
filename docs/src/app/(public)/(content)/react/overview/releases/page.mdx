@@ -16,6 +16,8 @@
 - Fix type portability ([#2912](https://github.com/mui/base-ui/pull/2912))
 - Accept a function for the `style` prop ([#3038](https://github.com/mui/base-ui/pull/3038))
 - Create portal elements inside React ([#2889](https://github.com/mui/base-ui/pull/2889))
+- Avoid applying `hidden` attribute when kept mounted and invisible ([#3228](https://github.com/mui/base-ui/pull/3228))
+- Fix crash in Next.js 16 when accessing `render.props.ref` ([#3231](https://github.com/mui/base-ui/pull/3231))
 
 ### Accordion
 
@@ -43,10 +45,16 @@
 - Support `autoHighlight: "always"`, and add `keepHighlight`, `highlightItemOnHover` props ([#2976](https://github.com/mui/base-ui/pull/2976))
 - Keep focus on input when pressing list element ([#3092](https://github.com/mui/base-ui/pull/3092))
 - Allow <kbd>Esc</kbd> to bubble if `<Autocomplete.Empty>` is not used ([#2935](https://github.com/mui/base-ui/pull/2935))
+- Add `dialog` role to popup when input is inside ([#3213](https://github.com/mui/base-ui/pull/3213))
 
 ### Button
 
 - New `<Button>` component ([#2363](https://github.com/mui/base-ui/pull/2363))
+
+### Checkbox
+
+- **Breaking change:** Render root as `<span>` instead of `<button>`.
+  ([#3205](https://github.com/mui/base-ui/pull/3205))
 
 ### Collapsible
 
@@ -74,6 +82,7 @@
 - Support drag-to-select ([#3167](https://github.com/mui/base-ui/pull/3167))
 - Allow <kbd>Esc</kbd> to bubble if `<Combobox.Empty>` is not used ([#2935](https://github.com/mui/base-ui/pull/2935))
 - Fix stuck filtering with differing stringifiers ([#3201](https://github.com/mui/base-ui/pull/3201))
+- Add `dialog` role to popup when input is inside ([#3213](https://github.com/mui/base-ui/pull/3213))
 
 ### Context Menu
 
@@ -117,6 +126,7 @@
 - Ignore disabled item on initial focusing ([#2604](https://github.com/mui/base-ui/pull/2604))
 - Fix stealing focus from dialogs on close ([#2920](https://github.com/mui/base-ui/pull/2920))
 - Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. ([#3083](https://github.com/mui/base-ui/pull/3083))
+- Fix submenus sometimes not appearing on hover ([#3232](https://github.com/mui/base-ui/pull/3232))
 
 ### Navigation Menu
 
@@ -141,6 +151,11 @@
 - **Breaking change:** Move delay props to trigger.<br />
   If you were using `delay` or `closeDelay` props, be sure to move them to from `<PreviewCard.Root>` to the `<PreviewCard.Trigger>` component.
   ([#3182](https://github.com/mui/base-ui/pull/3182))
+
+  ### Radio Group
+
+- **Breaking change:** Render root as `<span>` instead of `<button>`.
+  ([#3205](https://github.com/mui/base-ui/pull/3205))
 
 ### Scroll Area
 
@@ -170,6 +185,11 @@
   ([#2856](https://github.com/mui/base-ui/pull/2856))
 - Granular change reasons ([#3132](https://github.com/mui/base-ui/pull/3132))
 
+### Switch
+
+- **Breaking change:** Render root as `<span>` instead of `<button>`.
+  ([#3205](https://github.com/mui/base-ui/pull/3205))
+
 ### Tabs
 
 - **Breaking change:** Fix selected/active state naming consistency.<br />
@@ -181,6 +201,7 @@
   If you need your Tabs to activate on focus, be sure to add `activateOnFocus` prop.
   ([#3176](https://github.com/mui/base-ui/pull/3176))
 - Fix Next.js 16 error from `Math.random` id generation ([#3051](https://github.com/mui/base-ui/pull/3051))
+- Fix indicator sizing and offsets ([#3214](https://github.com/mui/base-ui/pull/3214))
 
 ### Toast
 

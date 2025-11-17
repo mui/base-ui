@@ -13,6 +13,8 @@ _Nov 17, 2025_
 - Fix type portability (#2912) by @atomiks
 - Accept a function for the `style` prop (#3038) by @mnajdova
 - Create portal elements inside React (#2889) by @atomiks
+- Avoid applying `hidden` attribute when kept mounted and invisible (#3228) by @atomiks
+- Fix crash in Next.js 16 when accessing `render.props.ref` (#3231) by @atomiks
 
 ### Accordion
 
@@ -40,10 +42,16 @@ _Nov 17, 2025_
 - Support `autoHighlight: "always"`, and add `keepHighlight`, `highlightItemOnHover` props (#2976) by @atomiks
 - Keep focus on input when pressing list element (#3092) by @atomiks
 - Allow <kbd>Esc</kbd> to bubble if `<Autocomplete.Empty>` is not used (#2935) by @atomiks
+- Add `dialog` role to popup when input is inside (#3213) by @atomiks
 
 ### Button
 
 - New `<Button>` component (#2363) by @atomiks
+
+### Checkbox
+
+- **Breaking change:** Render root as `<span>` instead of `<button>`.
+  (#3205) by @mj12albert
 
 ### Collapsible
 
@@ -71,6 +79,7 @@ _Nov 17, 2025_
 - Support drag-to-select (#3167) by @atomiks
 - Allow <kbd>Esc</kbd> to bubble if `<Combobox.Empty>` is not used (#2935) by @atomiks
 - Fix stuck filtering with differing stringifiers (#3201) by @atomiks
+- Add `dialog` role to popup when input is inside (#3213) by @atomiks
 
 ### Context Menu
 
@@ -115,6 +124,7 @@ _Nov 17, 2025_
 - Ignore disabled item on initial focusing (#2604) by @mnajdova
 - Fix stealing focus from dialogs on close (#2920) by @atomiks
 - Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. (#3083) by @atomiks
+- Fix submenus sometimes not appearing on hover (#3232) by @michaldudak
 
 ### Navigation Menu
 
@@ -139,6 +149,11 @@ _Nov 17, 2025_
 - **Breaking change:** Move delay props to trigger.<br />
   If you were using `delay` or `closeDelay` props, be sure to move them to from `<PreviewCard.Root>` to the `<PreviewCard.Trigger>` component.
   (#3182) by @atomiks
+
+### Radio Group
+
+- **Breaking change:** Render root as `<span>` instead of `<button>`.
+  (#3205) by @mj12albert
 
 ### Scroll Area
 
@@ -168,6 +183,11 @@ _Nov 17, 2025_
   (#2856) by @atomiks
 - Granular change reasons (#3132) by @atomiks
 
+### Switch
+
+- **Breaking change:** Render root as `<span>` instead of `<button>`.
+  (#3205) by @mj12albert
+
 ### Tabs
 
 - **Breaking change:** Fix selected/active state naming consistency.<br />
@@ -179,6 +199,7 @@ _Nov 17, 2025_
   If you need your Tabs to activate on focus, be sure to add `activateOnFocus` prop.
   (#3176) by @mnajdova
 - Fix Next.js 16 error from `Math.random` id generation (#3051) by @atomiks
+- Fix indicator sizing and offsets (#3214) by @atomiks
 
 ### Toast
 
