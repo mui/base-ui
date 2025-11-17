@@ -90,8 +90,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
         direction === 'ltr'
           ? tabsListElement.scrollWidth - left - width - tabsListElement.clientLeft
           : left - tabsListElement.clientLeft;
-      bottom =
-        tabsListElement.scrollHeight - top - height - tabsListElement.clientTop;
+      bottom = tabsListElement.scrollHeight - top - height - tabsListElement.clientTop;
     }
   }
 
