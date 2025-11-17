@@ -163,8 +163,10 @@
 ### Slider
 
 - **Breaking change:** Add `thumbCollisionBehavior` prop.<br />
-  When multiple thumbs overlap, moving them with mouse now pushes the other thumbs to avoid collisions.
-  Other prop options include `swap` and `none` (the current behavior).
+  In range sliders, moving a thumb with a pointer will now push other thumbs it collides with to avoid blocking drag movements by default (the default value is `push`).<br />
+  The value `swap` was also added, which allows thumbs to be dragged past each other when they collide.<br />
+  Lastly, the value `none` is the same as the previous behavior, where thumbs can't be dragged past one another.<br />
+  Keyboard interactions always use `none` behavior.
   ([#2856](https://github.com/mui/base-ui/pull/2856))
 - Granular change reasons ([#3132](https://github.com/mui/base-ui/pull/3132))
 
