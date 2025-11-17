@@ -4,6 +4,7 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { NOOP } from '../utils/noop';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { contains } from '../floating-ui-react/utils';
@@ -166,6 +167,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHidden,
+      onChange: NOOP, // suppress a Next.js error
       onFocus() {
         controlRef.current?.focus();
       },

@@ -450,6 +450,66 @@ describe('<RadioGroup />', () => {
     expect(radioB).to.have.attribute('tabindex', '0');
   });
 
+  describe('with native <label>', () => {
+    it('associates implicitly', async () => {
+      const changeSpy = spy((newValue) => newValue);
+      await render(
+        <RadioGroup onValueChange={changeSpy}>
+          <label data-testid="label">
+            <Radio.Root value="apple" />
+            Apple
+          </label>
+
+          <label data-testid="label">
+            <Radio.Root value="banana" />
+            Banana
+          </label>
+        </RadioGroup>,
+      );
+
+      const [label1, label2] = screen.getAllByTestId('label');
+
+      fireEvent.click(label1);
+      expect(changeSpy.callCount).to.equal(1);
+      expect(changeSpy.lastCall.returnValue).to.equal('apple');
+
+      fireEvent.click(label2);
+      expect(changeSpy.callCount).to.equal(2);
+      expect(changeSpy.lastCall.returnValue).to.equal('banana');
+    });
+
+    it('associates explicitly', async () => {
+      const changeSpy = spy((newValue) => newValue);
+      await render(
+        <RadioGroup onValueChange={changeSpy}>
+          <div>
+            <label data-testid="label" htmlFor="RadioA">
+              Apple
+            </label>
+            <Radio.Root value="apple" id="RadioA" />
+          </div>
+
+          <div>
+            <label data-testid="label" htmlFor="RadioB">
+              Banana
+            </label>
+            <Radio.Root value="banana" id="RadioB" />
+          </div>
+        </RadioGroup>,
+      );
+
+      const [label1, label2] = screen.getAllByTestId('label');
+
+      fireEvent.click(label1);
+      expect(changeSpy.callCount).to.equal(1);
+      expect(changeSpy.lastCall.returnValue).to.equal('apple');
+
+      fireEvent.click(label2);
+      expect(changeSpy.callCount).to.equal(2);
+      expect(changeSpy.lastCall.returnValue).to.equal('banana');
+    });
+  });
+
   describe('Field', () => {
     it('passes the `name` prop to the hidden input only when a value is selected', async () => {
       await render(
