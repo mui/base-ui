@@ -26,6 +26,7 @@ _Nov 17, 2025_
 - Fix `initialFocus` as function being called on close (#2949) by @atomiks
 - Support detached triggers (#2974) by @michaldudak
 - Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. (#3083) by @atomiks
+- Add `<AlertDialog.Viewport>` part (#2808) by @atomiks
 
 ### Autocomplete
 
@@ -94,6 +95,7 @@ _Nov 17, 2025_
 - Fix `initialFocus` as function being called on close (#2949) by @atomiks
 - Support detached triggers (#2974) by @michaldudak
 - Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. (#3083) by @atomiks
+- Add `<Dialog.Viewport>` part and scrollable demos on docs (#2808) by @atomiks
 
 ### Field
 
