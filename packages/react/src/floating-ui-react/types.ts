@@ -7,6 +7,7 @@ import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 
 import type { ExtendedUserProps } from './hooks/useInteractions';
+import type { FloatingTreeStore } from './components/FloatingTree';
 
 export * from '.';
 export type { FloatingDelayGroupProps } from './components/FloatingDelayGroup';
@@ -16,6 +17,8 @@ export type { UseClientPointProps } from './hooks/useClientPoint';
 export type { UseDismissProps } from './hooks/useDismiss';
 export type { UseFocusProps } from './hooks/useFocus';
 export type { UseHoverProps, HandleCloseContext, HandleClose } from './hooks/useHover';
+export type { UseHoverFloatingInteractionProps } from './hooks/useHoverFloatingInteraction';
+export type { UseHoverReferenceInteractionProps } from './hooks/useHoverReferenceInteraction';
 export type { UseListNavigationProps } from './hooks/useListNavigation';
 export type { UseRoleProps } from './hooks/useRole';
 export type { UseTypeaheadProps } from './hooks/useTypeahead';
@@ -85,18 +88,6 @@ export {
 type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
-
-export type OpenChangeReason =
-  | 'outside-press'
-  | 'escape-key'
-  | 'ancestor-scroll'
-  | 'reference-press'
-  | 'click'
-  | 'hover'
-  | 'focus'
-  | 'focus-out'
-  | 'list-navigation'
-  | 'safe-polygon';
 
 export type Delay = number | Partial<{ open: number; close: number }>;
 
@@ -168,12 +159,7 @@ export interface FloatingNodeType<RT extends ReferenceType = ReferenceType> {
   context?: FloatingContext<RT>;
 }
 
-export interface FloatingTreeType<RT extends ReferenceType = ReferenceType> {
-  nodesRef: React.MutableRefObject<Array<FloatingNodeType<RT>>>;
-  events: FloatingEvents;
-  addNode(node: FloatingNodeType): void;
-  removeNode(node: FloatingNodeType): void;
-}
+export type FloatingTreeType<RT extends ReferenceType = ReferenceType> = FloatingTreeStore<RT>;
 
 export interface ElementProps {
   reference?: React.HTMLProps<Element>;
@@ -227,4 +213,8 @@ export interface UseFloatingOptions<RT extends ReferenceType = ReferenceType>
    * Unique node id when using `FloatingTree`.
    */
   nodeId?: string;
+  /**
+   * External FlatingTree to use when the one provided by context can't be used.
+   */
+  externalTree?: FloatingTreeStore<RT>;
 }

@@ -5,7 +5,7 @@ import { Menu } from '@base-ui-components/react/menu';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests, wait, waitSingleFrame } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 describe('<Popover.Root />', () => {
@@ -509,13 +509,22 @@ describe('<Popover.Root />', () => {
           const inputInside = screen.getByTestId('input-inside');
           await act(async () => inputInside.focus());
 
+          await wait(50);
           await user.tab({ shift: true });
 
-          expect(screen.getByRole('button')).toHaveFocus();
-          expect(screen.queryByTestId('popup')).to.toBeVisible();
+          await waitFor(() => {
+            expect(screen.getByRole('button')).toHaveFocus();
+          });
 
-          await user.tab();
-          expect(screen.getByTestId('input-inside')).toHaveFocus();
+          await waitFor(() => {
+            expect(screen.queryByTestId('popup')).toBeVisible();
+          });
+
+          await wait(50);
+          await user.keyboard('{Tab}');
+          await waitFor(() => {
+            expect(screen.getByTestId('input-inside')).toHaveFocus();
+          });
         },
       );
     });
@@ -580,12 +589,20 @@ describe('<Popover.Root />', () => {
 
           await user.tab({ shift: true });
 
-          expect(screen.getByRole('button')).toHaveFocus();
+          await waitFor(() => {
+            expect(screen.getByRole('button')).toHaveFocus();
+          });
 
-          expect(screen.queryByTestId('popup')).to.toBeVisible();
+          await waitFor(() => {
+            expect(screen.queryByTestId('popup')).toBeVisible();
+          });
 
-          await user.tab();
-          expect(screen.getByTestId('input-inside')).toHaveFocus();
+          await waitSingleFrame();
+          await user.keyboard('{Tab}');
+          await waitSingleFrame();
+          await waitFor(() => {
+            expect(screen.getByTestId('input-inside')).toHaveFocus();
+          });
         },
       );
     });
@@ -645,14 +662,23 @@ describe('<Popover.Root />', () => {
           const inputInside = screen.getByTestId('input-inside');
           await act(async () => inputInside.focus());
 
+          await wait(50);
           await user.tab({ shift: true });
 
-          expect(screen.getByRole('button')).toHaveFocus();
+          await waitFor(() => {
+            expect(screen.getByRole('button')).toHaveFocus();
+          });
 
-          expect(screen.queryByTestId('popup')).to.toBeVisible();
+          await waitFor(() => {
+            expect(screen.queryByTestId('popup')).toBeVisible();
+          });
 
-          await user.tab();
-          expect(screen.getByTestId('input-inside')).toHaveFocus();
+          await wait(50);
+          await user.keyboard('{Tab}');
+
+          await waitFor(() => {
+            expect(screen.getByTestId('input-inside')).toHaveFocus();
+          });
         },
       );
     });

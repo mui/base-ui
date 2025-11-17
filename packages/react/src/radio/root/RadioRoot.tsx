@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import { NOOP } from '../../utils/noop';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
@@ -52,7 +53,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     setCheckedValue,
     touched,
     setTouched,
-    fieldControlValidation,
+    validation,
     registerControlRef,
   } = useRadioGroupContext();
 
@@ -153,7 +154,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
           return;
         }
 
-        const details = createChangeEventDetails('none', event.nativeEvent);
+        const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
         if (details.isCanceled) {
           return;
@@ -200,7 +201,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const props = [
     rootProps,
     getDescriptionProps,
-    fieldControlValidation?.getValidationProps ?? EMPTY_OBJECT,
+    validation?.getValidationProps ?? EMPTY_OBJECT,
     elementProps,
     getButtonProps,
   ];

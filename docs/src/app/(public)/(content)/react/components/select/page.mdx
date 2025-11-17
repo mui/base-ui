@@ -6,12 +6,17 @@
   content="A high-quality, unstyled React select component that allows you for choosing a predefined value in a dropdown menu."
 />
 
-<Demo path="./demos/hero" />
+import { DemoSelectHero } from './demos/hero';
+
+<DemoSelectHero />
 
 ## Usage guidelines
 
 - **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
+
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
+
+- **Form controls must have an accessible name**: The trigger must have a meaningful label. Prefer using [`<Field>`](/react/components/field) to provide a visible text label and description, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
 
 ## Anatomy
 
@@ -48,13 +53,6 @@ import { Select } from '@base-ui-components/react/select';
   </Select.Portal>
 </Select.Root>;
 ```
-
-## API reference
-
-<Reference
-  component="Select"
-  parts="Root, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, List, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
-/>
 
 ## Positioning
 
@@ -117,11 +115,22 @@ To avoid lookup, [object values](#object-values) for each item can also be used.
 
 Add the `multiple` prop to the `<Select.Root>` component to allow multiple selections.
 
-<Demo path="./demos/multiple" compact />
+import { DemoSelectMultiple } from './demos/multiple';
+
+<DemoSelectMultiple compact />
 
 ### Object values
 
 Select items can use objects as values instead of primitives.
 This lets you access the full object in custom render functions, and can avoid needing to specify `items` for lookup.
 
-<Demo path="./demos/object-values" compact />
+import { DemoSelectObjectValues } from './demos/object-values';
+
+<DemoSelectObjectValues compact />
+
+## API reference
+
+<Reference
+  component="Select"
+  parts="Root, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, List, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
+/>

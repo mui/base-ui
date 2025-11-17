@@ -14,10 +14,6 @@
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
       "detailedType": "boolean | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Toolbar.Button.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Toolbar.Button.State,\n  ) => CSSProperties | undefined)\n| undefined"
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -29,6 +25,10 @@
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Toolbar.Button.State) => string | undefined)"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Toolbar.Button.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Toolbar.Button.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Button.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
@@ -36,9 +36,6 @@
     }
   },
   "dataAttributes": {
-    "data-highlighted": {
-      "description": "Present when the button is the active item in the toolbar."
-    },
     "data-orientation": {
       "description": "Indicates the orientation of the toolbar.",
       "type": "'horizontal' | 'vertical'"

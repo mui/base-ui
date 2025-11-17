@@ -30,7 +30,20 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   const parentDialogRootContext = useDialogRootContext();
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => handle?.store ?? new DialogStore<Payload>()).current;
+  const store = useRefWithInit(() => {
+    const dialogStore =
+      handle?.store ??
+      new DialogStore<Payload>({
+        modal: true,
+        disablePointerDismissal: true,
+      });
+
+    if (handle?.store) {
+      dialogStore.update({ modal: true, disablePointerDismissal: true });
+    }
+
+    return dialogStore;
+  }).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
@@ -60,7 +73,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
 export interface AlertDialogRootProps<Payload = unknown>
   extends Omit<
     DialogRoot.Props<Payload>,
-    'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef' | 'handle'
+    'modal' | 'disablePointerDismissal' | 'onOpenChange' | 'actionsRef' | 'handle'
   > {
   /**
    * Event handler called when the dialog is opened or closed.

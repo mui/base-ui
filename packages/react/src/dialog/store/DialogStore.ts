@@ -13,7 +13,7 @@ export type State<Payload> = {
   readonly open: boolean;
   readonly mounted: boolean;
   readonly modal: boolean | 'trap-focus';
-  readonly dismissible: boolean;
+  readonly disablePointerDismissal: boolean;
   readonly transitionStatus: TransitionStatus;
   readonly openMethod: InteractionType | null;
   readonly nested: boolean;
@@ -48,7 +48,7 @@ const selectors = {
   modal: createSelector((state: State<unknown>) => state.modal),
   nested: createSelector((state: State<unknown>) => state.nested),
   nestedOpenDialogCount: createSelector((state: State<unknown>) => state.nestedOpenDialogCount),
-  dismissible: createSelector((state: State<unknown>) => state.dismissible),
+  disablePointerDismissal: createSelector((state: State<unknown>) => state.disablePointerDismissal),
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
   titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
@@ -70,10 +70,15 @@ const selectors = {
   inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
 };
 
+export type DialogStoreOptions = {
+  modal?: State<unknown>['modal'];
+  disablePointerDismissal?: State<unknown>['disablePointerDismissal'];
+};
+
 export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
-  constructor() {
+  constructor(options?: DialogStoreOptions) {
     super(
-      createInitialState<Payload>(),
+      createInitialState<Payload>(options),
       {
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
@@ -121,15 +126,16 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
   };
 }
 
-function createInitialState<Payload>(): State<Payload> {
+function createInitialState<Payload>(options: DialogStoreOptions = {}): State<Payload> {
+  const { modal = true, disablePointerDismissal = false } = options;
   return {
+    disablePointerDismissal,
+    modal,
     open: false,
-    dismissible: true,
     nested: false,
     popupElement: null,
     viewportElement: null,
     activeTriggerId: null,
-    modal: true,
     descriptionElementId: undefined,
     titleElementId: undefined,
     openMethod: null,

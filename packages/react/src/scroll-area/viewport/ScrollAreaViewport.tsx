@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
@@ -15,8 +16,53 @@ import { clamp } from '../../utils/clamp';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { onVisible } from '../utils/onVisible';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
-import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
 import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
+import { ScrollAreaViewportCssVars } from './ScrollAreaViewportCssVars';
+
+// Module-level flag to ensure we only register the CSS properties once,
+// regardless of how many Scroll Area components are mounted.
+let scrollAreaOverflowVarsRegistered = false;
+
+/**
+ * Removes inheritance of the scroll area overflow CSS variables, which
+ * improves rendering performance in complex scroll areas with deep subtrees.
+ * Instead, each child must manually opt-in to using these properties by
+ * specifying `inherit`.
+ * See https://motion.dev/blog/web-animation-performance-tier-list
+ * under the "Improving CSS variable performance" section.
+ */
+function removeCSSVariableInheritance() {
+  if (
+    scrollAreaOverflowVarsRegistered ||
+    // When `inherits: false`, specifying `inherit` on child elements doesn't work
+    // in Safari. To let CSS features work correctly, this optimization must be skipped.
+    isWebKit
+  ) {
+    return;
+  }
+
+  if (typeof CSS !== 'undefined' && 'registerProperty' in CSS) {
+    [
+      ScrollAreaViewportCssVars.scrollAreaOverflowXStart,
+      ScrollAreaViewportCssVars.scrollAreaOverflowXEnd,
+      ScrollAreaViewportCssVars.scrollAreaOverflowYStart,
+      ScrollAreaViewportCssVars.scrollAreaOverflowYEnd,
+    ].forEach((name) => {
+      try {
+        CSS.registerProperty({
+          name,
+          syntax: '<length>',
+          inherits: false,
+          initialValue: '0px',
+        });
+      } catch {
+        /* ignore already-registered */
+      }
+    });
+  }
+
+  scrollAreaOverflowVarsRegistered = true;
+}
 
 /**
  * The actual scrollable container of the scroll area.
@@ -32,7 +78,6 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
   const {
     viewportRef,
-    rootRef,
     scrollbarYRef,
     scrollbarXRef,
     thumbYRef,
@@ -167,18 +212,15 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const clampedScrollTopStart = clamp(scrollTopFromStart, 0, maxScrollTop);
     const clampedScrollTopEnd = clamp(scrollTopFromEnd, 0, maxScrollTop);
 
-    const overflowMetricsPx: Array<[ScrollAreaRootCssVars, number]> = [
-      [ScrollAreaRootCssVars.scrollAreaOverflowXStart, clampedScrollLeftStart],
-      [ScrollAreaRootCssVars.scrollAreaOverflowXEnd, clampedScrollLeftEnd],
-      [ScrollAreaRootCssVars.scrollAreaOverflowYStart, clampedScrollTopStart],
-      [ScrollAreaRootCssVars.scrollAreaOverflowYEnd, clampedScrollTopEnd],
+    const overflowMetricsPx: Array<[ScrollAreaViewportCssVars, number]> = [
+      [ScrollAreaViewportCssVars.scrollAreaOverflowXStart, clampedScrollLeftStart],
+      [ScrollAreaViewportCssVars.scrollAreaOverflowXEnd, clampedScrollLeftEnd],
+      [ScrollAreaViewportCssVars.scrollAreaOverflowYStart, clampedScrollTopStart],
+      [ScrollAreaViewportCssVars.scrollAreaOverflowYEnd, clampedScrollTopEnd],
     ];
 
-    const rootEl = rootRef.current;
-    if (rootEl) {
-      for (const [cssVar, value] of overflowMetricsPx) {
-        rootEl.style.setProperty(cssVar, `${value}px`);
-      }
+    for (const [cssVar, value] of overflowMetricsPx) {
+      viewportEl.style.setProperty(cssVar, `${value}px`);
     }
 
     if (cornerEl) {
@@ -237,6 +279,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     if (!viewportRef.current) {
       return undefined;
     }
+
+    removeCSSVariableInheritance();
 
     const cleanup = onVisible(viewportRef.current, computeThumbPosition);
     return cleanup;

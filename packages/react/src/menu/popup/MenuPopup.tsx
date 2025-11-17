@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { FloatingFocusManager, useFloatingTree } from '../../floating-ui-react';
+import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -15,6 +15,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 
@@ -35,49 +36,57 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 ) {
   const { render, className, finalFocus, ...elementProps } = componentProps;
 
-  const {
-    open,
-    setOpen,
-    popupRef,
-    transitionStatus,
-    popupProps,
-    mounted,
-    instantType,
-    triggerElement,
-    onOpenChangeComplete,
-    parent,
-    lastOpenChangeReason,
-    rootId,
-  } = useMenuRootContext();
-  const { side, align, floatingContext } = useMenuPositionerContext();
+  const { store } = useMenuRootContext();
+  const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
+
+  const open = store.useState('open');
+  const transitionStatus = store.useState('transitionStatus');
+  const popupProps = store.useState('popupProps');
+  const mounted = store.useState('mounted');
+  const instantType = store.useState('instantType');
+  const triggerElement = store.useState('activeTriggerElement');
+  const parent = store.useState('parent');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const rootId = store.useState('rootId');
+  const floatingContext = store.useState('floatingRootContext');
+  const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const closeDelay = store.useState('closeDelay');
+  const activeTriggerElement = store.useState('activeTriggerElement');
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
-
-  const { events: menuEvents } = useFloatingTree()!;
 
   React.useEffect(() => {
     function handleClose(event: {
       domEvent: Event | undefined;
       reason: MenuRoot.ChangeEventReason;
     }) {
-      setOpen(false, createChangeEventDetails(event.reason, event.domEvent));
+      store.setOpen(false, createChangeEventDetails(event.reason, event.domEvent));
     }
 
-    menuEvents.on('close', handleClose);
+    floatingTreeRoot.events.on('close', handleClose);
 
     return () => {
-      menuEvents.off('close', handleClose);
+      floatingTreeRoot.events.off('close', handleClose);
     };
-  }, [menuEvents, setOpen]);
+  }, [floatingTreeRoot.events, store]);
+
+  const hoverEnabled = store.useState('hoverEnabled');
+  const disabled = store.useState('disabled');
+
+  useHoverFloatingInteraction(floatingContext, {
+    enabled:
+      hoverEnabled && !disabled && parent.type !== 'context-menu' && parent.type !== 'menubar',
+    closeDelay,
+  });
 
   const state: MenuPopup.State = React.useMemo(
     () => ({
@@ -93,7 +102,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, popupRef],
+    ref: [forwardedRef, store.context.popupRef],
     stateAttributesMapping,
     props: [
       popupProps,
@@ -111,7 +120,10 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   });
 
   let returnFocus = parent.type === undefined || parent.type === 'context-menu';
-  if (triggerElement || (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press')) {
+  if (
+    triggerElement ||
+    (parent.type === 'menubar' && lastOpenChangeReason !== REASONS.outsidePress)
+  ) {
     returnFocus = true;
   }
 
@@ -123,6 +135,14 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       returnFocus={finalFocus === undefined ? returnFocus : finalFocus}
       initialFocus={parent.type !== 'menu'}
       restoreFocus
+      externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
+      previousFocusableElement={activeTriggerElement}
+      nextFocusableElement={
+        parent.type === undefined ? store.context.triggerFocusTargetRef : undefined
+      }
+      beforeContentFocusGuardRef={
+        parent.type === undefined ? store.context.beforeContentFocusGuardRef : undefined
+      }
     >
       {element}
     </FloatingFocusManager>

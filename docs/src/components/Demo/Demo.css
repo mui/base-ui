@@ -6,6 +6,8 @@
   }
 
   .DemoPlayground {
+    position: relative;
+
     background-color: var(--color-content);
     border-top-left-radius: var(--radius-md);
     border-top-right-radius: var(--radius-md);
@@ -17,7 +19,6 @@
 
     /* Scroll containers may be focusable */
     &:focus-visible {
-      position: relative;
       outline: 2px solid var(--color-blue);
       outline-offset: -1px;
       z-index: 1;
@@ -81,6 +82,10 @@
     color: var(--color-foreground);
     font-weight: bold;
     user-select: text;
+  }
+
+  .DemoFilename:hover {
+    text-decoration: underline;
   }
 
   .DemoTabsList {

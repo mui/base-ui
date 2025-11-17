@@ -26,6 +26,7 @@ describe('<Menu.SubmenuTrigger />', () => {
     return (
       <DirectionProvider direction={direction}>
         <Menu.Root open>
+          <Menu.Trigger>Open menu</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>

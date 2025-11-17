@@ -6,7 +6,13 @@
   content="A high-quality, unstyled React checkbox group component that provides a shared state for a series of checkboxes."
 />
 
-<Demo path="./demos/hero" />
+import { DemoCheckboxGroupHero } from './demos/hero';
+
+<DemoCheckboxGroupHero />
+
+## Usage guidelines
+
+- **Form controls must have an accessible name**: Checkbox group and individual checkboxes must have a meaningful label. Prefer using [`<Fieldset>`](/react/components/fieldset) and [`<Field>`](/react/components/field) to provide visible text labels and descriptions, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
 
 ## Anatomy
 
@@ -21,10 +27,6 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 </CheckboxGroup>;
 ```
 
-## API reference
-
-<Reference component="CheckboxGroup" />
-
 ## Examples
 
 ### Parent checkbox
@@ -35,11 +37,15 @@ A checkbox that controls other checkboxes within a `<CheckboxGroup>` can be crea
 2. Pass an array of all the child checkbox values to the `allValues` prop on the `<CheckboxGroup>` component
 3. Add the `parent` boolean prop to the parent `<Checkbox>`
 
-<Demo path="./demos/parent" />
+import { DemoCheckboxGroupParent } from './demos/parent';
+
+<DemoCheckboxGroupParent />
 
 ### Nested parent checkbox
 
-<Demo compact path="./demos/nested" />
+import { DemoCheckboxGroupNested } from './demos/nested';
+
+<DemoCheckboxGroupNested compact />
 
 ### Form integration
 
@@ -71,4 +77,10 @@ To use checkbox group in a form:
 </Form>
 ```
 
-<Demo compact path="./demos/form" />
+import { DemoCheckboxGroupForm } from './demos/form';
+
+<DemoCheckboxGroupForm compact />
+
+## API reference
+
+<Reference component="CheckboxGroup" />

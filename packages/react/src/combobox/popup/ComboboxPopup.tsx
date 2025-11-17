@@ -47,7 +47,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
-  const listElement = useStore(store, selectors.listElement);
 
   const empty = filteredItems.length === 0;
 
@@ -78,10 +77,14 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     ref: [forwardedRef, store.state.popupRef],
     props: [
       {
+        role: inputInsidePopup ? 'dialog' : 'presentation',
         tabIndex: -1,
         onFocus(event) {
           const target = getTarget(event.nativeEvent) as Element | null;
-          if (openMethod !== 'touch' && !contains(listElement, target)) {
+          if (
+            openMethod !== 'touch' &&
+            (contains(store.state.listElement, target) || target === event.currentTarget)
+          ) {
             store.state.inputRef.current?.focus();
           }
         },

@@ -8,9 +8,11 @@
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
       "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'none' | 'flip' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| {\n    side?: 'none' | 'shift'\n    align?: 'none' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: PreviewCard.Positioner.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: PreviewCard.Positioner.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    "disableAnchorTracking": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to disable the popup from tracking any layout shift of its positioning anchor.",
+      "detailedType": "boolean | undefined"
     },
     "align": {
       "type": "Align",
@@ -73,16 +75,14 @@
       "description": "Determines which CSS `position` property to use.",
       "detailedType": "'fixed' | 'absolute' | undefined"
     },
-    "trackAnchor": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether the popup tracks any layout shift of its positioning anchor.",
-      "detailedType": "boolean | undefined"
-    },
     "className": {
       "type": "string | ((state: PreviewCard.Positioner.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((\n    state: PreviewCard.Positioner.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: PreviewCard.Positioner.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: PreviewCard.Positioner.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: PreviewCard.Positioner.State) => ReactElement)",

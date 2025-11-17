@@ -6,7 +6,11 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { contains, getDocument, getTarget, isMouseLikePointerType } from '../utils';
 
-import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
+import {
+  FloatingTreeStore,
+  useFloatingParentNodeId,
+  useFloatingTree,
+} from '../components/FloatingTree';
 import type {
   Delay,
   ElementProps,
@@ -16,6 +20,7 @@ import type {
   SafePolygonOptions,
 } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { getEmptyContext } from './useFloatingRootContext';
@@ -113,6 +118,10 @@ export interface UseHoverProps {
    * This allows to have multiple triggers per floating element (assuming `useHover` is called per trigger).
    */
   triggerElement?: HTMLElement | null;
+  /**
+   * External FlatingTree to use when the one provided by context can't be used.
+   */
+  externalTree?: FloatingTreeStore;
 }
 
 /**
@@ -133,9 +142,10 @@ export function useHover(
     restMs = 0,
     move = true,
     triggerElement = null,
+    externalTree,
   } = props;
 
-  const tree = useFloatingTree();
+  const tree = useFloatingTree(externalTree);
   const parentId = useFloatingParentNodeId();
   const handleCloseRef = useValueAsRef(handleClose);
   const delayRef = useValueAsRef(delay);
@@ -209,7 +219,7 @@ export function useHover(
         onOpenChange(
           false,
           createChangeEventDetails(
-            'trigger-hover',
+            REASONS.triggerHover,
             event,
             (event.currentTarget as HTMLElement) ?? undefined,
           ),
@@ -237,11 +247,11 @@ export function useHover(
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
         timeout.start(closeDelay, () =>
-          onOpenChange(false, createChangeEventDetails('trigger-hover', event)),
+          onOpenChange(false, createChangeEventDetails(REASONS.triggerHover, event)),
         );
       } else if (runElseBranch) {
         timeout.clear();
-        onOpenChange(false, createChangeEventDetails('trigger-hover', event));
+        onOpenChange(false, createChangeEventDetails(REASONS.triggerHover, event));
       }
     },
     [delayRef, onOpenChange, timeout],
@@ -299,11 +309,11 @@ export function useHover(
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
-            onOpenChange(true, createChangeEventDetails('trigger-hover', event, trigger));
+            onOpenChange(true, createChangeEventDetails(REASONS.triggerHover, event, trigger));
           }
         });
       } else if (!open || isOverInactiveTrigger) {
-        onOpenChange(true, createChangeEventDetails('trigger-hover', event, trigger));
+        onOpenChange(true, createChangeEventDetails(REASONS.triggerHover, event, trigger));
       }
     }
 
@@ -572,7 +582,10 @@ export function useHover(
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && (!openRef.current || isOverInactiveTrigger)) {
-            onOpenChange(true, createChangeEventDetails('trigger-hover', nativeEvent, trigger));
+            onOpenChange(
+              true,
+              createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger),
+            );
           }
         }
 

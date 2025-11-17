@@ -11,10 +11,14 @@ import { useLabelableContext } from '../labelable-provider/LabelableContext';
 import type { BaseUIComponentProps } from '../utils/types';
 import { fieldValidityMapping } from '../field/utils/constants';
 import { useField } from '../field/useField';
-import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
-import { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import { REASONS } from '../utils/reasons';
+import { useFormContext } from '../form/FormContext';
+import { useValueChanged } from '../utils/useValueChanged';
+import { areArraysEqual } from '../utils/areArraysEqual';
+import { EMPTY_ARRAY } from '../utils/constants';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -37,12 +41,20 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     ...elementProps
   } = componentProps;
 
-  const { disabled: fieldDisabled, name: fieldName, state: fieldState } = useFieldRootContext();
+  const {
+    disabled: fieldDisabled,
+    name: fieldName,
+    state: fieldState,
+    validation,
+    setFilled,
+    setDirty,
+    shouldValidateOnChange,
+    validityData,
+  } = useFieldRootContext();
   const { labelId } = useLabelableContext();
+  const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
-
-  const fieldControlValidation = useFieldControlValidation();
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: externalValue,
@@ -82,11 +94,32 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   useField({
     enabled: !!fieldName,
     id,
-    commitValidation: fieldControlValidation.commitValidation,
+    commit: validation.commit,
     value,
     controlRef,
     name: fieldName,
     getValue: () => value,
+  });
+
+  const resolvedValue = value ?? EMPTY_ARRAY;
+
+  useValueChanged(resolvedValue, () => {
+    if (fieldName) {
+      clearErrors(fieldName);
+    }
+
+    const initialValue = Array.isArray(validityData.initialValue)
+      ? (validityData.initialValue as readonly string[])
+      : EMPTY_ARRAY;
+
+    setFilled(resolvedValue.length > 0);
+    setDirty(!areArraysEqual(resolvedValue, initialValue));
+
+    if (shouldValidateOnChange()) {
+      validation.commit(resolvedValue);
+    } else {
+      validation.commit(resolvedValue, true);
+    }
   });
 
   const state: CheckboxGroup.State = React.useMemo(
@@ -105,19 +138,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       setValue,
       parent,
       disabled,
-      fieldControlValidation,
+      validation,
       registerControlRef,
     }),
-    [
-      allValues,
-      value,
-      defaultValue,
-      setValue,
-      parent,
-      disabled,
-      fieldControlValidation,
-      registerControlRef,
-    ],
+    [allValues, value, defaultValue, setValue, parent, disabled, validation, registerControlRef],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -174,7 +198,7 @@ export interface CheckboxGroupProps extends BaseUIComponentProps<'div', Checkbox
   disabled?: boolean;
 }
 
-export type CheckboxGroupChangeEventReason = 'none';
+export type CheckboxGroupChangeEventReason = typeof REASONS.none;
 export type CheckboxGroupChangeEventDetails =
   BaseUIChangeEventDetails<CheckboxGroup.ChangeEventReason>;
 

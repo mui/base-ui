@@ -4,6 +4,7 @@ import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { spy } from 'sinon';
+import { REASONS } from '../../utils/reasons';
 
 describe('<AlertDialog.Root />', () => {
   const { render } = createRenderer();
@@ -100,13 +101,13 @@ describe('<AlertDialog.Root />', () => {
       await user.click(openButton);
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[1].reason).to.equal('trigger-press');
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.triggerPress);
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       expect(handleOpenChange.callCount).to.equal(2);
-      expect(handleOpenChange.secondCall.args[1].reason).to.equal('close-press');
+      expect(handleOpenChange.secondCall.args[1].reason).to.equal(REASONS.closePress);
     });
 
     it('calls onOpenChange with the reason for change when pressed Esc while the dialog is open', async () => {
@@ -126,7 +127,27 @@ describe('<AlertDialog.Root />', () => {
       await user.keyboard('[Escape]');
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[1].reason).to.equal('escape-key');
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.escapeKey);
+    });
+
+    it('does not close when the backdrop is clicked', async () => {
+      const handleOpenChange = spy();
+
+      const { user } = await render(
+        <AlertDialog.Root defaultOpen onOpenChange={handleOpenChange}>
+          <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>,
+      );
+
+      await user.click(screen.getByRole('presentation', { hidden: true }));
+
+      expect(handleOpenChange.callCount).to.equal(0);
+      expect(screen.queryByRole('alertdialog')).not.to.equal(null);
     });
   });
 
@@ -442,6 +463,35 @@ describe('<AlertDialog.Root />', () => {
   });
 
   describe('imperative actions on the handle', () => {
+    it('keeps the alert dialog open when the backdrop is clicked', async () => {
+      const handle = AlertDialog.createHandle();
+
+      const { user } = await render(
+        <React.Fragment>
+          <AlertDialog.Trigger handle={handle}>Open</AlertDialog.Trigger>
+          <AlertDialog.Root handle={handle}>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup>
+                <AlertDialog.Close>Close</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      expect(await screen.findByRole('alertdialog')).not.to.equal(null);
+
+      const backdrop = await screen.findByRole('presentation', { hidden: true });
+      await user.click(backdrop);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).not.to.equal(null);
+      });
+    });
+
     it('opens and closes the dialog', async () => {
       const dialog = AlertDialog.createHandle();
       await render(

@@ -12,6 +12,7 @@ import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useTabsListContext } from '../list/TabsListContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 
 /**
@@ -119,7 +120,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
 
     onTabActivation(
       tabValue,
-      createChangeEventDetails('none', event.nativeEvent, undefined, {
+      createChangeEventDetails(REASONS.none, event.nativeEvent, undefined, {
         activationDirection: 'none',
       }),
     );
@@ -139,12 +140,13 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
 
     if (
-      (activateOnFocus && !isPressingRef.current) || // keyboard or touch focus
-      (isPressingRef.current && isMainButtonRef.current) // mouse focus
+      activateOnFocus &&
+      (!isPressingRef.current || // keyboard or touch focus
+        (isPressingRef.current && isMainButtonRef.current)) // mouse focus
     ) {
       onTabActivation(
         tabValue,
-        createChangeEventDetails('none', event.nativeEvent, undefined, {
+        createChangeEventDetails(REASONS.none, event.nativeEvent, undefined, {
           activationDirection: 'none',
         }),
       );

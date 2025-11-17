@@ -137,11 +137,11 @@ describe('<Menu.Trigger />', () => {
     it('has the aria-expanded=true attribute when open', async () => {
       await render(
         <Menu.Root open>
-          <Menu.Trigger />
+          <Menu.Trigger>Toggle</Menu.Trigger>
         </Menu.Root>,
       );
 
-      const button = screen.getByRole('button');
+      const button = screen.getByRole('button', { name: 'Toggle' });
       expect(button).to.have.attribute('aria-expanded', 'true');
     });
   });
@@ -172,8 +172,8 @@ describe('<Menu.Trigger />', () => {
 
     it('does not close the menu if the user clicks too quickly', async () => {
       await renderFakeTimers(
-        <Menu.Root delay={0} openOnHover>
-          <Menu.Trigger />
+        <Menu.Root>
+          <Menu.Trigger delay={0} openOnHover />
         </Menu.Root>,
       );
 
@@ -190,8 +190,8 @@ describe('<Menu.Trigger />', () => {
 
     it('closes the menu if the user clicks patiently', async () => {
       await renderFakeTimers(
-        <Menu.Root delay={0} openOnHover>
-          <Menu.Trigger />
+        <Menu.Root>
+          <Menu.Trigger delay={0} openOnHover />
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup />
@@ -213,8 +213,8 @@ describe('<Menu.Trigger />', () => {
 
     it('sticks if the user clicks impatiently', async () => {
       await renderFakeTimers(
-        <Menu.Root delay={0} openOnHover>
-          <Menu.Trigger />
+        <Menu.Root>
+          <Menu.Trigger delay={0} openOnHover />
         </Menu.Root>,
       );
 
@@ -236,8 +236,8 @@ describe('<Menu.Trigger />', () => {
 
     it('does not stick if the user clicks patiently', async () => {
       await renderFakeTimers(
-        <Menu.Root delay={0} openOnHover>
-          <Menu.Trigger />
+        <Menu.Root>
+          <Menu.Trigger delay={0} openOnHover />
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup />
@@ -260,8 +260,10 @@ describe('<Menu.Trigger />', () => {
 
     it('should keep the menu open when re-hovered and clicked within the patient threshold', async () => {
       await render(
-        <Menu.Root openOnHover delay={100}>
-          <Menu.Trigger>Open</Menu.Trigger>
+        <Menu.Root>
+          <Menu.Trigger openOnHover delay={100}>
+            Open
+          </Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>Content</Menu.Popup>

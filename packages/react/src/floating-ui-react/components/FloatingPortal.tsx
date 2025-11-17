@@ -13,6 +13,7 @@ import {
   isOutsideEvent,
 } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { EMPTY_OBJECT } from '../../utils/constants';
@@ -261,7 +262,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
                 if (focusManagerState?.closeOnFocusOut) {
                   focusManagerState?.onOpenChange(
                     false,
-                    createChangeEventDetails('focus-out', event.nativeEvent),
+                    createChangeEventDetails(REASONS.focusOut, event.nativeEvent),
                   );
                 }
               }

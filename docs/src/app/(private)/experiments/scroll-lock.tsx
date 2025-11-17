@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useScrollLock } from '../../../../../packages/react/src/utils/useScrollLock';
+import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 
 export default function ScrollLock() {
   const [enabled, setEnabled] = React.useState(false);
   const [bodyScrollY, setBodyScrollY] = React.useState(false);
   const [longContent, setLongContent] = React.useState(true);
 
-  useScrollLock({ enabled, mounted: enabled, open: enabled });
+  useScrollLock(enabled);
 
   React.useEffect(() => {
     document.body.style.overflowY = bodyScrollY ? 'scroll' : '';

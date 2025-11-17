@@ -13,6 +13,7 @@ import {
 
 import type { ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
@@ -97,7 +98,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
     }
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
-      if (details.reason === 'trigger-press' || details.reason === 'escape-key') {
+      if (details.reason === REASONS.triggerPress || details.reason === REASONS.escapeKey) {
         blockFocusRef.current = true;
       }
     }
@@ -132,7 +133,14 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
           }
         }
 
-        onOpenChange(true, createChangeEventDetails('trigger-focus', event.nativeEvent));
+        onOpenChange(
+          true,
+          createChangeEventDetails(
+            REASONS.triggerFocus,
+            event.nativeEvent,
+            event.currentTarget as HTMLElement,
+          ),
+        );
       },
       onBlur(event) {
         blockFocusRef.current = false;
@@ -172,12 +180,22 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
             return;
           }
 
-          onOpenChange(false, createChangeEventDetails('trigger-focus', nativeEvent));
+          // If the next focused element is one of the triggers, do not close
+          // the floating element. The focus handler of that trigger will
+          // handle the open state.
+          if (elements.triggers?.includes(event.relatedTarget as Element)) {
+            return;
+          }
+
+          onOpenChange(false, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
         });
       },
     }),
-    [dataRef, elements.domReference, onOpenChange, visibleOnly, timeout],
+    [dataRef, elements.domReference, elements.triggers, onOpenChange, visibleOnly, timeout],
   );
 
-  return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
+  return React.useMemo(
+    () => (enabled ? { reference, trigger: reference } : {}),
+    [enabled, reference],
+  );
 }

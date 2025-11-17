@@ -22,6 +22,21 @@
       "description": "Event handler called when the selected value of the combobox changes.",
       "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "defaultInputValue": {
+      "type": "string | number | string[]",
+      "description": "The uncontrolled input value when initially rendered.\n\nTo render a controlled input, use the `inputValue` prop instead.",
+      "detailedType": "string | number | string[] | undefined"
+    },
+    "inputValue": {
+      "type": "string | number | string[]",
+      "description": "The input value of the combobox. Use when controlled.",
+      "detailedType": "string | number | string[] | undefined"
+    },
+    "onInputValueChange": {
+      "type": "((inputValue: string, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
+      "description": "Event handler called when the input value changes.",
+      "detailedType": "| ((\n    inputValue: string,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+    },
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
@@ -38,31 +53,16 @@
       "description": "Event handler called when the popup is opened or closed.",
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
-    "actionsRef": {
-      "type": "RefObject<Combobox.Root.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
-      "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
-    },
     "autoHighlight": {
       "type": "boolean",
       "default": "false",
       "description": "Whether the first matching item is highlighted automatically while filtering.",
       "detailedType": "boolean | undefined"
     },
-    "defaultInputValue": {
-      "type": "string | number | string[]",
-      "description": "The uncontrolled input value when initially rendered.\n\nTo render a controlled input, use the `inputValue` prop instead.",
-      "detailedType": "string | number | string[] | undefined"
-    },
-    "filter": {
-      "type": "((itemValue: Value, query: string, itemToString: ((itemValue: Value) => string) | undefined) => boolean) | null",
-      "description": "Filter function used to match items vs input query.",
-      "detailedType": "| ((\n    itemValue: Value,\n    query: string,\n    itemToString:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
-    },
-    "grid": {
+    "keepHighlight": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether list items are presented in a grid layout.\nWhen enabled, arrow keys navigate across rows and columns inferred from DOM rows.",
+      "description": "Whether the highlighted item should be preserved when the pointer leaves the list.",
       "detailedType": "boolean | undefined"
     },
     "highlightItemOnHover": {
@@ -71,10 +71,32 @@
       "description": "Whether moving the pointer over items should highlight them.",
       "detailedType": "boolean | undefined"
     },
-    "inputValue": {
-      "type": "string | number | string[]",
-      "description": "The input value of the combobox. Use when controlled.",
-      "detailedType": "string | number | string[] | undefined"
+    "actionsRef": {
+      "type": "RefObject<Combobox.Root.Actions>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
+      "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
+    },
+    "filter": {
+      "type": "((itemValue: Value, query: string, itemToString: ((itemValue: Value) => string) | undefined) => boolean) | null",
+      "description": "Filter function used to match items vs input query.",
+      "detailedType": "| ((\n    itemValue: Value,\n    query: string,\n    itemToString:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
+    },
+    "filteredItems": {
+      "type": "any[] | Group[]",
+      "description": "Filtered items to display in the list.\nWhen provided, the list will use these items instead of filtering the `items` prop internally.\nUse when you want to control filtering logic externally with the `useFilter()` hook.",
+      "detailedType": "any[] | Group[] | undefined"
+    },
+    "grid": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether list items are presented in a grid layout.\nWhen enabled, arrow keys navigate across rows and columns inferred from DOM rows.",
+      "detailedType": "boolean | undefined"
+    },
+    "inline": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the list is rendered inline without using the popup.",
+      "detailedType": "boolean | undefined"
     },
     "isItemEqualToValue": {
       "type": "((itemValue: Value, selectedValue: Value) => boolean)",
@@ -95,12 +117,6 @@
       "type": "any[] | Group[]",
       "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
       "detailedType": "any[] | Group[] | undefined"
-    },
-    "keepHighlight": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the highlighted item should be preserved when the pointer leaves the list.",
-      "detailedType": "boolean | undefined"
     },
     "limit": {
       "type": "number",
@@ -124,11 +140,6 @@
       "default": "false",
       "description": "Whether multiple items can be selected.",
       "detailedType": "boolean | undefined"
-    },
-    "onInputValueChange": {
-      "type": "((inputValue: string, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
-      "description": "Event handler called when the input value changes.",
-      "detailedType": "| ((\n    inputValue: string,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemHighlighted": {
       "type": "((highlightedValue: Value | undefined, eventDetails: Combobox.Root.HighlightEventDetails) => void)",

@@ -694,7 +694,7 @@ describe('<Autocomplete.Root />', () => {
       expect(submitCount).to.equal(1);
     });
 
-    it('when true, pressing Enter when focus is on List submits the owning form when an item is highlighted', async () => {
+    it('focusing the listbox should keep the input focused and maintain functionality', async () => {
       let submitValue: string | null = null;
       let submitCount = 0;
 
@@ -732,16 +732,16 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'al');
       await user.keyboard('{ArrowDown}');
 
-      const listbox = screen.getByTestId('listbox');
+      const listbox = screen.getByRole('listbox');
       const alphaOption = screen.getByRole('option', { name: 'alpha' });
       await waitFor(() => {
         expect(alphaOption).to.have.attribute('data-highlighted');
       });
 
-      act(() => {
+      await act(() => {
         listbox.focus();
       });
-      expect(listbox).toHaveFocus();
+      expect(input).toHaveFocus();
 
       await user.keyboard('{Enter}');
 
@@ -851,34 +851,31 @@ describe('<Autocomplete.Root />', () => {
       expect(error).to.have.text('required');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
-          autocomplete: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="autocomplete">
-              <Autocomplete.Root>
-                <Autocomplete.Input data-testid="input" />
-                <Autocomplete.Portal>
-                  <Autocomplete.Positioner>
-                    <Autocomplete.Popup>
-                      <Autocomplete.List>
-                        <Autocomplete.Item value="a">a</Autocomplete.Item>
-                        <Autocomplete.Item value="b">b</Autocomplete.Item>
-                      </Autocomplete.List>
-                    </Autocomplete.Popup>
-                  </Autocomplete.Positioner>
-                </Autocomplete.Portal>
-              </Autocomplete.Root>
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      const { user } = await renderFakeTimers(<App />);
+    it('clears external errors on change', async () => {
+      const { user } = await renderFakeTimers(
+        <Form
+          errors={{
+            autocomplete: 'test',
+          }}
+        >
+          <Field.Root name="autocomplete">
+            <Autocomplete.Root>
+              <Autocomplete.Input data-testid="input" />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      <Autocomplete.Item value="a">a</Autocomplete.Item>
+                      <Autocomplete.Item value="b">b</Autocomplete.Item>
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       expect(screen.getByTestId('error')).to.have.text('test');
 

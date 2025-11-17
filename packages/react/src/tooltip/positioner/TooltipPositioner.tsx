@@ -8,6 +8,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 
 /**
  * Positions the tooltip against the trigger.
@@ -32,14 +33,20 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor = true,
+    disableAnchorTracking = false,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
 
-  const { open, setPositionerElement, mounted, floatingRootContext, trackCursorAxis, hoverable } =
-    useTooltipRootContext();
+  const { store } = useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
+
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const trackCursorAxis = store.useState('trackCursorAxis');
+  const disableHoverablePopup = store.useState('disableHoverablePopup');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const instantType = store.useState('instantType');
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -54,15 +61,16 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     collisionPadding,
     sticky,
     arrowPadding,
-    trackAnchor,
+    disableAnchorTracking,
     keepMounted,
     collisionAvoidance,
+    adaptiveOrigin,
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
-    if (!open || trackCursorAxis === 'both' || !hoverable) {
+    if (!open || trackCursorAxis === 'both' || disableHoverablePopup) {
       hiddenStyles.pointerEvents = 'none';
     }
 
@@ -74,7 +82,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
         ...hiddenStyles,
       },
     };
-  }, [open, trackCursorAxis, hoverable, mounted, positioning.positionerStyles]);
+  }, [open, trackCursorAxis, disableHoverablePopup, mounted, positioning.positionerStyles]);
 
   const positioner = React.useMemo(
     () => ({
@@ -90,8 +98,16 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
       side: positioner.side,
       align: positioner.align,
       anchorHidden: positioner.anchorHidden,
+      instant: trackCursorAxis !== 'none' ? 'tracking-cursor' : instantType,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden],
+    [
+      open,
+      positioner.side,
+      positioner.align,
+      positioner.anchorHidden,
+      trackCursorAxis,
+      instantType,
+    ],
   );
 
   const contextValue: TooltipPositionerContext = React.useMemo(
@@ -107,7 +123,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [positioner.props, elementProps],
-    ref: [forwardedRef, setPositionerElement],
+    ref: [forwardedRef, store.useStateSetter('positionerElement')],
     stateAttributesMapping: popupStateMapping,
   });
 
@@ -126,6 +142,10 @@ export interface TooltipPositionerState {
   side: Side;
   align: Align;
   anchorHidden: boolean;
+  /**
+   * Whether CSS transitions should be disabled.
+   */
+  instant: string | undefined;
 }
 
 export interface TooltipPositionerProps
