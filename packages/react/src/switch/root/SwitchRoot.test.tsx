@@ -235,12 +235,9 @@ describe('<Switch.Root />', () => {
       );
 
       const switchElement = screen.getByRole('switch');
-      const label = screen.getByTestId('label');
-
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      await user.click(label);
-
+      await user.click(screen.getByTestId('label'));
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
 
@@ -256,12 +253,9 @@ describe('<Switch.Root />', () => {
       );
 
       const switchElement = screen.getByRole('switch');
-      const label = screen.getByTestId('label');
-
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
-      await user.click(label);
-
+      await user.click(screen.getByTestId('label'));
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
   });

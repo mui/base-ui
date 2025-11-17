@@ -86,12 +86,14 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const name = fieldName ?? nameProp;
   const value = valueProp ?? name;
 
-  const id = useBaseUiId(idProp);
+  const id = useBaseUiId();
 
   const parentId = useBaseUiId();
   let inputId = controlId;
   if (isGroupedWithParent) {
     inputId = parent ? parentId : `${parentContext.id}-${value}`;
+  } else if (idProp) {
+    inputId = idProp;
   }
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
@@ -297,23 +299,13 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           }
         },
         onClick(event: React.MouseEvent) {
-          if (event.defaultPrevented || readOnly) {
+          if (readOnly || disabled) {
             return;
           }
 
           event.preventDefault();
 
           inputRef.current?.click();
-        },
-
-        onKeyDown(event) {
-          if (nativeButton || event.defaultPrevented || readOnly || disabled) {
-            return;
-          }
-
-          if (event.key === 'Enter') {
-            inputRef?.current?.click();
-          }
         },
       },
       getDescriptionProps,

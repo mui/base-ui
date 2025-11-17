@@ -36,73 +36,102 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
-  it('should change its state when clicked', async () => {
-    await render(<Checkbox.Root />);
-    const [checkbox] = screen.getAllByRole('checkbox');
-    // querying it separately since hidden true returns both button and input.
-    // without hidden it only returns the button (in the above query)
-    const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
-      hidden: true,
+  describe('interactions', () => {
+    it('should change its state when clicked', async () => {
+      await render(<Checkbox.Root />);
+      const [checkbox] = screen.getAllByRole('checkbox');
+      // querying it separately since hidden true returns both button and input.
+      // without hidden it only returns the button (in the above query)
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
+
+      expect(checkbox).to.have.attribute('aria-checked', 'false');
+      expect(input.checked).to.equal(false);
+
+      await act(async () => {
+        checkbox.click();
+      });
+
+      expect(checkbox).to.have.attribute('aria-checked', 'true');
+      expect(input.checked).to.equal(true);
+
+      await act(async () => {
+        checkbox.click();
+      });
+
+      expect(checkbox).to.have.attribute('aria-checked', 'false');
+      expect(input.checked).to.equal(false);
     });
 
-    expect(checkbox).to.have.attribute('aria-checked', 'false');
-    expect(input.checked).to.equal(false);
+    it('should update its state when changed from outside', async () => {
+      function Test() {
+        const [checked, setChecked] = React.useState(false);
+        return (
+          <div>
+            <button onClick={() => setChecked((c) => !c)}>Toggle</button>
+            <Checkbox.Root checked={checked} />;
+          </div>
+        );
+      }
 
-    await act(async () => {
-      checkbox.click();
+      await render(<Test />);
+      const [checkbox] = screen.getAllByRole('checkbox');
+      const button = screen.getByText('Toggle');
+
+      expect(checkbox).to.have.attribute('aria-checked', 'false');
+      await act(async () => {
+        button.click();
+      });
+
+      expect(checkbox).to.have.attribute('aria-checked', 'true');
+
+      await act(async () => {
+        button.click();
+      });
+
+      expect(checkbox).to.have.attribute('aria-checked', 'false');
     });
 
-    expect(checkbox).to.have.attribute('aria-checked', 'true');
-    expect(input.checked).to.equal(true);
+    it('should call onChange when clicked', async () => {
+      const handleChange = spy();
+      await render(<Checkbox.Root onCheckedChange={handleChange} />);
+      const [checkbox] = screen.getAllByRole('checkbox');
 
-    await act(async () => {
-      checkbox.click();
+      await act(async () => {
+        checkbox.click();
+      });
+
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(true);
     });
 
-    expect(checkbox).to.have.attribute('aria-checked', 'false');
-    expect(input.checked).to.equal(false);
-  });
+    it('should update its state if the underlying input is toggled', async () => {
+      await render(<Checkbox.Root />);
+      const checkbox = screen.getByRole('checkbox');
+      const internalInput = document.querySelector<HTMLInputElement>('input[type="checkbox"]');
 
-  it('should update its state when changed from outside', async () => {
-    function Test() {
-      const [checked, setChecked] = React.useState(false);
-      return (
-        <div>
-          <button onClick={() => setChecked((c) => !c)}>Toggle</button>
-          <Checkbox.Root checked={checked} />;
-        </div>
-      );
-    }
+      await act(async () => {
+        internalInput?.click();
+      });
 
-    await render(<Test />);
-    const [checkbox] = screen.getAllByRole('checkbox');
-    const button = screen.getByText('Toggle');
-
-    expect(checkbox).to.have.attribute('aria-checked', 'false');
-    await act(async () => {
-      button.click();
+      expect(checkbox).to.have.attribute('aria-checked', 'true');
     });
 
-    expect(checkbox).to.have.attribute('aria-checked', 'true');
+    ['Enter', 'Space'].forEach((key) => {
+      it(`can be activated with ${key} key`, async () => {
+        const { user } = await render(<Checkbox.Root />);
 
-    await act(async () => {
-      button.click();
+        const checkbox = screen.getByRole('checkbox');
+        expect(checkbox).to.have.attribute('aria-checked', 'false');
+
+        await user.keyboard('[Tab]');
+        expect(checkbox).toHaveFocus();
+
+        await user.keyboard(`[${key}]`);
+        expect(checkbox).to.have.attribute('aria-checked', 'true');
+      });
     });
-
-    expect(checkbox).to.have.attribute('aria-checked', 'false');
-  });
-
-  it('should call onChange when clicked', async () => {
-    const handleChange = spy();
-    await render(<Checkbox.Root onCheckedChange={handleChange} />);
-    const [checkbox] = screen.getAllByRole('checkbox');
-
-    await act(async () => {
-      checkbox.click();
-    });
-
-    expect(handleChange.callCount).to.equal(1);
-    expect(handleChange.firstCall.args[0]).to.equal(true);
   });
 
   describe('prop: disabled', () => {
@@ -236,8 +265,9 @@ describe('<Checkbox.Root />', () => {
     expect(screen.getByRole('checkbox')).not.to.have.attribute('name');
   });
 
-  describe('Form', () => {
-    it('should toggle the checkbox when a parent label is clicked', async () => {
+  // flaky with user.click
+  describe('with native <label>', () => {
+    it('should toggle the checkbox when a wrapping <label> is clicked', async () => {
       await render(
         <label data-testid="label">
           <Checkbox.Root />
@@ -245,18 +275,33 @@ describe('<Checkbox.Root />', () => {
         </label>,
       );
 
-      const [checkbox] = screen.getAllByRole('checkbox');
-      const label = screen.getByTestId('label');
-
+      const checkbox = screen.getByRole('checkbox');
       expect(checkbox).to.have.attribute('aria-checked', 'false');
 
-      await act(async () => {
-        label.click();
-      });
-
+      fireEvent.click(screen.getByTestId('label'));
       expect(checkbox).to.have.attribute('aria-checked', 'true');
     });
 
+    it('should toggle the checkbox when a explicitly linked <label> is clicked', async () => {
+      await render(
+        <div>
+          <label data-testid="label" htmlFor="myCheckbox">
+            Toggle
+          </label>
+
+          <Checkbox.Root id="myCheckbox" />
+        </div>,
+      );
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).to.have.attribute('aria-checked', 'false');
+
+      fireEvent.click(screen.getByTestId('label'));
+      expect(checkbox).to.have.attribute('aria-checked', 'true');
+    });
+  });
+
+  describe('Form', () => {
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
         <Form>
