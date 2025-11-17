@@ -4,7 +4,7 @@
 
 _Nov 17, 2025_
 
-### All Components
+### General changes
 
 - **Breaking change:** Replace `trackAnchor` with `disableAnchorTracking`.<br />
   If you were using `trackAnchor={false}`, be sure to update your usage to `disableAnchorTracking` instead.
@@ -12,6 +12,7 @@ _Nov 17, 2025_
 - **Breaking change:** Rename `loop` to `loopFocus` (#3186) by @mnajdova
 - Fix type portability (#2912) by @atomiks
 - Accept a function for the `style` prop (#3038) by @mnajdova
+- Create portal elements inside React (#2889) by @atomiks
 
 ### Accordion
 
@@ -97,10 +98,12 @@ _Nov 17, 2025_
 
 ### Form
 
-- Add `onSubmit` validation mode (#3013) by @mj12albert
-- **Breaking change:** Drop `onClearErrors` prop.<br />
+- **Breaking change:** The `onClearErrors` prop has been removed.<br />
   Errors from the `errors` prop are always cleared when the value changes.
   (#3136) by @mj12albert
+- Add `onSubmit` validation mode.<br />
+  Additionally, `validationMode` can be set on `<Form>`.
+  (#3013) by @mj12albert
 - Add `onFormSubmit` callback (#3131) by @mj12albert
 
 ### Menu
@@ -131,10 +134,6 @@ _Nov 17, 2025_
 - Update the handle API (#3065) by @michaldudak
 - Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. (#3083) by @atomiks
 
-### Portal
-
-- Create portal elements inside React (#2889) by @atomiks
-
 ### Preview Card
 
 - **Breaking change:** Move delay props to trigger.<br />
@@ -144,7 +143,7 @@ _Nov 17, 2025_
 ### Scroll Area
 
 - **Breaking change:** Improve CSS vars performance.<br />
-  The CSS variables are now on the `<ScrollArea.Viewport>` part, not `<ScrollArea.Root>`, which is where they'll typically be used to reduce how many inherit CSS properties need to be specified (for example: on pseudo-elements), and as stated, children no longer inherit the variables.
+  The CSS variables are now on the `<ScrollArea.Viewport>` part, not `<ScrollArea.Root>`, and inheritance is disabled for all child elements (or pseudo-elements). Children must manually opt in using `--scroll-area-[variable-name]: inherit`.
   (#3156) by @atomiks
 
 ### Select
@@ -186,7 +185,7 @@ _Nov 17, 2025_
 
 ### Toolbar
 
-- **Breaking change:** Drop `cols` prop.
+- **Breaking change:** Drop `cols` prop.<br />
   This prop was not supposed to be exposed.
   (#3133) by @mj12albert
 

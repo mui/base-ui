@@ -7,7 +7,7 @@
 
 **Nov 17, 2025**
 
-### All Components
+### General changes
 
 - **Breaking change:** Replace `trackAnchor` with `disableAnchorTracking`.<br />
   If you were using `trackAnchor={false}`, be sure to update your usage to `disableAnchorTracking` instead.
@@ -15,6 +15,7 @@
 - **Breaking change:** Rename `loop` to `loopFocus` ([#3186](https://github.com/mui/base-ui/pull/3186))
 - Fix type portability ([#2912](https://github.com/mui/base-ui/pull/2912))
 - Accept a function for the `style` prop ([#3038](https://github.com/mui/base-ui/pull/3038))
+- Create portal elements inside React ([#2889](https://github.com/mui/base-ui/pull/2889))
 
 ### Accordion
 
@@ -100,10 +101,11 @@
 
 ### Form
 
-- Add `onSubmit` validation mode ([#3013](https://github.com/mui/base-ui/pull/3013))
-- **Breaking change:** Drop `onClearErrors` prop.<br />
+- **Breaking change:** The `onClearErrors` prop has been removed.<br />
   Errors from the `errors` prop are always cleared when the value changes.
   ([#3136](https://github.com/mui/base-ui/pull/3136))
+- Add `onSubmit` validation mode.<br />
+  Additionally, `validationMode` can be set on `<Form>`. ([#3013](https://github.com/mui/base-ui/pull/3013))
 - Add `onFormSubmit` callback ([#3131](https://github.com/mui/base-ui/pull/3131))
 
 ### Menu
@@ -138,10 +140,6 @@
 - Update the handle API ([#3065](https://github.com/mui/base-ui/pull/3065))
 - Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. ([#3083](https://github.com/mui/base-ui/pull/3083))
 
-### Portal
-
-- Create portal elements inside React ([#2889](https://github.com/mui/base-ui/pull/2889))
-
 ### Preview Card
 
 - **Breaking change:** Move delay props to trigger.<br />
@@ -151,7 +149,7 @@
 ### Scroll Area
 
 - **Breaking change:** Improve CSS vars performance.<br />
-  The CSS variables are now on the `<ScrollArea.Viewport>` part, not `<ScrollArea.Root>`, which is where they'll typically be used to reduce how many inherit CSS properties need to be specified (for example: on pseudo-elements), and as stated, children no longer inherit the variables.
+  The CSS variables are now on the `<ScrollArea.Viewport>` part, not `<ScrollArea.Root>`, and inheritance is disabled for all child elements (or pseudo-elements). Children must manually opt in using `--scroll-area-[variable-name]: inherit`.
   ([#3156](https://github.com/mui/base-ui/pull/3156))
 
 ### Select
@@ -193,8 +191,7 @@
 
 ### Toolbar
 
-- **Breaking change:** Drop `cols` prop.
-
+- **Breaking change:** Drop `cols` prop.<br />
   This prop was not supposed to be exposed.
   ([#3133](https://github.com/mui/base-ui/pull/3133))
 
