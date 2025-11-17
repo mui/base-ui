@@ -236,7 +236,7 @@ export async function PropsReferenceAccordion({
 
                   {PropDescription != null && (
                     <DescriptionList.Item>
-                      <DescriptionList.Term data-separator="">Description</DescriptionList.Term>
+                      <DescriptionList.Term separator>Description</DescriptionList.Term>
                       {/* one-off override of the default mt/mb on CodeBlock.Root */}
                       <DescriptionList.Details className="[&_[role='figure']]:mt-1 [&_[role='figure']]:mb-1">
                         <PropDescription />
@@ -245,7 +245,7 @@ export async function PropsReferenceAccordion({
                   )}
 
                   <DescriptionList.Item>
-                    <DescriptionList.Term data-separator="">Type</DescriptionList.Term>
+                    <DescriptionList.Term separator>Type</DescriptionList.Term>
                     <DescriptionList.Details>
                       <PropDetailedType />
                     </DescriptionList.Details>
@@ -253,7 +253,7 @@ export async function PropsReferenceAccordion({
 
                   {prop.default !== undefined && (
                     <DescriptionList.Item>
-                      <DescriptionList.Term data-separator="">Default</DescriptionList.Term>
+                      <DescriptionList.Term separator>Default</DescriptionList.Term>
                       <DescriptionList.Details>
                         <PropDefault />
                       </DescriptionList.Details>
@@ -262,7 +262,7 @@ export async function PropsReferenceAccordion({
 
                   {ExampleSnippet != null && (
                     <DescriptionList.Item>
-                      <DescriptionList.Term data-separator="">Example</DescriptionList.Term>
+                      <DescriptionList.Term separator>Example</DescriptionList.Term>
                       <DescriptionList.Details className="*:my-0">
                         <ExampleSnippet />
                       </DescriptionList.Details>

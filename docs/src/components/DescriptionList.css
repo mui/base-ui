@@ -34,7 +34,7 @@
       margin-bottom: 0;
     }
 
-    &[data-separator] {
+    &.separator {
       &::before {
         content: '';
         box-shadow: inset 0 1px 0 0 var(--color-gray-200);
@@ -73,7 +73,7 @@
       max-width: 100%;
     }
 
-    [data-separator] & {
+    .separator & {
       padding-top: --spacing(2);
     }
 
@@ -81,7 +81,7 @@
       min-height: 2.5rem;
 
       &,
-      [data-separator] & {
+      .separator & {
         padding: 0.625rem 0.75rem;
       }
     }
