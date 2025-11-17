@@ -50,7 +50,6 @@ export const nav: NavGroup[] = [
       {
         label: 'Customization',
         href: '/react/handbook/customization',
-        isNew: true,
       },
       {
         label: 'Forms',
@@ -60,7 +59,6 @@ export const nav: NavGroup[] = [
       {
         label: 'TypeScript',
         href: '/react/handbook/typescript',
-        isNew: true,
       },
       {
         label: 'llms.txt',
