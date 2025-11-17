@@ -159,11 +159,8 @@ export function useHoverFloatingInteraction(
   React.useEffect(() => {
     return () => {
       cleanupMouseMoveHandler();
-      openChangeTimeout.clear();
-      restTimeout.clear();
-      interactedInsideRef.current = false;
     };
-  }, [cleanupMouseMoveHandler, openChangeTimeout, restTimeout, interactedInsideRef]);
+  }, [cleanupMouseMoveHandler]);
 
   React.useEffect(() => {
     return clearPointerEvents;
