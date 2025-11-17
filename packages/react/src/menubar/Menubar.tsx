@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import {
   FloatingNode,
   FloatingTree,
@@ -9,7 +10,6 @@ import {
 import { type MenuRoot } from '../menu/root/MenuRoot';
 import { BaseUIComponentProps } from '../utils/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
-import { useScrollLock } from '../utils/useScrollLock';
 import { useOpenInteractionType } from '../utils/useOpenInteractionType';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useBaseUiId } from '../utils/useBaseUiId';

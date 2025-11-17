@@ -4,6 +4,7 @@ import { useStore } from '@base-ui-components/utils/store';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import {
   useComboboxFloatingContext,
   useComboboxRootContext,
@@ -18,7 +19,6 @@ import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
-import { useScrollLock } from '../../utils/useScrollLock';
 
 /**
  * Positions the popup against the trigger.

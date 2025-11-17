@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import {
   useDismiss,
   useFloatingRootContext,
@@ -9,7 +10,6 @@ import {
   useRole,
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
-import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
