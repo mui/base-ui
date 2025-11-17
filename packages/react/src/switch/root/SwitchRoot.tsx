@@ -8,6 +8,7 @@ import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useButton } from '../../use-button';
 import { SwitchRootContext } from './SwitchRootContext';
 import { stateAttributesMapping } from '../stateAttributesMapping';
@@ -24,7 +25,7 @@ import { useValueChanged } from '../../utils/useValueChanged';
 
 /**
  * Represents the switch itself.
- * Renders a `<button>` element and a hidden `<input>` beside.
+ * Renders a `<span>` element and a hidden `<input>` beside.
  *
  * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
  */
@@ -39,7 +40,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     id: idProp,
     inputRef: externalInputRef,
     name: nameProp,
-    nativeButton = true,
+    nativeButton = false,
     onCheckedChange: onCheckedChangeProp,
     readOnly = false,
     required = false,
@@ -62,8 +63,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     name: fieldName,
     validation,
   } = useFieldRootContext();
-
-  const { labelId } = useLabelableContext();
+  const { labelId, registerLabelableControlRef } = useLabelableContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -75,9 +75,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
 
-  const id = useLabelableId({
+  const id = useBaseUiId();
+
+  const inputId = useLabelableId({
     id: idProp,
-    implicit: true,
+    implicit: false,
     controlRef: switchRef,
   });
 
@@ -120,19 +122,20 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     native: nativeButton,
   });
 
-  const rootProps: React.ComponentPropsWithRef<'button'> = {
+  const rootProps: React.ComponentPropsWithRef<'span'> = {
     id,
     role: 'switch',
-    disabled,
     'aria-checked': checked,
     'aria-readonly': readOnly || undefined,
     'aria-labelledby': labelId,
     onFocus() {
-      setFocused(true);
+      if (!disabled) {
+        setFocused(true);
+      }
     },
     onBlur() {
       const element = inputRef.current;
-      if (!element) {
+      if (!element || disabled) {
         return;
       }
 
@@ -144,11 +147,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       }
     },
     onClick(event) {
-      if (event.defaultPrevented || readOnly) {
+      if (readOnly || disabled) {
         return;
       }
 
       event.preventDefault();
+
       inputRef?.current?.click();
     },
   };
@@ -159,7 +163,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         {
           checked,
           disabled,
-          id: !name ? `${id}-input` : undefined,
+          id: inputId,
           name,
           required,
           style: visuallyHidden,
@@ -184,6 +188,9 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
             setCheckedState(nextChecked);
           },
+          onFocus() {
+            switchRef.current?.focus();
+          },
         },
         validation.getInputValidationProps,
       ),
@@ -191,7 +198,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       checked,
       disabled,
       handleInputRef,
-      id,
+      inputId,
       name,
       onCheckedChange,
       required,
@@ -211,9 +218,9 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     [fieldState, checked, disabled, readOnly, required],
   );
 
-  const element = useRenderElement('button', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     state,
-    ref: [forwardedRef, switchRef, buttonRef],
+    ref: [forwardedRef, registerLabelableControlRef, switchRef, buttonRef],
     props: [rootProps, validation.getValidationProps, elementProps, getButtonProps],
     stateAttributesMapping,
   });
@@ -221,7 +228,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   return (
     <SwitchRootContext.Provider value={state}>
       {element}
-      {!checked && nameProp && <input type="hidden" name={nameProp} value="off" />}
+      {!checked && name && <input type="hidden" name={name} value="off" />}
       <input {...inputProps} />
     </SwitchRootContext.Provider>
   );
@@ -247,7 +254,7 @@ export interface SwitchRootState extends FieldRoot.State {
 }
 export interface SwitchRootProps
   extends NativeButtonProps,
-    Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {
+    Omit<BaseUIComponentProps<'span', SwitchRoot.State>, 'onChange'> {
   /**
    * The id of the switch element.
    */

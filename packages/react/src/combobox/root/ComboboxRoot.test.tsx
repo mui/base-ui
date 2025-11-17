@@ -354,9 +354,9 @@ describe('<Combobox.Root />', () => {
 
         await user.click(trigger);
 
-        expect(screen.queryByText('apple')).not.to.equal(null);
-        expect(screen.queryByText('banana')).not.to.equal(null);
-        expect(screen.queryByText('cherry')).not.to.equal(null);
+        expect(await screen.findByText('apple')).not.to.equal(null);
+        expect(await screen.findByText('banana')).not.to.equal(null);
+        expect(await screen.findByText('cherry')).not.to.equal(null);
       });
 
       it('should reset input value to selected value when popup closes without selection', async () => {

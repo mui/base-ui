@@ -2,12 +2,6 @@
   "name": "MenuPositioner",
   "description": "Positions the menu popup against the trigger.\nRenders a `<div>` element.",
   "props": {
-    "collisionAvoidance": {
-      "type": "CollisionAvoidance",
-      "description": "Determines how to handle collisions when positioning the popup.",
-      "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
-      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'none' | 'flip' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| {\n    side?: 'none' | 'shift'\n    align?: 'none' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| undefined"
-    },
     "disableAnchorTracking": {
       "type": "boolean",
       "default": "false",
@@ -50,6 +44,12 @@
       "type": "Element | RefObject<Element | null> | VirtualElement | (() => Element | VirtualElement | null) | null",
       "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger.",
       "detailedType": "| Element\n| React.RefObject<Element | null>\n| VirtualElement\n| (() => Element | VirtualElement | null)\n| null\n| undefined"
+    },
+    "collisionAvoidance": {
+      "type": "CollisionAvoidance",
+      "description": "Determines how to handle collisions when positioning the popup.",
+      "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
+      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'none' | 'flip' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| {\n    side?: 'none' | 'shift'\n    align?: 'none' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| undefined"
     },
     "collisionBoundary": {
       "type": "Boundary",

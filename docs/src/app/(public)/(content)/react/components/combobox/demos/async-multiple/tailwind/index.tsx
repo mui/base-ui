@@ -138,7 +138,7 @@ export default function ExampleAsyncMultipleCombobox() {
           Assign reviewers
         </label>
         <Combobox.Chips
-          className="relative flex min-h-10 w-80 flex-wrap items-center gap-1 rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800"
+          className="relative flex min-h-10 w-[16rem] md:w-[20rem] flex-wrap items-center gap-1 rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800"
           ref={containerRef}
         >
           <Combobox.Value>

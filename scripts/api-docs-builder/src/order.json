@@ -76,6 +76,7 @@
     "sideOffset",
     "arrowPadding",
     "anchor",
+    "collisionAvoidance",
     "collisionBoundary",
     "collisionPadding",
     "sticky",

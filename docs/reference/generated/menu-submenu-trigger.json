@@ -62,6 +62,12 @@
   "dataAttributes": {
     "data-popup-open": {
       "description": "Present when the corresponding submenu is open."
+    },
+    "data-highlighted": {
+      "description": "Present when the submenu trigger is highlighted."
+    },
+    "data-disabled": {
+      "description": "Present when the submenu trigger is disabled."
     }
   },
   "cssVariables": {}

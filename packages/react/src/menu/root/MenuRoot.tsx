@@ -6,6 +6,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useId } from '@base-ui-components/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
 import {
   FloatingTree,
@@ -24,7 +25,6 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { useScrollLock } from '../../utils/useScrollLock';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import {

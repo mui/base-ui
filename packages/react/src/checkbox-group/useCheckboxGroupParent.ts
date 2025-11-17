@@ -75,8 +75,7 @@ export function useCheckboxGroupParent(
   );
 
   const getChildProps: useCheckboxGroupParent.ReturnValue['getChildProps'] = React.useCallback(
-    (childValue: string, childId?: string) => ({
-      id: childId ?? `${id}-${childValue}`,
+    (childValue: string) => ({
       checked: value.includes(childValue),
       onCheckedChange(nextChecked, eventDetails) {
         const newValue = value.slice();
@@ -90,7 +89,7 @@ export function useCheckboxGroupParent(
         setStatus('mixed');
       },
     }),
-    [id, onValueChange, value],
+    [onValueChange, value],
   );
 
   return React.useMemo(
@@ -128,11 +127,7 @@ export interface UseCheckboxGroupParentReturnValue {
       eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
     ) => void;
   };
-  getChildProps: (
-    value: string,
-    id?: string,
-  ) => {
-    id: string;
+  getChildProps: (value: string) => {
     checked: boolean;
     onCheckedChange: (
       checked: boolean,
