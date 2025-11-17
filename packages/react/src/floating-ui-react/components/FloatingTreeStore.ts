@@ -10,8 +10,6 @@ export class FloatingTreeStore<RT extends ReferenceType = ReferenceType> {
 
   public readonly events: FloatingEvents = createEventEmitter();
 
-  private readonly _id: string = `${Math.random().toString(16).slice(2)}`;
-
   public addNode(node: FloatingNodeType<RT>) {
     this.nodesRef.current.push(node);
   }
