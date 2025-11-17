@@ -6,7 +6,7 @@ import { type DialogRoot } from '../root/DialogRoot';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 import { type FloatingRootContext } from '../../floating-ui-react/types';
-import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { PopupTriggerMap } from '../../utils/popupStoreUtils';
 
 export type State<Payload> = {
@@ -139,7 +139,7 @@ function createInitialState<Payload>(initialState: Partial<State<Payload>> = {})
     transitionStatus: 'idle',
     nestedOpenDialogCount: 0,
     triggers: new Map(),
-    floatingRootContext: getEmptyContext(),
+    floatingRootContext: getEmptyRootContext(),
     payload: undefined,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,

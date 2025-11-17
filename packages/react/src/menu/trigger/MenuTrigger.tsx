@@ -23,10 +23,10 @@ import {
   useInteractions,
 } from '../../floating-ui-react/index';
 import {
-  FloatingTreeStore,
   useFloatingNodeId,
   useFloatingParentNodeId,
 } from '../../floating-ui-react/components/FloatingTree';
+import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';

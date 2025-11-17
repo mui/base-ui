@@ -4,7 +4,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
 import { createAttribute } from '../utils/createAttribute';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
-import { getEmptyContext } from './useFloatingRootContext';
+import { getEmptyRootContext } from '../utils/getEmptyRootContext';
 
 export const safePolygonIdentifier = createAttribute('safe-polygon');
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
@@ -33,7 +33,7 @@ type HoverContextData = ContextData & {
 export function useHoverInteractionSharedState(
   context: FloatingRootContext | null,
 ): HoverInteractionSharedState {
-  const ctx = context ?? getEmptyContext();
+  const ctx = context ?? getEmptyRootContext();
 
   const pointerTypeRef = React.useRef<string | undefined>(undefined);
   const interactedInsideRef = React.useRef(false);
