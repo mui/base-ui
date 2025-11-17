@@ -5,6 +5,7 @@ import { ownerDocument, ownerWindow } from './owner';
 import { useIsoLayoutEffect } from './useIsoLayoutEffect';
 import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
+import { NOOP } from './empty';
 
 /* eslint-disable lines-between-class-members */
 
@@ -210,7 +211,7 @@ class ScrollLocker {
 
     // If the site author already hid overflow on <html>, respect it and bail out.
     if (htmlOverflowY === 'hidden' || htmlOverflowY === 'clip') {
-      this.restore = () => {};
+      this.restore = NOOP;
       return;
     }
 
