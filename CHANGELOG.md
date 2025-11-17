@@ -9,8 +9,6 @@ This is a hotfix release with the following changes:
 - fix for rendering of Alert Dialog, Dialog, Menu, Popover, and Tooltip in React Server Components (#3241)
 - fix for correcting the types of the refs in the Checkbox, Switch and Radio components (#3246)
 
-All contributors of this release in alphabetical order: @LukasTy, @michaldudak
-
 ## v1.0.0-beta.5
 
 _Nov 17, 2025_
