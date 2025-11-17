@@ -4,27 +4,7 @@
 
 _Nov 17, 2025_
 
-This is a hotfix release with a fix for rendering of Alert Dialog, Dialog, Menu, Popover, and Tooltip in React Server Components.
-
-### Alert Dialog
-
-- Do not use client-side code in stores (#3241) by @michaldudak
-
-### Dialog
-
-- Do not use client-side code in stores (#3241) by @michaldudak
-
-### Menu
-
-- Do not use client-side code in stores (#3241) by @michaldudak
-
-### Popover
-
-- Do not use client-side code in stores (#3241) by @michaldudak
-
-### Tooltip
-
-- Do not use client-side code in stores (#3241) by @michaldudak
+This is a hotfix release with a fix for rendering of Alert Dialog, Dialog, Menu, Popover, and Tooltip in React Server Components (#3241).
 
 All contributors of this release in alphabetical order: @LukasTy, @michaldudak
 
