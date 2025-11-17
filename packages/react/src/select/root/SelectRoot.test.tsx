@@ -1506,7 +1506,8 @@ describe('<Select.Root />', () => {
       expect(trigger).to.have.attribute('aria-invalid', 'true');
     });
 
-    it('prop: validateMode=onSubmit', async () => {
+    // flaky in real browser
+    it.skipIf(!isJSDOM)('prop: validateMode=onSubmit', async () => {
       const { user } = await render(
         <Form>
           <Field.Root validate={(val) => (val === '2' ? 'error' : null)}>

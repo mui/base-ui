@@ -7,7 +7,7 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -134,7 +134,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return listElement?.id ?? getFloatingFocusElement(positionerElement)?.id;
   }, [listElement, positionerElement]);
 
-  const props: HTMLProps = mergeProps<'button'>(
+  const props = mergeProps<'button'>(
     triggerProps,
     {
       role: 'combobox',
@@ -225,11 +225,14 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     validation.getValidationProps,
     elementProps,
     getButtonProps,
+    {
+      // ensure nested useButton does not overwrite the combobox role:
+      // <Toolbar.Button render={<Select.Trigger />} />
+      role: 'combobox',
+      // combobox box doesn't need the type="button" attribute
+      type: undefined,
+    },
   );
-
-  // ensure nested useButton does not overwrite the combobox role:
-  // <Toolbar.Button render={<Select.Trigger />} />
-  props.role = 'combobox';
 
   const state: SelectTrigger.State = React.useMemo(
     () => ({

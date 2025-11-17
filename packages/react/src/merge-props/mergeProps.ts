@@ -53,7 +53,15 @@ export function mergeProps<T extends ElementType>(
   d: InputProps<T>,
   e: InputProps<T>,
 ): PropsOf<T>;
-export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
+export function mergeProps<T extends ElementType>(
+  a: InputProps<T>,
+  b: InputProps<T>,
+  c: InputProps<T>,
+  d: InputProps<T>,
+  e: InputProps<T>,
+  f: InputProps<T>,
+): PropsOf<T>;
+export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any, f?: any) {
   // We need to mutably own `merged`
   let merged = { ...resolvePropsGetter(a, EMPTY_PROPS) };
 
@@ -68,6 +76,9 @@ export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
   }
   if (e) {
     merged = mergeOne(merged, e);
+  }
+  if (f) {
+    merged = mergeOne(merged, f);
   }
 
   return merged;
