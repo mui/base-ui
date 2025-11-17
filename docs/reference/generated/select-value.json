@@ -23,6 +23,10 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.Value.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-placeholder": {
+      "description": "Present when the select doesn't have a value."
+    }
+  },
   "cssVariables": {}
 }

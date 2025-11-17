@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import {
   useDismiss,
   useFloatingRootContext,
@@ -12,7 +13,6 @@ import {
 } from '../../floating-ui-react';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
 import { PopoverHandle } from '../store/PopoverHandle';
@@ -82,13 +82,10 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     }
   }, [store, resolvedTriggerId, open]);
 
-  useScrollLock({
-    enabled:
-      open && modal === true && openReason !== REASONS.triggerHover && openMethod !== 'touch',
-    mounted,
-    open,
-    referenceElement: positionerElement,
-  });
+  useScrollLock(
+    open && modal === true && openReason !== REASONS.triggerHover && openMethod !== 'touch',
+    positionerElement,
+  );
 
   React.useEffect(() => {
     if (!open) {

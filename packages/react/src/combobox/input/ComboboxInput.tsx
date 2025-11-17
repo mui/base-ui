@@ -63,12 +63,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const hasPositionerParent = Boolean(positioning);
   const store = useComboboxRootContext();
   const { filteredItems } = useComboboxDerivedItemsContext();
+  // `inputValue` can't be placed in the store.
+  // https://github.com/mui/base-ui/issues/2703
+  const inputValue = useComboboxInputValueContext();
 
+  const id = useBaseUiId(idProp);
   const direction = useDirection();
 
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
-  const openOnInputClick = useStore(store, selectors.openOnInputClick);
   const name = useStore(store, selectors.name);
   const selectionMode = useStore(store, selectors.selectionMode);
   const autoHighlightMode = useStore(store, selectors.autoHighlight);
@@ -79,12 +82,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const selectedValue = useStore(store, selectors.selectedValue);
   const popupSideValue = useStore(store, selectors.popupSide);
   const positionerElement = useStore(store, selectors.positionerElement);
-
-  const id = useBaseUiId(idProp);
-
-  // `inputValue` can't be placed in the store.
-  // https://github.com/mui/base-ui/issues/2703
-  const inputValue = useComboboxInputValueContext();
 
   const autoHighlightEnabled = Boolean(autoHighlightMode);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
@@ -232,7 +229,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             const nextVal = event.currentTarget.value;
             setComposingValue(nextVal);
 
-            if (nextVal === '' && !openOnInputClick && !store.state.inputInsidePopup) {
+            if (nextVal === '' && !store.state.openOnInputClick && !store.state.inputInsidePopup) {
               store.state.setOpen(
                 false,
                 createChangeEventDetails(REASONS.inputClear, event.nativeEvent),
@@ -282,7 +279,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               store.state.setSelectedValue(null, clearDetails);
             }
 
-            if (!openOnInputClick) {
+            if (!store.state.openOnInputClick) {
               store.state.setOpen(false, clearDetails);
             }
           }

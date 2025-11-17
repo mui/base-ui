@@ -22,7 +22,7 @@ import {
 
 /* eslint-disable no-underscore-dangle */
 
-import { useFloatingTree } from '../components/FloatingTree';
+import { FloatingTreeStore, useFloatingTree } from '../components/FloatingTree';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -114,6 +114,10 @@ export interface UseDismissProps {
    * floating elements.
    */
   bubbles?: boolean | { escapeKey?: boolean; outsidePress?: boolean };
+  /**
+   * External FlatingTree to use when the one provided by context can't be used.
+   */
+  externalTree?: FloatingTreeStore;
 }
 
 /**
@@ -135,9 +139,10 @@ export function useDismiss(
     referencePressEvent = 'sloppy',
     ancestorScroll = false,
     bubbles,
+    externalTree,
   } = props;
 
-  const tree = useFloatingTree();
+  const tree = useFloatingTree(externalTree);
   const outsidePressFn = useStableCallback(
     typeof outsidePressProp === 'function' ? outsidePressProp : () => false,
   );

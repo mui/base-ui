@@ -20,7 +20,7 @@ export type State<Payload> = {
   readonly floatingRootContext: FloatingRootContext;
   readonly trackCursorAxis: 'none' | 'x' | 'y' | 'both';
   readonly transitionStatus: TransitionStatus;
-  readonly hoverable: boolean;
+  readonly disableHoverablePopup: boolean;
   readonly preventUnmountingOnClose: boolean;
   readonly lastOpenChangeReason: TooltipRoot.ChangeEventReason | null;
   readonly triggers: PopupTriggerMap;
@@ -48,7 +48,7 @@ const selectors = {
   floatingRootContext: createSelector((state: State<unknown>) => state.floatingRootContext),
   trackCursorAxis: createSelector((state: State<unknown>) => state.trackCursorAxis),
   transitionStatus: createSelector((state: State<unknown>) => state.transitionStatus),
-  hoverable: createSelector((state: State<unknown>) => state.hoverable),
+  disableHoverablePopup: createSelector((state: State<unknown>) => state.disableHoverablePopup),
   preventUnmountingOnClose: createSelector(
     (state: State<unknown>) => state.preventUnmountingOnClose,
   ),
@@ -148,7 +148,7 @@ function createInitialState<Payload>(): State<Payload> {
     floatingRootContext: getEmptyContext(),
     trackCursorAxis: 'none',
     transitionStatus: 'idle',
-    hoverable: true,
+    disableHoverablePopup: false,
     preventUnmountingOnClose: false,
     lastOpenChangeReason: null,
     triggers: new Map(),

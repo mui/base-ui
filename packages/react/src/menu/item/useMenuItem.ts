@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { FloatingEvents } from '../../floating-ui-react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
@@ -20,7 +19,6 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     highlighted,
     id,
     store,
-    menuEvents,
     nativeButton,
     itemMetadata,
     nodeId,
@@ -29,6 +27,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
   const itemRef = React.useRef<HTMLElement | null>(null);
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
+  const { events: menuEvents } = store.useState('floatingTreeRoot');
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -132,10 +131,6 @@ export interface UseMenuItemParameters {
    */
   id: string | undefined;
   /**
-   * The FloatingEvents instance of the menu's root.
-   */
-  menuEvents: FloatingEvents;
-  /**
    * Whether the component renders a native `<button>` element when replacing it
    * via the `render` prop.
    * Set to `false` if the rendered element is not a button (e.g. `<div>`).
@@ -150,7 +145,10 @@ export interface UseMenuItemParameters {
    * The node id of the menu positioner.
    */
   nodeId: string | undefined;
-  store: MenuStore;
+  /**
+   * The menu store.
+   */
+  store: MenuStore<any>;
 }
 
 export type UseMenuItemMetadata =

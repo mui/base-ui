@@ -23,7 +23,7 @@ interface ReasonToEventMap {
   [REASONS.inputBlur]: FocusEvent;
   [REASONS.inputPaste]: ClipboardEvent;
 
-  [REASONS.focusOut]: FocusEvent;
+  [REASONS.focusOut]: FocusEvent | KeyboardEvent;
   [REASONS.escapeKey]: KeyboardEvent;
   [REASONS.listNavigation]: KeyboardEvent;
   [REASONS.keyboard]: KeyboardEvent;

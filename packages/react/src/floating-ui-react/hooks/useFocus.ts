@@ -194,5 +194,8 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
     [dataRef, elements.domReference, elements.triggers, onOpenChange, visibleOnly, timeout],
   );
 
-  return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
+  return React.useMemo(
+    () => (enabled ? { reference, trigger: reference } : {}),
+    [enabled, reference],
+  );
 }

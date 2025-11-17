@@ -248,15 +248,15 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('prop: dismissible', () => {
+  describe('prop: disablePointerDismissal', () => {
     (
       [
-        [true, true],
-        [false, false],
+        [true, false],
+        [false, true],
         [undefined, true],
       ] as const
-    ).forEach(([dismissible, expectDismissed]) => {
-      it(`${expectDismissed ? 'closes' : 'does not close'} the dialog when clicking outside if dismissible=${dismissible}`, async () => {
+    ).forEach(([disablePointerDismissal, expectDismissed]) => {
+      it(`${expectDismissed ? 'closes' : 'does not close'} the dialog when clicking outside if disablePointerDismissal=${disablePointerDismissal}`, async () => {
         const handleOpenChange = spy();
 
         await render(
@@ -264,7 +264,7 @@ describe('<Dialog.Root />', () => {
             <Dialog.Root
               defaultOpen
               onOpenChange={handleOpenChange}
-              dismissible={dismissible}
+              disablePointerDismissal={disablePointerDismissal}
               modal={false}
             >
               <Dialog.Portal>
@@ -1173,7 +1173,7 @@ describe('<Dialog.Root />', () => {
         return (
           <div>
             <Triggers />
-            <Dialog.Root modal={false} dismissible={false} handle={testDialog}>
+            <Dialog.Root modal={false} disablePointerDismissal={true} handle={testDialog}>
               {({ payload }: NumberAccessorPayload) => (
                 <Dialog.Portal>
                   <Dialog.Popup>
