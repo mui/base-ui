@@ -80,7 +80,7 @@ _Nov 17, 2025_
 ### Dialog
 
 - **Breaking change:** Replace `dismissible` with `disablePointerDismissal`.<br />
-  If you were using `dismissible={false}`, be sure to replace it with `disablePointerDismissal`.
+  If you were using `dismissible={false}`, replace it with `disablePointerDismissal`.
   (#3190) by @mnajdova
 - Fix `initialFocus` as function being called on close (#2949) by @atomiks
 - Support detached triggers (#2974) by @michaldudak

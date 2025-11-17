@@ -82,8 +82,8 @@
 
 ### Dialog
 
-- **Breaking change:** Add `onSubmit` validation mode and make it the default over `onBlur`.<br />
-  Fields that use non-`required` attribute validation no longer validate the control on blur. Instead, validation first occurs `onSubmit`, and afterwards revalidation occurs `onChange`.
+- **Breaking change:** Replace `dismissible` with `disablePointerDismissal`.<br />
+  If you were using `dismissible={false}`, replace it with `disablePointerDismissal`.
   ([#3190](https://github.com/mui/base-ui/pull/3190))
 - Fix `initialFocus` as function being called on close ([#2949](https://github.com/mui/base-ui/pull/2949))
 - Support detached triggers ([#2974](https://github.com/mui/base-ui/pull/2974))
