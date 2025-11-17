@@ -131,7 +131,6 @@ _Nov 17, 2025_
   (#2336) by @michaldudak
 - Fix `initialFocus` as function being called on close (#2949) by @atomiks
 - Fix swiping or scrolling on nested popup dismissing popover on touch (#3011) by @atomiks
-- Update the handle API (#3065) by @michaldudak
 - Place `overflow: hidden` on `<body>` for overlay scrollbars by default. Avoids sticky elements shifting if `<body>` has an `overflow` style specified. (#3083) by @atomiks
 
 ### Preview Card
