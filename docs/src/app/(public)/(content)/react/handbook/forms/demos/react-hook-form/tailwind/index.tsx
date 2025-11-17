@@ -312,18 +312,22 @@ function ReactHookForm() {
               }
             >
               <Fieldset.Legend className="-mt-px">Storage type</Fieldset.Legend>
-              <Field.Label>
-                <Radio.Root value="ssd" onBlur={onBlur}>
-                  <Radio.Indicator />
-                </Radio.Root>
-                SSD
-              </Field.Label>
-              <Field.Label>
-                <Radio.Root value="hdd" onBlur={onBlur}>
-                  <Radio.Indicator />
-                </Radio.Root>
-                HDD
-              </Field.Label>
+              <Field.Item>
+                <Field.Label>
+                  <Radio.Root value="ssd" onBlur={onBlur}>
+                    <Radio.Indicator />
+                  </Radio.Root>
+                  SSD
+                </Field.Label>
+              </Field.Item>
+              <Field.Item>
+                <Field.Label>
+                  <Radio.Root value="hdd" onBlur={onBlur}>
+                    <Radio.Indicator />
+                  </Radio.Root>
+                  HDD
+                </Field.Label>
+              </Field.Item>
             </Fieldset.Root>
           </Field.Root>
         )}
@@ -365,18 +369,20 @@ function ReactHookForm() {
               <div className="flex gap-4">
                 {['http', 'https', 'ssh'].map((val) => {
                   return (
-                    <Field.Label key={val} className="uppercase">
-                      <Checkbox.Root
-                        value={val}
-                        inputRef={val === 'http' ? ref : undefined}
-                        onBlur={onBlur}
-                      >
-                        <Checkbox.Indicator>
-                          <Check className="size-3" />
-                        </Checkbox.Indicator>
-                      </Checkbox.Root>
-                      {val}
-                    </Field.Label>
+                    <Field.Item key={val}>
+                      <Field.Label className="uppercase">
+                        <Checkbox.Root
+                          value={val}
+                          inputRef={val === 'http' ? ref : undefined}
+                          onBlur={onBlur}
+                        >
+                          <Checkbox.Indicator>
+                            <Check className="size-3" />
+                          </Checkbox.Indicator>
+                        </Checkbox.Root>
+                        {val}
+                      </Field.Label>
+                    </Field.Item>
                   );
                 })}
               </div>
