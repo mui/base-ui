@@ -6,9 +6,12 @@ export function Root(props: React.ComponentProps<'dl'>) {
   return <dl {...props} className={clsx('DescriptionList', props.className)} />;
 }
 
-export function Term(props: React.ComponentProps<'dt'>) {
+export function Term({
+  separator = false,
+  ...props
+}: React.ComponentProps<'dt'> & { separator?: boolean }) {
   return (
-    <dt {...props} className={clsx('DescriptionTerm', props.className)}>
+    <dt {...props} className={clsx('DescriptionTerm', separator && 'separator', props.className)}>
       <Inner>{props.children}</Inner>
     </dt>
   );
