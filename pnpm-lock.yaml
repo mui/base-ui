@@ -691,6 +691,9 @@ importers:
       '@base-ui-components/react':
         specifier: workspace:*
         version: link:../../packages/react/build
+      '@base-ui-components/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils/build
 
   test/public-types:
     dependencies:
