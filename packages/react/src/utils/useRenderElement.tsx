@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useMergedRefs, useMergedRefsN } from '@base-ui-components/utils/useMergedRefs';
-import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
+import { getReactElementRef } from '@base-ui-components/utils/getReactElementRef';
 import { mergeObjects } from '@base-ui-components/utils/mergeObjects';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
@@ -83,9 +83,9 @@ function useRenderElementProps<
     if (!enabled) {
       useMergedRefs(null, null);
     } else if (Array.isArray(ref)) {
-      outProps.ref = useMergedRefsN([outProps.ref, getElementRef(renderProp), ...ref]);
+      outProps.ref = useMergedRefsN([outProps.ref, getReactElementRef(renderProp), ...ref]);
     } else {
-      outProps.ref = useMergedRefs(outProps.ref, getElementRef(renderProp), ref);
+      outProps.ref = useMergedRefs(outProps.ref, getReactElementRef(renderProp), ref);
     }
   }
 
@@ -136,16 +136,6 @@ function renderTag(Tag: string, props: Record<string, any>) {
     return <img alt="" {...props} key={props.key} />;
   }
   return React.createElement(Tag, props);
-}
-
-export function getElementRef<ElementType extends React.ElementType, State>(
-  render: BaseUIComponentProps<ElementType, State>['render'],
-): React.RefCallback<any> | null {
-  if (!React.isValidElement(render)) {
-    return null;
-  }
-
-  return isReactVersionAtLeast(19) ? render.props?.ref : render.ref;
 }
 
 type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicElements
