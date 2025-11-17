@@ -6,14 +6,8 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { REASONS } from '../../utils/reasons';
-
-async function wait(time: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, time);
-  });
-}
 
 describe('<Menu.Root />', () => {
   beforeEach(() => {

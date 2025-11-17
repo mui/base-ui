@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { act, waitFor, screen, fireEvent } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
 import { Menu } from '@base-ui-components/react/menu';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, wait } from '#test-utils';
 
 describe('<MenuRoot />', () => {
   beforeEach(() => {
@@ -11,14 +11,6 @@ describe('<MenuRoot />', () => {
   });
 
   const { render } = createRenderer();
-
-  async function wait(ms: number) {
-    await act(async () => {
-      await new Promise((resolve) => {
-        setTimeout(resolve, ms);
-      });
-    });
-  }
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
     type NumberPayload = { payload: number | undefined };
