@@ -2,6 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer, MuiRenderResult, screen } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
+import { getReactElementRef } from './getReactElementRef';
 import { useMergedRefs } from './useMergedRefs';
 
 describe('useMergedRefs', () => {
@@ -56,7 +57,7 @@ describe('useMergedRefs', () => {
 
     const Outer = React.forwardRef<HTMLDivElement, TestComponentProps>(function Outer(props, ref) {
       const { children } = props;
-      const handleRef = useMergedRefs('ref' in children ? children.ref : children.props.ref, ref);
+      const handleRef = useMergedRefs(getReactElementRef(children), ref);
 
       return React.cloneElement(children, { ref: handleRef });
     });
