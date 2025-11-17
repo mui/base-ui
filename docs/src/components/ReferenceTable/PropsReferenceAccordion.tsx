@@ -22,7 +22,7 @@ function ExpandedCode(props: React.ComponentProps<'code'>) {
 
 function ExpandedPre(props: React.ComponentProps<'pre'>) {
   return (
-    <Accordion.Scrollable component="div" gradientColor="var(--color-gray-50)">
+    <Accordion.Scrollable tag="div" gradientColor="var(--color-gray-50)">
       <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: undefined }} />
     </Accordion.Scrollable>
   );
