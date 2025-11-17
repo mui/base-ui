@@ -110,9 +110,9 @@
 
 ### Menu
 
-- **Breaking change:** Support detached triggers.
-
-  TODO: DESCRIBE THE BREAKING CHANGE.
+- **Breaking change:** Support detached triggers.<br />
+  `openOnHover`, `delay`, and `closeDelay` props moved from Menu.Root to Menu.Trigger.
+  Additionally, menus now must have at least one Trigger element.
   ([#3170](https://github.com/mui/base-ui/pull/3170))
 
 - Ignore disabled item on initial focusing ([#2604](https://github.com/mui/base-ui/pull/2604))
@@ -130,9 +130,8 @@
 
 ### Popover
 
-- **Breaking change:** Support detached triggers and multiple triggers per popover.
-
-  TODO: DESCRIBE THE BREAKING CHANGE.
+- **Breaking change:** Support detached triggers and multiple triggers per popover.<br />
+  `openOnHover`, `delay`, and `closeDelay` props moved from Popover.Root to Popover.Trigger.
   ([#2336](https://github.com/mui/base-ui/pull/2336))
 
 - Fix `initialFocus` as function being called on close ([#2949](https://github.com/mui/base-ui/pull/2949))
@@ -196,9 +195,8 @@
 
 ### Tooltip
 
-- **Breaking change:** Support detached triggers.
-
-  TODO: DESCRIBE THE BREAKING CHANGE.
+- **Breaking change:** Support detached triggers.<br />
+  `delay` and `closeDelay` props were moved from Tooltip.Root to Tooltip.Trigger.
   ([#3071](https://github.com/mui/base-ui/pull/3071))
 
 - **Breaking change:** Change `hoverable` to `disableHoverablePopup`.<br />

@@ -109,7 +109,8 @@ _Nov 17, 2025_
 ### Menu
 
 - **Breaking change:** Support detached triggers.
-  TODO: DESCRIBE THE BREAKING CHANGE.
+  `openOnHover`, `delay`, and `closeDelay` props moved from Menu.Root to Menu.Trigger.
+  Additionally, menus now must have at least one Trigger element.
   (#3170) by @michaldudak
 - Ignore disabled item on initial focusing (#2604) by @mnajdova
 - Fix stealing focus from dialogs on close (#2920) by @atomiks
@@ -126,8 +127,8 @@ _Nov 17, 2025_
 
 ### Popover
 
-- **Breaking change:** Support detached triggers and multiple triggers per popover.
-  TODO: DESCRIBE THE BREAKING CHANGE.
+- **Breaking change:** Support detached triggers and multiple triggers per popover.<br />
+  `openOnHover`, `delay`, and `closeDelay` props moved from Popover.Root to Popover.Trigger.
   (#2336) by @michaldudak
 - Fix `initialFocus` as function being called on close (#2949) by @atomiks
 - Fix swiping or scrolling on nested popup dismissing popover on touch (#3011) by @atomiks
@@ -190,8 +191,8 @@ _Nov 17, 2025_
 
 ### Tooltip
 
-- **Breaking change:** Support detached triggers.
-  TODO: DESCRIBE THE BREAKING CHANGE.
+- **Breaking change:** Support detached triggers.<br />
+  `delay` and `closeDelay` props were moved from Tooltip.Root to Tooltip.Trigger.
   (#3071) by @michaldudak
 - **Breaking change:** Change `hoverable` to `disableHoverablePopup`.<br />
   In case you need to disable the hoverable popup behavior, be sure to add the `disableHoverablePopup` prop.
