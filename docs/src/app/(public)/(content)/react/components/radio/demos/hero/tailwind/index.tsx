@@ -1,14 +1,17 @@
+'use client';
+import * as React from 'react';
 import { Radio } from '@base-ui-components/react/radio';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
 
 export default function ExampleRadioGroup() {
+  const id = React.useId();
   return (
     <RadioGroup
-      aria-labelledby="apples-caption"
+      aria-labelledby={id}
       defaultValue="fuji-apple"
       className="flex flex-col items-start gap-1 text-gray-900"
     >
-      <div className="font-medium" id="apples-caption">
+      <div className="font-medium" id={id}>
         Best apple
       </div>
 

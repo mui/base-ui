@@ -47,40 +47,6 @@ import { DemoCheckboxGroupNested } from './demos/nested';
 
 <DemoCheckboxGroupNested compact />
 
-### Form integration
-
-To use checkbox group in a form:
-
-1. Pass the group's `name` to `<Field>`
-2. Use the `render` prop to compose `<Fieldset>` and `<CheckboxGroup>`
-3. Use `<Field.Item>` to wrap each checkbox in the group
-
-```tsx title="Using CheckboxGroup in a form"
-<Form>
-  <Field.Root name="toppings">
-    <Fieldset.Root render={<CheckboxGroup />}>
-      <Fieldset.Legend>Toppings</Fieldset.Legend>
-      <Field.Item>
-        <Field.Label>
-          <Checkbox.Root value="anchovies" />
-          Anchovies
-        </Field.Label>
-      </Field.Item>
-      <Field.Item>
-        <Field.Label>
-          <Checkbox.Root value="olives" />
-          Olives
-        </Field.Label>
-      </Field.Item>
-    </Fieldset.Root>
-  </Field.Root>
-</Form>
-```
-
-import { DemoCheckboxGroupForm } from './demos/form';
-
-<DemoCheckboxGroupForm compact />
-
 ## API reference
 
 <Reference component="CheckboxGroup" />

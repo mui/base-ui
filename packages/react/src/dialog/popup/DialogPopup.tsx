@@ -49,6 +49,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
+  const role = store.useState('role');
 
   useDialogPortalContext();
 
@@ -93,7 +94,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       {
         'aria-labelledby': titleElementId ?? undefined,
         'aria-describedby': descriptionElementId ?? undefined,
-        role: 'dialog',
+        role,
         tabIndex: -1,
         hidden: !mounted,
         onKeyDown(event: React.KeyboardEvent) {

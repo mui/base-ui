@@ -375,12 +375,14 @@ function TanstackForm() {
               >
                 <Fieldset.Legend className="-mt-px">Storage type</Fieldset.Legend>
                 {['ssd', 'hdd'].map((radioValue) => (
-                  <Field.Label key={radioValue} className="uppercase">
-                    <Radio.Root value={radioValue}>
-                      <Radio.Indicator />
-                    </Radio.Root>
-                    {radioValue}
-                  </Field.Label>
+                  <Field.Item key={radioValue}>
+                    <Field.Label className="uppercase">
+                      <Radio.Root value={radioValue}>
+                        <Radio.Indicator />
+                      </Radio.Root>
+                      {radioValue}
+                    </Field.Label>
+                  </Field.Item>
                 ))}
               </Fieldset.Root>
               <Field.Error match={!field.state.meta.isValid}>
@@ -438,14 +440,16 @@ function TanstackForm() {
                 <div className="flex gap-4">
                   {['http', 'https', 'ssh'].map((checkboxValue) => {
                     return (
-                      <Field.Label key={checkboxValue} className="uppercase">
-                        <Checkbox.Root value={checkboxValue} onBlur={field.handleBlur}>
-                          <Checkbox.Indicator>
-                            <Check className="size-3" />
-                          </Checkbox.Indicator>
-                        </Checkbox.Root>
-                        {checkboxValue}
-                      </Field.Label>
+                      <Field.Item key={checkboxValue}>
+                        <Field.Label className="uppercase">
+                          <Checkbox.Root value={checkboxValue} onBlur={field.handleBlur}>
+                            <Checkbox.Indicator>
+                              <Check className="size-3" />
+                            </Checkbox.Indicator>
+                          </Checkbox.Root>
+                          {checkboxValue}
+                        </Field.Label>
+                      </Field.Item>
                     );
                   })}
                 </div>

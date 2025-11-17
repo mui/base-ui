@@ -8,12 +8,13 @@ const mainPermissions = ['view-dashboard', 'manage-users', 'access-reports'];
 const userManagementPermissions = ['create-user', 'edit-user', 'delete-user', 'assign-roles'];
 
 export default function PermissionsForm() {
+  const id = React.useId();
   const [mainValue, setMainValue] = React.useState<string[]>([]);
   const [managementValue, setManagementValue] = React.useState<string[]>([]);
 
   return (
     <CheckboxGroup
-      aria-labelledby="permissions-caption"
+      aria-labelledby={id}
       value={mainValue}
       onValueChange={(value) => {
         if (value.includes('manage-users')) {
@@ -27,7 +28,7 @@ export default function PermissionsForm() {
       className={styles.CheckboxGroup}
       style={{ marginLeft: '1rem' }}
     >
-      <label className={styles.Item} id="permissions-caption" style={{ marginLeft: '-1rem' }}>
+      <label className={styles.Item} id={id} style={{ marginLeft: '-1rem' }}>
         <Checkbox.Root
           className={styles.Checkbox}
           parent
