@@ -31,7 +31,7 @@ import { useValueChanged } from '../../utils/useValueChanged';
  */
 export const SwitchRoot = React.forwardRef(function SwitchRoot(
   componentProps: SwitchRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     checked: checkedProp,
