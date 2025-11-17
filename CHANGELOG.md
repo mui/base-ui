@@ -185,7 +185,7 @@ _Nov 17, 2025_
 
 ### Toolbar
 
-- **Breaking change:** Drop `cols` prop.<br />
+- **Breaking change:** The `cols` prop has been removed.<br />
   This prop was not supposed to be exposed.
   (#3133) by @mj12albert
 
@@ -194,7 +194,7 @@ _Nov 17, 2025_
 - **Breaking change:** Support detached triggers.
   TODO: DESCRIBE THE BREAKING CHANGE.
   (#3071) by @michaldudak
-- **Breaking change:** Change `hoverable` to `disableHoverablePopup`.
+- **Breaking change:** Change `hoverable` to `disableHoverablePopup`.<br />
   In case you need to disable the hoverable popup behavior, be sure to add the `disableHoverablePopup` prop.
   (#3178) by @mnajdova
 - Fix `data-instant` ending transition of same tooltip (#2962) by @atomiks
