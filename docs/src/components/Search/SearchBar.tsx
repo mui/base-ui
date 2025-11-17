@@ -11,13 +11,13 @@ import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import './SearchBar.css';
 
 interface SearchResult {
-  id: string;
+  id?: string;
   title: string;
   description: string;
   slug: string;
   section: string;
   prefix: string;
-  score: number;
+  score?: number;
 }
 
 export function SearchBar({
@@ -29,6 +29,7 @@ export function SearchBar({
 }) {
   const router = useRouter();
   const [index, setIndex] = React.useState<any>(null);
+  const defaultResults = React.useRef<SearchResult[]>([]);
   const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -148,6 +149,8 @@ export function SearchBar({
 
       insertMultiple(searchIndex, pages);
       setIndex(searchIndex);
+      setSearchResults(pages);
+      defaultResults.current = pages;
     });
   }, [sitemapImport]);
 
@@ -191,6 +194,8 @@ export function SearchBar({
       } else {
         setDialogOpen(false);
       }
+
+      setSearchResults(defaultResults.current);
 
       // Reset after a short delay
       setTimeout(() => {
@@ -327,21 +332,23 @@ export function SearchBar({
                           </div>
                         ) : (
                           <Autocomplete.List>
-                            {(result: SearchResult) => (
+                            {(result: SearchResult, i) => (
                               <Autocomplete.Item
-                                key={result.id}
+                                key={result.id || i}
                                 value={result}
                                 onClick={() => handleItemClick(result)}
                                 className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100 data-highlighted:bg-gray-900 data-highlighted:text-gray-50"
                               >
                                 <div className="flex items-baseline justify-between gap-2">
                                   <strong className="font-semibold">{result.title}</strong>
-                                  <span className="text-xs opacity-70">
-                                    {result.score.toFixed(2)}
-                                  </span>
+                                  {result.score && (
+                                    <span className="text-xs opacity-70">
+                                      {result.score.toFixed(2)}
+                                    </span>
+                                  )}
                                 </div>
                                 <div className="text-sm opacity-70">
-                                  {result.section} → {result.slug}
+                                  {result.section.replace('React ', '')}
                                 </div>
                                 {result.description && (
                                   <div className="mt-0.5 text-sm opacity-80">
