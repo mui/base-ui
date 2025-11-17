@@ -6,7 +6,9 @@
   content="A high-quality, unstyled React menu component that displays list of actions in a dropdown, enhanced with keyboard navigation."
 />
 
-<Demo path="./demos/hero" />
+import { DemoMenuHero } from './demos/hero';
+
+<DemoMenuHero />
 
 ## Anatomy
 
@@ -40,32 +42,31 @@ import { Menu } from '@base-ui-components/react/menu';
 </Menu.Root>;
 ```
 
-## API reference
-
-<Reference
-  component="Menu"
-  parts="Root, Trigger, Portal, Backdrop, Positioner, Popup, Arrow, Item, SubmenuRoot, SubmenuTrigger, Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, Separator"
-/>
-
 ## Examples
 
 ### Open on hover
 
 To create a menu that opens on hover, add the `openOnHover` prop to the Root part. You can additionally configure how quickly the menu opens on hover using the `delay` prop.
 
-<Demo compact path="./demos/open-on-hover" />
+import { DemoMenuOpenOnHover } from './demos/open-on-hover';
+
+<DemoMenuOpenOnHover compact />
 
 ### Checkbox items
 
 Use the `<Menu.CheckboxItem>` part to create a menu item that can toggle a setting on or off.
 
-<Demo compact path="./demos/checkbox-items" />
+import { DemoMenuCheckboxItems } from './demos/checkbox-items';
+
+<DemoMenuCheckboxItems compact />
 
 ### Radio items
 
 Use the `<Menu.RadioGroup>` and `<Menu.RadioItem>` parts to create menu items that work like radio buttons.
 
-<Demo compact path="./demos/radio-items" />
+import { DemoMenuRadioItems } from './demos/radio-items';
+
+<DemoMenuRadioItems compact />
 
 ### Close on click
 
@@ -83,7 +84,9 @@ Use the `closeOnClick` prop to change whether the menu closes when an item is cl
 
 Use the `<Menu.GroupLabel>` part to add a label to a `<Menu.Group>`
 
-<Demo compact path="./demos/group-labels" />
+import { DemoMenuGroupLabels } from './demos/group-labels';
+
+<DemoMenuGroupLabels compact />
 
 ### Nested menu
 
@@ -116,7 +119,9 @@ To create a submenu, nest another menu inside the parent menu with `<Menu.Submen
 </Menu.Root>
 ```
 
-<Demo compact path="./demos/submenu" />
+import { DemoMenuSubmenu } from './demos/submenu';
+
+<DemoMenuSubmenu compact />
 
 ### Navigate to another page
 
@@ -166,3 +171,111 @@ function ExampleMenu() {
   );
 }
 ```
+
+### Detached triggers
+
+A menu can be opened by a trigger that lives either inside or outside the `<Menu.Root>`.
+Keep the trigger inside `<Menu.Root>` for simple, tightly coupled layouts like the hero demo at the top of this page.
+When the trigger and menu content need to live in different parts of the tree (for example, in a card list that controls a menu rendered near the document root), create a `handle` with `Menu.createHandle()` and pass it to both the trigger and the root.
+
+Note that only top-level menus can have detached triggers.
+Submenus must have their triggers defined within the `SubmenuRoot` part.
+
+```jsx title="Detached triggers" {3,7} "handle={demoMenu}"
+const demoMenu = Menu.createHandle();
+
+<Menu.Trigger handle={demoMenu}>
+  Actions
+</Menu.Trigger>
+
+<Menu.Root handle={demoMenu}>
+  <Menu.Portal>
+    <Menu.Positioner>
+      <Menu.Popup>
+        <Menu.Item>Edit</Menu.Item>
+        <Menu.Item>Share</Menu.Item>
+      </Menu.Popup>
+    </Menu.Positioner>
+  </Menu.Portal>
+</Menu.Root>
+```
+
+import { DemoMenuDetachedTriggersSimple } from './demos/detached-triggers-simple';
+
+<DemoMenuDetachedTriggersSimple />
+
+### Multiple triggers
+
+One menu can be opened by several triggers.
+You can either render multiple `<Menu.Trigger>` components inside the same `<Menu.Root>`, or attach several detached triggers to the same `handle`.
+
+```jsx title="Multiple triggers within the Root part"
+<Menu.Root>
+  <Menu.Trigger>Row actions</Menu.Trigger>
+  <Menu.Trigger>Quick actions</Menu.Trigger>
+  {/* Rest of the menu */}
+</Menu.Root>
+```
+
+```jsx title="Multiple detached triggers"
+const projectMenu = Menu.createHandle();
+
+<Menu.Trigger handle={projectMenu}>Row actions</Menu.Trigger>
+<Menu.Trigger handle={projectMenu}>Quick actions</Menu.Trigger>
+
+<Menu.Root handle={projectMenu}>
+  {/* Rest of the menu */}
+</Menu.Root>
+```
+
+Menus can render different content depending on which trigger opened them.
+Pass a `payload` prop to each `<Menu.Trigger>` and read it via a function child on `<Menu.Root>`.
+Provide a type argument to `createHandle()` to strongly type the payload.
+
+```jsx title="Detached triggers with payload" {6,8,12,17}
+const menus = {
+  'file': ['New', 'Open', 'Save'],
+  'edit': ['Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
+}
+
+const demoMenu = Menu.createHandle<{ items: string[] }>();
+
+<Menu.Trigger handle={demoMenu} payload={{ items: menus['file'] }}>
+  File
+</Menu.Trigger>
+
+<Menu.Trigger handle={demoMenu} payload={{ items: menus['edit'] }}>
+  Edit
+</Menu.Trigger>
+
+<Menu.Root handle={demoMenu}>
+  {({ payload }) => (
+    <Menu.Portal>
+      <Menu.Positioner>
+        <Menu.Popup>
+          {(payload ?? []).items.map((item) => (
+            <Menu.Item key={item}>{item}</Menu.Item>
+          ))}
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
+  )}
+</Menu.Root>
+```
+
+### Controlled mode with multiple triggers
+
+Control a menu's open state externally with the `open` and `onOpenChange` props on `<Menu.Root>`.
+When more than one trigger can open the menu, track the active trigger with the `triggerId` prop on `<Menu.Root>` and matching `id` props on each `<Menu.Trigger>`.
+The `onOpenChange` callback receives `eventDetails`, which includes the DOM element that initiated the change, so you can update your `triggerId` state when the user activates a different trigger.
+
+import { DemoMenuDetachedTriggersControlled } from './demos/detached-triggers-controlled';
+
+<DemoMenuDetachedTriggersControlled compact />
+
+## API reference
+
+<Reference
+  component="Menu"
+  parts="Root, Trigger, Portal, Backdrop, Positioner, Popup, Arrow, Item, SubmenuRoot, SubmenuTrigger, Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, Separator"
+/>

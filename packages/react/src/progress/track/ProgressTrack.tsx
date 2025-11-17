@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useProgressRootContext } from '../root/ProgressRootContext';
-import { progressStyleHookMapping } from '../root/styleHooks';
+import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { ProgressRoot } from '../root/ProgressRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
@@ -24,12 +24,14 @@ export const ProgressTrack = React.forwardRef(function ProgressTrack(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: progressStyleHookMapping,
+    stateAttributesMapping: progressStateAttributesMapping,
   });
 
   return element;
 });
 
+export interface ProgressTrackProps extends BaseUIComponentProps<'div', ProgressRoot.State> {}
+
 export namespace ProgressTrack {
-  export interface Props extends BaseUIComponentProps<'div', ProgressRoot.State> {}
+  export type Props = ProgressTrackProps;
 }

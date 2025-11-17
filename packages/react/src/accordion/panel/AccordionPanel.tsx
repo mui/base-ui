@@ -9,7 +9,7 @@ import { useAccordionRootContext } from '../root/AccordionRootContext';
 import type { AccordionRoot } from '../root/AccordionRoot';
 import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
-import { accordionStyleHookMapping } from '../item/styleHooks';
+import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -153,7 +153,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
       },
       elementProps,
     ],
-    customStyleHookMapping: accordionStyleHookMapping,
+    stateAttributesMapping: accordionStateAttributesMapping,
   });
 
   const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
@@ -164,12 +164,15 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
   return element;
 });
 
-export namespace AccordionPanel {
-  export interface State extends AccordionItem.State {
-    transitionStatus: TransitionStatus;
-  }
+export interface AccordionPanelState extends AccordionItem.State {
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props
-    extends BaseUIComponentProps<'div', AccordionItem.State>,
-      Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
+export interface AccordionPanelProps
+  extends BaseUIComponentProps<'div', AccordionPanel.State>,
+    Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
+
+export namespace AccordionPanel {
+  export type State = AccordionPanelState;
+  export type Props = AccordionPanelProps;
 }

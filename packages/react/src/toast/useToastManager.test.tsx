@@ -4,11 +4,16 @@ import { Dialog } from '@base-ui-components/react/dialog';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { useToastManager } from './useToastManager';
 import { List } from './utils/test-utils';
 
-describe('useToast', () => {
+async function tick(clock: ReturnType<typeof createRenderer>['clock'], ms: number) {
+  clock.tick(ms);
+  await flushMicrotasks();
+}
+
+describe.skipIf(!isJSDOM)('useToast', () => {
   describe('add', () => {
     const { clock, render } = createRenderer();
 
@@ -44,7 +49,7 @@ describe('useToast', () => {
 
       expect(screen.queryByTestId('root')).not.to.equal(null);
 
-      clock.tick(5000);
+      await tick(clock, 5000);
 
       expect(screen.queryByTestId('root')).to.equal(null);
     });
@@ -70,7 +75,7 @@ describe('useToast', () => {
 
         expect(screen.queryByTestId('root')).not.to.equal(null);
 
-        clock.tick(1000);
+        await tick(clock, 1000);
 
         expect(screen.queryByTestId('root')).to.equal(null);
       });
@@ -282,7 +287,7 @@ describe('useToast', () => {
 
         expect(onCloseSpy.callCount).to.equal(0);
 
-        clock.tick(1000);
+        await tick(clock, 1000);
 
         expect(onCloseSpy.callCount).to.equal(1);
       });
@@ -434,8 +439,7 @@ describe('useToast', () => {
 
       expect(screen.getByTestId('description')).to.have.text('loading');
 
-      clock.tick(1000);
-      await flushMicrotasks();
+      await tick(clock, 1000);
 
       expect(screen.getByTestId('description')).to.have.text('success');
     });
@@ -481,8 +485,7 @@ describe('useToast', () => {
 
       expect(screen.getByTestId('description')).to.have.text('loading');
 
-      clock.tick(1000);
-      await flushMicrotasks();
+      await tick(clock, 1000);
 
       expect(screen.getByTestId('description')).to.have.text('error');
     });
@@ -524,8 +527,7 @@ describe('useToast', () => {
 
       expect(screen.getByTestId('description')).to.have.text('loading');
 
-      clock.tick(1000);
-      await flushMicrotasks();
+      await tick(clock, 1000);
 
       expect(screen.getByTestId('description')).to.have.text('test success');
     });
@@ -569,8 +571,7 @@ describe('useToast', () => {
 
       expect(screen.getByTestId('description')).to.have.text('loading');
 
-      clock.tick(1000);
-      await flushMicrotasks();
+      await tick(clock, 1000);
 
       expect(screen.getByTestId('description')).to.have.text('test error');
     });
@@ -659,12 +660,12 @@ describe('useToast', () => {
 
         expect(screen.getByTestId('description')).to.have.text('loading');
 
-        clock.tick(1000);
-        await flushMicrotasks();
+        await tick(clock, 1000);
 
         expect(screen.getByTestId('description')).to.have.text('success');
 
-        clock.tick(5000);
+        await tick(clock, 5000);
+
         expect(screen.queryByTestId('root')).to.equal(null);
       });
 
@@ -709,12 +710,11 @@ describe('useToast', () => {
 
         expect(screen.getByTestId('description')).to.have.text('loading');
 
-        clock.tick(1000);
-        await flushMicrotasks();
+        await tick(clock, 1000);
 
         expect(screen.getByTestId('description')).to.have.text('error');
 
-        clock.tick(5000);
+        await tick(clock, 5000);
         expect(screen.queryByTestId('root')).to.equal(null);
       });
 
@@ -758,15 +758,14 @@ describe('useToast', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        clock.tick(1000);
-        await flushMicrotasks();
+        await tick(clock, 1000);
 
         expect(screen.getByTestId('description')).to.have.text('success');
 
-        clock.tick(1000);
+        await tick(clock, 1000);
         expect(screen.getByTestId('root')).not.to.equal(null);
 
-        clock.tick(1000);
+        await tick(clock, 1000);
         expect(screen.queryByTestId('root')).to.equal(null);
       });
 
@@ -812,15 +811,14 @@ describe('useToast', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        clock.tick(1000);
-        await flushMicrotasks();
+        await tick(clock, 1000);
 
         expect(screen.getByTestId('description')).to.have.text('error');
 
-        clock.tick(2000);
+        await tick(clock, 2000);
         expect(screen.getByTestId('root')).not.to.equal(null);
 
-        clock.tick(1000);
+        await tick(clock, 1000);
         expect(screen.queryByTestId('root')).to.equal(null);
       });
 
@@ -861,12 +859,11 @@ describe('useToast', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        clock.tick(1000);
-        await flushMicrotasks();
+        await tick(clock, 1000);
 
         expect(screen.getByTestId('description')).to.have.text('success');
 
-        clock.tick(1000);
+        await tick(clock, 1000);
         expect(screen.queryByTestId('root')).to.equal(null);
       });
 
@@ -910,12 +907,11 @@ describe('useToast', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        clock.tick(1000);
-        await flushMicrotasks();
+        await tick(clock, 1000);
 
         expect(screen.getByTestId('description')).to.have.text('success');
 
-        clock.tick(10000);
+        await tick(clock, 10000);
         expect(screen.getByTestId('root')).not.to.equal(null);
       });
 
@@ -959,21 +955,20 @@ describe('useToast', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        clock.tick(1000);
-        await flushMicrotasks();
+        await tick(clock, 1000);
 
         expect(screen.getByTestId('description')).to.have.text('success');
 
-        clock.tick(1000);
+        await tick(clock, 1000);
 
         const toast = screen.getByTestId('root');
         fireEvent.mouseEnter(toast);
 
-        clock.tick(5000);
+        await tick(clock, 5000);
         expect(screen.getByTestId('root')).not.to.equal(null);
 
         fireEvent.mouseLeave(toast);
-        clock.tick(2000);
+        await tick(clock, 2000);
         expect(screen.queryByTestId('root')).to.equal(null);
       });
     });

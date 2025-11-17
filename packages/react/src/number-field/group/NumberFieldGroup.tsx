@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -24,14 +24,18 @@ export const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
     ref: forwardedRef,
     state,
     props: [{ role: 'group' }, elementProps],
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;
 });
 
-export namespace NumberFieldGroup {
-  export interface State extends NumberFieldRoot.State {}
+export interface NumberFieldGroupState extends NumberFieldRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface NumberFieldGroupProps
+  extends BaseUIComponentProps<'div', NumberFieldGroup.State> {}
+
+export namespace NumberFieldGroup {
+  export type State = NumberFieldGroupState;
+  export type Props = NumberFieldGroupProps;
 }

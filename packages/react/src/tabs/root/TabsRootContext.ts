@@ -1,27 +1,23 @@
 'use client';
 import * as React from 'react';
 import type { TabsTab } from '../tab/TabsTab';
+import type { TabsRoot } from './TabsRoot';
 
 export interface TabsRootContext {
   /**
-   * The currently selected tab's value.
+   * The currently active tab's value.
    */
   value: TabsTab.Value;
   /**
    * Callback for setting new value.
    */
-  onValueChange: (
-    value: TabsTab.Value,
-    activationDirection: TabsTab.ActivationDirection,
-    event: Event,
-  ) => void;
+  onValueChange: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;
   /**
    * The component orientation (layout flow direction).
    */
   orientation: 'horizontal' | 'vertical';
   /**
    * Gets the element of the Tab with the given value.
-   * @param {any | undefined} value Value to find the tab for.
    */
   getTabElementBySelectedValue: (selectedValue: TabsTab.Value | undefined) => HTMLElement | null;
   /**

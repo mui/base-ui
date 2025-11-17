@@ -8,7 +8,7 @@ import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
 import type { PropDef as BasePropDef } from './types';
-import { TableCode } from '../TableCode';
+import { TableCode, type TableCodeProps } from '../TableCode';
 import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
 function ExpandedCode(props: React.ComponentProps<'code'>) {
@@ -54,6 +54,10 @@ function getShortPropType(name: string, type: string | undefined) {
 
   if (name === 'className') {
     return { type: 'string | function', detailedType: true };
+  }
+
+  if (name === 'style') {
+    return { type: 'React.CSSProperties | function', detailedType: true };
   }
 
   if (name === 'render') {
@@ -104,6 +108,8 @@ export async function PropsReferenceAccordion({
       <Accordion.HeaderRow className={clsx('grid', TRIGGER_GRID_LAYOUT)}>
         <Accordion.HeaderCell>Prop</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-xs:hidden">Type</Accordion.HeaderCell>
+        <Accordion.HeaderCell className="max-md:hidden">Default</Accordion.HeaderCell>
+        <Accordion.HeaderCell className="max-md:hidden w-10" />
       </Accordion.HeaderRow>
       {Object.keys(data).map(async (name, index) => {
         const prop = data[name];
@@ -138,10 +144,15 @@ export async function PropsReferenceAccordion({
 
         const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ ...inlineMdxComponents, code: TableCode }),
+          useMDXComponents: () => ({
+            ...inlineMdxComponents,
+            code: (codeProps: TableCodeProps) => (
+              <TableCode {...codeProps} printWidth={name === 'children' ? 999 : undefined} />
+            ),
+          }),
         });
 
-        const PropDefault = await createMdxComponent(`\`${prop.required ? '—' : prop.default}\``, {
+        const PropDefault = await createMdxComponent(`\`${prop.default}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
           useMDXComponents: () => ({ ...inlineMdxComponents, code: TableCode }),
         });
@@ -174,22 +185,19 @@ export async function PropsReferenceAccordion({
               id={id}
               index={index}
               aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
-              className={clsx(
-                'min-h-min scroll-mt-12 py-0 max-xs:gap-4 md:scroll-mt-0 md:gap-5',
-                TRIGGER_GRID_LAYOUT,
-              )}
+              className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
             >
-              <Accordion.Scrollable>
+              <Accordion.Scrollable className="px-3">
                 <TableCode className="text-navy whitespace-nowrap">
                   {name}
                   {prop.required ? <sup className="top-[-0.3em] text-xs text-red-800">*</sup> : ''}
                 </TableCode>
               </Accordion.Scrollable>
               {prop.type && (
-                <Accordion.Scrollable className="flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
+                <Accordion.Scrollable className="px-3 flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
                   {hasExpandedType || detailedType ? (
-                    <ReferenceTableTooltip.Root delay={300} hoverable={false}>
-                      <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
+                    <ReferenceTableTooltip.Root disableHoverablePopup>
+                      <ReferenceTableTooltip.Trigger render={<ShortPropType />} delay={300} />
                       <ReferenceTableTooltip.Popup>
                         {hasExpandedType ? <PropDetailedType /> : <PropType />}
                       </ReferenceTableTooltip.Popup>
@@ -197,23 +205,27 @@ export async function PropsReferenceAccordion({
                   ) : (
                     <ShortPropType />
                   )}
-                  {prop.default !== undefined && (
-                    <span className="inline-flex items-baseline gap-1 break-keep whitespace-nowrap">
-                      <span>(</span>default: <PropDefault />)
-                    </span>
-                  )}
                 </Accordion.Scrollable>
               )}
-              <svg
-                className="AccordionIcon translate-y-px"
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
-              </svg>
+              <Accordion.Scrollable className="max-md:hidden break-keep whitespace-nowrap px-3">
+                {prop.required || prop.default === undefined ? (
+                  <TableCode className="text-(--syntax-nullish)">—</TableCode>
+                ) : (
+                  <PropDefault />
+                )}
+              </Accordion.Scrollable>
+              <div className="flex justify-center max-xs:ml-auto max-xs:mr-3">
+                <svg
+                  className="AccordionIcon translate-y-px"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 10 10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                </svg>
+              </div>
             </Accordion.Trigger>
             <Accordion.Panel>
               <Accordion.Content>
@@ -231,9 +243,7 @@ export async function PropsReferenceAccordion({
                   </DescriptionList.Item>
                   {PropDescription != null && (
                     <DescriptionList.Item>
-                      <DescriptionList.Term className="max-xs:pt-2">
-                        Description
-                      </DescriptionList.Term>
+                      <DescriptionList.Term separator>Description</DescriptionList.Term>
                       {/* one-off override of the default mt/mb on CodeBlock.Root */}
                       <DescriptionList.Details className="[&_[role='figure']]:mt-1 [&_[role='figure']]:mb-1">
                         <PropDescription />
@@ -241,14 +251,14 @@ export async function PropsReferenceAccordion({
                     </DescriptionList.Item>
                   )}
                   <DescriptionList.Item>
-                    <DescriptionList.Term className="max-xs:pt-2">Type</DescriptionList.Term>
+                    <DescriptionList.Term separator>Type</DescriptionList.Term>
                     <DescriptionList.Details>
                       <PropDetailedType />
                     </DescriptionList.Details>
                   </DescriptionList.Item>
                   {prop.default !== undefined && (
                     <DescriptionList.Item>
-                      <DescriptionList.Term className="max-xs:pt-2">Default</DescriptionList.Term>
+                      <DescriptionList.Term separator>Default</DescriptionList.Term>
                       <DescriptionList.Details>
                         <PropDefault />
                       </DescriptionList.Details>
@@ -256,7 +266,7 @@ export async function PropsReferenceAccordion({
                   )}
                   {ExampleSnippet != null && (
                     <DescriptionList.Item>
-                      <DescriptionList.Term className="max-xs:pt-2">Example</DescriptionList.Term>
+                      <DescriptionList.Term separator>Example</DescriptionList.Term>
                       <DescriptionList.Details className="*:my-0">
                         <ExampleSnippet />
                       </DescriptionList.Details>
@@ -276,12 +286,12 @@ const TRIGGER_GRID_LAYOUT =
   'xs:grid ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
-  'md:grid-cols-[1fr_2fr_theme(spacing.10)] ';
+  'md:grid-cols-[5fr_7fr_4.5fr_theme(spacing.10)] ';
 
 const PANEL_GRID_LAYOUT =
-  'gap-3 ' +
   'max-xs:flex max-xs:flex-col ' +
+  'min-xs:gap-0 ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
-  'xs:gap-0 ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
-  'md:grid-cols-[1fr_2fr_theme(spacing.10)] ';
+  // 5fr+11.5fr aligns with 5fr+7fr+4.5fr above
+  'md:grid-cols-[5fr_11.5fr_theme(spacing.10)] ';

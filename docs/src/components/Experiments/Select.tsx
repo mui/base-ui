@@ -37,7 +37,7 @@ export function Select(props: Select.Props) {
 
 export namespace Select {
   export interface Props
-    extends Omit<React.HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'onChange'> {
+    extends Omit<React.HTMLAttributes<HTMLButtonElement>, 'defaultValue' | 'onChange'> {
     value: string;
     onChange: (value: string) => void;
     options: string[];

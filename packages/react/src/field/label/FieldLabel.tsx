@@ -4,6 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { getTarget } from '../../floating-ui-react/utils';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { fieldValidityMapping } from '../utils/constants';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -21,27 +22,31 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 ) {
   const { render, className, id: idProp, ...elementProps } = componentProps;
 
-  const { labelId, setLabelId, state, controlId } = useFieldRootContext(false);
+  const fieldRootContext = useFieldRootContext(false);
+
+  const { controlId, setLabelId, labelId, labelableControlRef } = useLabelableContext();
 
   const id = useBaseUiId(idProp);
-  const htmlFor = controlId ?? undefined;
+
+  const labelRef = React.useRef<HTMLLabelElement>(null);
 
   useIsoLayoutEffect(() => {
-    if (controlId != null || idProp) {
+    if (id) {
       setLabelId(id);
     }
+
     return () => {
       setLabelId(undefined);
     };
-  }, [controlId, id, idProp, setLabelId]);
+  }, [id, labelableControlRef, setLabelId]);
 
   const element = useRenderElement('label', componentProps, {
-    ref: forwardedRef,
-    state,
+    ref: [forwardedRef, labelRef],
+    state: fieldRootContext.state,
     props: [
       {
         id: labelId,
-        htmlFor,
+        htmlFor: controlId ?? undefined,
         onMouseDown(event) {
           const target = getTarget(event.nativeEvent) as HTMLElement | null;
           if (target?.closest('button,input,select,textarea')) {
@@ -56,14 +61,17 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
       },
       elementProps,
     ],
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   return element;
 });
 
-export namespace FieldLabel {
-  export type State = FieldRoot.State;
+export type FieldLabelState = FieldRoot.State;
 
-  export interface Props extends BaseUIComponentProps<'label', State> {}
+export interface FieldLabelProps extends BaseUIComponentProps<'label', FieldLabel.State> {}
+
+export namespace FieldLabel {
+  export type State = FieldLabelState;
+  export type Props = FieldLabelProps;
 }

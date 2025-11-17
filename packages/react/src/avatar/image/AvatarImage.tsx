@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRoot } from '../root/AvatarRoot';
-import { avatarStyleHookMapping } from '../root/styleHooks';
+import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStatus';
 
 /**
@@ -34,7 +34,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     crossOrigin,
   });
 
-  const handleLoadingStatusChange = useEventCallback((status: ImageLoadingStatus) => {
+  const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
     context.setImageLoadingStatus(status);
   });
@@ -56,18 +56,20 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: avatarStyleHookMapping,
+    stateAttributesMapping: avatarStateAttributesMapping,
     enabled: imageLoadingStatus === 'loaded',
   });
 
   return element;
 });
 
+export interface AvatarImageProps extends BaseUIComponentProps<'img', AvatarRoot.State> {
+  /**
+   * Callback fired when the loading status changes.
+   */
+  onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
+}
+
 export namespace AvatarImage {
-  export interface Props extends BaseUIComponentProps<'img', AvatarRoot.State> {
-    /**
-     * Callback fired when the loading status changes.
-     */
-    onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
-  }
+  export type Props = AvatarImageProps;
 }

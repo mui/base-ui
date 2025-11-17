@@ -2,6 +2,12 @@
   "name": "Menubar",
   "description": "The container for menus.",
   "props": {
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
+      "detailedType": "boolean | undefined"
+    },
     "modal": {
       "type": "boolean",
       "default": "true",
@@ -14,12 +20,6 @@
       "description": "Whether the whole menubar is disabled.",
       "detailedType": "boolean | undefined"
     },
-    "loop": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
-      "detailedType": "boolean | undefined"
-    },
     "orientation": {
       "type": "Menu.Root.Orientation",
       "default": "'horizontal'",
@@ -27,8 +27,13 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: Menubar.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Menubar.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Menubar.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Menubar.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menubar.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menubar.State) => ReactElement)",

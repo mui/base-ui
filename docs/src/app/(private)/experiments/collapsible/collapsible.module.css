@@ -50,7 +50,7 @@
   box-sizing: border-box;
   width: 100%;
   height: auto;
-  /*  height: var(--collapsible-panel-height);*/
+  /*  height: var(--collapsible-panel-height); */
 }
 
 .Content {

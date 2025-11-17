@@ -2,19 +2,21 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useToastContext } from '../provider/ToastProviderContext';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
 
-const customStyleHookMapping: CustomStyleHookMapping<ToastRoot.State> = {
+const stateAttributesMapping: StateAttributesMapping<ToastRoot.State> = {
   ...transitionStatusMapping,
   swipeDirection(value) {
     return value ? { 'data-swipe-direction': value } : null;
@@ -87,19 +89,17 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ...elementProps
   } = componentProps;
 
-  const swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
+  const isAnchored = toast.positionerProps?.anchor !== undefined;
 
-  const {
-    toasts,
-    hovering,
-    focused,
-    close,
-    remove,
-    setToasts,
-    pauseTimers,
-    resumeTimers,
-    hasDifferingHeights,
-  } = useToastContext();
+  let swipeDirections: ('up' | 'down' | 'left' | 'right')[] = [];
+  if (!isAnchored) {
+    swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
+  }
+
+  const swipeEnabled = swipeDirections.length > 0;
+
+  const { toasts, focused, close, remove, setToasts, pauseTimers, expanded, setHovering } =
+    useToastContext();
 
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     'up' | 'down' | 'left' | 'right' | undefined
@@ -145,39 +145,32 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     },
   });
 
-  React.useEffect(() => {
-    if (!rootRef.current) {
-      return undefined;
+  const recalculateHeight = useStableCallback(() => {
+    const element = rootRef.current;
+    if (!element) {
+      return;
     }
 
-    function setHeights() {
-      const height = rootRef.current?.offsetHeight;
-      setToasts((prev) =>
-        prev.map((t) =>
-          t.id === toast.id
-            ? {
-                ...t,
-                ref: rootRef,
-                height,
-                transitionStatus: undefined,
-              }
-            : t,
-        ),
-      );
-    }
+    const previousHeight = element.style.height;
+    element.style.height = 'auto';
+    const height = element.offsetHeight;
+    element.style.height = previousHeight;
 
-    setHeights();
+    setToasts((prev) =>
+      prev.map((t) =>
+        t.id === toast.id
+          ? {
+              ...t,
+              ref: rootRef,
+              height,
+              transitionStatus: undefined,
+            }
+          : t,
+      ),
+    );
+  });
 
-    if (typeof ResizeObserver === 'function') {
-      const resizeObserver = new ResizeObserver(setHeights);
-      resizeObserver.observe(rootRef.current);
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }
-
-    return undefined;
-  }, [toast.id, setToasts]);
+  useIsoLayoutEffect(recalculateHeight, [recalculateHeight]);
 
   function applyDirectionalDamping(deltaX: number, deltaY: number) {
     let newDeltaX = deltaX;
@@ -249,6 +242,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       });
     }
 
+    setHovering(true);
     setIsSwiping(true);
     setIsRealSwipe(false);
     setLockedDirection(null);
@@ -379,10 +373,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       return;
     }
 
-    if (event.pointerType === 'touch' && !focused) {
-      resumeTimers();
-    }
-
     setIsSwiping(false);
     setIsRealSwipe(false);
     setLockedDirection(null);
@@ -457,6 +447,10 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   }
 
   React.useEffect(() => {
+    if (!swipeEnabled) {
+      return undefined;
+    }
+
     const element = rootRef.current;
     if (!element) {
       return undefined;
@@ -472,7 +466,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     return () => {
       element.removeEventListener('touchmove', preventDefaultTouchStart);
     };
-  }, []);
+  }, [swipeEnabled]);
 
   function getDragStyles() {
     if (
@@ -492,6 +486,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
     return {
       transition: isSwiping ? 'none' : undefined,
+      // While swiping, freeze the element at its current visual transform so it doesn't snap to the
+      // end position.
+      transform: isSwiping
+        ? `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`
+        : undefined,
       [ToastRootCssVars.swipeMovementX]: `${deltaX}px`,
       [ToastRootCssVars.swipeMovementY]: `${deltaY}px`,
     };
@@ -506,9 +505,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     'aria-labelledby': titleId,
     'aria-describedby': descriptionId,
     'aria-hidden': isHighPriority && !focused ? true : undefined,
-    onPointerDown: handlePointerDown,
-    onPointerMove: handlePointerMove,
-    onPointerUp: handlePointerUp,
+    onPointerDown: swipeEnabled ? handlePointerDown : undefined,
+    onPointerMove: swipeEnabled ? handlePointerMove : undefined,
+    onPointerUp: swipeEnabled ? handlePointerUp : undefined,
     onKeyDown: handleKeyDown,
     inert: inertValue(toast.limited),
     style: {
@@ -516,10 +515,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       [ToastRootCssVars.index as string]:
         toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
       [ToastRootCssVars.offsetY as string]: `${offsetY}px`,
+      [ToastRootCssVars.height as string]: toast.height ? `${toast.height}px` : undefined,
     },
   };
 
-  const toastRoot = React.useMemo(
+  const toastRoot: ToastRootContext = React.useMemo(
     () => ({
       rootRef,
       toast,
@@ -529,23 +529,35 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       setDescriptionId,
       swiping: isSwiping,
       swipeDirection: currentSwipeDirection,
+      recalculateHeight,
+      index: domIndex,
+      visibleIndex,
+      expanded,
     }),
-    [toast, titleId, descriptionId, isSwiping, currentSwipeDirection],
+    [
+      toast,
+      titleId,
+      descriptionId,
+      isSwiping,
+      currentSwipeDirection,
+      recalculateHeight,
+      domIndex,
+      visibleIndex,
+      expanded,
+    ],
   );
 
   const state: ToastRoot.State = React.useMemo(
     () => ({
       transitionStatus: toast.transitionStatus,
-      expanded: hovering || focused || hasDifferingHeights,
+      expanded,
       limited: toast.limited || false,
       type: toast.type,
       swiping: toastRoot.swiping,
       swipeDirection: toastRoot.swipeDirection,
     }),
     [
-      hovering,
-      focused,
-      hasDifferingHeights,
+      expanded,
       toast.transitionStatus,
       toast.limited,
       toast.type,
@@ -557,49 +569,41 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, toastRoot.rootRef],
     state,
-    customStyleHookMapping,
+    stateAttributesMapping,
     props: [defaultProps, elementProps],
   });
 
   return <ToastRootContext.Provider value={toastRoot}>{element}</ToastRootContext.Provider>;
 });
 
+export type ToastRootToastObject<Data extends object = any> = ToastObjectType<Data>;
+export interface ToastRootState {
+  transitionStatus: TransitionStatus;
+  /** Whether the toasts in the viewport are expanded. */
+  expanded: boolean;
+  /** Whether the toast was removed due to exceeding the limit. */
+  limited: boolean;
+  /** The type of the toast. */
+  type: string | undefined;
+  /** Whether the toast is being swiped. */
+  swiping: boolean;
+  /** The direction the toast is being swiped. */
+  swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
+}
+export interface ToastRootProps extends BaseUIComponentProps<'div', ToastRoot.State> {
+  /**
+   * The toast to render.
+   */
+  toast: ToastRootToastObject<any>;
+  /**
+   * Direction(s) in which the toast can be swiped to dismiss.
+   * @default ['down', 'right']
+   */
+  swipeDirection?: 'up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[];
+}
+
 export namespace ToastRoot {
-  export type ToastObject<Data extends object = any> = ToastObjectType<Data>;
-
-  export interface State {
-    transitionStatus: TransitionStatus;
-    /**
-     * Whether the toasts in the viewport are expanded.
-     */
-    expanded: boolean;
-    /**
-     * Whether the toast was removed due to exceeding the limit.
-     */
-    limited: boolean;
-    /**
-     * The type of the toast.
-     */
-    type: string | undefined;
-    /**
-     * Whether the toast is being swiped.
-     */
-    swiping: boolean;
-    /**
-     * The direction the toast is being swiped.
-     */
-    swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
-  }
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The toast to render.
-     */
-    toast: ToastObject<any>;
-    /**
-     * Direction(s) in which the toast can be swiped to dismiss.
-     * @default ['down', 'right']
-     */
-    swipeDirection?: 'up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[];
-  }
+  export type ToastObject<Data extends object = any> = ToastRootToastObject<Data>;
+  export type State = ToastRootState;
+  export type Props = ToastRootProps;
 }

@@ -5,19 +5,19 @@ import { useSelectPositionerContext } from '../positioner/SelectPositionerContex
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectArrow.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectArrow.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
 
 /**
- * Displays an element positioned against the select menu anchor.
+ * Displays an element positioned against the select popup anchor.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -48,7 +48,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
     state,
     ref: [arrowRef, forwardedRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   if (alignItemWithTriggerActive) {
@@ -58,16 +58,19 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
   return element;
 });
 
-export namespace SelectArrow {
-  export interface State {
-    /**
-     * Whether the select menu is currently open.
-     */
-    open: boolean;
-    side: Side | 'none';
-    align: Align;
-    uncentered: boolean;
-  }
+export interface SelectArrowState {
+  /**
+   * Whether the select popup is currently open.
+   */
+  open: boolean;
+  side: Side | 'none';
+  align: Align;
+  uncentered: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface SelectArrowProps extends BaseUIComponentProps<'div', SelectArrow.State> {}
+
+export namespace SelectArrow {
+  export type State = SelectArrowState;
+  export type Props = SelectArrowProps;
 }

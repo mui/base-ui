@@ -9,8 +9,13 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Toast.Action.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Toast.Action.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Toast.Action.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Toast.Action.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toast.Action.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toast.Action.State) => ReactElement)",

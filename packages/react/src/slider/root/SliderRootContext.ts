@@ -2,26 +2,31 @@
 import * as React from 'react';
 import type { Orientation } from '../../utils/types';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
-import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot } from './SliderRoot';
-import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface SliderRootContext {
   /**
    * The index of the active thumb.
    */
   active: number;
+  /**
+   * The index of the most recently interacted thumb.
+   */
+  lastUsedThumbIndex: number;
   controlRef: React.RefObject<HTMLElement | null>;
   dragging: boolean;
   disabled: boolean;
-  fieldControlValidation: useFieldControlValidation.ReturnValue;
+  validation: UseFieldValidationReturnValue;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   handleInputChange: (
     valueInput: number,
     index: number,
     event: React.KeyboardEvent | React.ChangeEvent,
   ) => void;
+  indicatorPosition: (number | undefined)[];
+  inset: boolean;
   labelId?: string;
   /**
    * The large step value of the slider when incrementing or decrementing while the shift key is held,
@@ -30,6 +35,7 @@ export interface SliderRootContext {
    */
   largeStep: number;
   lastChangedValueRef: React.RefObject<number | readonly number[] | null>;
+  lastChangeReasonRef: React.RefObject<SliderRoot.ChangeEventReason>;
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
@@ -47,13 +53,13 @@ export interface SliderRootContext {
    * The minimum steps between values in a range slider.
    */
   minStepsBetweenValues: number;
-  name: string;
+  name: string | undefined;
   /**
    * Function to be called when drag ends and the pointer is released.
    */
   onValueCommitted: (
     newValue: number | readonly number[],
-    data: BaseUIEventDetails<'none'>,
+    data: SliderRoot.CommitEventDetails,
   ) => void;
   /**
    * The component orientation.
@@ -63,13 +69,16 @@ export interface SliderRootContext {
   pressedInputRef: React.RefObject<HTMLInputElement | null>;
   pressedThumbCenterOffsetRef: React.RefObject<number | null>;
   pressedThumbIndexRef: React.RefObject<number>;
+  pressedValuesRef: React.RefObject<readonly number[] | null>;
+  renderBeforeHydration: boolean;
   registerFieldControlRef: React.RefCallback<Element> | null;
-  setActive: React.Dispatch<React.SetStateAction<number>>;
+  setActive: (index: number) => void;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
+  setIndicatorPosition: React.Dispatch<React.SetStateAction<(number | undefined)[]>>;
   /**
    * Callback fired when dragging and invokes onValueChange.
    */
-  setValue: (newValue: number | number[], activeThumb: number, event: Event) => void;
+  setValue: (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => void;
   state: SliderRoot.State;
   /**
    * The step increment of the slider when incrementing or decrementing. It will snap
@@ -77,6 +86,7 @@ export interface SliderRootContext {
    * @default 1
    */
   step: number;
+  thumbCollisionBehavior: 'push' | 'swap' | 'none';
   thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
   thumbRefs: React.RefObject<(HTMLElement | null)[]>;
   /**

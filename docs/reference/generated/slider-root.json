@@ -18,14 +18,14 @@
       "detailedType": "number | number[] | undefined"
     },
     "onValueChange": {
-      "type": "((value: number | number[], eventDetails: Slider.Root.ChangeEventDetails, activeThumbIndex: number) => void)",
-      "description": "Callback function that is fired when the slider's value changed.",
-      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.ChangeEventDetails,\n    activeThumbIndex: number,\n  ) => void)\n| undefined"
+      "type": "((value: number | number[], eventDetails: Slider.Root.ChangeEventDetails) => void)",
+      "description": "Callback function that is fired when the slider's value changed.\nYou can pull out the new value by accessing `event.target.value` (any).\n\nThe `eventDetails.reason` indicates what triggered the change:\n\n- `'input-change'` when the hidden range input emits a change event (for example, via form integration)\n- `'track-press'` when the control track is pressed\n- `'drag'` while dragging a thumb\n- `'keyboard'` for keyboard input\n- `'none'` when the change is triggered without a specific interaction",
+      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onValueCommitted": {
-      "type": "((value: number | number[], eventDetails: Slider.Root.ChangeEventDetails) => void)",
-      "description": "Callback function that is fired when the `pointerup` is triggered.",
-      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "type": "((value: number | number[], eventDetails: Slider.Root.CommitEventDetails) => void)",
+      "description": "Callback function that is fired when the `pointerup` is triggered.\n**Warning**: This is a generic event not a change event.\n\nThe `eventDetails.reason` indicates what triggered the commit:\n\n- `'drag'` while dragging a thumb\n- `'track-press'` when the control track is pressed\n- `'keyboard'` for keyboard input\n- `'input-change'` when the hidden range input emits a change event (for example, via form integration)\n- `'none'` when the commit occurs without a specific interaction",
+      "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.CommitEventDetails,\n  ) => void)\n| undefined"
     },
     "locale": {
       "type": "Intl.LocalesArgument",
@@ -35,6 +35,18 @@
     "ref": {
       "type": "RefObject<HTMLDivElement>",
       "detailedType": "React.RefObject<HTMLDivElement> | undefined"
+    },
+    "thumbAlignment": {
+      "type": "'center' | 'edge' | 'edge-client-only'",
+      "default": "'center'",
+      "description": "How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`:\n- `center`: The center of the thumb is aligned with the control edge\n- `edge`: The thumb is inset within the control such that its edge is aligned with the control edge\n- `edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return",
+      "detailedType": "'center' | 'edge' | 'edge-client-only' | undefined"
+    },
+    "thumbCollisionBehavior": {
+      "type": "'none' | 'push' | 'swap'",
+      "default": "'push'",
+      "description": "Controls how thumbs behave when they collide during pointer interactions.\n\n- `'push'` (default): Thumbs push each other without restoring their previous positions when dragged back.\n- `'swap'`: Thumbs swap places when dragged past each other.\n- `'none'`: Thumbs cannot move past each other; excess movement is ignored.",
+      "detailedType": "'none' | 'push' | 'swap' | undefined"
     },
     "step": {
       "type": "number",
@@ -84,8 +96,13 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: Slider.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Slider.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Slider.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Slider.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Slider.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Slider.Root.State) => ReactElement)",

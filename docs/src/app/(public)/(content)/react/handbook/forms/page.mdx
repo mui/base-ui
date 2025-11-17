@@ -1,0 +1,606 @@
+# Forms
+
+<Subtitle>A guide to building forms with Base UI components.</Subtitle>
+<Meta name="description" content="A guide to building forms with Base UI components." />
+
+Base UI form control components extend the native [constraint validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api) so you can build forms for collecting user input or providing control over an interface. They also integrate seamlessly with third-party libraries like [React Hook Form](#react-hook-form) and [TanStack Form](#tanstack-form).
+
+import { DemoBaseUIForm } from './demos/hero';
+
+<DemoBaseUIForm showExtraPlaygroundLink />
+
+## Naming form controls
+
+Form controls must have an accessible name in order to be recognized by assistive technologies. `<Field.Label>` and `<Field.Description>` automatically assign the accessible name and description to their associated control:
+
+```tsx {8-9, 14-15} title="Labeling select and slider"
+import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui-components/react/field';
+import { Select } from '@base-ui-components/react/select';
+import { Slider } from '@base-ui-components/react/slider';
+
+<Form>
+  <Field.Root>
+    <Field.Label>Time zone</Field.Label>
+    <Field.Description>Used for notifications and reminders</Field.Description>
+    <Select.Root />
+  </Field.Root>
+
+  <Field.Root>
+    <Field.Label>Zoom level</Field.Label>
+    <Field.Description>Adjust the size of the user interface</Field.Description>
+    <Slider.Root />
+  </Field.Root>
+</Form>;
+```
+
+You can implicitly label `<Checkbox>`, `<Radio>` and `<Switch>` components by enclosing them with `<Field.Label>`:
+
+```tsx title="Implicitly labeling a switch"
+import { Field } from '@base-ui-components/react/field';
+import { Switch } from '@base-ui-components/react/switch';
+
+<Field.Root>
+  <Field.Label>
+    <Switch.Root />
+    Developer mode
+    <Field.Description>Enables extra tools for web developers</Field.Description>
+  </Field.Label>
+</Field.Root>;
+```
+
+Compose `<Fieldset>` with components that contain multiple `<input>` elements, such as `<CheckboxGroup>`, `<RadioGroup>`, and `<Slider>` with multiple thumbs, using `<Fieldset.Legend>` to label the group:
+
+```tsx {10-11, 18, 22-23, 26} title="Composing range slider and radio group with fieldset"
+import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui-components/react/field';
+import { Fieldset } from '@base-ui-components/react/fieldset';
+import { Radio } from '@base-ui-components/react/radio';
+import { RadioGroup } from '@base-ui-components/react/radio-group';
+import { Slider } from '@base-ui-components/react/slider';
+
+<Form>
+  <Field.Root>
+    <Fieldset.Root render={<Slider.Root />}>
+      <Fieldset.Legend>Price range</Fieldset.Legend>
+      <Slider.Control>
+        <Slider.Track>
+          <Slider.Thumb />
+          <Slider.Thumb />
+        </Slider.Track>
+      </Slider.Control>
+    </Fieldset.Root>
+  </Field.Root>
+
+  <Field.Root>
+    <Fieldset.Root render={<RadioGroup />}>
+      <Fieldset.Legend>Storage type</Fieldset.Legend>
+      <Radio.Root value="ssd" />
+      <Radio.Root value="hdd" />
+    </Fieldset.Root>
+  </Field.Root>
+</Form>;
+```
+
+Optionally use `<Field.Item>` in checkbox or radio groups to individually label each control when not implicitly labeled:
+
+```tsx {10,14-15,19} title="Explicitly labeling checkboxes in a checkbox group"
+import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui-components/react/field';
+import { Fieldset } from '@base-ui-components/react/fieldset';
+import { Checkbox } from '@base-ui-components/react/checkbox';
+import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+
+<Field.Root>
+  <Fieldset.Root render={<CheckboxGroup />}>
+    <Fieldset.Legend>Backup schedule</Fieldset.Legend>
+    <Field.Item>
+      <Checkbox.Root value="daily" />
+      <Field.Label>Daily</Field.Label>
+      <Field.Description>Daily at 00:00</Field.Description>
+    </Field.Item>
+    <Field.Item>
+      <Checkbox.Root value="monthly" />
+      <Field.Label>Monthly</Field.Label>
+      <Field.Description>On the 5th of every month at 23:59</Field.Description>
+    </Field.Item>
+  </Fieldset.Root>
+</Field.Root>;
+```
+
+## Building form fields
+
+Pass the `name` prop to `<Field.Root>` to include the wrapped control's value when a parent form is submitted:
+
+```tsx {6} title="Assigning field name to combobox" "name"
+import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui-components/react/field';
+import { Combobox } from '@base-ui-components/react/combobox';
+
+<Form>
+  <Field.Root name="country">
+    <Field.Label>Country of residence</Field.Label>
+    <Combobox.Root />
+  </Field.Root>
+</Form>;
+```
+
+## Submitting data
+
+You can take over form submission using the native `onSubmit`, or custom `onFormSubmit` props:
+
+```tsx {4-9} title="Native submission using onSubmit"
+import { Form } from '@base-ui-components/react/form';
+
+<Form
+  onSubmit={async (event) => {
+    // Prevent the browser's default full-page refresh
+    event.preventDefault();
+    // Create a FormData object
+    const formData = new FormData(event.currentTarget);
+    // Send the FormData instance in a fetch request
+    await fetch('https://api.example.com', {
+      method: 'POST',
+      body: formData,
+    });
+  }}
+/>;
+```
+
+When using `onFormSubmit`, you receive form values as a JavaScript object, with `eventDetails` provided as a second argument. Additionally, `preventDefault()` is automatically called on the native submit event:
+
+```tsx {4-9} title="Submission using onFormSubmit"
+import { Form } from '@base-ui-components/react/form';
+
+<Form
+  onFormSubmit={async (formValues) => {
+    const payload = {
+      product_id: formValues.id,
+      order_quantity: formValues.quantity,
+    };
+    await fetch('https://api.example.com', {
+      method: 'POST',
+      body: payload,
+    });
+  }}
+/>;
+```
+
+## Constraint validation
+
+Base UI form components support native HTML validation attributes for many validation rules:
+
+- `required` specifies a required field.
+- `minLength` and `maxLength` specify a valid length for text fields.
+- `pattern` specifies a regular expression that the field value must match.
+- `step` specifies an increment that numeric field values must be an integral multiple of.
+
+```tsx title="Defining constraint validation on a text field"
+import { Field } from '@base-ui-components/react/field';
+
+<Field.Root name="website">
+  <Field.Control type="url" required pattern="https?://.*" />
+  <Field.Error />
+</Field.Root>;
+```
+
+## Custom validation
+
+You can add custom validation logic by passing a synchronous or asynchronous validation function to the `validate` prop, which runs after native validations have passed.
+
+Use the `validationMode` prop to configure when validation is performed:
+
+- `onSubmit` (default) validates all fields when the containing `<Form>` is submitted, afterwards invalid fields revalidate when their value changes.
+- `onBlur` validates the field when focus moves away.
+- `onChange` validates the field when the value changes, for example, after each keypress in a text field or when a checkbox is checked or unchecked.
+
+`validationDebounceTime` can be used to debounce the function in use cases such as asynchronous requests or text fields that validate `onChange`.
+
+```tsx {5-7} title="Text input using custom asynchronous validation"
+import { Field } from '@base-ui-components/react/field';
+
+<Field.Root
+  name="username"
+  validationMode="onChange"
+  validationDebounceTime={300}
+  validate={async (value) => {
+    if (value === 'admin') {
+      /* return an error message when invalid */
+      return 'Reserved for system use.';
+    }
+
+    const result = await fetch(
+      {/* prettier-ignore */},
+      /* check the availability of a username from an external API */
+    );
+
+    if (!result) {
+      return `${value} is unavailable.`;
+    }
+
+    /* return `null` when valid */
+    return null;
+  }}
+>
+  <Field.Control required minLength={3} />
+  <Field.Error />
+</Field.Root>;
+```
+
+## Server-side validation
+
+You can pass errors returned by (post-submission) server-side validation to the `errors` prop, which will be merged into the client-side field state for display.
+
+This should be an object with field names as keys, and an error string or array of strings as the value. Once a field's value changes, any corresponding error in `errors` will be cleared from the field state.
+
+```tsx title="Displaying errors returned by server-side validation" "errors"
+import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui-components/react/field';
+
+async function submitToServer(/* payload */) {
+  return {
+    errors: {
+      promoCode: 'This promo code has expired',
+    },
+  };
+}
+
+const [errors, setErrors] = React.useState();
+
+<Form
+  errors={errors}
+  onSubmit={async (event) => {
+    event.preventDefault();
+    const response = await submitToServer(/* data */);
+    setErrors(response.errors);
+  }}
+>
+  <Field.Root name="promoCode" />
+</Form>;
+```
+
+When using [Server Functions with Form Actions](https://react.dev/reference/rsc/server-functions#server-functions-with-use-action-state) you can return server-side errors from `useActionState` to the `errors` prop. A demo is available [here](/react/components/form#submit-with-a-server-function).
+
+```tsx title="Returning errors from useActionState" "state" "errors" "formAction"
+// app/form.tsx
+/* prettier-ignore */
+'use client';
+import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui-components/react/field';
+import { login } from './actions';
+
+const [state, formAction, loading] = React.useActionState(login, {});
+
+<Form action={formAction} errors={state.errors}>
+  <Field.Root name="password">
+    <Field.Control />
+    <Field.Error />
+  </Field.Root>
+</Form>;
+
+// app/actions.ts
+/* prettier-ignore */
+'use server';
+export async function login(formData: FormData) {
+  const result = authenticateUser(formData);
+
+  if (!result.success) {
+    return {
+      errors: {
+        password: 'Invalid username or password',
+      },
+    };
+  }
+  /* redirect on the server on success */
+}
+```
+
+## Displaying errors
+
+Use `<Field.Error>` without `children` to automatically display the field's native error message when invalid. The `match` prop can be used to customize the message based on the validity state, and manage internationalization from your application logic:
+
+```tsx title="Customizing error message for a required field"
+<Field.Error match="valueMissing">You must create a username</Field.Error>
+```
+
+## React Hook Form
+
+[React Hook Form](https://react-hook-form.com) is a popular library that you can integrate with Base UI to externally manage form and field state for your existing components.
+
+import { DemoReactHookForm } from './demos/react-hook-form';
+
+<DemoReactHookForm showExtraPlaygroundLink />
+
+### Initialize the form
+
+Initialize the form with the `useForm` hook, assigning the initial value of each field by their name in the `defaultValues` parameter:
+
+```tsx title="Initialize a form instance"
+import { useForm } from 'react-hook-form';
+
+const { control, handleSubmit } = useForm<FormValues>({
+  defaultValues: {
+    username: '',
+    email: '',
+  },
+});
+```
+
+### Integrate components
+
+Use the `<Controller>` component to integrate with any `<Field>` component, forwarding the `name`, `field`, and `fieldState` render props to the appropriate part:
+
+```tsx {11-17,22-26} title="Integrating the controller component with Base UI field" "ref" "value" "onBlur" "onChange" "invalid" "isTouched" "isDirty" "error"
+import { useForm, Controller } from "react-hook-form"
+import { Field } from '@base-ui-components/react/field';
+
+const { control, handleSubmit} = useForm({
+  defaultValues: {
+    username: '',
+  }
+})
+
+<Controller
+  name="username"
+  control={control}
+  render={({
+    field: { name, ref, value, onBlur, onChange },
+    fieldState: { invalid, isTouched, isDirty, error },
+  }) => (
+    <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+      <Field.Label>Username</Field.Label>
+      <Field.Description>
+        May appear where you contribute or are mentioned. You can remove it at any time.
+      </Field.Description>
+      <Field.Control
+        placeholder="e.g. alice132"
+        value={value}
+        onBlur={onBlur}
+        onValueChange={onChange}
+        ref={ref}
+      />
+      <Field.Error match={!!error}>
+        {error?.message}
+      </Field.Error>
+    </Field.Root>
+  )}
+/>
+```
+
+For React Hook Form to focus invalid fields when performing validation, you must ensure that any wrapping components forward the `ref` to the underlying Base UI component. You can typically accomplish this using the `inputRef` prop, or directly as the `ref` for components that render an input element like `<NumberField.Input>`.
+
+### Field validation
+
+Specify `rules` on the `<Controller>` in the same format as [`register`](https://react-hook-form.com/docs/useform/register) options, and use the `match` prop to delegate control of the error rendering:
+
+```tsx {5-15, 33-35} title="Defining validation rules and displaying errors"
+import { Controller } from "react-hook-form"
+import { Field } from '@base-ui-components/react/field';
+
+<Controller
+  name="username"
+  control={control}
+  rules={{
+    required: 'This is a required field',
+    minLength: { value: 2, message: 'Too short' },
+    validate: (value) => {
+      if (/* custom logic */) {
+        return 'Invalid'
+      }
+      return null;
+    },
+  }}
+  render={({
+    field: { name, ref, value, onBlur, onChange },
+    fieldState: { invalid, isTouched, isDirty, error },
+  }) => (
+    <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+      <Field.Label>Username</Field.Label>
+      <Field.Description>
+        May appear where you contribute or are mentioned. You can remove it at any time.
+      </Field.Description>
+      <Field.Control
+        placeholder="e.g. alice132"
+        value={value}
+        onBlur={onBlur}
+        onValueChange={onChange}
+        ref={ref}
+      />
+      <Field.Error match={!!error}>
+        {error?.message}
+      </Field.Error>
+    </Field.Root>
+  )}
+/>
+```
+
+### Submitting data
+
+Wrap your submit handler function with `handleSubmit` to receive the form values as a JS object for further handling:
+
+```tsx title="Form submission handler"
+import { useForm } from 'react-hook-form';
+import { Form } from '@base-ui-components/react/form';
+
+interface FormValues {
+  username: string;
+  email: string;
+}
+
+const { handleSubmit } = useForm<FormValues>();
+
+async function submitForm(data: FormValues) {
+  // transform the object and/or submit it to a server
+  await fetch(/* ... */);
+}
+
+<Form onSubmit={handleSubmit(submitForm)} />;
+```
+
+## TanStack Form
+
+[TanStack Form](https://tanstack.com/form/v1/docs/overview) is a form library with a function-based API for orchestrating validations that can also be integrated with Base UI.
+
+import { DemoTanstackForm } from './demos/tanstack-form';
+
+<DemoTanstackForm showExtraPlaygroundLink />
+
+### Initialize the form
+
+Create a form instance with the `useForm` hook, assigning the initial value of each field by their name in the `defaultValues` parameter:
+
+```tsx {13-14} title="Initialize a form instance"
+import { useForm } from '@tanstack/react-form';
+
+interface FormValues {
+  username: string;
+  email: string;
+}
+
+const defaultValues: FormValues = {
+  username: '',
+  email: '',
+};
+
+/* useForm returns a form instance */
+const form = useForm<FormValues>({
+  defaultValues,
+});
+```
+
+### Integrate components
+
+Use the `<form.Field>` component from the form instance to integrate with Base UI components using the `children` prop, forwarding the various `field` render props to the appropriate part:
+
+```tsx {7-9, 11-14, 18-20, 24} title="Integrating TanStack Form with Base UI components" "field.name" "value" "isValid" "isDirty" "isTouched" "handleChange" "handleBlur"
+import { useForm } from '@tanstack/react-form';
+import { Field } from '@base-ui-components/react/field';
+
+const form = useForm(/* defaultValues, other parameters */)
+
+<form>
+  <form.Field
+    name="username"
+    children={(field) => (
+      <Field.Root
+        name={field.name}
+        invalid={!field.state.meta.isValid}
+        dirty={field.state.meta.isDirty}
+        touched={field.state.meta.isTouched}
+      >
+        <Field.Label>Username</Field.Label>
+        <Field.Control
+          value={field.state.value}
+          onValueChange={field.handleChange}
+          onBlur={field.handleBlur}
+          placeholder="e.g. bob276"
+        />
+
+        <Field.Error match={!field.state.meta.isValid}>
+          {field.state.meta.errors.join(',')}
+        </Field.Error>
+      </Field.Root>
+    )}
+  />
+</form>
+```
+
+The Base UI `<Form>` component is not needed when using TanStack Form.
+
+### Form validation
+
+To configure a native `<form>`-like validation strategy:
+
+1. Use the additional `revalidateLogic` hook and pass it to `useForm`.
+2. Pass a validation function to the `validators.onDynamic` prop on `<form.Field>` that returns an error object with keys corresponding to the field `name`s.
+
+This validates all fields when the first submission is attempted, and revalidates any invalid fields when their values change again.
+
+```tsx {8, 13} title="Form-level validators" "revalidateLogic" "onDynamic"
+import { useForm, revalidateLogic } from '@tanstack/react-form';
+
+const form = useForm({
+  defaultValues: {
+    username: '',
+    email: '',
+  },
+  validationLogic: revalidateLogic({
+    mode: 'submit',
+    modeAfterSubmission: 'change',
+  }),
+  validators: {
+    onDynamic: ({ value: formValues }) => {
+      const errors = {};
+
+      if (!formValues.username) {
+        errors.username = 'Username is required.';
+      } else if (formValues.username.length < 3) {
+        errors.username = 'At least 3 characters.';
+      }
+
+      if (!formValues.email) {
+        errors.email = 'Email is required.';
+      } else if (!isValidEmail(formValues.email)) {
+        errors.email = 'Invalid email address.';
+      }
+
+      return { form: errors, fields: errors };
+    },
+  },
+});
+```
+
+### Field validation
+
+You can pass additional validator functions to individual `<form.Field>` components to add validations on top of the form-level validators:
+
+```tsx {8-16} title="Field-level validators"
+import { Field } from '@base-ui-components/react/field';
+import { useForm } from '@tanstack/react-form';
+
+const form = useForm();
+
+<form.Field
+  name="username"
+  validators={{
+    onChangeAsync: async ({ value: username }) => {
+      const result = await fetch(
+        /* check the availability of a username from an external API */
+      );
+
+      return result.success ? undefined : `${username} is not available.`
+    }
+  }}
+  children={(field) => (
+    <Field.Root name={field.name} /* forward the field props */ />
+  )}
+>
+```
+
+### Submitting data
+
+To submit the form:
+
+1. Pass a submit handler function to the `onSubmit` parameter of `useForm`.
+2. Call `form.handleSubmit()` from an event handler such as form `onSubmit` or `onClick` on a button.
+
+```tsx {4-7, 13, 17} title="Form submission handler" "form.handleSubmit()"
+import { useForm } from '@tanstack/react-form';
+
+const form = useForm({
+  onSubmit: async ({ value: formValues }) => {
+    /* prettier-ignore */
+    await fetch(/* POST the `formValues` to an external API */);
+  },
+});
+
+<form
+  onSubmit={(event) => {
+    event.preventDefault();
+    form.handleSubmit();
+  }}
+>
+  {/* form fields */}
+  <button type="submit">Submit</button>
+</form>;
+```

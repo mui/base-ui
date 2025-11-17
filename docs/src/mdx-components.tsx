@@ -1,6 +1,4 @@
 import * as React from 'react';
-import { NoSsr } from '@base-ui-components/react/unstable-no-ssr';
-import { DemoLoader } from './components/Demo/DemoLoader';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
@@ -20,7 +18,7 @@ interface MDXComponents {
 
 // Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
-  a: (props) => <Link {...props} />,
+  a: Link,
   code: (props) => <Code className="data-[inline]:mx-[0.1em]" {...props} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
@@ -85,14 +83,6 @@ export const mdxComponents: MDXComponents = {
     props.scope === 'row' ? <Table.RowHeader {...props} /> : <Table.ColumnHeader {...props} />,
   td: Table.Cell,
   // Custom components
-  Demo:
-    process.env.DISABLE_DEMO_SSR === 'true'
-      ? (props) => (
-          <NoSsr>
-            <DemoLoader className="mt-5 mb-6" {...props} />
-          </NoSsr>
-        )
-      : (props) => <DemoLoader className="mt-5 mb-6" {...props} />,
   QuickNav,
   Meta: (props: React.ComponentProps<'meta'>) => {
     if (props.name === 'description' && String(props.content).length > 170) {

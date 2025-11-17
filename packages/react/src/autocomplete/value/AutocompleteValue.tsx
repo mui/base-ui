@@ -1,8 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
-import { useComboboxRootContext } from '../../combobox/root/ComboboxRootContext';
-import { selectors } from '../../combobox/store';
+import { useComboboxInputValueContext } from '../../combobox/root/ComboboxRootContext';
 
 /**
  * The current value of the autocomplete.
@@ -10,26 +8,30 @@ import { selectors } from '../../combobox/store';
  *
  * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
  */
-export function AutocompleteValue(props: AutocompleteValue.Props) {
+export function AutocompleteValue(props: AutocompleteValue.Props): React.ReactElement {
   const { children } = props;
 
-  const store = useComboboxRootContext();
+  const inputValue = useComboboxInputValueContext();
 
-  const inputValue = useStore(store, selectors.inputValue);
-
+  let returnValue = null;
   if (typeof children === 'function') {
-    return children(String(inputValue));
+    returnValue = children(String(inputValue));
+  } else if (children != null) {
+    returnValue = children;
+  } else {
+    returnValue = inputValue;
   }
 
-  if (children != null) {
-    return children;
-  }
+  return <React.Fragment>{returnValue}</React.Fragment>;
+}
 
-  return inputValue;
+export interface AutocompleteValueState {}
+
+export interface AutocompleteValueProps {
+  children?: React.ReactNode | ((value: string) => React.ReactNode);
 }
 
 export namespace AutocompleteValue {
-  export interface Props {
-    children?: React.ReactNode | ((value: string) => React.ReactNode);
-  }
+  export type State = AutocompleteValueState;
+  export type Props = AutocompleteValueProps;
 }

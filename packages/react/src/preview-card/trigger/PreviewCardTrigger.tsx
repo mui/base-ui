@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -15,9 +16,13 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   componentProps: PreviewCardTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, delay, closeDelay, ...elementProps } = componentProps;
 
-  const { open, triggerProps, setTriggerElement } = usePreviewCardRootContext();
+  const { open, triggerProps, setTriggerElement, writeDelayRefs } = usePreviewCardRootContext();
+
+  useIsoLayoutEffect(() => {
+    writeDelayRefs({ delay, closeDelay });
+  });
 
   const state: PreviewCardTrigger.State = React.useMemo(() => ({ open }), [open]);
 
@@ -25,19 +30,34 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     ref: [setTriggerElement, forwardedRef],
     state,
     props: [triggerProps, elementProps],
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
   });
 
   return element;
 });
 
-export namespace PreviewCardTrigger {
-  export interface State {
-    /**
-     * Whether the preview card is currently open.
-     */
-    open: boolean;
-  }
+export interface PreviewCardTriggerState {
+  /**
+   * Whether the preview card is currently open.
+   */
+  open: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'a', State> {}
+export interface PreviewCardTriggerProps
+  extends BaseUIComponentProps<'a', PreviewCardTrigger.State> {
+  /**
+   * How long to wait before the preview card opens. Specified in milliseconds.
+   * @default 600
+   */
+  delay?: number;
+  /**
+   * How long to wait before closing the preview card. Specified in milliseconds.
+   * @default 300
+   */
+  closeDelay?: number;
+}
+
+export namespace PreviewCardTrigger {
+  export type State = PreviewCardTriggerState;
+  export type Props = PreviewCardTriggerProps;
 }

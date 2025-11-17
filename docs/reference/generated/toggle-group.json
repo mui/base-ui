@@ -17,7 +17,13 @@
       "description": "Callback fired when the pressed states of the toggle group changes.",
       "detailedType": "| ((\n    groupValue: any[],\n    eventDetails: Toggle.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
-    "toggleMultiple": {
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
+      "detailedType": "boolean | undefined"
+    },
+    "multiple": {
       "type": "boolean",
       "default": "false",
       "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed.",
@@ -29,25 +35,24 @@
       "description": "Whether the toggle group should ignore user interaction.",
       "detailedType": "boolean | undefined"
     },
-    "loop": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
-      "detailedType": "boolean | undefined"
-    },
     "orientation": {
       "type": "Orientation",
       "default": "'horizontal'",
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: Toggle.Group.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: ToggleGroup.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: ToggleGroup.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: ToggleGroup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: ToggleGroup.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Toggle.Group.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: ToggleGroup.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toggle.Group.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ToggleGroup.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -4,13 +4,13 @@ import { useStore } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxBackdrop.State> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
@@ -42,7 +42,7 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
   return useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    customStyleHookMapping,
+    stateAttributesMapping,
     props: [
       {
         role: 'presentation',
@@ -57,14 +57,18 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
   });
 });
 
-export namespace ComboboxBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ComboboxBackdropProps
+  extends BaseUIComponentProps<'div', ComboboxBackdrop.State> {}
 
-  export interface State {
-    /**
-     * Whether the popup is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface ComboboxBackdropState {
+  /**
+   * Whether the popup is currently open.
+   */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+}
+
+export namespace ComboboxBackdrop {
+  export type Props = ComboboxBackdropProps;
+  export type State = ComboboxBackdropState;
 }

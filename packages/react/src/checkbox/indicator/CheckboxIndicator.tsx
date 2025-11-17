@@ -2,13 +2,13 @@
 import * as React from 'react';
 import { useCheckboxRootContext } from '../root/CheckboxRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
+import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import type { CheckboxRoot } from '../root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
 
 /**
@@ -49,15 +49,15 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     },
   });
 
-  const baseStyleHookMapping = useCustomStyleHookMapping(rootState);
+  const baseStateAttributesMapping = useStateAttributesMapping(rootState);
 
-  const customStyleHookMapping: CustomStyleHookMapping<CheckboxIndicator.State> = React.useMemo(
+  const stateAttributesMapping: StateAttributesMapping<CheckboxIndicator.State> = React.useMemo(
     () => ({
-      ...baseStyleHookMapping,
+      ...baseStateAttributesMapping,
       ...transitionStatusMapping,
       ...fieldValidityMapping,
     }),
-    [baseStyleHookMapping],
+    [baseStateAttributesMapping],
   );
 
   const shouldRender = keepMounted || rendered;
@@ -66,7 +66,7 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     enabled: shouldRender,
     ref: [forwardedRef, indicatorRef],
     state,
-    customStyleHookMapping,
+    stateAttributesMapping,
     props: elementProps,
   });
 
@@ -77,16 +77,20 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   return element;
 });
 
-export namespace CheckboxIndicator {
-  export interface State extends CheckboxRoot.State {
-    transitionStatus: TransitionStatus;
-  }
+export interface CheckboxIndicatorState extends CheckboxRoot.State {
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    /**
-     * Whether to keep the element in the DOM when the checkbox is not checked.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface CheckboxIndicatorProps
+  extends BaseUIComponentProps<'span', CheckboxIndicator.State> {
+  /**
+   * Whether to keep the element in the DOM when the checkbox is not checked.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
+
+export namespace CheckboxIndicator {
+  export type State = CheckboxIndicatorState;
+  export type Props = CheckboxIndicatorProps;
 }

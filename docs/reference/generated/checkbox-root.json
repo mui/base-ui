@@ -1,6 +1,6 @@
 {
   "name": "CheckboxRoot",
-  "description": "Represents the checkbox itself.\nRenders a `<button>` element and a hidden `<input>` beside.",
+  "description": "Represents the checkbox itself.\nRenders a `<span>` element and a hidden `<input>` beside.",
   "props": {
     "name": {
       "type": "string",
@@ -77,8 +77,13 @@
       "detailedType": "string | undefined"
     },
     "className": {
-      "type": "string | ((state: Checkbox.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Checkbox.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Checkbox.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Checkbox.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Checkbox.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Checkbox.Root.State) => ReactElement)",

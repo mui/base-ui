@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import * as fse from 'fs-extra';
+import * as fs from 'node:fs/promises';
 import { chromium, Locator } from '@playwright/test';
 import { describe, it } from 'vitest';
 
@@ -63,7 +63,7 @@ async function renderFixture(index: number) {
 
 async function takeScreenshot({ testcase, route }: { testcase: Locator; route: string }) {
   const screenshotPath = path.resolve(screenshotDir, `.${route}.png`);
-  await fse.ensureDir(path.dirname(screenshotPath));
+  await fs.mkdir(path.dirname(screenshotPath), { recursive: true });
 
   const explicitScreenshotTarget = await page.$('[data-testid="screenshot-target"]');
   const screenshotTarget = explicitScreenshotTarget || testcase;
@@ -72,7 +72,7 @@ async function takeScreenshot({ testcase, route }: { testcase: Locator; route: s
 }
 
 // prepare screenshots
-await fse.emptyDir(screenshotDir);
+await fs.rm(screenshotDir, { force: true, recursive: true });
 
 describe('visual regressions', () => {
   beforeEach(async () => {

@@ -9,8 +9,13 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: Separator.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Separator.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Separator.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Separator.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Separator.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Separator.State) => ReactElement)",

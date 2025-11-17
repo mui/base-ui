@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { useMergedRefs, useMergedRefsN } from '@base-ui-components/utils/useMergedRefs';
-import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
+import { getReactElementRef } from '@base-ui-components/utils/getReactElementRef';
 import { mergeObjects } from '@base-ui-components/utils/mergeObjects';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
-import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
+import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
 import { resolveClassName } from './resolveClassName';
+import { resolveStyle } from './resolveStyle';
 import { mergeProps, mergePropsN, mergeClassNames } from '../merge-props';
 import { EMPTY_OBJECT } from './constants';
 
@@ -51,32 +52,25 @@ function useRenderElementProps<
   componentProps: useRenderElement.ComponentProps<State>,
   params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
 ): React.HTMLAttributes<any> & React.RefAttributes<any> {
-  const { className: classNameProp, render: renderProp } = componentProps;
+  const { className: classNameProp, style: styleProp, render: renderProp } = componentProps;
 
   const {
     state = EMPTY_OBJECT as State,
     ref,
     props,
-    disableStyleHooks,
-    customStyleHookMapping,
+    stateAttributesMapping,
     enabled = true,
   } = params;
 
   const className = enabled ? resolveClassName(classNameProp, state) : undefined;
+  const style = enabled ? resolveStyle(styleProp, state) : undefined;
 
-  let styleHooks: Record<string, string> | undefined;
-  if (disableStyleHooks !== true) {
-    // SAFETY: We use typings to ensure `disableStyleHooks` is either always set or
-    // always unset, so this `if` block is stable across renders.
-    /* eslint-disable-next-line react-hooks/rules-of-hooks */
-    styleHooks = React.useMemo(
-      () => (enabled ? getStyleHookProps(state, customStyleHookMapping) : EMPTY_OBJECT),
-      [state, customStyleHookMapping, enabled],
-    );
-  }
+  const stateProps = enabled
+    ? getStateAttributesProps(state, stateAttributesMapping)
+    : EMPTY_OBJECT;
 
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
-    ? (mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT)
+    ? (mergeObjects(stateProps, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT)
     : EMPTY_OBJECT;
 
   // SAFETY: The `useMergedRefs` functions use a single hook to store the same value,
@@ -89,9 +83,9 @@ function useRenderElementProps<
     if (!enabled) {
       useMergedRefs(null, null);
     } else if (Array.isArray(ref)) {
-      outProps.ref = useMergedRefsN([outProps.ref, getChildRef(renderProp), ...ref]);
+      outProps.ref = useMergedRefsN([outProps.ref, getReactElementRef(renderProp), ...ref]);
     } else {
-      outProps.ref = useMergedRefs(outProps.ref, getChildRef(renderProp), ref);
+      outProps.ref = useMergedRefs(outProps.ref, getReactElementRef(renderProp), ref);
     }
   }
 
@@ -101,6 +95,10 @@ function useRenderElementProps<
 
   if (className !== undefined) {
     outProps.className = mergeClassNames(outProps.className, className);
+  }
+
+  if (style !== undefined) {
+    outProps.style = mergeObjects(outProps.style, style);
   }
 
   return outProps;
@@ -132,26 +130,77 @@ function evaluateRenderProp<T extends React.ElementType, S>(
 
 function renderTag(Tag: string, props: Record<string, any>) {
   if (Tag === 'button') {
-    return <button type="button" {...props} />;
+    return <button type="button" {...props} key={props.key} />;
   }
   if (Tag === 'img') {
-    return <img alt="" {...props} />;
+    return <img alt="" {...props} key={props.key} />;
   }
   return React.createElement(Tag, props);
-}
-
-function getChildRef<ElementType extends React.ElementType, State>(
-  render: BaseUIComponentProps<ElementType, State>['render'],
-): React.RefCallback<any> | null {
-  if (render && typeof render !== 'function') {
-    return isReactVersionAtLeast(19) ? render.props.ref : render.ref;
-  }
-  return null;
 }
 
 type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicElements
   ? React.JSX.IntrinsicElements[TagName]
   : React.HTMLAttributes<any>;
+
+export type UseRenderElementParameters<
+  State,
+  RenderedElementType extends Element,
+  TagName,
+  Enabled extends boolean | undefined,
+> = {
+  /**
+   * If `false`, the hook will skip most of its internal logic and return `null`.
+   * This is useful for rendering a component conditionally.
+   * @default true
+   */
+  enabled?: Enabled;
+  /**
+   * @deprecated
+   */
+  propGetter?: (externalProps: HTMLProps) => HTMLProps;
+  /**
+   * The ref to apply to the rendered element.
+   */
+  ref?: React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[];
+  /**
+   * The state of the component.
+   */
+  state?: State;
+  /**
+   * Intrinsic props to be spread on the rendered element.
+   */
+  props?:
+    | RenderFunctionProps<TagName>
+    | Array<
+        | RenderFunctionProps<TagName>
+        | undefined
+        | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
+      >;
+  /**
+   * A mapping of state to `data-*` attributes.
+   */
+  stateAttributesMapping?: StateAttributesMapping<State>;
+};
+
+export interface UseRenderElementComponentProps<State> {
+  /**
+   * The class name to apply to the rendered element.
+   * Can be a string or a function that accepts the state and returns a string.
+   */
+  className?: string | ((state: State) => string | undefined);
+  /**
+   * The render prop or React element to override the default element.
+   */
+  render?:
+    | undefined
+    | ComponentRenderFn<React.HTMLAttributes<any>, State>
+    | React.ReactElement<Record<string, unknown>>;
+  /**
+   * The style to apply to the rendered element.
+   * Can be a style object or a function that accepts the state and returns a style object.
+   */
+  style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined);
+}
 
 export namespace useRenderElement {
   export type Parameters<
@@ -159,66 +208,6 @@ export namespace useRenderElement {
     RenderedElementType extends Element,
     TagName,
     Enabled extends boolean | undefined,
-  > = {
-    /**
-     * If `false`, the hook will skip most of its internal logic and return `null`.
-     * This is useful for rendering a component conditionally.
-     * @default true
-     */
-    enabled?: Enabled;
-    /**
-     * @deprecated
-     */
-    propGetter?: (externalProps: HTMLProps) => HTMLProps;
-    /**
-     * The ref to apply to the rendered element.
-     */
-    ref?: React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[];
-    /**
-     * The state of the component.
-     */
-    state?: State;
-    /**
-     * Intrinsic props to be spread on the rendered element.
-     */
-    props?:
-      | RenderFunctionProps<TagName>
-      | Array<
-          | RenderFunctionProps<TagName>
-          | undefined
-          | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
-        >;
-    /**
-     * A mapping of state to style hooks.
-     */
-    customStyleHookMapping?: CustomStyleHookMapping<State>;
-  } /* This typing ensures `disableStyleHookMapping` is constantly defined or undefined */ & (
-    | {
-        /**
-         * Disable style hook mapping.
-         */
-        disableStyleHooks: true;
-      }
-    | {
-        /**
-         * Disable style hook mapping.
-         */
-        disableStyleHooks?: false;
-      }
-  );
-
-  export interface ComponentProps<State> {
-    /**
-     * The class name to apply to the rendered element.
-     * Can be a string or a function that accepts the state and returns a string.
-     */
-    className?: string | ((state: State) => string);
-    /**
-     * The render prop or React element to override the default element.
-     */
-    render?:
-      | undefined
-      | ComponentRenderFn<React.HTMLAttributes<any>, State>
-      | React.ReactElement<Record<string, unknown>>;
-  }
+  > = UseRenderElementParameters<State, RenderedElementType, TagName, Enabled>;
+  export type ComponentProps<State> = UseRenderElementComponentProps<State>;
 }

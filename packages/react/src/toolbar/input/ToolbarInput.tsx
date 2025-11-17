@@ -81,23 +81,26 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
   );
 });
 
-export namespace ToolbarInput {
-  export interface State extends ToolbarRoot.State {
-    disabled: boolean;
-    focusable: boolean;
-  }
+export interface ToolbarInputState extends ToolbarRoot.State {
+  disabled: boolean;
+  focusable: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'input', ToolbarRoot.State> {
-    /**
-     * When `true` the item is disabled.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * When `true` the item remains focuseable when disabled.
-     * @default true
-     */
-    focusableWhenDisabled?: boolean;
-    defaultValue?: React.ComponentProps<'input'>['defaultValue'];
-  }
+export interface ToolbarInputProps extends BaseUIComponentProps<'input', ToolbarInput.State> {
+  /**
+   * When `true` the item is disabled.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * When `true` the item remains focuseable when disabled.
+   * @default true
+   */
+  focusableWhenDisabled?: boolean;
+  defaultValue?: React.ComponentProps<'input'>['defaultValue'];
+}
+
+export namespace ToolbarInput {
+  export type State = ToolbarInputState;
+  export type Props = ToolbarInputProps;
 }

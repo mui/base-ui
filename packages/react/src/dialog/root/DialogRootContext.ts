@@ -1,42 +1,23 @@
 'use client';
 import * as React from 'react';
-import { DialogContext } from '../utils/DialogContext';
+import { DialogStore } from '../store/DialogStore';
 
-export interface DialogRootContext {
-  /**
-   * Determines whether the dialog should close on outside clicks.
-   */
-  dismissible: boolean;
+export interface DialogRootContext<Payload = unknown> {
+  store: DialogStore<Payload>;
 }
 
 export const DialogRootContext = React.createContext<DialogRootContext | undefined>(undefined);
 
-export function useOptionalDialogRootContext() {
+export function useDialogRootContext(optional?: false): DialogRootContext;
+export function useDialogRootContext(optional: true): DialogRootContext | undefined;
+export function useDialogRootContext(optional?: boolean) {
   const dialogRootContext = React.useContext(DialogRootContext);
-  const dialogContext = React.useContext(DialogContext);
 
-  if (dialogContext === undefined && dialogRootContext === undefined) {
-    return undefined;
-  }
-
-  return {
-    ...dialogRootContext,
-    ...dialogContext,
-  };
-}
-
-export function useDialogRootContext() {
-  const dialogRootContext = React.useContext(DialogRootContext);
-  const dialogContext = React.useContext(DialogContext);
-
-  if (dialogContext === undefined) {
+  if (optional === false && dialogRootContext === undefined) {
     throw new Error(
       'Base UI: DialogRootContext is missing. Dialog parts must be placed within <Dialog.Root>.',
     );
   }
 
-  return {
-    ...dialogRootContext,
-    ...dialogContext,
-  };
+  return dialogRootContext;
 }

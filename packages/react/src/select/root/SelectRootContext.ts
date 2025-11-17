@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { useFloatingRootContext, type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
-import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../../utils/types';
 import type { SelectRoot } from './SelectRoot';
-import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface SelectRootContext {
   store: SelectStore;
@@ -13,11 +12,13 @@ export interface SelectRootContext {
   readOnly: boolean;
   required: boolean;
   multiple: boolean;
-  setValue: (nextValue: any, eventDetails: BaseUIEventDetails<'none'>) => void;
+  setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
+  scrollHandlerRef: React.MutableRefObject<((el: HTMLDivElement) => void) | null>;
   handleScrollArrowVisibility: () => void;
+  scrollArrowsMountedCountRef: React.RefObject<number>;
   getItemProps: (
     props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>; // PREVENT_COMMIT
@@ -31,12 +32,7 @@ export interface SelectRootContext {
     allowSelectedMouseUp: boolean;
   }>;
   selectedItemTextRef: React.MutableRefObject<HTMLSpanElement | null>;
-  fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
-  /**
-   * Called by each <Select.Item> when it knows its stable list index.
-   * Allows the root to map option values to their DOM positions.
-   */
-  registerItemIndex: (index: number) => void;
+  validation: UseFieldValidationReturnValue;
   onOpenChangeComplete?: (open: boolean) => void;
   keyboardActiveRef: React.MutableRefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;

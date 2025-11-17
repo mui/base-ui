@@ -6,13 +6,12 @@ export function Root(props: React.ComponentProps<'dl'>) {
   return <dl {...props} className={clsx('DescriptionList', props.className)} />;
 }
 
-function Inner(props: React.ComponentProps<'div'>) {
-  return <div {...props} className={clsx('DescriptionListInner', props.className)} />;
-}
-
-export function Term(props: React.ComponentProps<'dt'>) {
+export function Term({
+  separator = false,
+  ...props
+}: React.ComponentProps<'dt'> & { separator?: boolean }) {
   return (
-    <dt {...props} className={clsx('DescriptionListTerm', props.className)}>
+    <dt {...props} className={clsx('DescriptionTerm', separator && 'separator', props.className)}>
       <Inner>{props.children}</Inner>
     </dt>
   );
@@ -28,4 +27,8 @@ export function Details(props: React.ComponentProps<'dd'>) {
 
 export function Item(props: React.ComponentProps<'div'>) {
   return <div {...props} className={clsx('DescriptionListItem', props.className)} />;
+}
+
+function Inner(props: React.ComponentProps<'div'>) {
+  return <div {...props} className={clsx('DescriptionListInner', props.className)} />;
 }

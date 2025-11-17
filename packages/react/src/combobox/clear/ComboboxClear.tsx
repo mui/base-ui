@@ -1,20 +1,21 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxClear.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxClear.State> = {
   ...transitionStatusMapping,
   ...triggerOpenStateMapping,
 };
@@ -42,10 +43,10 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   const selectionMode = useStore(store, selectors.selectionMode);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
-  const clearRef = useStore(store, selectors.clearRef);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
-  const inputValue = useStore(store, selectors.inputValue);
+
+  const inputValue = useComboboxInputValueContext();
 
   let visible = false;
   if (selectionMode === 'none') {
@@ -76,7 +77,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   useOpenChangeComplete({
     open: visible,
-    ref: clearRef,
+    ref: store.state.clearRef,
     onComplete() {
       if (!visible) {
         setMounted(false);
@@ -86,11 +87,10 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, clearRef],
+    ref: [forwardedRef, buttonRef, store.state.clearRef],
     props: [
       {
         tabIndex: -1,
-        hidden: !mounted,
         children: 'x',
         disabled,
         'aria-readonly': readOnly || undefined,
@@ -105,12 +105,15 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
           const keyboardActiveRef = store.state.keyboardActiveRef;
 
-          store.state.setInputValue('', createBaseUIEventDetails('clear-press', event.nativeEvent));
+          store.state.setInputValue(
+            '',
+            createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
+          );
 
           if (selectionMode !== 'none') {
             store.state.setSelectedValue(
               Array.isArray(selectedValue) ? [] : null,
-              createBaseUIEventDetails('clear-press', event.nativeEvent),
+              createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
             );
             store.state.setIndices({
               activeIndex: null,
@@ -130,7 +133,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
       elementProps,
       getButtonProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   const shouldRender = keepMounted || mounted;
@@ -141,29 +144,34 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   return element;
 });
 
-export namespace ComboboxClear {
-  export interface State {
-    /**
-     * Whether the popup is open.
-     */
-    open: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface ComboboxClearState {
+  /**
+   * Whether the popup is open.
+   */
+  open: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Whether the component should remain mounted in the DOM when not visible.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface ComboboxClearProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ComboboxClear.State> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Whether the component should remain mounted in the DOM when not visible.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
+
+export namespace ComboboxClear {
+  export type State = ComboboxClearState;
+  export type Props = ComboboxClearProps;
 }

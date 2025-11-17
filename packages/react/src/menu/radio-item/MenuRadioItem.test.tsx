@@ -53,7 +53,7 @@ describe('<Menu.RadioItem />', () => {
       return <li {...other} ref={ref} />;
     });
 
-    const { getAllByRole } = await render(
+    await render(
       <Menu.Root open>
         <Menu.Portal>
           <Menu.Positioner>
@@ -94,7 +94,7 @@ describe('<Menu.RadioItem />', () => {
       </Menu.Root>,
     );
 
-    const menuItems = getAllByRole('menuitemradio');
+    const menuItems = screen.getAllByRole('menuitemradio');
     await act(async () => {
       menuItems[0].focus();
     });
@@ -132,7 +132,7 @@ describe('<Menu.RadioItem />', () => {
 
   describe('state management', () => {
     it('adds the state and ARIA attributes when selected', async () => {
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -147,10 +147,10 @@ describe('<Menu.RadioItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemradio');
+      const item = screen.getByRole('menuitemradio');
       await user.click(item);
 
       expect(item).to.have.attribute('aria-checked', 'true');
@@ -159,7 +159,7 @@ describe('<Menu.RadioItem />', () => {
 
     ['Space', 'Enter'].forEach((key) => {
       it(`selects the item when ${key} is pressed`, async () => {
-        const { getByRole, user } = await render(
+        const { user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
             <Menu.Portal>
@@ -172,12 +172,12 @@ describe('<Menu.RadioItem />', () => {
           </Menu.Root>,
         );
 
-        const trigger = getByRole('button', { name: 'Open' });
+        const trigger = screen.getByRole('button', { name: 'Open' });
         await act(async () => {
           trigger.focus();
         });
         await user.keyboard('[ArrowDown]');
-        const item = getByRole('menuitemradio');
+        const item = screen.getByRole('menuitemradio');
 
         await waitFor(() => {
           expect(item).toHaveFocus();
@@ -190,7 +190,7 @@ describe('<Menu.RadioItem />', () => {
 
     it('calls `onValueChange` when the item is clicked', async () => {
       const onValueChange = spy();
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -205,10 +205,10 @@ describe('<Menu.RadioItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemradio');
+      const item = screen.getByRole('menuitemradio');
       await user.click(item);
 
       expect(onValueChange.callCount).to.equal(1);
@@ -232,21 +232,18 @@ describe('<Menu.RadioItem />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await act(() => {
-        trigger.focus();
-      });
-
-      await user.keyboard('{Enter}');
+      await user.click(trigger);
 
       const item = screen.getByRole('menuitemradio');
       await user.click(item);
 
-      await act(() => {
-        trigger.focus();
+      await user.click(trigger); // close the menu
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).to.equal(null);
       });
 
-      await user.keyboard('{Enter}');
-      await user.keyboard('{Enter}');
+      await user.click(trigger); // reopen the menu
 
       const itemAfterReopen = await screen.findByRole('menuitemradio');
       expect(itemAfterReopen).to.have.attribute('aria-checked', 'true');
@@ -256,7 +253,7 @@ describe('<Menu.RadioItem />', () => {
 
   describe('prop: closeOnClick', () => {
     it('when `closeOnClick=true`, closes the menu when the item is clicked', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -273,17 +270,17 @@ describe('<Menu.RadioItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemradio');
+      const item = screen.getByRole('menuitemradio');
       await user.click(item);
 
-      expect(queryByRole('menu')).to.equal(null);
+      expect(screen.queryByRole('menu')).to.equal(null);
     });
 
     it('does not close the menu when the item is clicked by default', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -298,13 +295,13 @@ describe('<Menu.RadioItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemradio');
+      const item = screen.getByRole('menuitemradio');
       await user.click(item);
 
-      expect(queryByRole('menu')).not.to.equal(null);
+      expect(screen.queryByRole('menu')).not.to.equal(null);
     });
   });
 
@@ -315,7 +312,7 @@ describe('<Menu.RadioItem />', () => {
       const handleKeyUp = spy();
       const handleValueChange = spy();
 
-      const { getAllByRole } = await render(
+      await render(
         <Menu.Root open>
           <Menu.Portal>
             <Menu.Positioner>
@@ -344,7 +341,7 @@ describe('<Menu.RadioItem />', () => {
         </Menu.Root>,
       );
 
-      const [item1, item2] = getAllByRole('menuitemradio');
+      const [item1, item2] = screen.getAllByRole('menuitemradio');
 
       expect(item1).to.have.attribute('data-disabled');
       expect(item2).to.have.attribute('data-disabled');
@@ -392,7 +389,7 @@ describe('<Menu.RadioItem />', () => {
     const handleKeyUp = spy();
     const handleValueChange = spy();
 
-    const { getAllByRole } = await render(
+    await render(
       <Menu.Root open>
         <Menu.Portal>
           <Menu.Positioner>
@@ -422,7 +419,7 @@ describe('<Menu.RadioItem />', () => {
       </Menu.Root>,
     );
 
-    const [item1, item2] = getAllByRole('menuitemradio');
+    const [item1, item2] = screen.getAllByRole('menuitemradio');
 
     expect(item1).to.have.attribute('data-disabled');
     expect(item2).to.not.have.attribute('data-disabled');

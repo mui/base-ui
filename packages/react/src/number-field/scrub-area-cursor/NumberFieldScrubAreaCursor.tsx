@@ -6,7 +6,7 @@ import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useNumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -49,14 +49,18 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
       },
       elementProps,
     ],
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping,
   });
 
   return element && ReactDOM.createPortal(element, ownerDocument(domElement).body);
 });
 
-export namespace NumberFieldScrubAreaCursor {
-  export interface State extends NumberFieldRoot.State {}
+export interface NumberFieldScrubAreaCursorState extends NumberFieldRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+export interface NumberFieldScrubAreaCursorProps
+  extends BaseUIComponentProps<'span', NumberFieldScrubAreaCursor.State> {}
+
+export namespace NumberFieldScrubAreaCursor {
+  export type State = NumberFieldScrubAreaCursorState;
+  export type Props = NumberFieldScrubAreaCursorProps;
 }

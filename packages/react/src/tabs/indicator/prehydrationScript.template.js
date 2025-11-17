@@ -4,32 +4,48 @@
     return;
   }
 
-  const list = indicator.closest('[role="tablist"]');
-  if (!list) {
+  const tabsList = indicator.closest('[role="tablist"]');
+  if (!tabsList) {
     return;
   }
 
-  const activeTab = list.querySelector('[data-selected]');
+  const activeTab = tabsList.querySelector('[data-active]');
   if (!activeTab) {
     return;
   }
 
-  if (activeTab.offsetWidth === 0 || list.offsetWidth === 0) {
+  if (activeTab.offsetWidth === 0 || tabsList.offsetWidth === 0) {
     return;
   }
 
-  const direction = getComputedStyle(list).direction;
+  const direction = getComputedStyle(tabsList).direction;
+  let left = 0;
+  let right = 0;
+  let top = 0;
+  let bottom = 0;
+  let width = 0;
+  let height = 0;
 
-  const left = activeTab.offsetLeft - list.clientLeft;
-  const { width: rectWidth, height: rectHeight } = activeTab.getBoundingClientRect();
-  const width = Math.floor(rectWidth);
-  const height = Math.floor(rectHeight);
-  const right =
-    direction === 'ltr'
-      ? list.scrollWidth - activeTab.offsetLeft - width - list.clientLeft
-      : activeTab.offsetLeft - list.clientLeft;
-  const top = activeTab.offsetTop - list.clientTop;
-  const bottom = list.scrollHeight - activeTab.offsetTop - height - list.clientTop;
+  if (activeTab != null && tabsList != null) {
+    const tabsListRect = tabsList.getBoundingClientRect();
+    const {
+      left: tabLeft,
+      top: tabTop,
+      width: computedWidth,
+      height: computedHeight,
+    } = activeTab.getBoundingClientRect();
+
+    left = tabLeft - tabsListRect.left + tabsList.scrollLeft - tabsList.clientLeft;
+    top = tabTop - tabsListRect.top + tabsList.scrollTop - tabsList.clientTop;
+    width = computedWidth;
+    height = computedHeight;
+
+    right =
+      direction === 'ltr'
+        ? tabsList.scrollWidth - left - width - tabsList.clientLeft
+        : left - tabsList.clientLeft;
+    bottom = tabsList.scrollHeight - top - height - tabsList.clientTop;
+  }
 
   function setProp(name, value) {
     indicator.style.setProperty(`--active-tab-${name}`, `${value}px`);

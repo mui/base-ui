@@ -1,10 +1,16 @@
 'use client';
 import * as React from 'react';
 import type { Orientation } from '../utils/types';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIEventReasons } from '../utils/reasons';
 
 export interface ToggleGroupContext {
   value: readonly any[];
-  setGroupValue: (newValue: string, nextPressed: boolean, event: Event) => void;
+  setGroupValue: (
+    newValue: string,
+    nextPressed: boolean,
+    eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+  ) => void;
   disabled: boolean;
   orientation: Orientation;
 }

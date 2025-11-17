@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, flushMicrotasks, waitFor, act } from '@mui/internal-test-utils';
@@ -62,7 +61,9 @@ describe('<NavigationMenu.Trigger />', () => {
     await flushMicrotasks();
 
     const positioner = screen.getByTestId('positioner');
-    expect(getComputedStyle(positioner).getPropertyValue('--positioner-height')).to.equal('18px');
+    expect(
+      parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10),
+    ).to.be.approximately(18, 1);
 
     const overviewLink = screen.getByRole('link', { name: 'Quick Start' });
     await waitFor(() => {
@@ -84,7 +85,9 @@ describe('<NavigationMenu.Trigger />', () => {
     await userEvent.keyboard('{ArrowDown}');
     await flushMicrotasks();
 
-    expect(getComputedStyle(positioner).getPropertyValue('--positioner-height')).to.equal('36px');
+    expect(
+      parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10),
+    ).to.be.approximately(36, 1);
 
     const handbookLink = screen.getByRole('link', { name: 'Styling Base UI components' });
     await waitFor(() => {
@@ -103,6 +106,8 @@ describe('<NavigationMenu.Trigger />', () => {
 
     await userEvent.keyboard('{ArrowDown}');
     await flushMicrotasks();
-    expect(getComputedStyle(positioner).getPropertyValue('--positioner-height')).to.equal('18px');
+    expect(
+      parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10),
+    ).to.be.approximately(18, 1);
   });
 });

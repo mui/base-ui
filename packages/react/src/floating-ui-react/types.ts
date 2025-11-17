@@ -4,18 +4,21 @@ import type {
   VirtualElement,
 } from '@floating-ui/react-dom';
 import type * as React from 'react';
-import type { BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 
 import type { ExtendedUserProps } from './hooks/useInteractions';
+import type { FloatingTreeStore } from './components/FloatingTree';
 
 export * from '.';
 export type { FloatingDelayGroupProps } from './components/FloatingDelayGroup';
 export type { FloatingFocusManagerProps } from './components/FloatingFocusManager';
-export type { FloatingPortalProps, UseFloatingPortalNodeProps } from './components/FloatingPortal';
+export type { UseFloatingPortalNodeProps } from './components/FloatingPortal';
 export type { UseClientPointProps } from './hooks/useClientPoint';
 export type { UseDismissProps } from './hooks/useDismiss';
 export type { UseFocusProps } from './hooks/useFocus';
 export type { UseHoverProps, HandleCloseContext, HandleClose } from './hooks/useHover';
+export type { UseHoverFloatingInteractionProps } from './hooks/useHoverFloatingInteraction';
+export type { UseHoverReferenceInteractionProps } from './hooks/useHoverReferenceInteraction';
 export type { UseListNavigationProps } from './hooks/useListNavigation';
 export type { UseRoleProps } from './hooks/useRole';
 export type { UseTypeaheadProps } from './hooks/useTypeahead';
@@ -86,18 +89,6 @@ type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
 
-export type OpenChangeReason =
-  | 'outside-press'
-  | 'escape-key'
-  | 'ancestor-scroll'
-  | 'reference-press'
-  | 'click'
-  | 'hover'
-  | 'focus'
-  | 'focus-out'
-  | 'list-navigation'
-  | 'safe-polygon';
-
 export type Delay = number | Partial<{ open: number; close: number }>;
 
 export type NarrowedElement<T> = T extends Element ? T : Element;
@@ -134,11 +125,12 @@ export interface ContextData {
 export interface FloatingRootContext<RT extends ReferenceType = ReferenceType> {
   dataRef: React.MutableRefObject<ContextData>;
   open: boolean;
-  onOpenChange: (open: boolean, eventDetails: BaseUIEventDetails) => void;
+  onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void;
   elements: {
     domReference: Element | null;
     reference: RT | null;
     floating: HTMLElement | null;
+    triggers?: Element[];
   };
   events: FloatingEvents;
   floatingId: string | undefined;
@@ -152,7 +144,7 @@ export type FloatingContext<RT extends ReferenceType = ReferenceType> = Omit<
   'refs' | 'elements'
 > & {
   open: boolean;
-  onOpenChange(open: boolean, eventDetails: BaseUIEventDetails): void;
+  onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   events: FloatingEvents;
   dataRef: React.MutableRefObject<ContextData>;
   nodeId: string | undefined;
@@ -167,12 +159,7 @@ export interface FloatingNodeType<RT extends ReferenceType = ReferenceType> {
   context?: FloatingContext<RT>;
 }
 
-export interface FloatingTreeType<RT extends ReferenceType = ReferenceType> {
-  nodesRef: React.MutableRefObject<Array<FloatingNodeType<RT>>>;
-  events: FloatingEvents;
-  addNode(node: FloatingNodeType): void;
-  removeNode(node: FloatingNodeType): void;
-}
+export type FloatingTreeType<RT extends ReferenceType = ReferenceType> = FloatingTreeStore<RT>;
 
 export interface ElementProps {
   reference?: React.HTMLProps<Element>;
@@ -180,6 +167,7 @@ export interface ElementProps {
   item?:
     | React.HTMLProps<HTMLElement>
     | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>);
+  trigger?: React.HTMLProps<Element>;
 }
 
 export type ReferenceType = Element | VirtualElement;
@@ -220,9 +208,13 @@ export interface UseFloatingOptions<RT extends ReferenceType = ReferenceType>
    * An event callback that is invoked when the floating element is opened or
    * closed.
    */
-  onOpenChange?(open: boolean, eventDetails: BaseUIEventDetails): void;
+  onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   /**
    * Unique node id when using `FloatingTree`.
    */
   nodeId?: string;
+  /**
+   * External FlatingTree to use when the one provided by context can't be used.
+   */
+  externalTree?: FloatingTreeStore<RT>;
 }

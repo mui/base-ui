@@ -7,9 +7,13 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: Combobox.ItemIndicator.State) => string)",
+      "type": "string | ((state: Combobox.ItemIndicator.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Combobox.ItemIndicator.State) => string)"
+      "detailedType": "| string\n| ((\n    state: Combobox.ItemIndicator.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.ItemIndicator.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Combobox.ItemIndicator.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "keepMounted": {
       "type": "boolean",
