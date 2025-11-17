@@ -34,6 +34,7 @@ export function SearchBar({
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);
   const openingRef = React.useRef(false);
+  const closingRef = React.useRef(false);
 
   React.useEffect(() => {
     sitemapImport().then(({ sitemap }) => {
@@ -175,6 +176,12 @@ export function SearchBar({
 
   const handleCloseDialog = React.useCallback((open: boolean) => {
     if (!open) {
+      // Prevent double-closing across all instances
+      if (closingRef.current) {
+        return;
+      }
+      closingRef.current = true;
+
       if ('startViewTransition' in document) {
         (document as any).startViewTransition(() => {
           ReactDOM.flushSync(() => {
@@ -184,6 +191,11 @@ export function SearchBar({
       } else {
         setDialogOpen(false);
       }
+
+      // Reset after a short delay
+      setTimeout(() => {
+        closingRef.current = false;
+      }, 100);
     } else {
       setDialogOpen(true);
     }
@@ -200,8 +212,8 @@ export function SearchBar({
         event.preventDefault();
         event.stopPropagation();
 
-        // Only open if not already open/mounted/opening
-        if (!dialogOpen && !openingRef.current) {
+        // Only open if not already open or in the process of opening/closing
+        if (!dialogOpen && !openingRef.current && !closingRef.current) {
           handleOpenDialog();
         }
       }
@@ -253,10 +265,10 @@ export function SearchBar({
   const handleItemClick = React.useCallback(
     (result: SearchResult) => {
       const url = `${result.prefix}${result.slug}`;
-      setDialogOpen(false);
+      handleCloseDialog(false);
       router.push(url);
     },
-    [router],
+    [router, handleCloseDialog],
   );
 
   return (
