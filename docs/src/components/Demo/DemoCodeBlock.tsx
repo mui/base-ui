@@ -73,9 +73,9 @@ export function DemoCodeBlock({
     return (
       <Root>
         <ScrollArea.Viewport>
-          <pre className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
+          <div className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
             {selectedFile}
-          </pre>
+          </div>
         </ScrollArea.Viewport>
         <ScrollArea.Corner />
         <ScrollArea.Scrollbar orientation="vertical" />
@@ -100,9 +100,9 @@ export function DemoCodeBlock({
           className="DemoCodeBlockViewport"
           {...(!collapsibleOpen && { tabIndex: undefined, style: { overflow: undefined } })}
         >
-          <pre className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
+          <div className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
             {selectedFile}
-          </pre>
+          </div>
         </ScrollArea.Viewport>
 
         {collapsibleOpen && (
