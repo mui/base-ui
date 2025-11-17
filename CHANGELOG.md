@@ -108,9 +108,9 @@ _Nov 17, 2025_
 
 ### Menu
 
-- **Breaking change:** Support detached triggers.
-  `openOnHover`, `delay`, and `closeDelay` props moved from Menu.Root to Menu.Trigger.
-  Additionally, menus now must have at least one Trigger element.
+- **Breaking change:** Support detached triggers.<br />
+  `openOnHover`, `delay`, and `closeDelay` props have been moved from `<Menu.Root>` to `<Menu.Trigger>`.<br />
+  Additionally, menus now must have at least one `<Menu.Trigger>` element.
   (#3170) by @michaldudak
 - Ignore disabled item on initial focusing (#2604) by @mnajdova
 - Fix stealing focus from dialogs on close (#2920) by @atomiks
@@ -128,7 +128,7 @@ _Nov 17, 2025_
 ### Popover
 
 - **Breaking change:** Support detached triggers and multiple triggers per popover.<br />
-  `openOnHover`, `delay`, and `closeDelay` props moved from Popover.Root to Popover.Trigger.
+  `openOnHover`, `delay`, and `closeDelay` props have been moved from `<Popover.Root>` to `<Popover.Trigger>`.
   (#2336) by @michaldudak
 - Fix `initialFocus` as function being called on close (#2949) by @atomiks
 - Fix swiping or scrolling on nested popup dismissing popover on touch (#3011) by @atomiks
@@ -149,7 +149,7 @@ _Nov 17, 2025_
 ### Select
 
 - **Breaking change:** Make the trigger native button by default.<br />
-  The trigger will now render a `<button>` element, be sure to adjust your code if necessary.
+  The trigger now renders a `<button>` element, be sure to adjust your code if necessary.
   (#3177) by @mnajdova
 - Add `open` state type on `Select.Icon` interface (#2919) by @komkanit
 - Fix `onValueChange` type inference when `value` is unspecified (#2897) by @atomiks
@@ -161,7 +161,7 @@ _Nov 17, 2025_
 ### Slider
 
 - **Breaking change:** Add `thumbCollisionBehavior` prop.<br />
-  When multiple thumbs overlap, moving them with mouse will now push the other thumbs to avoid collisions.
+  When multiple thumbs overlap, moving them with mouse now pushes the other thumbs to avoid collisions.
   Other prop options include `swap` and `none` (the current behavior).
   (#2856) by @atomiks
 - Granular change reasons (#3132) by @atomiks
@@ -192,7 +192,7 @@ _Nov 17, 2025_
 ### Tooltip
 
 - **Breaking change:** Support detached triggers.<br />
-  `delay` and `closeDelay` props were moved from Tooltip.Root to Tooltip.Trigger.
+  `delay` and `closeDelay` props have been moved from `<Tooltip.Root>` to `<Tooltip.Trigger>`.
   (#3071) by @michaldudak
 - **Breaking change:** Change `hoverable` to `disableHoverablePopup`.<br />
   In case you need to disable the hoverable popup behavior, be sure to add the `disableHoverablePopup` prop.
