@@ -350,33 +350,29 @@ describe('<Checkbox.Root />', () => {
       expect(screen.queryByTestId('error')).to.equal(null);
     });
 
-    it('should include the checkbox value in the form submission', async ({ skip }) => {
-      if (isJSDOM) {
-        // FormData is not available in JSDOM
-        skip();
-      }
-
-      let stringifiedFormData = '';
+    it.skipIf(isJSDOM)('should include the checkbox value in form submission', async () => {
+      const submitSpy = spy((event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-checkbox');
+      });
 
       await render(
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            stringifiedFormData = new URLSearchParams(formData as any).toString();
-          }}
-        >
-          <Checkbox.Root name="test-checkbox" />
+        <Form onSubmit={submitSpy}>
+          <Field.Root name="test-checkbox">
+            <Checkbox.Root />
+          </Field.Root>
           <button type="submit">Submit</button>
-        </form>,
+        </Form>,
       );
 
-      const [checkbox] = screen.getAllByRole('checkbox');
+      const checkbox = screen.getByRole('checkbox');
       const submitButton = screen.getByRole('button')!;
 
       submitButton.click();
 
-      expect(stringifiedFormData).to.equal('test-checkbox=off');
+      expect(submitSpy.callCount).to.equal(1);
+      expect(submitSpy.lastCall.returnValue).to.equal('off');
 
       await act(async () => {
         checkbox.click();
@@ -384,36 +380,33 @@ describe('<Checkbox.Root />', () => {
 
       submitButton.click();
 
-      expect(stringifiedFormData).to.equal('test-checkbox=on');
+      expect(submitSpy.callCount).to.equal(2);
+      expect(submitSpy.lastCall.returnValue).to.equal('on');
     });
 
-    it('should include the custom checkbox value in the form submission', async ({ skip }) => {
-      if (isJSDOM) {
-        // FormData is not available in JSDOM
-        skip();
-      }
-
-      let stringifiedFormData = '';
+    it.skipIf(isJSDOM)('should include the custom checkbox value in form submission', async () => {
+      const submitSpy = spy((event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-checkbox');
+      });
 
       await render(
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            stringifiedFormData = new URLSearchParams(formData as any).toString();
-          }}
-        >
-          <Checkbox.Root name="test-checkbox" value="test-value" />
+        <Form onSubmit={submitSpy}>
+          <Field.Root name="test-checkbox">
+            <Checkbox.Root value="test-value" />
+          </Field.Root>
           <button type="submit">Submit</button>
-        </form>,
+        </Form>,
       );
 
-      const [checkbox] = screen.getAllByRole('checkbox');
+      const checkbox = screen.getByRole('checkbox');
       const submitButton = screen.getByRole('button')!;
 
       submitButton.click();
 
-      expect(stringifiedFormData).to.equal('test-checkbox=off');
+      expect(submitSpy.callCount).to.equal(1);
+      expect(submitSpy.lastCall.returnValue).to.equal('off');
 
       await act(async () => {
         checkbox.click();
@@ -421,7 +414,8 @@ describe('<Checkbox.Root />', () => {
 
       submitButton.click();
 
-      expect(stringifiedFormData).to.equal('test-checkbox=test-value');
+      expect(submitSpy.callCount).to.equal(2);
+      expect(submitSpy.lastCall.returnValue).to.equal('test-value');
     });
   });
 

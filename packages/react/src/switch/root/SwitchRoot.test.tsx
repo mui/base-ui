@@ -582,7 +582,7 @@ describe('<Switch.Root />', () => {
           expect(switchEl.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
           expect(switchEl).to.have.attribute('aria-checked', 'false');
 
-          fireEvent.click(screen.getByText('OK'));
+          fireEvent.click(label);
           expect(switchEl).to.have.attribute('aria-checked', 'true');
         });
       });
