@@ -22,12 +22,8 @@ import {
   getGridCellIndexOfCorner,
   findNonDisabledListIndex,
 } from '../utils';
-
-import {
-  FloatingTreeStore,
-  useFloatingParentNodeId,
-  useFloatingTree,
-} from '../components/FloatingTree';
+import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
+import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { Dimensions, ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';

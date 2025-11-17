@@ -6,11 +6,8 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { contains, getDocument, getTarget, isMouseLikePointerType } from '../utils';
 
-import {
-  FloatingTreeStore,
-  useFloatingParentNodeId,
-  useFloatingTree,
-} from '../components/FloatingTree';
+import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
+import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type {
   Delay,
   ElementProps,
