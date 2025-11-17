@@ -1,10 +1,11 @@
-import { isIOS, isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { Timeout } from '@base-ui-components/utils/useTimeout';
-import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+'use client';
 import { isOverflowElement } from '@floating-ui/utils/dom';
-import { NOOP } from './noop';
+import { isIOS, isWebKit } from './detectBrowser';
+import { ownerDocument, ownerWindow } from './owner';
+import { useIsoLayoutEffect } from './useIsoLayoutEffect';
+import { Timeout } from './useTimeout';
+import { AnimationFrame } from './useAnimationFrame';
+import { NOOP } from './empty';
 
 /* eslint-disable lines-between-class-members */
 
