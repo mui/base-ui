@@ -12,7 +12,11 @@ import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { REASONS } from '../../utils/reasons';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import {
+  DISABLED_TRANSITIONS_STYLE,
+  EMPTY_OBJECT,
+  POPUP_COLLISION_AVOIDANCE,
+} from '../../utils/constants';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 
@@ -57,6 +61,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const modal = store.useState('modal');
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
@@ -156,7 +161,11 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    props: [positioner.props, elementProps],
+    props: [
+      positioner.props,
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
+      elementProps,
+    ],
     ref: [forwardedRef, setPositionerElement],
     stateAttributesMapping: popupStateMapping,
   });

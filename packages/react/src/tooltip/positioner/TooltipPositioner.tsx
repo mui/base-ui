@@ -7,7 +7,11 @@ import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import {
+  DISABLED_TRANSITIONS_STYLE,
+  EMPTY_OBJECT,
+  POPUP_COLLISION_AVOIDANCE,
+} from '../../utils/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 
 /**
@@ -47,6 +51,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const disableHoverablePopup = store.useState('disableHoverablePopup');
   const floatingRootContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -122,7 +127,11 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    props: [positioner.props, elementProps],
+    props: [
+      positioner.props,
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
+      elementProps,
+    ],
     ref: [forwardedRef, store.useStateSetter('positionerElement')],
     stateAttributesMapping: popupStateMapping,
   });
