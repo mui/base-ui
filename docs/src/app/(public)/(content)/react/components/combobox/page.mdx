@@ -78,20 +78,14 @@ When not specifying value props, the parameter's type must be explicitly specifi
 
 The following example shows a typed wrapper around the Combobox component with correct type inference and type safety.
 
-```tsx title="Typed wrapper"
+```tsx title="Specifying generic type parameters"
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 
 export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
-  props: Combobox.Root.ControlledProps<Value, Multiple>,
-): React.JSX.Element;
-export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
-  props: Combobox.Root.UncontrolledProps<Value, Multiple>,
-): React.JSX.Element;
-export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
   props: Combobox.Root.Props<Value, Multiple>,
 ): React.JSX.Element {
-  return <Combobox.Root<any, any> {...props} />;
+  return <Combobox.Root<Value, Multiple> {...props} />;
 }
 
 export default function App() {

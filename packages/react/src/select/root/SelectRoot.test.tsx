@@ -347,7 +347,7 @@ describe('<Select.Root />', () => {
       const handleValueChange = spy();
 
       function App() {
-        const [value, setValue] = React.useState('');
+        const [value, setValue] = React.useState<string | null>('');
 
         return (
           <Select.Root
@@ -1827,7 +1827,7 @@ describe('<Select.Root />', () => {
     it('unselects the selected item if removed', async () => {
       function DynamicMenu() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
-        const [selectedItem, setSelectedItem] = React.useState('a');
+        const [selectedItem, setSelectedItem] = React.useState<string | null>('a');
 
         return (
           <div>
@@ -1940,7 +1940,7 @@ describe('<Select.Root />', () => {
     it('resets via onValueChange and does not break in controlled mode when the selected item is removed', async () => {
       function TestControlled() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
-        const [value, setValue] = React.useState('c');
+        const [value, setValue] = React.useState<string | null>('c');
         return (
           <div>
             <Select.Root value={value} onValueChange={setValue}>
@@ -2052,7 +2052,7 @@ describe('<Select.Root />', () => {
     it('falls back to null when both selected and initial default are removed (controlled)', async () => {
       function TestControlled() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
-        const [value, setValue] = React.useState('c');
+        const [value, setValue] = React.useState<string | null>('c');
         return (
           <div>
             <Select.Root value={value} onValueChange={setValue}>
@@ -2175,7 +2175,7 @@ describe('<Select.Root />', () => {
       const handleValueChange = spy();
 
       function App() {
-        const [value, setValue] = React.useState([]);
+        const [value, setValue] = React.useState<any[]>([]);
 
         return (
           <Select.Root
