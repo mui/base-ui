@@ -45,8 +45,7 @@ export function testPropForwarding(
       await render(
         React.cloneElement(element, {
           render: (props: any) => {
-            const { key, ...propsWithoutKey } = props;
-            return <Element key={key} {...propsWithoutKey} data-testid="custom-root" />;
+            return <Element {...props} data-testid="custom-root" />;
           },
           ...otherProps,
         }),
@@ -99,15 +98,7 @@ export function testPropForwarding(
       await render(
         React.cloneElement(element, {
           render: (props: any) => {
-            const { key, ...propsWithoutKey } = props;
-            return (
-              <Element
-                key={key}
-                {...propsWithoutKey}
-                style={{ color: 'green' }}
-                data-testid="custom-root"
-              />
-            );
+            return <Element {...props} style={{ color: 'green' }} data-testid="custom-root" />;
           },
           ...(button && { nativeButton }),
         }),
