@@ -55,6 +55,15 @@ jobs:
           command: pnpm test:jsdom:coverage
       - code-infra/upload-coverage:
           key: << parameters.react-version >>-jsdom
+  docs_validate:
+    <<: *default-job
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - code-infra/check-static-changes
+      - run:
+          name: Validate the documentation files
+          command: pnpm docs:validate
   test_lint:
     <<: *default-job
     steps:
@@ -226,6 +235,9 @@ workflows:
       - test_package:
           <<: *default-context
           name: 'Package verification'
+      - docs_validate:
+          <<: *default-context
+          name: 'Validating Docs'
   react-18:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]
