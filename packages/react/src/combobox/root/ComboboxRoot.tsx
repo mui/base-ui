@@ -130,7 +130,7 @@ type ComboboxRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
   ) => void;
 };
 
-type ComboboxRootControlledProps<
+export type ComboboxRootControlledProps<
   Value,
   Multiple extends boolean | undefined,
 > = ComboboxRootBaseProps<Value, Multiple> & {
@@ -147,7 +147,7 @@ type ComboboxRootControlledProps<
   ) => void;
 };
 
-type ComboboxRootUncontrolledProps<
+export type ComboboxRootUncontrolledProps<
   Value,
   Multiple extends boolean | undefined,
 > = ComboboxRootBaseProps<Value, Multiple> & {
@@ -188,6 +188,14 @@ export namespace ComboboxRoot {
     Value,
     Multiple
   >;
+  export type ControlledProps<
+    Value,
+    Multiple extends boolean | undefined = false,
+  > = ComboboxRootControlledProps<Value, Multiple>;
+  export type UncontrolledProps<
+    Value,
+    Multiple extends boolean | undefined = false,
+  > = ComboboxRootUncontrolledProps<Value, Multiple>;
   export type State = ComboboxRootState;
   export type Actions = ComboboxRootActions;
   export type ChangeEventReason = ComboboxRootChangeEventReason;

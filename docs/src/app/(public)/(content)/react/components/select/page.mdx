@@ -113,9 +113,26 @@ To avoid lookup, [object values](#object-values) for each item can also be used.
 
 The following example shows a typed wrapper around the Select component with correct type inference and type safety.
 
-import { DemoSelectTyped } from './demos/typed';
+```tsx title="Typed wrapper"
+import * as React from 'react';
+import { Select } from '@base-ui-components/react/select';
 
-<DemoSelectTyped />
+export function MySelect<Value, Multiple extends boolean | undefined = false>(
+  props: Select.Root.ControlledProps<Value, Multiple>,
+): React.JSX.Element;
+export function MySelect<Value, Multiple extends boolean | undefined = false>(
+  props: Select.Root.UncontrolledProps<Value, Multiple>,
+): React.JSX.Element;
+export function MySelect<Value, Multiple extends boolean | undefined = false>(
+  props: Select.Root.Props<Value, Multiple>,
+): React.JSX.Element {
+  return <Select.Root<any, any> {...props} />;
+}
+
+export default function App() {
+  return <MySelect />;
+}
+```
 
 ### Multiple selection
 

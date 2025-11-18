@@ -679,10 +679,10 @@ type SelectRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
   defaultValue?: SelectValueType<Value, Multiple> | null;
 };
 
-type SelectRootControlledProps<Value, Multiple extends boolean | undefined> = SelectRootBaseProps<
+export type SelectRootControlledProps<
   Value,
-  Multiple
-> & {
+  Multiple extends boolean | undefined,
+> = SelectRootBaseProps<Value, Multiple> & {
   /**
    * The value of the select. Use when controlled.
    */
@@ -696,10 +696,10 @@ type SelectRootControlledProps<Value, Multiple extends boolean | undefined> = Se
   ) => void;
 };
 
-type SelectRootUncontrolledProps<Value, Multiple extends boolean | undefined> = SelectRootBaseProps<
+export type SelectRootUncontrolledProps<
   Value,
-  Multiple
-> & {
+  Multiple extends boolean | undefined,
+> = SelectRootBaseProps<Value, Multiple> & {
   /**
    * The value of the select. Use when controlled.
    */
@@ -713,7 +713,7 @@ type SelectRootUncontrolledProps<Value, Multiple extends boolean | undefined> = 
   ) => void;
 };
 
-export type SelectRootConditionalProps<Value, Multiple extends boolean | undefined = false> =
+type SelectRootConditionalProps<Value, Multiple extends boolean | undefined = false> =
   | SelectRootControlledProps<Value, Multiple>
   | SelectRootUncontrolledProps<Value, Multiple>;
 
@@ -746,6 +746,14 @@ export namespace SelectRoot {
     Value,
     Multiple
   >;
+  export type ControlledProps<
+    Value,
+    Multiple extends boolean | undefined = false,
+  > = SelectRootControlledProps<Value, Multiple>;
+  export type UncontrolledProps<
+    Value,
+    Multiple extends boolean | undefined = false,
+  > = SelectRootUncontrolledProps<Value, Multiple>;
   export type State = SelectRootState;
   export type Actions = SelectRootActions;
   export type ChangeEventReason = SelectRootChangeEventReason;
