@@ -137,7 +137,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const props = mergeProps<'button'>(
     triggerProps,
     {
-      role: 'combobox',
       'aria-expanded': open ? 'true' : 'false',
       'aria-haspopup': 'listbox',
       'aria-controls': open ? ariaControlsId : undefined,
@@ -226,8 +225,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     elementProps,
     getButtonProps,
     {
-      // ensure nested useButton does not overwrite the combobox role:
-      // <Toolbar.Button render={<Select.Trigger />} />
+      // Set the role last to ensure nested useButton does not overwrite it
+      // e.g. <Toolbar.Button render={<Select.Trigger />} />
       role: 'combobox',
       // combobox box doesn't need the type="button" attribute
       type: undefined,
