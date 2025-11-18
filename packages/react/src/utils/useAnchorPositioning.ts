@@ -28,6 +28,7 @@ import {
 import { useDirection } from '../direction-provider/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { FloatingTreeStore } from '../floating-ui-react/components/FloatingTreeStore';
+import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -413,7 +414,7 @@ export function useAnchorPositioning(
     externalTree,
   });
 
-  const { sideX, sideY } = middlewareData.adaptiveOrigin || {};
+  const { sideX, sideY } = middlewareData.adaptiveOrigin || DEFAULT_SIDES;
 
   const floatingStyles = React.useMemo<React.CSSProperties>(
     () =>

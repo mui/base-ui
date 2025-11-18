@@ -18,7 +18,12 @@ import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalCo
 import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import {
+  DISABLED_TRANSITIONS_STYLE,
+  DROPDOWN_COLLISION_AVOIDANCE,
+  EMPTY_OBJECT,
+  POPUP_COLLISION_AVOIDANCE,
+} from '../../utils/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 
 /**
@@ -31,8 +36,15 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   componentProps: NavigationMenuPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { open, mounted, positionerElement, setPositionerElement, floatingRootContext, nested } =
-    useNavigationMenuRootContext();
+  const {
+    open,
+    mounted,
+    positionerElement,
+    setPositionerElement,
+    floatingRootContext,
+    nested,
+    transitionStatus,
+  } = useNavigationMenuRootContext();
 
   const {
     className,
@@ -164,7 +176,11 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, setPositionerElement, positionerRef],
-    props: [defaultProps, elementProps],
+    props: [
+      defaultProps,
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
+      elementProps,
+    ],
     stateAttributesMapping: popupStateMapping,
   });
 
