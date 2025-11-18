@@ -8,7 +8,7 @@ import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext'
 import { EMPTY_OBJECT } from '../../utils/constants';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
-import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 
 /**
  * Contains a list of navigation menu items.
@@ -25,7 +25,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   const { orientation, open, floatingRootContext, positionerElement, value } =
     useNavigationMenuRootContext();
 
-  const fallbackContext = React.useMemo(() => getEmptyContext(), []);
+  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const context = floatingRootContext || fallbackContext;
   const interactionsEnabled = positionerElement ? true : !value;
 

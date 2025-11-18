@@ -9,11 +9,8 @@ import { getDocument, getTarget, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
-import {
-  FloatingTreeStore,
-  useFloatingParentNodeId,
-  useFloatingTree,
-} from '../components/FloatingTree';
+import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
+import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
   isInteractiveElement,
   safePolygonIdentifier,

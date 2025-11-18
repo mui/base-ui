@@ -22,7 +22,8 @@ import {
 
 /* eslint-disable no-underscore-dangle */
 
-import { FloatingTreeStore, useFloatingTree } from '../components/FloatingTree';
+import { useFloatingTree } from '../components/FloatingTree';
+import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';

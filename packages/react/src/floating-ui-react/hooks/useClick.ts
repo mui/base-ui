@@ -7,7 +7,7 @@ import type { ElementProps, FloatingRootContext } from '../types';
 import { isMouseLikePointerType, isTypeableElement } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { getEmptyContext } from './useFloatingRootContext';
+import { getEmptyRootContext } from '../utils/getEmptyRootContext';
 
 export interface UseClickProps {
   /**
@@ -55,7 +55,7 @@ export function useClick(
   context: FloatingRootContext | null,
   props: UseClickProps = {},
 ): ElementProps {
-  const { open, onOpenChange, dataRef, elements } = context ?? getEmptyContext();
+  const { open, onOpenChange, dataRef, elements } = context ?? getEmptyRootContext();
   const {
     enabled = true,
     event: eventOption = 'click',

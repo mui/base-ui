@@ -39,7 +39,7 @@ const stateAttributesMapping: StateAttributesMapping<SelectTrigger.State> = {
  */
 export const SelectTrigger = React.forwardRef(function SelectTrigger(
   componentProps: SelectTrigger.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
     render,

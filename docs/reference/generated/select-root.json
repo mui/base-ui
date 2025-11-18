@@ -14,9 +14,9 @@
       "detailedType": "Value[] | Value | null | undefined"
     },
     "value": {
-      "type": "Value[] | Value",
+      "type": "Value[] | Value | any",
       "description": "The value of the select. Use when controlled.",
-      "detailedType": "Value[] | Value | undefined"
+      "detailedType": "Value[] | Value | any | undefined"
     },
     "onValueChange": {
       "type": "((value: Value[] | Value, eventDetails: Select.Root.ChangeEventDetails) => void) | ((value: Value[] | Value | any | null, eventDetails: Select.Root.ChangeEventDetails) => void)",

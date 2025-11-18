@@ -3,8 +3,8 @@ import * as React from 'react';
 import { useId } from '@base-ui-components/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import type { FloatingEvents, FloatingNodeType, FloatingTreeType, ReferenceType } from '../types';
-import { createEventEmitter } from '../utils/createEventEmitter';
+import type { FloatingNodeType, FloatingTreeType, ReferenceType } from '../types';
+import { FloatingTreeStore } from './FloatingTreeStore';
 
 const FloatingNodeContext = React.createContext<FloatingNodeType | null>(null);
 const FloatingTreeContext = React.createContext<FloatingTreeType | null>(null);
@@ -74,29 +74,6 @@ export function FloatingNode(props: FloatingNodeProps): React.JSX.Element {
 export interface FloatingTreeProps {
   children?: React.ReactNode;
   externalTree?: FloatingTreeStore;
-}
-
-/**
- * Stores and manages floating elements in a tree structure.
- * This is a backing store for the `FloatingTree` component.
- */
-export class FloatingTreeStore<RT extends ReferenceType = ReferenceType> {
-  public readonly nodesRef: React.RefObject<Array<FloatingNodeType<RT>>> = { current: [] };
-
-  public readonly events: FloatingEvents = createEventEmitter();
-
-  private readonly _id: string = `${Math.random().toString(16).slice(2)}`;
-
-  public addNode(node: FloatingNodeType<RT>) {
-    this.nodesRef.current.push(node);
-  }
-
-  public removeNode(node: FloatingNodeType<RT>) {
-    const index = this.nodesRef.current.findIndex((n) => n === node);
-    if (index !== -1) {
-      this.nodesRef.current.splice(index, 1);
-    }
-  }
 }
 
 /**
