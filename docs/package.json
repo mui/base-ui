@@ -8,6 +8,8 @@
     "dev": "next dev --webpack --port 3005",
     "deploy": "git fetch upstream master && git push -f upstream FETCH_HEAD:docs-v1",
     "serve": "serve ./export -l 3010",
+    "docs-infra": "docs-infra",
+    "validate": "docs-infra validate --command 'pnpm validate'",
     "typescript": "tsc -b tsconfig.json",
     "link-check": "tsx ./scripts/reportBrokenLinks.mts",
     "generate-llms": "node ./scripts/generateLlmTxt/index.mjs"
@@ -21,7 +23,7 @@
     "@emotion/styled": "^11.14.1",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@mui/internal-docs-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@d8428b4",
+    "@mui/internal-docs-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@8182377",
     "@next/mdx": "^16.0.1",
     "@orama/orama": "^3.1.16",
     "@orama/stemmers": "^3.1.16",
