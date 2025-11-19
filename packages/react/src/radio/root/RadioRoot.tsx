@@ -66,7 +66,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     disabled: fieldDisabled,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const { labelId, getDescriptionProps, registerLabelableControlRef } = useLabelableContext();
+  const { labelId, getDescriptionProps } = useLabelableContext();
 
   const disabled = fieldDisabled || fieldItemContext.disabled || disabledGroup || disabledProp;
   const readOnly = readOnlyGroup || readOnlyProp;
@@ -199,7 +199,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const isRadioGroup = setCheckedValue !== NOOP;
 
-  const refs = [forwardedRef, registerControlRef, registerLabelableControlRef, radioRef, buttonRef];
+  const refs = [forwardedRef, registerControlRef, radioRef, buttonRef];
   const props = [
     rootProps,
     getDescriptionProps,

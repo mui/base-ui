@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { mergeProps } from '../merge-props';
 import { HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -32,14 +31,6 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
     [parentMessageIds, messageIds],
   );
 
-  const labelableControlRef = React.useRef<HTMLElement>(null);
-
-  const registerLabelableControlRef = useStableCallback((element: HTMLElement | null) => {
-    if (element) {
-      labelableControlRef.current = element;
-    }
-  });
-
   const contextValue: LabelableContext = React.useMemo(
     () => ({
       controlId,
@@ -49,19 +40,8 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       messageIds,
       setMessageIds,
       getDescriptionProps,
-      labelableControlRef,
-      registerLabelableControlRef,
     }),
-    [
-      controlId,
-      setControlId,
-      labelId,
-      setLabelId,
-      messageIds,
-      setMessageIds,
-      getDescriptionProps,
-      registerLabelableControlRef,
-    ],
+    [controlId, setControlId, labelId, setLabelId, messageIds, setMessageIds, getDescriptionProps],
   );
 
   return (
