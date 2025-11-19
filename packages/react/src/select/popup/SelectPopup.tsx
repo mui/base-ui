@@ -23,11 +23,11 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { clearStyles, LIST_FUNCTIONAL_STYLES } from './utils';
-import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -423,8 +423,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     props: [
       popupProps,
       defaultProps,
+      getDisabledMountTransitionStyles(transitionStatus),
       {
-        style: transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE.style : undefined,
         className:
           !listElement && alignItemWithTriggerActive ? styleDisableScrollbar.className : undefined,
       },

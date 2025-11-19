@@ -12,13 +12,10 @@ import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { REASONS } from '../../utils/reasons';
 import { useRenderElement } from '../../utils/useRenderElement';
-import {
-  DISABLED_TRANSITIONS_STYLE,
-  EMPTY_OBJECT,
-  POPUP_COLLISION_AVOIDANCE,
-} from '../../utils/constants';
+import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 /**
  * Positions the popover against the trigger.
@@ -161,11 +158,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    props: [
-      positioner.props,
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
-      elementProps,
-    ],
+    props: [positioner.props, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     ref: [forwardedRef, setPositionerElement],
     stateAttributesMapping: popupStateMapping,
   });
