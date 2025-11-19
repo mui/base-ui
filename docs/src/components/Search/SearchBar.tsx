@@ -286,7 +286,9 @@ export function SearchBar({
 
   const handleItemClick = React.useCallback(
     (result: SearchResult) => {
-      const url = `${result.prefix}${result.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`;
+      const url = result.path.startsWith('./')
+        ? `${result.prefix}${result.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
+        : result.path;
       handleCloseDialog(false);
       router.push(url);
     },
