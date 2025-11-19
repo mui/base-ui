@@ -23,7 +23,7 @@
     "@emotion/styled": "^11.14.1",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@mui/internal-docs-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@e0e4c1c",
+    "@mui/internal-docs-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@06ae03c",
     "@next/mdx": "^16.0.1",
     "@orama/orama": "^3.1.16",
     "@orama/stemmers": "^3.1.16",
