@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { EMPTY_OBJECT } from '../../utils/constants';
@@ -30,7 +30,7 @@ import { RadioRootContext } from './RadioRootContext';
  */
 export const RadioRoot = React.forwardRef(function RadioRoot(
   componentProps: RadioRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
@@ -247,7 +247,7 @@ export interface RadioRootState extends FieldRoot.State {
   required: boolean;
 }
 export interface RadioRootProps
-  extends NativeButtonProps,
+  extends NonNativeButtonProps,
     Omit<BaseUIComponentProps<'span', RadioRoot.State>, 'value'> {
   /** The unique identifying value of the radio in a group. */
   value: any;

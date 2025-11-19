@@ -35,7 +35,7 @@
       "detailedType": "boolean | undefined"
     },
     "handle": {
-      "type": "DialogHandle<Payload>",
+      "type": "Dialog.Handle<Payload>",
       "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.\nCan be created with the Dialog.createHandle() method.",
       "detailedType": "{} | undefined"
     },

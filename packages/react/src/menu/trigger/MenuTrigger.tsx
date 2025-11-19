@@ -23,10 +23,10 @@ import {
   useInteractions,
 } from '../../floating-ui-react/index';
 import {
-  FloatingTreeStore,
   useFloatingNodeId,
   useFloatingParentNodeId,
 } from '../../floating-ui-react/components/FloatingTree';
+import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -297,7 +297,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         const doc = ownerDocument(event.currentTarget);
         doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
       },
-      key: thisTriggerId,
     },
     isInMenubar ? { role: 'menuitem' } : {},
     mixedToggleHandlers,
@@ -379,6 +378,9 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     );
   }
 
+  // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
+  // regardless of whether the focus guards are rendered or not.
+
   if (isOpenedByThisTrigger) {
     return (
       <React.Fragment>
@@ -387,7 +389,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
           onFocus={handlePreFocusGuardFocus}
           key={`${thisTriggerId}-pre-focus-guard`}
         />
-        {element}
+        <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
         <FocusGuard
           ref={store.context.triggerFocusTargetRef}
           onFocus={handleFocusTargetFocus}
@@ -397,7 +399,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     );
   }
 
-  return element;
+  return <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
 }) as MenuTrigger;
 
 export interface MenuTrigger {

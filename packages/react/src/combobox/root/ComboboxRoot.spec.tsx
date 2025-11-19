@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
+import { mergeProps } from '../../merge-props';
 
 const objectItems = [
   { value: 'a', label: 'apple' },
@@ -234,3 +235,10 @@ function App3() {
     />
   );
 }
+
+mergeProps<typeof Combobox.Root<any>>(
+  {
+    value: '',
+  },
+  {},
+);

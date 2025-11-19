@@ -10,7 +10,7 @@ import { NOOP } from '../../utils/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -38,7 +38,7 @@ export const PARENT_CHECKBOX = 'data-parent';
  */
 export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   componentProps: CheckboxRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     checked: checkedProp,
@@ -352,7 +352,7 @@ export interface CheckboxRootState extends FieldRoot.State {
 }
 
 export interface CheckboxRootProps
-  extends NativeButtonProps,
+  extends NonNativeButtonProps,
     Omit<BaseUIComponentProps<'span', CheckboxRoot.State>, 'onChange' | 'value'> {
   /**
    * The id of the input element.

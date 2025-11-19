@@ -1,5 +1,15 @@
 # Versions
 
+## v1.0.0-beta.6
+
+_Nov 17, 2025_
+
+This is a hotfix release with the following changes:
+
+- Fix for rendering of Alert Dialog, Dialog, Menu, Popover, and Tooltip in React Server Components (#3241) by @michaldudak
+- Fix of the types of the refs in the Checkbox, Switch and Radio components (#3246) by @mnajdova
+- Fix of the value type error with mergeProps (#3247) by @atomiks
+
 ## v1.0.0-beta.5
 
 _Nov 17, 2025_

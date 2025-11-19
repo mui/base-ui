@@ -10,7 +10,7 @@ import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { type FloatingRootContext } from '../../floating-ui-react';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { FloatingUIOpenChangeDetails, type HTMLProps } from '../../utils/types';
-import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { PopoverRoot } from './../root/PopoverRoot';
 import { REASONS } from '../../utils/reasons';
 import { PopupTriggerMap } from '../../utils/popupStoreUtils';
@@ -70,7 +70,7 @@ function createInitialState<Payload>(): State<Payload> {
     openReason: null,
     titleElementId: undefined,
     descriptionElementId: undefined,
-    floatingRootContext: getEmptyContext(),
+    floatingRootContext: getEmptyRootContext(),
     payload: undefined,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
