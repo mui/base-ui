@@ -372,15 +372,17 @@ export function useAnchorPositioning(
     adaptiveOrigin,
   );
 
-  // Ensure positioning doesn't run initially for `keepMounted` elements that
-  // aren't initially open.
-  let rootContext = floatingRootContext;
-  if (!mounted && floatingRootContext) {
-    rootContext = {
-      ...floatingRootContext,
-      elements: { reference: null, floating: null, domReference: null },
-    };
-  }
+  useIsoLayoutEffect(() => {
+    // Ensure positioning doesn't run initially for `keepMounted` elements that
+    // aren't initially open.
+    if (!mounted && floatingRootContext) {
+      floatingRootContext.update({
+        referenceElement: null,
+        floatingElement: null,
+        domReferenceElement: null,
+      });
+    }
+  }, [mounted, floatingRootContext]);
 
   const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
@@ -402,7 +404,7 @@ export function useAnchorPositioning(
     isPositioned,
     floatingStyles: originalFloatingStyles,
   } = useFloating({
-    rootContext,
+    rootContext: floatingRootContext,
     placement,
     middleware,
     strategy: positionMethod,

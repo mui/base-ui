@@ -42,10 +42,14 @@ const clickLikeEvents = new Set(['click', 'mousedown']);
  * Provides hover interactions that should be attached to the floating element.
  */
 export function useHoverFloatingInteraction(
-  context: FloatingRootContext,
+  store: FloatingRootContext,
   parameters: UseHoverFloatingInteractionProps = {},
 ): void {
-  const { open, onOpenChange, dataRef, events, elements } = context;
+  const open = store.useState('open');
+  const floatingElement = store.useState('floatingElement');
+  const domReferenceElement = store.useState('domReferenceElement');
+  const { dataRef, events } = store.context;
+
   const { enabled = true, closeDelay: closeDelayProp = 0, externalTree } = parameters;
 
   const {
@@ -59,7 +63,7 @@ export function useHoverFloatingInteraction(
     openChangeTimeout: openChangeTimeout,
     restTimeout,
     handleCloseOptionsRef,
-  } = useHoverInteractionSharedState(context);
+  } = useHoverInteractionSharedState(store);
 
   const tree = useFloatingTree(externalTree);
   const parentId = useFloatingParentNodeId();
@@ -82,14 +86,14 @@ export function useHoverFloatingInteraction(
       const closeDelay = getDelay(closeDelayProp, pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
         openChangeTimeout.start(closeDelay, () =>
-          onOpenChange(false, createChangeEventDetails(REASONS.triggerHover, event)),
+          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
         );
       } else if (runElseBranch) {
         openChangeTimeout.clear();
-        onOpenChange(false, createChangeEventDetails(REASONS.triggerHover, event));
+        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
       }
     },
-    [closeDelayProp, handlerRef, onOpenChange, pointerTypeRef, openChangeTimeout],
+    [closeDelayProp, handlerRef, store, pointerTypeRef, openChangeTimeout],
   );
 
   const cleanupMouseMoveHandler = useStableCallback(() => {
@@ -99,7 +103,7 @@ export function useHoverFloatingInteraction(
 
   const clearPointerEvents = useStableCallback(() => {
     if (performedPointerEventsMutationRef.current) {
-      const body = getDocument(elements.floating).body;
+      const body = getDocument(floatingElement).body;
       body.style.pointerEvents = '';
       body.removeAttribute(safePolygonIdentifier);
       performedPointerEventsMutationRef.current = false;
@@ -172,15 +176,15 @@ export function useHoverFloatingInteraction(
       open &&
       handleCloseOptionsRef.current?.blockPointerEvents &&
       isHoverOpen() &&
-      isElement(elements.domReference) &&
-      elements.floating
+      isElement(domReferenceElement) &&
+      floatingElement
     ) {
       performedPointerEventsMutationRef.current = true;
-      const body = getDocument(elements.floating).body;
+      const body = getDocument(floatingElement).body;
       body.setAttribute(safePolygonIdentifier, '');
 
-      const ref = elements.domReference as HTMLElement | SVGSVGElement;
-      const floatingEl = elements.floating;
+      const ref = domReferenceElement as HTMLElement | SVGSVGElement;
+      const floatingEl = floatingElement;
 
       const parentFloating = tree?.nodesRef.current.find((node) => node.id === parentId)?.context
         ?.elements.floating;
@@ -204,8 +208,8 @@ export function useHoverFloatingInteraction(
   }, [
     enabled,
     open,
-    elements.domReference,
-    elements.floating,
+    domReferenceElement,
+    floatingElement,
     handleCloseOptionsRef,
     isHoverOpen,
     tree,
@@ -228,10 +232,12 @@ export function useHoverFloatingInteraction(
       if (!dataRef.current.floatingContext) {
         return;
       }
+
+      const triggerElements = store.select('triggerElements');
       if (
         event.relatedTarget &&
-        elements.triggers &&
-        elements.triggers.includes(event.relatedTarget as Element)
+        triggerElements &&
+        triggerElements.includes(event.relatedTarget as Element)
       ) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
@@ -258,7 +264,7 @@ export function useHoverFloatingInteraction(
       }
     }
 
-    const floating = elements.floating;
+    const floating = floatingElement;
     if (floating) {
       floating.addEventListener('mouseleave', onScrollMouseLeave);
       floating.addEventListener('mouseenter', onFloatingMouseEnter);

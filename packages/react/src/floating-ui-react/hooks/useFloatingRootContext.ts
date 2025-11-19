@@ -1,12 +1,11 @@
-import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useId } from '@base-ui-components/utils/useId';
-import type { FloatingRootContext, ReferenceElement, ContextData } from '../types';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import type { ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { createEventEmitter } from '../utils/createEventEmitter';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
-import { FloatingUIOpenChangeDetails } from '../../utils/types';
+
+import { FloatingRootContextStore } from '../components/FloatingRootContextStore';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
@@ -24,16 +23,14 @@ export interface UseFloatingRootContextOptions {
 
 export function useFloatingRootContext(
   options: UseFloatingRootContextOptions,
-): FloatingRootContext {
-  const { open = false, onOpenChange: onOpenChangeProp, elements: elementsProp } = options;
+): FloatingRootContextStore {
+  const { open = false, onOpenChange, elements } = options;
 
   const floatingId = useId();
-  const dataRef = React.useRef<ContextData>({});
-  const [events] = React.useState(() => createEventEmitter());
   const nested = useFloatingParentNodeId() != null;
 
   if (process.env.NODE_ENV !== 'production') {
-    const optionDomReference = elementsProp.reference;
+    const optionDomReference = elements.reference;
     if (optionDomReference && !isElement(optionDomReference)) {
       console.error(
         'Cannot pass a virtual element to the `elements.reference` option,',
@@ -43,86 +40,32 @@ export function useFloatingRootContext(
     }
   }
 
-  const [positionReference, setPositionReference] = React.useState<ReferenceElement | null>(
-    elementsProp.reference,
-  );
+  const store = useRefWithInit(
+    () =>
+      new FloatingRootContextStore<ReferenceType>({
+        open,
+        onOpenChange,
+        referenceElement: elements.reference,
+        floatingElement: elements.floating,
+        triggerElements: elements.triggers,
+        floatingId,
+        nested,
+        noEmit: options.noEmit || false,
+      }),
+  ).current;
 
-  const onOpenChange = useStableCallback(
-    (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
-      dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
-      if (!options.noEmit) {
-        const details: FloatingUIOpenChangeDetails = {
-          open: newOpen,
-          reason: eventDetails.reason,
-          nativeEvent: eventDetails.event,
-          nested,
-          triggerElement: eventDetails.trigger,
-        };
-        events.emit('openchange', details);
-      }
+  store.useSyncedValues({
+    open,
+    referenceElement: elements.reference,
+    domReferenceElement: isElement(elements.reference) ? elements.reference : null,
+    floatingElement: elements.floating,
+    triggerElements: elements.triggers,
+    floatingId,
+  });
 
-      onOpenChangeProp?.(newOpen, eventDetails);
-    },
-  );
+  store.context.onOpenChange = onOpenChange;
+  store.context.nested = nested;
+  store.context.noEmit = options.noEmit || false;
 
-  const refs = React.useMemo(
-    () => ({
-      setPositionReference,
-    }),
-    [],
-  );
-
-  const elements = React.useMemo(
-    () => ({
-      reference: positionReference || elementsProp.reference || null,
-      floating: elementsProp.floating || null,
-      domReference: elementsProp.reference as Element | null,
-      triggers: elementsProp.triggers ?? [],
-    }),
-    [positionReference, elementsProp.reference, elementsProp.floating, elementsProp.triggers],
-  );
-
-  // TODO: remove when done
-  /* for debugging:
-  React.useEffect(() => {
-    console.log('FRC: dataref changed', dataRef);
-  }, [dataRef]);
-
-  React.useEffect(() => {
-    console.log('FRC: open changed', open);
-  }, [open]);
-
-  React.useEffect(() => {
-    console.log('FRC: onOpenChange changed', onOpenChange);
-  }, [onOpenChange]);
-
-  React.useEffect(() => {
-    console.log('FRC: elements changed', elements);
-  }, [elements]);
-
-  React.useEffect(() => {
-    console.log('FRC: events changed', events);
-  }, [events]);
-
-  React.useEffect(() => {
-    console.log('FRC: floatingId changed', floatingId);
-  }, [floatingId]);
-
-  React.useEffect(() => {
-    console.log('FRC: refs changed', refs);
-  }, [refs]);
-  */
-
-  return React.useMemo<FloatingRootContext>(
-    () => ({
-      dataRef,
-      open,
-      onOpenChange,
-      elements,
-      events,
-      floatingId,
-      refs,
-    }),
-    [open, onOpenChange, elements, events, floatingId, refs],
-  );
+  return store;
 }

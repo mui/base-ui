@@ -62,8 +62,9 @@ export interface UseTypeaheadProps {
  * types, often used in tandem with `useListNavigation()`.
  * @see https://floating-ui.com/docs/useTypeahead
  */
-export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadProps): ElementProps {
-  const { open, dataRef } = context;
+export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProps): ElementProps {
+  const open = store.useState('open');
+  const dataRef = store.context.dataRef;
   const {
     listRef,
     activeIndex,

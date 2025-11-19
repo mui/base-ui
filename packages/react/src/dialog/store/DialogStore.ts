@@ -113,7 +113,7 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
       nested: this.state.nested,
     };
 
-    this.state.floatingRootContext.events?.emit('openchange', details);
+    this.state.floatingRootContext.context.events?.emit('openchange', details);
 
     this.set('open', nextOpen);
     const newTriggerId = eventDetails.trigger?.id ?? null;

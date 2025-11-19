@@ -191,7 +191,7 @@ export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, type
   }
 
   setOpen(open: boolean, eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>) {
-    this.state.floatingRootContext.events.emit('setOpen', { open, eventDetails });
+    this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
   }
 
   public static useStore<Payload>(

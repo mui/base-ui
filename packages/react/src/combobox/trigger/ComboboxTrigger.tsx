@@ -84,22 +84,17 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     currentPointerTypeRef.current = event.pointerType;
   }
 
-  const triggerFloatingContext = React.useMemo(() => {
-    if (!triggerElement || triggerElement === floatingRootContext.elements.domReference) {
-      return floatingRootContext;
+  const domReference = floatingRootContext.select('domReferenceElement');
+
+  // Update the floating root context to use the trigger element when it differs from the current reference.
+  // This ensures useClick and useTypeahead attach handlers to the correct element.
+  React.useEffect(() => {
+    if (triggerElement && triggerElement !== domReference) {
+      floatingRootContext.set('domReferenceElement', triggerElement);
     }
+  }, [triggerElement, domReference, floatingRootContext]);
 
-    return {
-      ...floatingRootContext,
-      elements: {
-        ...floatingRootContext.elements,
-        reference: triggerElement,
-        domReference: triggerElement,
-      },
-    };
-  }, [floatingRootContext, triggerElement]);
-
-  const { reference: triggerTypeaheadProps } = useTypeahead(triggerFloatingContext, {
+  const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
     listRef: store.state.labelsRef,
     activeIndex,
@@ -112,7 +107,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     },
   });
 
-  const { reference: triggerClickProps } = useClick(triggerFloatingContext, {
+  const { reference: triggerClickProps } = useClick(floatingRootContext, {
     enabled: !readOnly && !comboboxDisabled,
     event: 'mousedown',
   });

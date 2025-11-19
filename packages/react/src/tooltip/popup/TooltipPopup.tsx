@@ -55,14 +55,14 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   });
 
   function handleMeasureLayout() {
-    floatingContext.events.emit('measure-layout');
+    floatingContext.context.events.emit('measure-layout');
   }
 
   function handleMeasureLayoutComplete(
     previousDimensions: { width: number; height: number } | null,
     nextDimensions: { width: number; height: number },
   ) {
-    floatingContext.events.emit('measure-layout-complete', {
+    floatingContext.context.events.emit('measure-layout-complete', {
       previousDimensions,
       nextDimensions,
     });

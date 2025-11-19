@@ -11,7 +11,7 @@ import { useStore } from '@base-ui-components/utils/store';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
@@ -61,13 +61,13 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const {
     side,
     align,
-    context,
     alignItemWithTriggerActive,
     setControlledAlignItemWithTrigger,
     scrollDownArrowRef,
     scrollUpArrowRef,
   } = useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
+  const floatingRootContext = useSelectFloatingContext();
 
   const highlightTimeout = useTimeout();
 
@@ -435,7 +435,12 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   return (
     <React.Fragment>
       {styleDisableScrollbar.element}
-      <FloatingFocusManager context={context} modal={false} disabled={!mounted} restoreFocus>
+      <FloatingFocusManager
+        context={floatingRootContext}
+        modal={false}
+        disabled={!mounted}
+        restoreFocus
+      >
         {element}
       </FloatingFocusManager>
     </React.Fragment>

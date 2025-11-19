@@ -244,7 +244,7 @@ export interface FloatingFocusManagerProps {
  */
 export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JSX.Element {
   const {
-    context,
+    context: store,
     children,
     disabled = false,
     order = ['content'],
@@ -260,13 +260,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     beforeContentFocusGuardRef,
     externalTree,
   } = props;
-  const {
-    open,
-    onOpenChange,
-    events,
-    dataRef,
-    elements: { domReference, floating, triggers },
-  } = context;
+
+  const open = store.useState('open');
+  const domReference = store.useState('domReferenceElement');
+  const floating = store.useState('floatingElement');
+  const triggers = store.useState('triggerElements');
+  const { events, dataRef } = store.context;
 
   const getNodeId = useStableCallback(() => dataRef.current.floatingContext?.nodeId);
   const getInsideElements = useStableCallback(getInsideElementsProp);
@@ -514,7 +513,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           (isUntrappedTypeableCombobox || relatedTarget !== getPreviouslyFocusedElement())
         ) {
           preventReturnFocusRef.current = true;
-          onOpenChange(false, createChangeEventDetails(REASONS.focusOut, event));
+          store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
         }
       });
     }
@@ -570,7 +569,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     modal,
     tree,
     portalContext,
-    onOpenChange,
+    store,
     closeOnFocusOut,
     restoreFocus,
     getTabbableContent,
@@ -872,14 +871,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       modal,
       closeOnFocusOut,
       open,
-      onOpenChange,
+      onOpenChange: store.setOpen,
       domReference,
     });
 
     return () => {
       portalContext.setFocusManagerState(null);
     };
-  }, [disabled, portalContext, modal, open, onOpenChange, closeOnFocusOut, domReference]);
+  }, [disabled, portalContext, modal, open, store, closeOnFocusOut, domReference]);
 
   useIsoLayoutEffect(() => {
     if (disabled || !floatingFocusElement) {

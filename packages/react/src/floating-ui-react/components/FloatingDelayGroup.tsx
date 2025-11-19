@@ -120,7 +120,8 @@ export function useDelayGroup(
   context: FloatingRootContext,
   options: UseDelayGroupOptions = {},
 ): UseDelayGroupReturn {
-  const { open, onOpenChange, floatingId } = context;
+  const open = context.useState('open');
+  const floatingId = context.useState('floatingId');
   const { enabled = true } = options;
 
   const groupContext = React.useContext(FloatingDelayGroupContext);
@@ -188,7 +189,7 @@ export function useDelayGroup(
     const prevContext = currentContextRef.current;
     const prevId = currentIdRef.current;
 
-    currentContextRef.current = { onOpenChange, setIsInstantPhase };
+    currentContextRef.current = { onOpenChange: context.setOpen, setIsInstantPhase };
     currentIdRef.current = floatingId;
     delayRef.current = {
       open: 0,
@@ -208,7 +209,7 @@ export function useDelayGroup(
     enabled,
     open,
     floatingId,
-    onOpenChange,
+    context,
     currentIdRef,
     delayRef,
     timeoutMs,

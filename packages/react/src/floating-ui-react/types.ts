@@ -8,6 +8,7 @@ import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails
 
 import type { ExtendedUserProps } from './hooks/useInteractions';
 import type { FloatingTreeStore } from './components/FloatingTreeStore';
+import type { FloatingRootContextStore } from './components/FloatingRootContextStore';
 
 export * from '.';
 export type { FloatingDelayGroupProps } from './components/FloatingDelayGroup';
@@ -122,22 +123,8 @@ export interface ContextData {
   [key: string]: any;
 }
 
-export interface FloatingRootContext<RT extends ReferenceType = ReferenceType> {
-  dataRef: React.MutableRefObject<ContextData>;
-  open: boolean;
-  onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void;
-  elements: {
-    domReference: Element | null;
-    reference: RT | null;
-    floating: HTMLElement | null;
-    triggers?: Element[];
-  };
-  events: FloatingEvents;
-  floatingId: string | undefined;
-  refs: {
-    setPositionReference(node: ReferenceType | null): void;
-  };
-}
+export type FloatingRootContext<RT extends ReferenceType = ReferenceType> =
+  FloatingRootContextStore<RT>;
 
 export type FloatingContext<RT extends ReferenceType = ReferenceType> = Omit<
   UsePositionFloatingReturn<RT>,
@@ -185,6 +172,7 @@ export type UseFloatingReturn<RT extends ReferenceType = ReferenceType> = Pretti
      */
     refs: ExtendedRefs<RT>;
     elements: ExtendedElements<RT>;
+    rootStore: FloatingRootContextStore<RT>;
   }
 >;
 
@@ -198,7 +186,7 @@ export interface UseFloatingOptions<RT extends ReferenceType = ReferenceType>
     /**
      * Externally passed reference element. Store in state.
      */
-    reference?: Element | null;
+    reference?: RT | null;
     /**
      * Externally passed floating element. Store in state.
      */

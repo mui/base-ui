@@ -7,7 +7,6 @@ import type { ElementProps, FloatingRootContext } from '../types';
 import { isMouseLikePointerType, isTypeableElement } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { getEmptyRootContext } from '../utils/getEmptyRootContext';
 
 export interface UseClickProps {
   /**
@@ -51,11 +50,10 @@ export interface UseClickProps {
  * Opens or closes the floating element when clicking the reference element.
  * @see https://floating-ui.com/docs/useClick
  */
-export function useClick(
-  context: FloatingRootContext | null,
-  props: UseClickProps = {},
-): ElementProps {
-  const { open, onOpenChange, dataRef, elements } = context ?? getEmptyRootContext();
+export function useClick(store: FloatingRootContext, props: UseClickProps = {}): ElementProps {
+  const open = store.useState('open');
+  const dataRef = store.context.dataRef;
+
   const {
     enabled = true,
     event: eventOption = 'click',
@@ -90,7 +88,8 @@ export function useClick(
 
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
-        const hasClickedOnInactiveTrigger = elements.domReference !== event.currentTarget;
+        const hasClickedOnInactiveTrigger =
+          store.select('domReferenceElement') !== event.currentTarget;
         const nextOpen =
           (open && hasClickedOnInactiveTrigger) ||
           !(
@@ -111,10 +110,10 @@ export function useClick(
           );
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
-              onOpenChange(true, details);
+              store.setOpen(true, details);
             });
           } else {
-            onOpenChange(nextOpen, details);
+            store.setOpen(nextOpen, details);
           }
           return;
         }
@@ -133,10 +132,10 @@ export function useClick(
           );
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
-              onOpenChange(true, details);
+              store.setOpen(true, details);
             });
           } else {
-            onOpenChange(nextOpen, details);
+            store.setOpen(nextOpen, details);
           }
         });
       },
@@ -158,7 +157,8 @@ export function useClick(
 
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
-        const hasClickedOnInactiveTrigger = elements.domReference !== event.currentTarget;
+        const hasClickedOnInactiveTrigger =
+          store.select('domReferenceElement') !== event.currentTarget;
         const nextOpen =
           (open && hasClickedOnInactiveTrigger) ||
           !(
@@ -179,10 +179,10 @@ export function useClick(
 
         if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
           touchOpenTimeout.start(touchOpenDelay, () => {
-            onOpenChange(true, details);
+            store.setOpen(true, details);
           });
         } else {
-          onOpenChange(nextOpen, details);
+          store.setOpen(nextOpen, details);
         }
       },
       onKeyDown() {
@@ -193,14 +193,13 @@ export function useClick(
       dataRef,
       eventOption,
       ignoreMouse,
-      onOpenChange,
+      store,
       open,
       stickIfOpen,
       toggle,
       frame,
       touchOpenTimeout,
       touchOpenDelay,
-      elements.domReference,
     ],
   );
 
