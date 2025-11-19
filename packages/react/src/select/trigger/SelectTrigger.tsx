@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
@@ -228,8 +230,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       // Set the role last to ensure nested useButton does not overwrite it
       // e.g. <Toolbar.Button render={<Select.Trigger />} />
       role: 'combobox',
-      // combobox role doesn't need the type="button" attribute
-      type: undefined,
+      // In HTML `button role="combobox"` doesn't need `type="button"`, but Safari
+      // will still consider missing `type` to be an implicit submit button
+      ...(isWebKit ? EMPTY_OBJECT : { type: undefined }),
     },
   );
 
