@@ -186,16 +186,21 @@ export function SearchBar({
       closingRef.current = true;
 
       if ('startViewTransition' in document) {
-        (document as any).startViewTransition(() => {
+        const transition = (document as any).startViewTransition(() => {
           ReactDOM.flushSync(() => {
             setDialogOpen(false);
           });
         });
+
+        transition.finished.then(() => {
+          setSearchResults(defaultResults.current);
+        });
       } else {
         setDialogOpen(false);
+        setTimeout(() => {
+          setSearchResults(defaultResults.current);
+        }, 300);
       }
-
-      setSearchResults(defaultResults.current);
 
       // Reset after a short delay
       setTimeout(() => {
@@ -205,6 +210,15 @@ export function SearchBar({
       setDialogOpen(true);
     }
   }, []);
+
+  const handleAutocompleteEscape = React.useCallback(
+    (open: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => {
+      if (!open && eventDetails.reason === 'escape-key') {
+        handleCloseDialog(false);
+      }
+    },
+    [handleCloseDialog],
+  );
 
   React.useEffect(() => {
     // Only enable keyboard shortcut if explicitly requested (for desktop version)
@@ -308,7 +322,8 @@ export function SearchBar({
                     <Autocomplete.Root
                       items={searchResults}
                       onValueChange={handleValueChange}
-                      onOpenChange={handleCloseDialog}
+                      onOpenChange={handleAutocompleteEscape}
+                      open
                       itemToStringValue={(item) => (item ? item.title : '')}
                       filter={null}
                       autoHighlight
