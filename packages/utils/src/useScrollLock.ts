@@ -172,7 +172,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
     // because it is called in a `setTimeout(fn, 0)`,
     // in which case `removeEventListener` wouldn't be available,
     // so we check for it to avoid test failures.
-    if (win.removeEventListener) {
+    if (typeof win.removeEventListener === 'function') {
       win.removeEventListener('resize', handleResize);
     }
   };
