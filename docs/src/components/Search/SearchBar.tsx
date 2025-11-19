@@ -15,6 +15,7 @@ interface SearchResult {
   title: string;
   description: string;
   slug: string;
+  path: string;
   section: string;
   prefix: string;
   score?: number;
@@ -138,6 +139,7 @@ export function SearchBar({
             return {
               title: page.title,
               slug: page.slug,
+              path: page.path,
               description: page.description,
               section: sectionData.title,
               prefix: sectionData.prefix,
@@ -273,6 +275,7 @@ export function SearchBar({
         slug: hit.document.slug,
         section: hit.document.section,
         prefix: hit.document.prefix,
+        path: hit.document.path,
         score: hit.score,
       }));
 
@@ -283,7 +286,7 @@ export function SearchBar({
 
   const handleItemClick = React.useCallback(
     (result: SearchResult) => {
-      const url = `${result.prefix}${result.slug}`;
+      const url = `${result.prefix}${result.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`;
       handleCloseDialog(false);
       router.push(url);
     },
