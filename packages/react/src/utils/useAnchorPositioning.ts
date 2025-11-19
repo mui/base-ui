@@ -416,12 +416,17 @@ export function useAnchorPositioning(
 
   const { sideX, sideY } = middlewareData.adaptiveOrigin || DEFAULT_SIDES;
 
+  // Default to `fixed` when not positioned to prevent `autoFocus` scroll jumps.
+  // This ensures the popup is inside the viewport initially before it gets
+  // positioned.
+  const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
+
   const floatingStyles = React.useMemo<React.CSSProperties>(
     () =>
       adaptiveOrigin
-        ? { position: positionMethod, [sideX]: `${x}px`, [sideY]: `${y}px` }
-        : originalFloatingStyles,
-    [adaptiveOrigin, sideX, sideY, positionMethod, x, y, originalFloatingStyles],
+        ? { position: resolvedPosition, [sideX]: `${x}px`, [sideY]: `${y}px` }
+        : { position: resolvedPosition, ...originalFloatingStyles },
+    [adaptiveOrigin, resolvedPosition, sideX, x, sideY, y, originalFloatingStyles],
   );
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
