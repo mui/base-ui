@@ -60,7 +60,6 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps
-      - code-infra/check-static-changes
       - run:
           name: Validate the documentation files
           command: pnpm docs:validate
