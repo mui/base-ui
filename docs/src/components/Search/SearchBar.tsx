@@ -326,7 +326,6 @@ export function SearchBar({
                       items={searchResults}
                       onValueChange={handleValueChange}
                       onOpenChange={handleAutocompleteEscape}
-                      open
                       itemToStringValue={(item) => (item ? item.title : '')}
                       filter={null}
                       autoHighlight
