@@ -82,6 +82,37 @@ export function useFloatingRootContext(
     [positionReference, elementsProp.reference, elementsProp.floating, elementsProp.triggers],
   );
 
+  // TODO: remove when done
+  /* for debugging:
+  React.useEffect(() => {
+    console.log('FRC: dataref changed', dataRef);
+  }, [dataRef]);
+
+  React.useEffect(() => {
+    console.log('FRC: open changed', open);
+  }, [open]);
+
+  React.useEffect(() => {
+    console.log('FRC: onOpenChange changed', onOpenChange);
+  }, [onOpenChange]);
+
+  React.useEffect(() => {
+    console.log('FRC: elements changed', elements);
+  }, [elements]);
+
+  React.useEffect(() => {
+    console.log('FRC: events changed', events);
+  }, [events]);
+
+  React.useEffect(() => {
+    console.log('FRC: floatingId changed', floatingId);
+  }, [floatingId]);
+
+  React.useEffect(() => {
+    console.log('FRC: refs changed', refs);
+  }, [refs]);
+  */
+
   return React.useMemo<FloatingRootContext>(
     () => ({
       dataRef,
