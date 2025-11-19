@@ -24,7 +24,6 @@ const withMdx = nextMdx({
   options: {
     remarkPlugins: [
       remarkGfm,
-      remarkTypography,
       [
         transformMarkdownMetadata,
         {
@@ -41,6 +40,7 @@ const withMdx = nextMdx({
           },
         },
       ],
+      remarkTypography,
       transformMarkdownRelativePaths,
     ],
     rehypePlugins: [
