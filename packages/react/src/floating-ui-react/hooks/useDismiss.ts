@@ -24,11 +24,10 @@ import {
 
 import { useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
-import type { ElementProps } from '../types';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
-import { FloatingRootContextStore } from '../components/FloatingRootContextStore';
 
 type PressType = 'intentional' | 'sloppy';
 
@@ -128,9 +127,10 @@ export interface UseDismissProps {
  * @see https://floating-ui.com/docs/useDismiss
  */
 export function useDismiss(
-  store: FloatingRootContextStore,
+  context: FloatingRootContext | FloatingContext,
   props: UseDismissProps = {},
 ): ElementProps {
+  const store = 'rootStore' in context ? context.rootStore : context;
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const referenceElement = store.useState('referenceElement');

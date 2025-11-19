@@ -3,7 +3,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
-import type { FloatingRootContext } from '../types';
+import type { FloatingContext, FloatingRootContext } from '../types';
 import { getDocument, getTarget, isMouseLikePointerType } from '../utils';
 
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -42,9 +42,10 @@ const clickLikeEvents = new Set(['click', 'mousedown']);
  * Provides hover interactions that should be attached to the floating element.
  */
 export function useHoverFloatingInteraction(
-  store: FloatingRootContext,
+  context: FloatingRootContext | FloatingContext,
   parameters: UseHoverFloatingInteractionProps = {},
 ): void {
+  const store = 'rootStore' in context ? context.rootStore : context;
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const domReferenceElement = store.useState('domReferenceElement');

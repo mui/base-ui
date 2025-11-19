@@ -28,7 +28,7 @@ import {
   getNextTabbable,
   getPreviousTabbable,
 } from '../utils';
-import type { FloatingRootContext } from '../types';
+import type { FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
@@ -140,7 +140,7 @@ export interface FloatingFocusManagerProps {
   /**
    * The floating context returned from `useFloatingRootContext`.
    */
-  context: FloatingRootContext;
+  context: FloatingRootContext | FloatingContext;
   /**
    * The interaction type used to open the floating element.
    */
@@ -244,7 +244,7 @@ export interface FloatingFocusManagerProps {
  */
 export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JSX.Element {
   const {
-    context: store,
+    context,
     children,
     disabled = false,
     order = ['content'],
@@ -260,6 +260,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     beforeContentFocusGuardRef,
     externalTree,
   } = props;
+
+  const store = 'rootStore' in context ? context.rootStore : context;
 
   const open = store.useState('open');
   const domReference = store.useState('domReferenceElement');

@@ -3,7 +3,7 @@ import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../hooks/useHover';
-import type { FloatingRootContext, Delay } from '../types';
+import type { FloatingRootContext, Delay, FloatingContext } from '../types';
 import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -117,11 +117,12 @@ interface UseDelayGroupReturn {
  * @internal
  */
 export function useDelayGroup(
-  context: FloatingRootContext,
+  context: FloatingRootContext | FloatingContext,
   options: UseDelayGroupOptions = {},
 ): UseDelayGroupReturn {
-  const open = context.useState('open');
-  const floatingId = context.useState('floatingId');
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const open = store.useState('open');
+  const floatingId = store.useState('floatingId');
   const { enabled = true } = options;
 
   const groupContext = React.useContext(FloatingDelayGroupContext);
@@ -189,7 +190,7 @@ export function useDelayGroup(
     const prevContext = currentContextRef.current;
     const prevId = currentIdRef.current;
 
-    currentContextRef.current = { onOpenChange: context.setOpen, setIsInstantPhase };
+    currentContextRef.current = { onOpenChange: store.setOpen, setIsInstantPhase };
     currentIdRef.current = floatingId;
     delayRef.current = {
       open: 0,
@@ -209,7 +210,7 @@ export function useDelayGroup(
     enabled,
     open,
     floatingId,
-    context,
+    store,
     currentIdRef,
     delayRef,
     timeoutMs,

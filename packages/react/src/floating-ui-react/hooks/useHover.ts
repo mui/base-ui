@@ -12,6 +12,7 @@ import type {
   Delay,
   ElementProps,
   FloatingContext,
+  FloatingRootContext,
   FloatingTreeType,
   SafePolygonOptions,
 } from '../types';
@@ -20,7 +21,6 @@ import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
-import { FloatingRootContextStore } from '../components/FloatingRootContextStore';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
@@ -125,7 +125,11 @@ export interface UseHoverProps {
  * CSS `:hover`.
  * @see https://floating-ui.com/docs/useHover
  */
-export function useHover(store: FloatingRootContextStore, props: UseHoverProps = {}): ElementProps {
+export function useHover(
+  context: FloatingRootContext | FloatingContext,
+  props: UseHoverProps = {},
+): ElementProps {
+  const store = 'rootStore' in context ? context.rootStore : context;
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const domReferenceElement = store.useState('domReferenceElement');

@@ -3,7 +3,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -37,9 +37,10 @@ function getRestMs(value: number | (() => number)) {
  * elements.
  */
 export function useHoverReferenceInteraction(
-  store: FloatingRootContext,
+  context: FloatingRootContext | FloatingContext,
   props: UseHoverReferenceInteractionProps = {},
 ): React.HTMLProps<Element> | undefined {
+  const store = 'rootStore' in context ? context.rootStore : context;
   const open = store.useState('open');
   const domReferenceElement = store.useState('domReferenceElement');
   const dataRef = store.context.dataRef;

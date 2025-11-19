@@ -139,16 +139,17 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
       refs,
       elements,
       nodeId,
+      rootStore: rootContext as unknown as FloatingRootContextStore<RT>,
     }),
     [position, refs, elements, nodeId, rootContext, open, floatingId],
   );
 
   useIsoLayoutEffect(() => {
-    rootContext.context.dataRef.current.floatingContext = context;
+    rootContext.context.dataRef.current.floatingContext = context as FloatingContext<any>;
 
     const node = tree?.nodesRef.current.find((n) => n.id === nodeId);
     if (node) {
-      node.context = context;
+      node.context = context as FloatingContext<any>;
     }
   });
 

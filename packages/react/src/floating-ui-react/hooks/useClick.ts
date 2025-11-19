@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { EMPTY_OBJECT } from '../../utils/constants';
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { isMouseLikePointerType, isTypeableElement } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -50,7 +50,11 @@ export interface UseClickProps {
  * Opens or closes the floating element when clicking the reference element.
  * @see https://floating-ui.com/docs/useClick
  */
-export function useClick(store: FloatingRootContext, props: UseClickProps = {}): ElementProps {
+export function useClick(
+  context: FloatingRootContext | FloatingContext,
+  props: UseClickProps = {},
+): ElementProps {
+  const store = 'rootStore' in context ? context.rootStore : context;
   const open = store.useState('open');
   const dataRef = store.context.dataRef;
 

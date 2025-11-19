@@ -138,6 +138,7 @@ export type FloatingContext<RT extends ReferenceType = ReferenceType> = Omit<
   floatingId: string | undefined;
   refs: ExtendedRefs<RT>;
   elements: ExtendedElements<RT>;
+  rootStore: FloatingRootContext<RT>;
 };
 
 export interface FloatingNodeType<RT extends ReferenceType = ReferenceType> {
@@ -172,7 +173,6 @@ export type UseFloatingReturn<RT extends ReferenceType = ReferenceType> = Pretti
      */
     refs: ExtendedRefs<RT>;
     elements: ExtendedElements<RT>;
-    rootStore: FloatingRootContextStore<RT>;
   }
 >;
 

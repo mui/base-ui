@@ -4,7 +4,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { contains, getTarget, isMouseLikePointerType } from '../utils';
 
-import type { ContextData, ElementProps, FloatingRootContext } from '../types';
+import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
 
 function createVirtualElement(
   domElement: Element | null | undefined,
@@ -116,9 +116,11 @@ export interface UseClientPointProps {
  * @see https://floating-ui.com/docs/useClientPoint
  */
 export function useClientPoint(
-  store: FloatingRootContext,
+  context: FloatingRootContext | FloatingContext,
   props: UseClientPointProps = {},
 ): ElementProps {
+  const store = 'rootStore' in context ? context.rootStore : context;
+
   const open = store.useState('open');
   const floating = store.useState('floatingElement');
   const domReference = store.useState('domReferenceElement');

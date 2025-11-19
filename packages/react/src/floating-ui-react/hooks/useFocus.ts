@@ -11,12 +11,11 @@ import {
   matchesFocusVisible,
 } from '../utils';
 
-import type { ElementProps } from '../types';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
-import { FloatingRootContextStore } from '../components/FloatingRootContextStore';
 
 const isMacSafari = isMac && isSafari;
 
@@ -40,7 +39,11 @@ export interface UseFocusProps {
  * `:focus`.
  * @see https://floating-ui.com/docs/useFocus
  */
-export function useFocus(store: FloatingRootContextStore, props: UseFocusProps = {}): ElementProps {
+export function useFocus(
+  context: FloatingRootContext | FloatingContext,
+  props: UseFocusProps = {},
+): ElementProps {
+  const store = 'rootStore' in context ? context.rootStore : context;
   const open = store.useState('open');
   const domReference = store.useState('domReferenceElement');
 

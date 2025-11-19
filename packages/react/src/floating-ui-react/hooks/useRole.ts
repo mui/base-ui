@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useId } from '@base-ui-components/utils/useId';
 import { getFloatingFocusElement } from '../utils';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import type { ExtendedUserProps } from './useInteractions';
 import { EMPTY_OBJECT } from '../../utils/constants';
 
@@ -34,7 +34,11 @@ const componentRoleToAriaRoleMap = new Map<AriaRole | ComponentRole, AriaRole | 
  * given floating element `role`.
  * @see https://floating-ui.com/docs/useRole
  */
-export function useRole(store: FloatingRootContext, props: UseRoleProps = {}): ElementProps {
+export function useRole(
+  context: FloatingRootContext | FloatingContext,
+  props: UseRoleProps = {},
+): ElementProps {
+  const store = 'rootStore' in context ? context.rootStore : context;
   const open = store.useState('open');
   const defaultFloatingId = store.useState('floatingId');
   const domReference = store.useState('domReferenceElement');
