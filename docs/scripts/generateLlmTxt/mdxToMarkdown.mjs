@@ -90,6 +90,18 @@ function transformJsx() {
               });
               return visit.CONTINUE;
             }
+            if (estree.body[0].type === 'ExportNamedDeclaration') {
+              // Check if this is a metadata export
+              const declaration = estree.body[0].declaration;
+              if (
+                declaration?.type === 'VariableDeclaration' &&
+                declaration.declarations?.[0]?.id?.name === 'metadata'
+              ) {
+                // Remove metadata export statements
+                parent.children.splice(index, 1);
+                return [visit.SKIP, index];
+              }
+            }
           }
         }
 
