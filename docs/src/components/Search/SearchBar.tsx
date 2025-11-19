@@ -151,8 +151,8 @@ export function SearchBar({
 
       insertMultiple(searchIndex, pages);
       setIndex(searchIndex);
-      setSearchResults(pages);
       defaultResults.current = pages.slice(0, 10);
+      setSearchResults(defaultResults.current);
     });
   }, [sitemapImport]);
 
@@ -328,6 +328,7 @@ export function SearchBar({
                       items={searchResults}
                       onValueChange={handleValueChange}
                       onOpenChange={handleAutocompleteEscape}
+                      open // we never want to close the autocomplete, only the dialog
                       itemToStringValue={(item) => (item ? item.title : '')}
                       filter={null}
                       autoHighlight

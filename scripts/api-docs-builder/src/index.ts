@@ -43,9 +43,18 @@ async function run(options: RunOptions) {
 
   const { exports, errorCount } = findAllExports(program, files);
 
-  // Track component groups, their parts, and API metadata
-  const componentPartsMap = new Map<string, Set<string>>();
-  const componentApiMap = new Map<string, any[]>(); // Store all API references for each group
+  // Track component groups and their parts with API metadata
+  const componentsMap = new Map<
+    string,
+    Map<
+      string,
+      {
+        props: string[];
+        dataAttributes: string[];
+        cssVariables: string[];
+      }
+    >
+  >();
 
   for (const exportNode of exports.filter(isPublicComponent)) {
     const componentApiReference = await formatComponentData(exportNode, exports);
@@ -58,16 +67,30 @@ async function run(options: RunOptions) {
     if (componentGroup && componentName.startsWith(componentGroup)) {
       const partName = componentName.slice(componentGroup.length); // e.g., "Portal"
 
-      // Only track parts if:
-      // 1. There is a part name (not just the group name alone)
-      // 2. OR we already have other parts for this group
+      // Only track parts if there is a part name (not just the group name alone)
       if (partName) {
-        if (!componentPartsMap.has(componentGroup)) {
-          componentPartsMap.set(componentGroup, new Set());
-          componentApiMap.set(componentGroup, []);
+        if (!componentsMap.has(componentGroup)) {
+          componentsMap.set(componentGroup, new Map());
         }
-        componentPartsMap.get(componentGroup)!.add(partName);
-        componentApiMap.get(componentGroup)!.push(componentApiReference);
+
+        const partsMap = componentsMap.get(componentGroup)!;
+
+        // Extract props, data attributes, and CSS variables for this specific part
+        const props = componentApiReference.props
+          ? Object.keys(componentApiReference.props).sort()
+          : [];
+        const dataAttributes = componentApiReference.dataAttributes
+          ? Object.keys(componentApiReference.dataAttributes).sort()
+          : [];
+        const cssVariables = componentApiReference.cssVariables
+          ? Object.keys(componentApiReference.cssVariables).sort()
+          : [];
+
+        partsMap.set(partName, {
+          props,
+          dataAttributes,
+          cssVariables,
+        });
       }
     }
 
@@ -85,45 +108,35 @@ async function run(options: RunOptions) {
   const componentsWithParts = new Map<
     string,
     {
-      parts: string[];
-      props: string[];
-      dataAttributes: string[];
-      cssVariables: string[];
+      exports: Record<
+        string,
+        {
+          props: string[];
+          dataAttributes: string[];
+          cssVariables: string[];
+        }
+      >;
     }
   >();
 
-  for (const [group, partsSet] of componentPartsMap) {
-    if (partsSet.size > 1) {
-      const sortedParts = Array.from(partsSet).sort();
-
-      // Collect and deduplicate props, dataAttributes, and cssVariables
-      const propsSet = new Set<string>();
-      const dataAttributesSet = new Set<string>();
-      const cssVariablesSet = new Set<string>();
-
-      const apiReferences = componentApiMap.get(group) || [];
-      for (const apiRef of apiReferences) {
-        // Collect props
-        if (apiRef.props) {
-          Object.keys(apiRef.props).forEach((prop) => propsSet.add(prop));
+  for (const [componentName, partsMap] of componentsMap) {
+    if (partsMap.size > 1) {
+      const exportsObj: Record<
+        string,
+        {
+          props: string[];
+          dataAttributes: string[];
+          cssVariables: string[];
         }
+      > = {};
 
-        // Collect data attributes
-        if (apiRef.dataAttributes) {
-          Object.keys(apiRef.dataAttributes).forEach((attr) => dataAttributesSet.add(attr));
-        }
-
-        // Collect CSS variables
-        if (apiRef.cssVariables) {
-          Object.keys(apiRef.cssVariables).forEach((cssVar) => cssVariablesSet.add(cssVar));
-        }
+      // Convert the parts map to the exports object format
+      for (const [partName, metadata] of partsMap) {
+        exportsObj[partName] = metadata;
       }
 
-      componentsWithParts.set(group, {
-        parts: sortedParts,
-        props: Array.from(propsSet).sort(),
-        dataAttributes: Array.from(dataAttributesSet).sort(),
-        cssVariables: Array.from(cssVariablesSet).sort(),
+      componentsWithParts.set(componentName, {
+        exports: exportsObj,
       });
     }
   }
@@ -141,10 +154,7 @@ async function run(options: RunOptions) {
         slug: kebabCase(componentName),
         path: `./${kebabCase(componentName)}/page.mdx`,
         title: pascalToTitleCase(componentName),
-        parts: metadata.parts,
-        props: metadata.props,
-        dataAttributes: metadata.dataAttributes,
-        cssVariables: metadata.cssVariables,
+        exports: metadata.exports,
       }),
     );
 
