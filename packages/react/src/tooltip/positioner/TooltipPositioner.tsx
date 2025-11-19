@@ -7,12 +7,9 @@ import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import {
-  DISABLED_TRANSITIONS_STYLE,
-  EMPTY_OBJECT,
-  POPUP_COLLISION_AVOIDANCE,
-} from '../../utils/constants';
+import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 /**
  * Positions the tooltip against the trigger.
@@ -127,11 +124,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    props: [
-      positioner.props,
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
-      elementProps,
-    ],
+    props: [positioner.props, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     ref: [forwardedRef, store.useStateSetter('positionerElement')],
     stateAttributesMapping: popupStateMapping,
   });
