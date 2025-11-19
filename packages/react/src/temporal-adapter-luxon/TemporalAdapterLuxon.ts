@@ -87,6 +87,10 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
     return DateTime.fromISO(value, { locale: this.locale, zone: timezone });
   };
 
+  public parse = (value: string, format: string, timezone: TemporalTimezone): DateTime => {
+    return DateTime.fromFormat(value, format, { locale: this.locale, zone: timezone });
+  };
+
   public getTimezone = (value: DateTime): string => {
     // When using the system zone, we want to return "system", not something like "Europe/Paris"
     if (value.zone.type === 'system') {

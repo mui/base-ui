@@ -16,6 +16,7 @@ import { endOfWeek } from 'date-fns/endOfWeek';
 import { endOfYear } from 'date-fns/endOfYear';
 import { format as dateFnsFormat } from 'date-fns/format';
 import { getDate } from 'date-fns/getDate';
+import { getDay } from 'date-fns/getDay';
 import { getDaysInMonth } from 'date-fns/getDaysInMonth';
 import { getHours } from 'date-fns/getHours';
 import { getMilliseconds } from 'date-fns/getMilliseconds';
@@ -35,6 +36,7 @@ import { isValid } from 'date-fns/isValid';
 import { isWithinInterval } from 'date-fns/isWithinInterval';
 import { Locale as DateFnsLocale } from 'date-fns/locale';
 import { enUS } from 'date-fns/locale/en-US';
+import { parse } from 'date-fns/parse';
 import { setDate } from 'date-fns/setDate';
 import { setHours } from 'date-fns/setHours';
 import { setMilliseconds } from 'date-fns/setMilliseconds';
@@ -85,11 +87,11 @@ const FORMATS: TemporalAdapterFormats = {
   localizedNumericDate: 'P', // Note: Day and month are padded on enUS unlike Luxon
 };
 
-declare module '@base-ui-components/react/types' {
-  interface TemporalSupportedObjectLookup {
-    'date-fns': Date;
-  }
-}
+// declare module '@base-ui-components/react/types' {
+//   interface TemporalSupportedObjectLookup {
+//     'date-fns': Date;
+//   }
+// }
 
 export class TemporalAdapterDateFns implements TemporalAdapter {
   public isTimezoneCompatible = true;
@@ -123,11 +125,11 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
       return null as unknown as R;
     }
 
+    const date = new Date(value);
     if (timezone === 'system' || timezone === 'default') {
-      return new Date(value) as unknown as R;
+      return date as unknown as R;
     }
 
-    const date = new Date(value);
     // `new TZDate(value, timezone)` returns a date with the same timestamp `new Date(value)` would return,
     // whereas we want to create that represents the string in the given timezone.
     return new TZDate(
@@ -140,6 +142,29 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
       date.getMilliseconds(),
       timezone,
     ) as unknown as R;
+  };
+
+  public parse = (value: string, format: string, timezone: TemporalTimezone): Date => {
+    const date = parse(value, format, new Date(), {
+      locale: this.locale,
+    });
+
+    if (timezone === 'system' || timezone === 'default') {
+      return date;
+    }
+
+    // `new TZDate(value, timezone)` returns a date with the same timestamp `new Date(value)` would return,
+    // whereas we want to create that represents the string in the given timezone.
+    return new TZDate(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds(),
+      date.getMilliseconds(),
+      timezone,
+    );
   };
 
   public getTimezone = (value: Date): string => {
@@ -390,7 +415,8 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
   };
 
   public getDayOfWeek = (value: Date) => {
-    return value.getDay() + 1;
+    const weekStartsOn = this.locale.options?.weekStartsOn ?? 0;
+    return ((getDay(value) + 7 - weekStartsOn) % 7) + 1;
   };
 }
 

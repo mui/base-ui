@@ -100,6 +100,22 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     });
   });
 
+  describe('Method: date', () => {
+    it('should parse custom strings', () => {
+      // RFC5545 format: YYYYMMDDTHHmmssZ
+      const f = adapter.formats;
+      const dateFormat = `${f.yearPadded}${f.monthPadded}${f.dayOfMonthPadded}`;
+      const dateTimeSeparator = `${adapter.escapedCharacters.start}T${adapter.escapedCharacters.end}`;
+      const timeFormat = `${f.hours24hPadded}${f.minutesPadded}${f.secondsPadded}`;
+      const timezoneSuffix = `${adapter.escapedCharacters.start}Z${adapter.escapedCharacters.end}`;
+      const format = `${dateFormat}${dateTimeSeparator}${timeFormat}${timezoneSuffix}`;
+
+      expect(adapter.parse('20181030T114400Z', format, 'default')).toEqualDateTime(
+        '2018-10-30T11:44:00.000Z',
+      );
+    });
+  });
+
   describe('Method: now', () => {
     test.skipIf(adapterTZ.lib !== 'dayjs')('should support system timezone', () => {
       if (adapter.isTimezoneCompatible) {

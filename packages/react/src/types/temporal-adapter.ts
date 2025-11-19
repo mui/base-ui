@@ -113,6 +113,10 @@ export interface TemporalAdapter {
    */
   date<T extends string | null>(value: T, timezone: TemporalTimezone): DateBuilderReturnType<T>;
   /**
+   * Parses a date from a string in the given format.
+   */
+  parse(value: string, format: string, timezone: TemporalTimezone): TemporalSupportedObject;
+  /**
    * Creates a date in the date library format for the current time.
    */
   now(timezone: TemporalTimezone): TemporalSupportedObject;
