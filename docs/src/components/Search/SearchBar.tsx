@@ -152,7 +152,7 @@ export function SearchBar({
       insertMultiple(searchIndex, pages);
       setIndex(searchIndex);
       setSearchResults(pages);
-      defaultResults.current = pages;
+      defaultResults.current = pages.slice(0, 10);
     });
   }, [sitemapImport]);
 
