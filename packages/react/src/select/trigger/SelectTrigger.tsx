@@ -228,7 +228,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       // Set the role last to ensure nested useButton does not overwrite it
       // e.g. <Toolbar.Button render={<Select.Trigger />} />
       role: 'combobox',
-      // combobox box doesn't need the type="button" attribute
+      // combobox role doesn't need the type="button" attribute
       type: undefined,
     },
   );

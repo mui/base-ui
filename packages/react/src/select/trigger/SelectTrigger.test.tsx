@@ -1,5 +1,6 @@
+import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
@@ -157,6 +158,32 @@ describe('<Select.Trigger />', () => {
       expect(trigger).not.to.have.attribute('data-placeholder');
       expect(value).not.to.have.attribute('data-placeholder');
     });
+  });
+
+  it.skipIf(isJSDOM)('does not trigger form submission', async () => {
+    function App() {
+      const [submitted, setSubmitted] = React.useState(false);
+      return (
+        <form
+          // using spy() is flaky in real browser
+          onSubmit={(event) => {
+            event.preventDefault();
+            setSubmitted(true);
+          }}
+        >
+          {submitted && <span>submitted</span>}
+          <Select.Root defaultValue="a">
+            <Select.Trigger />
+          </Select.Root>
+        </form>
+      );
+    }
+
+    const { user } = await render(<App />);
+    expect(screen.queryByText('submitted')).to.equal(null);
+
+    await user.click(screen.getByRole('combobox'));
+    expect(screen.queryByText('submitted')).toBeVisible();
   });
 
   describe('style hooks', () => {
