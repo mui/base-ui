@@ -13,7 +13,6 @@ import {
   shift,
   useFloating,
   size,
-  hide,
   type UseFloatingOptions,
   type Placement,
   type FloatingRootContext,
@@ -28,6 +27,7 @@ import {
 import { useDirection } from '../direction-provider/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { FloatingTreeStore } from '../floating-ui-react/components/FloatingTreeStore';
+import { hide } from './hideMiddleware';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -328,7 +328,6 @@ export function useAnchorPositioning(
       }),
       [arrowPadding],
     ),
-    hide(),
     {
       name: 'transformOrigin',
       fn(state) {
@@ -369,6 +368,7 @@ export function useAnchorPositioning(
         return {};
       },
     },
+    hide,
     adaptiveOrigin,
   );
 
