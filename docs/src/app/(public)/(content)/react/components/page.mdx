@@ -94,6 +94,31 @@ A high-quality, unstyled React alert dialog component that requires a user respo
     - Multiple triggers
     - Controlled mode with multiple triggers
   - API reference
+- Exports:
+  - Alert Dialog - Root
+    - Props: actionsRef, children, defaultOpen, defaultTriggerId, handle, onOpenChange, onOpenChangeComplete, open, triggerId
+  - Alert Dialog - Backdrop
+    - Props: className, forceRender, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
+  - Alert Dialog - Close
+    - Props: className, nativeButton, render, style
+    - Data Attributes: data-disabled
+  - Alert Dialog - Description
+    - Props: className, render, style
+  - Alert Dialog - Popup
+    - Props: className, finalFocus, initialFocus, render, style
+    - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
+    - CSS Variables: --nested-dialogs
+  - Alert Dialog - Portal
+    - Props: className, container, keepMounted, render, style
+  - Alert Dialog - Title
+    - Props: className, render, style
+  - Alert Dialog - Trigger
+    - Props: className, handle, id, nativeButton, payload, render, style
+    - Data Attributes: data-disabled, data-popup-open
+  - Alert Dialog - Viewport
+    - Props: className, render, style
+    - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
 
 </details>
 
@@ -174,6 +199,10 @@ A high-quality, unstyled React button component that can be rendered as another 
     - Rendering as another tag
     - Loading states
   - API reference
+- Exports:
+  - Button
+    - Props: className, disabled, focusableWhenDisabled, nativeButton, render, style
+    - Data Attributes: data-disabled
 
 </details>
 
@@ -222,6 +251,10 @@ A high-quality, unstyled React checkbox group component that provides a shared s
     - Parent checkbox
     - Nested parent checkbox
   - API reference
+- Exports:
+  - CheckboxGroup
+    - Props: allValues, className, defaultValue, disabled, onValueChange, render, style, value
+    - Data Attributes: data-disabled
 
 </details>
 
@@ -493,6 +526,9 @@ A high-quality, unstyled React form component with consolidated error handling.
     - Submit form values as a JavaScript object
     - Using with Zod
   - API reference
+- Exports:
+  - Form
+    - Props: className, errors, onFormSubmit, ref, render, style, validationMode
 
 </details>
 
@@ -511,6 +547,10 @@ A high-quality, unstyled React input component.
   - Usage guidelines
   - Anatomy
   - API reference
+- Exports:
+  - Input
+    - Props: className, defaultValue, onValueChange, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
 
 </details>
 
@@ -604,6 +644,9 @@ A menu bar providing commands and options for your application.
 - Sections:
   - Anatomy
   - API reference
+- Exports:
+  - Menubar
+    - Props: className, disabled, loopFocus, modal, orientation, render, style
 
 </details>
 
@@ -1009,6 +1052,9 @@ A high-quality, unstyled React separator component that is accessible to screen 
 - Sections:
   - Anatomy
   - API reference
+- Exports:
+  - Separator
+    - Props: className, orientation, render, style
 
 </details>
 
@@ -1193,6 +1239,10 @@ A high-quality, unstyled React toggle component that displays a two-state button
 - Sections:
   - Anatomy
   - API reference
+- Exports:
+  - Toggle
+    - Props: className, defaultPressed, disabled, nativeButton, onPressedChange, pressed, render, style, value
+    - Data Attributes: data-pressed
 
 </details>
 
@@ -1210,6 +1260,10 @@ A high-quality, unstyled React toggle group component that provides shared state
 - Sections:
   - Anatomy
   - API reference
+- Exports:
+  - ToggleGroup
+    - Props: className, defaultValue, disabled, loopFocus, multiple, onValueChange, orientation, render, style, value
+    - Data Attributes: data-disabled, data-multiple, data-orientation
 
 </details>
 

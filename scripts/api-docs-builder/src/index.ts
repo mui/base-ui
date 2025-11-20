@@ -17,6 +17,21 @@ import { isPublicHook, formatHookData } from './hookHandler';
 const isDebug = inspector.url() !== undefined;
 
 /**
+ * Maps component parts that are re-exported from other components.
+ * Key: ComponentName-PartName, Value: OriginalComponentName-OriginalPartName
+ */
+const REEXPORTED_PARTS: Record<string, string> = {
+  'AlertDialog-Backdrop': 'Dialog-Backdrop',
+  'AlertDialog-Close': 'Dialog-Close',
+  'AlertDialog-Description': 'Dialog-Description',
+  'AlertDialog-Popup': 'Dialog-Popup',
+  'AlertDialog-Portal': 'Dialog-Portal',
+  'AlertDialog-Title': 'Dialog-Title',
+  'AlertDialog-Trigger': 'Dialog-Trigger',
+  'AlertDialog-Viewport': 'Dialog-Viewport',
+};
+
+/**
  * Converts PascalCase to Title Case
  * @example pascalToTitleCase('AlertDialog') -> 'Alert Dialog'
  * @example pascalToTitleCase('NumberField') -> 'Number Field'
@@ -34,6 +49,13 @@ interface RunOptions {
 interface TsConfig {
   options: ts.CompilerOptions;
   fileNames: string[];
+}
+
+function kebabToPascal(str: string): string {
+  return str
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
 }
 
 async function run(options: RunOptions) {
@@ -58,40 +80,44 @@ async function run(options: RunOptions) {
 
   for (const exportNode of exports.filter(isPublicComponent)) {
     const componentApiReference = await formatComponentData(exportNode, exports);
-    const componentName = exportNode.name; // e.g., "AlertDialogPortal"
+    const componentName = exportNode.name; // e.g., "AlertDialogPortal" or "DialogBackdrop"
 
-    // Get the component group using the existing extraction logic
-    const componentGroup = extractComponentGroup(componentName);
+    // Determine component group from the export's source file, not the component name
+    // This ensures re-exports are grouped correctly (e.g., Dialog parts re-exported by AlertDialog)
+    const sourceFile = exportNode.sourceFilePath || '';
+    const match = sourceFile.match(/\/src\/([^/]+)\//);
+    const componentGroup = match ? kebabToPascal(match[1]) : extractComponentGroup(componentName);
+
+    // Extract props, data attributes, and CSS variables
+    const props = componentApiReference.props
+      ? Object.keys(componentApiReference.props).sort()
+      : [];
+    const dataAttributes = componentApiReference.dataAttributes
+      ? Object.keys(componentApiReference.dataAttributes).sort()
+      : [];
+    const cssVariables = componentApiReference.cssVariables
+      ? Object.keys(componentApiReference.cssVariables).sort()
+      : [];
 
     // Extract the part name by removing the component group prefix
     if (componentGroup && componentName.startsWith(componentGroup)) {
       const partName = componentName.slice(componentGroup.length); // e.g., "Portal"
 
-      // Only track parts if there is a part name (not just the group name alone)
-      if (partName) {
-        if (!componentsMap.has(componentGroup)) {
-          componentsMap.set(componentGroup, new Map());
-        }
-
-        const partsMap = componentsMap.get(componentGroup)!;
-
-        // Extract props, data attributes, and CSS variables for this specific part
-        const props = componentApiReference.props
-          ? Object.keys(componentApiReference.props).sort()
-          : [];
-        const dataAttributes = componentApiReference.dataAttributes
-          ? Object.keys(componentApiReference.dataAttributes).sort()
-          : [];
-        const cssVariables = componentApiReference.cssVariables
-          ? Object.keys(componentApiReference.cssVariables).sort()
-          : [];
-
-        partsMap.set(partName, {
-          props,
-          dataAttributes,
-          cssVariables,
-        });
+      if (!componentsMap.has(componentGroup)) {
+        componentsMap.set(componentGroup, new Map());
       }
+
+      const partsMap = componentsMap.get(componentGroup)!;
+
+      // If partName is empty, this is the root component (e.g., "Checkbox" from "Checkbox")
+      // Store it as "Root" to distinguish it from the component group itself
+      const partKey = partName || componentName;
+
+      partsMap.set(partKey, {
+        props,
+        dataAttributes,
+        cssVariables,
+      });
     }
 
     const json = JSON.stringify(componentApiReference, null, 2) + '\n';
@@ -103,12 +129,19 @@ async function run(options: RunOptions) {
     fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
   }
 
-  // Build the final components with parts map
-  // Only include components that have multiple parts
-  const componentsWithParts = new Map<
+  // Build the final components metadata
+  const componentsMetadata = new Map<
     string,
     {
-      exports: Record<
+      parts?: Record<
+        string,
+        {
+          props: string[];
+          dataAttributes: string[];
+          cssVariables: string[];
+        }
+      >;
+      exports?: Record<
         string,
         {
           props: string[];
@@ -120,8 +153,22 @@ async function run(options: RunOptions) {
   >();
 
   for (const [componentName, partsMap] of componentsMap) {
-    if (partsMap.size > 1) {
-      const exportsObj: Record<
+    // Determine if this is a multi-part component or single component
+    // If there's more than one part, or if the single part name doesn't match the component name,
+    // it's a multi-part component
+    const isSingleComponent = partsMap.size === 1 && partsMap.has(componentName);
+
+    if (isSingleComponent) {
+      // Single component: use "exports" with the component name
+      const metadata = partsMap.get(componentName)!;
+      componentsMetadata.set(componentName, {
+        exports: {
+          [componentName]: metadata,
+        },
+      });
+    } else {
+      // Multi-part component: use "parts" with part names
+      const parts: Record<
         string,
         {
           props: string[];
@@ -130,33 +177,76 @@ async function run(options: RunOptions) {
         }
       > = {};
 
-      // Convert the parts map to the exports object format
       for (const [partName, metadata] of partsMap) {
-        exportsObj[partName] = metadata;
+        parts[partName] = metadata;
       }
 
-      componentsWithParts.set(componentName, {
-        exports: exportsObj,
+      componentsMetadata.set(componentName, {
+        parts,
       });
     }
   }
 
-  // Update the components page index with parts metadata all at once
-  if (componentsWithParts.size > 0) {
+  // Add re-exported parts based on REEXPORTED_PARTS mapping
+  for (const [reexportKey, sourceKey] of Object.entries(REEXPORTED_PARTS)) {
+    const [targetComponent, targetPart] = reexportKey.split('-');
+    const [sourceComponent, sourcePart] = sourceKey.split('-');
+
+    const sourceMetadata = componentsMap.get(sourceComponent);
+    if (!sourceMetadata) {
+      continue;
+    }
+
+    const partMetadata = sourceMetadata.get(sourcePart);
+    if (!partMetadata) {
+      continue;
+    }
+
+    // Ensure target component exists in the metadata
+    if (!componentsMetadata.has(targetComponent)) {
+      componentsMetadata.set(targetComponent, { parts: {} });
+    }
+
+    const targetMetadata = componentsMetadata.get(targetComponent)!;
+    if (!targetMetadata.parts) {
+      targetMetadata.parts = {};
+    }
+
+    targetMetadata.parts[targetPart] = partMetadata;
+  }
+
+  // Update the components page index with metadata all at once
+  if (componentsMetadata.size > 0) {
     const componentsPagePath = path.resolve(
       path.dirname(path.dirname(path.dirname(options.configPath))),
       'docs/src/app/(public)/(content)/react/components/page.mdx',
     );
 
-    // Build metadata for all components
-    const allComponentsMetadata = Array.from(componentsWithParts.entries()).map(
-      ([componentName, metadata]) => ({
-        slug: kebabCase(componentName),
-        path: `./${kebabCase(componentName)}/page.mdx`,
-        title: pascalToTitleCase(componentName),
-        exports: metadata.exports,
-      }),
-    );
+    const docsBasePath = path.dirname(componentsPagePath);
+
+    // Build metadata for all components, but only include those with existing pages
+    const skippedComponents: string[] = [];
+    const allComponentsMetadata = (
+      await Promise.all(
+        Array.from(componentsMetadata.entries()).map(async ([componentName, metadata]) => {
+          const slug = kebabCase(componentName);
+          const componentPagePath = path.join(docsBasePath, slug, 'page.mdx');
+
+          // Check if the page exists
+          if (!fs.existsSync(componentPagePath)) {
+            skippedComponents.push(componentName);
+            return null;
+          }
+
+          return {
+            slug,
+            path: `./${slug}/page.mdx`,
+            title: pascalToTitleCase(componentName),
+            ...metadata,
+          };
+        }),
+      )
+    ).filter((metadata): metadata is NonNullable<typeof metadata> => metadata !== null);
 
     // Update the index once with all components in a single operation
     await updatePageIndex({
@@ -165,8 +255,13 @@ async function run(options: RunOptions) {
     });
 
     console.log(
-      `\nUpdated components index with parts metadata for ${componentsWithParts.size} component(s).`,
+      `\nUpdated components index with metadata for ${allComponentsMetadata.length} component(s).`,
     );
+    if (skippedComponents.length > 0) {
+      console.log(
+        `Skipped ${skippedComponents.length} component(s) with no page: ${skippedComponents.join(', ')}`,
+      );
+    }
   }
 
   console.log(`\nProcessed ${files.length} files.`);
@@ -239,7 +334,7 @@ yargs(hideBin(process.argv))
   .parse();
 
 function findAllExports(program: ts.Program, sourceFiles: string[]) {
-  const allExports: tae.ExportNode[] = [];
+  const allExports: Array<tae.ExportNode & { sourceFilePath?: string }> = [];
   let errorCounter = 0;
 
   for (const file of sourceFiles) {
@@ -250,7 +345,11 @@ function findAllExports(program: ts.Program, sourceFiles: string[]) {
 
     try {
       const ast = tae.parseFromProgram(file, program);
-      allExports.push(...ast.exports);
+      // Tag each export with its source file path
+      for (const exp of ast.exports) {
+        (exp as any).sourceFilePath = file;
+        allExports.push(exp);
+      }
     } catch (error) {
       console.error(`⛔ Error processing ${file}: ${(error as Error).message}`);
       errorCounter += 1;
