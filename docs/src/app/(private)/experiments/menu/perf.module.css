@@ -16,6 +16,5 @@
   display: flex;
   justify-content: space-between;
   border-radius: 6px;
-  corner-shape: superellipse(1.5);
   border: 1px solid #e0e0e0;
 }

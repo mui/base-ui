@@ -1,19 +1,19 @@
 import { isElement } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui-components/utils/useId';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 
 import { FloatingRootContextStore } from '../components/FloatingRootContextStore';
 import type { FloatingRootContextState } from '../components/FloatingRootContextStore';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   elements?: {
-    reference?: Element | null;
+    reference?: ReferenceType | null;
     floating?: HTMLElement | null;
     triggers?: Element[];
   };
