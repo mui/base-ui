@@ -110,11 +110,8 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     };
   }, [contextMenuContext, parentContext, menubarContext]);
 
-  const rootActiveTriggerProps = store.useState('activeTriggerProps');
-  const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
   const menuDisabled = store.useState('disabled');
   const floatingRootContext = store.useState('floatingRootContext');
-  const positionerElement = store.useState('positionerElement');
   const parentMenubarHasSubmenuOpen = parent.type === 'menubar' && parent.context.hasSubmenuOpen;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -138,6 +135,8 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+
+  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
 
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
@@ -235,7 +234,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   // Whether to ignore clicks to open the menu.
   // `lastOpenChangeReason` doesnt't need to be reactive here, as we need to run this
-  // only when `open` changes.
+  // only when `isOpenedByThisTrigger` changes.
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
 
   const click = useClick(floatingRootContext, {
@@ -280,7 +279,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const props = [
     localInteractionProps.getReferenceProps(),
     hoverProps ?? EMPTY_OBJECT,
-    isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
+    rootTriggerProps,
     {
       'aria-haspopup': 'menu' as const,
       id: thisTriggerId,
@@ -325,7 +324,8 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   });
 
   const handleFocusTargetFocus = useStableCallback((event: React.FocusEvent) => {
-    if (positionerElement && isOutsideEvent(event, positionerElement)) {
+    const currentPositionerElement = store.select('positionerElement');
+    if (currentPositionerElement && isOutsideEvent(event, currentPositionerElement)) {
       store.context.beforeContentFocusGuardRef.current?.focus();
     } else {
       ReactDOM.flushSync(() => {
@@ -342,7 +342,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       let nextTabbable = getTabbableAfterElement(triggerElement);
 
       while (
-        (nextTabbable !== null && contains(positionerElement, nextTabbable)) ||
+        (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) ||
         nextTabbable?.hasAttribute('aria-hidden')
       ) {
         const prevTabbable = nextTabbable;

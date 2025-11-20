@@ -55,7 +55,6 @@ export function useClick(
   props: UseClickProps = {},
 ): ElementProps {
   const store = 'rootStore' in context ? context.rootStore : context;
-  const open = store.useState('open');
   const dataRef = store.context.dataRef;
 
   const {
@@ -79,6 +78,7 @@ export function useClick(
       onMouseDown(event) {
         const pointerType = pointerTypeRef.current;
         const nativeEvent = event.nativeEvent;
+        const open = store.select('open');
 
         // Ignore all buttons except for the "main" button.
         // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
@@ -159,6 +159,7 @@ export function useClick(
           return;
         }
 
+        const open = store.select('open');
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
         const hasClickedOnInactiveTrigger =
@@ -198,7 +199,6 @@ export function useClick(
       eventOption,
       ignoreMouse,
       store,
-      open,
       stickIfOpen,
       toggle,
       frame,

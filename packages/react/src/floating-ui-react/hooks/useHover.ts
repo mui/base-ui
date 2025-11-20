@@ -110,7 +110,7 @@ export interface UseHoverProps {
   move?: boolean;
   /**
    * Allows to override the element that will trigger the popup.
-   * Wheh it's set, useHover won't read the reference element from the root context.
+   * When it's set, useHover won't read the reference element from the root context.
    * This allows to have multiple triggers per floating element (assuming `useHover` is called per trigger).
    */
   triggerElement?: HTMLElement | null;

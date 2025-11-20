@@ -118,8 +118,9 @@ const selectors = {
   floatingParentNodeId: createSelector((state: State<unknown>) => state.floatingParentNodeId),
   itemProps: createSelector((state: State<unknown>) => state.itemProps),
   popupProps: createSelector((state: State<unknown>) => state.popupProps),
-  activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
-  inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
+  triggerProps: createSelector((state: State<unknown>, isActive: boolean) =>
+    isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
+  ),
   payload: createSelector((state: State<unknown>) => state.payload),
   triggers: createSelector((state: State<unknown>) => state.triggers),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),

@@ -44,8 +44,6 @@ export function useFocus(
   props: UseFocusProps = {},
 ): ElementProps {
   const store = 'rootStore' in context ? context.rootStore : context;
-  const open = store.useState('open');
-  const domReference = store.useState('domReferenceElement');
 
   const { events, dataRef } = store.context;
   const { enabled = true, visibleOnly = true } = props;
@@ -55,6 +53,7 @@ export function useFocus(
   const keyboardModalityRef = React.useRef(true);
 
   React.useEffect(() => {
+    const domReference = store.select('domReferenceElement');
     if (!enabled) {
       return undefined;
     }
@@ -66,7 +65,7 @@ export function useFocus(
     // return to the tab/window.
     function onBlur() {
       if (
-        !open &&
+        !store.select('open') &&
         isHTMLElement(domReference) &&
         domReference === activeElement(getDocument(domReference))
       ) {
@@ -97,7 +96,7 @@ export function useFocus(
         win.removeEventListener('pointerdown', onPointerDown, true);
       }
     };
-  }, [domReference, open, enabled]);
+  }, [store, enabled]);
 
   React.useEffect(() => {
     if (!enabled) {
@@ -163,6 +162,7 @@ export function useFocus(
 
         // Wait for the window blur listener to fire.
         timeout.start(0, () => {
+          const domReference = store.select('domReferenceElement');
           const activeEl = activeElement(domReference ? domReference.ownerDocument : document);
 
           // Focus left the page, keep it open.
@@ -196,7 +196,7 @@ export function useFocus(
         });
       },
     }),
-    [dataRef, domReference, store, visibleOnly, timeout],
+    [dataRef, store, visibleOnly, timeout],
   );
 
   return React.useMemo(

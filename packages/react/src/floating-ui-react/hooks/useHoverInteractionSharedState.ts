@@ -39,7 +39,7 @@ export function useHoverInteractionSharedState(
   const performedPointerEventsMutationRef = React.useRef(false);
   const unbindMouseMoveRef = React.useRef<() => void>(() => {});
   const restTimeoutPendingRef = React.useRef(false);
-  const timeout = useTimeout();
+  const openChangeTimeout = useTimeout();
   const restTimeout = useTimeout();
   const handleCloseOptionsRef = React.useRef<SafePolygonOptions | undefined>(undefined);
 
@@ -55,7 +55,7 @@ export function useHoverInteractionSharedState(
         performedPointerEventsMutationRef,
         unbindMouseMoveRef,
         restTimeoutPendingRef,
-        openChangeTimeout: timeout,
+        openChangeTimeout,
         restTimeout,
         handleCloseOptionsRef,
       };
@@ -71,7 +71,7 @@ export function useHoverInteractionSharedState(
     performedPointerEventsMutationRef,
     unbindMouseMoveRef,
     restTimeoutPendingRef,
-    timeout,
+    openChangeTimeout,
     restTimeout,
     handleCloseOptionsRef,
   ]);
