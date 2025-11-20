@@ -7,6 +7,8 @@
   }
 
   .DescriptionListItem {
+    position: relative;
+
     @media (--xs) {
       display: grid;
       grid-template-columns: subgrid;
@@ -52,12 +54,9 @@
     }
   }
 
-  .DescriptionDetails {
+  .DescriptionListDetails {
     @apply text-sm;
     color: var(--color-foreground);
-
-    display: flex;
-    gap: 0.5rem;
     grid-column: span 2;
   }
 
@@ -67,6 +66,8 @@
     justify-content: center;
     align-items: start;
     padding-inline: 0.75rem;
+    width: 100%;
+    gap: --spacing(3);
 
     [data-rehype-pretty-code-figure] {
       margin: 0;
