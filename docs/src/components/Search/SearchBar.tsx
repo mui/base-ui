@@ -8,6 +8,7 @@ import { stopwords as englishStopwords } from '@orama/stopwords/english';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import { FileText, Blocks, Package, Heading1, Heading2 } from 'lucide-react';
 import './SearchBar.css';
 
 interface BaseSearchResult {
@@ -210,7 +211,7 @@ export function SearchBar({
                 type: 'part',
                 part: partName,
                 export: `${page.slug}.${partName}`,
-                slug: page.slug,
+                slug: partName.toLowerCase(),
                 path: page.path,
                 title: `${page.title} - ${partName}`,
                 description: page.description,
@@ -387,6 +388,7 @@ export function SearchBar({
 
       const results = await performSearch(index, {
         term: value,
+        limit: 20,
         tolerance: 1, // how many character differences are allowed for typos
         boost: {
           type: 3,
@@ -570,12 +572,19 @@ export function SearchBar({
                               >
                                 <div className="flex items-baseline justify-between gap-2">
                                   <div className="flex items-baseline gap-2">
+                                    {result.type === 'page' && <FileText className="h-4 w-4" />}
+                                    {result.type === 'part' && <Blocks className="h-4 w-4" />}
+                                    {result.type === 'export' && <Package className="h-4 w-4" />}
+                                    {result.type === 'section' && <Heading1 className="h-4 w-4" />}
+                                    {result.type === 'subsection' && (
+                                      <Heading2 className="h-4 w-4" />
+                                    )}
                                     <strong className="font-semibold">{result.title}</strong>
                                     <span className="text-xs opacity-50 capitalize">
                                       {result.type}
                                     </span>
                                   </div>
-                                  {result.score && (
+                                  {process.env.NODE_ENV === 'development' && result.score && (
                                     <span className="text-xs opacity-70">
                                       {result.score.toFixed(2)}
                                     </span>
