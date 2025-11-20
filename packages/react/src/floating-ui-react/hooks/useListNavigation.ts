@@ -832,7 +832,7 @@ export function useListNavigation(
     domReferenceElement,
   ]);
 
-  const reference: ElementProps['reference'] = React.useMemo(() => {
+  const trigger: ElementProps['trigger'] = React.useMemo(() => {
     function checkVirtualMouse(event: React.PointerEvent) {
       if (focusItemOnOpen === 'auto' && isVirtualClick(event.nativeEvent)) {
         focusItemOnOpenRef.current = !virtual;
@@ -848,7 +848,6 @@ export function useListNavigation(
     }
 
     return {
-      ...ariaActiveDescendantProp,
       onKeyDown(event) {
         // non-reactive open state (to prevent re-creation of the handler)
         const currentOpen = store.select('open');
@@ -904,8 +903,8 @@ export function useListNavigation(
         }
 
         if (isMainKey) {
-          if (selectedIndex != null) {
-            indexRef.current = selectedIndex;
+          if (selectedIndexRef.current != null) {
+            indexRef.current = selectedIndexRef.current;
           }
 
           stopEvent(event);
@@ -942,7 +941,6 @@ export function useListNavigation(
       onClick: checkVirtualMouse,
     };
   }, [
-    ariaActiveDescendantProp,
     commonOnKeyDown,
     disabledIndicesRef,
     focusItemOnOpen,
@@ -954,13 +952,19 @@ export function useListNavigation(
     orientation,
     getParentOrientation,
     rtl,
-    selectedIndex,
+    selectedIndexRef,
     virtual,
   ]);
 
-  // TODO: create a separate set of props for trigger - it shouldn't depend on selectedIndex or activeDescendant
+  const reference: ElementProps['reference'] = React.useMemo(() => {
+    return {
+      ...ariaActiveDescendantProp,
+      ...trigger,
+    };
+  }, [ariaActiveDescendantProp, trigger]);
+
   return React.useMemo(
-    () => (enabled ? { reference, floating, item, trigger: reference } : {}),
-    [enabled, reference, floating, item],
+    () => (enabled ? { reference, floating, item, trigger } : {}),
+    [enabled, reference, floating, trigger, item],
   );
 }
