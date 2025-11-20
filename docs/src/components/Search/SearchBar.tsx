@@ -10,16 +10,57 @@ import { Dialog } from '@base-ui-components/react/dialog';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import './SearchBar.css';
 
-interface SearchResult {
+interface BaseSearchResult {
   id?: string;
   title: string;
   description: string;
   slug: string;
   path: string;
-  section: string;
+  sectionTitle: string;
   prefix: string;
+  keywords?: string;
   score?: number;
 }
+
+interface PageSearchResult extends BaseSearchResult {
+  type: 'page';
+  sections?: string;
+  subsections?: string;
+}
+
+interface PartSearchResult extends BaseSearchResult {
+  type: 'part';
+  part: string;
+  export: string;
+  props?: string;
+  dataAttributes?: string;
+  cssVariables?: string;
+}
+
+interface ExportSearchResult extends BaseSearchResult {
+  type: 'export';
+  export: string;
+  props?: string;
+  dataAttributes?: string;
+  cssVariables?: string;
+}
+
+interface SectionSearchResult extends BaseSearchResult {
+  type: 'section';
+  section: string;
+}
+
+interface SubsectionSearchResult extends BaseSearchResult {
+  type: 'subsection';
+  subsection: string;
+}
+
+type SearchResult =
+  | PageSearchResult
+  | PartSearchResult
+  | ExportSearchResult
+  | SectionSearchResult
+  | SubsectionSearchResult;
 
 export function SearchBar({
   sitemap: sitemapImport,
@@ -48,13 +89,18 @@ export function SearchBar({
       const searchIndex = create({
         schema: {
           ...sitemap.schema,
+          type: 'string',
           keywords: 'string',
           sections: 'string',
           subsections: 'string',
-          parts: 'string',
+          part: 'string',
+          export: 'string',
+          section: 'string',
+          subsection: 'string',
           props: 'string',
           dataAttributes: 'string',
           cssVariables: 'string',
+          sectionTitle: 'string',
         },
         components: {
           tokenizer: {
@@ -66,92 +112,180 @@ export function SearchBar({
         },
       });
 
-      /**
-       * Recursively extracts all section titles from a HeadingHierarchy structure
-       * @param hierarchy The heading hierarchy object
-       * @returns Array of all section titles (flattened)
-       */
-      function extractSubsections(hierarchy: any): string[] {
-        const subsections: string[] = [];
-
-        for (const section of Object.values(hierarchy)) {
-          const { title, children } = section as any;
-          subsections.push(title);
-
-          if (children && Object.keys(children).length > 0) {
-            subsections.push(...extractSubsections(children));
-          }
-        }
-
-        return subsections;
-      }
-
       // Flatten the sitemap data structure to a single array of pages
-      const pages = Object.entries(sitemap.data).flatMap(
-        ([_sectionKey, sectionData]: [string, any]) => {
-          return (sectionData.pages || []).map((page: any) => {
-            // Extract top-level sections and all subsections
-            const sections: string[] = [];
-            const subsections: string[] = [];
+      const pages: SearchResult[] = [];
+      const pageResults: SearchResult[] = [];
 
-            if (page.sections) {
-              // Top-level sections are the direct children
-              sections.push(...Object.values(page.sections).map((s: any) => s.title));
+      Object.entries(sitemap.data).forEach(([_sectionKey, sectionData]: [string, any]) => {
+        (sectionData.pages || []).forEach((page: any) => {
+          // Extract top-level sections and all subsections with their slugs
+          const sections: Array<{ title: string; slug: string }> = [];
+          const subsections: Array<{
+            title: string;
+            slug: string;
+            parentSlugs: string[];
+            parentTitles: string[];
+          }> = [];
+
+          if (page.sections) {
+            // Top-level sections are the direct children
+            for (const [slug, sectionInfo] of Object.entries(page.sections)) {
+              const s = sectionInfo as any;
+              sections.push({ title: s.title, slug });
 
               // Subsections are all nested children (recursively)
-              for (const section of Object.values(page.sections)) {
-                const { children } = section as any;
-                if (children && Object.keys(children).length > 0) {
-                  subsections.push(...extractSubsections(children));
-                }
+              if (s.children && Object.keys(s.children).length > 0) {
+                const extractWithSlugs = (
+                  hierarchy: any,
+                  parentSlugs: string[],
+                  parentTitles: string[],
+                ): Array<{
+                  title: string;
+                  slug: string;
+                  parentSlugs: string[];
+                  parentTitles: string[];
+                }> => {
+                  const items: Array<{
+                    title: string;
+                    slug: string;
+                    parentSlugs: string[];
+                    parentTitles: string[];
+                  }> = [];
+                  for (const [childSlug, childData] of Object.entries(hierarchy)) {
+                    const child = childData as any;
+                    const currentSlugs = [...parentSlugs, childSlug];
+                    const currentTitles = [...parentTitles, child.title];
+                    items.push({
+                      title: child.title,
+                      slug: childSlug,
+                      parentSlugs: currentSlugs,
+                      parentTitles: currentTitles,
+                    });
+                    if (child.children && Object.keys(child.children).length > 0) {
+                      items.push(...extractWithSlugs(child.children, currentSlugs, currentTitles));
+                    }
+                  }
+                  return items;
+                };
+                subsections.push(...extractWithSlugs(s.children, [slug], [s.title]));
               }
             }
+          }
 
-            const flattened: Record<string, string> = {};
-            if (page.keywords?.length > 0) {
-              flattened.keywords = page.keywords.join(' ');
+          const flattened: Record<string, string> = {};
+          if (page.keywords?.length > 0) {
+            flattened.keywords = page.keywords.join(' ');
+          }
+
+          if (sections?.length > 0) {
+            flattened.sections = sections.map((s) => s.title).join(' ');
+          }
+
+          if (subsections?.length > 0) {
+            flattened.subsections = subsections.map((s) => s.title).join(' ');
+          }
+
+          const basePage: SearchResult = {
+            type: 'page',
+            title: page.title,
+            slug: page.slug,
+            path: page.path,
+            description: page.description,
+            sectionTitle: sectionData.title,
+            prefix: sectionData.prefix,
+            ...flattened,
+          };
+
+          // Add to both arrays
+          pages.push(basePage);
+          if (pageResults.length < 10) {
+            pageResults.push(basePage);
+          }
+
+          // Add entries for each part
+          if (page.parts && Object.keys(page.parts).length > 0) {
+            for (const [partName, partData] of Object.entries(page.parts)) {
+              const part = partData as any;
+              pages.push({
+                type: 'part',
+                part: partName,
+                export: `${page.slug}.${partName}`,
+                slug: page.slug,
+                path: page.path,
+                title: `${page.title} - ${partName}`,
+                description: page.description,
+                sectionTitle: sectionData.title,
+                prefix: sectionData.prefix,
+                props: part.props ? part.props.join(' ') : '',
+                dataAttributes: part.dataAttributes ? part.dataAttributes.join(' ') : '',
+                cssVariables: part.cssVariables ? part.cssVariables.join(' ') : '',
+                keywords: page.keywords?.length > 0 ? page.keywords.join(' ') : '',
+              });
             }
+          }
 
-            if (sections?.length > 0) {
-              flattened.sections = sections.join(' ');
+          // Add entries for each export
+          if (page.exports && Object.keys(page.exports).length > 0) {
+            for (const [exportName, exportData] of Object.entries(page.exports)) {
+              const exp = exportData as any;
+              // If export name matches page slug (case-insensitive), use #api-reference
+              const exportSlug =
+                exportName.toLowerCase() === page.slug.toLowerCase()
+                  ? 'api-reference'
+                  : exportName.toLowerCase();
+              pages.push({
+                type: 'export',
+                export: exportSlug,
+                slug: page.slug,
+                path: page.path,
+                title: exportName,
+                description: page.description,
+                sectionTitle: sectionData.title,
+                prefix: sectionData.prefix,
+                props: exp.props ? exp.props.join(' ') : '',
+                dataAttributes: exp.dataAttributes ? exp.dataAttributes.join(' ') : '',
+                cssVariables: exp.cssVariables ? exp.cssVariables.join(' ') : '',
+                keywords: page.keywords?.length > 0 ? page.keywords.join(' ') : '',
+              });
             }
+          }
 
-            if (subsections?.length > 0) {
-              flattened.subsections = subsections.join(' ');
-            }
-
-            if (page.parts?.length > 0) {
-              flattened.parts = page.parts.join(' ');
-            }
-
-            if (page.props?.length > 0) {
-              flattened.props = page.props.join(' ');
-            }
-
-            if (page.dataAttributes?.length > 0) {
-              flattened.dataAttributes = page.dataAttributes.join(' ');
-            }
-
-            if (page.cssVariables?.length > 0) {
-              flattened.cssVariables = page.cssVariables.join(' ');
-            }
-
-            return {
-              title: page.title,
-              slug: page.slug,
+          // Add entries for each section
+          for (const sectionItem of sections) {
+            pages.push({
+              type: 'section',
+              section: sectionItem.title,
+              slug: `${page.slug}#${sectionItem.slug}`,
               path: page.path,
+              title: `${page.title} - ${sectionItem.title}`,
               description: page.description,
-              section: sectionData.title,
+              sectionTitle: sectionData.title,
               prefix: sectionData.prefix,
-              ...flattened,
-            };
-          });
-        },
-      );
+              keywords: page.keywords?.length > 0 ? page.keywords.join(' ') : '',
+            });
+          }
+
+          // Add entries for each subsection
+          for (const subsectionItem of subsections) {
+            const fullTitle = subsectionItem.parentTitles.join(' - ');
+            pages.push({
+              type: 'subsection',
+              subsection: fullTitle,
+              slug: `${page.slug}#${subsectionItem.slug.toLowerCase()}`,
+              path: page.path,
+              title: `${page.title} - ${fullTitle}`,
+              description: page.description,
+              sectionTitle: sectionData.title,
+              prefix: sectionData.prefix,
+              keywords: page.keywords?.length > 0 ? page.keywords.join(' ') : '',
+            });
+          }
+        });
+      });
 
       insertMultiple(searchIndex, pages);
       setIndex(searchIndex);
-      defaultResults.current = pages.slice(0, 10);
+      defaultResults.current = pageResults;
       setSearchResults(defaultResults.current);
     });
   }, [sitemapImport]);
@@ -255,29 +389,86 @@ export function SearchBar({
         term: value,
         tolerance: 1, // how many character differences are allowed for typos
         boost: {
+          type: 3,
           slug: 2,
           path: 2,
           title: 2,
-          description: 2,
-          parts: 1.5,
+          description: 1.5,
+          part: 1.5,
+          export: 1.3,
+          section: 2,
+          subsection: 1.8,
           props: 1.5,
           dataAttributes: 1.5,
           cssVariables: 1.5,
-          sections: 2,
-          subsections: 1.7,
+          sections: 0.7,
+          subsections: 0.3,
           keywords: 1.7,
         },
       });
-      const formattedResults: SearchResult[] = results.hits.map((hit: any) => ({
-        id: hit.id,
-        title: hit.document.title,
-        description: hit.document.description || '',
-        slug: hit.document.slug,
-        section: hit.document.section,
-        prefix: hit.document.prefix,
-        path: hit.document.path,
-        score: hit.score,
-      }));
+
+      const formattedResults: SearchResult[] = results.hits.map((hit: any) => {
+        const base = {
+          id: hit.id,
+          title: hit.document.title,
+          description: hit.document.description || '',
+          slug: hit.document.slug,
+          sectionTitle: hit.document.sectionTitle,
+          prefix: hit.document.prefix,
+          path: hit.document.path,
+          score: hit.score,
+          keywords: hit.document.keywords,
+        };
+
+        const type = hit.document.type;
+
+        if (type === 'part') {
+          return {
+            ...base,
+            type: 'part',
+            part: hit.document.part,
+            export: hit.document.export,
+            props: hit.document.props,
+            dataAttributes: hit.document.dataAttributes,
+            cssVariables: hit.document.cssVariables,
+          } as PartSearchResult;
+        }
+
+        if (type === 'export') {
+          return {
+            ...base,
+            type: 'export',
+            export: hit.document.export,
+            props: hit.document.props,
+            dataAttributes: hit.document.dataAttributes,
+            cssVariables: hit.document.cssVariables,
+          } as ExportSearchResult;
+        }
+
+        if (type === 'section') {
+          return {
+            ...base,
+            type: 'section',
+            section: hit.document.section,
+          } as SectionSearchResult;
+        }
+
+        if (type === 'subsection') {
+          return {
+            ...base,
+            type: 'subsection',
+            subsection: hit.document.subsection,
+          } as SubsectionSearchResult;
+        }
+
+        // Default to page type
+        return {
+          ...base,
+          type: 'page',
+          sections: hit.document.sections,
+          subsections: hit.document.subsections,
+        } as PageSearchResult;
+      });
 
       setSearchResults(formattedResults);
     },
@@ -286,9 +477,27 @@ export function SearchBar({
 
   const handleItemClick = React.useCallback(
     (result: SearchResult) => {
-      const url = result.path.startsWith('./')
+      let url = result.path.startsWith('./')
         ? `${result.prefix}${result.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
         : result.path;
+
+      // Add hash for non-page types
+      if (result.type !== 'page') {
+        let hash: string;
+        if (result.type === 'section' || result.type === 'subsection') {
+          // For sections and subsections, extract hash from the slug field
+          // which already contains the page slug + hash (e.g., "button#api-reference")
+          const hashIndex = result.slug.indexOf('#');
+          hash = hashIndex !== -1 ? result.slug.substring(hashIndex + 1) : '';
+        } else if (result.type === 'part') {
+          hash = result.part.toLowerCase();
+        } else {
+          // type === 'export'
+          hash = result.export; // already lowercase or api-reference
+        }
+        url += `#${hash}`;
+      }
+
       handleCloseDialog(false);
       router.push(url);
     },
@@ -360,7 +569,12 @@ export function SearchBar({
                                 className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100 data-highlighted:bg-gray-900 data-highlighted:text-gray-50"
                               >
                                 <div className="flex items-baseline justify-between gap-2">
-                                  <strong className="font-semibold">{result.title}</strong>
+                                  <div className="flex items-baseline gap-2">
+                                    <strong className="font-semibold">{result.title}</strong>
+                                    <span className="text-xs opacity-50 capitalize">
+                                      {result.type}
+                                    </span>
+                                  </div>
                                   {result.score && (
                                     <span className="text-xs opacity-70">
                                       {result.score.toFixed(2)}
@@ -368,9 +582,9 @@ export function SearchBar({
                                   )}
                                 </div>
                                 <div className="text-sm opacity-70">
-                                  {result.section.replace('React ', '')}
+                                  {result.sectionTitle.replace('React ', '')}
                                 </div>
-                                {result.description && (
+                                {result.type === 'page' && result.description && (
                                   <div className="mt-0.5 text-sm opacity-80">
                                     {result.description}
                                   </div>
