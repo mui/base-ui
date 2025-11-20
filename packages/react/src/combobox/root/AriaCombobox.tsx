@@ -159,6 +159,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const single = selectionMode === 'single';
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const hasItems = items !== undefined;
+  const hasFilteredItemsProp = filteredItemsProp !== undefined;
 
   let autoHighlightMode: false | 'input-change' | 'always';
   if (autoHighlight === 'always') {
@@ -229,7 +230,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     collatorFilter.contains(selectedLabelString, query);
 
   const filterQuery = shouldBypassFiltering ? '' : query;
-  const shouldIgnoreExternalFiltering = filteredItemsProp !== undefined && shouldBypassFiltering;
+  const shouldIgnoreExternalFiltering = hasItems && hasFilteredItemsProp && shouldBypassFiltering;
 
   const flatItems: readonly any[] = React.useMemo(() => {
     if (!items) {
@@ -772,7 +773,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const candidateItems = items ? flatFilteredItems : valuesRef.current;
+    const shouldUseFlatFilteredItems = hasItems || hasFilteredItemsProp;
+    const candidateItems = shouldUseFlatFilteredItems ? flatFilteredItems : valuesRef.current;
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
@@ -815,7 +817,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         createGenericEventDetails(REASONS.none, undefined, { index: storeActiveIndex }),
       );
     }
-  }, [activeIndex, autoHighlightMode, flatFilteredItems, inline, items, open, store]);
+  }, [
+    activeIndex,
+    autoHighlightMode,
+    hasFilteredItemsProp,
+    hasItems,
+    flatFilteredItems,
+    inline,
+    open,
+    store,
+  ]);
 
   // When the available items change, ensure the selected value(s) remain valid.
   // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
