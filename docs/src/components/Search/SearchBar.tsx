@@ -6,9 +6,10 @@ import { create, insertMultiple, search as performSearch } from '@orama/orama';
 import { stemmer, language } from '@orama/stemmers/english';
 import { stopwords as englishStopwords } from '@orama/stopwords/english';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
+import { Button } from '@base-ui-components/react/button';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
-import { FileText, Blocks, Package, Heading1, Heading2 } from 'lucide-react';
+import { FileText, Blocks, Package, Heading1, Heading2, Search } from 'lucide-react';
 import './SearchBar.css';
 
 interface BaseSearchResult {
@@ -357,6 +358,10 @@ export function SearchBar({
     [handleCloseDialog],
   );
 
+  const handleEscapeButtonClick = React.useCallback(() => {
+    handleCloseDialog(false);
+  }, [handleCloseDialog]);
+
   React.useEffect(() => {
     // Only enable keyboard shortcut if explicitly requested (for desktop version)
     if (!enableKeyboardShortcut) {
@@ -511,9 +516,12 @@ export function SearchBar({
       <button
         type="button"
         onClick={handleOpenDialog}
-        className={`search-button relative h-7 w-52 rounded-md border border-gray-200 bg-gray-50 pl-3 pr-3 text-left text-sm font-normal text-gray-900 hover:bg-gray-100 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 lg:pr-16 ${dialogOpen ? 'search-button-hidden' : ''}`}
+        className={`search-button relative h-7 w-50 rounded-md border border-gray-200 bg-gray-50 pl-3 pr-3 text-left text-sm font-normal text-gray-900 hover:bg-gray-100 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 lg:pr-16 ${dialogOpen ? 'search-button-hidden' : ''}`}
       >
-        <span className="text-gray-600">Search...</span>
+        <div className="flex items-center gap-2">
+          <Search className="h-4 w-4 text-gray-500" />
+          <span className="text-gray-600">Search</span>
+        </div>
         <div className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 gap-1 rounded border border-gray-300 bg-gray-50 px-1.5 lg:flex">
           <kbd className="text-xs text-gray-600">⌘</kbd>
           <kbd className="text-xs text-gray-600">K</kbd>
@@ -548,12 +556,21 @@ export function SearchBar({
                         <label htmlFor="search-input" className="sr-only">
                           Search...
                         </label>
-                        <Autocomplete.Input
-                          id="search-input"
-                          ref={inputRef}
-                          placeholder="Search..."
-                          className="w-full border-0 bg-transparent text-base text-gray-900 placeholder:text-gray-500 focus:outline-none"
-                        />
+                        <div className="flex items-center gap-2">
+                          <Search className="h-4 w-4 text-gray-500" />
+                          <Autocomplete.Input
+                            id="search-input"
+                            ref={inputRef}
+                            placeholder="Search"
+                            className="w-full border-0 bg-transparent text-base text-gray-900 placeholder:text-gray-500 focus:outline-none"
+                          />
+                          <Button
+                            onClick={handleEscapeButtonClick}
+                            className="rounded border border-gray-300 bg-gray-50 px-1.5 flex hover:bg-gray-100 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+                          >
+                            <kbd className="text-xs text-gray-600 whitespace-nowrap">esc</kbd>
+                          </Button>
+                        </div>
                       </div>
 
                       <div className="py-2">
