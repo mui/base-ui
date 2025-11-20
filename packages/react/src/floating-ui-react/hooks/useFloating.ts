@@ -23,15 +23,7 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
 ): UseFloatingReturn<RT> {
   const { nodeId, externalTree } = options;
 
-  const internalRootContext = useFloatingRootContext({
-    ...options,
-    elements: {
-      reference: null,
-      floating: null,
-      // TODO: fix types
-      ...(options.elements as any),
-    },
-  });
+  const internalRootContext = useFloatingRootContext(options);
 
   const rootContext = options.rootContext || internalRootContext;
   const rootContextElements = {
@@ -81,7 +73,13 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
   const [localDomReference, setLocalDomReference] = React.useState<NarrowedElement<RT> | null>(
     null,
   );
+  const [localFloatingElement, setLocalFloatingElement] = React.useState<HTMLElement | null>(null);
   rootContext.useSyncedValue('referenceElement', localDomReference);
+  rootContext.useSyncedValue(
+    'domReferenceElement',
+    isElement(localDomReference) ? (localDomReference as Element) : null,
+  );
+  rootContext.useSyncedValue('floatingElement', localFloatingElement);
 
   const setReference = React.useCallback(
     (node: RT | null) => {
@@ -106,14 +104,23 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
     [position.refs, setLocalDomReference],
   );
 
+  const setFloating = React.useCallback(
+    (node: HTMLElement | null) => {
+      setLocalFloatingElement(node);
+      position.refs.setFloating(node);
+    },
+    [position.refs],
+  );
+
   const refs = React.useMemo(
     () => ({
       ...position.refs,
       setReference,
+      setFloating,
       setPositionReference,
       domReference: domReferenceRef,
     }),
-    [position.refs, setReference, setPositionReference],
+    [position.refs, setReference, setFloating, setPositionReference],
   );
 
   const elements = React.useMemo(

@@ -6,13 +6,15 @@ import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDeta
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 
 import { FloatingRootContextStore } from '../components/FloatingRootContextStore';
+import type { FloatingRootContextState } from '../components/FloatingRootContextStore';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
-  elements: {
-    reference: Element | null;
-    floating: HTMLElement | null;
+  elements?: {
+    reference?: Element | null;
+    floating?: HTMLElement | null;
     triggers?: Element[];
   };
   /**
@@ -24,7 +26,7 @@ export interface UseFloatingRootContextOptions {
 export function useFloatingRootContext(
   options: UseFloatingRootContextOptions,
 ): FloatingRootContextStore {
-  const { open = false, onOpenChange, elements } = options;
+  const { open = false, onOpenChange, elements = {} } = options;
 
   const floatingId = useId();
   const nested = useFloatingParentNodeId() != null;
@@ -45,8 +47,8 @@ export function useFloatingRootContext(
       new FloatingRootContextStore<ReferenceType>({
         open,
         onOpenChange,
-        referenceElement: elements.reference,
-        floatingElement: elements.floating,
+        referenceElement: elements.reference ?? null,
+        floatingElement: elements.floating ?? null,
         triggerElements: elements.triggers,
         floatingId,
         nested,
@@ -54,14 +56,28 @@ export function useFloatingRootContext(
       }),
   ).current;
 
-  store.useSyncedValues({
-    open,
-    referenceElement: elements.reference,
-    domReferenceElement: isElement(elements.reference) ? elements.reference : null,
-    floatingElement: elements.floating,
-    triggerElements: elements.triggers,
-    floatingId,
-  });
+  useIsoLayoutEffect(() => {
+    const valuesToSync: Partial<FloatingRootContextState> = {
+      open,
+      floatingId,
+    };
+
+    // Only sync elements that are defined to avoid overwriting existing ones
+    if (elements.reference !== undefined) {
+      valuesToSync.referenceElement = elements.reference;
+      valuesToSync.domReferenceElement = isElement(elements.reference) ? elements.reference : null;
+    }
+
+    if (elements.floating !== undefined) {
+      valuesToSync.floatingElement = elements.floating;
+    }
+
+    if (elements.triggers !== undefined) {
+      valuesToSync.triggerElements = elements.triggers;
+    }
+
+    store.update(valuesToSync);
+  }, [open, floatingId, elements.reference, elements.floating, elements.triggers, store]);
 
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
