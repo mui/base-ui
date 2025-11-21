@@ -28,7 +28,7 @@ function Tooltip({ children, label }: Props) {
     onOpenChange: setOpen,
   });
 
-  const { delayRef } = useDelayGroup(context);
+  const { delayRef } = useDelayGroup(context, { open });
   const hover = useHover(context, { delay: () => delayRef.current });
   const { getReferenceProps } = useInteractions([hover]);
 

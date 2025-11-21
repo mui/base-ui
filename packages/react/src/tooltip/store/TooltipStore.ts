@@ -31,6 +31,7 @@ export type State<Payload> = {
   readonly popupProps: HTMLProps;
   readonly popupElement: HTMLElement | null;
   readonly positionerElement: HTMLElement | null;
+  readonly closeDelay: number;
 };
 
 export type Context = {
@@ -60,12 +61,22 @@ const selectors = {
       ? (state.triggers.get(state.activeTriggerId) ?? null)
       : null,
   ),
-  activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
-  inactiveTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
+  isTriggerActive: createSelector(
+    (state: State<unknown>, triggerId: string | undefined) =>
+      triggerId !== undefined && state.activeTriggerId === triggerId,
+  ),
+  isOpenedByTrigger: createSelector(
+    (state: State<unknown>, triggerId: string | undefined) =>
+      triggerId !== undefined && state.activeTriggerId === triggerId && state.open,
+  ),
+  triggerProps: createSelector((state: State<unknown>, isActive: boolean) =>
+    isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
+  ),
   payload: createSelector((state: State<unknown>) => state.payload),
   popupProps: createSelector((state: State<unknown>) => state.popupProps),
   popupElement: createSelector((state: State<unknown>) => state.popupElement),
   positionerElement: createSelector((state: State<unknown>) => state.positionerElement),
+  closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
 };
 
 export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
@@ -159,5 +170,6 @@ function createInitialState<Payload>(): State<Payload> {
     popupProps: EMPTY_OBJECT as HTMLProps,
     popupElement: null,
     positionerElement: null,
+    closeDelay: 0,
   };
 }

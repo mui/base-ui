@@ -93,6 +93,10 @@ interface UseDelayGroupOptions {
    * @default true
    */
   enabled?: boolean;
+  /**
+   * Whether the trigger this hook is used in has opened the tooltip.
+   */
+  open: boolean;
 }
 
 interface UseDelayGroupReturn {
@@ -118,12 +122,11 @@ interface UseDelayGroupReturn {
  */
 export function useDelayGroup(
   context: FloatingRootContext | FloatingContext,
-  options: UseDelayGroupOptions = {},
+  options: UseDelayGroupOptions = { open: false },
 ): UseDelayGroupReturn {
   const store = 'rootStore' in context ? context.rootStore : context;
-  const open = store.useState('open');
   const floatingId = store.useState('floatingId');
-  const { enabled = true } = options;
+  const { enabled = true, open } = options;
 
   const groupContext = React.useContext(FloatingDelayGroupContext);
   const {

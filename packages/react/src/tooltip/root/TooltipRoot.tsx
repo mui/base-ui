@@ -182,13 +182,17 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     clientPoint,
   ]);
 
+  const activeTriggerProps = React.useMemo(() => getReferenceProps(), [getReferenceProps]);
+  const inactiveTriggerProps = React.useMemo(() => getTriggerProps(), [getTriggerProps]);
+  const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
+
   store.useSyncedValues({
     trackCursorAxis,
     disableHoverablePopup,
     floatingRootContext,
-    activeTriggerProps: getReferenceProps(),
-    inactiveTriggerProps: getTriggerProps(),
-    popupProps: getFloatingProps(),
+    activeTriggerProps,
+    inactiveTriggerProps,
+    popupProps,
   });
 
   const contextValue: TooltipRootContext<Payload> = React.useMemo(

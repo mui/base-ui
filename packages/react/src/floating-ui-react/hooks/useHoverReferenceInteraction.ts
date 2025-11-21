@@ -25,6 +25,12 @@ export interface UseHoverReferenceInteractionProps extends UseHoverProps {
    * @default true
    */
   isActiveTrigger?: boolean;
+  /**
+   * Whether to sync the floating context's reference element with the hovered trigger.
+   * Useful when the floating context has no active reference yet (e.g. tooltip groups).
+   * @default false
+   */
+  syncDomReference?: boolean;
 }
 
 function getRestMs(value: number | (() => number)) {
@@ -55,6 +61,7 @@ export function useHoverReferenceInteraction(
     triggerElement = null,
     externalTree,
     isActiveTrigger = true,
+    syncDomReference = false,
   } = props;
 
   const tree = useFloatingTree(externalTree);
@@ -169,6 +176,13 @@ export function useHoverReferenceInteraction(
       openChangeTimeout.clear();
       blockMouseMoveRef.current = false;
 
+      const triggerNode = (event.currentTarget as HTMLElement) ?? null;
+      if (syncDomReference && triggerNode) {
+        // Ensure the floating context has a reference element when hovering an inactive trigger.
+        store.set('referenceElement', triggerNode);
+        store.set('domReferenceElement', triggerNode);
+      }
+
       if (
         (mouseOnly && !isMouseLikePointerType(pointerTypeRef.current)) ||
         (getRestMs(restMsRef.current) > 0 && !getDelay(delayRef.current, 'open'))
@@ -177,7 +191,6 @@ export function useHoverReferenceInteraction(
       }
 
       const openDelay = getDelay(delayRef.current, 'open', pointerTypeRef.current);
-      const triggerNode = (event.currentTarget as HTMLElement) ?? undefined;
       const currentDomReference = store.select('domReferenceElement');
       const allTriggers = store.select('triggerElements') ?? EMPTY_ARRAY;
 
@@ -191,7 +204,7 @@ export function useHoverReferenceInteraction(
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
           }
         });
-      } else if (!open || isOverInactiveTrigger) {
+      } else if (!store.select('open') || isOverInactiveTrigger) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
       }
     }
@@ -220,7 +233,7 @@ export function useHoverReferenceInteraction(
       }
 
       if (handleCloseRef.current && dataRef.current.floatingContext) {
-        if (!open) {
+        if (!store.select('open')) {
           openChangeTimeout.clear();
         }
 
@@ -239,6 +252,7 @@ export function useHoverReferenceInteraction(
         });
 
         const handler = closeHandlerRef.current;
+        handler(event);
 
         doc.addEventListener('mousemove', handler);
         unbindMouseMoveRef.current = () => {
@@ -308,6 +322,7 @@ export function useHoverReferenceInteraction(
     tree,
     unbindMouseMoveRef,
     closeHandlerRef,
+    syncDomReference,
   ]);
 
   return React.useMemo<HTMLProps>(() => {
@@ -321,6 +336,11 @@ export function useHoverReferenceInteraction(
       onMouseMove(event) {
         const { nativeEvent } = event;
         const trigger = event.currentTarget as HTMLElement;
+
+        if (syncDomReference) {
+          store.set('referenceElement', trigger);
+          store.set('domReferenceElement', trigger);
+        }
 
         const currentDomReference = store.select('domReferenceElement');
         const allTriggers = store.select('triggerElements') ?? EMPTY_ARRAY;
@@ -377,5 +397,6 @@ export function useHoverReferenceInteraction(
     restMsRef,
     restTimeout,
     restTimeoutPendingRef,
+    syncDomReference,
   ]);
 }
