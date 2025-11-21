@@ -36,7 +36,7 @@
     "hast": "^1.0.0",
     "hast-util-heading-rank": "^3.0.0",
     "hast-util-to-string": "^3.0.1",
-    "lucide-react": "^0.552.0",
+    "lucide-react": "^0.554.0",
     "lz-string": "^1.5.0",
     "match-sorter": "^8.1.0",
     "next": "16.0.1",
