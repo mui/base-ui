@@ -73,7 +73,7 @@ export function FloatingNode(props: FloatingNodeProps): React.JSX.Element {
 
 export interface FloatingTreeProps {
   children?: React.ReactNode;
-  externalTree?: FloatingTreeStore;
+  externalTree?: FloatingTreeStore | undefined;
 }
 
 /**

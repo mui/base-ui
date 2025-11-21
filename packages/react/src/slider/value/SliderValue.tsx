@@ -76,8 +76,8 @@ export const SliderValue = React.forwardRef(function SliderValue(
 export interface SliderValueProps
   extends Omit<BaseUIComponentProps<'output', SliderRoot.State>, 'children'> {
   children?:
-    | null
-    | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode);
+    | (null | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode))
+    | undefined;
 }
 
 export namespace SliderValue {

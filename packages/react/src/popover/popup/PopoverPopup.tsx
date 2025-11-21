@@ -212,9 +212,12 @@ export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPo
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((openType: InteractionType) => void | boolean | HTMLElement | null);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((openType: InteractionType) => void | boolean | HTMLElement | null)
+      )
+    | undefined;
   /**
    * Determines the element to focus when the popover is closed.
    *
@@ -225,9 +228,12 @@ export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPo
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((closeType: InteractionType) => void | boolean | HTMLElement | null);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((closeType: InteractionType) => void | boolean | HTMLElement | null)
+      )
+    | undefined;
 }
 
 export namespace PopoverPopup {

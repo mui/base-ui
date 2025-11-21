@@ -156,7 +156,7 @@ export interface TooltipPositionerProps
    * May automatically change to avoid collisions.
    * @default 'top'
    */
-  side?: Side;
+  side?: Side | undefined;
 }
 
 export namespace TooltipPositioner {

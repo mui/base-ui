@@ -9,17 +9,17 @@ import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 export interface UseFloatingRootContextOptions {
-  open?: boolean;
+  open?: boolean | undefined;
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
-    triggers?: Element[];
+    triggers?: Element[] | undefined;
   };
   /**
    * Whether to prevent the auto-emitted `openchange` event.
    */
-  noEmit?: boolean;
+  noEmit?: boolean | undefined;
 }
 
 export function useFloatingRootContext(

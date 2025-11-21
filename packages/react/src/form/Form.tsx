@@ -137,7 +137,7 @@ export const Form = React.forwardRef(function Form<
 }) as {
   <FormValues extends Record<string, any> = Record<string, any>>(
     props: Form.Props<FormValues> & {
-      ref?: React.RefObject<HTMLFormElement>;
+      ref?: React.RefObject<HTMLFormElement> | undefined;
     },
   ): React.JSX.Element;
 };
@@ -159,18 +159,20 @@ export interface FormProps<FormValues extends Record<string, any> = Record<strin
    *
    * @default 'onSubmit'
    */
-  validationMode?: FormValidationMode;
+  validationMode?: FormValidationMode | undefined;
   /**
    * Validation errors returned externally, typically after submission by a server or a form action.
    * This should be an object where keys correspond to the `name` attribute on `<Field.Root>`,
    * and values correspond to error(s) related to that field.
    */
-  errors?: FormContext['errors'];
+  errors?: FormContext['errors'] | undefined;
   /**
    * Event handler called when the form is submitted.
    * `preventDefault()` is called on the native submit event when used.
    */
-  onFormSubmit?: (formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void;
+  onFormSubmit?:
+    | ((formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void)
+    | undefined;
 }
 
 export type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';

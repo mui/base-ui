@@ -227,7 +227,7 @@ export namespace TooltipViewport {
   }
 
   export interface State {
-    activationDirection?: string;
+    activationDirection?: string | undefined;
   }
 }
 

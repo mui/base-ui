@@ -6,7 +6,7 @@ import { useCompositeListItem } from '../list/useCompositeListItem';
 import { HTMLProps } from '../../utils/types';
 
 export interface UseCompositeItemParameters<Metadata> {
-  metadata?: Metadata;
+  metadata?: Metadata | undefined;
 }
 
 export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Metadata> = {}) {

@@ -6,8 +6,8 @@ import type { HTMLProps } from '../../utils/types';
 import type { PreviewCardRoot } from './PreviewCardRoot';
 
 export interface PreviewCardTriggerDelayConfig {
-  delay?: number;
-  closeDelay?: number;
+  delay?: number | undefined;
+  closeDelay?: number | undefined;
 }
 
 export interface PreviewCardRootContext {
