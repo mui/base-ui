@@ -28,7 +28,7 @@ import {
   getNextTabbable,
   getPreviousTabbable,
 } from '../utils';
-import type { FloatingRootContext } from '../types';
+import type { FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
@@ -140,7 +140,7 @@ export interface FloatingFocusManagerProps {
   /**
    * The floating context returned from `useFloatingRootContext`.
    */
-  context: FloatingRootContext;
+  context: FloatingRootContext | FloatingContext;
   /**
    * The interaction type used to open the floating element.
    */
@@ -260,13 +260,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     beforeContentFocusGuardRef,
     externalTree,
   } = props;
-  const {
-    open,
-    onOpenChange,
-    events,
-    dataRef,
-    elements: { domReference, floating, triggers },
-  } = context;
+
+  const store = 'rootStore' in context ? context.rootStore : context;
+
+  const open = store.useState('open');
+  const domReference = store.useState('domReferenceElement');
+  const floating = store.useState('floatingElement');
+  const triggers = store.useState('triggerElements');
+  const { events, dataRef } = store.context;
 
   const getNodeId = useStableCallback(() => dataRef.current.floatingContext?.nodeId);
   const getInsideElements = useStableCallback(getInsideElementsProp);
@@ -514,7 +515,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           (isUntrappedTypeableCombobox || relatedTarget !== getPreviouslyFocusedElement())
         ) {
           preventReturnFocusRef.current = true;
-          onOpenChange(false, createChangeEventDetails(REASONS.focusOut, event));
+          store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
         }
       });
     }
@@ -570,7 +571,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     modal,
     tree,
     portalContext,
-    onOpenChange,
+    store,
     closeOnFocusOut,
     restoreFocus,
     getTabbableContent,
@@ -872,14 +873,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       modal,
       closeOnFocusOut,
       open,
-      onOpenChange,
+      onOpenChange: store.setOpen,
       domReference,
     });
 
     return () => {
       portalContext.setFocusManagerState(null);
     };
-  }, [disabled, portalContext, modal, open, onOpenChange, closeOnFocusOut, domReference]);
+  }, [disabled, portalContext, modal, open, store, closeOnFocusOut, domReference]);
 
   useIsoLayoutEffect(() => {
     if (disabled || !floatingFocusElement) {

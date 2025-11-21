@@ -3,6 +3,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
 import { useAnchorPositioning } from '../../../../../packages/react/src/utils/useAnchorPositioning';
+import { FloatingRootContextStore } from '../../../../../packages/react/src/floating-ui-react/components/FloatingRootContextStore';
+import { type ReferenceType } from '../../../../../packages/react/src/floating-ui-react';
 import styles from './anchor-positioning.module.css';
 
 const oppositeSideMap = {
@@ -40,21 +42,16 @@ export default function AnchorPositioning() {
     fallbackAxisSide: 'end',
   });
 
-  const floatingRootContext = {
+  const floatingRootContext = new FloatingRootContextStore<ReferenceType>({
     open: true,
-    onOpenChange() {},
-    elements: { floating: null, reference: anchorEl, domReference: anchorEl },
-    events: {
-      on() {},
-      off() {},
-      emit() {},
-    },
-    dataRef: { current: {} },
-    refs: {
-      setPositionReference() {},
-    },
+    referenceElement: anchorEl,
+    floatingElement: null,
+    triggerElements: undefined,
     floatingId: '',
-  };
+    nested: false,
+    noEmit: false,
+    onOpenChange: undefined,
+  });
 
   const {
     refs,

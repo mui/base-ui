@@ -44,7 +44,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const menuPositionerContext = useMenuPositionerContext();
 
   const { store } = useMenuRootContext();
-  const rootTriggerProps = store.useState('activeTriggerProps');
+  const rootTriggerProps = store.useState('triggerProps', true);
   const open = store.useState('open');
   const menuDisabled = store.useState('disabled');
   const hoverEnabled = store.useState('hoverEnabled');

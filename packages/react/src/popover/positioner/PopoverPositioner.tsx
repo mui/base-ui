@@ -107,10 +107,12 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [defaultProps, positioning],
   );
 
+  const domReference = floatingRootContext?.select('domReferenceElement');
+
   // When the current trigger element changes, enable transitions on the
   // positioner temporarily
   useIsoLayoutEffect(() => {
-    const currentTriggerElement = floatingRootContext?.elements.domReference;
+    const currentTriggerElement = domReference;
     const prevTriggerElement = prevTriggerElementRef.current;
 
     if (currentTriggerElement) {
@@ -134,7 +136,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     }
 
     return undefined;
-  }, [floatingRootContext?.elements.domReference, runOnceAnimationsFinish, store]);
+  }, [domReference, runOnceAnimationsFinish, store]);
 
   const state: PopoverPositioner.State = React.useMemo(
     () => ({

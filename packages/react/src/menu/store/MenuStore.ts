@@ -11,33 +11,33 @@ import { HTMLProps } from '../../utils/types';
 import { PopupTriggerMap } from '../../utils/popupStoreUtils';
 
 export type State<Payload> = {
-  open: boolean;
-  disabled: boolean;
-  modal: boolean;
-  mounted: boolean;
-  allowMouseEnter: boolean;
-  parent: MenuParent;
-  rootId: string | undefined;
-  activeIndex: number | null;
-  hoverEnabled: boolean;
-  stickIfOpen: boolean;
-  positionerElement: HTMLElement | null;
-  transitionStatus: TransitionStatus;
-  instantType: 'dismiss' | 'click' | 'group' | undefined;
-  lastOpenChangeReason: MenuRoot.ChangeEventReason | null;
-  floatingRootContext: FloatingRootContext;
-  floatingTreeRoot: FloatingTreeStore;
-  floatingNodeId: string | undefined;
-  floatingParentNodeId: string | null;
-  itemProps: HTMLProps;
-  popupProps: HTMLProps;
-  payload: Payload | undefined;
-  triggers: PopupTriggerMap;
-  activeTriggerProps: HTMLProps;
-  inactiveTriggerProps: HTMLProps;
-  activeTriggerId: string | null;
-  closeDelay: number;
-  keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
+  readonly open: boolean;
+  readonly disabled: boolean;
+  readonly modal: boolean;
+  readonly mounted: boolean;
+  readonly allowMouseEnter: boolean;
+  readonly parent: MenuParent;
+  readonly rootId: string | undefined;
+  readonly activeIndex: number | null;
+  readonly hoverEnabled: boolean;
+  readonly stickIfOpen: boolean;
+  readonly positionerElement: HTMLElement | null;
+  readonly transitionStatus: TransitionStatus;
+  readonly instantType: 'dismiss' | 'click' | 'group' | undefined;
+  readonly lastOpenChangeReason: MenuRoot.ChangeEventReason | null;
+  readonly floatingRootContext: FloatingRootContext;
+  readonly floatingTreeRoot: FloatingTreeStore;
+  readonly floatingNodeId: string | undefined;
+  readonly floatingParentNodeId: string | null;
+  readonly itemProps: HTMLProps;
+  readonly popupProps: HTMLProps;
+  readonly payload: Payload | undefined;
+  readonly triggers: PopupTriggerMap;
+  readonly activeTriggerProps: HTMLProps;
+  readonly inactiveTriggerProps: HTMLProps;
+  readonly activeTriggerId: string | null;
+  readonly closeDelay: number;
+  readonly keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
 };
 
 type Context = {
@@ -118,8 +118,9 @@ const selectors = {
   floatingParentNodeId: createSelector((state: State<unknown>) => state.floatingParentNodeId),
   itemProps: createSelector((state: State<unknown>) => state.itemProps),
   popupProps: createSelector((state: State<unknown>) => state.popupProps),
-  activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
-  inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
+  triggerProps: createSelector((state: State<unknown>, isActive: boolean) =>
+    isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
+  ),
   payload: createSelector((state: State<unknown>) => state.payload),
   triggers: createSelector((state: State<unknown>) => state.triggers),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
@@ -191,7 +192,7 @@ export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, type
   }
 
   setOpen(open: boolean, eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>) {
-    this.state.floatingRootContext.events.emit('setOpen', { open, eventDetails });
+    this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
   }
 
   public static useStore<Payload>(

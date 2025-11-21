@@ -12,6 +12,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
+import { useHoverFloatingInteraction } from '../../floating-ui-react/hooks/useHoverFloatingInteraction';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -55,14 +56,14 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   });
 
   function handleMeasureLayout() {
-    floatingContext.events.emit('measure-layout');
+    floatingContext.context.events.emit('measure-layout');
   }
 
   function handleMeasureLayoutComplete(
     previousDimensions: { width: number; height: number } | null,
     nextDimensions: { width: number; height: number },
   ) {
-    floatingContext.events.emit('measure-layout-complete', {
+    floatingContext.context.events.emit('measure-layout-complete', {
       previousDimensions,
       nextDimensions,
     });
@@ -80,6 +81,14 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     enabled: autoresizeEnabled,
     onMeasureLayout: handleMeasureLayout,
     onMeasureLayoutComplete: handleMeasureLayoutComplete,
+  });
+
+  const disabled = store.useState('disabled');
+  const closeDelay = store.useState('closeDelay');
+
+  useHoverFloatingInteraction(floatingContext, {
+    enabled: !disabled,
+    closeDelay,
   });
 
   const state: TooltipPopup.State = React.useMemo(

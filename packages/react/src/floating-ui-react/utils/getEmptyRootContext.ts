@@ -1,23 +1,15 @@
+import { FloatingRootContextStore } from '../components/FloatingRootContextStore';
 import type { FloatingRootContext } from '../types';
 
 export function getEmptyRootContext(): FloatingRootContext {
-  return {
+  return new FloatingRootContextStore({
     open: false,
-    onOpenChange: () => {},
-    dataRef: { current: {} },
-    elements: {
-      floating: null,
-      reference: null,
-      domReference: null,
-    },
-    events: {
-      on: () => {},
-      off: () => {},
-      emit: () => {},
-    },
+    floatingElement: null,
+    referenceElement: null,
+    triggerElements: [],
     floatingId: '',
-    refs: {
-      setPositionReference: () => {},
-    },
-  };
+    nested: false,
+    noEmit: false,
+    onOpenChange: undefined,
+  });
 }

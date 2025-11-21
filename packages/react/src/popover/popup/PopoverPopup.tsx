@@ -100,14 +100,14 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   );
 
   function handleMeasureLayout() {
-    floatingContext.events.emit('measure-layout');
+    floatingContext.context.events.emit('measure-layout');
   }
 
   function handleMeasureLayoutComplete(
     previousDimensions: Dimensions | null,
     nextDimensions: Dimensions,
   ) {
-    floatingContext.events.emit('measure-layout-complete', {
+    floatingContext.context.events.emit('measure-layout-complete', {
       previousDimensions,
       nextDimensions,
     });
@@ -175,7 +175,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   return (
     <FloatingFocusManager
-      context={positioner.context}
+      context={floatingContext}
       openInteractionType={openMethod}
       modal={modal === 'trap-focus'}
       disabled={!mounted || openReason === REASONS.triggerHover}

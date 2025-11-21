@@ -9,6 +9,7 @@ import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
 import {
+  FloatingEvents,
   FloatingTree,
   useDismiss,
   useFloatingNodeId,
@@ -159,7 +160,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   const nested = floatingParentNodeId != null;
 
-  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
+  let floatingEvents: FloatingEvents;
 
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalProp !== undefined) {
@@ -425,7 +426,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   store.useSyncedValue('floatingRootContext', floatingRootContext);
 
-  floatingEvents = floatingRootContext.events;
+  floatingEvents = floatingRootContext.context.events;
 
   React.useEffect(() => {
     const handleSetOpenEvent = ({

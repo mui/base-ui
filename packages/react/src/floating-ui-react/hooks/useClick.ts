@@ -3,11 +3,10 @@ import * as React from 'react';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { EMPTY_OBJECT } from '../../utils/constants';
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { isMouseLikePointerType, isTypeableElement } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { getEmptyRootContext } from '../utils/getEmptyRootContext';
 
 export interface UseClickProps {
   /**
@@ -52,10 +51,12 @@ export interface UseClickProps {
  * @see https://floating-ui.com/docs/useClick
  */
 export function useClick(
-  context: FloatingRootContext | null,
+  context: FloatingRootContext | FloatingContext,
   props: UseClickProps = {},
 ): ElementProps {
-  const { open, onOpenChange, dataRef, elements } = context ?? getEmptyRootContext();
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const dataRef = store.context.dataRef;
+
   const {
     enabled = true,
     event: eventOption = 'click',
@@ -77,6 +78,7 @@ export function useClick(
       onMouseDown(event) {
         const pointerType = pointerTypeRef.current;
         const nativeEvent = event.nativeEvent;
+        const open = store.select('open');
 
         // Ignore all buttons except for the "main" button.
         // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
@@ -90,7 +92,8 @@ export function useClick(
 
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
-        const hasClickedOnInactiveTrigger = elements.domReference !== event.currentTarget;
+        const hasClickedOnInactiveTrigger =
+          store.select('domReferenceElement') !== event.currentTarget;
         const nextOpen =
           (open && hasClickedOnInactiveTrigger) ||
           !(
@@ -111,10 +114,10 @@ export function useClick(
           );
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
-              onOpenChange(true, details);
+              store.setOpen(true, details);
             });
           } else {
-            onOpenChange(nextOpen, details);
+            store.setOpen(nextOpen, details);
           }
           return;
         }
@@ -133,10 +136,10 @@ export function useClick(
           );
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
-              onOpenChange(true, details);
+              store.setOpen(true, details);
             });
           } else {
-            onOpenChange(nextOpen, details);
+            store.setOpen(nextOpen, details);
           }
         });
       },
@@ -156,9 +159,11 @@ export function useClick(
           return;
         }
 
+        const open = store.select('open');
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
-        const hasClickedOnInactiveTrigger = elements.domReference !== event.currentTarget;
+        const hasClickedOnInactiveTrigger =
+          store.select('domReferenceElement') !== event.currentTarget;
         const nextOpen =
           (open && hasClickedOnInactiveTrigger) ||
           !(
@@ -179,10 +184,10 @@ export function useClick(
 
         if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
           touchOpenTimeout.start(touchOpenDelay, () => {
-            onOpenChange(true, details);
+            store.setOpen(true, details);
           });
         } else {
-          onOpenChange(nextOpen, details);
+          store.setOpen(nextOpen, details);
         }
       },
       onKeyDown() {
@@ -193,14 +198,12 @@ export function useClick(
       dataRef,
       eventOption,
       ignoreMouse,
-      onOpenChange,
-      open,
+      store,
       stickIfOpen,
       toggle,
       frame,
       touchOpenTimeout,
       touchOpenDelay,
-      elements.domReference,
     ],
   );
 

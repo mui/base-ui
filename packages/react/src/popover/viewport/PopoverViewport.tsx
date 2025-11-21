@@ -106,12 +106,12 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   });
 
   React.useEffect(() => {
-    floatingContext.events.on('measure-layout', handleMeasureLayout);
-    floatingContext.events.on('measure-layout-complete', handleMeasureLayoutComplete);
+    floatingContext.context.events.on('measure-layout', handleMeasureLayout);
+    floatingContext.context.events.on('measure-layout-complete', handleMeasureLayoutComplete);
 
     return () => {
-      floatingContext.events.off('measure-layout', handleMeasureLayout);
-      floatingContext.events.off('measure-layout-complete', handleMeasureLayoutComplete);
+      floatingContext.context.events.off('measure-layout', handleMeasureLayout);
+      floatingContext.context.events.off('measure-layout-complete', handleMeasureLayoutComplete);
     };
   }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);
 

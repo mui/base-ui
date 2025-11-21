@@ -161,7 +161,7 @@ export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, S
       triggerElement: eventDetails.trigger,
     };
 
-    const floatingEvents = this.state.floatingRootContext.events;
+    const floatingEvents = this.state.floatingRootContext.context.events;
     floatingEvents?.emit('openchange', details);
 
     const changeState = () => {
