@@ -8,6 +8,8 @@
     "dev": "next dev --webpack --port 3005",
     "deploy": "git fetch upstream master && git push -f upstream FETCH_HEAD:docs-v1",
     "serve": "serve ./export -l 3010",
+    "docs-infra": "docs-infra",
+    "validate": "docs-infra validate --command 'pnpm validate'",
     "typescript": "tsc -b tsconfig.json",
     "link-check": "tsx ./scripts/reportBrokenLinks.mts",
     "generate-llms": "node ./scripts/generateLlmTxt/index.mjs"
@@ -21,7 +23,7 @@
     "@emotion/styled": "^11.14.1",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@mui/internal-docs-infra": "^0.2.3-canary.12",
+    "@mui/internal-docs-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@3f9a4b8",
     "@next/mdx": "^16.0.1",
     "@react-spring/web": "^10.0.3",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",
@@ -65,7 +67,6 @@
   },
   "devDependencies": {
     "@mdx-js/mdx": "^3.1.1",
-    "@mui/internal-docs-infra": "^0.2.3-canary.12",
     "@mui/internal-test-utils": "^2.0.15",
     "@tailwindcss/postcss": "4.1.16",
     "@types/chai": "^5.2.3",

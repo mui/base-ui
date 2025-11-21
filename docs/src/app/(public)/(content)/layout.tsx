@@ -2,9 +2,9 @@ import * as React from 'react';
 import type { Metadata } from 'next/types';
 import * as SideNav from 'docs/src/components/SideNav';
 import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
-import { Header } from 'docs/src/components/Header';
+import { Header, titleMap } from 'docs/src/components/Header';
 import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
-import { nav } from 'docs/src/nav';
+import { sitemap } from 'docs/src/app/sitemap';
 import './layout.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
@@ -12,19 +12,37 @@ export default function Layout({ children }: React.PropsWithChildren) {
     <div className="ContentLayoutRoot">
       <Header />
       <SideNav.Root>
-        {nav.map((section) => (
-          <SideNav.Section key={section.label}>
-            <SideNav.Heading>{section.label}</SideNav.Heading>
-            <SideNav.List>
-              {section.links.map((link) => (
-                <SideNav.Item key={link.href} href={link.href} external={link.external}>
-                  {link.label}
-                  {link.isNew && <SideNav.Badge>New</SideNav.Badge>}
-                </SideNav.Item>
-              ))}
-            </SideNav.List>
-          </SideNav.Section>
-        ))}
+        {sitemap &&
+          Object.entries(
+            sitemap.data as Record<
+              string,
+              {
+                title?: string;
+                prefix?: string;
+                pages: { title: string; tags?: string[]; path: string }[];
+              }
+            >,
+          ).map(([name, section]) => (
+            <SideNav.Section key={name}>
+              <SideNav.Heading>{name}</SideNav.Heading>
+              <SideNav.List>
+                {section.pages.map((page) => (
+                  <SideNav.Item
+                    key={page.title}
+                    href={
+                      page.path.startsWith('./')
+                        ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
+                        : page.path
+                    }
+                    external={page.tags?.includes('External')}
+                  >
+                    {titleMap[page.title] || page.title}
+                    {page.tags?.includes('New') && <SideNav.Badge>New</SideNav.Badge>}
+                  </SideNav.Item>
+                ))}
+              </SideNav.List>
+            </SideNav.Section>
+          ))}
       </SideNav.Root>
 
       <main className="ContentLayoutMain" id={MAIN_CONTENT_ID}>
