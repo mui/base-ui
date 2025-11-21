@@ -19,8 +19,8 @@ import { REASONS } from '../utils/reasons';
  *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
-export const Toggle = React.forwardRef(function Toggle(
-  componentProps: Toggle.Props,
+export const Toggle = React.forwardRef(function Toggle<Value>(
+  componentProps: Toggle.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -41,14 +41,16 @@ export const Toggle = React.forwardRef(function Toggle(
 
   const groupContext = useToggleGroupContext();
 
-  const groupValue = groupContext?.value ?? [];
+  const groupValue = groupContext?.value;
+
+  const selected = Array.isArray(groupValue) ? groupValue.includes(value) : groupValue === value;
 
   const defaultPressed = groupContext ? undefined : defaultPressedProp;
 
   const disabled = (disabledProp || groupContext?.disabled) ?? false;
 
   const [pressed, setPressedState] = useControlled({
-    controlled: groupContext && value ? groupValue?.indexOf(value) > -1 : pressedProp,
+    controlled: groupContext && value ? selected : pressedProp,
     default: defaultPressed,
     name: 'Toggle',
     state: 'pressed',
@@ -116,7 +118,13 @@ export const Toggle = React.forwardRef(function Toggle(
   }
 
   return element;
-});
+}) as {
+  <Value>(
+    props: Toggle.Props<Value> & {
+      ref?: React.RefObject<HTMLButtonElement>;
+    },
+  ): React.JSX.Element;
+};
 
 export interface ToggleState {
   /**
@@ -129,9 +137,9 @@ export interface ToggleState {
   disabled: boolean;
 }
 
-export interface ToggleProps
+export interface ToggleProps<Value>
   extends NativeButtonProps,
-    BaseUIComponentProps<'button', Toggle.State> {
+    Omit<BaseUIComponentProps<'button', Toggle.State>, 'value'> {
   /**
    * Whether the toggle button is currently pressed.
    * This is the controlled counterpart of `defaultPressed`.
@@ -156,7 +164,7 @@ export interface ToggleProps
    * A unique string that identifies the toggle when used
    * inside a toggle group.
    */
-  value?: string;
+  value?: Value;
 }
 
 export type ToggleChangeEventReason = typeof REASONS.none;
@@ -165,7 +173,7 @@ export type ToggleChangeEventDetails = BaseUIChangeEventDetails<Toggle.ChangeEve
 
 export namespace Toggle {
   export type State = ToggleState;
-  export type Props = ToggleProps;
+  export type Props<Value> = ToggleProps<Value>;
   export type ChangeEventReason = ToggleChangeEventReason;
   export type ChangeEventDetails = ToggleChangeEventDetails;
 }
