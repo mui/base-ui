@@ -224,3 +224,9 @@ mergeProps<typeof Select.Root<any>>(
   },
   {},
 );
+
+export function Wrapper<Value, Multiple extends boolean | undefined = false>(
+  props: Select.Root.Props<Value, Multiple>,
+) {
+  return <Select.Root {...props} />;
+}

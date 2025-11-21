@@ -262,3 +262,9 @@ mergeProps<typeof Combobox.Root<any>>(
   },
   {},
 );
+
+export function Wrapper<Value, Multiple extends boolean | undefined = false>(
+  props: Combobox.Root.Props<Value, Multiple>,
+) {
+  return <Combobox.Root {...props} />;
+}

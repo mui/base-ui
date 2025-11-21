@@ -1298,7 +1298,7 @@ type SelectionMode = 'single' | 'multiple' | 'none';
 
 type ComboboxItemValueType<ItemValue, Mode extends SelectionMode> = Mode extends 'multiple'
   ? ItemValue[]
-  : ItemValue | null;
+  : ItemValue;
 
 interface ComboboxRootProps<ItemValue> {
   children?: React.ReactNode;
@@ -1514,7 +1514,7 @@ export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'no
    *
    * To render a controlled combobox, use the `selectedValue` prop instead.
    */
-  defaultSelectedValue?: ComboboxItemValueType<Value, Mode>;
+  defaultSelectedValue?: ComboboxItemValueType<Value, Mode> | null;
   /**
    * Callback fired when the selected value of the combobox changes.
    */
