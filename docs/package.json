@@ -30,7 +30,7 @@
     "@types/mdx": "^2.0.13",
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.1",
-    "es-toolkit": "^1.41.0",
+    "es-toolkit": "^1.42.0",
     "estree-util-value-to-estree": "^3.5.0",
     "globby": "^15.0.0",
     "hast": "^1.0.0",
