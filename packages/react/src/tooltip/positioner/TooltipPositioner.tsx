@@ -9,6 +9,7 @@ import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 /**
  * Positions the tooltip against the trigger.
@@ -47,6 +48,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const disableHoverablePopup = store.useState('disableHoverablePopup');
   const floatingRootContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -122,7 +124,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    props: [positioner.props, elementProps],
+    props: [positioner.props, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     ref: [forwardedRef, store.useStateSetter('positionerElement')],
     stateAttributesMapping: popupStateMapping,
   });

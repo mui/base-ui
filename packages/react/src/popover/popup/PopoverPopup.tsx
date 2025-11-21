@@ -14,10 +14,11 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { REASONS } from '../../utils/reasons';
 import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
-import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
+import { EMPTY_OBJECT } from '../../utils/constants';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverPopup.State> = {
   ...baseMapping,
@@ -167,7 +168,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
           }
         },
       },
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
+      getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
     ],
     stateAttributesMapping,
