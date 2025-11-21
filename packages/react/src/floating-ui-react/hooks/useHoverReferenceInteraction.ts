@@ -25,12 +25,6 @@ export interface UseHoverReferenceInteractionProps extends UseHoverProps {
    * @default true
    */
   isActiveTrigger?: boolean;
-  /**
-   * Whether to sync the floating context's reference element with the hovered trigger.
-   * Useful when the floating context has no active reference yet (e.g. tooltip groups).
-   * @default false
-   */
-  syncDomReference?: boolean;
 }
 
 function getRestMs(value: number | (() => number)) {
@@ -61,7 +55,6 @@ export function useHoverReferenceInteraction(
     triggerElement = null,
     externalTree,
     isActiveTrigger = true,
-    syncDomReference = false,
   } = props;
 
   const tree = useFloatingTree(externalTree);
@@ -176,17 +169,13 @@ export function useHoverReferenceInteraction(
       openChangeTimeout.clear();
       blockMouseMoveRef.current = false;
 
-      const triggerNode = (event.currentTarget as HTMLElement) ?? null;
-      if (syncDomReference && triggerNode) {
-        // Ensure the floating context has a reference element when hovering an inactive trigger.
-        store.set('referenceElement', triggerNode);
-        store.set('domReferenceElement', triggerNode);
+      if (mouseOnly && !isMouseLikePointerType(pointerTypeRef.current)) {
+        return;
       }
 
-      if (
-        (mouseOnly && !isMouseLikePointerType(pointerTypeRef.current)) ||
-        (getRestMs(restMsRef.current) > 0 && !getDelay(delayRef.current, 'open'))
-      ) {
+      // Only rest delay is set; there's no fallback delay.
+      // This will be handled by `onMouseMove`.
+      if (getRestMs(restMsRef.current) > 0 && !getDelay(delayRef.current, 'open')) {
         return;
       }
 
@@ -197,6 +186,8 @@ export function useHoverReferenceInteraction(
       const isOverInactiveTrigger =
         allTriggers.some((t) => contains(t, event.target as Element)) &&
         (!currentDomReference || !contains(currentDomReference, event.target as Element));
+
+      const triggerNode = (event.currentTarget as HTMLElement) ?? null;
 
       if (openDelay) {
         openChangeTimeout.start(openDelay, () => {
@@ -266,6 +257,7 @@ export function useHoverReferenceInteraction(
         pointerTypeRef.current === 'touch'
           ? !contains(store.select('floatingElement'), event.relatedTarget as Element | null)
           : true;
+
       if (shouldClose) {
         closeWithDelay(event);
       }
@@ -322,7 +314,6 @@ export function useHoverReferenceInteraction(
     tree,
     unbindMouseMoveRef,
     closeHandlerRef,
-    syncDomReference,
   ]);
 
   return React.useMemo<HTMLProps>(() => {
@@ -337,11 +328,6 @@ export function useHoverReferenceInteraction(
         const { nativeEvent } = event;
         const trigger = event.currentTarget as HTMLElement;
 
-        if (syncDomReference) {
-          store.set('referenceElement', trigger);
-          store.set('domReferenceElement', trigger);
-        }
-
         const currentDomReference = store.select('domReferenceElement');
         const allTriggers = store.select('triggerElements') ?? EMPTY_ARRAY;
         const currentOpen = store.select('open');
@@ -349,15 +335,6 @@ export function useHoverReferenceInteraction(
         const isOverInactiveTrigger =
           allTriggers.some((t) => contains(t, event.target as Element)) &&
           (!currentDomReference || !contains(currentDomReference, event.target as Element));
-
-        function handleMouseMove() {
-          if (!blockMouseMoveRef.current && (!store.select('open') || isOverInactiveTrigger)) {
-            store.setOpen(
-              true,
-              createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger),
-            );
-          }
-        }
 
         if (mouseOnly && !isMouseLikePointerType(pointerTypeRef.current)) {
           return;
@@ -377,11 +354,20 @@ export function useHoverReferenceInteraction(
 
         restTimeout.clear();
 
+        function handleMouseMove() {
+          if (!blockMouseMoveRef.current && (!currentOpen || isOverInactiveTrigger)) {
+            store.setOpen(
+              true,
+              createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger),
+            );
+          }
+        }
+
         if (pointerTypeRef.current === 'touch') {
           ReactDOM.flushSync(() => {
             handleMouseMove();
           });
-        } else if (isOverInactiveTrigger) {
+        } else if (isOverInactiveTrigger && currentOpen) {
           handleMouseMove();
         } else {
           restTimeoutPendingRef.current = true;
@@ -397,6 +383,5 @@ export function useHoverReferenceInteraction(
     restMsRef,
     restTimeout,
     restTimeoutPendingRef,
-    syncDomReference,
   ]);
 }

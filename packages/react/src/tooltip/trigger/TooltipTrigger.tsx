@@ -100,7 +100,6 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     },
     triggerElement,
     isActiveTrigger: isTriggerActive,
-    syncDomReference: true,
   });
 
   const registerTrigger = useTriggerRegistration(thisTriggerId, store);
