@@ -115,10 +115,10 @@ export interface FloatingEvents {
 }
 
 export interface ContextData {
-  openEvent?: Event;
-  floatingContext?: FloatingContext;
+  openEvent?: Event | undefined;
+  floatingContext?: FloatingContext | undefined;
   /** @deprecated use `onTypingChange` prop in `useTypeahead` */
-  typing?: boolean;
+  typing?: boolean | undefined;
   [key: string]: any;
 }
 
@@ -130,7 +130,7 @@ export interface FloatingRootContext<RT extends ReferenceType = ReferenceType> {
     domReference: Element | null;
     reference: RT | null;
     floating: HTMLElement | null;
-    triggers?: Element[];
+    triggers?: Element[] | undefined;
   };
   events: FloatingEvents;
   floatingId: string | undefined;
@@ -156,18 +156,18 @@ export type FloatingContext<RT extends ReferenceType = ReferenceType> = Omit<
 export interface FloatingNodeType<RT extends ReferenceType = ReferenceType> {
   id: string | undefined;
   parentId: string | null;
-  context?: FloatingContext<RT>;
+  context?: FloatingContext<RT> | undefined;
 }
 
 export type FloatingTreeType<RT extends ReferenceType = ReferenceType> = FloatingTreeStore<RT>;
 
 export interface ElementProps {
-  reference?: React.HTMLProps<Element>;
-  floating?: React.HTMLProps<HTMLElement>;
+  reference?: React.HTMLProps<Element> | undefined;
+  floating?: React.HTMLProps<HTMLElement> | undefined;
   item?:
-    | React.HTMLProps<HTMLElement>
-    | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>);
-  trigger?: React.HTMLProps<Element>;
+    | (React.HTMLProps<HTMLElement> | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>))
+    | undefined;
+  trigger?: React.HTMLProps<Element> | undefined;
 }
 
 export type ReferenceType = Element | VirtualElement;
@@ -190,20 +190,22 @@ export type UseFloatingReturn<RT extends ReferenceType = ReferenceType> = Pretti
 
 export interface UseFloatingOptions<RT extends ReferenceType = ReferenceType>
   extends Omit<UsePositionOptions<RT>, 'elements'> {
-  rootContext?: FloatingRootContext<RT>;
+  rootContext?: FloatingRootContext<RT> | undefined;
   /**
    * Object of external elements as an alternative to the `refs` object setters.
    */
-  elements?: {
-    /**
-     * Externally passed reference element. Store in state.
-     */
-    reference?: Element | null;
-    /**
-     * Externally passed floating element. Store in state.
-     */
-    floating?: HTMLElement | null;
-  };
+  elements?:
+    | {
+        /**
+         * Externally passed reference element. Store in state.
+         */
+        reference?: (Element | null) | undefined;
+        /**
+         * Externally passed floating element. Store in state.
+         */
+        floating?: (HTMLElement | null) | undefined;
+      }
+    | undefined;
   /**
    * An event callback that is invoked when the floating element is opened or
    * closed.
@@ -212,9 +214,9 @@ export interface UseFloatingOptions<RT extends ReferenceType = ReferenceType>
   /**
    * Unique node id when using `FloatingTree`.
    */
-  nodeId?: string;
+  nodeId?: string | undefined;
   /**
    * External FlatingTree to use when the one provided by context can't be used.
    */
-  externalTree?: FloatingTreeStore<RT>;
+  externalTree?: FloatingTreeStore<RT> | undefined;
 }

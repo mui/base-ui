@@ -8,7 +8,7 @@ interface GetPushedThumbValuesParams {
   max: number;
   step: number;
   minStepsBetweenValues: number;
-  initialValues?: readonly number[];
+  initialValues?: readonly number[] | undefined;
 }
 
 /**

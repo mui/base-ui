@@ -65,7 +65,7 @@ export interface MenuCheckboxItemIndicatorProps
    * Whether to keep the HTML element in the DOM when the checkbox item is not checked.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export interface MenuCheckboxItemIndicatorState {

@@ -79,10 +79,10 @@ type Context = {
   backdropRef: React.RefObject<HTMLDivElement | null>;
   internalBackdropRef: React.RefObject<HTMLDivElement | null>;
 
-  openChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
-  openChangeComplete?: (open: boolean) => void;
-  nestedDialogOpen?: (ownChildrenCount: number) => void;
-  nestedDialogClose?: () => void;
+  openChange?: ((open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void) | undefined;
+  openChangeComplete?: ((open: boolean) => void) | undefined;
+  nestedDialogOpen?: ((ownChildrenCount: number) => void) | undefined;
+  nestedDialogClose?: (() => void) | undefined;
 };
 
 const selectors = {

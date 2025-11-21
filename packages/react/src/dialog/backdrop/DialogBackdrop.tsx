@@ -63,7 +63,7 @@ export interface DialogBackdropProps extends BaseUIComponentProps<'div', DialogB
    * Whether the backdrop is forced to render even when nested.
    * @default false
    */
-  forceRender?: boolean;
+  forceRender?: boolean | undefined;
 }
 
 export interface DialogBackdropState {

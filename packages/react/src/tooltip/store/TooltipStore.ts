@@ -35,7 +35,9 @@ export type State<Payload> = {
 
 export type Context = {
   popupRef: React.RefObject<HTMLElement | null>;
-  onOpenChange?: (open: boolean, eventDetails: TooltipRoot.ChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: TooltipRoot.ChangeEventDetails) => void)
+    | undefined;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
 };
 

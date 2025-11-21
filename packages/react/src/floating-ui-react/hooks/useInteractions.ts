@@ -4,8 +4,8 @@ import type { ElementProps } from '../types';
 import { ACTIVE_KEY, FOCUSABLE_ATTRIBUTE, SELECTED_KEY } from '../utils/constants';
 
 export type ExtendedUserProps = {
-  [ACTIVE_KEY]?: boolean;
-  [SELECTED_KEY]?: boolean;
+  [ACTIVE_KEY]?: boolean | undefined;
+  [SELECTED_KEY]?: boolean | undefined;
 };
 
 export interface UseInteractionsReturn {

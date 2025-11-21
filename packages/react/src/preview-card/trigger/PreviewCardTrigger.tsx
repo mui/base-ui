@@ -49,12 +49,12 @@ export interface PreviewCardTriggerProps
    * How long to wait before the preview card opens. Specified in milliseconds.
    * @default 600
    */
-  delay?: number;
+  delay?: number | undefined;
   /**
    * How long to wait before closing the preview card. Specified in milliseconds.
    * @default 300
    */
-  closeDelay?: number;
+  closeDelay?: number | undefined;
 }
 
 export namespace PreviewCardTrigger {

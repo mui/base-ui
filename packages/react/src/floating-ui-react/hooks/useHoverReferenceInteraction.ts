@@ -23,7 +23,7 @@ export interface UseHoverReferenceInteractionProps extends UseHoverProps {
    * triggers via `getTriggerProps`.
    * @default true
    */
-  isActiveTrigger?: boolean;
+  isActiveTrigger?: boolean | undefined;
 }
 
 function getRestMs(value: number | (() => number)) {
