@@ -10,8 +10,15 @@ type RowData = {
 };
 
 const rowCount = 500;
+const menuItemCount = 50;
+
 const rows = Array.from({ length: rowCount }).map((_, i) => ({
   label: `Row ${i + 1}`,
+  index: i + 1,
+}));
+
+const menuItems = Array.from({ length: menuItemCount }).map((_, i) => ({
+  label: `Menu Item ${i + 1}`,
   index: i + 1,
 }));
 
@@ -53,42 +60,15 @@ function RowMenu() {
               </Menu.Arrow>
               {rowData && (
                 <React.Fragment>
-                  <Menu.Item
-                    onClick={() => console.log(`Editing ${rowData.label}`)}
-                    className={demoStyles.Item}
-                  >
-                    Edit {rowData.label}
-                  </Menu.Item>
-                  <Menu.Item
-                    onClick={() => console.log(`Renaming ${rowData.label}`)}
-                    className={demoStyles.Item}
-                  >
-                    Rename {rowData.label}
-                  </Menu.Item>
-                  <Menu.Item
-                    onClick={() => console.log(`Deleting ${rowData.label}`)}
-                    className={demoStyles.Item}
-                  >
-                    Delete {rowData.label}
-                  </Menu.Item>
-                  <Menu.Item
-                    onClick={() => console.log(`Editing ${rowData.label}`)}
-                    className={demoStyles.Item}
-                  >
-                    Edit {rowData.label}
-                  </Menu.Item>
-                  <Menu.Item
-                    onClick={() => console.log(`Renaming ${rowData.label}`)}
-                    className={demoStyles.Item}
-                  >
-                    Rename {rowData.label}
-                  </Menu.Item>
-                  <Menu.Item
-                    onClick={() => console.log(`Deleting ${rowData.label}`)}
-                    className={demoStyles.Item}
-                  >
-                    Delete {rowData.label}
-                  </Menu.Item>
+                  {menuItems.map((item) => (
+                    <Menu.Item
+                      key={item.index}
+                      onClick={() => console.log(`Clicked ${item.label} for ${rowData.label}`)}
+                      className={demoStyles.Item}
+                    >
+                      {item.label} for {rowData.label}
+                    </Menu.Item>
+                  ))}
                 </React.Fragment>
               )}
             </Menu.Popup>
