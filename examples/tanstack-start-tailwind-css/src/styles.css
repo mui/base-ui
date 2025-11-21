@@ -24,11 +24,6 @@
 
     --color-blue: oklch(69% 50% 264deg);
     --color-red: oklch(80% 55% 31deg);
-    --color-gray: var(--color-gray-600);
-    --color-navy: oklch(85% 25% 264deg);
-    --color-green: oklch(75% 25% 150deg);
-    --color-purple: oklch(85% 30% 360deg);
-    --color-violet: oklch(80% 60% 280deg);
   }
 }
 
@@ -51,11 +46,6 @@
 
   --color-blue: oklch(45% 50% 264deg);
   --color-red: oklch(50% 55% 31deg);
-  --color-gray: var(--color-gray-600);
-  --color-navy: oklch(31% 25% 264deg);
-  --color-green: oklch(46% 30% 150deg);
-  --color-purple: oklch(40% 45% 360deg);
-  --color-violet: oklch(40% 60% 300deg);
 
   --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
   --font-sans:
@@ -63,10 +53,6 @@
     'Open Sans (Custom)', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
 
   --default-font-family: var(--font-sans);
-
-  --text-xs: 0.8125rem;
-  --text-xs--line-height: 1.25rem;
-  --text-xs--letter-spacing: 0.001em;
 
   --text-sm: 0.875rem;
   --text-sm--line-height: 1.25rem;
@@ -87,10 +73,6 @@
   --text-xl: 1.3125rem;
   --text-xl--line-height: 1.625rem;
   --text-xl--letter-spacing: -0.005em;
-
-  --text-2xl: 1.5rem;
-  --text-2xl--line-height: 1.25;
-  --text-2xl--letter-spacing: -0.0125em;
 }
 
 @layer base {
