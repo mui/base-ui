@@ -1,4 +1,4 @@
-import { createSitemap } from '../../utils/createSitemap';
+import { createSitemap } from '@mui/internal-docs-infra/createSitemap';
 import Overview from '../(public)/(content)/react/overview/page.mdx';
 import Handbook from '../(public)/(content)/react/handbook/page.mdx';
 import Components from '../(public)/(content)/react/components/page.mdx';
