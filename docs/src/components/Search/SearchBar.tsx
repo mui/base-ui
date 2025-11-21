@@ -208,7 +208,7 @@ export function SearchBar({
                       onValueChange={handleValueChange}
                       onOpenChange={handleAutocompleteEscape}
                       open // we never want to close the autocomplete, only the dialog
-                      itemToStringValue={(item) => (item ? item.title : '')}
+                      itemToStringValue={(item) => (item ? item.title || item.slug : '')}
                       filter={null}
                       autoHighlight
                     >
