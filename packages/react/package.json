@@ -99,7 +99,7 @@
     "@types/chai-dom": "^1.11.3",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "@types/sinon": "^17.0.4",
+    "@types/sinon": "^21.0.0",
     "@types/use-sync-external-store": "^1.5.0",
     "chai": "^6.2.0",
     "clsx": "^2.1.1",
