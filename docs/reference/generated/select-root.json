@@ -9,19 +9,18 @@
     },
     "defaultValue": {
       "type": "Value[] | Value | null",
-      "default": "null",
       "description": "The uncontrolled value of the select when it’s initially rendered.\n\nTo render a controlled select, use the `value` prop instead.",
       "detailedType": "Value[] | Value | null | undefined"
     },
     "value": {
-      "type": "Value[] | Value | any",
+      "type": "Value[] | Value",
       "description": "The value of the select. Use when controlled.",
-      "detailedType": "Value[] | Value | any | undefined"
+      "detailedType": "Value[] | Value | undefined"
     },
     "onValueChange": {
-      "type": "((value: Value[] | Value, eventDetails: Select.Root.ChangeEventDetails) => void) | ((value: Value[] | Value | any | null, eventDetails: Select.Root.ChangeEventDetails) => void)",
+      "type": "((value: Value[] | Value | any | null, eventDetails: Select.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the value of the select changes.",
-      "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {
       "type": "boolean",
@@ -60,10 +59,10 @@
       "detailedType": "((itemValue: Value) => string) | undefined"
     },
     "items": {
-      "type": "Record<string, ReactNode> | ({ label: ReactNode, value: Value })[]",
+      "type": "Record<string, ReactNode> | ({ label: ReactNode, value: any })[]",
       "description": "Data structure of the items rendered in the select popup.\nWhen specified, `<Select.Value>` renders the label of the selected item instead of the raw value.",
       "example": "```tsx\nconst items = {\n  sans: 'Sans-serif',\n  serif: 'Serif',\n  mono: 'Monospace',\n  cursive: 'Cursive',\n};\n<Select.Root items={items} />\n```",
-      "detailedType": "| Record<string, ReactNode>\n| { label: ReactNode; value: Value }[]\n| undefined"
+      "detailedType": "| Record<string, ReactNode>\n| { label: ReactNode; value: any }[]\n| undefined"
     },
     "modal": {
       "type": "boolean",
@@ -112,7 +111,7 @@
     },
     "children": {
       "type": "ReactNode",
-      "detailedType": "React.ReactNode | undefined"
+      "detailedType": "React.ReactNode"
     }
   },
   "dataAttributes": {},

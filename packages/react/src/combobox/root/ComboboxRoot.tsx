@@ -9,12 +9,6 @@ import { AriaCombobox } from './AriaCombobox';
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
-  props: ComboboxRootControlledProps<Value, Multiple>,
-): React.JSX.Element;
-export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
-  props: ComboboxRootUncontrolledProps<Value, Multiple>,
-): React.JSX.Element;
-export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
   props: ComboboxRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
   const { multiple = false as Multiple, defaultValue, value, onValueChange, ...other } = props;
@@ -38,7 +32,7 @@ type ComboboxValueType<Value, Multiple extends boolean | undefined> = Multiple e
   ? Value[]
   : Value;
 
-type ComboboxRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
+export type ComboboxRootProps<Value, Multiple extends boolean | undefined = false> = Omit<
   AriaCombobox.Props<Value, ModeFromMultiple<Multiple>>,
   | 'fillInputOnItemPress'
   | 'autoComplete'
@@ -128,33 +122,10 @@ type ComboboxRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
     highlightedValue: Value | undefined,
     eventDetails: ComboboxRoot.HighlightEventDetails,
   ) => void;
-};
-
-type ComboboxRootControlledProps<
-  Value,
-  Multiple extends boolean | undefined,
-> = ComboboxRootBaseProps<Value, Multiple> & {
   /**
    * The selected value of the combobox. Use when controlled.
    */
-  value: ComboboxValueType<Value, Multiple>;
-  /**
-   * Event handler called when the selected value of the combobox changes.
-   */
-  onValueChange?: (
-    value: ComboboxValueType<Value, Multiple>,
-    eventDetails: ComboboxRoot.ChangeEventDetails,
-  ) => void;
-};
-
-type ComboboxRootUncontrolledProps<
-  Value,
-  Multiple extends boolean | undefined,
-> = ComboboxRootBaseProps<Value, Multiple> & {
-  /**
-   * The selected value of the combobox. Use when controlled.
-   */
-  value?: any;
+  value?: ComboboxValueType<Value, Multiple>;
   /**
    * Event handler called when the selected value of the combobox changes.
    */
@@ -163,15 +134,6 @@ type ComboboxRootUncontrolledProps<
     eventDetails: ComboboxRoot.ChangeEventDetails,
   ) => void;
 };
-
-type ComboboxRootComponentProps<Value, Multiple extends boolean | undefined> =
-  | ComboboxRootControlledProps<Value, Multiple>
-  | ComboboxRootUncontrolledProps<Value, Multiple>;
-
-export type ComboboxRootProps<
-  Value,
-  Multiple extends boolean | undefined = false,
-> = ComboboxRootComponentProps<Value, Multiple>;
 
 export type ComboboxRootState = AriaCombobox.State;
 
