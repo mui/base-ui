@@ -141,20 +141,22 @@ export function Content(props: React.ComponentProps<'div'>) {
 export function Scrollable({
   children,
   className,
+  tag: Tag = 'span',
   gradientColor = 'var(--color-content)',
   ...props
-}: React.ComponentProps<'div'> & {
+}: React.ComponentProps<'span'> & {
   gradientColor?: string;
+  tag?: React.ElementType;
 }) {
   return (
-    <div
+    <Tag
       ref={observeScrollableInner}
       className={clsx('AccordionScrollable', className)}
       style={{ '--scrollable-gradient-color': gradientColor } as React.CSSProperties}
       {...props}
     >
-      <div className="AccordionScrollableInner">{children}</div>
-    </div>
+      <Tag className="AccordionScrollableInner">{children}</Tag>
+    </Tag>
   );
 }
 

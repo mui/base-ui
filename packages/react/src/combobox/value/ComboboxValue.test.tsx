@@ -391,7 +391,7 @@ describe('<Combobox.Value />', () => {
         const bRef = React.useRef({ value: 'b', label: 'b' });
         const cRef = React.useRef<{ value: 'c'; label: string } | null>(null);
 
-        const [value, setValue] = React.useState(aRef.current);
+        const [value, setValue] = React.useState<typeof aRef.current | null>(aRef.current);
         const [items, setItems] = React.useState([aRef.current, bRef.current]);
 
         function updateItems() {

@@ -82,7 +82,6 @@ export const mdxComponents: MDXComponents = {
   th: (props: React.ComponentProps<'th'>) =>
     props.scope === 'row' ? <Table.RowHeader {...props} /> : <Table.ColumnHeader {...props} />,
   td: Table.Cell,
-
   // Custom components
   QuickNav,
   Meta: (props: React.ComponentProps<'meta'>) => {
@@ -105,7 +104,7 @@ export const mdxComponents: MDXComponents = {
 
 export const inlineMdxComponents: MDXComponents = {
   ...mdxComponents,
-  p: (props) => <p {...props} />,
+  p: (props) => props.children,
 };
 
 export function useMDXComponents(): MDXComponents {

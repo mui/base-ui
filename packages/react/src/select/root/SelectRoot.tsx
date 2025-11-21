@@ -43,12 +43,6 @@ import { useValueChanged } from '../../utils/useValueChanged';
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
-  props: SelectRootControlledProps<Value, Multiple>,
-): React.JSX.Element;
-export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
-  props: SelectRootUncontrolledProps<Value, Multiple>,
-): React.JSX.Element;
-export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   props: SelectRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
   const {
@@ -543,7 +537,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 }
 
-interface SelectRootCommonProps<Value> {
+type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
+  ? Value[]
+  : Value;
+
+export interface SelectRootProps<Value, Multiple extends boolean | undefined = false> {
   children?: React.ReactNode;
   /**
    * A ref to access the hidden input element.
@@ -576,22 +574,7 @@ interface SelectRootCommonProps<Value> {
    * Whether multiple items can be selected.
    * @default false
    */
-  multiple?: boolean;
-  /**
-   * The value of the select. Use when controlled.
-   */
-  value?: Value;
-  /**
-   * Event handler called when the value of the select changes.
-   */
-  onValueChange?: (value: Value, eventDetails: SelectRootChangeEventDetails) => void;
-  /**
-   * The uncontrolled value of the select when it’s initially rendered.
-   *
-   * To render a controlled select, use the `value` prop instead.
-   * @default null
-   */
-  defaultValue?: Value | null;
+  multiple?: Multiple;
   /**
    * Whether the select popup is initially open.
    *
@@ -639,7 +622,7 @@ interface SelectRootCommonProps<Value> {
    * <Select.Root items={items} />
    * ```
    */
-  items?: Record<string, React.ReactNode> | ReadonlyArray<{ label: React.ReactNode; value: Value }>;
+  items?: Record<string, React.ReactNode> | ReadonlyArray<{ label: React.ReactNode; value: any }>;
   /**
    * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
@@ -655,55 +638,16 @@ interface SelectRootCommonProps<Value> {
    * Defaults to `Object.is` comparison.
    */
   isItemEqualToValue?: (itemValue: Value, value: Value) => boolean;
-}
-
-type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
-  ? Value[]
-  : Value;
-
-type SelectRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
-  SelectRootCommonProps<Value>,
-  'multiple' | 'value' | 'defaultValue' | 'onValueChange'
-> & {
-  /**
-   * Whether multiple items can be selected.
-   * @default false
-   */
-  multiple?: Multiple;
   /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
    * To render a controlled select, use the `value` prop instead.
-   * @default null
    */
   defaultValue?: SelectValueType<Value, Multiple> | null;
-};
-
-type SelectRootControlledProps<Value, Multiple extends boolean | undefined> = SelectRootBaseProps<
-  Value,
-  Multiple
-> & {
   /**
    * The value of the select. Use when controlled.
    */
-  value: SelectValueType<Value, Multiple>;
-  /**
-   * Event handler called when the value of the select changes.
-   */
-  onValueChange?: (
-    value: SelectValueType<Value, Multiple>,
-    eventDetails: SelectRootChangeEventDetails,
-  ) => void;
-};
-
-type SelectRootUncontrolledProps<Value, Multiple extends boolean | undefined> = SelectRootBaseProps<
-  Value,
-  Multiple
-> & {
-  /**
-   * The value of the select. Use when controlled.
-   */
-  value?: any;
+  value?: SelectValueType<Value, Multiple>;
   /**
    * Event handler called when the value of the select changes.
    */
@@ -711,16 +655,7 @@ type SelectRootUncontrolledProps<Value, Multiple extends boolean | undefined> = 
     value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
     eventDetails: SelectRootChangeEventDetails,
   ) => void;
-};
-
-export type SelectRootConditionalProps<Value, Multiple extends boolean | undefined = false> =
-  | SelectRootControlledProps<Value, Multiple>
-  | SelectRootUncontrolledProps<Value, Multiple>;
-
-export type SelectRootProps<
-  Value,
-  Multiple extends boolean | undefined = false,
-> = SelectRootConditionalProps<Value, Multiple>;
+}
 
 export interface SelectRootState {}
 
