@@ -2,7 +2,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
-import { inlineMdxComponents } from 'docs/src/mdx-components';
+import { inlineMdxComponents, mdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
@@ -12,18 +12,18 @@ import { TableCode, type TableCodeProps } from '../TableCode';
 import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
 function ExpandedCode(props: React.ComponentProps<'code'>) {
-  const { className = '', ...rest } = props;
+  const { className = '', ...other } = props;
   const cleaned = className
     .split(' ')
     .filter((c) => c !== 'Code')
     .join(' ');
-  return <code {...rest} className={cleaned} />;
+  return <code {...other} className={cleaned} />;
 }
 
 function ExpandedPre(props: React.ComponentProps<'pre'>) {
   return (
-    <Accordion.Scrollable gradientColor="var(--color-gray-50)">
-      <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: 'none' }} />
+    <Accordion.Scrollable tag="div" gradientColor="var(--color-gray-50)">
+      <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: undefined }} />
     </Accordion.Scrollable>
   );
 }
@@ -123,7 +123,7 @@ export async function PropsReferenceAccordion({
 
         const PropType = await createMdxComponent(`\`${displayType}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ code: TableCode }),
+          useMDXComponents: () => ({ ...inlineMdxComponents, code: TableCode }),
         });
 
         const PropDetailedType = await createMdxComponent(
@@ -131,8 +131,10 @@ export async function PropsReferenceAccordion({
           {
             rehypePlugins: rehypeSyntaxHighlighting,
             useMDXComponents: () => ({
-              code: ExpandedCode,
+              ...inlineMdxComponents,
+              figure: 'figure',
               pre: ExpandedPre,
+              code: ExpandedCode,
             }),
           },
         );
@@ -143,6 +145,7 @@ export async function PropsReferenceAccordion({
         const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
           useMDXComponents: () => ({
+            ...inlineMdxComponents,
             code: (codeProps: TableCodeProps) => (
               <TableCode {...codeProps} printWidth={name === 'children' ? 999 : undefined} />
             ),
@@ -151,20 +154,25 @@ export async function PropsReferenceAccordion({
 
         const PropDefault = await createMdxComponent(`\`${prop.default}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ code: TableCode }),
+          useMDXComponents: () => ({ ...inlineMdxComponents, code: TableCode }),
         });
 
         const PropDescription = prop.description
           ? await createMdxComponent(prop.description, {
               rehypePlugins: rehypeSyntaxHighlighting,
-              useMDXComponents: () => inlineMdxComponents,
+              useMDXComponents: () => ({ ...mdxComponents, p: 'p' }),
             })
           : null;
 
         const ExampleSnippet = prop.example
           ? await createMdxComponent(prop.example, {
               rehypePlugins: rehypeSyntaxHighlighting,
-              useMDXComponents: () => inlineMdxComponents,
+              useMDXComponents: () => ({
+                ...inlineMdxComponents,
+                figure: 'figure',
+                pre: ExpandedPre,
+                code: ExpandedCode,
+              }),
             })
           : null;
 
@@ -206,7 +214,7 @@ export async function PropsReferenceAccordion({
                   <PropDefault />
                 )}
               </Accordion.Scrollable>
-              <div className="flex justify-center max-xs:ml-auto max-xs:mr-3">
+              <span className="flex justify-center max-xs:ml-auto max-xs:mr-3">
                 <svg
                   className="AccordionIcon translate-y-px"
                   width="10"
@@ -217,7 +225,7 @@ export async function PropsReferenceAccordion({
                 >
                   <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
                 </svg>
-              </div>
+              </span>
             </Accordion.Trigger>
             <Accordion.Panel>
               <Accordion.Content>
@@ -233,7 +241,6 @@ export async function PropsReferenceAccordion({
                       </Link>
                     </DescriptionList.Details>
                   </DescriptionList.Item>
-
                   {PropDescription != null && (
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Description</DescriptionList.Term>
@@ -243,14 +250,12 @@ export async function PropsReferenceAccordion({
                       </DescriptionList.Details>
                     </DescriptionList.Item>
                   )}
-
                   <DescriptionList.Item>
                     <DescriptionList.Term separator>Type</DescriptionList.Term>
                     <DescriptionList.Details>
                       <PropDetailedType />
                     </DescriptionList.Details>
                   </DescriptionList.Item>
-
                   {prop.default !== undefined && (
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Default</DescriptionList.Term>
@@ -259,7 +264,6 @@ export async function PropsReferenceAccordion({
                       </DescriptionList.Details>
                     </DescriptionList.Item>
                   )}
-
                   {ExampleSnippet != null && (
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Example</DescriptionList.Term>

@@ -2166,7 +2166,9 @@ describe('<Combobox.Root />', () => {
         expect(screen.queryByRole('option', { name: 'Spirited Away' })).not.to.equal(null);
       });
     });
+  });
 
+  describe('prop: filteredItems', () => {
     it('resets external filteredItems when reopening after a selection', async () => {
       interface TestItem {
         id: number;
@@ -2269,6 +2271,108 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('option', { name: 'orange' })).not.to.equal(null);
       });
+    });
+
+    it('uses filteredItems when items prop is omitted', async () => {
+      const fruits = ['Apple', 'Banana', 'Cherry'];
+
+      function FilteredItemsOnlyCombobox() {
+        const [value, setValue] = React.useState<string | null>(null);
+
+        return (
+          <Combobox.Root filteredItems={fruits} value={value} onValueChange={setValue}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner sideOffset={4}>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<FilteredItemsOnlyCombobox />);
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await screen.findByRole('listbox');
+      await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+
+      await user.click(input);
+      await screen.findByRole('listbox');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'Banana' })).not.to.equal(null);
+      });
+    });
+
+    it('highlights the externally filtered item order when filtering reorders items', async () => {
+      const fruits = ['Apple', 'Banana', 'Zucchini'];
+      const onItemHighlighted = spy();
+
+      function ReorderingFilteredItemsCombobox() {
+        const [input, setInput] = React.useState('');
+        const filteredItems = React.useMemo(() => {
+          if (input.length > 0) {
+            return [...fruits].reverse();
+          }
+          return fruits;
+        }, [input]);
+
+        return (
+          <Combobox.Root
+            autoHighlight
+            filteredItems={filteredItems}
+            inputValue={input}
+            onInputValueChange={setInput}
+            onItemHighlighted={onItemHighlighted}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner sideOffset={4}>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<ReorderingFilteredItemsCombobox />);
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      onItemHighlighted.resetHistory();
+
+      await user.type(input, 'a');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+
+      const [highlightedValue] = onItemHighlighted.lastCall.args;
+      expect(highlightedValue).to.equal('Zucchini');
     });
   });
 

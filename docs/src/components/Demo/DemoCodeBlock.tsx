@@ -48,8 +48,8 @@ function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
       tabIndex={-1}
       onKeyDown={(event: React.KeyboardEvent) => {
         if (
-          event.key === 'a' &&
-          (event.metaKey || event.ctrlKey) &&
+          (event.ctrlKey || event.metaKey) &&
+          String.fromCharCode(event.keyCode) === 'A' &&
           !event.shiftKey &&
           !event.altKey
         ) {
@@ -73,9 +73,9 @@ export function DemoCodeBlock({
     return (
       <Root>
         <ScrollArea.Viewport>
-          <pre className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
+          <div className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
             {selectedFile}
-          </pre>
+          </div>
         </ScrollArea.Viewport>
         <ScrollArea.Corner />
         <ScrollArea.Scrollbar orientation="vertical" />
@@ -100,9 +100,9 @@ export function DemoCodeBlock({
           className="DemoCodeBlockViewport"
           {...(!collapsibleOpen && { tabIndex: undefined, style: { overflow: undefined } })}
         >
-          <pre className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
+          <div className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
             {selectedFile}
-          </pre>
+          </div>
         </ScrollArea.Viewport>
 
         {collapsibleOpen && (

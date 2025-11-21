@@ -94,7 +94,7 @@ export function Demo({
                   onVariantChange={demo.expand}
                   variants={demo.variants}
                   selectedVariant={demo.selectedVariant}
-                  selectVariant={demo.selectVariant}
+                  selectVariant={demo.selectVariant as any}
                   availableTransforms={demo.availableTransforms}
                   selectedTransform={demo.selectedTransform}
                   selectTransform={demo.selectTransform}

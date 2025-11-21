@@ -13,14 +13,14 @@
       "detailedType": "Value[] | Value | null | undefined"
     },
     "value": {
-      "type": "Value[] | Value | any",
+      "type": "Value[] | Value",
       "description": "The selected value of the combobox. Use when controlled.",
-      "detailedType": "Value[] | Value | any | undefined"
+      "detailedType": "Value[] | Value | undefined"
     },
     "onValueChange": {
-      "type": "((value: Value[] | Value, eventDetails: Combobox.Root.ChangeEventDetails) => void) | ((value: Value[] | Value | any | null, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
+      "type": "((value: Value[] | Value | any | null, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the selected value of the combobox changes.",
-      "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultInputValue": {
       "type": "string | number | string[]",
