@@ -187,26 +187,28 @@ export interface PreviewCardRootProps {
    * To render a controlled preview card, use the `open` prop instead.
    * @default false
    */
-  defaultOpen?: boolean;
+  defaultOpen?: boolean | undefined;
   /**
    * Whether the preview card is currently open.
    */
-  open?: boolean;
+  open?: boolean | undefined;
   /**
    * Event handler called when the preview card is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void)
+    | undefined;
   /**
    * Event handler called after any animations complete when the preview card is opened or closed.
    */
-  onOpenChangeComplete?: (open: boolean) => void;
+  onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the preview card will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the preview card manually.
    * Useful when the preview card's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<PreviewCardRoot.Actions>;
+  actionsRef?: React.RefObject<PreviewCardRoot.Actions> | undefined;
 }
 
 export interface PreviewCardRootActions {

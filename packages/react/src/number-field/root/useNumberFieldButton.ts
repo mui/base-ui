@@ -70,14 +70,12 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
       valueRef.current = parsedValue;
       setValue(
         parsedValue,
-        createChangeEventDetails<NumberFieldRoot.ChangeEventReason, { direction?: Direction }>(
-          pressReason,
-          nativeEvent,
-          undefined,
-          {
-            direction: isIncrement ? 1 : -1,
-          },
-        ),
+        createChangeEventDetails<
+          NumberFieldRoot.ChangeEventReason,
+          { direction?: Direction | undefined }
+        >(pressReason, nativeEvent, undefined, {
+          direction: isIncrement ? 1 : -1,
+        }),
       );
     }
   }
@@ -241,7 +239,7 @@ export interface UseNumberFieldButtonParameters {
   intentionalTouchCheckTimeout: Timeout;
   isIncrement: boolean;
   isPressedRef: React.RefObject<boolean | null>;
-  locale?: Intl.LocalesArgument;
+  locale?: Intl.LocalesArgument | undefined;
   maxWithDefault: number;
   minWithDefault: number;
   movesAfterTouchRef: React.RefObject<number | null>;

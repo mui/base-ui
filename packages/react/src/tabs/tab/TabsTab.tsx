@@ -248,7 +248,7 @@ export interface TabsTabProps
    * The value of the Tab.
    * When not specified, the value is the child position index.
    */
-  value?: TabsTab.Value;
+  value?: TabsTab.Value | undefined;
 }
 
 export namespace TabsTab {

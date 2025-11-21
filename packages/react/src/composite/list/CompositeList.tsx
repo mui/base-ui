@@ -6,7 +6,9 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
 
-export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
+export type CompositeMetadata<CustomMetadata> = {
+  index?: (number | null) | undefined;
+} & CustomMetadata;
 
 /**
  * Provides context for a list of items in a composite component.
@@ -177,8 +179,8 @@ export interface CompositeListProps<Metadata> {
    * A ref to the list of element labels, ordered by their index.
    * `useTypeahead`'s `listRef` prop.
    */
-  labelsRef?: React.RefObject<Array<string | null>>;
-  onMapChange?: (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void;
+  labelsRef?: React.RefObject<Array<string | null>> | undefined;
+  onMapChange?: ((newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void) | undefined;
 }
 
 export namespace CompositeList {

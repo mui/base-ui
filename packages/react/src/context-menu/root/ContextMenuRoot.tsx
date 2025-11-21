@@ -57,7 +57,9 @@ export interface ContextMenuRootProps
   /**
    * Event handler called when the menu is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void)
+    | undefined;
 }
 
 export type ContextMenuRootChangeEventReason = MenuRoot.ChangeEventReason;

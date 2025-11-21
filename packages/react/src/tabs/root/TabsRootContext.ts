@@ -35,7 +35,9 @@ export interface TabsRootContext {
    * @param (number) index The index of the Tab to look for.
    */
   getTabPanelIdByTabValueOrIndex: (tabValue: any, index: number) => string | undefined;
-  setTabMap: (map: Map<Node, (TabsTab.Metadata & { index?: number | null }) | null>) => void;
+  setTabMap: (
+    map: Map<Node, (TabsTab.Metadata & { index?: (number | null) | undefined }) | null>,
+  ) => void;
   /**
    * The position of the active tab relative to the previously active tab.
    */

@@ -87,7 +87,7 @@ export interface ComboboxItemIndicatorProps
    * Whether to keep the HTML element in the DOM when the item is not selected.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export interface ComboboxItemIndicatorState {

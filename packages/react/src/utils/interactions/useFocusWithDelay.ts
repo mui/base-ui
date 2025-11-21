@@ -8,7 +8,7 @@ import { REASONS } from '../reasons';
 import { activeElement, contains, getDocument } from '../../floating-ui-react/utils';
 
 interface UseFocusWithDelayProps {
-  delay?: number | (() => number | undefined);
+  delay?: (number | (() => number | undefined)) | undefined;
 }
 
 /**

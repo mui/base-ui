@@ -225,7 +225,7 @@ export namespace PopoverViewport {
   }
 
   export interface State {
-    activationDirection?: string;
+    activationDirection?: string | undefined;
   }
 }
 

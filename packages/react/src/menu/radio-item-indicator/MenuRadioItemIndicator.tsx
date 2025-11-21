@@ -65,7 +65,7 @@ export interface MenuRadioItemIndicatorProps
    * Whether to keep the HTML element in the DOM when the radio item is inactive.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export interface MenuRadioItemIndicatorState {
