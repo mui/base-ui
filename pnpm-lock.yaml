@@ -92,7 +92,7 @@ importers:
         version: link:docs
       es-toolkit:
         specifier: ^1.41.0
-        version: 1.41.0
+        version: 1.42.0
       eslint:
         specifier: ^9.39.1
         version: 9.39.1(jiti@2.6.1)
@@ -214,8 +214,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       es-toolkit:
-        specifier: ^1.41.0
-        version: 1.41.0
+        specifier: ^1.42.0
+        version: 1.42.0
       estree-util-value-to-estree:
         specifier: ^3.5.0
         version: 3.5.0
@@ -586,8 +586,8 @@ importers:
         specifier: ^17.0.34
         version: 17.0.34
       es-toolkit:
-        specifier: ^1.41.0
-        version: 1.41.0
+        specifier: ^1.42.0
+        version: 1.42.0
       rimraf:
         specifier: ^6.1.0
         version: 6.1.0
@@ -641,7 +641,7 @@ importers:
         version: link:../docs
       es-toolkit:
         specifier: ^1.41.0
-        version: 1.41.0
+        version: 1.42.0
       is-wsl:
         specifier: ^3.1.0
         version: 3.1.0
@@ -5652,8 +5652,8 @@ packages:
     resolution: {integrity: sha512-w+5mJ3GuFL+NjVtJlvydShqE1eN3h3PbI7/5LAsYJP/2qtuMXjfL2LpHSRqo4b4eSF5K/DH1JXKUAHSB2UW50g==}
     engines: {node: '>= 0.4'}
 
-  es-toolkit@1.41.0:
-    resolution: {integrity: sha512-bDd3oRmbVgqZCJS6WmeQieOrzpl3URcWBUVDXxOELlUW2FuW+0glPOz1n0KnRie+PdyvUZcXz2sOn00c6pPRIA==}
+  es-toolkit@1.42.0:
+    resolution: {integrity: sha512-SLHIyY7VfDJBM8clz4+T2oquwTQxEzu263AyhVK4jREOAwJ+8eebaa4wM3nlvnAqhDrMm2EsA6hWHaQsMPQ1nA==}
 
   esast-util-from-estree@2.0.0:
     resolution: {integrity: sha512-4CyanoAudUSBAn5K13H4JhsMH6L9ZP7XbLVe/dKybkxMO7eDyLsT8UHl9TRNrU2Gr9nz+FovfSIjuXWJ81uVwQ==}
@@ -12073,7 +12073,7 @@ snapshots:
       chai: 6.2.0
       chai-dom: 1.12.1(chai@6.2.0)
       dom-accessibility-api: 0.7.0
-      es-toolkit: 1.41.0
+      es-toolkit: 1.42.0
       format-util: 1.0.5
       jsdom: 26.1.0
       lodash.kebabcase: 4.1.1
@@ -15735,7 +15735,7 @@ snapshots:
       is-date-object: 1.1.0
       is-symbol: 1.1.1
 
-  es-toolkit@1.41.0: {}
+  es-toolkit@1.42.0: {}
 
   esast-util-from-estree@2.0.0:
     dependencies:
@@ -20266,7 +20266,7 @@ snapshots:
 
   typescript-api-extractor@1.0.0-alpha.9(typescript@5.9.3):
     dependencies:
-      es-toolkit: 1.41.0
+      es-toolkit: 1.42.0
       typescript: 5.9.3
 
   typescript-eslint@8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3):
