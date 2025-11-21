@@ -96,7 +96,6 @@
 @layer base {
   html {
     color-scheme: light dark;
-    scrollbar-gutter: stable both-edges;
   }
 
   body {

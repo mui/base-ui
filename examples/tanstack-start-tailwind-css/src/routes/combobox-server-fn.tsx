@@ -1,8 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { Link as RouterLink, createFileRoute } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { LoaderCircle } from 'lucide-react';
+import clsx from 'clsx';
 import * as Combobox from '@/components/combobox';
-import { Link } from '@/components/link';
+import { Link, styles as linkStyles } from '@/components/link';
 
 const getData = createServerFn({
   method: 'GET',
@@ -81,6 +82,9 @@ function RouteComponent() {
             </Combobox.Positioner>
           </Combobox.Portal>
         </Combobox.Root>
+        <RouterLink className={clsx(linkStyles, 'text-sm')} to="/">
+          Go back
+        </RouterLink>
       </main>
     </div>
   );

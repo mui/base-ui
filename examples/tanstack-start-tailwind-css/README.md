@@ -4,6 +4,8 @@ This is a simple [TanStack Start](https://tanstack.com/start/latest/docs/framew
 
 ## Getting started
 
+[![Edit on CodeSandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/p/sandbox/github/mui/base-ui/tree/master/examples/tanstack-start-tailwind-css)
+
 [![Edit on StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/mui/base-ui/tree/master/examples/tanstack-start-tailwind-css)
 
 Or to run it locally:
