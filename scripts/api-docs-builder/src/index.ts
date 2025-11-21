@@ -10,7 +10,7 @@ import * as tae from 'typescript-api-extractor';
 import { kebabCase } from 'es-toolkit/string';
 import ts from 'typescript';
 import { globby } from 'globby';
-import { updatePageIndex } from '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata';
+import { syncPageIndex } from '@mui/internal-docs-infra/pipeline/syncPageIndex';
 import { isPublicComponent, formatComponentData, extractComponentGroup } from './componentHandler';
 import { isPublicHook, formatHookData } from './hookHandler';
 
@@ -249,7 +249,7 @@ async function run(options: RunOptions) {
     ).filter((metadata): metadata is NonNullable<typeof metadata> => metadata !== null);
 
     // Update the index once with all components in a single operation
-    await updatePageIndex({
+    await syncPageIndex({
       pagePath: componentsPagePath,
       metadataList: allComponentsMetadata,
     });

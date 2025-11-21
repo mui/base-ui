@@ -2,9 +2,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { create, insertMultiple, search as performSearch } from '@orama/orama';
-import { stemmer, language } from '@orama/stemmers/english';
-import { stopwords as englishStopwords } from '@orama/stopwords/english';
+import { useSearch } from '@mui/internal-docs-infra/useSearch';
+import type { SearchResult, Sitemap } from '@mui/internal-docs-infra/useSearch/types';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import { Button } from '@base-ui-components/react/button';
 import { Dialog } from '@base-ui-components/react/dialog';
@@ -12,285 +11,59 @@ import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { FileText, Blocks, Package, Heading1, Heading2, Search } from 'lucide-react';
 import './SearchBar.css';
 
-interface BaseSearchResult {
-  id?: string;
-  title: string;
-  description: string;
-  slug: string;
-  path: string;
-  sectionTitle: string;
-  prefix: string;
-  keywords?: string;
-  score?: number;
-}
-
-interface PageSearchResult extends BaseSearchResult {
-  type: 'page';
-  sections?: string;
-  subsections?: string;
-}
-
-interface PartSearchResult extends BaseSearchResult {
-  type: 'part';
-  part: string;
-  export: string;
-  props?: string;
-  dataAttributes?: string;
-  cssVariables?: string;
-}
-
-interface ExportSearchResult extends BaseSearchResult {
-  type: 'export';
-  export: string;
-  props?: string;
-  dataAttributes?: string;
-  cssVariables?: string;
-}
-
-interface SectionSearchResult extends BaseSearchResult {
-  type: 'section';
-  section: string;
-}
-
-interface SubsectionSearchResult extends BaseSearchResult {
-  type: 'subsection';
-  subsection: string;
-}
-
-type SearchResult =
-  | PageSearchResult
-  | PartSearchResult
-  | ExportSearchResult
-  | SectionSearchResult
-  | SubsectionSearchResult;
-
 export function SearchBar({
   sitemap: sitemapImport,
   enableKeyboardShortcut = false,
 }: {
-  sitemap: () => Promise<{ sitemap?: { schema: {}; data: {} } }>;
+  sitemap: () => Promise<{ sitemap?: Sitemap }>;
   enableKeyboardShortcut?: boolean;
 }) {
   const router = useRouter();
-  const [index, setIndex] = React.useState<any>(null);
-  const defaultResults = React.useRef<SearchResult[]>([]);
-  const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);
   const openingRef = React.useRef(false);
   const closingRef = React.useRef(false);
 
+  // Use the generic search hook with Base UI specific configuration
+  const { results, search, defaultResults, buildResultUrl } = useSearch({
+    sitemap: sitemapImport,
+    maxDefaultResults: 10,
+    tolerance: 1,
+    limit: 20,
+    enableStemming: true,
+    boost: {
+      type: 3,
+      slug: 2,
+      path: 2,
+      title: 2,
+      description: 1.5,
+      part: 1.5,
+      export: 1.3,
+      section: 2,
+      subsection: 1.8,
+      props: 1.5,
+      dataAttributes: 1.5,
+      cssVariables: 1.5,
+      sections: 0.7,
+      subsections: 0.3,
+      keywords: 1.7,
+    },
+  });
+
+  const [searchResults, setSearchResults] = React.useState<SearchResult[]>(defaultResults);
+
+  // Update search results when hook results change
   React.useEffect(() => {
-    sitemapImport().then(({ sitemap }) => {
-      if (!sitemap) {
-        console.error('Sitemap is undefined');
-        return;
-      }
+    setSearchResults(results.length > 0 ? results : defaultResults);
+  }, [results, defaultResults]);
 
-      const searchIndex = create({
-        schema: {
-          ...sitemap.schema,
-          type: 'string',
-          keywords: 'string',
-          sections: 'string',
-          subsections: 'string',
-          part: 'string',
-          export: 'string',
-          section: 'string',
-          subsection: 'string',
-          props: 'string',
-          dataAttributes: 'string',
-          cssVariables: 'string',
-          sectionTitle: 'string',
-        },
-        components: {
-          tokenizer: {
-            stemming: true,
-            language,
-            stemmer,
-            stopWords: englishStopwords,
-          },
-        },
-      });
-
-      // Flatten the sitemap data structure to a single array of pages
-      const pages: SearchResult[] = [];
-      const pageResults: SearchResult[] = [];
-
-      Object.entries(sitemap.data).forEach(([_sectionKey, sectionData]: [string, any]) => {
-        (sectionData.pages || []).forEach((page: any) => {
-          // Extract top-level sections and all subsections with their slugs
-          const sections: Array<{ title: string; slug: string }> = [];
-          const subsections: Array<{
-            title: string;
-            slug: string;
-            parentSlugs: string[];
-            parentTitles: string[];
-          }> = [];
-
-          if (page.sections) {
-            // Top-level sections are the direct children
-            for (const [slug, sectionInfo] of Object.entries(page.sections)) {
-              const s = sectionInfo as any;
-              sections.push({ title: s.title, slug });
-
-              // Subsections are all nested children (recursively)
-              if (s.children && Object.keys(s.children).length > 0) {
-                const extractWithSlugs = (
-                  hierarchy: any,
-                  parentSlugs: string[],
-                  parentTitles: string[],
-                ): Array<{
-                  title: string;
-                  slug: string;
-                  parentSlugs: string[];
-                  parentTitles: string[];
-                }> => {
-                  const items: Array<{
-                    title: string;
-                    slug: string;
-                    parentSlugs: string[];
-                    parentTitles: string[];
-                  }> = [];
-                  for (const [childSlug, childData] of Object.entries(hierarchy)) {
-                    const child = childData as any;
-                    const currentSlugs = [...parentSlugs, childSlug];
-                    const currentTitles = [...parentTitles, child.title];
-                    items.push({
-                      title: child.title,
-                      slug: childSlug,
-                      parentSlugs: currentSlugs,
-                      parentTitles: currentTitles,
-                    });
-                    if (child.children && Object.keys(child.children).length > 0) {
-                      items.push(...extractWithSlugs(child.children, currentSlugs, currentTitles));
-                    }
-                  }
-                  return items;
-                };
-                subsections.push(...extractWithSlugs(s.children, [slug], [s.title]));
-              }
-            }
-          }
-
-          const flattened: Record<string, string> = {};
-          if (page.keywords?.length > 0) {
-            flattened.keywords = page.keywords.join(' ');
-          }
-
-          if (sections?.length > 0) {
-            flattened.sections = sections.map((s) => s.title).join(' ');
-          }
-
-          if (subsections?.length > 0) {
-            flattened.subsections = subsections.map((s) => s.title).join(' ');
-          }
-
-          const basePage: SearchResult = {
-            type: 'page',
-            title: page.title,
-            slug: page.slug,
-            path: page.path,
-            description: page.description,
-            sectionTitle: sectionData.title,
-            prefix: sectionData.prefix,
-            ...flattened,
-          };
-
-          // Add to both arrays
-          pages.push(basePage);
-          if (pageResults.length < 10) {
-            pageResults.push(basePage);
-          }
-
-          // Add entries for each part
-          if (page.parts && Object.keys(page.parts).length > 0) {
-            for (const [partName, partData] of Object.entries(page.parts)) {
-              const part = partData as any;
-              pages.push({
-                type: 'part',
-                part: partName,
-                export: `${page.slug}.${partName}`,
-                slug: partName.toLowerCase(),
-                path: page.path,
-                title: `${page.title} - ${partName}`,
-                description: page.description,
-                sectionTitle: sectionData.title,
-                prefix: sectionData.prefix,
-                props: part.props ? part.props.join(' ') : '',
-                dataAttributes: part.dataAttributes ? part.dataAttributes.join(' ') : '',
-                cssVariables: part.cssVariables ? part.cssVariables.join(' ') : '',
-                keywords: page.keywords?.length > 0 ? page.keywords.join(' ') : '',
-              });
-            }
-          }
-
-          // Add entries for each export
-          if (page.exports && Object.keys(page.exports).length > 0) {
-            for (const [exportName, exportData] of Object.entries(page.exports)) {
-              const exp = exportData as any;
-              // If export name matches page slug (case-insensitive), use #api-reference
-              const exportSlug =
-                exportName.toLowerCase() === page.slug.toLowerCase()
-                  ? 'api-reference'
-                  : exportName.toLowerCase();
-              pages.push({
-                type: 'export',
-                export: exportSlug,
-                slug: page.slug,
-                path: page.path,
-                title: exportName,
-                description: page.description,
-                sectionTitle: sectionData.title,
-                prefix: sectionData.prefix,
-                props: exp.props ? exp.props.join(' ') : '',
-                dataAttributes: exp.dataAttributes ? exp.dataAttributes.join(' ') : '',
-                cssVariables: exp.cssVariables ? exp.cssVariables.join(' ') : '',
-                keywords: page.keywords?.length > 0 ? page.keywords.join(' ') : '',
-              });
-            }
-          }
-
-          // Add entries for each section
-          for (const sectionItem of sections) {
-            pages.push({
-              type: 'section',
-              section: sectionItem.title,
-              slug: `${page.slug}#${sectionItem.slug}`,
-              path: page.path,
-              title: `${page.title} - ${sectionItem.title}`,
-              description: page.description,
-              sectionTitle: sectionData.title,
-              prefix: sectionData.prefix,
-              keywords: page.keywords?.length > 0 ? page.keywords.join(' ') : '',
-            });
-          }
-
-          // Add entries for each subsection
-          for (const subsectionItem of subsections) {
-            const fullTitle = subsectionItem.parentTitles.join(' - ');
-            pages.push({
-              type: 'subsection',
-              subsection: fullTitle,
-              slug: `${page.slug}#${subsectionItem.slug.toLowerCase()}`,
-              path: page.path,
-              title: `${page.title} - ${fullTitle}`,
-              description: page.description,
-              sectionTitle: sectionData.title,
-              prefix: sectionData.prefix,
-              keywords: page.keywords?.length > 0 ? page.keywords.join(' ') : '',
-            });
-          }
-        });
-      });
-
-      insertMultiple(searchIndex, pages);
-      setIndex(searchIndex);
-      defaultResults.current = pageResults;
-      setSearchResults(defaultResults.current);
-    });
-  }, [sitemapImport]);
+  // Reset to default results when dialog closes
+  React.useEffect(() => {
+    if (!dialogOpen) {
+      setSearchResults(defaultResults);
+    }
+  }, [dialogOpen, defaultResults]);
 
   const handleOpenDialog = React.useCallback(() => {
     // Prevent double-opening across all instances
@@ -331,13 +104,11 @@ export function SearchBar({
         });
 
         transition.finished.then(() => {
-          setSearchResults(defaultResults.current);
+          // Results will be reset by useEffect
         });
       } else {
         setDialogOpen(false);
-        setTimeout(() => {
-          setSearchResults(defaultResults.current);
-        }, 300);
+        // Results will be reset by useEffect
       }
 
       // Reset after a short delay
@@ -386,129 +157,18 @@ export function SearchBar({
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
-      if (!index || !value.trim()) {
-        setSearchResults([]);
-        return;
-      }
-
-      const results = await performSearch(index, {
-        term: value,
-        limit: 20,
-        tolerance: 1, // how many character differences are allowed for typos
-        boost: {
-          type: 3,
-          slug: 2,
-          path: 2,
-          title: 2,
-          description: 1.5,
-          part: 1.5,
-          export: 1.3,
-          section: 2,
-          subsection: 1.8,
-          props: 1.5,
-          dataAttributes: 1.5,
-          cssVariables: 1.5,
-          sections: 0.7,
-          subsections: 0.3,
-          keywords: 1.7,
-        },
-      });
-
-      const formattedResults: SearchResult[] = results.hits.map((hit: any) => {
-        const base = {
-          id: hit.id,
-          title: hit.document.title,
-          description: hit.document.description || '',
-          slug: hit.document.slug,
-          sectionTitle: hit.document.sectionTitle,
-          prefix: hit.document.prefix,
-          path: hit.document.path,
-          score: hit.score,
-          keywords: hit.document.keywords,
-        };
-
-        const type = hit.document.type;
-
-        if (type === 'part') {
-          return {
-            ...base,
-            type: 'part',
-            part: hit.document.part,
-            export: hit.document.export,
-            props: hit.document.props,
-            dataAttributes: hit.document.dataAttributes,
-            cssVariables: hit.document.cssVariables,
-          } as PartSearchResult;
-        }
-
-        if (type === 'export') {
-          return {
-            ...base,
-            type: 'export',
-            export: hit.document.export,
-            props: hit.document.props,
-            dataAttributes: hit.document.dataAttributes,
-            cssVariables: hit.document.cssVariables,
-          } as ExportSearchResult;
-        }
-
-        if (type === 'section') {
-          return {
-            ...base,
-            type: 'section',
-            section: hit.document.section,
-          } as SectionSearchResult;
-        }
-
-        if (type === 'subsection') {
-          return {
-            ...base,
-            type: 'subsection',
-            subsection: hit.document.subsection,
-          } as SubsectionSearchResult;
-        }
-
-        // Default to page type
-        return {
-          ...base,
-          type: 'page',
-          sections: hit.document.sections,
-          subsections: hit.document.subsections,
-        } as PageSearchResult;
-      });
-
-      setSearchResults(formattedResults);
+      await search(value);
     },
-    [index],
+    [search],
   );
 
   const handleItemClick = React.useCallback(
     (result: SearchResult) => {
-      let url = result.path.startsWith('./')
-        ? `${result.prefix}${result.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
-        : result.path;
-
-      // Add hash for non-page types
-      if (result.type !== 'page') {
-        let hash: string;
-        if (result.type === 'section' || result.type === 'subsection') {
-          // For sections and subsections, extract hash from the slug field
-          // which already contains the page slug + hash (e.g., "button#api-reference")
-          const hashIndex = result.slug.indexOf('#');
-          hash = hashIndex !== -1 ? result.slug.substring(hashIndex + 1) : '';
-        } else if (result.type === 'part') {
-          hash = result.part.toLowerCase();
-        } else {
-          // type === 'export'
-          hash = result.export; // already lowercase or api-reference
-        }
-        url += `#${hash}`;
-      }
-
+      const url = buildResultUrl(result);
       handleCloseDialog(false);
       router.push(url);
     },
-    [router, handleCloseDialog],
+    [router, handleCloseDialog, buildResultUrl],
   );
 
   return (
