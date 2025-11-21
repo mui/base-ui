@@ -695,6 +695,36 @@ describe('<RadioGroup />', () => {
       });
     });
 
+    describe('Field.Description', () => {
+      it('links the group and individual radios', async () => {
+        await render(
+          <Field.Root name="apple">
+            <RadioGroup defaultValue={[]}>
+              <Field.Description data-testid="group-description">
+                Group description
+              </Field.Description>
+              <Field.Item>
+                <Field.Label>
+                  <Radio.Root value="fuji-apple" />
+                  Fuji
+                </Field.Label>
+              </Field.Item>
+            </RadioGroup>
+          </Field.Root>,
+        );
+
+        const groupDescription = screen.getByTestId('group-description');
+        const groupDescriptionId = groupDescription.getAttribute('id');
+        expect(groupDescriptionId).to.not.equal(null);
+        expect(screen.getByRole('radiogroup').getAttribute('aria-describedby')).to.include(
+          groupDescriptionId,
+        );
+        expect(screen.getByRole('radio').getAttribute('aria-describedby')).to.include(
+          groupDescriptionId,
+        );
+      });
+    });
+
     describe('prop: validationMode', () => {
       it('onSubmit', async () => {
         const { user } = await render(

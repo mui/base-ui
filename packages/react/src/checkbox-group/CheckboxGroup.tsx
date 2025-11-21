@@ -51,7 +51,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     shouldValidateOnChange,
     validityData,
   } = useFieldRootContext();
-  const { labelId } = useLabelableContext();
+  const { labelId, getDescriptionProps } = useLabelableContext();
   const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
@@ -152,6 +152,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
         role: 'group',
         'aria-labelledby': labelId,
       },
+      getDescriptionProps,
       elementProps,
     ],
     stateAttributesMapping: fieldValidityMapping,

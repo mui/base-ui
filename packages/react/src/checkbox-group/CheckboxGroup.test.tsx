@@ -489,6 +489,34 @@ describe('<CheckboxGroup />', () => {
     });
   });
 
+  describe('Field.Description', () => {
+    it('links the group and individual checkboxes', async () => {
+      await render(
+        <Field.Root name="apple">
+          <CheckboxGroup defaultValue={[]}>
+            <Field.Description data-testid="group-description">Group description</Field.Description>
+            <Field.Item>
+              <Field.Label>
+                <Checkbox.Root value="fuji-apple" />
+                Fuji
+              </Field.Label>
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const groupDescription = screen.getByTestId('group-description');
+      const groupDescriptionId = groupDescription.getAttribute('id');
+      expect(groupDescriptionId).to.not.equal(null);
+      expect(screen.getByRole('group').getAttribute('aria-describedby')).to.include(
+        groupDescriptionId,
+      );
+      expect(screen.getByRole('checkbox').getAttribute('aria-describedby')).to.include(
+        groupDescriptionId,
+      );
+    });
+  });
+
   describe.skipIf(isJSDOM)('Form', () => {
     it('includes the checkbox group value in form submission', async () => {
       render(

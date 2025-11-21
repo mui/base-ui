@@ -24,7 +24,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
   const fieldRootContext = useFieldRootContext(false);
 
-  const { controlId, setLabelId, labelId, labelableControlRef } = useLabelableContext();
+  const { controlId, setLabelId, labelId } = useLabelableContext();
 
   const id = useBaseUiId(idProp);
 
@@ -38,7 +38,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
     return () => {
       setLabelId(undefined);
     };
-  }, [id, labelableControlRef, setLabelId]);
+  }, [id, setLabelId]);
 
   const element = useRenderElement('label', componentProps, {
     ref: [forwardedRef, labelRef],

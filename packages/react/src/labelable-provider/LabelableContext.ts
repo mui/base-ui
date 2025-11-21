@@ -5,11 +5,6 @@ import { HTMLProps } from '../utils/types';
 
 export interface LabelableContext {
   /**
-   * A ref to the labelable element.
-   */
-  labelableControlRef: React.RefObject<HTMLElement | null>;
-  registerLabelableControlRef: React.RefCallback<Element> | null;
-  /**
    * The `id` of the labelable element.
    * When `null` the association is implicit.
    */
@@ -39,8 +34,6 @@ export const LabelableContext = React.createContext<LabelableContext>({
   setLabelId: NOOP,
   messageIds: [],
   setMessageIds: NOOP,
-  labelableControlRef: { current: null },
-  registerLabelableControlRef: null,
   getDescriptionProps: (externalProps: HTMLProps) => externalProps,
 });
 
