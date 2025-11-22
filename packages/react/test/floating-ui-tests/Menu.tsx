@@ -92,7 +92,7 @@ export const MenuComponent = React.forwardRef<
   const parent = React.useContext(MenuContext);
   const item = useCompositeListItem();
 
-  const { floatingStyles, refs, context } = useFloating<HTMLButtonElement>({
+  const { floatingStyles, refs, context } = useFloating({
     nodeId,
     open: isOpen,
     onOpenChange: setIsOpen,

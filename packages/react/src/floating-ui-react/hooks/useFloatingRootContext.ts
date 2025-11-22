@@ -6,8 +6,8 @@ import type { ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 
-import { FloatingRootContextStore } from '../components/FloatingRootContextStore';
-import type { FloatingRootContextState } from '../components/FloatingRootContextStore';
+import { FloatingRootStore } from '../components/FloatingRootStore';
+import type { FloatingRootState } from '../components/FloatingRootStore';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
@@ -23,9 +23,7 @@ export interface UseFloatingRootContextOptions {
   noEmit?: boolean;
 }
 
-export function useFloatingRootContext(
-  options: UseFloatingRootContextOptions,
-): FloatingRootContextStore {
+export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {
   const { open = false, onOpenChange, elements = {} } = options;
 
   const floatingId = useId();
@@ -36,7 +34,7 @@ export function useFloatingRootContext(
     if (optionDomReference && !isElement(optionDomReference)) {
       console.error(
         'Cannot pass a virtual element to the `elements.reference` option,',
-        'as it must be a real DOM element. Use `refs.setPositionReference()`',
+        'as it must be a real DOM element. Use `context.setPositionReference()`',
         'instead.',
       );
     }
@@ -44,7 +42,7 @@ export function useFloatingRootContext(
 
   const store = useRefWithInit(
     () =>
-      new FloatingRootContextStore<ReferenceType>({
+      new FloatingRootStore({
         open,
         onOpenChange,
         referenceElement: elements.reference ?? null,
@@ -57,7 +55,7 @@ export function useFloatingRootContext(
   ).current;
 
   useIsoLayoutEffect(() => {
-    const valuesToSync: Partial<FloatingRootContextState> = {
+    const valuesToSync: Writeable<Partial<FloatingRootState>> = {
       open,
       floatingId,
     };
@@ -85,3 +83,5 @@ export function useFloatingRootContext(
 
   return store;
 }
+
+type Writeable<T> = { -readonly [P in keyof T]: T[P] };

@@ -12,20 +12,18 @@ import type {
   UseFloatingReturn,
 } from '../types';
 import { useFloatingRootContext } from './useFloatingRootContext';
-import { FloatingRootContextStore } from '../components/FloatingRootContextStore';
+import { FloatingRootStore } from '../components/FloatingRootStore';
 
 /**
  * Provides data to position a floating element and context to add interactions.
  * @see https://floating-ui.com/docs/useFloating
  */
-export function useFloating<RT extends ReferenceType = ReferenceType>(
-  options: UseFloatingOptions = {},
-): UseFloatingReturn<RT> {
+export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn {
   const { nodeId, externalTree } = options;
 
-  const internalRootContext = useFloatingRootContext(options);
+  const internalRootStore = useFloatingRootContext(options);
 
-  const rootContext = options.rootContext || internalRootContext;
+  const rootContext = options.rootContext || internalRootStore;
   const rootContextElements = {
     reference: rootContext.useState('referenceElement'),
     floating: rootContext.useState('floatingElement'),
@@ -35,13 +33,14 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
 
   const [positionReference, setPositionReferenceRaw] = React.useState<ReferenceType | null>(null);
 
-  const domReferenceRef = React.useRef<NarrowedElement<RT> | null>(null);
+  const domReferenceRef = React.useRef<NarrowedElement<ReferenceType> | null>(null);
 
   const tree = useFloatingTree(externalTree);
 
   useIsoLayoutEffect(() => {
     if (rootContextElements.domReference) {
-      domReferenceRef.current = rootContextElements.domReference as NarrowedElement<RT> | null;
+      domReferenceRef.current =
+        rootContextElements.domReference as NarrowedElement<ReferenceType> | null;
     }
   }, [rootContextElements.domReference]);
 
@@ -70,9 +69,8 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
     [position.refs],
   );
 
-  const [localDomReference, setLocalDomReference] = React.useState<NarrowedElement<RT> | null>(
-    null,
-  );
+  const [localDomReference, setLocalDomReference] =
+    React.useState<NarrowedElement<ReferenceType> | null>(null);
   const [localFloatingElement, setLocalFloatingElement] = React.useState<HTMLElement | null>(null);
   rootContext.useSyncedValue('referenceElement', localDomReference);
   rootContext.useSyncedValue(
@@ -82,10 +80,10 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
   rootContext.useSyncedValue('floatingElement', localFloatingElement);
 
   const setReference = React.useCallback(
-    (node: RT | null) => {
+    (node: ReferenceType | null) => {
       if (isElement(node) || node === null) {
         (domReferenceRef as React.MutableRefObject<Element | null>).current = node;
-        setLocalDomReference(node as NarrowedElement<RT> | null);
+        setLocalDomReference(node as NarrowedElement<ReferenceType> | null);
       }
 
       // Backwards-compatibility for passing a virtual element to `reference`
@@ -126,7 +124,7 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
   const elements = React.useMemo(
     () => ({
       ...position.elements,
-      domReference: rootContextElements.domReference as NarrowedElement<RT> | null,
+      domReference: rootContextElements.domReference,
       triggers: rootContextElements.triggers,
     }),
     [position.elements, rootContextElements.domReference, rootContextElements?.triggers],
@@ -135,7 +133,7 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
   const open = rootContext.useState('open');
   const floatingId = rootContext.useState('floatingId');
 
-  const context = React.useMemo<FloatingContext<RT>>(
+  const context = React.useMemo<FloatingContext>(
     () => ({
       ...position,
       dataRef: rootContext.context.dataRef,
@@ -146,17 +144,17 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
       refs,
       elements,
       nodeId,
-      rootStore: rootContext as unknown as FloatingRootContextStore<RT>,
+      rootStore: rootContext,
     }),
     [position, refs, elements, nodeId, rootContext, open, floatingId],
   );
 
   useIsoLayoutEffect(() => {
-    rootContext.context.dataRef.current.floatingContext = context as FloatingContext<any>;
+    rootContext.context.dataRef.current.floatingContext = context;
 
     const node = tree?.nodesRef.current.find((n) => n.id === nodeId);
     if (node) {
-      node.context = context as FloatingContext<any>;
+      node.context = context;
     }
   });
 
@@ -166,8 +164,8 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
       context,
       refs,
       elements,
-      rootStore: rootContext as unknown as FloatingRootContextStore<RT>,
+      rootStore: rootContext as unknown as FloatingRootStore,
     }),
     [position, refs, elements, context, rootContext],
-  ) as UseFloatingReturn<RT>;
+  ) as UseFloatingReturn;
 }
