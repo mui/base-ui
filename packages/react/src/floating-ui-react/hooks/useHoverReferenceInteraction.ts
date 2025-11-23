@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
+import { hasSome } from '@base-ui-components/utils/setExtensions';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -128,12 +128,8 @@ export function useHoverReferenceInteraction(
       return;
     }
 
-    const triggerElements = store.select('triggerElements');
-    if (
-      event.relatedTarget &&
-      triggerElements &&
-      triggerElements.includes(event.relatedTarget as Element)
-    ) {
+    const triggerElements = store.context.getTriggers();
+    if (event.relatedTarget && triggerElements.has(event.relatedTarget as Element)) {
       return;
     }
 
@@ -181,10 +177,11 @@ export function useHoverReferenceInteraction(
 
       const openDelay = getDelay(delayRef.current, 'open', pointerTypeRef.current);
       const currentDomReference = store.select('domReferenceElement');
-      const allTriggers = store.select('triggerElements') ?? EMPTY_ARRAY;
+      const allTriggers = store.context.getTriggers();
 
       const isOverInactiveTrigger =
-        allTriggers.some((t) => contains(t, event.target as Element)) &&
+        (allTriggers.has(event.target as Element) ||
+          hasSome(allTriggers, (t) => contains(t, event.target as Element))) &&
         (!currentDomReference || !contains(currentDomReference, event.target as Element));
 
       const triggerNode = (event.currentTarget as HTMLElement) ?? null;
@@ -213,13 +210,9 @@ export function useHoverReferenceInteraction(
       restTimeout.clear();
       restTimeoutPendingRef.current = false;
 
-      const triggerElements = store.select('triggerElements');
+      const triggerElements = store.context.getTriggers();
 
-      if (
-        event.relatedTarget &&
-        triggerElements &&
-        triggerElements.includes(event.relatedTarget as Element)
-      ) {
+      if (event.relatedTarget && triggerElements.has(event.relatedTarget as Element)) {
         return;
       }
 
@@ -329,11 +322,12 @@ export function useHoverReferenceInteraction(
         const trigger = event.currentTarget as HTMLElement;
 
         const currentDomReference = store.select('domReferenceElement');
-        const allTriggers = store.select('triggerElements') ?? EMPTY_ARRAY;
+        const allTriggers = store.context.getTriggers();
         const currentOpen = store.select('open');
 
         const isOverInactiveTrigger =
-          allTriggers.some((t) => contains(t, event.target as Element)) &&
+          (allTriggers.has(event.target as Element) ||
+            hasSome(allTriggers, (t) => contains(t, event.target as Element))) &&
           (!currentDomReference || !contains(currentDomReference, event.target as Element));
 
         if (mouseOnly && !isMouseLikePointerType(pointerTypeRef.current)) {

@@ -102,13 +102,18 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     isActiveTrigger: isTriggerActive,
   });
 
-  const registerTrigger = useTriggerRegistration(thisTriggerId, store);
+  const registerTrigger = useTriggerRegistration(store);
 
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
-      store.update({ payload, closeDelay: closeDelayWithDefault });
+      store.update({
+        payload,
+        closeDelay: closeDelayWithDefault,
+        // TODO: rethink which component should set this
+        activeTriggerElement: triggerElement,
+      });
     }
-  }, [isTriggerActive, payload, closeDelayWithDefault, store]);
+  }, [isTriggerActive, payload, closeDelayWithDefault, triggerElement, store]);
 
   const state: TooltipTrigger.State = React.useMemo(
     () => ({ open: isOpenedByThisTrigger }),

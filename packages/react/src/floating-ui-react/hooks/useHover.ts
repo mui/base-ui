@@ -321,9 +321,9 @@ export function useHover(
       restTimeout.clear();
       restTimeoutPendingRef.current = false;
 
-      const triggers = store.select('triggerElements');
+      const triggers = store.context.getTriggers();
 
-      if (event.relatedTarget && triggers && triggers.includes(event.relatedTarget as Element)) {
+      if (event.relatedTarget && triggers.has(event.relatedTarget as Element)) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
         return;
@@ -382,9 +382,9 @@ export function useHover(
         return;
       }
 
-      const triggers = store.select('triggerElements');
+      const triggers = store.context.getTriggers();
 
-      if (event.relatedTarget && triggers && triggers.includes(event.relatedTarget as Element)) {
+      if (event.relatedTarget && triggers.has(event.relatedTarget as Element)) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
         return;

@@ -55,12 +55,11 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const openState = store.useState('open');
-  const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const triggerElements = store.useState('triggers');
   const activeTriggerId = store.useState('activeTriggerId');
+  const activeTriggerElement = store.useState('activeTriggerElement');
   const payload = store.useState('payload') as Payload | undefined;
   const isInstantPhase = store.useState('isInstantPhase');
   const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
@@ -77,21 +76,24 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
 
   store.useSyncedValues({ mounted, transitionStatus, disabled });
 
+  // TODO: reimplement without `triggerElements` state
+  /*
+
   let resolvedTriggerId: string | null = null;
   if (mounted === true && triggerIdProp === undefined && triggerElements.size === 1) {
     resolvedTriggerId = triggerElements.keys().next().value || null;
   } else {
     resolvedTriggerId = triggerIdProp ?? activeTriggerId ?? null;
   }
+    */
 
   useIsoLayoutEffect(() => {
     if (open) {
-      store.set('activeTriggerId', resolvedTriggerId);
-      if (resolvedTriggerId == null) {
+      if (activeTriggerId == null) {
         store.set('payload', undefined);
       }
     }
-  }, [store, resolvedTriggerId, open]);
+  }, [store, activeTriggerId, open]);
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
@@ -139,8 +141,8 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     elements: {
       reference: activeTriggerElement,
       floating: positionerElement,
-      triggers: Array.from(triggerElements.values()),
     },
+    triggersGetter: React.useCallback(() => store.context.triggerElements, [store]),
     open,
     onOpenChange: store.setOpen,
   });

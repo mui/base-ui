@@ -27,7 +27,6 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   const rootContextElements = {
     reference: rootContext.useState('referenceElement'),
     floating: rootContext.useState('floatingElement'),
-    triggers: rootContext.useState('triggerElements'),
     domReference: rootContext.useState('domReferenceElement'),
   };
 
@@ -125,9 +124,8 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     () => ({
       ...position.elements,
       domReference: rootContextElements.domReference,
-      triggers: rootContextElements.triggers,
     }),
-    [position.elements, rootContextElements.domReference, rootContextElements?.triggers],
+    [position.elements, rootContextElements.domReference],
   );
 
   const open = rootContext.useState('open');

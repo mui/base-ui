@@ -1,80 +1,39 @@
 import * as React from 'react';
-import { Store } from '@base-ui-components/utils/store';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { ReactStore } from '@base-ui-components/utils/store';
 
 /**
  * Returns a callback ref that registers/unregisters the trigger element in the store.
  *
- * @param id ID of the trigger. This must not be undefined by the time a ref is assigned.
  * @param store The Store instance where the trigger should be registered.
  */
-export function useTriggerRegistration<State extends { triggers: PopupTriggerMap }>(
-  id: string | undefined,
-  store: Store<State>,
+export function useTriggerRegistration<Context extends { triggerElements: Set<Element> }>(
+  store: ReactStore<any, Context, any>,
 ) {
-  const registeredIdRef = React.useRef<string | null>(null);
-  const [element, setElement] = React.useState<HTMLElement | null>(null);
+  const registeredElementRef = React.useRef<Element | null>(null);
 
-  useIsoLayoutEffect(() => {
-    if (id == null) {
-      if (element != null) {
-        throw new Error('Base UI: Trigger must have an `id` prop specified.');
-      }
-      return;
-    }
-
-    const prevId = registeredIdRef.current;
-    const triggers = store.state.triggers;
-
-    if (element) {
-      const existing = triggers.get(id);
-
-      if (existing === element && prevId === id) {
-        return;
+  return React.useCallback(
+    (element: Element | null) => {
+      if (registeredElementRef.current !== null) {
+        store.context.triggerElements.delete(registeredElementRef.current);
+        registeredElementRef.current = null;
       }
 
-      const next = new Map(triggers);
+      if (element !== null) {
+        registeredElementRef.current = element;
+        store.context.triggerElements.add(element);
 
-      if (prevId != null && prevId !== id) {
-        next.delete(prevId);
+        return () => {
+          if (registeredElementRef.current !== null) {
+            store.context.triggerElements.delete(registeredElementRef.current);
+            registeredElementRef.current = null;
+          }
+        };
       }
 
-      next.set(id, element);
-      registeredIdRef.current = id;
-      store.set('triggers', next);
-    } else {
-      const keyToRemove = prevId ?? id;
-      if (!triggers.has(keyToRemove)) {
-        return;
-      }
-
-      const next = new Map(triggers);
-      next.delete(keyToRemove);
-      registeredIdRef.current = null;
-      store.set('triggers', next);
-    }
-  }, [element, id, store]);
-
-  useIsoLayoutEffect(() => {
-    return () => {
-      const prevId = registeredIdRef.current;
-      if (prevId == null) {
-        return;
-      }
-
-      const triggers = store.state.triggers;
-      if (!triggers.has(prevId)) {
-        return;
-      }
-
-      const next = new Map(triggers);
-      next.delete(prevId);
-      registeredIdRef.current = null;
-      store.set('triggers', next);
-    };
-  }, [store]);
-
-  return setElement;
+      return undefined;
+    },
+    [store],
+  );
 }
 
 export type PayloadChildRenderFunction<Payload> = (arg: {

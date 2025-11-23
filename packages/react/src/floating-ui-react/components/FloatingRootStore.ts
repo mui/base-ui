@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui-components/utils/store';
-import { EMPTY_ARRAY, NOOP } from '@base-ui-components/utils/empty';
+import { NOOP } from '@base-ui-components/utils/empty';
 import type { FloatingEvents, ContextData, ReferenceType } from '../types';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
@@ -11,7 +11,6 @@ export interface FloatingRootState {
   readonly domReferenceElement: Element | null;
   readonly referenceElement: ReferenceType | null;
   readonly floatingElement: HTMLElement | null;
-  readonly triggerElements: readonly Element[];
   readonly positionReference: ReferenceType | null;
   /**
    * The ID of the floating element.
@@ -28,6 +27,7 @@ export interface FloatingRootStoreContext {
   events: FloatingEvents;
   nested: boolean;
   noEmit: boolean;
+  getTriggers(): Set<Element>;
 }
 
 const selectors = {
@@ -37,7 +37,6 @@ const selectors = {
     (state: FloatingRootState) => state.positionReference ?? state.referenceElement,
   ),
   floatingElement: createSelector((state: FloatingRootState) => state.floatingElement),
-  triggerElements: createSelector((state: FloatingRootState) => state.triggerElements),
   floatingId: createSelector((state: FloatingRootState) => state.floatingId),
 };
 
@@ -45,7 +44,7 @@ interface FloatingRootStoreOptions {
   open: boolean;
   referenceElement: ReferenceType | null;
   floatingElement: HTMLElement | null;
-  triggerElements: readonly Element[] | undefined;
+  triggersGetter: () => Set<Element>;
   floatingId: string | undefined;
   nested: boolean;
   noEmit: boolean;
@@ -60,20 +59,13 @@ export class FloatingRootStore extends ReactStore<
   typeof selectors
 > {
   constructor(options: FloatingRootStoreOptions) {
-    const {
-      nested,
-      noEmit,
-      onOpenChange,
-      triggerElements = EMPTY_ARRAY,
-      ...initialState
-    } = options;
+    const { nested, noEmit, onOpenChange, triggersGetter, ...initialState } = options;
 
     super(
       {
         ...initialState,
         positionReference: initialState.referenceElement,
         domReferenceElement: initialState.referenceElement as Element | null,
-        triggerElements,
       },
       {
         onOpenChange,
@@ -82,6 +74,7 @@ export class FloatingRootStore extends ReactStore<
         events: createEventEmitter(),
         nested,
         noEmit,
+        getTriggers: triggersGetter,
       },
       selectors,
     );

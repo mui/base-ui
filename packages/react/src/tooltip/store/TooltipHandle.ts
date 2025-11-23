@@ -23,7 +23,8 @@ export class TooltipHandle<Payload> {
    * @param triggerId ID of the trigger to associate with the tooltip.
    */
   open(triggerId: string) {
-    const triggerElement = triggerId
+    // TODO implement trigger association
+    /*const triggerElement = triggerId
       ? (this.store.state.triggers.get(triggerId) ?? undefined)
       : undefined;
 
@@ -34,7 +35,7 @@ export class TooltipHandle<Payload> {
     this.store.setOpen(
       true,
       createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
-    );
+    );*/
   }
 
   /**

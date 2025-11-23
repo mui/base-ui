@@ -45,7 +45,7 @@ export default function AnchorPositioning() {
     open: true,
     referenceElement: anchorEl,
     floatingElement: null,
-    triggerElements: undefined,
+    triggersGetter: () => new Set(),
     floatingId: '',
     nested: false,
     noEmit: false,

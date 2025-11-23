@@ -15,8 +15,8 @@ export interface UseFloatingRootContextOptions {
   elements?: {
     reference?: ReferenceType | null;
     floating?: HTMLElement | null;
-    triggers?: Element[];
   };
+  triggersGetter?: () => Set<Element>;
   /**
    * Whether to prevent the auto-emitted `openchange` event.
    */
@@ -24,7 +24,7 @@ export interface UseFloatingRootContextOptions {
 }
 
 export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {
-  const { open = false, onOpenChange, elements = {} } = options;
+  const { open = false, onOpenChange, triggersGetter, elements = {} } = options;
 
   const floatingId = useId();
   const nested = useFloatingParentNodeId() != null;
@@ -47,7 +47,7 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
         onOpenChange,
         referenceElement: elements.reference ?? null,
         floatingElement: elements.floating ?? null,
-        triggerElements: elements.triggers,
+        triggersGetter: triggersGetter ?? (() => new Set()),
         floatingId,
         nested,
         noEmit: options.noEmit || false,
@@ -70,16 +70,14 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
       valuesToSync.floatingElement = elements.floating;
     }
 
-    if (elements.triggers !== undefined) {
-      valuesToSync.triggerElements = elements.triggers;
-    }
-
     store.update(valuesToSync);
-  }, [open, floatingId, elements.reference, elements.floating, elements.triggers, store]);
+  }, [open, floatingId, elements.reference, elements.floating, store]);
 
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
   store.context.noEmit = options.noEmit || false;
+  // TODO: rethink
+  store.context.getTriggers = options.triggersGetter ?? (() => new Set());
 
   return store;
 }

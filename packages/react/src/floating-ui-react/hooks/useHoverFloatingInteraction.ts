@@ -234,12 +234,8 @@ export function useHoverFloatingInteraction(
         return;
       }
 
-      const triggerElements = store.select('triggerElements');
-      if (
-        event.relatedTarget &&
-        triggerElements &&
-        triggerElements.includes(event.relatedTarget as Element)
-      ) {
+      const triggerElements = store.context.getTriggers();
+      if (event.relatedTarget && triggerElements.has(event.relatedTarget as Element)) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
         return;

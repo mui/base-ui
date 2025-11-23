@@ -8,7 +8,6 @@ import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootC
 import { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
 import { type TooltipRoot } from '../root/TooltipRoot';
-import { PopupTriggerMap } from '../../utils/popupStoreUtils';
 import { REASONS } from '../../utils/reasons';
 
 export type State<Payload> = {
@@ -23,8 +22,8 @@ export type State<Payload> = {
   readonly disableHoverablePopup: boolean;
   readonly preventUnmountingOnClose: boolean;
   readonly lastOpenChangeReason: TooltipRoot.ChangeEventReason | null;
-  readonly triggers: PopupTriggerMap;
   readonly activeTriggerId: string | null;
+  readonly activeTriggerElement: HTMLElement | null;
   readonly activeTriggerProps: HTMLProps;
   readonly inactiveTriggerProps: HTMLProps;
   readonly payload: Payload | undefined;
@@ -35,7 +34,8 @@ export type State<Payload> = {
 };
 
 export type Context = {
-  popupRef: React.RefObject<HTMLElement | null>;
+  readonly popupRef: React.RefObject<HTMLElement | null>;
+  readonly triggerElements: Set<Element>;
   onOpenChange?: (open: boolean, eventDetails: TooltipRoot.ChangeEventDetails) => void;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
 };
@@ -54,13 +54,8 @@ const selectors = {
     (state: State<unknown>) => state.preventUnmountingOnClose,
   ),
   lastOpenChangeReason: createSelector((state: State<unknown>) => state.lastOpenChangeReason),
-  triggers: createSelector((state: State<unknown>) => state.triggers),
   activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
-  activeTriggerElement: createSelector((state: State<unknown>) =>
-    state.mounted && state.activeTriggerId != null
-      ? (state.triggers.get(state.activeTriggerId) ?? null)
-      : null,
-  ),
+  activeTriggerElement: createSelector((state: State<unknown>) => state.activeTriggerElement),
   isTriggerActive: createSelector(
     (state: State<unknown>, triggerId: string | undefined) =>
       triggerId !== undefined && state.activeTriggerId === triggerId,
@@ -87,6 +82,7 @@ export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, t
         popupRef: React.createRef<HTMLElement | null>(),
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
+        triggerElements: new Set<Element>(),
       },
       selectors,
     );
@@ -162,9 +158,9 @@ function createInitialState<Payload>(): State<Payload> {
     disableHoverablePopup: false,
     preventUnmountingOnClose: false,
     lastOpenChangeReason: null,
-    triggers: new Map(),
     payload: undefined,
     activeTriggerId: null,
+    activeTriggerElement: null,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,

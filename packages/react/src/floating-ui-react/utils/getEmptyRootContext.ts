@@ -6,7 +6,7 @@ export function getEmptyRootContext(): FloatingRootContext {
     open: false,
     floatingElement: null,
     referenceElement: null,
-    triggerElements: [],
+    triggersGetter: () => new Set(),
     floatingId: '',
     nested: false,
     noEmit: false,

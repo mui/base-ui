@@ -10,6 +10,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { ownerWindow } from '@base-ui-components/utils/owner';
+import { hasSome } from '@base-ui-components/utils/setExtensions';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -266,7 +267,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const open = store.useState('open');
   const domReference = store.useState('domReferenceElement');
   const floating = store.useState('floatingElement');
-  const triggers = store.useState('triggerElements');
   const { events, dataRef } = store.context;
 
   const getNodeId = useStableCallback(() => dataRef.current.floatingContext?.nodeId);
@@ -427,12 +427,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       queueMicrotask(() => {
         const nodeId = getNodeId();
+        const triggers = store.context.getTriggers();
         const movedToUnrelatedNode = !(
           contains(domReference, relatedTarget) ||
           contains(floating, relatedTarget) ||
           contains(relatedTarget, floating) ||
           contains(portalContext?.portalNode, relatedTarget) ||
-          triggers?.some((trigger) => contains(trigger, relatedTarget)) ||
+          hasSome(triggers, (trigger) => contains(trigger, relatedTarget)) ||
           relatedTarget?.hasAttribute(createAttribute('focus-guard')) ||
           (tree &&
             (getNodeChildren(tree.nodesRef.current, nodeId).find(
@@ -582,7 +583,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     blurTimeout,
     pointerDownTimeout,
     restoreFocusFrame,
-    triggers,
   ]);
 
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);

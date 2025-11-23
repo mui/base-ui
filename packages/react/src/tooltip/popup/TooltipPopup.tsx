@@ -39,7 +39,6 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const popupProps = store.useState('popupProps');
-  const triggers = store.useState('triggers');
   const payload = store.useState('payload');
   const popupElement = store.useState('popupElement');
   const positionerElement = store.useState('positionerElement');
@@ -71,7 +70,9 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
 
   // If there's just one trigger, we can skip the auto-resize logic as
   // the tooltip will always be anchored to the same position.
-  const autoresizeEnabled = triggers.size > 1;
+  // TODO: determine otherwise or skip
+  // const autoresizeEnabled = triggers.size > 1;
+  const autoresizeEnabled = true;
 
   usePopupAutoResize({
     popupElement,
