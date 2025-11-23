@@ -142,7 +142,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
-  const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
@@ -153,7 +152,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   const activeIndex = store.useState('activeIndex');
   const payload = store.useState('payload') as Payload | undefined;
-  const triggers = store.useState('triggers');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
 
   const openEventRef = React.useRef<Event | null>(null);
@@ -179,6 +177,8 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   store.useSyncedValues({ mounted, transitionStatus });
 
+  // TODO: revisit
+  /*
   let resolvedTriggerId: string | null = null;
   if (mounted === true && triggerIdProp === undefined && triggers.size === 1) {
     resolvedTriggerId = triggers.keys().next().value || null;
@@ -194,6 +194,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       }
     }
   }, [store, resolvedTriggerId, open]);
+  */
 
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
@@ -283,7 +284,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       // Do not immediately reset the activeTriggerId to allow
       // exit animations to play and focus to be returned correctly.
       if (!nextOpen && eventDetails.trigger == null) {
-        eventDetails.trigger = activeTriggerElement ?? undefined;
+        eventDetails.trigger = (activeTriggerElement as HTMLElement | null) ?? undefined;
       }
 
       onOpenChange?.(nextOpen, eventDetails as MenuRoot.ChangeEventDetails);
@@ -418,7 +419,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     elements: {
       reference: activeTriggerElement,
       floating: positionerElement,
-      triggers: Array.from(triggers.values()),
+      triggers: store.context.triggerElements,
     },
     open,
     onOpenChange: setOpen,

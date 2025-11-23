@@ -32,7 +32,7 @@ export type State<Payload> = {
   readonly itemProps: HTMLProps;
   readonly popupProps: HTMLProps;
   readonly payload: Payload | undefined;
-  readonly triggers: PopupTriggerMap;
+  readonly activeTriggerElement: Element | null;
   readonly activeTriggerProps: HTMLProps;
   readonly inactiveTriggerProps: HTMLProps;
   readonly activeTriggerId: string | null;
@@ -41,15 +41,16 @@ export type State<Payload> = {
 };
 
 type Context = {
-  positionerRef: React.RefObject<HTMLElement | null>;
-  popupRef: React.RefObject<HTMLElement | null>;
-  typingRef: React.RefObject<boolean>;
-  itemDomElements: React.RefObject<(HTMLElement | null)[]>;
-  itemLabels: React.RefObject<(string | null)[]>;
+  readonly positionerRef: React.RefObject<HTMLElement | null>;
+  readonly popupRef: React.RefObject<HTMLElement | null>;
+  readonly typingRef: React.RefObject<boolean>;
+  readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
+  readonly itemLabels: React.RefObject<(string | null)[]>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
-  preventUnmountingRef: React.RefObject<boolean>;
-  triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
-  beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
+  readonly preventUnmountingRef: React.RefObject<boolean>;
+  readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
+  readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
+  readonly triggerElements: PopupTriggerMap;
 
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
 };
@@ -71,9 +72,7 @@ const selectors = {
   mounted: createSelector((state: State<unknown>) => state.mounted),
   activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
   activeTriggerElement: createSelector((state: State<unknown>) =>
-    state.mounted && state.activeTriggerId != null
-      ? (state.triggers.get(state.activeTriggerId) ?? null)
-      : null,
+    state.mounted ? state.activeTriggerElement : null,
   ),
   isTriggerActive: createSelector(
     (state: State<unknown>, triggerId: string | undefined) =>
@@ -122,7 +121,6 @@ const selectors = {
     isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
   ),
   payload: createSelector((state: State<unknown>) => state.payload),
-  triggers: createSelector((state: State<unknown>) => state.triggers),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
   keyboardEventRelay: createSelector(
     (state: State<unknown>): React.KeyboardEventHandler<any> | undefined => {
@@ -154,6 +152,7 @@ export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, type
         triggerFocusTargetRef: React.createRef<HTMLElement>(),
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
         onOpenChangeComplete: undefined,
+        triggerElements: new PopupTriggerMap(),
       },
       selectors,
     );
@@ -234,10 +233,10 @@ function createInitialState<Payload>(): State<Payload> {
     floatingParentNodeId: null,
     itemProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
+    activeTriggerElement: null,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     payload: undefined,
-    triggers: new Map<string, HTMLElement>(),
     activeTriggerId: null,
     keyboardEventRelay: undefined,
     closeDelay: 0,

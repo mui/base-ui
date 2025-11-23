@@ -147,6 +147,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         floatingParentNodeId,
         keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
         closeDelay,
+        activeTriggerElement: triggerElement,
       });
     }
   }, [
@@ -158,6 +159,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     floatingParentNodeId,
     compositeRootContext?.relayKeyboardEvent,
     closeDelay,
+    triggerElement,
   ]);
 
   const { getButtonProps, buttonRef } = useButton({
