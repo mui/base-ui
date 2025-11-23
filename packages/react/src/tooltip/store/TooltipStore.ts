@@ -56,7 +56,9 @@ const selectors = {
   ),
   lastOpenChangeReason: createSelector((state: State<unknown>) => state.lastOpenChangeReason),
   activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
-  activeTriggerElement: createSelector((state: State<unknown>) => state.activeTriggerElement),
+  activeTriggerElement: createSelector((state: State<unknown>) =>
+    state.mounted ? state.activeTriggerElement : null,
+  ),
   isTriggerActive: createSelector(
     (state: State<unknown>, triggerId: string | undefined) =>
       triggerId !== undefined && state.activeTriggerId === triggerId,
