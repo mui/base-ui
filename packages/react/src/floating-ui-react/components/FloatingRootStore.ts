@@ -5,6 +5,7 @@ import type { FloatingEvents, ContextData, ReferenceType } from '../types';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { type FloatingUIOpenChangeDetails } from '../../utils/types';
+import { type PopupTriggerMap } from '../../utils/popupStoreUtils';
 
 export interface FloatingRootState {
   readonly open: boolean;
@@ -27,7 +28,7 @@ export interface FloatingRootStoreContext {
   events: FloatingEvents;
   nested: boolean;
   noEmit: boolean;
-  getTriggers(): Set<Element>;
+  triggerElements: PopupTriggerMap;
 }
 
 const selectors = {
@@ -44,7 +45,7 @@ interface FloatingRootStoreOptions {
   open: boolean;
   referenceElement: ReferenceType | null;
   floatingElement: HTMLElement | null;
-  triggersGetter: () => Set<Element>;
+  triggerElements: PopupTriggerMap;
   floatingId: string | undefined;
   nested: boolean;
   noEmit: boolean;
@@ -59,7 +60,7 @@ export class FloatingRootStore extends ReactStore<
   typeof selectors
 > {
   constructor(options: FloatingRootStoreOptions) {
-    const { nested, noEmit, onOpenChange, triggersGetter, ...initialState } = options;
+    const { nested, noEmit, onOpenChange, triggerElements, ...initialState } = options;
 
     super(
       {
@@ -74,7 +75,7 @@ export class FloatingRootStore extends ReactStore<
         events: createEventEmitter(),
         nested,
         noEmit,
-        getTriggers: triggersGetter,
+        triggerElements,
       },
       selectors,
     );

@@ -188,7 +188,7 @@ export function useFocus(
           // If the next focused element is one of the triggers, do not close
           // the floating element. The focus handler of that trigger will
           // handle the open state.
-          if (store.context.getTriggers().has(event.relatedTarget as Element)) {
+          if (store.context.triggerElements.hasElement(event.relatedTarget as Element)) {
             return;
           }
 

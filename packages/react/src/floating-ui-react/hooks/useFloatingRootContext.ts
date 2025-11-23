@@ -5,7 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import type { ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
-
+import { PopupTriggerMap } from '../../utils/popupStoreUtils';
 import { FloatingRootStore } from '../components/FloatingRootStore';
 import type { FloatingRootState } from '../components/FloatingRootStore';
 
@@ -15,8 +15,8 @@ export interface UseFloatingRootContextOptions {
   elements?: {
     reference?: ReferenceType | null;
     floating?: HTMLElement | null;
+    triggers?: PopupTriggerMap;
   };
-  triggersGetter?: () => Set<Element>;
   /**
    * Whether to prevent the auto-emitted `openchange` event.
    */
@@ -24,7 +24,7 @@ export interface UseFloatingRootContextOptions {
 }
 
 export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {
-  const { open = false, onOpenChange, triggersGetter, elements = {} } = options;
+  const { open = false, onOpenChange, elements = {} } = options;
 
   const floatingId = useId();
   const nested = useFloatingParentNodeId() != null;
@@ -47,7 +47,7 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
         onOpenChange,
         referenceElement: elements.reference ?? null,
         floatingElement: elements.floating ?? null,
-        triggersGetter: triggersGetter ?? (() => new Set()),
+        triggerElements: elements.triggers ?? new PopupTriggerMap(),
         floatingId,
         nested,
         noEmit: options.noEmit || false,
@@ -77,7 +77,7 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
   store.context.nested = nested;
   store.context.noEmit = options.noEmit || false;
   // TODO: rethink
-  store.context.getTriggers = options.triggersGetter ?? (() => new Set());
+  store.context.triggerElements = options.elements?.triggers ?? new PopupTriggerMap();
 
   return store;
 }

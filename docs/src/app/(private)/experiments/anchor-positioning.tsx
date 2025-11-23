@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 
 import { useAnchorPositioning } from '../../../../../packages/react/src/utils/useAnchorPositioning';
 import { FloatingRootStore } from '../../../../../packages/react/src/floating-ui-react/components/FloatingRootStore';
+import { PopupTriggerMap } from '../../../../../packages/react/src/utils/popupStoreUtils';
 import styles from './anchor-positioning.module.css';
 
 const oppositeSideMap = {
@@ -45,7 +46,7 @@ export default function AnchorPositioning() {
     open: true,
     referenceElement: anchorEl,
     floatingElement: null,
-    triggersGetter: () => new Set(),
+    triggerElements: new PopupTriggerMap(),
     floatingId: '',
     nested: false,
     noEmit: false,

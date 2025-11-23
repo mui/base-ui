@@ -10,7 +10,6 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { ownerWindow } from '@base-ui-components/utils/owner';
-import { hasSome } from '@base-ui-components/utils/setExtensions';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -427,13 +426,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       queueMicrotask(() => {
         const nodeId = getNodeId();
-        const triggers = store.context.getTriggers();
+        const triggers = store.context.triggerElements;
         const movedToUnrelatedNode = !(
           contains(domReference, relatedTarget) ||
           contains(floating, relatedTarget) ||
           contains(relatedTarget, floating) ||
           contains(portalContext?.portalNode, relatedTarget) ||
-          hasSome(triggers, (trigger) => contains(trigger, relatedTarget)) ||
+          (relatedTarget != null && triggers.hasElement(relatedTarget)) ||
+          triggers.hasMatchingElement((trigger) => contains(trigger, relatedTarget)) ||
           relatedTarget?.hasAttribute(createAttribute('focus-guard')) ||
           (tree &&
             (getNodeChildren(tree.nodesRef.current, nodeId).find(

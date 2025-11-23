@@ -10,7 +10,6 @@ import {
 } from '@floating-ui/utils/dom';
 import { Timeout, useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { hasSome } from '@base-ui-components/utils/setExtensions';
 import {
   contains,
   getDocument,
@@ -277,13 +276,13 @@ export function useDismiss(
       const inertSelector = `[${createAttribute('inert')}]`;
       const markers = getDocument(store.select('floatingElement')).querySelectorAll(inertSelector);
 
-      const triggers = store.context.getTriggers();
+      const triggers = store.context.triggerElements;
 
       // If another trigger is clicked, don't close the floating element.
       if (
         target &&
-        (triggers.has(target as Element) ||
-          hasSome(triggers, (trigger) => contains(trigger, target as Element)))
+        (triggers.hasElement(target as Element) ||
+          triggers.hasMatchingElement((trigger) => contains(trigger, target as Element)))
       ) {
         return;
       }

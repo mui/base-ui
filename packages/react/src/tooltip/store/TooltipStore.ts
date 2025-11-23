@@ -9,6 +9,7 @@ import { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { REASONS } from '../../utils/reasons';
+import { PopupTriggerMap } from '../../utils/popupStoreUtils';
 
 export type State<Payload> = {
   readonly open: boolean;
@@ -35,7 +36,7 @@ export type State<Payload> = {
 
 export type Context = {
   readonly popupRef: React.RefObject<HTMLElement | null>;
-  readonly triggerElements: Set<Element>;
+  readonly triggerElements: PopupTriggerMap;
   onOpenChange?: (open: boolean, eventDetails: TooltipRoot.ChangeEventDetails) => void;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
 };
@@ -82,7 +83,7 @@ export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, t
         popupRef: React.createRef<HTMLElement | null>(),
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
-        triggerElements: new Set<Element>(),
+        triggerElements: new PopupTriggerMap(),
       },
       selectors,
     );

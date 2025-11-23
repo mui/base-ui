@@ -141,8 +141,8 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     elements: {
       reference: activeTriggerElement,
       floating: positionerElement,
+      triggers: store.context.triggerElements,
     },
-    triggersGetter: React.useCallback(() => store.context.triggerElements, [store]),
     open,
     onOpenChange: store.setOpen,
   });

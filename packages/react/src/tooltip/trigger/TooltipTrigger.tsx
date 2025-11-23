@@ -102,7 +102,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     isActiveTrigger: isTriggerActive,
   });
 
-  const registerTrigger = useTriggerRegistration(store);
+  const registerTrigger = useTriggerRegistration(thisTriggerId, store);
 
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
