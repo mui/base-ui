@@ -19,17 +19,18 @@ import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
-  const { store, parentContext, actionsRef, triggerIdProp } = params;
+  const { store, parentContext, actionsRef } = params;
 
   const open = store.useState('open');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
   const popupElement = store.useState('popupElement');
-  const triggerElements = store.useState('triggers');
-  const activeTriggerId = store.useState('activeTriggerId');
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  // TODO: reimplement without `triggerElements` state
+  /*
 
   let resolvedTriggerId: string | null = null;
   if (mounted === true && triggerIdProp === undefined && triggerElements.size === 1) {
@@ -39,18 +40,19 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   }
 
   useIsoLayoutEffect(() => {
+    if (open) {
+      store.set('activeTriggerId', resolvedTriggerId);
+    }
+  }, [store, resolvedTriggerId, open]);
+  */
+
+  useIsoLayoutEffect(() => {
     store.set('mounted', mounted);
     if (!mounted) {
       store.set('activeTriggerId', null);
       store.set('payload', undefined);
     }
   }, [store, mounted]);
-
-  useIsoLayoutEffect(() => {
-    if (open) {
-      store.set('activeTriggerId', resolvedTriggerId);
-    }
-  }, [store, resolvedTriggerId, open]);
 
   const {
     openMethod,
@@ -102,7 +104,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     elements: {
       reference: triggerElement,
       floating: popupElement,
-      triggers: Array.from(triggerElements.values()),
+      triggers: store.context.triggerElements,
     },
     open,
     onOpenChange: store.setOpen,

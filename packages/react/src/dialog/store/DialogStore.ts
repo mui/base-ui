@@ -21,9 +21,9 @@ export type State<Payload> = {
   readonly titleElementId: string | undefined;
   readonly descriptionElementId: string | undefined;
   readonly activeTriggerId: string | null;
+  readonly activeTriggerElement: HTMLElement | null;
   readonly popupElement: HTMLElement | null;
   readonly viewportElement: HTMLElement | null;
-  readonly triggers: PopupTriggerMap;
   readonly floatingRootContext: FloatingRootContext;
   readonly payload: Payload | undefined;
   readonly activeTriggerProps: HTMLProps;
@@ -37,6 +37,7 @@ type Context = {
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly preventUnmountingOnCloseRef: React.RefObject<boolean>;
+  readonly triggerElements: PopupTriggerMap;
 
   readonly onOpenChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
   readonly onOpenChangeComplete?: (open: boolean) => void;
@@ -59,11 +60,8 @@ const selectors = {
   floatingRootContext: createSelector((state: State<unknown>) => state.floatingRootContext),
   activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
   activeTriggerElement: createSelector((state: State<unknown>) =>
-    state.mounted && state.activeTriggerId != null
-      ? (state.triggers.get(state.activeTriggerId) ?? null)
-      : null,
+    state.mounted ? state.activeTriggerElement : null,
   ),
-  triggers: createSelector((state: State<unknown>) => state.triggers),
   popupElement: createSelector((state: State<unknown>) => state.popupElement),
   viewportElement: createSelector((state: State<unknown>) => state.viewportElement),
   payload: createSelector((state: State<unknown>) => state.payload),
@@ -81,6 +79,7 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
         backdropRef: React.createRef<HTMLDivElement>(),
         internalBackdropRef: React.createRef<HTMLDivElement>(),
         preventUnmountingOnCloseRef: { current: false },
+        triggerElements: new PopupTriggerMap(),
       },
       selectors,
     );
@@ -97,7 +96,7 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
     if (!nextOpen && eventDetails.trigger == null && this.state.activeTriggerId != null) {
       // When closing the dialog, pass the old trigger to the onOpenChange event
       // so it's not reset too early (potentially causing focus issues in controlled scenarios).
-      eventDetails.trigger = this.state.triggers.get(this.state.activeTriggerId);
+      eventDetails.trigger = this.state.activeTriggerElement ?? undefined;
     }
 
     this.context.onOpenChange?.(nextOpen, eventDetails as DialogRoot.ChangeEventDetails);
@@ -132,13 +131,13 @@ function createInitialState<Payload>(initialState: Partial<State<Payload>> = {})
     popupElement: null,
     viewportElement: null,
     activeTriggerId: null,
+    activeTriggerElement: null,
     descriptionElementId: undefined,
     titleElementId: undefined,
     openMethod: null,
     mounted: false,
     transitionStatus: 'idle',
     nestedOpenDialogCount: 0,
-    triggers: new Map(),
     floatingRootContext: getEmptyRootContext(),
     payload: undefined,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,

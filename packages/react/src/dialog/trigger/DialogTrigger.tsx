@@ -68,9 +68,9 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
-      store.set('payload', payload);
+      store.update({ payload, activeTriggerElement: triggerElement });
     }
-  }, [isTriggerActive, payload, store]);
+  }, [isTriggerActive, payload, triggerElement, store]);
 
   const click = useClick(floatingContext, { enabled: floatingContext != null });
   const localInteractionProps = useInteractions([click]);
