@@ -30,9 +30,9 @@ export type State<Payload> = {
   titleElementId: string | undefined;
   descriptionElementId: string | undefined;
   activeTriggerId: string | null;
+  activeTriggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   popupElement: HTMLElement | null;
-  triggers: PopupTriggerMap;
 
   floatingRootContext: FloatingRootContext;
 
@@ -53,6 +53,7 @@ type Context = {
   beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   preventUnmountingRef: React.RefObject<boolean>;
   stickIfOpenTimeout: Timeout;
+  triggerElements: PopupTriggerMap;
 };
 
 function createInitialState<Payload>(): State<Payload> {
@@ -61,9 +62,9 @@ function createInitialState<Payload>(): State<Payload> {
     mounted: false,
     modal: false,
     activeTriggerId: null,
+    activeTriggerElement: null,
     positionerElement: null,
     popupElement: null,
-    triggers: new Map<string, HTMLElement>(),
     instantType: undefined,
     transitionStatus: 'idle',
     openMethod: null,
@@ -86,13 +87,10 @@ const selectors = {
 
   activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
   activeTriggerElement: createSelector((state: State<unknown>) =>
-    state.mounted && state.activeTriggerId != null
-      ? (state.triggers.get(state.activeTriggerId) ?? null)
-      : null,
+    state.mounted ? state.activeTriggerElement : null,
   ),
   positionerElement: createSelector((state: State<unknown>) => state.positionerElement),
   popupElement: createSelector((state: State<unknown>) => state.popupElement),
-  triggers: createSelector((state: State<unknown>) => state.triggers),
 
   instantType: createSelector((state: State<unknown>) => state.instantType),
   transitionStatus: createSelector((state: State<unknown>) => state.transitionStatus),
@@ -127,6 +125,7 @@ export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, S
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
         preventUnmountingRef: { current: false },
         stickIfOpenTimeout: new Timeout(),
+        triggerElements: new PopupTriggerMap(),
       },
       selectors,
     );

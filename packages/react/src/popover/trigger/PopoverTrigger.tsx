@@ -119,9 +119,9 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
-      store.set('payload', payload);
+      store.update({ payload, activeTriggerElement: triggerElement });
     }
-  }, [isTriggerActive, payload, store]);
+  }, [isTriggerActive, payload, triggerElement, store]);
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({

@@ -53,7 +53,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const mounted = store.useState('mounted');
   const openReason = store.useState('openReason');
   const popupElement = store.useState('popupElement');
-  const triggers = store.useState('triggers');
   const payload = store.useState('payload');
   const positionerElement = store.useState('positionerElement');
   const activeTriggerElement = store.useState('activeTriggerElement');
@@ -115,7 +114,9 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   // If there's just one trigger, we can skip the auto-resize logic as
   // the popover will always be anchored to the same position.
-  const autoresizeEnabled = triggers.size > 1;
+  // TODO: determine otherwise or skip
+  // const autoresizeEnabled = triggers.size > 1;
+  const autoresizeEnabled = true;
 
   usePopupAutoResize({
     popupElement,

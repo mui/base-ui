@@ -46,8 +46,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
 
   const open = store.useState('open');
-  const triggerElements = store.useState('triggers');
-  const activeTriggerId = store.useState('activeTriggerId');
   const positionerElement = store.useState('positionerElement');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const payload = store.useState('payload') as Payload | undefined;
@@ -55,13 +53,24 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const openMethod = store.useState('openMethod');
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-
+  // TODO: reimplement without `triggerElements` state
+  /*
   let resolvedTriggerId: string | null = null;
   if (mounted === true && triggerIdProp === undefined && triggerElements.size === 1) {
     resolvedTriggerId = triggerElements.keys().next().value || null;
   } else {
     resolvedTriggerId = activeTriggerId ?? null;
   }
+
+  useIsoLayoutEffect(() => {
+    if (open) {
+      store.set('activeTriggerId', resolvedTriggerId);
+      if (resolvedTriggerId == null) {
+        store.set('payload', undefined);
+      }
+    }
+  }, [store, resolvedTriggerId, open]);
+  */
 
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
@@ -72,15 +81,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       store.set('activeTriggerId', null);
     }
   }, [store, mounted]);
-
-  useIsoLayoutEffect(() => {
-    if (open) {
-      store.set('activeTriggerId', resolvedTriggerId);
-      if (resolvedTriggerId == null) {
-        store.set('payload', undefined);
-      }
-    }
-  }, [store, resolvedTriggerId, open]);
 
   useScrollLock(
     open && modal === true && openReason !== REASONS.triggerHover && openMethod !== 'touch',
@@ -139,7 +139,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     elements: {
       reference: activeTriggerElement,
       floating: positionerElement,
-      triggers: Array.from(triggerElements.values()),
+      triggers: store.context.triggerElements,
     },
     open,
     onOpenChange: store.setOpen,
