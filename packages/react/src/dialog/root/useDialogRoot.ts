@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import {
   useDismiss,
   useFloatingRootContext,
@@ -9,7 +10,6 @@ import {
   useRole,
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
-import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
@@ -22,7 +22,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const { store, parentContext, actionsRef, triggerIdProp } = params;
 
   const open = store.useState('open');
-  const dismissible = store.useState('dismissible');
+  const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
   const popupElement = store.useState('popupElement');
@@ -135,7 +135,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
         return false;
       }
       const target = getTarget(event) as Element | null;
-      if (isTopmost && dismissible) {
+      if (isTopmost && !disablePointerDismissal) {
         const eventTarget = target as Element | null;
         // Only close if the click occurred on the dialog's owning backdrop.
         // This supports multiple modal dialogs that aren't nested in the React tree:
@@ -144,7 +144,8 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
           return store.context.internalBackdropRef.current || store.context.backdropRef.current
             ? store.context.internalBackdropRef.current === eventTarget ||
                 store.context.backdropRef.current === eventTarget ||
-                contains(eventTarget, popupElement)
+                (contains(eventTarget, popupElement) &&
+                  !eventTarget?.hasAttribute('data-base-ui-portal'))
             : true;
         }
         return true;
@@ -154,12 +155,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     escapeKey: isTopmost,
   });
 
-  useScrollLock({
-    enabled: open && modal === true,
-    mounted,
-    open,
-    referenceElement: popupElement,
-  });
+  useScrollLock(open && modal === true, popupElement);
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([role, dismiss]);
 

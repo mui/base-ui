@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useFloatingTree } from '../../floating-ui-react';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
@@ -43,7 +42,6 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   const listItem = useCompositeListItem({ label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
-  const { events: menuEvents } = useFloatingTree()!;
 
   const { store } = useMenuRootContext();
   const highlighted = store.useState('isActive', listItem.index);
@@ -61,10 +59,9 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     disabled,
     highlighted,
     id,
-    menuEvents,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.floatingContext.nodeId,
+    nodeId: menuPositionerContext?.nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 
@@ -78,7 +75,10 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   );
 
   const handleClick = useStableCallback((event: React.MouseEvent) => {
-    const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent);
+    const details = {
+      ...createChangeEventDetails(REASONS.itemPress, event.nativeEvent),
+      preventUnmountOnClose: () => {},
+    };
 
     onCheckedChange?.(!checked, details);
 

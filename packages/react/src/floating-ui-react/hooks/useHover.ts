@@ -7,6 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { contains, getDocument, getTarget, isMouseLikePointerType } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
+import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type {
   Delay,
   ElementProps,
@@ -19,7 +20,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
-import { getEmptyContext } from './useFloatingRootContext';
+import { getEmptyRootContext } from '../utils/getEmptyRootContext';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
@@ -114,6 +115,10 @@ export interface UseHoverProps {
    * This allows to have multiple triggers per floating element (assuming `useHover` is called per trigger).
    */
   triggerElement?: HTMLElement | null;
+  /**
+   * External FlatingTree to use when the one provided by context can't be used.
+   */
+  externalTree?: FloatingTreeStore;
 }
 
 /**
@@ -125,7 +130,7 @@ export function useHover(
   context: FloatingRootContext | null,
   props: UseHoverProps = {},
 ): ElementProps {
-  const { open, onOpenChange, dataRef, events, elements } = context ?? getEmptyContext();
+  const { open, onOpenChange, dataRef, events, elements } = context ?? getEmptyRootContext();
   const {
     enabled = true,
     delay = 0,
@@ -134,9 +139,10 @@ export function useHover(
     restMs = 0,
     move = true,
     triggerElement = null,
+    externalTree,
   } = props;
 
-  const tree = useFloatingTree();
+  const tree = useFloatingTree(externalTree);
   const parentId = useFloatingParentNodeId();
   const handleCloseRef = useValueAsRef(handleClose);
   const delayRef = useValueAsRef(delay);

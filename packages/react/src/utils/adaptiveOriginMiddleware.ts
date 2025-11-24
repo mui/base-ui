@@ -1,6 +1,11 @@
-import { ownerDocument } from '@base-ui-components/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { getSide } from '@floating-ui/utils';
 import { Middleware } from '../floating-ui-react';
+
+export const DEFAULT_SIDES = {
+  sideX: 'left',
+  sideY: 'top',
+};
 
 export const adaptiveOrigin: Middleware = {
   name: 'adaptiveOrigin',
@@ -15,7 +20,18 @@ export const adaptiveOrigin: Middleware = {
       placement,
     } = state;
 
-    const win = floating.ownerDocument.defaultView;
+    const win = ownerWindow(floating);
+    const styles = win.getComputedStyle(floating);
+    const hasTransition = styles.transitionDuration !== '0s' && styles.transitionDuration !== '';
+
+    if (!hasTransition) {
+      return {
+        x: rawX,
+        y: rawY,
+        data: DEFAULT_SIDES,
+      };
+    }
+
     const offsetParent = await platform.getOffsetParent?.(floating);
 
     let offsetDimensions = { width: 0, height: 0 };
@@ -47,8 +63,8 @@ export const adaptiveOrigin: Middleware = {
       y = offsetDimensions.height - (rawY + floatRect.height);
     }
 
-    const sideX = currentSide === 'left' ? 'right' : 'left';
-    const sideY = currentSide === 'top' ? 'bottom' : 'top';
+    const sideX = currentSide === 'left' ? 'right' : DEFAULT_SIDES.sideX;
+    const sideY = currentSide === 'top' ? 'bottom' : DEFAULT_SIDES.sideY;
     return {
       x,
       y,

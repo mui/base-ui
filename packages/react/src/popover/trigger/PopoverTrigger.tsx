@@ -156,7 +156,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       localProps.getReferenceProps(),
       isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
       interactionTypeTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id, key: id },
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id },
       elementProps,
       getButtonProps,
     ],
@@ -215,17 +215,20 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     }
   });
 
+  // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
+  // regardless of whether the focus guards are rendered or not.
+
   if (isTriggerActive) {
     return (
       <React.Fragment>
         <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
-        {element}
+        <React.Fragment key={id}>{element}</React.Fragment>
         <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
     );
   }
 
-  return element;
+  return <React.Fragment key={id}>{element}</React.Fragment>;
 }) as PopoverTrigger;
 
 export interface PopoverTrigger {

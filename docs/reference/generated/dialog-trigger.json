@@ -3,7 +3,7 @@
   "description": "A button that opens the dialog.\nRenders a `<button>` element.",
   "props": {
     "handle": {
-      "type": "DialogHandle<Payload>",
+      "type": "Dialog.Handle<Payload>",
       "description": "A handle to associate the trigger with a dialog.\nCan be created with the Dialog.createHandle() method.",
       "detailedType": "{} | undefined"
     },

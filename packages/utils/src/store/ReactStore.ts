@@ -50,6 +50,7 @@ export class ReactStore<
     key: keyof State,
     value: Value,
   ) {
+    React.useDebugValue(key);
     useIsoLayoutEffect(() => {
       if (this.state[key] !== value) {
         this.set(key, value);
@@ -86,6 +87,7 @@ export class ReactStore<
    * by `useState` are updated before the next render (similarly to React's `useState`).
    */
   public useSyncedValues(props: Partial<State>) {
+    React.useDebugValue(props, (p) => Object.keys(p));
     useIsoLayoutEffect(() => {
       this.update(props);
     }, [props]);
@@ -103,6 +105,7 @@ export class ReactStore<
     controlled: Value | undefined,
     defaultValue: Value,
   ): void {
+    React.useDebugValue(key);
     const isControlled = controlled !== undefined;
 
     if (process.env.NODE_ENV !== 'production') {
@@ -213,8 +216,10 @@ export class ReactStore<
    * @param key Key of the selector to use.
    */
   public useState = ((key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) => {
+    React.useDebugValue(key);
     const selector = this.selectors![key];
-    return useStore(this, selector, a1, a2, a3);
+    const value = useStore(this, selector, a1, a2, a3);
+    return value;
   }) as ReactStoreSelectorMethod<Selectors>;
 
   /**
@@ -228,6 +233,7 @@ export class ReactStore<
     key: Key,
     fn: ContextFunction<Context, Key> | undefined,
   ) {
+    React.useDebugValue(key);
     const stableFunction = useStableCallback(fn ?? (NOOP as ContextFunction<Context, Key>));
     (this.context as Record<Key, ContextFunction<Context, Key>>)[key] = stableFunction;
   }

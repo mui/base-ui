@@ -1,6 +1,6 @@
 {
   "name": "RadioRoot",
-  "description": "Represents the radio button itself.\nRenders a `<button>` element and a hidden `<input>` beside.",
+  "description": "Represents the radio button itself.\nRenders a `<span>` element and a hidden `<input>` beside.",
   "props": {
     "value": {
       "type": "any",
@@ -9,8 +9,8 @@
     },
     "nativeButton": {
       "type": "boolean",
-      "default": "true",
-      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
+      "default": "false",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button.",
       "detailedType": "boolean | undefined"
     },
     "disabled": {

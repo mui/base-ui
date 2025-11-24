@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/49a2e1123ada8181a73767c64045cf67a30dd468/.circleci/orbs/code-infra.yml
+
 parameters:
   browserstack-force:
     description: Whether to force browserstack usage. We have limited resources on browserstack so the pipeline might decide to skip browserstack if this parameter isn't set to true.
@@ -23,11 +26,9 @@ default-job: &default-job
   environment:
     # expose it globally otherwise we have to thread it from each job to the install command
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
-    REACT_VERSION: << parameters.react-version >>
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
   working_directory: /tmp/base-ui
-  docker:
-    - image: cimg/node:22.18
+  executor: code-infra/mui-node
 
 default-context: &default-context
   context:
@@ -43,114 +44,42 @@ default-context: &default-context
 #     key: v1-repo-{{ .Branch }}-{{ .Revision }}
 
 commands:
-  install_js:
-    parameters:
-      browsers:
-        type: boolean
-        default: false
-        description: 'Set to true if you intend to any browser (for example with playwright).'
-      react-version:
-        description: The version of react to be used
-        type: string
-        default: stable
+  build-with-compiler:
+    description: 'Build packages with React Compiler'
     steps:
       - run:
-          name: Set npm registry public signing keys
-          command: |
-            echo "export COREPACK_INTEGRITY_KEYS='$(curl https://registry.npmjs.org/-/npm/v1/keys | jq -c '{npm: .keys}')'" >> $BASH_ENV
-      - when:
-          condition: << parameters.browsers >>
-          steps:
-            - run:
-                name: Install pnpm package manager
-                command: corepack enable
-      - when:
-          condition:
-            not: << parameters.browsers >>
-          steps:
-            - run:
-                name: Install pnpm package manager
-                # See https://stackoverflow.com/a/73411601
-                command: corepack enable --install-directory ~/bin
+          name: Add compiler package
+          command: pnpm -F "./packages/*" add react-compiler-runtime
       - run:
-          name: View install environment
-          command: |
-            node --version
-            pnpm --version
-      - run:
-          name: Install js dependencies
-          command: |
-            args=""
-            if [ -n "$REACT_VERSION" ] && [ "$REACT_VERSION" != "stable" ]; then
-              args="react@$REACT_VERSION"
-            fi
-            if [ -n "$args" ]; then
-              pnpm dlx @mui/internal-code-infra@canary set-version-overrides --pkg $args
-            else
-              pnpm install
-            fi
+          name: Build with compiler
+          command: pnpm -F "./packages/*" build --enableReactCompiler
+          environment:
+            MUI_REACT_COMPILER_MODE: 'infer'
 
 jobs:
   test_unit:
     <<: *default-job
     steps:
       - checkout
-      - install_js
+      - code-infra/install-deps:
+          package-overrides: react@<< parameters.react-version >>
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom:coverage
-      - run:
-          name: Check if coverage report is generated
-          command: |
-            if ! [[ -s coverage/lcov.info ]]
-            then
-              exit 1
-            fi
-      - run:
-          name: Upload coverage report to Codecov
-          command: |
-            curl -Os https://uploader.codecov.io/latest/linux/codecov
-            chmod +x codecov
-            ./codecov -t ${CODECOV_TOKEN} -Z -F "$REACT_VERSION-jsdom"
+      - code-infra/upload-coverage:
+          key: << parameters.react-version >>-jsdom
   test_lint:
     <<: *default-job
     steps:
       - checkout
-      - install_js
-      - run:
-          name: '`pnpm prettier` changes committed?'
-          command: |
-            # #target-branch-reference
-            if [[ $(git diff --name-status master | grep pnpm-lock) == "" ]];
-            then
-                pnpm prettier --check
-            else
-                pnpm exec prettier --check . --ignore-path .lintignore
-            fi
-      - run:
-          name: ESLint
-          command: pnpm eslint:ci
-      - run:
-          name: Stylelint
-          command: pnpm stylelint
-      - run:
-          name: Lint Markdown
-          command: pnpm markdownlint
+      - code-infra/install-deps
+      - code-infra/run-linters
   test_static:
     <<: *default-job
     steps:
       - checkout
-      - install_js
-      - run:
-          name: '`pnpm dedupe` was run?'
-          command: |
-            # #default-branch-switch
-            if [[ $(git diff --name-status master | grep -E 'pnpm-workspace\.yaml|pnpm-lock.yaml|package\.json') == "" ]];
-            then
-                echo "No changes to dependencies detected. Skipping..."
-            else
-                pnpm dedupe --check
-            fi
+      - code-infra/install-deps
+      - code-infra/check-static-changes
       - run:
           name: Generate the documentation
           command: pnpm docs:api
@@ -177,7 +106,8 @@ jobs:
     resource_class: 'medium+'
     steps:
       - checkout
-      - install_js
+      - code-infra/install-deps:
+          package-overrides: react@<< parameters.react-version >>
       - run:
           name: Tests TypeScript definitions
           command: pnpm typescript
@@ -197,13 +127,8 @@ jobs:
     resource_class: 'medium+'
     steps:
       - checkout
-      - install_js
-      - run:
-          name: Resolve typescript version
-          command: |
-            pnpm update -r typescript@next
-            # log a patch for maintainers who want to check out this change
-            git --no-pager diff HEAD
+      - code-infra/install-deps:
+          package-overrides: typescript@next
       - run:
           name: Tests TypeScript definitions
           command: pnpm typescript
@@ -225,36 +150,26 @@ jobs:
   test_browser:
     <<: *default-job
     resource_class: 'medium+'
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.56.1-noble
+    executor:
+      name: code-infra/mui-node-browser
+      playwright-img-version: v1.56.1-noble
     steps:
       - checkout
-      - install_js:
-          browsers: true
+      - code-infra/install-deps:
+          package-overrides: react@<< parameters.react-version >>
       - run:
           name: Run tests on headless Chromium
           command: pnpm test:chromium --coverage
-      - run:
-          name: Check if coverage report is generated
-          command: |
-            if ! [[ -s coverage/lcov.info ]]
-            then
-              exit 1
-            fi
-      - run:
-          name: Upload coverage report to Codecov
-          command: |
-            curl -Os https://uploader.codecov.io/latest/linux/codecov
-            chmod +x codecov
-            ./codecov -t ${CODECOV_TOKEN} -Z -F "$REACT_VERSION-browser"
+      - code-infra/upload-coverage:
+          key: << parameters.react-version >>-browser
   test_regressions:
     <<: *default-job
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.56.1-noble
+    executor:
+      name: code-infra/mui-node-browser
+      playwright-img-version: v1.56.1-noble
     steps:
       - checkout
-      - install_js:
-          browsers: true
+      - code-infra/install-deps
       - run:
           name: Run visual regression tests
           command: xvfb-run pnpm test:regressions
@@ -263,12 +178,12 @@ jobs:
           command: pnpm test:argos
   test_e2e:
     <<: *default-job
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.56.1-noble
+    executor:
+      name: code-infra/mui-node-browser
+      playwright-img-version: v1.56.1-noble
     steps:
       - checkout
-      - install_js:
-          browsers: true
+      - code-infra/install-deps
       - run:
           name: pnpm test:e2e
           command: pnpm test:e2e
@@ -277,7 +192,7 @@ jobs:
     <<: *default-job
     steps:
       - checkout
-      - install_js
+      - code-infra/install-deps
       - run:
           name: Build packages
           command: pnpm release:build
@@ -293,13 +208,34 @@ jobs:
       - run:
           name: Verify built packages
           command: pnpm -r test:package
+      - code-infra/upload-size-snapshot
+
+  test_unit_compiler:
+    <<: *default-job
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - build-with-compiler
       - run:
-          name: create and upload a size snapshot
-          command: |
-            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_ARTIFACTS
-            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_ARTIFACTS
-            export AWS_REGION=$AWS_REGION_ARTIFACTS
-            pnpm size:snapshot
+          name: Run tests on JSDOM
+          command: pnpm test:jsdom:coverage
+          environment:
+            MUI_DISABLE_WORKSPACE_ALIASES: 1
+
+  test_browser_compiler:
+    <<: *default-job
+    executor:
+      name: code-infra/mui-node-browser
+      playwright-img-version: v1.56.1-noble
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - build-with-compiler
+      - run:
+          name: Run tests on headless Chromium
+          command: pnpm test:chromium --coverage
+          environment:
+            MUI_DISABLE_WORKSPACE_ALIASES: 1
 
 workflows:
   pipeline:
@@ -330,6 +266,12 @@ workflows:
       - test_package:
           <<: *default-context
           name: 'Package verification'
+      - test_unit_compiler:
+          <<: *default-context
+          name: 'JSDOM tests (React Compiler)'
+      - test_browser_compiler:
+          <<: *default-context
+          name: 'Browser tests (React Compiler)'
   react-18:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]

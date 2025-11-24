@@ -1,6 +1,6 @@
 import { Combobox } from '@base-ui-components/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 
 describe('<Combobox.Popup />', () => {
@@ -33,5 +33,42 @@ describe('<Combobox.Popup />', () => {
 
     const popup = await screen.findByTestId('popup');
     expect(popup).to.have.attribute('data-open');
+  });
+
+  it('sets role to presentation when input renders outside the popup', async () => {
+    await render(
+      <Combobox.Root defaultOpen items={['Apple']}>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup data-testid="popup" />
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const popup = await screen.findByTestId('popup');
+    await waitFor(() => {
+      expect(popup).to.have.attribute('role', 'presentation');
+    });
+  });
+
+  it('sets role to dialog when input renders inside the popup', async () => {
+    await render(
+      <Combobox.Root defaultOpen items={['Apple']}>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup data-testid="popup">
+              <Combobox.Input />
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const popup = await screen.findByTestId('popup');
+    await waitFor(() => {
+      expect(popup).to.have.attribute('role', 'dialog');
+    });
   });
 });

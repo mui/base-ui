@@ -38,7 +38,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const { store } = useDialogRootContext();
 
   const descriptionElementId = store.useState('descriptionElementId');
-  const dismissible = store.useState('dismissible');
+  const disablePointerDismissal = store.useState('disablePointerDismissal');
   const floatingRootContext = store.useState('floatingRootContext');
   const rootPopupProps = store.useState('popupProps');
   const modal = store.useState('modal');
@@ -49,6 +49,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
+  const role = store.useState('role');
 
   useDialogPortalContext();
 
@@ -93,7 +94,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       {
         'aria-labelledby': titleElementId ?? undefined,
         'aria-describedby': descriptionElementId ?? undefined,
-        role: 'dialog',
+        role,
         tabIndex: -1,
         hidden: !mounted,
         onKeyDown(event: React.KeyboardEvent) {
@@ -116,7 +117,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       context={floatingRootContext}
       openInteractionType={openMethod}
       disabled={!mounted}
-      closeOnFocusOut={dismissible}
+      closeOnFocusOut={!disablePointerDismissal}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       modal={modal !== false}

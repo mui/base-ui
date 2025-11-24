@@ -29,7 +29,7 @@
       "detailedType": "string | null | undefined"
     },
     "handle": {
-      "type": "TooltipHandle<Payload>",
+      "type": "Tooltip.Handle<Payload>",
       "description": "A handle to associate the tooltip with a trigger.\nIf specified, allows external triggers to control the tooltip's open state.\nCan be created with the Tooltip.createHandle() method.",
       "detailedType": "{} | undefined"
     },
@@ -55,9 +55,9 @@
       "description": "Whether the tooltip is disabled.",
       "detailedType": "boolean | undefined"
     },
-    "hoverable": {
+    "disableHoverablePopup": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Whether the tooltip contents can be hovered without closing the tooltip.",
       "detailedType": "boolean | undefined"
     },

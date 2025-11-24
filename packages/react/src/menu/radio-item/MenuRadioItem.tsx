@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useFloatingTree } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -40,7 +39,6 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const listItem = useCompositeListItem({ label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
-  const { events: menuEvents } = useFloatingTree()!;
 
   const { store } = useMenuRootContext();
   const highlighted = store.useState('isActive', listItem.index);
@@ -60,10 +58,9 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     disabled,
     highlighted,
     id,
-    menuEvents,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.floatingContext.nodeId,
+    nodeId: menuPositionerContext?.nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 
@@ -77,7 +74,10 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   );
 
   const handleClick = useStableCallback((event: React.MouseEvent) => {
-    const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent);
+    const details = {
+      ...createChangeEventDetails(REASONS.itemPress, event.nativeEvent),
+      preventUnmountOnClose: () => {},
+    };
     setSelectedValue(value, details);
   });
 

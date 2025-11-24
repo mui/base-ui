@@ -347,7 +347,7 @@ describe('<Select.Root />', () => {
       const handleValueChange = spy();
 
       function App() {
-        const [value, setValue] = React.useState('');
+        const [value, setValue] = React.useState<string | null>('');
 
         return (
           <Select.Root
@@ -936,7 +936,7 @@ describe('<Select.Root />', () => {
       );
 
       const trigger = screen.getByRole('combobox');
-      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('disabled');
       expect(trigger).to.have.attribute('data-disabled');
 
       await user.keyboard('[Tab]');
@@ -973,7 +973,7 @@ describe('<Select.Root />', () => {
       const { user } = await render(<App />);
 
       const trigger = screen.getByRole('combobox');
-      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('disabled');
       expect(trigger).to.have.attribute('data-disabled');
 
       await user.keyboard('[Tab]');
@@ -985,7 +985,7 @@ describe('<Select.Root />', () => {
 
       await user.click(screen.getByRole('button', { name: 'toggle' }));
 
-      expect(trigger).to.not.have.attribute('aria-disabled');
+      expect(trigger).to.not.have.attribute('disabled');
       expect(trigger).to.not.have.attribute('data-disabled');
 
       await user.keyboard('[Tab]');
@@ -1114,7 +1114,7 @@ describe('<Select.Root />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('disabled');
     });
 
     it('should receive name prop from Field.Root', async () => {
@@ -1827,7 +1827,7 @@ describe('<Select.Root />', () => {
     it('unselects the selected item if removed', async () => {
       function DynamicMenu() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
-        const [selectedItem, setSelectedItem] = React.useState('a');
+        const [selectedItem, setSelectedItem] = React.useState<string | null>('a');
 
         return (
           <div>
@@ -1940,7 +1940,7 @@ describe('<Select.Root />', () => {
     it('resets via onValueChange and does not break in controlled mode when the selected item is removed', async () => {
       function TestControlled() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
-        const [value, setValue] = React.useState('c');
+        const [value, setValue] = React.useState<string | null>('c');
         return (
           <div>
             <Select.Root value={value} onValueChange={setValue}>
@@ -2052,7 +2052,7 @@ describe('<Select.Root />', () => {
     it('falls back to null when both selected and initial default are removed (controlled)', async () => {
       function TestControlled() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
-        const [value, setValue] = React.useState('c');
+        const [value, setValue] = React.useState<string | null>('c');
         return (
           <div>
             <Select.Root value={value} onValueChange={setValue}>
@@ -2175,7 +2175,7 @@ describe('<Select.Root />', () => {
       const handleValueChange = spy();
 
       function App() {
-        const [value, setValue] = React.useState([]);
+        const [value, setValue] = React.useState<any[]>([]);
 
         return (
           <Select.Root
@@ -2277,6 +2277,43 @@ describe('<Select.Root />', () => {
       expect(handleValueChange.args[0][0]).to.deep.equal(['b']);
       expect(optionA).not.to.have.attribute('data-selected');
       expect(optionB).to.have.attribute('data-selected', '');
+    });
+
+    it('keeps the active index on a deselected item in multiple mode', async () => {
+      const { user } = await render(
+        <Select.Root multiple value={['a']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+
+      const optionB = await screen.findByRole('option', { name: 'b' });
+
+      await user.click(optionB);
+
+      await waitFor(() => {
+        expect(optionB).to.have.attribute('data-highlighted');
+      });
+
+      await user.click(optionB);
+
+      await waitFor(() => {
+        expect(optionB).to.have.attribute('data-highlighted');
+      });
     });
 
     it('should handle defaultValue as array in multiple mode', async () => {

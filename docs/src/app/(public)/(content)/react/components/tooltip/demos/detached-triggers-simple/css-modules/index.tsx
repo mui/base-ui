@@ -8,7 +8,7 @@ const demoTooltip = Tooltip.createHandle();
 export default function TooltipDetachedTriggersSimpleDemo() {
   return (
     <Tooltip.Provider>
-      <Tooltip.Trigger className={styles.Button} handle={demoTooltip}>
+      <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip}>
         <InfoIcon aria-label="Information" className={styles.Icon} />
       </Tooltip.Trigger>
 

@@ -6,14 +6,14 @@ import { type DialogRoot } from '../root/DialogRoot';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 import { type FloatingRootContext } from '../../floating-ui-react/types';
-import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { PopupTriggerMap } from '../../utils/popupStoreUtils';
 
 export type State<Payload> = {
   readonly open: boolean;
   readonly mounted: boolean;
   readonly modal: boolean | 'trap-focus';
-  readonly dismissible: boolean;
+  readonly disablePointerDismissal: boolean;
   readonly transitionStatus: TransitionStatus;
   readonly openMethod: InteractionType | null;
   readonly nested: boolean;
@@ -29,6 +29,7 @@ export type State<Payload> = {
   readonly activeTriggerProps: HTMLProps;
   readonly inactiveTriggerProps: HTMLProps;
   readonly popupProps: HTMLProps;
+  readonly role: 'dialog' | 'alertdialog';
 };
 
 type Context = {
@@ -48,7 +49,7 @@ const selectors = {
   modal: createSelector((state: State<unknown>) => state.modal),
   nested: createSelector((state: State<unknown>) => state.nested),
   nestedOpenDialogCount: createSelector((state: State<unknown>) => state.nestedOpenDialogCount),
-  dismissible: createSelector((state: State<unknown>) => state.dismissible),
+  disablePointerDismissal: createSelector((state: State<unknown>) => state.disablePointerDismissal),
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
   titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
@@ -68,17 +69,13 @@ const selectors = {
   payload: createSelector((state: State<unknown>) => state.payload),
   activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
   inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
-};
-
-export type DialogStoreOptions = {
-  modal?: State<unknown>['modal'];
-  dismissible?: State<unknown>['dismissible'];
+  role: createSelector((state: State<unknown>) => state.role),
 };
 
 export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
-  constructor(options?: DialogStoreOptions) {
+  constructor(initialState?: Partial<State<Payload>>) {
     super(
-      createInitialState<Payload>(options),
+      createInitialState<Payload>(initialState),
       {
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
@@ -126,11 +123,10 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
   };
 }
 
-function createInitialState<Payload>(options: DialogStoreOptions = {}): State<Payload> {
-  const { modal = true, dismissible = true } = options;
+function createInitialState<Payload>(initialState: Partial<State<Payload>> = {}): State<Payload> {
   return {
-    dismissible,
-    modal,
+    disablePointerDismissal: false,
+    modal: true,
     open: false,
     nested: false,
     popupElement: null,
@@ -143,10 +139,12 @@ function createInitialState<Payload>(options: DialogStoreOptions = {}): State<Pa
     transitionStatus: 'idle',
     nestedOpenDialogCount: 0,
     triggers: new Map(),
-    floatingRootContext: getEmptyContext(),
+    floatingRootContext: getEmptyRootContext(),
     payload: undefined,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
+    role: 'dialog',
+    ...initialState,
   };
 }

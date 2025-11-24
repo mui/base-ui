@@ -15,6 +15,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 /**
  * Positions the popover against the trigger.
@@ -39,7 +40,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor = true,
+    disableAnchorTracking = false,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
@@ -57,6 +58,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const modal = store.useState('modal');
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
@@ -75,7 +77,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor,
+    disableAnchorTracking,
     keepMounted,
     nodeId,
     collisionAvoidance,
@@ -156,7 +158,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    props: [positioner.props, elementProps],
+    props: [positioner.props, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     ref: [forwardedRef, setPositionerElement],
     stateAttributesMapping: popupStateMapping,
   });

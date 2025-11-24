@@ -81,7 +81,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     orientation,
     setViewportInert,
   } = useNavigationMenuRootContext();
-  const itemValue = useNavigationMenuItemContext();
+  const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
   const dismissProps = useNavigationMenuDismissContext();

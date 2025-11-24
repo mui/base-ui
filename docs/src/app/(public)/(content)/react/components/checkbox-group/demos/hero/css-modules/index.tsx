@@ -1,16 +1,18 @@
+'use client';
 import * as React from 'react';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import styles from './index.module.css';
 
 export default function ExampleCheckboxGroup() {
+  const id = React.useId();
   return (
     <CheckboxGroup
-      aria-labelledby="apples-caption"
+      aria-labelledby={id}
       defaultValue={['fuji-apple']}
       className={styles.CheckboxGroup}
     >
-      <div className={styles.Caption} id="apples-caption">
+      <div className={styles.Caption} id={id}>
         Apples
       </div>
 

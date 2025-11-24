@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Tooltip } from '@base-ui-components/react/tooltip';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Tooltip.Viewport />', () => {
   const { render } = createRenderer();
@@ -123,11 +123,14 @@ describe('<Tooltip.Viewport />', () => {
       const trigger1 = screen.getByTestId('trigger1');
       const trigger2 = screen.getByTestId('trigger2');
 
+      await waitSingleFrame();
       await act(async () => trigger1.focus());
+
       await waitFor(() => {
         expect(screen.getByText('Content 0')).toBeVisible();
       });
 
+      await waitSingleFrame();
       await act(async () => trigger2.focus());
 
       // Check for morphing containers during transition
@@ -207,14 +210,17 @@ describe('<Tooltip.Viewport />', () => {
       const trigger2 = screen.getByTestId('trigger2');
       const trigger3 = screen.getByTestId('trigger3');
 
+      await waitSingleFrame();
       await act(async () => trigger1.focus());
+      await waitSingleFrame();
       await act(async () => trigger2.focus());
+      await waitSingleFrame();
       await act(async () => trigger3.focus());
+      await waitSingleFrame();
       await act(async () => trigger1.focus());
 
-      const content = await screen.findByText('Content 1');
-      await waitFor(() => {
-        expect(content).toBeVisible();
+      await waitFor(async () => {
+        expect(await screen.findByText('Content 1')).toBeVisible();
       });
     });
 
@@ -331,12 +337,14 @@ describe('<Tooltip.Viewport />', () => {
       const triggerElement1 = screen.getByTestId('trigger1');
       const triggerElement2 = screen.getByTestId('trigger2');
 
+      await waitSingleFrame();
       await act(async () => triggerElement1.focus());
 
       await waitFor(() => {
         expect(screen.getByText('Content 0')).toBeVisible();
       });
 
+      await waitSingleFrame();
       await act(async () => triggerElement2.focus());
 
       const viewport = screen.getByTestId('viewport');

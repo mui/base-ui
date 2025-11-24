@@ -2,7 +2,6 @@ import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useId } from '@base-ui-components/utils/useId';
-
 import type { FloatingRootContext, ReferenceElement, ContextData } from '../types';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
@@ -95,26 +94,4 @@ export function useFloatingRootContext(
     }),
     [open, onOpenChange, elements, events, floatingId, refs],
   );
-}
-
-export function getEmptyContext(): FloatingRootContext {
-  return {
-    open: false,
-    onOpenChange: () => {},
-    dataRef: { current: {} },
-    elements: {
-      floating: null,
-      reference: null,
-      domReference: null,
-    },
-    events: {
-      on: () => {},
-      off: () => {},
-      emit: () => {},
-    },
-    floatingId: '',
-    refs: {
-      setPositionReference: () => {},
-    },
-  };
 }

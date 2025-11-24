@@ -3,7 +3,7 @@
 <Subtitle>A common form component for choosing a predefined value in a dropdown menu.</Subtitle>
 <Meta
   name="description"
-  content="A high-quality, unstyled React select component that allows you for choosing a predefined value in a dropdown menu."
+  content="A high-quality, unstyled React select component for choosing a predefined value in a dropdown menu."
 />
 
 import { DemoSelectHero } from './demos/hero';
@@ -14,6 +14,7 @@ import { DemoSelectHero } from './demos/hero';
 
 - **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
+- **Form controls must have an accessible name**: The trigger must have a meaningful label. Prefer using [`<Field>`](/react/components/field) to provide a visible text label and description, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
 
 ## Anatomy
 
@@ -49,6 +50,21 @@ import { Select } from '@base-ui-components/react/select';
     </Select.Positioner>
   </Select.Portal>
 </Select.Root>;
+```
+
+## TypeScript
+
+The following example shows a typed wrapper around the Select component with correct type inference and type safety:
+
+```tsx title="Specifying generic type parameters"
+import * as React from 'react';
+import { Select } from '@base-ui-components/react/select';
+
+export function MySelect<Value, Multiple extends boolean | undefined = false>(
+  props: Select.Root.Props<Value, Multiple>,
+): React.JSX.Element {
+  return <Select.Root {...props}>{/* ... */}</Select.Root>;
+}
 ```
 
 ## Positioning
