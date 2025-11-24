@@ -50,7 +50,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
 
-  const positioner = useAnchorPositioning({
+  const positioning = useAnchorPositioning({
     anchor,
     positionMethod,
     floatingRootContext,
@@ -80,25 +80,25 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
       role: 'presentation',
       hidden: !mounted,
       style: {
-        ...positioner.positionerStyles,
+        ...positioning.positionerStyles,
         ...hiddenStyles,
       },
     };
-  }, [open, trackCursorAxis, disableHoverablePopup, mounted, positioner.positionerStyles]);
+  }, [open, trackCursorAxis, disableHoverablePopup, mounted, positioning.positionerStyles]);
 
   const state: TooltipPositioner.State = React.useMemo(
     () => ({
       open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
       instant: trackCursorAxis !== 'none' ? 'tracking-cursor' : instantType,
     }),
     [
       open,
-      positioner.side,
-      positioner.align,
-      positioner.anchorHidden,
+      positioning.side,
+      positioning.align,
+      positioning.anchorHidden,
       trackCursorAxis,
       instantType,
     ],
@@ -107,11 +107,11 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const contextValue: TooltipPositionerContext = React.useMemo(
     () => ({
       ...state,
-      arrowRef: positioner.arrowRef,
-      arrowStyles: positioner.arrowStyles,
-      arrowUncentered: positioner.arrowUncentered,
+      arrowRef: positioning.arrowRef,
+      arrowStyles: positioning.arrowStyles,
+      arrowUncentered: positioning.arrowUncentered,
     }),
-    [state, positioner.arrowRef, positioner.arrowStyles, positioner.arrowUncentered],
+    [state, positioning.arrowRef, positioning.arrowStyles, positioning.arrowUncentered],
   );
 
   const element = useRenderElement('div', componentProps, {
