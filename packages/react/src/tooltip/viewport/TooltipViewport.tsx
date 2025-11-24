@@ -61,28 +61,6 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
 
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
 
-  // Capture a clone of the current content DOM subtree when not transitioning.
-  // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
-  useIsoLayoutEffect(() => {
-    // When a transition is in progress, we store the next content in capturedNodeRef.
-    // This handles the case where the trigger changes multiple times before the transition finishes.
-    // We want to always capture the latest content for the previous snapshot.
-    // So clicking quickly on T1, T2, T3 will result in the following sequence:
-    // 1. T1 -> T2: previousContent = T1, currentContent = T2
-    // 2. T2 -> T3: previousContent = T2, currentContent = T3
-    const source = currentContainerRef.current;
-    if (!source) {
-      return;
-    }
-
-    const wrapper = document.createElement('div');
-    for (const child of Array.from(source.childNodes)) {
-      wrapper.appendChild(child.cloneNode(true));
-    }
-
-    capturedNodeRef.current = wrapper;
-  });
-
   const handleMeasureLayout = useStableCallback(() => {
     currentContainerRef.current?.style.setProperty('animation', 'none');
     currentContainerRef.current?.style.setProperty('transition', 'none');
@@ -154,6 +132,28 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     onAnimationsFinished,
     cleanupTimeout,
   ]);
+
+  // Capture a clone of the current content DOM subtree when not transitioning.
+  // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
+  useIsoLayoutEffect(() => {
+    // When a transition is in progress, we store the next content in capturedNodeRef.
+    // This handles the case where the trigger changes multiple times before the transition finishes.
+    // We want to always capture the latest content for the previous snapshot.
+    // So clicking quickly on T1, T2, T3 will result in the following sequence:
+    // 1. T1 -> T2: previousContent = T1, currentContent = T2
+    // 2. T2 -> T3: previousContent = T2, currentContent = T3
+    const source = currentContainerRef.current;
+    if (!source) {
+      return;
+    }
+
+    const wrapper = document.createElement('div');
+    for (const child of Array.from(source.childNodes)) {
+      wrapper.appendChild(child.cloneNode(true));
+    }
+
+    capturedNodeRef.current = wrapper;
+  });
 
   const isTransitioning = previousContentNode != null;
   let childrenToRender: React.ReactNode;

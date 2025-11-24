@@ -131,7 +131,25 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const floatingParentNodeId = useFloatingParentNodeId();
 
   const thisTriggerId = useBaseUiId(idProp);
-  const registerTrigger = useTriggerRegistration(thisTriggerId, store);
+  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
+
+  const registerTrigger = React.useCallback(
+    (element: Element | null) => {
+      const cleanup = baseRegisterTrigger(element);
+
+      if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
+        store.update({
+          activeTriggerId: thisTriggerId,
+          activeTriggerElement: element,
+          payload,
+          closeDelay,
+        });
+      }
+
+      return cleanup;
+    },
+    [baseRegisterTrigger, closeDelay, payload, store, thisTriggerId],
+  );
 
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);

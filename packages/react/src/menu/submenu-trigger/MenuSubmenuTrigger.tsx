@@ -53,7 +53,24 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const floatingTreeRoot = store.useState('floatingTreeRoot');
 
   const thisTriggerId = useBaseUiId(idProp);
-  const registerTrigger = useTriggerRegistration(thisTriggerId, store);
+  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
+
+  const registerTrigger = React.useCallback(
+    (element: Element | null) => {
+      const cleanup = baseRegisterTrigger(element);
+
+      if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
+        store.update({
+          activeTriggerId: thisTriggerId,
+          activeTriggerElement: element,
+          closeDelay,
+        });
+      }
+
+      return cleanup;
+    },
+    [baseRegisterTrigger, closeDelay, store, thisTriggerId],
+  );
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
@@ -64,7 +81,10 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
-  store.useSyncedValue('closeDelay', closeDelay);
+  store.useSyncedValues({
+    closeDelay,
+    activeTriggerElement: triggerElement,
+  });
 
   const parentMenuStore = submenuRootContext.parentMenu;
 
