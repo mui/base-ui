@@ -17,9 +17,6 @@ export function useTriggerRegistration<State extends { triggers: PopupTriggerMap
 
   useIsoLayoutEffect(() => {
     if (id == null) {
-      if (element != null) {
-        throw new Error('Base UI: Trigger must have an `id` prop specified.');
-      }
       return;
     }
 
