@@ -73,10 +73,8 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   }
 
   // If there's just one trigger, we can skip the auto-resize logic as
-  // the tooltip will always be anchored to the same position.
-  // TODO: determine otherwise or skip
-  // const autoresizeEnabled = triggers.size > 1;
-  const autoresizeEnabled = true;
+  // the popover will always be anchored to the same position.
+  const autoresizeEnabled = () => store.context.triggerElements.size > 1;
 
   usePopupAutoResize({
     popupElement,

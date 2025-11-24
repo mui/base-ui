@@ -115,9 +115,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   // If there's just one trigger, we can skip the auto-resize logic as
   // the popover will always be anchored to the same position.
-  // TODO: determine otherwise or skip
-  // const autoresizeEnabled = triggers.size > 1;
-  const autoresizeEnabled = true;
+  const autoresizeEnabled = () => store.context.triggerElements.size > 1;
 
   usePopupAutoResize({
     popupElement,
@@ -130,10 +128,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   });
 
   const anchoringStyles: React.CSSProperties = React.useMemo(() => {
-    if (!autoresizeEnabled) {
-      return EMPTY_OBJECT;
-    }
-
     // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
     let isOriginSide = positioner.side === 'top';
     let isPhysicalLeft = positioner.side === 'left';
@@ -152,7 +146,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
           [isPhysicalLeft ? 'right' : 'left']: '0',
         }
       : EMPTY_OBJECT;
-  }, [positioner.side, direction, autoresizeEnabled]);
+  }, [positioner.side, direction]);
 
   const element = useRenderElement('div', componentProps, {
     state,

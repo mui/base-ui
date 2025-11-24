@@ -8,6 +8,8 @@ import { Dimensions } from '../floating-ui-react/types';
 
 const supportsResizeObserver = typeof ResizeObserver !== 'undefined';
 
+const DEFAULT_ENABLED = () => true;
+
 /**
  * Allows the element to automatically resize based on its content while supporting animations.
  */
@@ -17,7 +19,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     positionerElement,
     content,
     mounted,
-    enabled = true,
+    enabled = DEFAULT_ENABLED,
     onMeasureLayout: onMeasureLayoutParam,
     onMeasureLayoutComplete: onMeasureLayoutCompleteParam,
   } = parameters;
@@ -32,7 +34,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
 
   useIsoLayoutEffect(() => {
     // Reset the state when the popup is closed.
-    if (!mounted || !enabled || !supportsResizeObserver) {
+    if (!mounted || !enabled() || !supportsResizeObserver) {
       isInitialRender.current = true;
       previousDimensionsRef.current = null;
       return undefined;
@@ -169,9 +171,9 @@ interface UsePopupAutoResizeParameters {
    */
   content: unknown;
   /**
-   * Whether the auto-resize is enabled.
+   * Whether the auto-resize is enabled. This function runs in an effect and can safely access refs.
    */
-  enabled?: boolean;
+  enabled?: () => boolean;
   /**
    * Callback fired immediately before measuring the dimensions of the new content.
    */
