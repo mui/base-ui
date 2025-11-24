@@ -128,27 +128,29 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerWidth);
     positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerHeight);
 
+    const { width, height } = getCssDimensions(popupElement);
+    const measuredWidth = width || prevSizeRef.current.width;
+    const measuredHeight = height || prevSizeRef.current.height;
+
+    if (currentHeight === 0 || currentWidth === 0) {
+      currentWidth = measuredWidth;
+      currentHeight = measuredHeight;
+    }
+
+    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${currentWidth}px`);
+    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${currentHeight}px`);
+    positionerElement.style.setProperty(
+      NavigationMenuPositionerCssVars.positionerWidth,
+      `${measuredWidth}px`,
+    );
+    positionerElement.style.setProperty(
+      NavigationMenuPositionerCssVars.positionerHeight,
+      `${measuredHeight}px`,
+    );
+
     sizeFrame1.request(() => {
-      const { width, height } = getCssDimensions(popupElement);
-
-      if (currentHeight === 0 || currentWidth === 0) {
-        currentWidth = width;
-        currentHeight = height;
-      }
-
-      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${currentWidth}px`);
-      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${currentHeight}px`);
-      positionerElement.style.setProperty(
-        NavigationMenuPositionerCssVars.positionerWidth,
-        `${width}px`,
-      );
-      positionerElement.style.setProperty(
-        NavigationMenuPositionerCssVars.positionerHeight,
-        `${height}px`,
-      );
-
-      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
-      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
+      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${measuredWidth}px`);
+      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${measuredHeight}px`);
 
       sizeFrame2.request(() => {
         animationAbortControllerRef.current = new AbortController();
@@ -162,7 +164,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       stickIfOpenTimeout.clear();
       sizeFrame1.cancel();
       sizeFrame2.cancel();
-      prevSizeRef.current = DEFAULT_SIZE;
     }
   }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
 
