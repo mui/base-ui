@@ -65,8 +65,18 @@ const selectors = {
   popupElement: createSelector((state: State<unknown>) => state.popupElement),
   viewportElement: createSelector((state: State<unknown>) => state.viewportElement),
   payload: createSelector((state: State<unknown>) => state.payload),
-  activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
-  inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
+  isTriggerActive: createSelector(
+    (state: State<unknown>, triggerId: string | undefined) =>
+      triggerId !== undefined && state.activeTriggerId === triggerId,
+  ),
+  isOpenedByTrigger: createSelector(
+    (state: State<unknown>, triggerId: string | undefined) =>
+      triggerId !== undefined && state.activeTriggerId === triggerId && state.open,
+  ),
+
+  triggerProps: createSelector((state: State<unknown>, isActive: boolean) =>
+    isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
+  ),
   role: createSelector((state: State<unknown>) => state.role),
 };
 

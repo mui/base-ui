@@ -41,21 +41,22 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
       'Base UI: <Dialog.Trigger> must be used within <Dialog.Root> or provided with a handle.',
     );
   }
-  const open = store.useState('open');
-  const rootActiveTriggerProps = store.useState('activeTriggerProps');
-  const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
-  const activeTrigger = store.useState('activeTriggerElement');
+
+  const thisTriggerId = useBaseUiId(idProp);
+
+  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
   const floatingContext = store.useState('floatingRootContext');
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-  const isTriggerActive = activeTrigger === triggerElement;
 
   const state: DialogTrigger.State = React.useMemo(
     () => ({
       disabled,
-      open,
+      open: isOpenedByThisTrigger,
     }),
-    [disabled, open],
+    [disabled, isOpenedByThisTrigger],
   );
 
   const { getButtonProps, buttonRef } = useButton({
@@ -63,8 +64,24 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     native: nativeButton,
   });
 
-  const id = useBaseUiId(idProp);
-  const registerTrigger = useTriggerRegistration(id, store);
+  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
+
+  const registerTrigger = React.useCallback(
+    (element: Element | null) => {
+      const cleanup = baseRegisterTrigger(element);
+
+      if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
+        store.update({
+          activeTriggerId: thisTriggerId,
+          activeTriggerElement: element as HTMLElement,
+          payload,
+        });
+      }
+
+      return cleanup;
+    },
+    [baseRegisterTrigger, thisTriggerId, payload, store],
+  );
 
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
@@ -80,8 +97,8 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     ref: [buttonRef, forwardedRef, registerTrigger, setTriggerElement],
     props: [
       localInteractionProps.getReferenceProps(),
-      isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id },
+      rootTriggerProps,
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id: thisTriggerId },
       elementProps,
       getButtonProps,
     ],
