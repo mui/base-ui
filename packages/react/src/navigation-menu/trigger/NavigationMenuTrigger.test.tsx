@@ -116,10 +116,10 @@ describe('<NavigationMenu.Trigger />', () => {
       <NavigationMenu.Root>
         <NavigationMenu.List>
           <NavigationMenu.Item>
-            <NavigationMenu.Trigger>Overview</NavigationMenu.Trigger>
+            <NavigationMenu.Trigger>noContent</NavigationMenu.Trigger>
           </NavigationMenu.Item>
           <NavigationMenu.Item>
-            <NavigationMenu.Trigger>Handbook</NavigationMenu.Trigger>
+            <NavigationMenu.Trigger>withContent</NavigationMenu.Trigger>
             <NavigationMenu.Content>
               <NavigationMenu.Link href="#">Styling Base UI components</NavigationMenu.Link>
             </NavigationMenu.Content>
@@ -135,13 +135,13 @@ describe('<NavigationMenu.Trigger />', () => {
       </NavigationMenu.Root>,
     );
 
-    const overviewButton = screen.getByRole('button', { name: 'Overview' });
-    const handbookButton = screen.getByRole('button', { name: 'Handbook' });
+    const noContentButton = screen.getByRole('button', { name: 'noContent' });
+    const withContentButton = screen.getByRole('button', { name: 'withContent' });
 
     await userEvent.pointer([
-      { target: overviewButton },
-      { target: handbookButton, releasePrevious: true },
-      { target: overviewButton, releasePrevious: true },
+      { target: withContentButton },
+      { target: noContentButton, releasePrevious: true },
+      { target: withContentButton, releasePrevious: true },
     ]);
 
     await waitFor(() => {
