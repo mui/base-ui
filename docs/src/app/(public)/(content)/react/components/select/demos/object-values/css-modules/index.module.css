@@ -74,6 +74,7 @@
   background-color: canvas;
   background-clip: padding-box;
   color: var(--color-gray-900);
+  min-width: var(--anchor-width);
   transform-origin: var(--transform-origin);
   transition:
     transform 150ms,
@@ -89,6 +90,7 @@
     transition: none;
     transform: none;
     opacity: 1;
+    min-width: calc(var(--anchor-width) + 1rem);
   }
 
   @media (prefers-color-scheme: light) {
@@ -120,7 +122,6 @@
   padding-block: 0.5rem;
   padding-left: 0.625rem;
   padding-right: 1rem;
-  min-width: var(--anchor-width);
   display: grid;
   gap: 0.5rem;
   align-items: flex-start;
@@ -137,7 +138,6 @@
   [data-side='none'] & {
     font-size: 1rem;
     padding-right: 3rem;
-    min-width: calc(var(--anchor-width) + 1rem);
   }
 
   &[data-highlighted] {
