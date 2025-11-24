@@ -68,7 +68,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<
 
   const setGroupValue = useStableCallback(
     (
-      newValue: string,
+      newValue: Value,
       nextPressed: boolean,
       eventDetails: BaseUIChangeEventDetails<typeof REASONS.none>,
     ) => {
