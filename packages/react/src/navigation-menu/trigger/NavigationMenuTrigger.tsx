@@ -160,12 +160,13 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   React.useEffect(() => {
-    if (!open) {
+    if (!mounted) {
       stickIfOpenTimeout.clear();
       sizeFrame1.cancel();
       sizeFrame2.cancel();
+      prevSizeRef.current = DEFAULT_SIZE;
     }
-  }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
+  }, [stickIfOpenTimeout, mounted, sizeFrame1, sizeFrame2]);
 
   React.useEffect(() => {
     if (!popupElement || typeof ResizeObserver !== 'function') {
