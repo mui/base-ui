@@ -6,6 +6,8 @@ import { useAnimationsFinished } from './useAnimationsFinished';
 import { getCssDimensions } from './getCssDimensions';
 import { Dimensions } from '../floating-ui-react/types';
 
+const supportsResizeObserver = typeof ResizeObserver !== 'undefined';
+
 /**
  * Allows the element to automatically resize based on its content while supporting animations.
  */
@@ -30,7 +32,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
 
   useIsoLayoutEffect(() => {
     // Reset the state when the popup is closed.
-    if (!mounted || !enabled) {
+    if (!mounted || !enabled || !supportsResizeObserver) {
       isInitialRender.current = true;
       previousDimensionsRef.current = null;
       return undefined;
