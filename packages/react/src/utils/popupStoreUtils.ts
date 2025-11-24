@@ -96,4 +96,12 @@ export class PopupTriggerMap {
   public getById(id: string): Element | undefined {
     return this.idMap.get(id);
   }
+
+  public entries(): IterableIterator<[string, Element]> {
+    return this.idMap.entries();
+  }
+
+  public get size(): number {
+    return this.idMap.size;
+  }
 }

@@ -29,22 +29,19 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  // TODO: reimplement without `triggerElements` state
-  /*
-
-  let resolvedTriggerId: string | null = null;
-  if (mounted === true && triggerIdProp === undefined && triggerElements.size === 1) {
-    resolvedTriggerId = triggerElements.keys().next().value || null;
-  } else {
-    resolvedTriggerId = activeTriggerId ?? null;
-  }
-
   useIsoLayoutEffect(() => {
-    if (open) {
-      store.set('activeTriggerId', resolvedTriggerId);
+    // To ensure compatibility with contained triggers, we don't require an explicit triggerId
+    // to be set when there's only one trigger element registered.
+    if (open && !store.select('activeTriggerId') && store.context.triggerElements.size === 1) {
+      const [implicitTriggerId, implicitTriggerElement] = store.context.triggerElements
+        .entries()
+        .next().value;
+      store.update({
+        activeTriggerId: implicitTriggerId,
+        activeTriggerElement: implicitTriggerElement as HTMLElement,
+      });
     }
-  }, [store, resolvedTriggerId, open]);
-  */
+  }, [open, store]);
 
   useIsoLayoutEffect(() => {
     store.set('mounted', mounted);

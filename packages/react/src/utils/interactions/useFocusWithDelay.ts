@@ -26,7 +26,7 @@ export function useFocusWithDelay(
   const blockFocusRef = React.useRef(false);
 
   React.useEffect(() => {
-    // TODO: remove domReference from dependencies
+    // TODO: remove domReference from dependencies or split this hook into trigger/popup hooks.
     const win = getWindow(domReference);
 
     // If the reference was focused and the user left the tab/window, and the preview card was not

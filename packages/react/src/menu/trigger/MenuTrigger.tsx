@@ -291,9 +291,13 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
-      store.set('payload', payload);
+      store.update({
+        payload,
+        activeTriggerElement: triggerElement,
+        closeDelay,
+      });
     }
-  }, [isTriggerActive, payload, store]);
+  }, [closeDelay, isTriggerActive, payload, store, triggerElement]);
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, setTriggerElement];
   const props = [

@@ -177,24 +177,19 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   store.useSyncedValues({ mounted, transitionStatus });
 
-  // TODO: revisit
-  /*
-  let resolvedTriggerId: string | null = null;
-  if (mounted === true && triggerIdProp === undefined && triggers.size === 1) {
-    resolvedTriggerId = triggers.keys().next().value || null;
-  } else {
-    resolvedTriggerId = activeTriggerId ?? null;
-  }
-
   useIsoLayoutEffect(() => {
-    if (open) {
-      store.set('activeTriggerId', resolvedTriggerId);
-      if (resolvedTriggerId == null) {
-        store.set('payload', undefined);
-      }
+    // To ensure compatibility with contained triggers, we don't require an explicit triggerId
+    // to be set when there's only one trigger element registered.
+    if (open && !store.select('activeTriggerId') && store.context.triggerElements.size === 1) {
+      const [implicitTriggerId, implicitTriggerElement] = store.context.triggerElements
+        .entries()
+        .next().value;
+      store.update({
+        activeTriggerId: implicitTriggerId,
+        activeTriggerElement: implicitTriggerElement as HTMLElement,
+      });
     }
-  }, [store, resolvedTriggerId, open]);
-  */
+  }, [open, store]);
 
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
