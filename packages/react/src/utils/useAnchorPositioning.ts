@@ -423,7 +423,7 @@ export function useAnchorPositioning(
   const floatingStyles = React.useMemo<React.CSSProperties>(
     () =>
       adaptiveOrigin
-        ? { position: resolvedPosition, [sideX]: `${x}px`, [sideY]: `${y}px` }
+        ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
         : { position: resolvedPosition, ...originalFloatingStyles },
     [adaptiveOrigin, resolvedPosition, sideX, x, sideY, y, originalFloatingStyles],
   );
