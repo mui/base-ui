@@ -17,30 +17,27 @@ import { PopupTriggerMap } from '../../utils/popupStoreUtils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 export type State<Payload> = {
-  open: boolean;
-  mounted: boolean;
-  instantType: 'dismiss' | 'click' | undefined;
-  modal: boolean | 'trap-focus';
-  transitionStatus: TransitionStatus;
-  openMethod: InteractionType | null;
-  openReason: PopoverRoot.ChangeEventReason | null;
-  stickIfOpen: boolean;
-  nested: boolean;
+  readonly open: boolean;
+  readonly mounted: boolean;
+  readonly instantType: 'dismiss' | 'click' | undefined;
+  readonly modal: boolean | 'trap-focus';
+  readonly transitionStatus: TransitionStatus;
+  readonly openMethod: InteractionType | null;
+  readonly openReason: PopoverRoot.ChangeEventReason | null;
+  readonly stickIfOpen: boolean;
+  readonly nested: boolean;
+  readonly titleElementId: string | undefined;
+  readonly descriptionElementId: string | undefined;
+  readonly activeTriggerId: string | null;
+  readonly activeTriggerElement: HTMLElement | null;
+  readonly positionerElement: HTMLElement | null;
+  readonly popupElement: HTMLElement | null;
+  readonly floatingRootContext: FloatingRootContext;
+  readonly payload: Payload | undefined;
 
-  titleElementId: string | undefined;
-  descriptionElementId: string | undefined;
-  activeTriggerId: string | null;
-  activeTriggerElement: HTMLElement | null;
-  positionerElement: HTMLElement | null;
-  popupElement: HTMLElement | null;
-
-  floatingRootContext: FloatingRootContext;
-
-  payload: Payload | undefined;
-
-  activeTriggerProps: HTMLProps;
-  inactiveTriggerProps: HTMLProps;
-  popupProps: HTMLProps;
+  readonly activeTriggerProps: HTMLProps;
+  readonly inactiveTriggerProps: HTMLProps;
+  readonly popupProps: HTMLProps;
 };
 
 type Context = {
@@ -106,15 +103,31 @@ const selectors = {
 
   payload: createSelector((state: State<unknown>) => state.payload),
 
-  activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
-  inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
+  isTriggerActive: createSelector(
+    (state: State<unknown>, triggerId: string | undefined) =>
+      triggerId !== undefined && state.activeTriggerId === triggerId,
+  ),
+  isOpenedByTrigger: createSelector(
+    (state: State<unknown>, triggerId: string | undefined) =>
+      triggerId !== undefined && state.activeTriggerId === triggerId && state.open,
+  ),
+
+  triggerProps: createSelector((state: State<unknown>, isActive: boolean) =>
+    isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
+  ),
   popupProps: createSelector((state: State<unknown>) => state.popupProps),
 };
 
 export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, Selectors> {
   constructor(initialState?: Partial<State<Payload>>) {
+    const initial = { ...createInitialState<Payload>(), ...initialState };
+
+    if (initial.open && initialState?.mounted === undefined) {
+      initial.mounted = true;
+    }
+
     super(
-      { ...createInitialState<Payload>(), ...initialState },
+      initial,
       {
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
@@ -175,6 +188,7 @@ export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, S
       const newTriggerId = eventDetails.trigger?.id ?? null;
       if (newTriggerId || nextOpen) {
         this.set('activeTriggerId', newTriggerId);
+        this.set('activeTriggerElement', eventDetails.trigger ?? null);
       }
     };
 

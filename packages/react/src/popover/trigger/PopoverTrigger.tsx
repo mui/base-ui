@@ -16,7 +16,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
@@ -64,37 +63,18 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     );
   }
 
-  const id = useBaseUiId(idProp);
+  const thisTriggerId = useBaseUiId(idProp);
 
   const floatingContext = store.useState('floatingRootContext');
-  const open = store.useState('open');
   const openReason = store.useState('openReason');
-  const rootActiveTriggerProps = store.useState('activeTriggerProps');
-  const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
+  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+
+  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
   const stickIfOpen = store.useState('stickIfOpen');
-  const mounted = store.useState('mounted');
-  const activeTrigger = store.useState('activeTriggerElement');
-  const positionerElement = store.useState('positionerElement');
+  const openMethod = store.useState('openMethod');
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-
-  const isTriggerActive = activeTrigger === triggerElement;
-
-  const {
-    openMethod,
-    triggerProps: interactionTypeTriggerProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
-
-  useIsoLayoutEffect(() => {
-    store.set('openMethod', openMethod);
-  }, [store, openMethod]);
-
-  React.useEffect(() => {
-    if (!mounted) {
-      resetOpenInteractionType();
-    }
-  }, [mounted, resetOpenInteractionType]);
 
   const hover = useHover(floatingContext, {
     enabled:
@@ -115,7 +95,24 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const localProps = useInteractions([click, hover]);
 
-  const registerTrigger = useTriggerRegistration(id, store);
+  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
+
+  const registerTrigger = React.useCallback(
+    (element: Element | null) => {
+      const cleanup = baseRegisterTrigger(element);
+
+      if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
+        store.update({
+          activeTriggerId: thisTriggerId,
+          activeTriggerElement: element as HTMLElement,
+          payload,
+        });
+      }
+
+      return cleanup;
+    },
+    [baseRegisterTrigger, thisTriggerId, payload, store],
+  );
 
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
@@ -126,9 +123,9 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
       disabled,
-      open: isTriggerActive && open,
+      open: isOpenedByThisTrigger,
     }),
-    [disabled, open, isTriggerActive],
+    [disabled, isOpenedByThisTrigger],
   );
 
   const { getButtonProps, buttonRef } = useButton({
@@ -154,9 +151,8 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     ref: [buttonRef, forwardedRef, registerTrigger, setTriggerElement],
     props: [
       localProps.getReferenceProps(),
-      isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
-      interactionTypeTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id },
+      rootTriggerProps,
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id: thisTriggerId },
       elementProps,
       getButtonProps,
     ],
@@ -184,6 +180,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   });
 
   const handleFocusTargetFocus = useStableCallback((event: React.FocusEvent) => {
+    const positionerElement = store.select('positionerElement');
     if (positionerElement && isOutsideEvent(event, positionerElement)) {
       store.context.beforeContentFocusGuardRef.current?.focus();
     } else {
@@ -222,13 +219,13 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     return (
       <React.Fragment>
         <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
-        <React.Fragment key={id}>{element}</React.Fragment>
+        <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
         <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
     );
   }
 
-  return <React.Fragment key={id}>{element}</React.Fragment>;
+  return <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
 }) as PopoverTrigger;
 
 export interface PopoverTrigger {

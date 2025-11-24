@@ -22,6 +22,7 @@ import {
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
@@ -50,37 +51,35 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const activeTriggerElement = store.useState('activeTriggerElement');
   const payload = store.useState('payload') as Payload | undefined;
   const openReason = store.useState('openReason');
-  const openMethod = store.useState('openMethod');
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  // TODO: reimplement without `triggerElements` state
-  /*
-  let resolvedTriggerId: string | null = null;
-  if (mounted === true && triggerIdProp === undefined && triggerElements.size === 1) {
-    resolvedTriggerId = triggerElements.keys().next().value || null;
-  } else {
-    resolvedTriggerId = activeTriggerId ?? null;
-  }
-
-  useIsoLayoutEffect(() => {
-    if (open) {
-      store.set('activeTriggerId', resolvedTriggerId);
-      if (resolvedTriggerId == null) {
-        store.set('payload', undefined);
-      }
-    }
-  }, [store, resolvedTriggerId, open]);
-  */
 
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   useIsoLayoutEffect(() => {
-    store.set('mounted', mounted);
-    if (!mounted) {
-      store.set('activeTriggerId', null);
+    if (mounted) {
+      store.set('mounted', mounted);
+    } else {
+      store.update({ mounted: false, activeTriggerId: null });
     }
   }, [store, mounted]);
+
+  const {
+    openMethod,
+    triggerProps: interactionTypeTriggerProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
+
+  useIsoLayoutEffect(() => {
+    store.set('openMethod', openMethod);
+  }, [store, openMethod]);
+
+  React.useEffect(() => {
+    if (!mounted) {
+      resetOpenInteractionType();
+    }
+  }, [mounted, resetOpenInteractionType]);
 
   useScrollLock(
     open && modal === true && openReason !== REASONS.triggerHover && openMethod !== 'touch',
@@ -157,12 +156,24 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([dismiss, role]);
 
+  const activeTriggerProps = React.useMemo(() => {
+    return getReferenceProps(interactionTypeTriggerProps);
+  }, [getReferenceProps, interactionTypeTriggerProps]);
+
+  const inactiveTriggerProps = React.useMemo(() => {
+    return getTriggerProps(interactionTypeTriggerProps);
+  }, [getTriggerProps, interactionTypeTriggerProps]);
+
+  const popupProps = React.useMemo(() => {
+    return getFloatingProps();
+  }, [getFloatingProps]);
+
   store.useSyncedValues({
     transitionStatus,
     modal,
-    activeTriggerProps: getReferenceProps(),
-    inactiveTriggerProps: getTriggerProps(),
-    popupProps: getFloatingProps(),
+    activeTriggerProps,
+    inactiveTriggerProps,
+    popupProps,
     floatingRootContext: floatingContext,
     nested: useFloatingParentNodeId() != null,
   });
