@@ -343,15 +343,21 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
       function changeState() {
-        store.update({ open: nextOpen, lastOpenChangeReason: reason ?? null });
+        const partial = {
+          open: nextOpen,
+          lastOpenChangeReason: reason ?? null,
+        } as Partial<MenuStore<Payload>['state']>;
+
         openEventRef.current = eventDetails.event ?? null;
 
         // If a popup is closing, the `trigger` may be null.
         // We want to keep the previous value so that exit animations are played and focus is returned correctly.
         const newTriggerId = eventDetails.trigger?.id ?? null;
         if (newTriggerId || nextOpen) {
-          store.set('activeTriggerId', newTriggerId);
+          partial.activeTriggerId = newTriggerId;
         }
+
+        store.update(partial);
       }
 
       if (reason === REASONS.triggerHover) {
