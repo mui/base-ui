@@ -72,7 +72,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<
       nextPressed: boolean,
       eventDetails: BaseUIChangeEventDetails<typeof REASONS.none>,
     ) => {
-      let newGroupValue: ToggleGroupValueType<Value, Multiple>;      
+      let newGroupValue: ToggleGroupValueType<Value, Multiple>;
       if (multiple) {
         if (nextPressed) {
           newGroupValue = (groupValue as ToggleGroupValueType<Value, true>).concat(
