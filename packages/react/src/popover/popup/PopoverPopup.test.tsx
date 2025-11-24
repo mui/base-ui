@@ -267,7 +267,6 @@ describe('<Popover.Popup />', () => {
   it.skipIf(isJSDOM)('focuses the popup when the active element becomes display:none', async () => {
     function TestComponent() {
       const [hidden, setHidden] = React.useState(false);
-      const hideButtonRef = React.useRef<HTMLButtonElement | null>(null);
 
       return (
         <Popover.Root open>
@@ -276,7 +275,6 @@ describe('<Popover.Popup />', () => {
             <Popover.Positioner>
               <Popover.Popup data-testid="popup">
                 <button
-                  ref={hideButtonRef}
                   data-testid="hide-button"
                   style={{ display: hidden ? 'none' : undefined }}
                   onClick={() => setHidden(true)}
