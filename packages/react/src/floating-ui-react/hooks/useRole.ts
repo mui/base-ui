@@ -93,7 +93,9 @@ export function useRole(context: FloatingRootContext, props: UseRoleProps = {}):
 
     return {
       ...floatingProps,
-      ...(ariaRole === 'menu' && { 'aria-labelledby': referenceId }),
+      ...(ariaRole === 'menu' && {
+        'aria-labelledby': referenceId,
+      }),
     };
   }, [ariaRole, floatingId, referenceId, role]);
 

@@ -30,11 +30,13 @@ import {
 } from '../utils';
 import type { FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
+import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { resolveRef } from '../../utils/resolveRef';
@@ -226,9 +228,13 @@ export interface FloatingFocusManagerProps {
   previousFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null;
   /**
    * Ref to the focus guard preceding the floating element content.
-   * Can be usefult to focus the popup progammatically.
+   * Can be useful to focus the popup progammatically.
    */
   beforeContentFocusGuardRef?: React.RefObject<HTMLSpanElement | null>;
+  /**
+   * External FlatingTree to use when the one provided by context can't be used.
+   */
+  externalTree?: FloatingTreeStore;
 }
 
 /**
@@ -252,6 +258,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     nextFocusableElement,
     previousFocusableElement,
     beforeContentFocusGuardRef,
+    externalTree,
   } = props;
   const {
     open,
@@ -277,7 +284,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const returnFocusRef = useValueAsRef(returnFocus);
   const openInteractionTypeRef = useValueAsRef(openInteractionType);
 
-  const tree = useFloatingTree();
+  const tree = useFloatingTree(externalTree);
   const portalContext = usePortalContext();
 
   const startDismissButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -507,7 +514,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           (isUntrappedTypeableCombobox || relatedTarget !== getPreviouslyFocusedElement())
         ) {
           preventReturnFocusRef.current = true;
-          onOpenChange(false, createChangeEventDetails('focus-out', event));
+          onOpenChange(false, createChangeEventDetails(REASONS.focusOut, event));
         }
       });
     }
@@ -706,11 +713,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
       }
 
-      if (details.reason === 'trigger-hover' && details.nativeEvent.type === 'mouseleave') {
+      if (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave') {
         preventReturnFocusRef.current = true;
       }
 
-      if (details.reason !== 'outside-press') {
+      if (details.reason !== REASONS.outsidePress) {
         return;
       }
 

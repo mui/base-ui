@@ -9,6 +9,7 @@ import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import { REASONS } from '../utils/reasons';
 
 const stateAttributesMapping = {
   multiple(value: boolean) {
@@ -31,7 +32,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
   const {
     defaultValue: defaultValueProp,
     disabled: disabledProp = false,
-    loop = true,
+    loopFocus = true,
     onValueChange,
     orientation = 'horizontal',
     multiple = false,
@@ -61,7 +62,11 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
   });
 
   const setGroupValue = useStableCallback(
-    (newValue: string, nextPressed: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => {
+    (
+      newValue: string,
+      nextPressed: boolean,
+      eventDetails: BaseUIChangeEventDetails<typeof REASONS.none>,
+    ) => {
       let newGroupValue: any[] | undefined;
       if (multiple) {
         newGroupValue = groupValue.slice();
@@ -124,7 +129,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
           refs={[forwardedRef]}
           props={[defaultProps, elementProps]}
           stateAttributesMapping={stateAttributesMapping}
-          loop={loop}
+          loopFocus={loopFocus}
         />
       )}
     </ToggleGroupContext.Provider>
@@ -170,7 +175,7 @@ export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGrou
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loop?: boolean;
+  loopFocus?: boolean;
   /**
    * When `false` only one item in the group can be pressed. If any item in
    * the group becomes pressed, the others will become unpressed.
@@ -180,7 +185,7 @@ export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGrou
   multiple?: boolean;
 }
 
-export type ToggleGroupChangeEventReason = 'none';
+export type ToggleGroupChangeEventReason = typeof REASONS.none;
 
 export type ToggleGroupChangeEventDetails = BaseUIChangeEventDetails<ToggleGroup.ChangeEventReason>;
 

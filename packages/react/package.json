@@ -1,6 +1,6 @@
 {
   "name": "@base-ui-components/react",
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0-beta.6",
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
   "keywords": [
@@ -77,7 +77,6 @@
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "build": "code-infra build --ignore \"**/*.template.js\" --copy .npmignore",
-    "build:stable": "code-infra build --bundle esm --ignore \"**/*.template.js\" --buildTypes false",
     "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
@@ -89,11 +88,11 @@
     "@floating-ui/react-dom": "^2.1.6",
     "@floating-ui/utils": "^0.2.10",
     "reselect": "^5.1.1",
-    "tabbable": "^6.2.0",
+    "tabbable": "^6.3.0",
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
-    "@mui/internal-test-utils": "^2.0.14",
+    "@mui/internal-test-utils": "^2.0.15",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/chai": "^5.2.3",
@@ -106,7 +105,7 @@
     "clsx": "^2.1.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router": "^7.9.4",
+    "react-router": "^7.9.5",
     "sinon": "^21.0.0",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4",

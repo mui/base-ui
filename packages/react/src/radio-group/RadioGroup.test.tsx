@@ -2,6 +2,7 @@ import * as React from 'react';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
 import { Radio } from '@base-ui-components/react/radio';
 import { Field } from '@base-ui-components/react/field';
+import { Fieldset } from '@base-ui-components/react/fieldset';
 import { Form } from '@base-ui-components/react/form';
 import {
   DirectionProvider,
@@ -449,6 +450,66 @@ describe('<RadioGroup />', () => {
     expect(radioB).to.have.attribute('tabindex', '0');
   });
 
+  describe('with native <label>', () => {
+    it('associates implicitly', async () => {
+      const changeSpy = spy((newValue) => newValue);
+      await render(
+        <RadioGroup onValueChange={changeSpy}>
+          <label data-testid="label">
+            <Radio.Root value="apple" />
+            Apple
+          </label>
+
+          <label data-testid="label">
+            <Radio.Root value="banana" />
+            Banana
+          </label>
+        </RadioGroup>,
+      );
+
+      const [label1, label2] = screen.getAllByTestId('label');
+
+      fireEvent.click(label1);
+      expect(changeSpy.callCount).to.equal(1);
+      expect(changeSpy.lastCall.returnValue).to.equal('apple');
+
+      fireEvent.click(label2);
+      expect(changeSpy.callCount).to.equal(2);
+      expect(changeSpy.lastCall.returnValue).to.equal('banana');
+    });
+
+    it('associates explicitly', async () => {
+      const changeSpy = spy((newValue) => newValue);
+      await render(
+        <RadioGroup onValueChange={changeSpy}>
+          <div>
+            <label data-testid="label" htmlFor="RadioA">
+              Apple
+            </label>
+            <Radio.Root value="apple" id="RadioA" />
+          </div>
+
+          <div>
+            <label data-testid="label" htmlFor="RadioB">
+              Banana
+            </label>
+            <Radio.Root value="banana" id="RadioB" />
+          </div>
+        </RadioGroup>,
+      );
+
+      const [label1, label2] = screen.getAllByTestId('label');
+
+      fireEvent.click(label1);
+      expect(changeSpy.callCount).to.equal(1);
+      expect(changeSpy.lastCall.returnValue).to.equal('apple');
+
+      fireEvent.click(label2);
+      expect(changeSpy.callCount).to.equal(2);
+      expect(changeSpy.lastCall.returnValue).to.equal('banana');
+    });
+  });
+
   describe('Field', () => {
     it('passes the `name` prop to the hidden input only when a value is selected', async () => {
       await render(
@@ -512,6 +573,49 @@ describe('<RadioGroup />', () => {
 
         expect(input).to.have.attribute('name', 'field-radio');
       });
+
+      it('revalidates when the controlled value changes externally', async () => {
+        const validateSpy = spy((value: unknown) => ((value as string) === 'b' ? 'error' : null));
+
+        function App() {
+          const [value, setValue] = React.useState('a');
+
+          return (
+            <React.Fragment>
+              <Field.Root validationMode="onChange" validate={validateSpy} name="choices">
+                <RadioGroup
+                  value={value}
+                  onValueChange={(nextValue) => setValue(nextValue as string)}
+                >
+                  <Field.Item>
+                    <Radio.Root value="a" data-testid="radio" />
+                  </Field.Item>
+                  <Field.Item>
+                    <Radio.Root value="b" data-testid="radio" />
+                  </Field.Item>
+                </RadioGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setValue('b')}>
+                Select externally
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(<App />);
+
+        const radioGroup = screen.getByRole('radiogroup');
+        const toggle = screen.getByText('Select externally');
+
+        expect(radioGroup).not.to.have.attribute('aria-invalid');
+        const initialCallCount = validateSpy.callCount;
+
+        fireEvent.click(toggle);
+
+        expect(validateSpy.callCount).to.equal(initialCallCount + 1);
+        expect(validateSpy.lastCall.args[0]).to.equal('b');
+        expect(radioGroup).to.have.attribute('aria-invalid', 'true');
+      });
     });
 
     describe('Field.Label', () => {
@@ -539,7 +643,7 @@ describe('<RadioGroup />', () => {
         const labels = screen.getAllByTestId('label');
         expect(labels.length).to.equal(2);
         labels.forEach((label) => {
-          expect(label).to.not.have.attribute('for');
+          expect(label).to.have.attribute('for');
         });
 
         fireEvent.click(screen.getByText('Apple'));
@@ -573,19 +677,51 @@ describe('<RadioGroup />', () => {
         const radios = screen.getAllByRole('radio');
         const labels = screen.getAllByTestId('label');
         const descriptions = screen.getAllByTestId('description');
+        const inputs = document.querySelectorAll('input[type="radio"]');
 
         radios.forEach((radio, index) => {
           const label = labels[index];
           const description = descriptions[index];
+          const input = inputs[index];
 
           expect(label.getAttribute('for')).to.not.equal(null);
-          expect(label.getAttribute('for')).to.equal(radio.getAttribute('id'));
+          expect(label.getAttribute('for')).to.equal(input?.getAttribute('id'));
           expect(description.getAttribute('id')).to.not.equal(null);
           expect(description.getAttribute('id')).to.equal(radio.getAttribute('aria-describedby'));
         });
 
         fireEvent.click(screen.getByText('Banana'));
         expect(changeSpy.lastCall.returnValue).to.equal('banana');
+      });
+    });
+
+    describe('Field.Description', () => {
+      it('links the group and individual radios', async () => {
+        await render(
+          <Field.Root name="apple">
+            <RadioGroup defaultValue={[]}>
+              <Field.Description data-testid="group-description">
+                Group description
+              </Field.Description>
+              <Field.Item>
+                <Field.Label>
+                  <Radio.Root value="fuji-apple" />
+                  Fuji
+                </Field.Label>
+              </Field.Item>
+            </RadioGroup>
+          </Field.Root>,
+        );
+
+        const groupDescription = screen.getByTestId('group-description');
+        const groupDescriptionId = groupDescription.getAttribute('id');
+        expect(groupDescriptionId).to.not.equal(null);
+        expect(screen.getByRole('radiogroup').getAttribute('aria-describedby')).to.include(
+          groupDescriptionId,
+        );
+        expect(screen.getByRole('radio').getAttribute('aria-describedby')).to.include(
+          groupDescriptionId,
+        );
       });
     });
 
@@ -637,6 +773,27 @@ describe('<RadioGroup />', () => {
     });
   });
 
+  describe('Fieldset', () => {
+    it("labels the radio group's hidden input", async () => {
+      await render(
+        <Field.Root name="test">
+          <Fieldset.Root render={<RadioGroup />}>
+            <Fieldset.Legend>Legend</Fieldset.Legend>
+            <Field.Item>
+              <Radio.Root value="a" />
+            </Field.Item>
+          </Fieldset.Root>
+        </Field.Root>,
+      );
+
+      const hiddenInput = document.querySelector('input[value]');
+      expect(hiddenInput).to.not.equal(null);
+
+      const legend = screen.getByText('Legend');
+      expect(legend.getAttribute('id')).to.equal(hiddenInput?.getAttribute('aria-labelledby'));
+    });
+  });
+
   describe('Form', () => {
     const { render: renderFakeTimers, clock } = createAsyncRenderer({
       clockOptions: {
@@ -673,29 +830,26 @@ describe('<RadioGroup />', () => {
       expect(error).to.have.text('required');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
-          test: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="test" data-testid="field">
-              <RadioGroup data-testid="radio-group">
-                <Field.Item>
-                  <Radio.Root value="a" data-testid="item-a" />
-                </Field.Item>
-                <Field.Item>
-                  <Radio.Root value="b" data-testid="item-b" />
-                </Field.Item>
-              </RadioGroup>
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      await renderFakeTimers(<App />);
+    it('clears external errors on change', async () => {
+      await renderFakeTimers(
+        <Form
+          errors={{
+            test: 'test',
+          }}
+        >
+          <Field.Root name="test" data-testid="field">
+            <RadioGroup data-testid="radio-group">
+              <Field.Item>
+                <Radio.Root value="a" data-testid="item-a" />
+              </Field.Item>
+              <Field.Item>
+                <Radio.Root value="b" data-testid="item-b" />
+              </Field.Item>
+            </RadioGroup>
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       const itemA = screen.getByTestId('item-a');
       const radioGroup = screen.getByTestId('radio-group');

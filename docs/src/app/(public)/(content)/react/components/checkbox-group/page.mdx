@@ -10,6 +10,10 @@ import { DemoCheckboxGroupHero } from './demos/hero';
 
 <DemoCheckboxGroupHero />
 
+## Usage guidelines
+
+- **Form controls must have an accessible name**: Checkbox group and individual checkboxes must have a meaningful label. Prefer using [`<Fieldset>`](/react/components/fieldset) and [`<Field>`](/react/components/field) to provide visible text labels and descriptions, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
+
 ## Anatomy
 
 Checkbox Group is composed together with [Checkbox](/react/components/checkbox). Import the components and place them together:
@@ -42,40 +46,6 @@ import { DemoCheckboxGroupParent } from './demos/parent';
 import { DemoCheckboxGroupNested } from './demos/nested';
 
 <DemoCheckboxGroupNested compact />
-
-### Form integration
-
-To use checkbox group in a form:
-
-1. Pass the group's `name` to `<Field>`
-2. Use the `render` prop to compose `<Fieldset>` and `<CheckboxGroup>`
-3. Use `<Field.Item>` to wrap each checkbox in the group
-
-```tsx title="Using CheckboxGroup in a form"
-<Form>
-  <Field.Root name="toppings">
-    <Fieldset.Root render={<CheckboxGroup />}>
-      <Fieldset.Legend>Toppings</Fieldset.Legend>
-      <Field.Item>
-        <Field.Label>
-          <Checkbox.Root value="anchovies" />
-          Anchovies
-        </Field.Label>
-      </Field.Item>
-      <Field.Item>
-        <Field.Label>
-          <Checkbox.Root value="olives" />
-          Olives
-        </Field.Label>
-      </Field.Item>
-    </Fieldset.Root>
-  </Field.Root>
-</Form>
-```
-
-import { DemoCheckboxGroupForm } from './demos/form';
-
-<DemoCheckboxGroupForm compact />
 
 ## API reference
 

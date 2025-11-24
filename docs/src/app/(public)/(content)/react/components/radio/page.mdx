@@ -10,6 +10,10 @@ import { DemoRadioHero } from './demos/hero';
 
 <DemoRadioHero />
 
+## Usage guidelines
+
+- **Form controls must have an accessible name**: Radio group and individual Radio elements must have a meaningful label. Prefer using [`<Fieldset>`](/react/components/fieldset) and [`<Field>`](/react/components/field) to provide visible text labels and descriptions, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
+
 ## Anatomy
 
 Radio is always placed within Radio Group. Import the components and place them together:
@@ -23,39 +27,6 @@ import { RadioGroup } from '@base-ui-components/react/radio-group';
     <Radio.Indicator />
   </Radio.Root>
 </RadioGroup>;
-```
-
-## Examples
-
-### Form integration
-
-To use a radio group in a form:
-
-1. Pass the group's `name` to `<Field>`
-2. Use the `render` prop to compose `<Fieldset>` and `<RadioGroup>`
-3. Use `<Field.Item>` to wrap each radio in the group
-
-```tsx title="Using RadioGroup in a form"
-<Form>
-  <Field.Root name="shipping">
-    <Fieldset.Root render={<RadioGroup />}>
-      <Fieldset.Legend>Shipping method</Fieldset.Legend>
-      <Field.Item>
-        <Field.Label>
-          <Radio.Root value="standard" />
-          Standard
-        </Field.Label>
-      </Field.Item>
-      <Field.Item>
-        <Field.Label>
-          <Radio.Root value="express" />
-          Express
-        </Field.Label>
-        ` `{' '}
-      </Field.Item>
-    </Fieldset.Root>
-  </Field.Root>
-</Form>
 ```
 
 ## API reference

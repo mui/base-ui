@@ -30,7 +30,6 @@ export type State = {
   popupProps: HTMLProps;
   inputProps: HTMLProps;
   triggerProps: HTMLProps;
-  typeaheadTriggerProps: HTMLProps;
 
   positionerElement: HTMLElement | null;
   listElement: HTMLElement | null;
@@ -47,6 +46,7 @@ export type State = {
   listRef: React.RefObject<Array<HTMLElement | null>>;
   labelsRef: React.RefObject<Array<string | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
+  emptyRef: React.RefObject<HTMLDivElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   chipsContainerRef: React.RefObject<HTMLDivElement | null>;
@@ -122,7 +122,6 @@ export const selectors = {
   popupProps: createSelector((state: State) => state.popupProps),
   inputProps: createSelector((state: State) => state.inputProps),
   triggerProps: createSelector((state: State) => state.triggerProps),
-  typeaheadTriggerProps: createSelector((state: State) => state.typeaheadTriggerProps),
   getItemProps: createSelector((state: State) => state.getItemProps),
 
   positionerElement: createSelector((state: State) => state.positionerElement),
@@ -139,6 +138,7 @@ export const selectors = {
   listRef: createSelector((state: State) => state.listRef),
   labelsRef: createSelector((state: State) => state.labelsRef),
   popupRef: createSelector((state: State) => state.popupRef),
+  emptyRef: createSelector((state: State) => state.emptyRef),
   inputRef: createSelector((state: State) => state.inputRef),
   keyboardActiveRef: createSelector((state: State) => state.keyboardActiveRef),
   chipsContainerRef: createSelector((state: State) => state.chipsContainerRef),

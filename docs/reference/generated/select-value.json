@@ -2,10 +2,6 @@
   "name": "SelectValue",
   "description": "A text label of the currently selected item.\nRenders a `<span>` element.",
   "props": {
-    "style": {
-      "type": "CSSProperties | ((state: Select.Value.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Select.Value.State) => CSSProperties | undefined)\n| undefined"
-    },
     "children": {
       "type": "ReactNode | ((value: any) => ReactNode)",
       "description": "Accepts a function that returns a `ReactNode` to format the selected value.",
@@ -17,12 +13,20 @@
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Select.Value.State) => string | undefined)"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Select.Value.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Select.Value.State) => CSSProperties | undefined)\n| undefined"
+    },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Select.Value.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.Value.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-placeholder": {
+      "description": "Present when the select doesn't have a value."
+    }
+  },
   "cssVariables": {}
 }

@@ -166,8 +166,6 @@ You can also set these props to `false` if you don't want to move the focus anyw
 
 The dialog can be made scrollable by using `<Dialog.Viewport>` as an outer scrollable container for `<Dialog.Popup>` while the popup can extend past the bottom edge. The scrollable area uses the [Scroll Area component](/react/components/scroll-area) to provide custom scrollbars.
 
-When adding elements that should appear "outside" the colored popup area, continue to place them inside `<Dialog.Popup>`, but create a child element that has the popup styles. This ensures they are kept in the tab order and announced correctly by screen readers.
-
 import { DemoDialogOutsideScroll } from './demos/outside-scroll';
 
 <DemoDialogOutsideScroll compact />
@@ -179,6 +177,16 @@ The dialog can be made scrollable by making an inner container scrollable while 
 import { DemoDialogInsideScroll } from './demos/inside-scroll';
 
 <DemoDialogInsideScroll compact />
+
+### Placing elements outside the popup
+
+When adding elements that should appear "outside" the colored popup area, continue to place them inside `<Dialog.Popup>`, but create a child element that has the popup styles. This ensures they are kept in the tab order and announced correctly by screen readers.
+
+`<Dialog.Popup>` has `pointer-events: none`, while inner content (the colored popup and close button) has `pointer-events: auto` so clicks on the backdrop continue to be registered.
+
+import { DemoDialogUncontained } from './demos/uncontained';
+
+<DemoDialogUncontained compact />
 
 ### Detached triggers
 

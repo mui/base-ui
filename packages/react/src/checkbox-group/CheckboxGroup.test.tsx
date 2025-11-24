@@ -152,9 +152,9 @@ describe('<CheckboxGroup />', () => {
       const green = screen.getByTestId('green');
       const blue = screen.getByTestId('blue');
 
-      expect(red).to.have.attribute('disabled', '');
-      expect(green).to.have.attribute('disabled', '');
-      expect(blue).to.have.attribute('disabled', '');
+      expect(red).to.have.attribute('aria-disabled', 'true');
+      expect(green).to.have.attribute('aria-disabled', 'true');
+      expect(blue).to.have.attribute('aria-disabled', 'true');
     });
 
     it('does not disable all checkboxes when `false`', () => {
@@ -174,9 +174,9 @@ describe('<CheckboxGroup />', () => {
       const green = screen.getByTestId('green');
       const blue = screen.getByTestId('blue');
 
-      expect(red).not.to.have.attribute('disabled', '');
-      expect(green).not.to.have.attribute('disabled', '');
-      expect(blue).not.to.have.attribute('disabled', '');
+      expect(red).not.to.have.attribute('aria-disabled', 'true');
+      expect(green).not.to.have.attribute('aria-disabled', 'true');
+      expect(blue).not.to.have.attribute('aria-disabled', 'true');
     });
 
     it('takes precedence over individual checkboxes', () => {
@@ -196,9 +196,9 @@ describe('<CheckboxGroup />', () => {
       const green = screen.getByTestId('green');
       const blue = screen.getByTestId('blue');
 
-      expect(red).to.have.attribute('disabled', '');
-      expect(green).to.have.attribute('disabled', '');
-      expect(blue).to.have.attribute('disabled', '');
+      expect(red).to.have.attribute('aria-disabled', 'true');
+      expect(green).to.have.attribute('aria-disabled', 'true');
+      expect(blue).to.have.attribute('aria-disabled', 'true');
     });
   });
 
@@ -300,6 +300,49 @@ describe('<CheckboxGroup />', () => {
       checkboxes.forEach((checkbox) => expect(checkbox).to.have.attribute('aria-invalid', 'true'));
     });
 
+    it('revalidates when the controlled value changes externally', async () => {
+      const validateSpy = spy((value: unknown) => {
+        const values = value as string[];
+        return values.includes('one') ? 'error' : null;
+      });
+
+      function App() {
+        const [selected, setSelected] = React.useState<string[]>([]);
+
+        return (
+          <React.Fragment>
+            <Field.Root validationMode="onChange" validate={validateSpy} name="apple">
+              <CheckboxGroup value={selected}>
+                <Field.Item>
+                  <Checkbox.Root value="one" data-testid="checkbox" />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="two" data-testid="checkbox" />
+                </Field.Item>
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setSelected(['one'])}>
+              Select externally
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      render(<App />);
+
+      const checkboxes = screen.getAllByTestId('checkbox');
+      const toggle = screen.getByText('Select externally');
+
+      checkboxes.forEach((checkbox) => expect(checkbox).not.to.have.attribute('aria-invalid'));
+      const initialCallCount = validateSpy.callCount;
+
+      fireEvent.click(toggle);
+
+      expect(validateSpy.callCount).to.equal(initialCallCount + 1);
+      expect(validateSpy.lastCall.args[0]).to.deep.equal(['one']);
+      checkboxes.forEach((checkbox) => expect(checkbox).to.have.attribute('aria-invalid', 'true'));
+    });
+
     it('prop: validationMode=onBlur', async () => {
       const validateSpy = spy((value) => {
         const v = value as string[];
@@ -381,11 +424,18 @@ describe('<CheckboxGroup />', () => {
         </Field.Root>,
       );
 
+      const checkboxes = screen.getAllByRole('checkbox');
       const labels = screen.getAllByTestId('label');
-      expect(labels.length).to.equal(3);
-      labels.forEach((label) => {
-        expect(label.tagName).to.equal('LABEL');
-        expect(label).to.not.have.attribute('for');
+      const inputs = document.querySelectorAll('input[type="checkbox"]');
+
+      checkboxes.forEach((checkbox, index) => {
+        const label = labels[index];
+        const input = inputs[index];
+
+        expect(label.getAttribute('for')).to.not.equal(null);
+        expect(label.getAttribute('for')).to.equal(input.getAttribute('id'));
+        expect(label.getAttribute('id')).to.not.equal(null);
+        expect(label.getAttribute('id')).to.equal(checkbox.getAttribute('aria-labelledby'));
       });
 
       fireEvent.click(labels[2]);
@@ -419,19 +469,51 @@ describe('<CheckboxGroup />', () => {
       const checkboxes = screen.getAllByRole('checkbox');
       const labels = screen.getAllByTestId('label');
       const descriptions = screen.getAllByTestId('description');
+      const inputs = document.querySelectorAll('input[type="checkbox"]');
 
       checkboxes.forEach((checkbox, index) => {
         const label = labels[index];
         const description = descriptions[index];
+        const input = inputs[index];
 
         expect(label.getAttribute('for')).to.not.equal(null);
-        expect(label.getAttribute('for')).to.equal(checkbox.getAttribute('id'));
+        expect(label.getAttribute('for')).to.equal(input.getAttribute('id'));
+        expect(label.getAttribute('id')).to.not.equal(null);
+        expect(label.getAttribute('id')).to.equal(checkbox.getAttribute('aria-labelledby'));
         expect(description.getAttribute('id')).to.not.equal(null);
         expect(description.getAttribute('id')).to.equal(checkbox.getAttribute('aria-describedby'));
       });
 
       fireEvent.click(screen.getByText('Gala'));
       expect(changeSpy.callCount).to.equal(1);
+    });
+  });
+
+  describe('Field.Description', () => {
+    it('links the group and individual checkboxes', async () => {
+      await render(
+        <Field.Root name="apple">
+          <CheckboxGroup defaultValue={[]}>
+            <Field.Description data-testid="group-description">Group description</Field.Description>
+            <Field.Item>
+              <Field.Label>
+                <Checkbox.Root value="fuji-apple" />
+                Fuji
+              </Field.Label>
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const groupDescription = screen.getByTestId('group-description');
+      const groupDescriptionId = groupDescription.getAttribute('id');
+      expect(groupDescriptionId).to.not.equal(null);
+      expect(screen.getByRole('group').getAttribute('aria-describedby')).to.include(
+        groupDescriptionId,
+      );
+      expect(screen.getByRole('checkbox').getAttribute('aria-describedby')).to.include(
+        groupDescriptionId,
+      );
     });
   });
 
@@ -504,7 +586,6 @@ describe('<CheckboxGroup />', () => {
         return (
           <Form
             errors={errors}
-            onClearErrors={setErrors}
             onSubmit={(event) => {
               event.preventDefault();
               setErrors({ group: 'server error' });

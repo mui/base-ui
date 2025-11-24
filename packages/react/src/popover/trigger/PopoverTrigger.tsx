@@ -28,6 +28,7 @@ import {
   isOutsideEvent,
 } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useTriggerRegistration } from '../../utils/popupStoreUtils';
 
 /**
@@ -99,7 +100,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     enabled:
       floatingContext != null &&
       openOnHover &&
-      (openMethod !== 'touch' || openReason !== 'trigger-press'),
+      (openMethod !== 'touch' || openReason !== REASONS.triggerPress),
     mouseOnly: true,
     move: false,
     handleClose: safePolygon(),
@@ -138,7 +139,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = React.useMemo(
     () => ({
       open(value) {
-        if (value && openReason === 'trigger-press') {
+        if (value && openReason === REASONS.triggerPress) {
           return pressableTriggerOpenStateMapping.open(value);
         }
 
@@ -155,7 +156,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       localProps.getReferenceProps(),
       isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
       interactionTypeTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id, key: id },
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id },
       elementProps,
       getButtonProps,
     ],
@@ -169,7 +170,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       store.setOpen(
         false,
         createChangeEventDetails(
-          'focus-out',
+          REASONS.focusOut,
           event.nativeEvent,
           event.currentTarget as HTMLElement,
         ),
@@ -190,7 +191,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
         store.setOpen(
           false,
           createChangeEventDetails(
-            'focus-out',
+            REASONS.focusOut,
             event.nativeEvent,
             event.currentTarget as HTMLElement,
           ),
@@ -214,17 +215,20 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     }
   });
 
+  // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
+  // regardless of whether the focus guards are rendered or not.
+
   if (isTriggerActive) {
     return (
       <React.Fragment>
         <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
-        {element}
+        <React.Fragment key={id}>{element}</React.Fragment>
         <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
     );
   }
 
-  return element;
+  return <React.Fragment key={id}>{element}</React.Fragment>;
 }) as PopoverTrigger;
 
 export interface PopoverTrigger {

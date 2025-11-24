@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
+import { mergeProps } from '../../merge-props';
 
 const objectItems = [
   { value: 'a', label: 'apple' },
@@ -80,6 +81,7 @@ const groupItemsReadonly = [
   items={objectItems}
   value="a"
   onValueChange={(value) => {
+    // @ts-expect-error - possibly null
     value.startsWith('a');
   }}
 />;
@@ -88,6 +90,7 @@ const groupItemsReadonly = [
   items={objectItems}
   value={objectItems[0]}
   onValueChange={(value) => {
+    // @ts-expect-error - possibly null
     value.label;
   }}
 />;
@@ -210,13 +213,30 @@ function App() {
   }}
 />;
 
+<Combobox.Root
+  items={[
+    { id: 1, name: 'Alice' },
+    { id: 2, name: 'Bob' },
+  ]}
+  defaultValue={[{ id: 2, name: 'Bob' }]}
+  itemToStringLabel={(item) => item.name}
+  itemToStringValue={(item) => String(item.id)}
+  isItemEqualToValue={(item, value) => item.id === value.id}
+  defaultOpen
+  multiple
+/>;
+
 function App2() {
   const [value, setValue] = React.useState('a');
   return (
     <Combobox.Root
       value={value}
       onValueChange={(newValue) => {
+        // @ts-expect-error
         newValue.length;
+        // @ts-expect-error - user is forced to type useState with null
+        // even if they don't want to allow null
+        setValue(newValue);
       }}
     />
   );
@@ -230,7 +250,21 @@ function App3() {
       onValueChange={(newValue) => {
         // @ts-expect-error
         newValue.length;
+        setValue(newValue);
       }}
     />
   );
+}
+
+mergeProps<typeof Combobox.Root<any>>(
+  {
+    value: '',
+  },
+  {},
+);
+
+export function Wrapper<Value, Multiple extends boolean | undefined = false>(
+  props: Combobox.Root.Props<Value, Multiple>,
+) {
+  return <Combobox.Root {...props} />;
 }

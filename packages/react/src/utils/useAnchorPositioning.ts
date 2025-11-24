@@ -27,6 +27,7 @@ import {
 } from '../floating-ui-react/index';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
+import { FloatingTreeStore } from '../floating-ui-react/components/FloatingTreeStore';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -116,7 +117,7 @@ export function useAnchorPositioning(
     collisionPadding: collisionPaddingParam = 5,
     sticky = false,
     arrowPadding = 5,
-    trackAnchor = true,
+    disableAnchorTracking = false,
     // Private parameters
     keepMounted = false,
     floatingRootContext,
@@ -126,6 +127,7 @@ export function useAnchorPositioning(
     nodeId,
     adaptiveOrigin,
     lazyFlip = false,
+    externalTree,
   } = params;
 
   const [mountSide, setMountSide] = React.useState<PhysicalSide | null>(null);
@@ -382,10 +384,10 @@ export function useAnchorPositioning(
 
   const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
-      elementResize: trackAnchor && typeof ResizeObserver !== 'undefined',
-      layoutShift: trackAnchor && typeof IntersectionObserver !== 'undefined',
+      elementResize: !disableAnchorTracking && typeof ResizeObserver !== 'undefined',
+      layoutShift: !disableAnchorTracking && typeof IntersectionObserver !== 'undefined',
     }),
-    [trackAnchor],
+    [disableAnchorTracking],
   );
 
   const {
@@ -408,6 +410,7 @@ export function useAnchorPositioning(
       ? undefined
       : (...args) => autoUpdate(...args, autoUpdateOptions),
     nodeId,
+    externalTree,
   });
 
   const { sideX, sideY } = middlewareData.adaptiveOrigin || {};
@@ -631,10 +634,10 @@ export interface UseAnchorPositioningSharedParameters {
    */
   arrowPadding?: number;
   /**
-   * Whether the popup tracks any layout shift of its positioning anchor.
-   * @default true
+   * Whether to disable the popup from tracking any layout shift of its positioning anchor.
+   * @default false
    */
-  trackAnchor?: boolean;
+  disableAnchorTracking?: boolean;
   /**
    * Determines how to handle collisions when positioning the popup.
    *
@@ -658,12 +661,13 @@ export interface UseAnchorPositioningParameters extends useAnchorPositioning.Sha
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
   floatingRootContext?: FloatingRootContext;
   mounted: boolean;
-  trackAnchor: boolean;
+  disableAnchorTracking: boolean;
   nodeId?: string;
   adaptiveOrigin?: Middleware;
   collisionAvoidance: CollisionAvoidance;
   shiftCrossAxis?: boolean;
   lazyFlip?: boolean;
+  externalTree?: FloatingTreeStore;
 }
 
 export interface UseAnchorPositioningReturnValue {

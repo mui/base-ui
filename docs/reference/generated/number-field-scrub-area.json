@@ -14,10 +14,6 @@
       "description": "Determines how many pixels the cursor must move before the value changes.\nA higher value will make scrubbing less sensitive.",
       "detailedType": "number | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: NumberField.ScrubArea.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: NumberField.ScrubArea.State,\n  ) => CSSProperties | undefined)\n| undefined"
-    },
     "teleportDistance": {
       "type": "number",
       "description": "If specified, determines the distance that the cursor may move from the center\nof the scrub area before it will loop back around.",
@@ -27,6 +23,10 @@
       "type": "string | ((state: NumberField.ScrubArea.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((\n    state: NumberField.ScrubArea.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: NumberField.ScrubArea.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: NumberField.ScrubArea.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NumberField.ScrubArea.State) => ReactElement)",

@@ -16,8 +16,8 @@ export interface DemoVariantSelectorProps extends React.HtmlHTMLAttributes<HTMLD
   onVariantChange?: () => void;
   showLanguageSelector?: boolean;
   variants: string[];
-  selectedVariant: string;
-  selectVariant: React.Dispatch<React.SetStateAction<string>>;
+  selectedVariant: string | null;
+  selectVariant: React.Dispatch<React.SetStateAction<string | null>>;
   availableTransforms: string[];
   selectedTransform: string | null | undefined;
   selectTransform: (transformName: string | null) => void;
@@ -36,14 +36,14 @@ export function DemoVariantSelector({
 }: DemoVariantSelectorProps) {
   const hasJsTransform = availableTransforms.includes('js');
   const handleLanguageChange = React.useCallback(
-    (value: string) => {
+    (value: string | null) => {
       selectTransform(value === 'ts' ? null : value);
     },
     [selectTransform],
   );
 
   const handleVariantChange = React.useCallback(
-    (value: string) => {
+    (value: string | null) => {
       selectVariant(value);
       onVariantChange?.();
     },

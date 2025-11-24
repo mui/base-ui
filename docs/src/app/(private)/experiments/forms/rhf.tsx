@@ -49,7 +49,6 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
 export default function ExampleForm() {
   const { settings } = useExperimentSettings<Settings>();
 
-  const [errors, setErrors] = React.useState({});
   const [loading, setLoading] = React.useState(false);
 
   const { handleSubmit, control, reset, setError, setFocus } = useForm<FormValues>({
@@ -94,12 +93,7 @@ export default function ExampleForm() {
       <h1>react-hook-form</h1>
 
       <hr style={{ margin: '1rem 0' }} />
-      <Form
-        className={styles.Form}
-        errors={errors}
-        onClearErrors={setErrors}
-        onSubmit={handleSubmit(submitForm)}
-      >
+      <Form className={styles.Form} onSubmit={handleSubmit(submitForm)}>
         <Controller
           name="username"
           control={control}

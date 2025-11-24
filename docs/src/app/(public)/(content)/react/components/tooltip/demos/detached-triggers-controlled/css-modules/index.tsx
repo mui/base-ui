@@ -18,22 +18,22 @@ export default function TooltipDetachedTriggersControlledDemo() {
     <Tooltip.Provider>
       <div className={styles.Container}>
         <div className={styles.ButtonGroup}>
-          <Tooltip.Trigger className={styles.Button} handle={demoTooltip} id="trigger-1">
+          <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-1">
             <InfoIcon aria-label="Information 1" className={styles.Icon} />
           </Tooltip.Trigger>
 
-          <Tooltip.Trigger className={styles.Button} handle={demoTooltip} id="trigger-2">
+          <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-2">
             <InfoIcon aria-label="Information 2" className={styles.Icon} />
           </Tooltip.Trigger>
 
-          <Tooltip.Trigger className={styles.Button} handle={demoTooltip} id="trigger-3">
+          <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-3">
             <InfoIcon aria-label="Information 3" className={styles.Icon} />
           </Tooltip.Trigger>
         </div>
 
         <button
           type="button"
-          className={styles.ProgrammaticButton}
+          className={styles.Button}
           onClick={() => {
             setTriggerId('trigger-2');
             setOpen(true);

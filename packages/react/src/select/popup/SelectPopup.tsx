@@ -25,6 +25,7 @@ import { selectors } from '../store';
 import { clearStyles, LIST_FUNCTIONAL_STYLES } from './utils';
 import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 
@@ -361,8 +362,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
     const win = ownerWindow(positionerElement);
 
-    function handleResize(event: Event) {
-      setOpen(false, createChangeEventDetails('window-resize', event));
+    function handleResize(event: UIEvent) {
+      setOpen(false, createChangeEventDetails(REASONS.windowResize, event));
     }
 
     win.addEventListener('resize', handleResize);

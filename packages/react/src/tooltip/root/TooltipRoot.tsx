@@ -19,6 +19,7 @@ import {
 import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
 import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups all parts of the tooltip.
@@ -31,7 +32,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     disabled = false,
     defaultOpen = false,
     open: openProp,
-    hoverable = true,
+    disableHoverablePopup = false,
     trackCursorAxis = 'none',
     actionsRef,
     onOpenChange,
@@ -68,7 +69,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
 
   useIsoLayoutEffect(() => {
     if (openState && disabled) {
-      store.setOpen(false, createChangeEventDetails('disabled'));
+      store.setOpen(false, createChangeEventDetails(REASONS.disabled));
     }
   }, [openState, disabled, store]);
 
@@ -114,7 +115,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   );
 
   const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createTooltipEventDetails('imperative-action'));
+    store.setOpen(false, createTooltipEventDetails(REASONS.imperativeAction));
   }, [store, createTooltipEventDetails]);
 
   useOpenChangeComplete({
@@ -152,7 +153,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
   useIsoLayoutEffect(() => {
     if (
-      (transitionStatus === 'ending' && lastOpenChangeReason === 'none') ||
+      (transitionStatus === 'ending' && lastOpenChangeReason === REASONS.none) ||
       (transitionStatus !== 'ending' && isInstantPhase)
     ) {
       // Capture the current instant type so we can restore it later
@@ -183,7 +184,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
 
   store.useSyncedValues({
     trackCursorAxis,
-    hoverable,
+    disableHoverablePopup,
     floatingRootContext,
     activeTriggerProps: getReferenceProps(),
     inactiveTriggerProps: getTriggerProps(),
@@ -228,15 +229,14 @@ export interface TooltipRootProps<Payload = unknown> {
   onOpenChangeComplete?: (open: boolean) => void;
   /**
    * Whether the tooltip contents can be hovered without closing the tooltip.
-   * @default true
+   * @default false
    */
-  hoverable?: boolean;
+  disableHoverablePopup?: boolean;
   /**
    * Determines which axis the tooltip should track the cursor on.
    * @default 'none'
    */
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
-
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the tooltip will not be unmounted when closed.
@@ -278,14 +278,14 @@ export interface TooltipRootActions {
 }
 
 export type TooltipRootChangeEventReason =
-  | 'trigger-hover'
-  | 'trigger-focus'
-  | 'trigger-press'
-  | 'outside-press'
-  | 'escape-key'
-  | 'disabled'
-  | 'imperative-action'
-  | 'none';
+  | typeof REASONS.triggerHover
+  | typeof REASONS.triggerFocus
+  | typeof REASONS.triggerPress
+  | typeof REASONS.outsidePress
+  | typeof REASONS.escapeKey
+  | typeof REASONS.disabled
+  | typeof REASONS.imperativeAction
+  | typeof REASONS.none;
 
 export type TooltipRootChangeEventDetails =
   BaseUIChangeEventDetails<TooltipRoot.ChangeEventReason> & {

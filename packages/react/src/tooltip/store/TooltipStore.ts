@@ -4,11 +4,12 @@ import { createSelector, ReactStore } from '@base-ui-components/utils/store';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { FloatingRootContext } from '../../floating-ui-react';
-import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { PopupTriggerMap } from '../../utils/popupStoreUtils';
+import { REASONS } from '../../utils/reasons';
 
 export type State<Payload> = {
   readonly open: boolean;
@@ -19,7 +20,7 @@ export type State<Payload> = {
   readonly floatingRootContext: FloatingRootContext;
   readonly trackCursorAxis: 'none' | 'x' | 'y' | 'both';
   readonly transitionStatus: TransitionStatus;
-  readonly hoverable: boolean;
+  readonly disableHoverablePopup: boolean;
   readonly preventUnmountingOnClose: boolean;
   readonly lastOpenChangeReason: TooltipRoot.ChangeEventReason | null;
   readonly triggers: PopupTriggerMap;
@@ -47,7 +48,7 @@ const selectors = {
   floatingRootContext: createSelector((state: State<unknown>) => state.floatingRootContext),
   trackCursorAxis: createSelector((state: State<unknown>) => state.trackCursorAxis),
   transitionStatus: createSelector((state: State<unknown>) => state.transitionStatus),
-  hoverable: createSelector((state: State<unknown>) => state.hoverable),
+  disableHoverablePopup: createSelector((state: State<unknown>) => state.disableHoverablePopup),
   preventUnmountingOnClose: createSelector(
     (state: State<unknown>) => state.preventUnmountingOnClose,
   ),
@@ -86,9 +87,10 @@ export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, t
   ) => {
     const reason = eventDetails.reason;
 
-    const isHover = reason === 'trigger-hover';
-    const isFocusOpen = nextOpen && reason === 'trigger-focus';
-    const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
+    const isHover = reason === REASONS.triggerHover;
+    const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
+    const isDismissClose =
+      !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
 
     (eventDetails as TooltipRoot.ChangeEventDetails).preventUnmountOnClose = () => {
       this.set('preventUnmountingOnClose', true);
@@ -105,7 +107,7 @@ export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, t
         this.set('instantType', 'focus');
       } else if (isDismissClose) {
         this.set('instantType', 'dismiss');
-      } else if (reason === 'trigger-hover') {
+      } else if (reason === REASONS.triggerHover) {
         this.set('instantType', undefined);
       }
 
@@ -143,10 +145,10 @@ function createInitialState<Payload>(): State<Payload> {
     disabled: false,
     instantType: undefined,
     isInstantPhase: true,
-    floatingRootContext: getEmptyContext(),
+    floatingRootContext: getEmptyRootContext(),
     trackCursorAxis: 'none',
     transitionStatus: 'idle',
-    hoverable: true,
+    disableHoverablePopup: false,
     preventUnmountingOnClose: false,
     lastOpenChangeReason: null,
     triggers: new Map(),

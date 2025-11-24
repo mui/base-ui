@@ -23,8 +23,10 @@ import {
 /* eslint-disable no-underscore-dangle */
 
 import { useFloatingTree } from '../components/FloatingTree';
+import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 
 type PressType = 'intentional' | 'sloppy';
@@ -113,6 +115,10 @@ export interface UseDismissProps {
    * floating elements.
    */
   bubbles?: boolean | { escapeKey?: boolean; outsidePress?: boolean };
+  /**
+   * External FlatingTree to use when the one provided by context can't be used.
+   */
+  externalTree?: FloatingTreeStore;
 }
 
 /**
@@ -134,9 +140,10 @@ export function useDismiss(
     referencePressEvent = 'sloppy',
     ancestorScroll = false,
     bubbles,
+    externalTree,
   } = props;
 
-  const tree = useFloatingTree();
+  const tree = useFloatingTree(externalTree);
   const outsidePressFn = useStableCallback(
     typeof outsidePressProp === 'function' ? outsidePressProp : () => false,
   );
@@ -215,7 +222,7 @@ export function useDismiss(
       }
 
       const native = isReactEvent(event) ? event.nativeEvent : event;
-      const eventDetails = createChangeEventDetails('escape-key', native);
+      const eventDetails = createChangeEventDetails(REASONS.escapeKey, native);
 
       onOpenChange(false, eventDetails);
 
@@ -357,7 +364,7 @@ export function useDismiss(
         }
       }
 
-      onOpenChange(false, createChangeEventDetails('outside-press', event));
+      onOpenChange(false, createChangeEventDetails(REASONS.outsidePress, event));
       clearInsideReactTree();
     },
   );
@@ -524,7 +531,7 @@ export function useDismiss(
     const compositionTimeout = new Timeout();
 
     function onScroll(event: Event) {
-      onOpenChange(false, createChangeEventDetails('none', event));
+      onOpenChange(false, createChangeEventDetails(REASONS.none, event));
     }
 
     function handleCompositionStart() {
@@ -644,11 +651,14 @@ export function useDismiss(
       onKeyDown: closeOnEscapeKeyDown,
       ...(referencePress && {
         [bubbleHandlerKeys[referencePressEvent]]: (event: React.SyntheticEvent) => {
-          onOpenChange(false, createChangeEventDetails('trigger-press', event.nativeEvent as any));
+          onOpenChange(
+            false,
+            createChangeEventDetails(REASONS.triggerPress, event.nativeEvent as any),
+          );
         },
         ...(referencePressEvent !== 'intentional' && {
           onClick(event) {
-            onOpenChange(false, createChangeEventDetails('trigger-press', event.nativeEvent));
+            onOpenChange(false, createChangeEventDetails(REASONS.triggerPress, event.nativeEvent));
           },
         }),
       }),

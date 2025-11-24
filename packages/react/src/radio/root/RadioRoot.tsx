@@ -3,8 +3,9 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import { NOOP } from '../../utils/noop';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
@@ -23,13 +24,13 @@ import { RadioRootContext } from './RadioRootContext';
 
 /**
  * Represents the radio button itself.
- * Renders a `<button>` element and a hidden `<input>` beside.
+ * Renders a `<span>` element and a hidden `<input>` beside.
  *
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
 export const RadioRoot = React.forwardRef(function RadioRoot(
   componentProps: RadioRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
@@ -39,7 +40,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     required: requiredProp = false,
     value,
     inputRef: inputRefProp,
-    nativeButton = true,
+    nativeButton = false,
     id: idProp,
     ...elementProps
   } = componentProps;
@@ -65,7 +66,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     disabled: fieldDisabled,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const { getDescriptionProps } = useLabelableContext();
+  const { labelId, getDescriptionProps } = useLabelableContext();
 
   const disabled = fieldDisabled || fieldItemContext.disabled || disabledGroup || disabledProp;
   const readOnly = readOnlyGroup || readOnlyProp;
@@ -83,9 +84,10 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     }
   }, [setFilled]);
 
-  const id = useLabelableId({
+  const id = useBaseUiId();
+  const inputId = useLabelableId({
     id: idProp,
-    implicit: true,
+    implicit: false,
     controlRef: radioRef,
   });
 
@@ -95,8 +97,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     'aria-required': required || undefined,
     'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
+    'aria-labelledby': labelId,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
-    id: id ?? undefined,
+    id,
     disabled,
     onKeyDown(event) {
       if (event.key === 'Enter') {
@@ -128,13 +131,10 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     native: nativeButton,
   });
 
-  const inputId = useBaseUiId();
-
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
     () => ({
       type: 'radio',
       ref: mergedInputRef,
-      // Set `id` to stop Chrome warning about an unassociated input
       id: inputId,
       tabIndex: -1,
       style: visuallyHidden,
@@ -153,7 +153,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
           return;
         }
 
-        const details = createChangeEventDetails('none', event.nativeEvent);
+        const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
         if (details.isCanceled) {
           return;
@@ -163,6 +163,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
         setDirty(value !== validityData.initialValue);
         setFilled(true);
         setCheckedValue(value, details);
+      },
+      onFocus() {
+        radioRef.current?.focus();
       },
     }),
     [
@@ -205,7 +208,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     getButtonProps,
   ];
 
-  const element = useRenderElement('button', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     enabled: !isRadioGroup,
     state,
     ref: refs,
@@ -217,7 +220,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     <RadioRootContext.Provider value={contextValue}>
       {isRadioGroup ? (
         <CompositeItem
-          tag="button"
+          tag="span"
           render={render}
           className={className}
           state={state}
@@ -244,8 +247,8 @@ export interface RadioRootState extends FieldRoot.State {
   required: boolean;
 }
 export interface RadioRootProps
-  extends NativeButtonProps,
-    Omit<BaseUIComponentProps<'button', RadioRoot.State>, 'value'> {
+  extends NonNativeButtonProps,
+    Omit<BaseUIComponentProps<'span', RadioRoot.State>, 'value'> {
   /** The unique identifying value of the radio in a group. */
   value: any;
   /** Whether the component should ignore user interaction. */

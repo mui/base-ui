@@ -1,5 +1,6 @@
 import { DialogStore } from './DialogStore';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * A handle to control a Dialog imperatively and to associate detached triggers with it.
@@ -34,7 +35,7 @@ export class DialogHandle<Payload> {
 
     this.store.setOpen(
       true,
-      createChangeEventDetails('imperative-action', undefined, triggerElement),
+      createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
     );
   }
 
@@ -46,14 +47,20 @@ export class DialogHandle<Payload> {
    */
   openWithPayload(payload: Payload) {
     this.store.set('payload', payload);
-    this.store.setOpen(true, createChangeEventDetails('imperative-action', undefined, undefined));
+    this.store.setOpen(
+      true,
+      createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
+    );
   }
 
   /**
    * Closes the dialog.
    */
   close() {
-    this.store.setOpen(false, createChangeEventDetails('imperative-action', undefined, undefined));
+    this.store.setOpen(
+      false,
+      createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
+    );
   }
 
   /**

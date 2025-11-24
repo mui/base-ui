@@ -4,7 +4,6 @@
   "3": "Base UI: CheckboxGroupContext is missing. CheckboxGroup parts must be placed within <CheckboxGroup>.",
   "4": "Base UI: DirectionContext is missing.",
   "5": "Base UI: MenubarContext is missing. Menubar parts must be placed within <Menubar>.",
-  "6": "Base UI: useToast must be used within <Toast.Provider>.",
   "7": "Base UI: ToggleGroupContext is missing. ToggleGroup parts must be placed within <ToggleGroup>.",
   "8": "Base UI: Render element or function are not defined.",
   "9": "Base UI: AccordionItemContext is missing. Accordion parts must be placed within <Accordion.Item>.",
@@ -80,5 +79,9 @@
   "79": "Base UI: <Dialog.Trigger> must be used within <Dialog.Root> or provided with a handle.",
   "80": "Base UI: PopoverHandle.open: No trigger found with id \"%s\".",
   "81": "Base UI: TooltipHandle.open: No trigger found with id \"%s\".",
-  "82": "Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle."
+  "82": "Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.",
+  "83": "Base UI: MenuHandle.open: No trigger found with id \"%s\".",
+  "84": "Base UI: ToastPositionerContext is missing. ToastPositioner parts must be placed within <Toast.Positioner>.",
+  "85": "Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.",
+  "86": "Base UI: FieldsetRootContext is missing. Fieldset parts must be placed within <Fieldset.Root>."
 }

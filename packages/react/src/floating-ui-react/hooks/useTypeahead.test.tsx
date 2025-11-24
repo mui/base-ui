@@ -236,14 +236,20 @@ describe('useTypeahead', () => {
 
     await userEvent.keyboard('c');
 
-    expect(screen.getByText('Copy as')).toHaveFocus();
+    await waitFor(() => {
+      expect(screen.getByText('Copy as')).toHaveFocus();
+    });
 
     await userEvent.keyboard('opy as ');
 
-    expect(screen.getByText('Copy as').getAttribute('aria-expanded')).toBe('false');
+    await waitFor(() => {
+      expect(screen.getByText('Copy as').getAttribute('aria-expanded')).toBe('false');
+    });
 
     await userEvent.keyboard(' ');
 
-    expect(screen.getByText('Copy as').getAttribute('aria-expanded')).toBe('true');
+    await waitFor(() => {
+      expect(screen.getByText('Copy as').getAttribute('aria-expanded')).toBe('true');
+    });
   });
 });

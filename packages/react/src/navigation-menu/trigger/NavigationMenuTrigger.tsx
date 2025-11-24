@@ -30,6 +30,7 @@ import {
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { EMPTY_ARRAY, PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -80,7 +81,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     orientation,
     setViewportInert,
   } = useNavigationMenuRootContext();
-  const itemValue = useNavigationMenuItemContext();
+  const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
   const dismissProps = useNavigationMenuDismissContext();
@@ -229,7 +230,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     nextOpen: boolean,
     eventDetails: NavigationMenuRoot.ChangeEventDetails,
   ) {
-    const isHover = eventDetails.reason === 'trigger-hover';
+    const isHover = eventDetails.reason === REASONS.triggerHover;
 
     if (!interactionsEnabled) {
       return;
@@ -329,7 +330,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         setValue(
           itemValue,
           createChangeEventDetails(
-            event.type === 'mouseenter' ? 'trigger-hover' : 'trigger-press',
+            event.type === 'mouseenter' ? REASONS.triggerHover : REASONS.triggerPress,
             event.nativeEvent,
           ),
         );
@@ -386,7 +387,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
 
       if (openHorizontal || openVertical) {
-        setValue(itemValue, createChangeEventDetails('list-navigation', event.nativeEvent));
+        setValue(itemValue, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
         handleOpenEvent(event);
         stopEvent(event);
       }
@@ -403,7 +404,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           { popupElement, rootRef, tree, nodeId },
         )
       ) {
-        setValue(null, createChangeEventDetails('focus-out', event.nativeEvent));
+        setValue(null, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
       }
     },
   };
@@ -461,7 +462,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
                 nextTabbable?.focus();
 
                 if (!contains(rootRef.current, nextTabbable)) {
-                  setValue(null, createChangeEventDetails('focus-out', event.nativeEvent));
+                  setValue(null, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
                 }
               }
             }}

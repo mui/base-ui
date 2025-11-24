@@ -28,14 +28,14 @@
       "description": "ID of the trigger that the dialog is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.",
       "detailedType": "string | null | undefined"
     },
-    "dismissible": {
+    "disablePointerDismissal": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Determines whether the dialog should close on outside clicks.",
       "detailedType": "boolean | undefined"
     },
     "handle": {
-      "type": "DialogHandle<Payload>",
+      "type": "Dialog.Handle<Payload>",
       "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.\nCan be created with the Dialog.createHandle() method.",
       "detailedType": "{} | undefined"
     },

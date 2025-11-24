@@ -1,6 +1,6 @@
 {
   "name": "@base-ui-components/utils",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A collection of React utility functions for Base UI.",
   "repository": {
     "type": "git",
@@ -19,7 +19,6 @@
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "build": "code-infra build --copy .npmignore",
-    "build:stable": "code-infra build --bundle esm --buildTypes false",
     "test:package": "publint --pack pnpm run ./build && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
@@ -32,7 +31,7 @@
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
-    "@mui/internal-test-utils": "^2.0.14",
+    "@mui/internal-test-utils": "^2.0.15",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/chai": "^5.2.3",

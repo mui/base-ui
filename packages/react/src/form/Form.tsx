@@ -1,10 +1,16 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import {
+  createGenericEventDetails,
+  type BaseUIGenericEventDetails,
+} from '../utils/createBaseUIEventDetails';
+import { REASONS } from '../utils/reasons';
 import type { BaseUIComponentProps } from '../utils/types';
 import { FormContext } from './FormContext';
 import { useRenderElement } from '../utils/useRenderElement';
 import { EMPTY_OBJECT } from '../utils/constants';
+import { useValueChanged } from '../utils/useValueChanged';
 
 /**
  * A native form element with consolidated error handling.
@@ -12,17 +18,16 @@ import { EMPTY_OBJECT } from '../utils/constants';
  *
  * Documentation: [Base UI Form](https://base-ui.com/react/components/form)
  */
-export const Form = React.forwardRef(function Form(
-  componentProps: Form.Props,
-  forwardedRef: React.ForwardedRef<HTMLFormElement>,
-) {
+export const Form = React.forwardRef(function Form<
+  FormValues extends Record<string, any> = Record<string, any>,
+>(componentProps: Form.Props<FormValues>, forwardedRef: React.ForwardedRef<HTMLFormElement>) {
   const {
     render,
     className,
     validationMode = 'onSubmit',
-    errors,
-    onClearErrors,
+    errors: externalErrors,
     onSubmit,
+    onFormSubmit,
     ...elementProps
   } = componentProps;
 
@@ -40,6 +45,12 @@ export const Form = React.forwardRef(function Form(
     if (control.tagName === 'INPUT') {
       (control as HTMLInputElement).select();
     }
+  });
+
+  const [errors, setErrors] = React.useState(externalErrors);
+
+  useValueChanged(externalErrors, () => {
+    setErrors(externalErrors);
   });
 
   React.useEffect(() => {
@@ -83,6 +94,19 @@ export const Form = React.forwardRef(function Form(
           } else {
             submittedRef.current = true;
             onSubmit?.(event as any);
+
+            if (onFormSubmit) {
+              event.preventDefault();
+
+              const formValues = values.reduce((acc, field) => {
+                if (field.name) {
+                  (acc as Record<string, any>)[field.name] = field.getValue();
+                }
+                return acc;
+              }, {} as FormValues);
+
+              onFormSubmit(formValues, createGenericEventDetails(REASONS.none, event.nativeEvent));
+            }
           }
         },
       },
@@ -94,7 +118,7 @@ export const Form = React.forwardRef(function Form(
     if (name && errors && EMPTY_OBJECT.hasOwnProperty.call(errors, name)) {
       const nextErrors = { ...errors };
       delete nextErrors[name];
-      onClearErrors?.(nextErrors);
+      setErrors(nextErrors);
     }
   });
 
@@ -110,11 +134,21 @@ export const Form = React.forwardRef(function Form(
   );
 
   return <FormContext.Provider value={contextValue}>{element}</FormContext.Provider>;
-});
+}) as {
+  <FormValues extends Record<string, any> = Record<string, any>>(
+    props: Form.Props<FormValues> & {
+      ref?: React.RefObject<HTMLFormElement>;
+    },
+  ): React.JSX.Element;
+};
+
+export type FormSubmitEventReason = typeof REASONS.none;
+export type FormSubmitEventDetails = BaseUIGenericEventDetails<Form.SubmitEventReason>;
 
 export interface FormState {}
 
-export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
+export interface FormProps<FormValues extends Record<string, any> = Record<string, any>>
+  extends BaseUIComponentProps<'form', Form.State> {
   /**
    * Determines when the form should be validated.
    * The `validationMode` prop on `<Field.Root>` takes precedence over this.
@@ -127,20 +161,27 @@ export interface FormProps extends BaseUIComponentProps<'form', Form.State> {
    */
   validationMode?: FormValidationMode;
   /**
-   * An object where the keys correspond to the `name` attribute of the form fields,
-   * and the values correspond to the error(s) related to that field.
+   * Validation errors returned externally, typically after submission by a server or a form action.
+   * This should be an object where keys correspond to the `name` attribute on `<Field.Root>`,
+   * and values correspond to error(s) related to that field.
    */
   errors?: FormContext['errors'];
   /**
-   * Event handler called when the `errors` object is cleared.
+   * Event handler called when the form is submitted.
+   * `preventDefault()` is called on the native submit event when used.
    */
-  onClearErrors?: (errors: FormContext['errors']) => void;
+  onFormSubmit?: (formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void;
 }
 
 export type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
 
 export namespace Form {
-  export type Props = FormProps;
+  export type Props<FormValues extends Record<string, any> = Record<string, any>> =
+    FormProps<FormValues>;
   export type State = FormState;
   export type ValidationMode = FormValidationMode;
+  export type SubmitEventReason = FormSubmitEventReason;
+  export type SubmitEventDetails = FormSubmitEventDetails;
+
+  export type Values<FormValues extends Record<string, any> = Record<string, any>> = FormValues;
 }

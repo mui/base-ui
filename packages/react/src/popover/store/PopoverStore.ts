@@ -10,8 +10,9 @@ import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { type FloatingRootContext } from '../../floating-ui-react';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { FloatingUIOpenChangeDetails, type HTMLProps } from '../../utils/types';
-import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { PopoverRoot } from './../root/PopoverRoot';
+import { REASONS } from '../../utils/reasons';
 import { PopupTriggerMap } from '../../utils/popupStoreUtils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
@@ -69,7 +70,7 @@ function createInitialState<Payload>(): State<Payload> {
     openReason: null,
     titleElementId: undefined,
     descriptionElementId: undefined,
-    floatingRootContext: getEmptyContext(),
+    floatingRootContext: getEmptyRootContext(),
     payload: undefined,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
@@ -135,11 +136,12 @@ export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, S
     nextOpen: boolean,
     eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
-    const isHover = eventDetails.reason === 'trigger-hover';
+    const isHover = eventDetails.reason === REASONS.triggerHover;
     const isKeyboardClick =
-      eventDetails.reason === 'trigger-press' && (eventDetails.event as MouseEvent).detail === 0;
+      eventDetails.reason === REASONS.triggerPress &&
+      (eventDetails.event as MouseEvent).detail === 0;
     const isDismissClose =
-      !nextOpen && (eventDetails.reason === 'escape-key' || eventDetails.reason == null);
+      !nextOpen && (eventDetails.reason === REASONS.escapeKey || eventDetails.reason == null);
 
     (eventDetails as PopoverRoot.ChangeEventDetails).preventUnmountOnClose = () => {
       this.context.preventUnmountingRef.current = true;
@@ -192,7 +194,7 @@ export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, S
 
     if (isKeyboardClick || isDismissClose) {
       this.set('instantType', isKeyboardClick ? 'click' : 'dismiss');
-    } else if (eventDetails.reason === 'focus-out') {
+    } else if (eventDetails.reason === REASONS.focusOut) {
       this.set('instantType', 'focus');
     } else {
       this.set('instantType', undefined);

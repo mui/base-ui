@@ -3,7 +3,7 @@
   "description": "An element to attach the tooltip to.\nRenders a `<button>` element.",
   "props": {
     "handle": {
-      "type": "TooltipHandle<Payload>",
+      "type": "Tooltip.Handle<Payload>",
       "description": "A handle to associate the trigger with a tooltip.",
       "detailedType": "{} | undefined"
     },
@@ -11,10 +11,6 @@
       "type": "Payload",
       "description": "A payload to pass to the tooltip when it is opened.",
       "detailedType": "Payload | undefined"
-    },
-    "style": {
-      "type": "CSSProperties | ((state: Tooltip.Trigger.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Tooltip.Trigger.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "delay": {
       "type": "number",
@@ -32,6 +28,10 @@
       "type": "string | ((state: Tooltip.Trigger.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Tooltip.Trigger.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Tooltip.Trigger.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Tooltip.Trigger.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Tooltip.Trigger.State) => ReactElement)",

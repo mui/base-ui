@@ -26,6 +26,7 @@ import {
   useInteractions,
   useClick,
 } from '../index';
+import { REASONS } from '../../utils/reasons';
 import type { UseDismissProps } from './useDismiss';
 import { normalizeProp } from './useDismiss';
 
@@ -50,16 +51,16 @@ function App(
       setOpen(openArg);
       const reason = data?.reason;
       if (props.outsidePress) {
-        expect(reason).toBe('outside-press');
+        expect(reason).toBe(REASONS.outsidePress);
       } else if (props.escapeKey) {
-        expect(reason).toBe('escape-key');
+        expect(reason).toBe(REASONS.escapeKey);
         if (!openArg) {
           props.onClose?.();
         }
       } else if (props.referencePress) {
-        expect(reason).toBe('trigger-press');
+        expect(reason).toBe(REASONS.triggerPress);
       } else if (props.ancestorScroll) {
-        expect(reason).toBe('none');
+        expect(reason).toBe(REASONS.none);
       }
     },
   });

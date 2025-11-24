@@ -13,6 +13,7 @@ import {
 
 import type { ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
@@ -97,7 +98,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
     }
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
-      if (details.reason === 'trigger-press' || details.reason === 'escape-key') {
+      if (details.reason === REASONS.triggerPress || details.reason === REASONS.escapeKey) {
         blockFocusRef.current = true;
       }
     }
@@ -135,7 +136,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
         onOpenChange(
           true,
           createChangeEventDetails(
-            'trigger-focus',
+            REASONS.triggerFocus,
             event.nativeEvent,
             event.currentTarget as HTMLElement,
           ),
@@ -186,12 +187,15 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
             return;
           }
 
-          onOpenChange(false, createChangeEventDetails('trigger-focus', nativeEvent));
+          onOpenChange(false, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
         });
       },
     }),
     [dataRef, elements.domReference, elements.triggers, onOpenChange, visibleOnly, timeout],
   );
 
-  return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
+  return React.useMemo(
+    () => (enabled ? { reference, trigger: reference } : {}),
+    [enabled, reference],
+  );
 }
