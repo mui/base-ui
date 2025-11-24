@@ -4,7 +4,6 @@ import { Menu } from '@base-ui-components/react/menu';
 import { Tooltip } from '@base-ui-components/react/tooltip';
 import menuDemoStyles from 'docs/src/app/(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import tooltipDemoStyles from 'docs/src/app/(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
-import { StoreInspector } from '@base-ui-components/utils/store';
 import styles from './perf.module.css';
 
 type RowData = {
@@ -31,10 +30,7 @@ const genericTooltipHandle = Tooltip.createHandle<string>();
 export default function PerfExperiment() {
   return (
     <div className={styles.container}>
-      <h1>
-        Component performance - detached triggers{' '}
-        <StoreInspector store={genericTooltipHandle.store} />
-      </h1>
+      <h1>Component performance - detached triggers</h1>
       <div className={styles.rows}>
         {rows.map((row) => (
           <div key={row.index} className={styles.row}>
