@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { resolveSelectedLabel } from '../../utils/resolveValueLabel';
+import { resolveMultipleLabels, resolveSelectedLabel } from '../../utils/resolveValueLabel';
 import { selectors } from '../store';
 
 /**
@@ -19,12 +19,15 @@ export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
   const selectedValue = useStore(store, selectors.selectedValue);
   const items = useStore(store, selectors.items);
+  const multiple = useStore(store, selectors.selectionMode) === 'multiple';
 
   let returnValue = null;
   if (typeof childrenProp === 'function') {
     returnValue = childrenProp(selectedValue);
   } else if (childrenProp != null) {
     returnValue = childrenProp;
+  } else if (multiple && Array.isArray(selectedValue)) {
+    returnValue = resolveMultipleLabels(selectedValue, items, itemToStringLabel);
   } else {
     returnValue = resolveSelectedLabel(selectedValue, items, itemToStringLabel);
   }
