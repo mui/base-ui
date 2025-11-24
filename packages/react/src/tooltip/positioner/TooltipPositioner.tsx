@@ -50,7 +50,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
 
-  const positioning = useAnchorPositioning({
+  const positioner = useAnchorPositioning({
     anchor,
     positionMethod,
     floatingRootContext,
@@ -80,19 +80,11 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
       role: 'presentation',
       hidden: !mounted,
       style: {
-        ...positioning.positionerStyles,
+        ...positioner.positionerStyles,
         ...hiddenStyles,
       },
     };
-  }, [open, trackCursorAxis, disableHoverablePopup, mounted, positioning.positionerStyles]);
-
-  const positioner = React.useMemo(
-    () => ({
-      props: defaultProps,
-      ...positioning,
-    }),
-    [defaultProps, positioning],
-  );
+  }, [open, trackCursorAxis, disableHoverablePopup, mounted, positioner.positionerStyles]);
 
   const state: TooltipPositioner.State = React.useMemo(
     () => ({
@@ -124,7 +116,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    props: [positioner.props, getDisabledMountTransitionStyles(transitionStatus), elementProps],
+    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     ref: [forwardedRef, store.useStateSetter('positionerElement')],
     stateAttributesMapping: popupStateMapping,
   });
