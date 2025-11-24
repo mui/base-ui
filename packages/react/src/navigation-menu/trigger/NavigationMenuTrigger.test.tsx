@@ -138,7 +138,11 @@ describe('<NavigationMenu.Trigger />', () => {
     const overviewButton = screen.getByRole('button', { name: 'Overview' });
     const handbookButton = screen.getByRole('button', { name: 'Handbook' });
 
-    await userEvent.pointer([{ target: overviewButton }, { target: handbookButton }]);
+    await userEvent.pointer([
+      { target: overviewButton },
+      { target: handbookButton, releasePrevious: true },
+      { target: overviewButton, releasePrevious: true },
+    ]);
 
     await waitFor(() => {
       const handbookLink = screen.getByRole('link', { name: 'Styling Base UI components' });
