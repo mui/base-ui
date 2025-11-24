@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -13,6 +14,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 import { useHoverFloatingInteraction } from '../../floating-ui-react/hooks/useHoverFloatingInteraction';
+import { REASONS } from '../../utils/reasons';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -43,6 +45,8 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const popupElement = store.useState('popupElement');
   const positionerElement = store.useState('positionerElement');
   const floatingContext = store.useState('floatingRootContext');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const isInstantPhase = store.useState('isInstantPhase');
 
   useOpenChangeComplete({
     open,
@@ -91,6 +95,30 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     enabled: !disabled,
     closeDelay,
   });
+
+  // Animations should be instant in two cases:
+  // 1) Opening during the provider's instant phase (adjacent tooltip opens instantly)
+  // 2) Closing because another tooltip opened (reason === 'none')
+  // Otherwise, allow the animation to play. In particular, do not disable animations
+  // during the 'ending' phase unless it's due to a sibling opening.
+  const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
+  useIsoLayoutEffect(() => {
+    if (
+      (transitionStatus === 'ending' && lastOpenChangeReason === REASONS.none) ||
+      (transitionStatus !== 'ending' && isInstantPhase)
+    ) {
+      // Capture the current instant type so we can restore it later
+      // and set to 'delay' to disable animations while moving from one trigger to another
+      // within a delay group.
+      if (instantType !== 'delay') {
+        previousInstantTypeRef.current = instantType;
+      }
+      store.set('instantType', 'delay');
+    } else if (previousInstantTypeRef.current !== null) {
+      store.set('instantType', previousInstantTypeRef.current);
+      previousInstantTypeRef.current = null;
+    }
+  }, [transitionStatus, isInstantPhase, lastOpenChangeReason, instantType, store]);
 
   const state: TooltipPopup.State = React.useMemo(
     () => ({
