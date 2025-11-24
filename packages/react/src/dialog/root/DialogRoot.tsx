@@ -33,7 +33,19 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   const parentDialogRootContext = useDialogRootContext(true);
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => handle?.store ?? new DialogStore<Payload>()).current;
+  const store = useRefWithInit(() => {
+    if (handle?.store) {
+      return handle.store;
+    }
+
+    return new DialogStore<Payload>({
+      open: openProp ?? defaultOpen,
+      activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+      modal,
+      disablePointerDismissal,
+      nested,
+    });
+  }).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
