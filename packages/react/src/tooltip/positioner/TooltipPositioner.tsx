@@ -39,7 +39,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     ...elementProps
   } = componentProps;
 
-  const { store } = useTooltipRootContext();
+  const store = useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
 
   const open = store.useState('open');

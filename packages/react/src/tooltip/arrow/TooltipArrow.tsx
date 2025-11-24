@@ -18,7 +18,7 @@ export const TooltipArrow = React.forwardRef(function TooltipArrow(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
-  const { store } = useTooltipRootContext();
+  const store = useTooltipRootContext();
 
   const instantType = store.useState('instantType');
 

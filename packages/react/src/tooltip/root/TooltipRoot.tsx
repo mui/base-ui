@@ -191,15 +191,8 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     popupProps: getFloatingProps(),
   });
 
-  const contextValue: TooltipRootContext<Payload> = React.useMemo(
-    () => ({
-      store,
-    }),
-    [store],
-  );
-
   return (
-    <TooltipRootContext.Provider value={contextValue as TooltipRootContext}>
+    <TooltipRootContext.Provider value={store as TooltipRootContext}>
       {typeof children === 'function' ? children({ payload }) : children}
     </TooltipRootContext.Provider>
   );
