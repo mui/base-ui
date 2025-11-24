@@ -458,7 +458,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         if (
           restoreFocus &&
           currentTarget !== domReference &&
-          !target?.isConnected &&
+          (!target?.isConnected || !target.checkVisibility?.()) &&
           activeElement(getDocument(floatingFocusElement)) ===
             getDocument(floatingFocusElement).body
         ) {
