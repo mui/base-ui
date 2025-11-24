@@ -10,6 +10,7 @@ import { Dialog } from '@base-ui-components/react/dialog';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { FileText, Blocks, Package, Heading1, Heading2, Search } from 'lucide-react';
 import './SearchBar.css';
+import { ExpandingBox } from './ExpandingBox';
 
 export function SearchBar({
   sitemap: sitemapImport,
@@ -173,20 +174,23 @@ export function SearchBar({
 
   return (
     <React.Fragment>
-      <button
-        type="button"
+      <Button
         onClick={handleOpenDialog}
-        className={`search-button relative h-7 w-50 rounded-md border border-gray-200 bg-gray-50 pl-3 pr-3 text-left text-sm font-normal text-gray-900 hover:bg-gray-100 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 lg:pr-16 ${dialogOpen ? 'search-button-hidden' : ''}`}
+        className={`search-button relative h-7 w-50 text-left text-sm font-normal text-gray-900 ${dialogOpen ? 'search-button-hidden' : ''}`}
       >
-        <div className="flex items-center gap-2">
-          <Search className="h-4 w-4 text-gray-500" />
-          <span className="text-gray-600">Search</span>
-        </div>
-        <div className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 gap-1 rounded border border-gray-300 bg-gray-50 px-1.5 lg:flex">
-          <kbd className="text-xs text-gray-600">⌘</kbd>
-          <kbd className="text-xs text-gray-600">K</kbd>
-        </div>
-      </button>
+        <ExpandingBox isActive={!dialogOpen} className="pt-0.75 pb-0.75 pl-3 pr-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <Search className="h-4 w-4 text-gray-500" />
+              <span className="text-gray-600">Search</span>
+            </div>
+            <div className="expanding-box-content-right pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 gap-1 rounded border border-gray-300 bg-gray-50 px-1.5 lg:flex">
+              <kbd className="text-xs text-gray-600">⌘</kbd>
+              <kbd className="text-xs text-gray-600">K</kbd>
+            </div>
+          </div>
+        </ExpandingBox>
+      </Button>
       <Dialog.Root open={dialogOpen} onOpenChange={handleCloseDialog}>
         <Dialog.Portal>
           <Dialog.Backdrop className="fixed inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/5%)_0,rgb(0_0_0/10%)_50%)] opacity-100 transition-[backdrop-filter,opacity] duration-600 ease-out-fast backdrop-blur-[1.5px] data-starting-style:backdrop-blur-0 data-starting-style:opacity-0 data-ending-style:backdrop-blur-0 data-ending-style:opacity-0 data-ending-style:duration-350 data-ending-style:ease-in-slow dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
@@ -201,86 +205,89 @@ export function SearchBar({
                     ref={popupRef}
                     initialFocus={inputRef}
                     data-open={dialogOpen}
-                    className="search-dialog-popup outline-0 relative mx-auto my-18 w-[min(40rem,calc(100vw-2rem))] rounded-lg bg-gray-50 p-0 text-gray-900 shadow-[0_10px_64px_-10px_rgba(36,40,52,0.2),0_0.25px_0_1px_rgba(229,231,235,1)] transition-[transform,scale,opacity] duration-300 ease-out-fast data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:duration-250 data-ending-style:ease-in-slow dark:outline-1 dark:outline-gray-300 motion-reduce:transition-none"
+                    className="search-dialog-popup relative mx-auto my-18 w-[min(40rem,calc(100vw-2rem))] p-0 text-gray-900 transition-[transform,scale,opacity] duration-300 ease-out-fast data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:duration-250 data-ending-style:ease-in-slow motion-reduce:transition-none"
                   >
-                    <Autocomplete.Root
-                      items={searchResults}
-                      onValueChange={handleValueChange}
-                      onOpenChange={handleAutocompleteEscape}
-                      open // we never want to close the autocomplete, only the dialog
-                      itemToStringValue={(item) => (item ? item.title || item.slug : '')}
-                      filter={null}
-                      autoHighlight
-                    >
-                      <div className="border-b border-gray-200 px-4 py-3">
-                        <label htmlFor="search-input" className="sr-only">
-                          Search...
-                        </label>
-                        <div className="flex items-center gap-2">
-                          <Search className="h-4 w-4 text-gray-500" />
-                          <Autocomplete.Input
-                            id="search-input"
-                            ref={inputRef}
-                            placeholder="Search"
-                            className="w-full border-0 bg-transparent text-base text-gray-900 placeholder:text-gray-500 focus:outline-none"
-                          />
-                          <Button
-                            onClick={handleEscapeButtonClick}
-                            className="rounded border border-gray-300 bg-gray-50 px-1.5 hidden hover:bg-gray-100 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 lg:flex"
-                          >
-                            <kbd className="text-xs text-gray-600 whitespace-nowrap">esc</kbd>
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="py-2">
-                        {searchResults.length === 0 ? (
-                          <div className="px-4 py-6 text-center text-sm text-gray-600">
-                            No results found.
+                    <ExpandingBox isActive={dialogOpen} className="px-4 py-3">
+                      <Autocomplete.Root
+                        items={searchResults}
+                        onValueChange={handleValueChange}
+                        onOpenChange={handleAutocompleteEscape}
+                        open // we never want to close the autocomplete, only the dialog
+                        itemToStringValue={(item) => (item ? item.title || item.slug : '')}
+                        filter={null}
+                        autoHighlight
+                      >
+                        <div>
+                          <label htmlFor="search-input" className="sr-only">
+                            Search...
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <Search className="search-icon h-4 w-4 text-gray-500" />
+                            <Autocomplete.Input
+                              id="search-input"
+                              ref={inputRef}
+                              placeholder="Search"
+                              className="w-full border-0 text-base text-gray-900 placeholder:text-gray-500 focus:outline-none"
+                            />
+                            <Button
+                              onClick={handleEscapeButtonClick}
+                              className="expanding-box-content-right rounded border border-gray-300 bg-gray-50 px-1.5 hidden hover:bg-gray-100 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 lg:flex"
+                            >
+                              <kbd className="text-xs text-gray-600 whitespace-nowrap">esc</kbd>
+                            </Button>
                           </div>
-                        ) : (
-                          <Autocomplete.List>
-                            {(result: SearchResult, i) => (
-                              <Autocomplete.Item
-                                key={result.id || i}
-                                value={result}
-                                onClick={() => handleItemClick(result)}
-                                className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100 data-highlighted:bg-gray-900 data-highlighted:text-gray-50"
-                              >
-                                <div className="flex items-baseline justify-between gap-2">
-                                  <div className="flex items-baseline gap-2">
-                                    {result.type === 'page' && <FileText className="h-4 w-4" />}
-                                    {result.type === 'part' && <Blocks className="h-4 w-4" />}
-                                    {result.type === 'export' && <Package className="h-4 w-4" />}
-                                    {result.type === 'section' && <Heading1 className="h-4 w-4" />}
-                                    {result.type === 'subsection' && (
-                                      <Heading2 className="h-4 w-4" />
+                        </div>
+                        <div className="border-t border-gray-200 mt-3 -ml-4 -mr-4">
+                          {searchResults.length === 0 ? (
+                            <div className="px-4 py-6 text-center text-sm text-gray-600">
+                              No results found.
+                            </div>
+                          ) : (
+                            <Autocomplete.List>
+                              {(result: SearchResult, i) => (
+                                <Autocomplete.Item
+                                  key={result.id || i}
+                                  value={result}
+                                  onClick={() => handleItemClick(result)}
+                                  className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100 data-highlighted:bg-gray-900 data-highlighted:text-gray-50"
+                                >
+                                  <div className="flex items-baseline justify-between gap-2">
+                                    <div className="flex items-baseline gap-2">
+                                      {result.type === 'page' && <FileText className="h-4 w-4" />}
+                                      {result.type === 'part' && <Blocks className="h-4 w-4" />}
+                                      {result.type === 'export' && <Package className="h-4 w-4" />}
+                                      {result.type === 'section' && (
+                                        <Heading1 className="h-4 w-4" />
+                                      )}
+                                      {result.type === 'subsection' && (
+                                        <Heading2 className="h-4 w-4" />
+                                      )}
+                                      <strong className="font-semibold">{result.title}</strong>
+                                      <span className="text-xs opacity-50 capitalize">
+                                        {result.type}
+                                      </span>
+                                    </div>
+                                    {process.env.NODE_ENV === 'development' && result.score && (
+                                      <span className="text-xs opacity-70">
+                                        {result.score.toFixed(2)}
+                                      </span>
                                     )}
-                                    <strong className="font-semibold">{result.title}</strong>
-                                    <span className="text-xs opacity-50 capitalize">
-                                      {result.type}
-                                    </span>
                                   </div>
-                                  {process.env.NODE_ENV === 'development' && result.score && (
-                                    <span className="text-xs opacity-70">
-                                      {result.score.toFixed(2)}
-                                    </span>
+                                  <div className="text-sm opacity-70">
+                                    {result.sectionTitle.replace('React ', '')}
+                                  </div>
+                                  {result.type === 'page' && result.description && (
+                                    <div className="mt-0.5 text-sm opacity-80">
+                                      {result.description}
+                                    </div>
                                   )}
-                                </div>
-                                <div className="text-sm opacity-70">
-                                  {result.sectionTitle.replace('React ', '')}
-                                </div>
-                                {result.type === 'page' && result.description && (
-                                  <div className="mt-0.5 text-sm opacity-80">
-                                    {result.description}
-                                  </div>
-                                )}
-                              </Autocomplete.Item>
-                            )}
-                          </Autocomplete.List>
-                        )}
-                      </div>
-                    </Autocomplete.Root>
+                                </Autocomplete.Item>
+                              )}
+                            </Autocomplete.List>
+                          )}
+                        </div>
+                      </Autocomplete.Root>
+                    </ExpandingBox>
                   </Dialog.Popup>
                 </ScrollArea.Content>
               </ScrollArea.Viewport>

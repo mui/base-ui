@@ -1,31 +1,14 @@
+.search-button-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 @supports (view-transition-name: none) {
-  .search-button:not(.search-button-hidden) {
-    view-transition-name: search-dialog;
-  }
-
-  .search-button-hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .search-dialog-popup[data-open='true'] {
-    view-transition-name: search-dialog;
-  }
-
   /* Disable built-in Dialog transitions when view transitions are supported */
   .search-dialog-popup {
     transition: none !important;
     transform: none !important;
     opacity: 1 !important;
     scale: 1 !important;
-  }
-
-  ::view-transition-group(search-dialog) {
-    animation-duration: 0.2s;
-  }
-
-  ::view-transition-old(search-dialog),
-  ::view-transition-new(search-dialog) {
-    animation-duration: 0.2s;
   }
 }

@@ -37,7 +37,7 @@ export function Header() {
           </a>
         </div>
         <div className="flex items-center gap-2 show-side-nav:hidden">
-          <div className="pr-4 pl-4">
+          <div className="flex pr-4 pl-4">
             <Search />
           </div>
           {sitemap && (
