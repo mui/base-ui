@@ -22,6 +22,15 @@ export type DemoProps = ContentProps<{
   showExtraPlaygroundLink?: boolean;
 }>;
 
+function clamp(val: number, min: number, max: number): number {
+  return Math.max(min, Math.min(val, max));
+}
+
+// https://easings.net/#easeOutQuint
+function easeOutQuint(x: number): number {
+  return 1 - Math.pow(1 - x, 5);
+}
+
 export function Demo({
   defaultOpen = false,
   compact = false,
@@ -71,6 +80,8 @@ export function Demo({
   );
 
   React.useEffect(() => {
+    let frame = -1;
+
     if (
       !demo.expanded &&
       collapsibleTriggerRef.current != null &&
@@ -79,16 +90,36 @@ export function Demo({
       const triggerRect = collapsibleTriggerRef.current.getBoundingClientRect();
       const delta = triggerRect.top - triggerRectTopBeforeCloseRef.current;
 
+      const start = window.scrollY;
+      const end = start + delta;
+      const distance = Math.abs(delta);
+      // 400px takes 100ms to scroll, but clamp it to avoid extreme speeds
+      const duration = clamp(distance * 0.25, 120, 300);
+      const t0 = performance.now();
+
+      function scroll(t: number) {
+        const progress = Math.min(1, (t - t0) / duration);
+        const eased = easeOutQuint(progress);
+        window.scrollTo(0, start + (end - start) * eased);
+
+        if (progress < 1) {
+          frame = requestAnimationFrame(scroll);
+        }
+      }
+
       // don't scroll if the trigger is still in the viewport after closing
       if (triggerRect.top < 0) {
-        window.scrollBy({
-          top: delta,
-          behavior: 'smooth',
-        });
+        frame = requestAnimationFrame(scroll);
       }
 
       triggerRectTopBeforeCloseRef.current = 0;
     }
+
+    return () => {
+      if (frame > -1) {
+        cancelAnimationFrame(frame);
+      }
+    };
   }, [demo.expanded]);
 
   return (
