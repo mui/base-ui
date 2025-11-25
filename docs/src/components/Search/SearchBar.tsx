@@ -185,7 +185,7 @@ export function SearchBar({
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
-      await search(value, { groupBy: { properties: ['sectionTitle', 'type'], maxResult: 5 } });
+      await search(value, { groupBy: { properties: ['type'], maxResult: 5 } });
     },
     [search],
   );
@@ -277,7 +277,7 @@ export function SearchBar({
                                   items={group.items}
                                   className="block pb-2"
                                 >
-                                  {group.group !== 'Default' && !group.group.endsWith(' page') && (
+                                  {group.group !== 'Default' && (
                                     <Autocomplete.GroupLabel className="sticky top-0 z-[1] m-0 w-100% bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider">
                                       {normalizeGroupName(group.group)}s
                                     </Autocomplete.GroupLabel>
