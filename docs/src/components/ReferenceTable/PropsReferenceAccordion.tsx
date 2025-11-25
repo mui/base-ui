@@ -112,9 +112,6 @@ export async function PropsReferenceAccordion({
         <Accordion.HeaderCell className="max-md:hidden w-10" />
       </Accordion.HeaderRow>
       {Object.keys(data).map(async (name, index) => {
-        if (name === 'ref') {
-          return null;
-        }
         const prop = data[name];
 
         const displayType = replaceComponentPrefix(prop.type, renameFrom, renameTo);
