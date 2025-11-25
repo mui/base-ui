@@ -112,7 +112,7 @@ The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are 
 
 ```css title="Swipe offset"  "--toast-swipe-movement-x" "--toast-swipe-movement-y"
 .Toast {
-  transform: scale(1 - calc(0.1 * var(--toast-index))) + translateX(var(--toast-swipe-movement-x)) +
+  transform: scale(1 - calc(0.1 * var(--toast-index))) translateX(var(--toast-swipe-movement-x))
     translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
 }
 ```
@@ -130,10 +130,12 @@ The `data-swipe-direction` attribute can be used to determine the swipe directio
     transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
   }
   &[data-swipe-direction='left'] {
-    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
+      translateY(var(--toast-offset-y));
   }
   &[data-swipe-direction='right'] {
-    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
+      translateY(var(--toast-offset-y));
   }
 }
 ```
