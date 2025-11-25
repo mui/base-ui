@@ -23,10 +23,10 @@ import {
   type MiddlewareState,
   type AutoUpdateOptions,
   type Middleware,
-} from '../floating-ui-react/index';
+  type FloatingTreeStore,
+} from '../floating-ui-react';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
-import { FloatingTreeStore } from '../floating-ui-react/components/FloatingTreeStore';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
 

@@ -13,7 +13,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-import { useHoverFloatingInteraction } from '../../floating-ui-react/hooks/useHoverFloatingInteraction';
+import { useHoverFloatingInteraction } from '../../floating-ui-react';
 import { REASONS } from '../../utils/reasons';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipPopup.State> = {
