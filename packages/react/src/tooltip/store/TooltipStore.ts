@@ -1,44 +1,28 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui-components/utils/store';
-import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { FloatingRootContext } from '../../floating-ui-react';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
-import { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { HTMLProps } from '../../utils/types';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { REASONS } from '../../utils/reasons';
-import { PopupTriggerMap } from '../../utils/popupStoreUtils';
+import {
+  createInitialPopupStoreState,
+  PopupStoreContext,
+  PopupStoreState,
+  PopupTriggerMap,
+} from '../../utils/popupStoreUtils';
 
-export type State<Payload> = {
-  readonly open: boolean;
-  readonly mounted: boolean;
+export type State<Payload> = PopupStoreState<Payload> & {
   readonly disabled: boolean;
   readonly instantType: 'delay' | 'dismiss' | 'focus' | undefined;
   readonly isInstantPhase: boolean;
-  readonly floatingRootContext: FloatingRootContext;
   readonly trackCursorAxis: 'none' | 'x' | 'y' | 'both';
-  readonly transitionStatus: TransitionStatus;
   readonly disableHoverablePopup: boolean;
-  readonly preventUnmountingOnClose: boolean;
   readonly lastOpenChangeReason: TooltipRoot.ChangeEventReason | null;
-  readonly activeTriggerId: string | null;
-  readonly activeTriggerElement: HTMLElement | null;
-  readonly activeTriggerProps: HTMLProps;
-  readonly inactiveTriggerProps: HTMLProps;
-  readonly payload: Payload | undefined;
-  readonly popupProps: HTMLProps;
-  readonly popupElement: HTMLElement | null;
-  readonly positionerElement: HTMLElement | null;
   readonly closeDelay: number;
 };
 
-export type Context = {
+export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
-  readonly triggerElements: PopupTriggerMap;
-  onOpenChange?: (open: boolean, eventDetails: TooltipRoot.ChangeEventDetails) => void;
-  onOpenChangeComplete: ((open: boolean) => void) | undefined;
 };
 
 const selectors = {
@@ -150,25 +134,13 @@ export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, t
 
 function createInitialState<Payload>(): State<Payload> {
   return {
-    open: false,
-    mounted: false,
+    ...createInitialPopupStoreState(),
     disabled: false,
     instantType: undefined,
     isInstantPhase: true,
-    floatingRootContext: getEmptyRootContext(),
     trackCursorAxis: 'none',
-    transitionStatus: 'idle',
     disableHoverablePopup: false,
-    preventUnmountingOnClose: false,
     lastOpenChangeReason: null,
-    payload: undefined,
-    activeTriggerId: null,
-    activeTriggerElement: null,
-    activeTriggerProps: EMPTY_OBJECT as HTMLProps,
-    inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
-    popupProps: EMPTY_OBJECT as HTMLProps,
-    popupElement: null,
-    positionerElement: null,
     closeDelay: 0,
   };
 }

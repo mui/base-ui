@@ -4,6 +4,10 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { TransitionStatus, useTransitionStatus } from './useTransitionStatus';
 import { useOpenChangeComplete } from './useOpenChangeComplete';
+import { type FloatingRootContext } from '../floating-ui-react/types';
+import { HTMLProps } from './types';
+import { getEmptyRootContext } from '../floating-ui-react/utils/getEmptyRootContext';
+import { EMPTY_OBJECT } from './constants';
 
 /**
  * Returns a callback ref that registers/unregisters the trigger element in the store.
@@ -203,3 +207,45 @@ export function useOpenStateTransitions<
 
   return forceUnmount;
 }
+
+export type PopupStoreState<Payload> = {
+  readonly open: boolean;
+  readonly mounted: boolean;
+  readonly transitionStatus: TransitionStatus;
+  readonly floatingRootContext: FloatingRootContext;
+  readonly preventUnmountingOnClose: boolean;
+  readonly payload: Payload | undefined;
+
+  readonly activeTriggerId: string | null;
+  readonly activeTriggerElement: Element | null;
+  readonly popupElement: HTMLElement | null;
+  readonly positionerElement: HTMLElement | null;
+
+  readonly activeTriggerProps: HTMLProps;
+  readonly inactiveTriggerProps: HTMLProps;
+  readonly popupProps: HTMLProps;
+};
+
+export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload> {
+  return {
+    open: false,
+    mounted: false,
+    transitionStatus: 'idle',
+    floatingRootContext: getEmptyRootContext(),
+    preventUnmountingOnClose: false,
+    payload: undefined,
+    activeTriggerId: null,
+    activeTriggerElement: null,
+    popupElement: null,
+    positionerElement: null,
+    activeTriggerProps: EMPTY_OBJECT as HTMLProps,
+    inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
+    popupProps: EMPTY_OBJECT as HTMLProps,
+  };
+}
+
+export type PopupStoreContext<ChangeEventDetails> = {
+  readonly triggerElements: PopupTriggerMap;
+  onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
+  onOpenChangeComplete: ((open: boolean) => void) | undefined;
+};

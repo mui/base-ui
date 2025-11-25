@@ -6,76 +6,48 @@ import { Timeout } from '@base-ui-components/utils/useTimeout';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
-import { type FloatingRootContext } from '../../floating-ui-react';
-import { type TransitionStatus } from '../../utils/useTransitionStatus';
-import { FloatingUIOpenChangeDetails, type HTMLProps } from '../../utils/types';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
+import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { PopoverRoot } from './../root/PopoverRoot';
 import { REASONS } from '../../utils/reasons';
-import { PopupTriggerMap } from '../../utils/popupStoreUtils';
+import {
+  createInitialPopupStoreState,
+  PopupStoreContext,
+  PopupStoreState,
+  PopupTriggerMap,
+} from '../../utils/popupStoreUtils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
-export type State<Payload> = {
-  readonly open: boolean;
-  readonly mounted: boolean;
+export type State<Payload> = PopupStoreState<Payload> & {
   readonly instantType: 'dismiss' | 'click' | undefined;
   readonly modal: boolean | 'trap-focus';
-  readonly transitionStatus: TransitionStatus;
   readonly openMethod: InteractionType | null;
   readonly openReason: PopoverRoot.ChangeEventReason | null;
   readonly stickIfOpen: boolean;
   readonly nested: boolean;
   readonly titleElementId: string | undefined;
   readonly descriptionElementId: string | undefined;
-  readonly activeTriggerId: string | null;
-  readonly activeTriggerElement: HTMLElement | null;
-  readonly positionerElement: HTMLElement | null;
-  readonly popupElement: HTMLElement | null;
-  readonly floatingRootContext: FloatingRootContext;
-  readonly payload: Payload | undefined;
-  readonly preventUnmountingOnClose: boolean;
-
-  readonly activeTriggerProps: HTMLProps;
-  readonly inactiveTriggerProps: HTMLProps;
-  readonly popupProps: HTMLProps;
 };
 
-type Context = {
+type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
   popupRef: React.RefObject<HTMLElement | null>;
   backdropRef: React.RefObject<HTMLDivElement | null>;
   internalBackdropRef: React.RefObject<HTMLDivElement | null>;
-  onOpenChange: ((open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void) | undefined;
-  onOpenChangeComplete: ((open: boolean) => void) | undefined;
   triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   stickIfOpenTimeout: Timeout;
-  triggerElements: PopupTriggerMap;
 };
 
 function createInitialState<Payload>(): State<Payload> {
   return {
-    open: false,
-    mounted: false,
+    ...createInitialPopupStoreState(),
     modal: false,
-    activeTriggerId: null,
-    activeTriggerElement: null,
-    positionerElement: null,
-    popupElement: null,
     instantType: undefined,
-    transitionStatus: 'idle',
     openMethod: null,
     openReason: null,
     titleElementId: undefined,
     descriptionElementId: undefined,
-    floatingRootContext: getEmptyRootContext(),
-    payload: undefined,
-    activeTriggerProps: EMPTY_OBJECT as HTMLProps,
-    inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
-    popupProps: EMPTY_OBJECT as HTMLProps,
     stickIfOpen: true,
     nested: false,
-    preventUnmountingOnClose: false,
   };
 }
 

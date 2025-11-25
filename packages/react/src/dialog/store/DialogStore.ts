@@ -1,48 +1,31 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui-components/utils/store';
-import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
-import { type TransitionStatus } from '../../utils/useTransitionStatus';
-import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
-import { type FloatingRootContext } from '../../floating-ui-react/types';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
-import { PopupTriggerMap } from '../../utils/popupStoreUtils';
+import type { FloatingUIOpenChangeDetails } from '../../utils/types';
+import {
+  createInitialPopupStoreState,
+  PopupStoreContext,
+  PopupStoreState,
+  PopupTriggerMap,
+} from '../../utils/popupStoreUtils';
 
-export type State<Payload> = {
-  readonly open: boolean;
-  readonly mounted: boolean;
+export type State<Payload> = PopupStoreState<Payload> & {
   readonly modal: boolean | 'trap-focus';
   readonly disablePointerDismissal: boolean;
-  readonly transitionStatus: TransitionStatus;
   readonly openMethod: InteractionType | null;
   readonly nested: boolean;
   readonly nestedOpenDialogCount: number;
   readonly titleElementId: string | undefined;
   readonly descriptionElementId: string | undefined;
-  readonly activeTriggerId: string | null;
-  readonly activeTriggerElement: HTMLElement | null;
-  readonly popupElement: HTMLElement | null;
   readonly viewportElement: HTMLElement | null;
-  readonly floatingRootContext: FloatingRootContext;
-  readonly payload: Payload | undefined;
-  readonly activeTriggerProps: HTMLProps;
-  readonly inactiveTriggerProps: HTMLProps;
-  readonly popupProps: HTMLProps;
   readonly role: 'dialog' | 'alertdialog';
-  readonly preventUnmountingOnClose: boolean;
 };
 
-type Context = {
+type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
-  readonly triggerElements: PopupTriggerMap;
-
-  readonly onOpenChange:
-    | ((open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void)
-    | undefined;
-  readonly onOpenChangeComplete: ((open: boolean) => void) | undefined;
   readonly onNestedDialogOpen?: (ownChildrenCount: number) => void;
   readonly onNestedDialogClose?: () => void;
 };
@@ -140,27 +123,17 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
 
 function createInitialState<Payload>(initialState: Partial<State<Payload>> = {}): State<Payload> {
   return {
-    disablePointerDismissal: false,
+    ...createInitialPopupStoreState<Payload>(),
     modal: true,
-    open: false,
-    nested: false,
+    disablePointerDismissal: false,
     popupElement: null,
     viewportElement: null,
-    activeTriggerId: null,
-    activeTriggerElement: null,
     descriptionElementId: undefined,
     titleElementId: undefined,
     openMethod: null,
-    mounted: false,
-    transitionStatus: 'idle',
+    nested: false,
     nestedOpenDialogCount: 0,
-    floatingRootContext: getEmptyRootContext(),
-    payload: undefined,
-    activeTriggerProps: EMPTY_OBJECT as HTMLProps,
-    inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
-    popupProps: EMPTY_OBJECT as HTMLProps,
     role: 'dialog',
-    preventUnmountingOnClose: false,
     ...initialState,
   };
 }
