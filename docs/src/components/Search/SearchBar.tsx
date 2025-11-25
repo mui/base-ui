@@ -3,7 +3,11 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { useSearch } from '@mui/internal-docs-infra/useSearch';
-import type { SearchResult, Sitemap } from '@mui/internal-docs-infra/useSearch/types';
+import type {
+  SearchResult,
+  SearchResults,
+  Sitemap,
+} from '@mui/internal-docs-infra/useSearch/types';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import { Button } from '@base-ui-components/react/button';
 import { Dialog } from '@base-ui-components/react/dialog';
@@ -11,6 +15,26 @@ import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { FileText, Blocks, Package, Heading1, Heading2, Search } from 'lucide-react';
 import './SearchBar.css';
 import { ExpandingBox } from './ExpandingBox';
+
+function normalizeGroupName(name: string) {
+  if (name.startsWith('React ')) {
+    name = name.replace('React ', '');
+  }
+
+  if (name.endsWith(' page')) {
+    return name.replace(' page', '');
+  }
+
+  if (name.endsWith(' export')) {
+    return name.replace(' export', ' API Reference');
+  }
+
+  if (name.endsWith(' part')) {
+    return name.replace(' part', ' API Reference');
+  }
+
+  return name;
+}
 
 export function SearchBar({
   sitemap: sitemapImport,
@@ -34,29 +58,32 @@ export function SearchBar({
     limit: 20,
     enableStemming: true,
     boost: {
-      type: 3,
+      type: 100,
       slug: 2,
       path: 2,
       title: 2,
+      page: 3.5,
+      pageKeywords: 15,
       description: 1.5,
       part: 1.5,
       export: 1.3,
-      section: 2,
-      subsection: 1.8,
+      sectionTitle: 50,
+      section: 3,
+      subsection: 3,
       props: 1.5,
       dataAttributes: 1.5,
       cssVariables: 1.5,
       sections: 0.7,
       subsections: 0.3,
-      keywords: 1.7,
+      keywords: 1.5,
     },
   });
 
-  const [searchResults, setSearchResults] = React.useState<SearchResult[]>(defaultResults);
+  const [searchResults, setSearchResults] = React.useState<SearchResults>(defaultResults);
 
   // Update search results when hook results change
   React.useEffect(() => {
-    setSearchResults(results.length > 0 ? results : defaultResults);
+    setSearchResults(results);
   }, [results, defaultResults]);
 
   // Reset to default results when dialog closes
@@ -158,7 +185,7 @@ export function SearchBar({
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
-      await search(value);
+      await search(value, { groupBy: { properties: ['sectionTitle', 'type'], maxResult: 5 } });
     },
     [search],
   );
@@ -243,45 +270,68 @@ export function SearchBar({
                               No results found.
                             </div>
                           ) : (
-                            <Autocomplete.List>
-                              {(result: SearchResult, i) => (
-                                <Autocomplete.Item
-                                  key={result.id || i}
-                                  value={result}
-                                  onClick={() => handleItemClick(result)}
-                                  className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100 data-highlighted:bg-gray-900 data-highlighted:text-gray-50"
+                            <Autocomplete.List className="outline-0 overflow-y-auto scroll-pt-[2.25rem] scroll-pb-[0.5rem] overscroll-contain max-h-[min(22.5rem,var(--available-height))]">
+                              {(group: SearchResults[number]) => (
+                                <Autocomplete.Group
+                                  key={group.group}
+                                  items={group.items}
+                                  className="block pb-2"
                                 >
-                                  <div className="flex items-baseline justify-between gap-2">
-                                    <div className="flex items-baseline gap-2">
-                                      {result.type === 'page' && <FileText className="h-4 w-4" />}
-                                      {result.type === 'part' && <Blocks className="h-4 w-4" />}
-                                      {result.type === 'export' && <Package className="h-4 w-4" />}
-                                      {result.type === 'section' && (
-                                        <Heading1 className="h-4 w-4" />
-                                      )}
-                                      {result.type === 'subsection' && (
-                                        <Heading2 className="h-4 w-4" />
-                                      )}
-                                      <strong className="font-semibold">{result.title}</strong>
-                                      <span className="text-xs opacity-50 capitalize">
-                                        {result.type}
-                                      </span>
-                                    </div>
-                                    {process.env.NODE_ENV === 'development' && result.score && (
-                                      <span className="text-xs opacity-70">
-                                        {result.score.toFixed(2)}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="text-sm opacity-70">
-                                    {result.sectionTitle.replace('React ', '')}
-                                  </div>
-                                  {result.type === 'page' && result.description && (
-                                    <div className="mt-0.5 text-sm opacity-80">
-                                      {result.description}
-                                    </div>
+                                  {group.group !== 'Default' && !group.group.endsWith(' page') && (
+                                    <Autocomplete.GroupLabel className="sticky top-0 z-[1] m-0 w-100% bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider">
+                                      {normalizeGroupName(group.group)}s
+                                    </Autocomplete.GroupLabel>
                                   )}
-                                </Autocomplete.Item>
+                                  <Autocomplete.Collection>
+                                    {(result: SearchResult, i) => (
+                                      <Autocomplete.Item
+                                        key={result.id || i}
+                                        value={result}
+                                        onClick={() => handleItemClick(result)}
+                                        className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100 data-highlighted:bg-gray-900 data-highlighted:text-gray-50"
+                                      >
+                                        <div className="flex items-baseline justify-between gap-2">
+                                          <div className="flex items-baseline gap-2">
+                                            {result.type === 'page' && (
+                                              <FileText className="h-4 w-4" />
+                                            )}
+                                            {result.type === 'part' && (
+                                              <Blocks className="h-4 w-4" />
+                                            )}
+                                            {result.type === 'export' && (
+                                              <Package className="h-4 w-4" />
+                                            )}
+                                            {result.type === 'section' && (
+                                              <Heading1 className="h-4 w-4" />
+                                            )}
+                                            {result.type === 'subsection' && (
+                                              <Heading2 className="h-4 w-4" />
+                                            )}
+                                            <strong className="font-semibold">
+                                              {result.title}
+                                            </strong>
+                                            {result.type === 'page' && (
+                                              <span className="text-xs opacity-50 capitalize">
+                                                {result.sectionTitle.replace('React ', '')}
+                                              </span>
+                                            )}
+                                          </div>
+                                          {process.env.NODE_ENV === 'development' &&
+                                            result.score && (
+                                              <span className="text-xs opacity-70">
+                                                {result.score.toFixed(2)}
+                                              </span>
+                                            )}
+                                        </div>
+                                        {result.type === 'page' && result.description && (
+                                          <div className="mt-0.5 text-sm opacity-80">
+                                            {result.description}
+                                          </div>
+                                        )}
+                                      </Autocomplete.Item>
+                                    )}
+                                  </Autocomplete.Collection>
+                                </Autocomplete.Group>
                               )}
                             </Autocomplete.List>
                           )}
