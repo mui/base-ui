@@ -185,7 +185,7 @@ export function SearchBar({
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
-      await search(value, { groupBy: { properties: ['type'], maxResult: 5 } });
+      await search(value, { groupBy: { properties: ['type'], maxResult: 7 } });
     },
     [search],
   );
