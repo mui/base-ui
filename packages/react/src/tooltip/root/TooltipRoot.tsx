@@ -18,7 +18,7 @@ import {
   useOpenStateTransitions,
   type PayloadChildRenderFunction,
 } from '../../utils/popupStoreUtils';
-import { State, TooltipStore } from '../store/TooltipStore';
+import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../utils/reasons';
 
@@ -111,7 +111,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     [forceUnmount, handleImperativeClose],
   );
 
-  const floatingRootContext = useSyncedFloatingRootContext<State<Payload>>({
+  const floatingRootContext = useSyncedFloatingRootContext({
     popupStore: store,
     onOpenChange: store.setOpen,
   });
