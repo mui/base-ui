@@ -13,7 +13,6 @@ import {
   shift,
   useFloating,
   size,
-  hide,
   type UseFloatingOptions,
   type Placement,
   type FloatingRootContext,
@@ -28,6 +27,8 @@ import {
 import { useDirection } from '../direction-provider/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { FloatingTreeStore } from '../floating-ui-react/components/FloatingTreeStore';
+import { hide } from './hideMiddleware';
+import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -328,7 +329,6 @@ export function useAnchorPositioning(
       }),
       [arrowPadding],
     ),
-    hide(),
     {
       name: 'transformOrigin',
       fn(state) {
@@ -369,6 +369,7 @@ export function useAnchorPositioning(
         return {};
       },
     },
+    hide,
     adaptiveOrigin,
   );
 
@@ -413,14 +414,18 @@ export function useAnchorPositioning(
     externalTree,
   });
 
-  const { sideX, sideY } = middlewareData.adaptiveOrigin || {};
+  const { sideX, sideY } = middlewareData.adaptiveOrigin || DEFAULT_SIDES;
+
+  // Default to `fixed` when not positioned to prevent `autoFocus` scroll jumps.
+  // This ensures the popup is inside the viewport initially before it gets positioned.
+  const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
 
   const floatingStyles = React.useMemo<React.CSSProperties>(
     () =>
       adaptiveOrigin
-        ? { position: positionMethod, [sideX]: `${x}px`, [sideY]: `${y}px` }
-        : originalFloatingStyles,
-    [adaptiveOrigin, sideX, sideY, positionMethod, x, y, originalFloatingStyles],
+        ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
+        : { position: resolvedPosition, ...originalFloatingStyles },
+    [adaptiveOrigin, resolvedPosition, sideX, x, sideY, y, originalFloatingStyles],
   );
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
