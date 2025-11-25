@@ -138,16 +138,23 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     };
   }, [open, parentContext, ownNestedOpenDialogs]);
 
-  const dialogTriggerProps = React.useMemo(
+  const activeTriggerProps = React.useMemo(
     () => getReferenceProps(triggerProps),
     [getReferenceProps, triggerProps],
   );
 
+  const inactiveTriggerProps = React.useMemo(
+    () => getTriggerProps(triggerProps),
+    [getTriggerProps, triggerProps],
+  );
+
+  const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
+
   store.useSyncedValues({
     openMethod,
-    activeTriggerProps: dialogTriggerProps,
-    inactiveTriggerProps: getTriggerProps(triggerProps),
-    popupProps: getFloatingProps(),
+    activeTriggerProps,
+    inactiveTriggerProps,
+    popupProps,
     floatingRootContext,
     nestedOpenDialogCount: ownNestedOpenDialogs,
   });

@@ -490,8 +490,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     return referenceProps;
   }, [getReferenceProps, store, interactionTypeProps]);
 
-  const disableHoverTimeout = useAnimationFrame();
-
   const inactiveTriggerProps = React.useMemo(() => {
     const triggerProps = getTriggerProps();
     if (!triggerProps) {
@@ -502,6 +500,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     return rest;
   }, [getTriggerProps]);
 
+  const disableHoverTimeout = useAnimationFrame();
   const popupProps = React.useMemo(
     () =>
       getFloatingProps({
