@@ -2,7 +2,11 @@
 import * as React from 'react';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { Dimensions, FloatingFocusManager } from '../../floating-ui-react';
+import {
+  Dimensions,
+  FloatingFocusManager,
+  useHoverFloatingInteraction,
+} from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
@@ -69,6 +73,12 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       }
     },
   });
+
+  const disabled = store.useState('disabled');
+  const openOnHover = store.useState('openOnHover');
+  const closeDelay = store.useState('closeDelay');
+
+  useHoverFloatingInteraction(floatingContext, { enabled: openOnHover && !disabled, closeDelay });
 
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening

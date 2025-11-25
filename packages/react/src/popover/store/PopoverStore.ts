@@ -19,6 +19,7 @@ import {
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
+  disabled: boolean;
   instantType: 'dismiss' | 'click' | undefined;
   modal: boolean | 'trap-focus';
   openMethod: InteractionType | null;
@@ -27,6 +28,8 @@ export type State<Payload> = PopupStoreState<Payload> & {
   nested: boolean;
   titleElementId: string | undefined;
   descriptionElementId: string | undefined;
+  openOnHover: boolean;
+  closeDelay: number;
 };
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
@@ -41,6 +44,7 @@ type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
 function createInitialState<Payload>(): State<Payload> {
   return {
     ...createInitialPopupStoreState(),
+    disabled: false,
     modal: false,
     instantType: undefined,
     openMethod: null,
@@ -49,11 +53,14 @@ function createInitialState<Payload>(): State<Payload> {
     descriptionElementId: undefined,
     stickIfOpen: true,
     nested: false,
+    openOnHover: false,
+    closeDelay: 0,
   };
 }
 
 const selectors = {
   ...popupStoreSelectors,
+  disabled: createSelector((state: State<unknown>) => state.disabled),
   instantType: createSelector((state: State<unknown>) => state.instantType),
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
   openChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
@@ -61,6 +68,8 @@ const selectors = {
   stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
   titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
+  openOnHover: createSelector((state: State<unknown>) => state.openOnHover),
+  closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
 };
 
 export class PopoverStore<Payload> extends ReactStore<

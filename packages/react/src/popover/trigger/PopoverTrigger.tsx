@@ -13,7 +13,12 @@ import {
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
-import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
+import {
+  safePolygon,
+  useClick,
+  useHoverReferenceInteraction,
+  useInteractions,
+} from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
 import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -73,6 +78,9 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     store,
     {
       payload,
+      disabled,
+      openOnHover,
+      closeDelay,
     },
   );
 
@@ -80,7 +88,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const stickIfOpen = store.useState('stickIfOpen');
   const openMethod = store.useState('openMethod');
 
-  const hover = useHover(floatingContext, {
+  const hoverProps = useHoverReferenceInteraction(floatingContext, {
     enabled:
       floatingContext != null &&
       openOnHover &&
@@ -93,11 +101,12 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       close: closeDelay,
     },
     triggerElement,
+    isActiveTrigger: isTriggerActive,
   });
 
   const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen });
 
-  const localProps = useInteractions([click, hover]);
+  const localProps = useInteractions([click]);
 
   const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
 
@@ -132,6 +141,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     ref: [buttonRef, forwardedRef, registerTrigger, setTriggerElement],
     props: [
       localProps.getReferenceProps(),
+      hoverProps,
       rootTriggerProps,
       { [CLICK_TRIGGER_IDENTIFIER as string]: '', id: thisTriggerId },
       elementProps,
