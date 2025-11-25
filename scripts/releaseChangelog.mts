@@ -18,7 +18,6 @@ async function main(parameters: CommandParameters) {
 
   const latestTaggedVersion = await findLatestTaggedVersion({
     cwd: process.cwd(),
-    fetchAll: false,
   });
   const previousRelease =
     previousReleaseParam !== undefined ? previousReleaseParam : latestTaggedVersion;
