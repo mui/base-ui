@@ -129,26 +129,28 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerHeight);
 
     const { width, height } = getCssDimensions(popupElement);
+    const measuredWidth = width || prevSizeRef.current.width;
+    const measuredHeight = height || prevSizeRef.current.height;
 
     if (currentHeight === 0 || currentWidth === 0) {
-      currentWidth = width;
-      currentHeight = height;
+      currentWidth = measuredWidth;
+      currentHeight = measuredHeight;
     }
 
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${currentWidth}px`);
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${currentHeight}px`);
     positionerElement.style.setProperty(
       NavigationMenuPositionerCssVars.positionerWidth,
-      `${width}px`,
+      `${measuredWidth}px`,
     );
     positionerElement.style.setProperty(
       NavigationMenuPositionerCssVars.positionerHeight,
-      `${height}px`,
+      `${measuredHeight}px`,
     );
 
     sizeFrame1.request(() => {
-      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
-      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
+      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${measuredWidth}px`);
+      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${measuredHeight}px`);
 
       sizeFrame2.request(() => {
         animationAbortControllerRef.current = new AbortController();
@@ -162,9 +164,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       stickIfOpenTimeout.clear();
       sizeFrame1.cancel();
       sizeFrame2.cancel();
-      prevSizeRef.current = DEFAULT_SIZE;
     }
   }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
+
+  React.useEffect(() => {
+    if (!mounted) {
+      prevSizeRef.current = DEFAULT_SIZE;
+    }
+  }, [mounted]);
 
   React.useEffect(() => {
     if (!popupElement || typeof ResizeObserver !== 'function') {
