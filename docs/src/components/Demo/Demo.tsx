@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/types';
 import { useDemo } from '@mui/internal-docs-infra/useDemo';
@@ -9,7 +10,6 @@ import { CheckIcon } from 'docs/src/icons/CheckIcon';
 import { ExternalLinkIcon } from 'docs/src/icons/ExternalLinkIcon';
 import { exportCodeSandbox, exportOpts } from 'docs/src/utils/demoExportOptions';
 import { isSafari, isEdge } from '@base-ui-components/utils/detectBrowser';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
@@ -45,27 +45,22 @@ export function Demo({
     /* eslint-enable no-restricted-syntax */
   }, [copyTimeout]);
 
-  const frame = useAnimationFrame();
-
   const onOpenChange = useStableCallback((nextOpen) => {
     if (!nextOpen && collapsibleTriggerRef.current != null) {
       const triggerEl = collapsibleTriggerRef.current;
       const rectTopBeforeClose = triggerEl.getBoundingClientRect().top;
 
-      demo.setExpanded(nextOpen);
+      ReactDOM.flushSync(() => demo.setExpanded(nextOpen));
 
-      frame.cancel();
-      frame.request(() => {
-        const rectTopAfterClose = triggerEl.getBoundingClientRect().top;
-        const delta = rectTopAfterClose - rectTopBeforeClose;
-        // don't scroll if the trigger is still in the viewport after closing
-        if (rectTopAfterClose < 0) {
-          window.scrollBy({
-            top: delta,
-            behavior: 'instant',
-          });
-        }
-      });
+      const rectTopAfterClose = triggerEl.getBoundingClientRect().top;
+      const delta = rectTopAfterClose - rectTopBeforeClose;
+      // don't scroll if the trigger is still in the viewport after closing
+      if (rectTopAfterClose < 0) {
+        window.scrollBy({
+          top: delta,
+          behavior: 'instant',
+        });
+      }
       return;
     }
 
