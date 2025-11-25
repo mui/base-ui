@@ -20,9 +20,6 @@ export default function getBabelConfig(api) {
       },
     ],
   ];
-  const allPlugins = [...baseConfig.plugins, ...plugins].filter(
-    (pl) => pl[2] !== '@babel/plugin-transform-object-rest-spread',
-  );
 
   const displayNamePlugin = baseConfig.plugins.find(
     (p) => p[2] === '@mui/internal-babel-plugin-display-name',
@@ -35,7 +32,7 @@ export default function getBabelConfig(api) {
 
   return {
     ...baseConfig,
-    plugins: allPlugins,
+    plugins: [...baseConfig.plugins, ...plugins],
     overrides: [
       {
         exclude: /\.test\.(js|ts|tsx)$/,
