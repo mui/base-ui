@@ -123,15 +123,9 @@ export class PopupTriggerMap {
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
  */
-export function useImplicitActiveTrigger<
-  State extends { activeTriggerId: string | null; activeTriggerElement: Element | null },
->(
+export function useImplicitActiveTrigger<State extends PopupStoreState<any>>(
   open: boolean,
-  store: ReactStore<
-    State,
-    { triggerElements: PopupTriggerMap },
-    { activeTriggerId: (state: State) => string | null }
-  >,
+  store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
 ) {
   useIsoLayoutEffect(() => {
     if (open && !store.select('activeTriggerId') && store.context.triggerElements.size === 1) {
@@ -158,23 +152,9 @@ export function useImplicitActiveTrigger<
  *
  * @returns A function to forcibly unmount the popup.
  */
-export function useOpenStateTransitions<
-  State extends {
-    mounted: boolean;
-    transitionStatus: TransitionStatus;
-    activeTriggerId: string | null;
-    activeTriggerElement: Element | null;
-  },
->(
+export function useOpenStateTransitions<State extends PopupStoreState<any>>(
   open: boolean,
-  store: ReactStore<
-    State,
-    {
-      onOpenChangeComplete: ((open: boolean) => void) | undefined;
-      popupRef: React.RefObject<HTMLElement | null>;
-    },
-    { preventUnmountingOnClose: (state: State) => boolean }
-  >,
+  store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
   onUnmount?: () => void,
 ) {
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -246,6 +226,7 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
 
 export type PopupStoreContext<ChangeEventDetails> = {
   readonly triggerElements: PopupTriggerMap;
+  readonly popupRef: React.RefObject<HTMLElement | null>;
   onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
 };
@@ -272,7 +253,7 @@ export const popupStoreSelectors = {
   ),
   isOpenedByTrigger: createSelector(
     (state: PopupStoreState<unknown>, triggerId: string | undefined) =>
-      triggerId !== undefined && state.activeTriggerId === triggerId && state.open,
+      triggerId !== undefined && state.activeTriggerId === triggerId && state.mounted,
   ),
 
   triggerProps: createSelector((state: PopupStoreState<unknown>, isActive: boolean) =>

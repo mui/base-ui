@@ -156,30 +156,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
 
-  useIsoLayoutEffect(() => {
-    if (isTriggerActive) {
-      store.update({
-        floatingTreeRoot,
-        parent,
-        floatingNodeId,
-        floatingParentNodeId,
-        keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
-        closeDelay,
-        activeTriggerElement: triggerElement,
-      });
-    }
-  }, [
-    isTriggerActive,
-    store,
-    floatingTreeRoot,
-    parent,
-    floatingNodeId,
-    floatingParentNodeId,
-    compositeRootContext?.relayKeyboardEvent,
-    closeDelay,
-    triggerElement,
-  ]);
-
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
@@ -295,9 +271,25 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         payload,
         activeTriggerElement: triggerElement,
         closeDelay,
+        parent,
+        floatingTreeRoot,
+        floatingNodeId,
+        floatingParentNodeId,
+        keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
       });
     }
-  }, [closeDelay, isOpenedByThisTrigger, payload, store, triggerElement]);
+  }, [
+    isOpenedByThisTrigger,
+    store,
+    payload,
+    triggerElement,
+    closeDelay,
+    parent,
+    floatingTreeRoot,
+    floatingNodeId,
+    floatingParentNodeId,
+    compositeRootContext?.relayKeyboardEvent,
+  ]);
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, setTriggerElement];
   const props = [

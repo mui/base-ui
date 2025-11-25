@@ -129,12 +129,11 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     if (isOpenedByThisTrigger) {
       store.update({
         payload,
-        closeDelay: closeDelayWithDefault,
-        // TODO: rethink which component should set this
         activeTriggerElement: triggerElement,
+        closeDelay: closeDelayWithDefault,
       });
     }
-  }, [isOpenedByThisTrigger, payload, closeDelayWithDefault, triggerElement, store]);
+  }, [isOpenedByThisTrigger, store, payload, triggerElement, closeDelayWithDefault]);
 
   const state: TooltipTrigger.State = React.useMemo(
     () => ({ open: isOpenedByThisTrigger }),

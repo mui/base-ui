@@ -92,6 +92,7 @@ export class TooltipStore<Payload> extends ReactStore<
       const newTriggerId = eventDetails.trigger?.id ?? null;
       if (newTriggerId || nextOpen) {
         updatedState.activeTriggerId = newTriggerId;
+        updatedState.activeTriggerElement = eventDetails.trigger ?? null;
       }
 
       this.update(updatedState);
