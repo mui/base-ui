@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ReactStore } from '@base-ui-components/utils/store';
+import { createSelector, ReactStore } from '@base-ui-components/utils/store';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { TransitionStatus, useTransitionStatus } from './useTransitionStatus';
@@ -209,21 +209,21 @@ export function useOpenStateTransitions<
 }
 
 export type PopupStoreState<Payload> = {
-  readonly open: boolean;
-  readonly mounted: boolean;
-  readonly transitionStatus: TransitionStatus;
-  readonly floatingRootContext: FloatingRootContext;
-  readonly preventUnmountingOnClose: boolean;
-  readonly payload: Payload | undefined;
+  open: boolean;
+  mounted: boolean;
+  transitionStatus: TransitionStatus;
+  floatingRootContext: FloatingRootContext;
+  preventUnmountingOnClose: boolean;
+  payload: Payload | undefined;
 
-  readonly activeTriggerId: string | null;
-  readonly activeTriggerElement: Element | null;
-  readonly popupElement: HTMLElement | null;
-  readonly positionerElement: HTMLElement | null;
+  activeTriggerId: string | null;
+  activeTriggerElement: Element | null;
+  popupElement: HTMLElement | null;
+  positionerElement: HTMLElement | null;
 
-  readonly activeTriggerProps: HTMLProps;
-  readonly inactiveTriggerProps: HTMLProps;
-  readonly popupProps: HTMLProps;
+  activeTriggerProps: HTMLProps;
+  inactiveTriggerProps: HTMLProps;
+  popupProps: HTMLProps;
 };
 
 export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload> {
@@ -248,4 +248,38 @@ export type PopupStoreContext<ChangeEventDetails> = {
   readonly triggerElements: PopupTriggerMap;
   onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
+};
+
+export const popupStoreSelectors = {
+  open: createSelector((state: PopupStoreState<unknown>) => state.open),
+  mounted: createSelector((state: PopupStoreState<unknown>) => state.mounted),
+  transitionStatus: createSelector((state: PopupStoreState<unknown>) => state.transitionStatus),
+  floatingRootContext: createSelector(
+    (state: PopupStoreState<unknown>) => state.floatingRootContext,
+  ),
+  preventUnmountingOnClose: createSelector(
+    (state: PopupStoreState<unknown>) => state.preventUnmountingOnClose,
+  ),
+  payload: createSelector((state: PopupStoreState<unknown>) => state.payload),
+
+  activeTriggerId: createSelector((state: PopupStoreState<unknown>) => state.activeTriggerId),
+  activeTriggerElement: createSelector((state: PopupStoreState<unknown>) =>
+    state.mounted ? state.activeTriggerElement : null,
+  ),
+  isTriggerActive: createSelector(
+    (state: PopupStoreState<unknown>, triggerId: string | undefined) =>
+      triggerId !== undefined && state.activeTriggerId === triggerId,
+  ),
+  isOpenedByTrigger: createSelector(
+    (state: PopupStoreState<unknown>, triggerId: string | undefined) =>
+      triggerId !== undefined && state.activeTriggerId === triggerId && state.open,
+  ),
+
+  triggerProps: createSelector((state: PopupStoreState<unknown>, isActive: boolean) =>
+    isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
+  ),
+  popupProps: createSelector((state: PopupStoreState<unknown>) => state.popupProps),
+
+  popupElement: createSelector((state: PopupStoreState<unknown>) => state.popupElement),
+  positionerElement: createSelector((state: PopupStoreState<unknown>) => state.positionerElement),
 };

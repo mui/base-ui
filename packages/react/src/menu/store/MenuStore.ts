@@ -8,27 +8,28 @@ import { HTMLProps } from '../../utils/types';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
+  popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
 } from '../../utils/popupStoreUtils';
 
 export type State<Payload> = PopupStoreState<Payload> & {
-  readonly disabled: boolean;
-  readonly modal: boolean;
-  readonly allowMouseEnter: boolean;
-  readonly parent: MenuParent;
-  readonly rootId: string | undefined;
-  readonly activeIndex: number | null;
-  readonly hoverEnabled: boolean;
-  readonly stickIfOpen: boolean;
-  readonly instantType: 'dismiss' | 'click' | 'group' | undefined;
-  readonly lastOpenChangeReason: MenuRoot.ChangeEventReason | null;
-  readonly floatingTreeRoot: FloatingTreeStore;
-  readonly floatingNodeId: string | undefined;
-  readonly floatingParentNodeId: string | null;
-  readonly itemProps: HTMLProps;
-  readonly closeDelay: number;
-  readonly keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
+  disabled: boolean;
+  modal: boolean;
+  allowMouseEnter: boolean;
+  parent: MenuParent;
+  rootId: string | undefined;
+  activeIndex: number | null;
+  hoverEnabled: boolean;
+  stickIfOpen: boolean;
+  instantType: 'dismiss' | 'click' | 'group' | undefined;
+  openChangeReason: MenuRoot.ChangeEventReason | null;
+  floatingTreeRoot: FloatingTreeStore;
+  floatingNodeId: string | undefined;
+  floatingParentNodeId: string | null;
+  itemProps: HTMLProps;
+  closeDelay: number;
+  keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
 };
 
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
@@ -43,7 +44,7 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
 };
 
 const selectors = {
-  open: createSelector((state: State<unknown>) => state.open),
+  ...popupStoreSelectors,
   disabled: createSelector((state: State<unknown>) =>
     state.parent.type === 'menubar'
       ? state.parent.context.disabled || state.disabled
@@ -56,19 +57,6 @@ const selectors = {
       (state.modal ?? true),
   ),
 
-  mounted: createSelector((state: State<unknown>) => state.mounted),
-  activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
-  activeTriggerElement: createSelector((state: State<unknown>) =>
-    state.mounted ? state.activeTriggerElement : null,
-  ),
-  isTriggerActive: createSelector(
-    (state: State<unknown>, triggerId: string | undefined) =>
-      triggerId !== undefined && state.activeTriggerId === triggerId,
-  ),
-  isOpenedByTrigger: createSelector(
-    (state: State<unknown>, triggerId: string | undefined) =>
-      triggerId !== undefined && state.activeTriggerId === triggerId && state.open,
-  ),
   allowMouseEnter: createSelector((state: State<unknown>): boolean =>
     state.parent.type === 'menu'
       ? state.parent.store.select('allowMouseEnter')
@@ -88,11 +76,8 @@ const selectors = {
     (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   ),
   hoverEnabled: createSelector((state: State<unknown>) => state.hoverEnabled),
-  positionerElement: createSelector((state: State<unknown>) => state.positionerElement),
-  transitionStatus: createSelector((state: State<unknown>) => state.transitionStatus),
   instantType: createSelector((state: State<unknown>) => state.instantType),
-  lastOpenChangeReason: createSelector((state: State<unknown>) => state.lastOpenChangeReason),
-  floatingRootContext: createSelector((state: State<unknown>) => state.floatingRootContext),
+  lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
   floatingTreeRoot: createSelector((state: State<unknown>): FloatingTreeStore => {
     if (state.parent.type === 'menu') {
       return state.parent.store.select('floatingTreeRoot');
@@ -103,11 +88,6 @@ const selectors = {
   floatingNodeId: createSelector((state: State<unknown>) => state.floatingNodeId),
   floatingParentNodeId: createSelector((state: State<unknown>) => state.floatingParentNodeId),
   itemProps: createSelector((state: State<unknown>) => state.itemProps),
-  popupProps: createSelector((state: State<unknown>) => state.popupProps),
-  triggerProps: createSelector((state: State<unknown>, isActive: boolean) =>
-    isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
-  ),
-  payload: createSelector((state: State<unknown>) => state.payload),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
   keyboardEventRelay: createSelector(
     (state: State<unknown>): React.KeyboardEventHandler<any> | undefined => {
@@ -122,12 +102,13 @@ const selectors = {
       return undefined;
     },
   ),
-  preventUnmountingOnClose: createSelector(
-    (state: State<unknown>) => state.preventUnmountingOnClose,
-  ),
 };
 
-export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
+export class MenuStore<Payload> extends ReactStore<
+  Readonly<State<Payload>>,
+  Context,
+  typeof selectors
+> {
   constructor(initialState?: Partial<State<Payload>>) {
     super(
       { ...createInitialState(), ...initialState },
@@ -212,7 +193,7 @@ function createInitialState<Payload>(): State<Payload> {
     activeIndex: null,
     hoverEnabled: true,
     instantType: undefined,
-    lastOpenChangeReason: null,
+    openChangeReason: null,
     floatingTreeRoot: new FloatingTreeStore(),
     floatingNodeId: undefined,
     floatingParentNodeId: null,

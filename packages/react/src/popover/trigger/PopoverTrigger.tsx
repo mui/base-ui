@@ -66,7 +66,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const thisTriggerId = useBaseUiId(idProp);
 
   const floatingContext = store.useState('floatingRootContext');
-  const openReason = store.useState('openReason');
+  const openReason = store.useState('openChangeReason');
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 

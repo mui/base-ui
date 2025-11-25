@@ -12,29 +12,30 @@ import { REASONS } from '../../utils/reasons';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
+  popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
 } from '../../utils/popupStoreUtils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
-  readonly instantType: 'dismiss' | 'click' | undefined;
-  readonly modal: boolean | 'trap-focus';
-  readonly openMethod: InteractionType | null;
-  readonly openReason: PopoverRoot.ChangeEventReason | null;
-  readonly stickIfOpen: boolean;
-  readonly nested: boolean;
-  readonly titleElementId: string | undefined;
-  readonly descriptionElementId: string | undefined;
+  instantType: 'dismiss' | 'click' | undefined;
+  modal: boolean | 'trap-focus';
+  openMethod: InteractionType | null;
+  openChangeReason: PopoverRoot.ChangeEventReason | null;
+  stickIfOpen: boolean;
+  nested: boolean;
+  titleElementId: string | undefined;
+  descriptionElementId: string | undefined;
 };
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
-  popupRef: React.RefObject<HTMLElement | null>;
-  backdropRef: React.RefObject<HTMLDivElement | null>;
-  internalBackdropRef: React.RefObject<HTMLDivElement | null>;
-  triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
-  beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
-  stickIfOpenTimeout: Timeout;
+  readonly popupRef: React.RefObject<HTMLElement | null>;
+  readonly backdropRef: React.RefObject<HTMLDivElement | null>;
+  readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
+  readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
+  readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
+  readonly stickIfOpenTimeout: Timeout;
 };
 
 function createInitialState<Payload>(): State<Payload> {
@@ -43,7 +44,7 @@ function createInitialState<Payload>(): State<Payload> {
     modal: false,
     instantType: undefined,
     openMethod: null,
-    openReason: null,
+    openChangeReason: null,
     titleElementId: undefined,
     descriptionElementId: undefined,
     stickIfOpen: true,
@@ -52,50 +53,21 @@ function createInitialState<Payload>(): State<Payload> {
 }
 
 const selectors = {
-  open: createSelector((state: State<unknown>) => state.open),
-  mounted: createSelector((state: State<unknown>) => state.mounted),
-
-  activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
-  activeTriggerElement: createSelector((state: State<unknown>) =>
-    state.mounted ? state.activeTriggerElement : null,
-  ),
-  positionerElement: createSelector((state: State<unknown>) => state.positionerElement),
-  popupElement: createSelector((state: State<unknown>) => state.popupElement),
-
+  ...popupStoreSelectors,
   instantType: createSelector((state: State<unknown>) => state.instantType),
-  transitionStatus: createSelector((state: State<unknown>) => state.transitionStatus),
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
-  openReason: createSelector((state: State<unknown>) => state.openReason),
-
+  openChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
   modal: createSelector((state: State<unknown>) => state.modal),
   stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
-  floatingRootContext: createSelector((state: State<unknown>) => state.floatingRootContext),
-
   titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
-
-  preventUnmountingOnClose: createSelector(
-    (state: State<unknown>) => state.preventUnmountingOnClose,
-  ),
-
-  payload: createSelector((state: State<unknown>) => state.payload),
-
-  isTriggerActive: createSelector(
-    (state: State<unknown>, triggerId: string | undefined) =>
-      triggerId !== undefined && state.activeTriggerId === triggerId,
-  ),
-  isOpenedByTrigger: createSelector(
-    (state: State<unknown>, triggerId: string | undefined) =>
-      triggerId !== undefined && state.activeTriggerId === triggerId && state.open,
-  ),
-
-  triggerProps: createSelector((state: State<unknown>, isActive: boolean) =>
-    isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
-  ),
-  popupProps: createSelector((state: State<unknown>) => state.popupProps),
 };
 
-export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, Selectors> {
+export class PopoverStore<Payload> extends ReactStore<
+  Readonly<State<Payload>>,
+  Context,
+  Selectors
+> {
   constructor(initialState?: Partial<State<Payload>>) {
     const initial = { ...createInitialState<Payload>(), ...initialState };
 
@@ -153,19 +125,23 @@ export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, S
     floatingEvents?.emit('openchange', details);
 
     const changeState = () => {
-      this.set('open', nextOpen);
+      const updatedState: Partial<State<Payload>> = {
+        open: nextOpen,
+      };
 
       if (nextOpen) {
-        this.set('openReason', eventDetails.reason ?? null);
+        updatedState.openChangeReason = eventDetails.reason ?? null;
       }
 
       // If a popup is closing, the `trigger` may be null.
       // We want to keep the previous value so that exit animations are played and focus is returned correctly.
       const newTriggerId = eventDetails.trigger?.id ?? null;
       if (newTriggerId || nextOpen) {
-        this.set('activeTriggerId', newTriggerId);
-        this.set('activeTriggerElement', eventDetails.trigger ?? null);
+        updatedState.activeTriggerId = newTriggerId;
+        updatedState.activeTriggerElement = eventDetails.trigger ?? null;
       }
+
+      this.update(updatedState);
     };
 
     if (isHover) {

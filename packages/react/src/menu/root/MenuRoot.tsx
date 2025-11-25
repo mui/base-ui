@@ -307,7 +307,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
       function changeState() {
-        store.update({ open: nextOpen, lastOpenChangeReason: reason ?? null });
+        store.update({ open: nextOpen, openChangeReason: reason ?? null });
         openEventRef.current = eventDetails.event ?? null;
 
         // If a popup is closing, the `trigger` may be null.

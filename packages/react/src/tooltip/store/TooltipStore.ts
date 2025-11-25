@@ -7,18 +7,19 @@ import { REASONS } from '../../utils/reasons';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
+  popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
 } from '../../utils/popupStoreUtils';
 
 export type State<Payload> = PopupStoreState<Payload> & {
-  readonly disabled: boolean;
-  readonly instantType: 'delay' | 'dismiss' | 'focus' | undefined;
-  readonly isInstantPhase: boolean;
-  readonly trackCursorAxis: 'none' | 'x' | 'y' | 'both';
-  readonly disableHoverablePopup: boolean;
-  readonly lastOpenChangeReason: TooltipRoot.ChangeEventReason | null;
-  readonly closeDelay: number;
+  disabled: boolean;
+  instantType: 'delay' | 'dismiss' | 'focus' | undefined;
+  isInstantPhase: boolean;
+  trackCursorAxis: 'none' | 'x' | 'y' | 'both';
+  disableHoverablePopup: boolean;
+  openChangeReason: TooltipRoot.ChangeEventReason | null;
+  closeDelay: number;
 };
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
@@ -26,42 +27,21 @@ export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
 };
 
 const selectors = {
-  open: createSelector((state: State<unknown>) => state.open),
-  mounted: createSelector((state: State<unknown>) => state.mounted),
+  ...popupStoreSelectors,
   disabled: createSelector((state: State<unknown>) => state.disabled),
   instantType: createSelector((state: State<unknown>) => state.instantType),
   isInstantPhase: createSelector((state: State<unknown>) => state.isInstantPhase),
-  floatingRootContext: createSelector((state: State<unknown>) => state.floatingRootContext),
   trackCursorAxis: createSelector((state: State<unknown>) => state.trackCursorAxis),
-  transitionStatus: createSelector((state: State<unknown>) => state.transitionStatus),
   disableHoverablePopup: createSelector((state: State<unknown>) => state.disableHoverablePopup),
-  preventUnmountingOnClose: createSelector(
-    (state: State<unknown>) => state.preventUnmountingOnClose,
-  ),
-  lastOpenChangeReason: createSelector((state: State<unknown>) => state.lastOpenChangeReason),
-  activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
-  activeTriggerElement: createSelector((state: State<unknown>) =>
-    state.mounted ? state.activeTriggerElement : null,
-  ),
-  isTriggerActive: createSelector(
-    (state: State<unknown>, triggerId: string | undefined) =>
-      triggerId !== undefined && state.activeTriggerId === triggerId,
-  ),
-  isOpenedByTrigger: createSelector(
-    (state: State<unknown>, triggerId: string | undefined) =>
-      triggerId !== undefined && state.activeTriggerId === triggerId && state.open,
-  ),
-  triggerProps: createSelector((state: State<unknown>, isActive: boolean) =>
-    isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
-  ),
-  payload: createSelector((state: State<unknown>) => state.payload),
-  popupProps: createSelector((state: State<unknown>) => state.popupProps),
-  popupElement: createSelector((state: State<unknown>) => state.popupElement),
-  positionerElement: createSelector((state: State<unknown>) => state.positionerElement),
+  lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
 };
 
-export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
+export class TooltipStore<Payload> extends ReactStore<
+  Readonly<State<Payload>>,
+  Context,
+  typeof selectors
+> {
   constructor(initialState?: Partial<State<Payload>>) {
     super(
       { ...createInitialState(), ...initialState },
@@ -105,7 +85,7 @@ export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, t
         this.set('instantType', undefined);
       }
 
-      this.update({ open: nextOpen, lastOpenChangeReason: reason });
+      this.update({ open: nextOpen, openChangeReason: reason });
       const newTriggerId = eventDetails.trigger?.id ?? null;
       if (newTriggerId || nextOpen) {
         this.set('activeTriggerId', newTriggerId);
@@ -140,7 +120,7 @@ function createInitialState<Payload>(): State<Payload> {
     isInstantPhase: true,
     trackCursorAxis: 'none',
     disableHoverablePopup: false,
-    lastOpenChangeReason: null,
+    openChangeReason: null,
     closeDelay: 0,
   };
 }
