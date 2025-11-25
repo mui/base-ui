@@ -308,3 +308,5 @@ export const popupStoreSelectors = {
   popupElement: createSelector((state: PopupStoreState<unknown>) => state.popupElement),
   positionerElement: createSelector((state: PopupStoreState<unknown>) => state.positionerElement),
 };
+
+export type PopupStoreSelectors = typeof popupStoreSelectors;

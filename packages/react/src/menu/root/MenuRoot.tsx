@@ -14,11 +14,11 @@ import {
   useDismiss,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  useFloatingRootContext,
   useInteractions,
   useListNavigation,
   useRole,
   useTypeahead,
+  useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
@@ -380,17 +380,10 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
 
-  const floatingRootContext = useFloatingRootContext({
-    elements: {
-      reference: activeTriggerElement,
-      floating: positionerElement,
-      triggers: store.context.triggerElements,
-    },
-    open,
+  const floatingRootContext = useSyncedFloatingRootContext({
+    popupStore: store,
     onOpenChange: setOpen,
   });
-
-  store.useSyncedValue('floatingRootContext', floatingRootContext);
 
   floatingEvents = floatingRootContext.context.events;
 
@@ -541,6 +534,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
 
   store.useSyncedValues({
+    floatingRootContext,
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,

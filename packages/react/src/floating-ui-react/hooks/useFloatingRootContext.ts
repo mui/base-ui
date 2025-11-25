@@ -76,8 +76,6 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
   store.context.noEmit = options.noEmit || false;
-  // TODO: rethink
-  store.context.triggerElements = options.elements?.triggers ?? new PopupTriggerMap();
 
   return store;
 }

@@ -3,7 +3,7 @@ import { createSelector, ReactStore } from '@base-ui-components/utils/store';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
-import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
+import { FloatingTreeStore } from '../../floating-ui-react';
 import { HTMLProps } from '../../utils/types';
 import {
   createInitialPopupStoreState,

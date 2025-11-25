@@ -4,9 +4,9 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import {
   useDismiss,
-  useFloatingRootContext,
   useInteractions,
   useRole,
+  useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -22,7 +22,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const open = store.useState('open');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
-  const triggerElement = store.useState('activeTriggerElement');
   const popupElement = store.useState('popupElement');
 
   const {
@@ -58,22 +57,18 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     [forceUnmount, handleImperativeClose],
   );
 
-  const context = useFloatingRootContext({
-    elements: {
-      reference: triggerElement,
-      floating: popupElement,
-      triggers: store.context.triggerElements,
-    },
-    open,
+  const floatingRootContext = useSyncedFloatingRootContext({
+    popupStore: store,
     onOpenChange: store.setOpen,
+    treatPopupAsFloatingElement: true,
     noEmit: true,
   });
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
-  const role = useRole(context);
-  const dismiss = useDismiss(context, {
+  const role = useRole(floatingRootContext);
+  const dismiss = useDismiss(floatingRootContext, {
     outsidePressEvent() {
       if (store.context.internalBackdropRef.current || store.context.backdropRef.current) {
         return 'intentional';
@@ -153,7 +148,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     activeTriggerProps: dialogTriggerProps,
     inactiveTriggerProps: getTriggerProps(triggerProps),
     popupProps: getFloatingProps(),
-    floatingRootContext: context,
+    floatingRootContext,
     nestedOpenDialogCount: ownNestedOpenDialogs,
   });
 }

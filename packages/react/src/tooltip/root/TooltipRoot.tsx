@@ -5,9 +5,9 @@ import { TooltipRootContext } from './TooltipRootContext';
 import {
   useClientPoint,
   useDismiss,
-  useFloatingRootContext,
   useFocus,
   useInteractions,
+  useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
 import {
   type BaseUIChangeEventDetails,
@@ -18,7 +18,7 @@ import {
   useOpenStateTransitions,
   type PayloadChildRenderFunction,
 } from '../../utils/popupStoreUtils';
-import { TooltipStore } from '../store/TooltipStore';
+import { State, TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../utils/reasons';
 
@@ -56,10 +56,8 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const openState = store.useState('open');
-  const positionerElement = store.useState('positionerElement');
 
   const activeTriggerId = store.useState('activeTriggerId');
-  const activeTriggerElement = store.useState('activeTriggerElement');
   const payload = store.useState('payload') as Payload | undefined;
 
   store.useSyncedValues({
@@ -113,13 +111,8 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     [forceUnmount, handleImperativeClose],
   );
 
-  const floatingRootContext = useFloatingRootContext({
-    elements: {
-      reference: activeTriggerElement,
-      floating: positionerElement,
-      triggers: store.context.triggerElements,
-    },
-    open,
+  const floatingRootContext = useSyncedFloatingRootContext<State<Payload>>({
+    popupStore: store,
     onOpenChange: store.setOpen,
   });
 

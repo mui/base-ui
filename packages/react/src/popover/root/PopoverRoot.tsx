@@ -3,11 +3,11 @@ import * as React from 'react';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import {
   useDismiss,
-  useFloatingRootContext,
   useInteractions,
   useRole,
   FloatingTree,
   useFloatingParentNodeId,
+  useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
@@ -48,7 +48,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const open = store.useState('open');
   const positionerElement = store.useState('positionerElement');
-  const activeTriggerElement = store.useState('activeTriggerElement');
   const payload = store.useState('payload') as Payload | undefined;
   const openReason = store.useState('openChangeReason');
 
@@ -103,17 +102,12 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     [forceUnmount, handleImperativeClose],
   );
 
-  const floatingContext = useFloatingRootContext({
-    elements: {
-      reference: activeTriggerElement,
-      floating: positionerElement,
-      triggers: store.context.triggerElements,
-    },
-    open,
+  const floatingRootContext = useSyncedFloatingRootContext({
+    popupStore: store,
     onOpenChange: store.setOpen,
   });
 
-  const dismiss = useDismiss(floatingContext, {
+  const dismiss = useDismiss(floatingRootContext, {
     outsidePressEvent: {
       // Ensure `aria-hidden` on outside elements is removed immediately
       // on outside press when trapping focus.
@@ -121,7 +115,8 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       touch: 'sloppy',
     },
   });
-  const role = useRole(floatingContext);
+
+  const role = useRole(floatingRootContext);
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([dismiss, role]);
 
@@ -143,7 +138,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,
-    floatingRootContext: floatingContext,
+    floatingRootContext,
     nested: useFloatingParentNodeId() != null,
   });
 

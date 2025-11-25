@@ -8,27 +8,27 @@ import { type FloatingUIOpenChangeDetails } from '../../utils/types';
 import { type PopupTriggerMap } from '../../utils/popupStoreUtils';
 
 export interface FloatingRootState {
-  readonly open: boolean;
-  readonly domReferenceElement: Element | null;
-  readonly referenceElement: ReferenceType | null;
-  readonly floatingElement: HTMLElement | null;
-  readonly positionReference: ReferenceType | null;
+  open: boolean;
+  domReferenceElement: Element | null;
+  referenceElement: ReferenceType | null;
+  floatingElement: HTMLElement | null;
+  positionReference: ReferenceType | null;
   /**
    * The ID of the floating element.
    */
-  readonly floatingId: string | undefined;
+  floatingId: string | undefined;
 }
 
 export interface FloatingRootStoreContext {
   onOpenChange:
     | ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void)
     | undefined;
-  dataRef: React.RefObject<ContextData>;
+  readonly dataRef: React.RefObject<ContextData>;
   setPositionReference(node: ReferenceType | null): void;
-  events: FloatingEvents;
+  readonly events: FloatingEvents;
   nested: boolean;
   noEmit: boolean;
-  triggerElements: PopupTriggerMap;
+  readonly triggerElements: PopupTriggerMap;
 }
 
 const selectors = {
@@ -55,7 +55,7 @@ interface FloatingRootStoreOptions {
 }
 
 export class FloatingRootStore extends ReactStore<
-  FloatingRootState,
+  Readonly<FloatingRootState>,
   FloatingRootStoreContext,
   typeof selectors
 > {
