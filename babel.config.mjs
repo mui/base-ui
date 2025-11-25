@@ -20,10 +20,13 @@ export default function getBabelConfig(api) {
       },
     ],
   ];
+  const allPlugins = [...baseConfig.plugins, ...plugins].filter(
+    (pl) => pl[2] !== '@babel/plugin-transform-object-rest-spread',
+  );
 
   return {
     ...baseConfig,
-    plugins: [...baseConfig.plugins, ...plugins],
+    plugins: allPlugins,
     overrides: [
       {
         exclude: /\.test\.(js|ts|tsx)$/,
