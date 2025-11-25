@@ -36,7 +36,7 @@ import {
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
 import { mergeProps } from '../../merge-props';
-import { MenuStore } from '../store/MenuStore';
+import { MenuStore, State } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
   PayloadChildRenderFunction,
@@ -307,15 +307,18 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
       function changeState() {
-        store.update({ open: nextOpen, openChangeReason: reason ?? null });
+        const updatedState: Partial<State<Payload>> = { open: nextOpen, openChangeReason: reason };
         openEventRef.current = eventDetails.event ?? null;
 
         // If a popup is closing, the `trigger` may be null.
         // We want to keep the previous value so that exit animations are played and focus is returned correctly.
         const newTriggerId = eventDetails.trigger?.id ?? null;
         if (newTriggerId || nextOpen) {
-          store.set('activeTriggerId', newTriggerId);
+          updatedState.activeTriggerId = newTriggerId;
+          updatedState.activeTriggerElement = eventDetails.trigger ?? null;
         }
+
+        store.update(updatedState);
       }
 
       if (reason === REASONS.triggerHover) {

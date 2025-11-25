@@ -127,11 +127,8 @@ export class PopoverStore<Payload> extends ReactStore<
     const changeState = () => {
       const updatedState: Partial<State<Payload>> = {
         open: nextOpen,
+        openChangeReason: eventDetails.reason,
       };
-
-      if (nextOpen) {
-        updatedState.openChangeReason = eventDetails.reason ?? null;
-      }
 
       // If a popup is closing, the `trigger` may be null.
       // We want to keep the previous value so that exit animations are played and focus is returned correctly.

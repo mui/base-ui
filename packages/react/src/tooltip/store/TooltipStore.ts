@@ -77,19 +77,24 @@ export class TooltipStore<Payload> extends ReactStore<
     }
 
     const changeState = () => {
+      const updatedState: Partial<State<Payload>> = { open: nextOpen, openChangeReason: reason };
+
       if (isFocusOpen) {
-        this.set('instantType', 'focus');
+        updatedState.instantType = 'focus';
       } else if (isDismissClose) {
-        this.set('instantType', 'dismiss');
+        updatedState.instantType = 'dismiss';
       } else if (reason === REASONS.triggerHover) {
-        this.set('instantType', undefined);
+        updatedState.instantType = undefined;
       }
 
-      this.update({ open: nextOpen, openChangeReason: reason });
+      // If a popup is closing, the `trigger` may be null.
+      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
       const newTriggerId = eventDetails.trigger?.id ?? null;
       if (newTriggerId || nextOpen) {
-        this.set('activeTriggerId', newTriggerId);
+        updatedState.activeTriggerId = newTriggerId;
       }
+
+      this.update(updatedState);
     };
 
     if (isHover) {

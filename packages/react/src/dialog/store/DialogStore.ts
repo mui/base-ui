@@ -94,11 +94,19 @@ export class DialogStore<Payload> extends ReactStore<
 
     this.state.floatingRootContext.context.events?.emit('openchange', details);
 
-    this.set('open', nextOpen);
+    const updatedState: Partial<State<Payload>> = {
+      open: nextOpen,
+    };
+
+    // If a popup is closing, the `trigger` may be null.
+    // We want to keep the previous value so that exit animations are played and focus is returned correctly.
     const newTriggerId = eventDetails.trigger?.id ?? null;
     if (newTriggerId || nextOpen) {
-      this.set('activeTriggerId', newTriggerId);
+      updatedState.activeTriggerId = newTriggerId;
+      updatedState.activeTriggerElement = eventDetails.trigger ?? null;
     }
+
+    this.update(updatedState);
   };
 }
 
