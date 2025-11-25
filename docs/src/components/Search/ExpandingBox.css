@@ -3,6 +3,17 @@
   margin-bottom: -14px;
   border-radius: 6px;
   border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.expanding-box-content > div:nth-child(2) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .expanding-box-content[data-active='true'] {

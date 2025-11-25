@@ -22,7 +22,7 @@ export function Header() {
           <Logo aria-label="Base UI" />
         </NextLink>
         <div className="flex gap-6 max-show-side-nav:hidden">
-          <Search enableKeyboardShortcut />
+          <Search containedScroll enableKeyboardShortcut />
           <a
             className="HeaderLink"
             href="https://www.npmjs.com/package/@base-ui-components/react"
