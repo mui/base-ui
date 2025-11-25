@@ -2,8 +2,10 @@
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Popover } from '@base-ui-components/react/popover';
 import menuDemoStyles from 'docs/src/app/(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import tooltipDemoStyles from 'docs/src/app/(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
+import popoverDemoStyles from 'docs/src/app/(public)/(content)/react/components/popover/demos/_index.module.css';
 import styles from './perf.module.css';
 
 type RowData = {
@@ -32,7 +34,10 @@ export default function PerfExperiment() {
         {rows.map((row) => (
           <div key={row.index} className={styles.row}>
             <span className={styles.label}>{row.label}</span>
-            <RowMenu rowData={row} />
+            <span className={styles.actions}>
+              <RowPopover rowData={row} />
+              <RowMenu rowData={row} />
+            </span>
           </div>
         ))}
       </div>
@@ -85,6 +90,24 @@ function RowMenu({ rowData }: RowMenuProps) {
         </Menu.Positioner>
       </Menu.Portal>
     </Menu.Root>
+  );
+}
+
+function RowPopover({ rowData }: RowMenuProps) {
+  return (
+    <Popover.Root>
+      <Popover.Trigger className={popoverDemoStyles.Button}>info</Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Positioner sideOffset={8} className={popoverDemoStyles.Positioner}>
+          <Popover.Popup className={popoverDemoStyles.Popup}>
+            <Popover.Arrow className={popoverDemoStyles.Arrow}>
+              <ArrowSvg />
+            </Popover.Arrow>
+            {rowData && <div>Details for {rowData.label}</div>}
+          </Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Portal>
+    </Popover.Root>
   );
 }
 

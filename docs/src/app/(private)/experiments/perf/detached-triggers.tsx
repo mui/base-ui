@@ -2,8 +2,10 @@
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Popover } from '@base-ui-components/react/popover';
 import menuDemoStyles from 'docs/src/app/(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import tooltipDemoStyles from 'docs/src/app/(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
+import popoverDemoStyles from 'docs/src/app/(public)/(content)/react/components/popover/demos/_index.module.css';
 import styles from './perf.module.css';
 
 type RowData = {
@@ -26,6 +28,7 @@ const menuItems = Array.from({ length: menuItemCount }).map((_, i) => ({
 
 const rowMenuHandle = Menu.createHandle<RowData>();
 const genericTooltipHandle = Tooltip.createHandle<string>();
+const rowPopoverHandle = Popover.createHandle<RowData>();
 
 export default function PerfExperiment() {
   return (
@@ -35,20 +38,30 @@ export default function PerfExperiment() {
         {rows.map((row) => (
           <div key={row.index} className={styles.row}>
             <span className={styles.label}>{row.label}</span>
-            <Tooltip.Trigger
-              handle={genericTooltipHandle}
-              render={(props) => <Menu.Trigger {...props} handle={rowMenuHandle} payload={row} />}
-              className={menuDemoStyles.Trigger}
-              payload={`Actions menu for ${row.label}`}
-              data-id={row.index}
-            >
-              •••
-            </Tooltip.Trigger>
+            <span className={styles.actions}>
+              <Popover.Trigger
+                handle={rowPopoverHandle}
+                payload={row}
+                className={popoverDemoStyles.Button}
+              >
+                info
+              </Popover.Trigger>
+              <Tooltip.Trigger
+                handle={genericTooltipHandle}
+                render={(props) => <Menu.Trigger {...props} handle={rowMenuHandle} payload={row} />}
+                className={menuDemoStyles.Trigger}
+                payload={`Actions menu for ${row.label}`}
+                data-id={row.index}
+              >
+                •••
+              </Tooltip.Trigger>
+            </span>
           </div>
         ))}
       </div>
       <RowMenu />
       <GenericTooltip />
+      <RowPopover />
     </div>
   );
 }
@@ -81,6 +94,25 @@ function RowMenu() {
         </Menu.Portal>
       )}
     </Menu.Root>
+  );
+}
+
+function RowPopover() {
+  return (
+    <Popover.Root handle={rowPopoverHandle}>
+      {({ payload: rowData }) => (
+        <Popover.Portal>
+          <Popover.Positioner sideOffset={8} className={popoverDemoStyles.Positioner}>
+            <Popover.Popup className={popoverDemoStyles.Popup}>
+              <Popover.Arrow className={popoverDemoStyles.Arrow}>
+                <ArrowSvg />
+              </Popover.Arrow>
+              {rowData && <div>Details for {rowData.label}</div>}
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      )}
+    </Popover.Root>
   );
 }
 
