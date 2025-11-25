@@ -66,11 +66,24 @@ import { Combobox } from '@base-ui-components/react/combobox';
 </Combobox.Root>;
 ```
 
-## TypeScript inference
+## TypeScript
 
 Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
 When using `itemToStringLabel` or `itemToStringValue`, the `value` prop on the `<Combobox.Item>` must match the type passed to `defaultValue` or `value`.
 When not specifying value props, the parameter's type must be explicitly specified.
+
+The following example shows a typed wrapper around the Combobox component with correct type inference and type safety:
+
+```tsx title="Specifying generic type parameters"
+import * as React from 'react';
+import { Combobox } from '@base-ui-components/react/combobox';
+
+export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
+  props: Combobox.Root.Props<Value, Multiple>,
+): React.JSX.Element {
+  return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
+}
+```
 
 ## Examples
 

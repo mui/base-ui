@@ -38,8 +38,8 @@ export function Select(props: Select.Props) {
 export namespace Select {
   export interface Props
     extends Omit<React.HTMLAttributes<HTMLButtonElement>, 'defaultValue' | 'onChange'> {
-    value: string;
-    onChange: (value: string) => void;
+    value: string | null;
+    onChange: (value: string | null) => void;
     options: string[];
   }
 }

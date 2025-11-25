@@ -52,6 +52,21 @@ import { Select } from '@base-ui-components/react/select';
 </Select.Root>;
 ```
 
+## TypeScript
+
+The following example shows a typed wrapper around the Select component with correct type inference and type safety:
+
+```tsx title="Specifying generic type parameters"
+import * as React from 'react';
+import { Select } from '@base-ui-components/react/select';
+
+export function MySelect<Value, Multiple extends boolean | undefined = false>(
+  props: Select.Root.Props<Value, Multiple>,
+): React.JSX.Element {
+  return <Select.Root {...props}>{/* ... */}</Select.Root>;
+}
+```
+
 ## Positioning
 
 `<Select.Positioner>` has a special prop called `alignItemWithTrigger` which causes the positioning to act differently by default from other `Positioner` components.
