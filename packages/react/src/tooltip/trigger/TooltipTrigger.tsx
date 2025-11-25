@@ -126,7 +126,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   );
 
   useIsoLayoutEffect(() => {
-    if (isTriggerActive) {
+    if (isOpenedByThisTrigger) {
       store.update({
         payload,
         closeDelay: closeDelayWithDefault,
@@ -134,7 +134,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
         activeTriggerElement: triggerElement,
       });
     }
-  }, [isTriggerActive, payload, closeDelayWithDefault, triggerElement, store]);
+  }, [isOpenedByThisTrigger, payload, closeDelayWithDefault, triggerElement, store]);
 
   const state: TooltipTrigger.State = React.useMemo(
     () => ({ open: isOpenedByThisTrigger }),

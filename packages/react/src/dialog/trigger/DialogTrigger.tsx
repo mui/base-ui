@@ -44,7 +44,6 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
 
-  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
   const floatingContext = store.useState('floatingRootContext');
@@ -84,10 +83,10 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   );
 
   useIsoLayoutEffect(() => {
-    if (isTriggerActive) {
+    if (isOpenedByThisTrigger) {
       store.update({ payload, activeTriggerElement: triggerElement });
     }
-  }, [isTriggerActive, payload, triggerElement, store]);
+  }, [isOpenedByThisTrigger, payload, triggerElement, store]);
 
   const click = useClick(floatingContext, { enabled: floatingContext != null });
   const localInteractionProps = useInteractions([click]);
