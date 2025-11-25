@@ -69,7 +69,7 @@ export function SearchBar({
       export: 1.3,
       sectionTitle: 50,
       section: 3,
-      subsection: 3,
+      subsection: 2.5,
       props: 1.5,
       dataAttributes: 1.5,
       cssVariables: 1.5,
@@ -270,7 +270,7 @@ export function SearchBar({
                               No results found.
                             </div>
                           ) : (
-                            <Autocomplete.List className="outline-0 overflow-y-auto scroll-pt-[2.25rem] scroll-pb-[0.5rem] overscroll-contain max-h-[min(22.5rem,var(--available-height))]">
+                            <Autocomplete.List className="outline-0 overflow-y-auto scroll-pt-9 scroll-pb-2 overscroll-contain max-h-[min(22.5rem,var(--available-height))]">
                               {(group: SearchResults[number]) => (
                                 <Autocomplete.Group
                                   key={group.group}
@@ -278,7 +278,7 @@ export function SearchBar({
                                   className="block pb-2"
                                 >
                                   {group.group !== 'Default' && (
-                                    <Autocomplete.GroupLabel className="sticky top-0 z-[1] m-0 w-100% bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider">
+                                    <Autocomplete.GroupLabel className="sticky top-0 z-1 m-0 w-100% bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider">
                                       {normalizeGroupName(group.group)}s
                                     </Autocomplete.GroupLabel>
                                   )}
