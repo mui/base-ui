@@ -223,6 +223,9 @@
     margin-bottom: -1px;
     user-select: none;
 
+    position: sticky;
+    bottom: -1px;
+
     @media (hover: hover) {
       &:hover {
         background-color: var(--color-gray-75);

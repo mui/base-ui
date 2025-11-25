@@ -83,7 +83,7 @@ export function Demo({
       if (triggerRect.top < 0) {
         window.scrollBy({
           top: delta,
-          behavior: 'smooth',
+          behavior: 'instant',
         });
       }
 
