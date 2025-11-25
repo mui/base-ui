@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { ReactStore } from '@base-ui-components/utils/store';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { TransitionStatus, useTransitionStatus } from './useTransitionStatus';
+import { useOpenChangeComplete } from './useOpenChangeComplete';
 
 /**
  * Returns a callback ref that registers/unregisters the trigger element in the store.
@@ -138,4 +141,65 @@ export function useImplicitActiveTrigger<
       }
     }
   }, [open, store]);
+}
+
+/**
+ * Mangages the mounted state of the popup.
+ * Sets up the transition status listeners and handles unmounting when needed.
+ * Updates the `mounted` and `transitionStatus` states in the store.
+ *
+ * @param open Whether the popup is open.
+ * @param store The Store instance managing the popup state.
+ * @param onUnmount Optional callback to be called when the popup is unmounted.
+ *
+ * @returns A function to forcibly unmount the popup.
+ */
+export function useOpenStateTransitions<
+  State extends {
+    mounted: boolean;
+    transitionStatus: TransitionStatus;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+  },
+>(
+  open: boolean,
+  store: ReactStore<
+    State,
+    {
+      onOpenChangeComplete: ((open: boolean) => void) | undefined;
+      popupRef: React.RefObject<HTMLElement | null>;
+    },
+    { preventUnmountingOnClose: (state: State) => boolean }
+  >,
+  onUnmount?: () => void,
+) {
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  store.useSyncedValues({ mounted, transitionStatus } as Partial<State>);
+
+  const forceUnmount = useStableCallback(() => {
+    setMounted(false);
+    store.update({
+      activeTriggerId: null,
+      activeTriggerElement: null,
+      mounted: false,
+    } as Partial<State>);
+    onUnmount?.();
+    store.context.onOpenChangeComplete?.(false);
+  });
+
+  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
+
+  useOpenChangeComplete({
+    enabled: !preventUnmountingOnClose,
+    open,
+    ref: store.context.popupRef,
+    onComplete() {
+      if (!open) {
+        forceUnmount();
+      }
+    },
+  });
+
+  return forceUnmount;
 }

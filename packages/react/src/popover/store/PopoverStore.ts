@@ -34,6 +34,7 @@ export type State<Payload> = {
   readonly popupElement: HTMLElement | null;
   readonly floatingRootContext: FloatingRootContext;
   readonly payload: Payload | undefined;
+  readonly preventUnmountingOnClose: boolean;
 
   readonly activeTriggerProps: HTMLProps;
   readonly inactiveTriggerProps: HTMLProps;
@@ -48,7 +49,6 @@ type Context = {
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
-  preventUnmountingRef: React.RefObject<boolean>;
   stickIfOpenTimeout: Timeout;
   triggerElements: PopupTriggerMap;
 };
@@ -75,6 +75,7 @@ function createInitialState<Payload>(): State<Payload> {
     popupProps: EMPTY_OBJECT as HTMLProps,
     stickIfOpen: true,
     nested: false,
+    preventUnmountingOnClose: false,
   };
 }
 
@@ -100,6 +101,10 @@ const selectors = {
 
   titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
+
+  preventUnmountingOnClose: createSelector(
+    (state: State<unknown>) => state.preventUnmountingOnClose,
+  ),
 
   payload: createSelector((state: State<unknown>) => state.payload),
 
@@ -136,7 +141,6 @@ export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, S
         onOpenChangeComplete: undefined,
         triggerFocusTargetRef: React.createRef<HTMLElement>(),
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
-        preventUnmountingRef: { current: false },
         stickIfOpenTimeout: new Timeout(),
         triggerElements: new PopupTriggerMap(),
       },
@@ -156,7 +160,7 @@ export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, S
       !nextOpen && (eventDetails.reason === REASONS.escapeKey || eventDetails.reason == null);
 
     (eventDetails as PopoverRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-      this.context.preventUnmountingRef.current = true;
+      this.set('preventUnmountingOnClose', true);
     };
 
     this.context.onOpenChange?.(nextOpen, eventDetails as PopoverRoot.ChangeEventDetails);

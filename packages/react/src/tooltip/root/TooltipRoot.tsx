@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import {
@@ -10,14 +9,13 @@ import {
   useFocus,
   useInteractions,
 } from '../../floating-ui-react';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import {
   useImplicitActiveTrigger,
+  useOpenStateTransitions,
   type PayloadChildRenderFunction,
 } from '../../utils/popupStoreUtils';
 import { TooltipStore } from '../store/TooltipStore';
@@ -63,7 +61,6 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const payload = store.useState('payload') as Payload | undefined;
-  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
 
   store.useSyncedValues({
     trackCursorAxis,
@@ -78,11 +75,10 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     }
   }, [openState, disabled, store]);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-
-  store.useSyncedValues({ mounted, transitionStatus, disabled });
+  store.useSyncedValue('disabled', disabled);
 
   useImplicitActiveTrigger(open, store);
+  const forceUnmount = useOpenStateTransitions(open, store);
 
   useIsoLayoutEffect(() => {
     if (open) {
@@ -91,12 +87,6 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
       }
     }
   }, [store, activeTriggerId, open]);
-
-  const handleUnmount = useStableCallback(() => {
-    setMounted(false);
-    store.update({ activeTriggerId: null, activeTriggerElement: null, mounted: false });
-    store.context.onOpenChangeComplete?.(false);
-  });
 
   const createTooltipEventDetails = React.useCallback(
     (reason: TooltipRoot.ChangeEventReason) => {
@@ -117,21 +107,10 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     store.setOpen(false, createTooltipEventDetails(REASONS.imperativeAction));
   }, [store, createTooltipEventDetails]);
 
-  useOpenChangeComplete({
-    enabled: !preventUnmountingOnClose,
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
-  });
-
   React.useImperativeHandle(
     actionsRef,
-    () => ({ unmount: handleUnmount, close: handleImperativeClose }),
-    [handleUnmount, handleImperativeClose],
+    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
+    [forceUnmount, handleImperativeClose],
   );
 
   const floatingRootContext = useFloatingRootContext({

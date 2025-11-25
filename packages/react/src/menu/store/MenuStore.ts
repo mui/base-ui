@@ -38,6 +38,7 @@ export type State<Payload> = {
   readonly activeTriggerId: string | null;
   readonly closeDelay: number;
   readonly keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
+  readonly preventUnmountingOnClose: boolean;
 };
 
 type Context = {
@@ -47,7 +48,6 @@ type Context = {
   readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   readonly itemLabels: React.RefObject<(string | null)[]>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
-  readonly preventUnmountingRef: React.RefObject<boolean>;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly triggerElements: PopupTriggerMap;
@@ -135,6 +135,9 @@ const selectors = {
       return undefined;
     },
   ),
+  preventUnmountingOnClose: createSelector(
+    (state: State<unknown>) => state.preventUnmountingOnClose,
+  ),
 };
 
 export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
@@ -148,7 +151,6 @@ export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, type
         itemDomElements: { current: [] },
         itemLabels: { current: [] },
         allowMouseUpTriggerRef: { current: false },
-        preventUnmountingRef: { current: false },
         triggerFocusTargetRef: React.createRef<HTMLElement>(),
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
         onOpenChangeComplete: undefined,
@@ -240,5 +242,6 @@ function createInitialState<Payload>(): State<Payload> {
     activeTriggerId: null,
     keyboardEventRelay: undefined,
     closeDelay: 0,
+    preventUnmountingOnClose: false,
   };
 }

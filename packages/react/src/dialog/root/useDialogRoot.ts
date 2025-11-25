@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import {
   useDismiss,
@@ -10,14 +9,12 @@ import {
   useRole,
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
-import { useImplicitActiveTrigger } from '../../utils/popupStoreUtils';
+import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popupStoreUtils';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const { store, parentContext, actionsRef } = params;
@@ -28,28 +25,14 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const triggerElement = store.useState('activeTriggerElement');
   const popupElement = store.useState('popupElement');
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-
-  useImplicitActiveTrigger(open, store);
-
-  useIsoLayoutEffect(() => {
-    store.set('mounted', mounted);
-    if (!mounted) {
-      store.set('activeTriggerId', null);
-      store.set('payload', undefined);
-    }
-  }, [store, mounted]);
-
   const {
     openMethod,
     triggerProps,
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  const handleUnmount = useStableCallback(() => {
-    setMounted(false);
-    store.update({ open: false, mounted: false, activeTriggerId: null });
-    store.context.onOpenChangeComplete?.(false);
+  useImplicitActiveTrigger(open, store);
+  const forceUnmount = useOpenStateTransitions(open, store, () => {
     resetOpenInteractionType();
   });
 
@@ -59,7 +42,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
         reason,
       ) as DialogRoot.ChangeEventDetails;
     details.preventUnmountOnClose = () => {
-      store.context.preventUnmountingOnCloseRef.current = true;
+      store.set('preventUnmountingOnClose', true);
     };
 
     return details;
@@ -69,21 +52,10 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     store.setOpen(false, createDialogEventDetails(REASONS.imperativeAction));
   }, [store, createDialogEventDetails]);
 
-  useOpenChangeComplete({
-    enabled: !store.context.preventUnmountingOnCloseRef.current,
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
-  });
-
   React.useImperativeHandle(
     actionsRef,
-    () => ({ unmount: handleUnmount, close: handleImperativeClose }),
-    [handleUnmount, handleImperativeClose],
+    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
+    [forceUnmount, handleImperativeClose],
   );
 
   const context = useFloatingRootContext({
@@ -178,7 +150,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   store.useSyncedValues({
     openMethod,
-    transitionStatus,
     activeTriggerProps: dialogTriggerProps,
     inactiveTriggerProps: getTriggerProps(triggerProps),
     popupProps: getFloatingProps(),

@@ -22,9 +22,7 @@ import {
 } from '../../floating-ui-react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
@@ -40,7 +38,11 @@ import {
 import { mergeProps } from '../../merge-props';
 import { MenuStore } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
-import { PayloadChildRenderFunction, useImplicitActiveTrigger } from '../../utils/popupStoreUtils';
+import {
+  PayloadChildRenderFunction,
+  useImplicitActiveTrigger,
+  useOpenStateTransitions,
+} from '../../utils/popupStoreUtils';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 /**
@@ -174,10 +176,17 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     rootId: useId(),
   });
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  store.useSyncedValues({ mounted, transitionStatus });
+  const {
+    openMethod,
+    triggerProps: interactionTypeProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
 
   useImplicitActiveTrigger(open, store);
+  const forceUnmount = useOpenStateTransitions(open, store, () => {
+    store.update({ allowMouseEnter: false, stickIfOpen: true });
+    resetOpenInteractionType();
+  });
 
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
@@ -205,12 +214,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     });
   }, [allowOutsidePressDismissalTimeout, open, parent.type]);
 
-  const {
-    openMethod,
-    triggerProps: interactionTypeProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
-
   useScrollLock(
     open && modal && lastOpenChangeReason !== REASONS.triggerHover && openMethod !== 'touch',
     positionerElement,
@@ -221,30 +224,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       store.set('hoverEnabled', true);
     }
   }, [open, hoverEnabled, store]);
-
-  const handleUnmount = useStableCallback(() => {
-    setMounted(false);
-
-    store.update({
-      mounted: false,
-      allowMouseEnter: false,
-      stickIfOpen: true,
-    });
-
-    store.context.onOpenChangeComplete?.(false);
-    resetOpenInteractionType();
-  });
-
-  useOpenChangeComplete({
-    enabled: !actionsRef,
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
-  });
 
   const allowTouchToCloseRef = React.useRef(true);
   const allowTouchToCloseTimeout = useTimeout();
@@ -261,7 +240,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       }
 
       (eventDetails as MenuRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-        store.context.preventUnmountingRef.current = true;
+        store.set('preventUnmountingOnClose', true);
       };
 
       // Do not immediately reset the activeTriggerId to allow
@@ -367,7 +346,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       const details: MenuRoot.ChangeEventDetails =
         createChangeEventDetails<MenuRoot.ChangeEventReason>(reason) as MenuRoot.ChangeEventDetails;
       details.preventUnmountOnClose = () => {
-        store.context.preventUnmountingRef.current = true;
+        store.set('preventUnmountingOnClose', true);
       };
 
       return details;
@@ -380,9 +359,9 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   }, [store, createMenuEventDetails]);
 
   React.useImperativeHandle(
-    props.actionsRef,
-    () => ({ unmount: handleUnmount, close: handleImperativeClose }),
-    [handleUnmount, handleImperativeClose],
+    actionsRef,
+    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
+    [forceUnmount, handleImperativeClose],
   );
 
   let ctx: ContextMenuRootContext | undefined;

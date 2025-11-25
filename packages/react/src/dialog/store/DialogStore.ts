@@ -30,17 +30,19 @@ export type State<Payload> = {
   readonly inactiveTriggerProps: HTMLProps;
   readonly popupProps: HTMLProps;
   readonly role: 'dialog' | 'alertdialog';
+  readonly preventUnmountingOnClose: boolean;
 };
 
 type Context = {
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
-  readonly preventUnmountingOnCloseRef: React.RefObject<boolean>;
   readonly triggerElements: PopupTriggerMap;
 
-  readonly onOpenChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
-  readonly onOpenChangeComplete?: (open: boolean) => void;
+  readonly onOpenChange:
+    | ((open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void)
+    | undefined;
+  readonly onOpenChangeComplete: ((open: boolean) => void) | undefined;
   readonly onNestedDialogOpen?: (ownChildrenCount: number) => void;
   readonly onNestedDialogClose?: () => void;
 };
@@ -78,6 +80,9 @@ const selectors = {
     isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
   ),
   role: createSelector((state: State<unknown>) => state.role),
+  preventUnmountingOnClose: createSelector(
+    (state: State<unknown>) => state.preventUnmountingOnClose,
+  ),
 };
 
 export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
@@ -88,8 +93,9 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
         internalBackdropRef: React.createRef<HTMLDivElement>(),
-        preventUnmountingOnCloseRef: { current: false },
         triggerElements: new PopupTriggerMap(),
+        onOpenChange: undefined,
+        onOpenChangeComplete: undefined,
       },
       selectors,
     );
@@ -100,7 +106,7 @@ export class DialogStore<Payload> extends ReactStore<State<Payload>, Context, ty
     eventDetails: Omit<DialogRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
     (eventDetails as DialogRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-      this.context.preventUnmountingOnCloseRef.current = true;
+      this.set('preventUnmountingOnClose', true);
     };
 
     if (!nextOpen && eventDetails.trigger == null && this.state.activeTriggerId != null) {
@@ -154,6 +160,7 @@ function createInitialState<Payload>(initialState: Partial<State<Payload>> = {})
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
     role: 'dialog',
+    preventUnmountingOnClose: false,
     ...initialState,
   };
 }
