@@ -13,8 +13,8 @@
       "detailedType": "| ((\n    formValues: Record<string, any>,\n    eventDetails: Form.SubmitEventDetails,\n  ) => void)\n| undefined"
     },
     "ref": {
-      "type": "RefObject<HTMLFormElement>",
-      "detailedType": "React.RefObject<HTMLFormElement> | undefined"
+      "type": "Ref<HTMLFormElement>",
+      "detailedType": "React.Ref<HTMLFormElement> | undefined"
     },
     "validationMode": {
       "type": "FormValidationMode",

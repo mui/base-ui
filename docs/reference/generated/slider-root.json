@@ -33,8 +33,8 @@
       "detailedType": "Intl.LocalesArgument | undefined"
     },
     "ref": {
-      "type": "RefObject<HTMLDivElement>",
-      "detailedType": "React.RefObject<HTMLDivElement> | undefined"
+      "type": "Ref<HTMLDivElement>",
+      "detailedType": "React.Ref<HTMLDivElement> | undefined"
     },
     "thumbAlignment": {
       "type": "'center' | 'edge' | 'edge-client-only'",
