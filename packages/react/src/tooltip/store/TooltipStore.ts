@@ -103,25 +103,19 @@ export class TooltipStore<Payload> extends ReactStore<State<Payload>, Context, t
     }
 
     const changeState = () => {
-      const state = {} as Mutable<Partial<State<Payload>>>;
-
       if (isFocusOpen) {
-        state.instantType = 'focus';
+        this.set('instantType', 'focus');
       } else if (isDismissClose) {
-        state.instantType = 'dismiss';
+        this.set('instantType', 'dismiss');
       } else if (reason === REASONS.triggerHover) {
-        state.instantType = undefined;
+        this.set('instantType', undefined);
       }
 
-      state.open = nextOpen;
-      state.lastOpenChangeReason = reason;
-
+      this.update({ open: nextOpen, lastOpenChangeReason: reason });
       const newTriggerId = eventDetails.trigger?.id ?? null;
       if (newTriggerId || nextOpen) {
-        state.activeTriggerId = newTriggerId;
+        this.set('activeTriggerId', newTriggerId);
       }
-
-      this.update(state);
     };
 
     if (isHover) {
