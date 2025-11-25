@@ -8,7 +8,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { DialogHandle } from '../store/DialogHandle';
-import { useTriggerRegistration } from '../../utils/popupStoreUtils';
+import { useTriggerSetup } from '../../utils/popupStoreUtils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useClick, useInteractions } from '../../floating-ui-react';
 
@@ -44,43 +44,26 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
 
-  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
   const floatingContext = store.useState('floatingRootContext');
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-
-  const state: DialogTrigger.State = React.useMemo(
-    () => ({
-      disabled,
-      open: isOpenedByThisTrigger,
-    }),
-    [disabled, isOpenedByThisTrigger],
-  );
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
   });
 
-  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
-
-  const registerTrigger = React.useCallback(
-    (element: Element | null) => {
-      const cleanup = baseRegisterTrigger(element);
-
-      if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
-        store.update({
-          activeTriggerId: thisTriggerId,
-          activeTriggerElement: element as HTMLElement,
-          payload,
-        });
-      }
-
-      return cleanup;
+  const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
+    thisTriggerId,
+    triggerElement,
+    store,
+    {
+      payload,
     },
-    [baseRegisterTrigger, thisTriggerId, payload, store],
+    [payload],
   );
+
+  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
 
   useIsoLayoutEffect(() => {
     if (isOpenedByThisTrigger) {
@@ -90,6 +73,14 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const click = useClick(floatingContext, { enabled: floatingContext != null });
   const localInteractionProps = useInteractions([click]);
+
+  const state: DialogTrigger.State = React.useMemo(
+    () => ({
+      disabled,
+      open: isOpenedByThisTrigger,
+    }),
+    [disabled, isOpenedByThisTrigger],
+  );
 
   return useRenderElement('button', componentProps, {
     state,

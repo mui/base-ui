@@ -36,7 +36,7 @@ import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
-import { useTriggerRegistration } from '../../utils/popupStoreUtils';
+import { useTriggerSetup } from '../../utils/popupStoreUtils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { REASONS } from '../../utils/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
@@ -131,29 +131,33 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const floatingParentNodeId = useFloatingParentNodeId();
 
   const thisTriggerId = useBaseUiId(idProp);
-  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
 
-  const registerTrigger = React.useCallback(
-    (element: Element | null) => {
-      const cleanup = baseRegisterTrigger(element);
-
-      if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
-        store.update({
-          activeTriggerId: thisTriggerId,
-          activeTriggerElement: element,
-          payload,
-          closeDelay,
-        });
-      }
-
-      return cleanup;
+  const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
+    thisTriggerId,
+    triggerElement,
+    store,
+    {
+      payload,
+      closeDelay,
+      parent,
+      floatingTreeRoot,
+      floatingNodeId,
+      floatingParentNodeId,
+      keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
     },
-    [baseRegisterTrigger, closeDelay, payload, store, thisTriggerId],
+    [
+      payload,
+      triggerElement,
+      closeDelay,
+      parent,
+      floatingTreeRoot,
+      floatingNodeId,
+      floatingParentNodeId,
+      compositeRootContext?.relayKeyboardEvent,
+    ],
   );
 
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-
   const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
 
   const { getButtonProps, buttonRef } = useButton({

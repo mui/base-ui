@@ -50,6 +50,41 @@ export function useTriggerRegistration<
   );
 }
 
+export function useTriggerSetup<State extends PopupStoreState<any>>(
+  triggerId: string | undefined,
+  triggerElement: Element | null,
+  store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
+  stateUpdates: Omit<Partial<State>, 'activeTriggerId' | 'activeTriggerElement'>,
+  dependencies: React.DependencyList,
+) {
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', triggerId);
+
+  const baseRegisterTrigger = useTriggerRegistration(triggerId, store);
+
+  const registerTrigger = useStableCallback((element: Element | null) => {
+    const cleanup = baseRegisterTrigger(element);
+
+    if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
+      store.update({
+        activeTriggerId: triggerId,
+        activeTriggerElement: element,
+        ...stateUpdates,
+      } as Partial<State>);
+    }
+
+    return cleanup;
+  });
+
+  useIsoLayoutEffect(() => {
+    if (isOpenedByThisTrigger) {
+      store.update({ activeTriggerElement: triggerElement, ...stateUpdates } as Partial<State>);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpenedByThisTrigger, store, triggerElement, ...dependencies]);
+
+  return { registerTrigger, isOpenedByThisTrigger };
+}
+
 export type PayloadChildRenderFunction<Payload> = (arg: {
   payload: Payload | undefined;
 }) => React.ReactNode;

@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useTriggerRegistration } from '../../utils/popupStoreUtils';
+import { useTriggerSetup } from '../../utils/popupStoreUtils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
@@ -49,14 +48,26 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const thisTriggerId = useBaseUiId(idProp);
 
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
+
   const floatingRootContext = store.useState('floatingRootContext');
   const disabled = disabledProp ?? store.useState('disabled');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
   const trackCursorAxis = store.useState('trackCursorAxis');
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+
+  const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
+    thisTriggerId,
+    triggerElement,
+    store,
+    {
+      payload,
+      closeDelay: closeDelayWithDefault,
+    },
+    [payload, closeDelayWithDefault],
+  );
+
+  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
 
   const providerContext = useTooltipProviderContext();
   const { delayRef, isInstantPhase, hasProvider } = useDelayGroup(floatingRootContext, {
@@ -101,39 +112,6 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     triggerElement,
     isActiveTrigger: isTriggerActive,
   });
-
-  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
-
-  const registerTrigger = React.useCallback(
-    (element: Element | null) => {
-      const cleanup = baseRegisterTrigger(element);
-
-      // If the tooltip is open, but there's no associated trigger, set this trigger as active.
-      // This will set the first (in terms of DOM order) trigger as active when the tooltip
-      // is opened programmatically and won't run for subsequent triggers.
-      if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
-        store.update({
-          activeTriggerId: thisTriggerId,
-          activeTriggerElement: element as HTMLElement,
-          payload,
-          closeDelay: closeDelayWithDefault,
-        });
-      }
-
-      return cleanup;
-    },
-    [baseRegisterTrigger, closeDelayWithDefault, payload, store, thisTriggerId],
-  );
-
-  useIsoLayoutEffect(() => {
-    if (isOpenedByThisTrigger) {
-      store.update({
-        payload,
-        activeTriggerElement: triggerElement,
-        closeDelay: closeDelayWithDefault,
-      });
-    }
-  }, [isOpenedByThisTrigger, store, payload, triggerElement, closeDelayWithDefault]);
 
   const state: TooltipTrigger.State = React.useMemo(
     () => ({ open: isOpenedByThisTrigger }),

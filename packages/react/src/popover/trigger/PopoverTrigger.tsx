@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { type FocusableElement } from 'tabbable';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -28,7 +27,7 @@ import {
 } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { useTriggerRegistration } from '../../utils/popupStoreUtils';
+import { useTriggerSetup } from '../../utils/popupStoreUtils';
 
 /**
  * A button that opens the popover.
@@ -68,9 +67,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const floatingContext = store.useState('floatingRootContext');
   const openReason = store.useState('openChangeReason');
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
   const stickIfOpen = store.useState('stickIfOpen');
   const openMethod = store.useState('openMethod');
 
@@ -95,33 +92,17 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const localProps = useInteractions([click, hover]);
 
-  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
-
-  const registerTrigger = React.useCallback(
-    (element: Element | null) => {
-      const cleanup = baseRegisterTrigger(element);
-
-      if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
-        store.update({
-          activeTriggerId: thisTriggerId,
-          activeTriggerElement: element as HTMLElement,
-          payload,
-        });
-      }
-
-      return cleanup;
+  const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
+    thisTriggerId,
+    triggerElement,
+    store,
+    {
+      payload,
     },
-    [baseRegisterTrigger, thisTriggerId, payload, store],
+    [payload],
   );
 
-  useIsoLayoutEffect(() => {
-    if (isOpenedByThisTrigger) {
-      store.update({
-        payload,
-        activeTriggerElement: triggerElement,
-      });
-    }
-  }, [isOpenedByThisTrigger, store, payload, triggerElement]);
+  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({

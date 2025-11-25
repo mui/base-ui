@@ -40,7 +40,6 @@ const selectors = {
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
   titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
-  mounted: createSelector((state: State<unknown>) => state.mounted),
   viewportElement: createSelector((state: State<unknown>) => state.viewportElement),
   role: createSelector((state: State<unknown>) => state.role),
 };
