@@ -130,12 +130,10 @@ The `data-swipe-direction` attribute can be used to determine the swipe directio
     transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
   }
   &[data-swipe-direction='left'] {
-    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
-      translateY(var(--toast-offset-y));
+    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
   }
   &[data-swipe-direction='right'] {
-    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
-      translateY(var(--toast-offset-y));
+    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
   }
 }
 ```
