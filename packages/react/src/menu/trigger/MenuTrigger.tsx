@@ -82,46 +82,14 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     );
   }
 
-  const contextMenuContext = useContextMenuRootContext(true);
-  const parentContext = useMenuRootContext(true);
-  const menubarContext = useMenubarContext(true);
-  const compositeRootContext = useCompositeRootContext(true);
-
-  const parent: MenuParent = React.useMemo(() => {
-    if (menubarContext) {
-      return {
-        type: 'menubar',
-        context: menubarContext,
-      };
-    }
-
-    // Ensure this is not a Menu nested inside ContextMenu.Trigger.
-    // ContextMenu parentContext is always undefined as ContextMenu.Root is instantiated with
-    // <MenuRootContext.Provider value={undefined}>
-    if (contextMenuContext && !parentContext) {
-      return {
-        type: 'context-menu',
-        context: contextMenuContext,
-      };
-    }
-
-    return {
-      type: undefined,
-    };
-  }, [contextMenuContext, parentContext, menubarContext]);
-
-  const menuDisabled = store.useState('disabled');
+  const thisTriggerId = useBaseUiId(idProp);
+  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
-  const parentMenubarHasSubmenuOpen = parent.type === 'menubar' && parent.context.hasSubmenuOpen;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
-  const disabled =
-    disabledProp || menuDisabled || (parent.type === 'menubar' && parent.context.disabled);
-
-  const triggerRef = React.useRef<HTMLElement | null>(null);
-  const allowMouseUpTriggerTimeout = useTimeout();
-
+  const parent = useMenuParent();
+  const compositeRootContext = useCompositeRootContext(true);
   const floatingTreeRootFromContext = useFloatingTree();
   const floatingTreeRoot: FloatingTreeStore = React.useMemo(() => {
     return floatingTreeRootFromContext ?? new FloatingTreeStore();
@@ -129,8 +97,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
   const floatingParentNodeId = useFloatingParentNodeId();
-
-  const thisTriggerId = useBaseUiId(idProp);
 
   const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
     thisTriggerId,
@@ -145,20 +111,11 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       floatingParentNodeId,
       keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
     },
-    [
-      payload,
-      triggerElement,
-      closeDelay,
-      parent,
-      floatingTreeRoot,
-      floatingNodeId,
-      floatingParentNodeId,
-      compositeRootContext?.relayKeyboardEvent,
-    ],
   );
 
-  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
+  const rootDisabled = store.useState('disabled');
+  const disabled =
+    disabledProp || rootDisabled || (parent.type === 'menubar' && parent.context.disabled);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -170,6 +127,9 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       store.context.allowMouseUpTriggerRef.current = false;
     }
   }, [store, isOpenedByThisTrigger, parent.type]);
+
+  const triggerRef = React.useRef<HTMLElement | null>(null);
+  const allowMouseUpTriggerTimeout = useTimeout();
 
   const handleDocumentMouseUp = useStableCallback((mouseEvent: MouseEvent) => {
     if (!triggerRef.current) {
@@ -214,6 +174,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
+  const parentMenubarHasSubmenuOpen = parent.type === 'menubar' && parent.context.hasSubmenuOpen;
   const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen ?? false;
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
@@ -269,31 +230,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     [disabled, isOpenedByThisTrigger],
   );
 
-  useIsoLayoutEffect(() => {
-    if (isOpenedByThisTrigger) {
-      store.update({
-        payload,
-        activeTriggerElement: triggerElement,
-        closeDelay,
-        parent,
-        floatingTreeRoot,
-        floatingNodeId,
-        floatingParentNodeId,
-        keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
-      });
-    }
-  }, [
-    isOpenedByThisTrigger,
-    store,
-    payload,
-    triggerElement,
-    closeDelay,
-    parent,
-    floatingTreeRoot,
-    floatingNodeId,
-    floatingParentNodeId,
-    compositeRootContext?.relayKeyboardEvent,
-  ]);
+  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, setTriggerElement];
   const props = [
@@ -499,4 +436,35 @@ function useStickIfOpen(open: boolean, openReason: string | null) {
   }, [open, openReason, stickIfOpenTimeout]);
 
   return stickIfOpen;
+}
+
+function useMenuParent() {
+  const contextMenuContext = useContextMenuRootContext(true);
+  const parentContext = useMenuRootContext(true);
+  const menubarContext = useMenubarContext(true);
+
+  const parent: MenuParent = React.useMemo(() => {
+    if (menubarContext) {
+      return {
+        type: 'menubar',
+        context: menubarContext,
+      };
+    }
+
+    // Ensure this is not a Menu nested inside ContextMenu.Trigger.
+    // ContextMenu parentContext is always undefined as ContextMenu.Root is instantiated with
+    // <MenuRootContext.Provider value={undefined}>
+    if (contextMenuContext && !parentContext) {
+      return {
+        type: 'context-menu',
+        context: contextMenuContext,
+      };
+    }
+
+    return {
+      type: undefined,
+    };
+  }, [contextMenuContext, parentContext, menubarContext]);
+
+  return parent;
 }

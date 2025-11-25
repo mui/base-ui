@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -35,7 +34,6 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const dialogRootContext = useDialogRootContext(true);
   const store = handle?.store ?? dialogRootContext?.store;
-
   if (!store) {
     throw new Error(
       'Base UI: <Dialog.Trigger> must be used within <Dialog.Root> or provided with a handle.',
@@ -43,15 +41,9 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
-
   const floatingContext = store.useState('floatingRootContext');
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-
-  const { getButtonProps, buttonRef } = useButton({
-    disabled,
-    native: nativeButton,
-  });
 
   const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
     thisTriggerId,
@@ -60,18 +52,15 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     {
       payload,
     },
-    [payload],
   );
 
-  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
-
-  useIsoLayoutEffect(() => {
-    if (isOpenedByThisTrigger) {
-      store.update({ payload, activeTriggerElement: triggerElement });
-    }
-  }, [isOpenedByThisTrigger, store, payload, triggerElement]);
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    native: nativeButton,
+  });
 
   const click = useClick(floatingContext, { enabled: floatingContext != null });
+
   const localInteractionProps = useInteractions([click]);
 
   const state: DialogTrigger.State = React.useMemo(
@@ -81,6 +70,8 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     }),
     [disabled, isOpenedByThisTrigger],
   );
+
+  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
 
   return useRenderElement('button', componentProps, {
     state,

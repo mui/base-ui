@@ -77,7 +77,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
 
   store.useSyncedValue('disabled', disabled);
 
-  useImplicitActiveTrigger(open, store);
+  useImplicitActiveTrigger(store);
   const forceUnmount = useOpenStateTransitions(open, store);
 
   useIsoLayoutEffect(() => {

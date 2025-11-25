@@ -182,7 +182,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  useImplicitActiveTrigger(open, store);
+  useImplicitActiveTrigger(store);
   const forceUnmount = useOpenStateTransitions(open, store, () => {
     store.update({ allowMouseEnter: false, stickIfOpen: true });
     resetOpenInteractionType();

@@ -54,7 +54,6 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   } = componentProps;
 
   const rootContext = usePopoverRootContext(true);
-
   const store = handle?.store ?? rootContext?.store;
   if (!store) {
     throw new Error(
@@ -63,15 +62,23 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
-
-  const floatingContext = store.useState('floatingRootContext');
-  const openReason = store.useState('openChangeReason');
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-
-  const stickIfOpen = store.useState('stickIfOpen');
-  const openMethod = store.useState('openMethod');
+  const floatingContext = store.useState('floatingRootContext');
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+
+  const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
+    thisTriggerId,
+    triggerElement,
+    store,
+    {
+      payload,
+    },
+  );
+
+  const openReason = store.useState('openChangeReason');
+  const stickIfOpen = store.useState('stickIfOpen');
+  const openMethod = store.useState('openMethod');
 
   const hover = useHover(floatingContext, {
     enabled:
@@ -91,16 +98,6 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen });
 
   const localProps = useInteractions([click, hover]);
-
-  const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
-    thisTriggerId,
-    triggerElement,
-    store,
-    {
-      payload,
-    },
-    [payload],
-  );
 
   const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
 

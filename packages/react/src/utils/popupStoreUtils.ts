@@ -50,12 +50,19 @@ export function useTriggerRegistration<
   );
 }
 
+/**
+ * Sets up trigger data forwarding to the store.
+ *
+ * @param triggerId
+ * @param triggerElement
+ * @param store
+ * @param stateUpdates
+ */
 export function useTriggerSetup<State extends PopupStoreState<any>>(
   triggerId: string | undefined,
   triggerElement: Element | null,
   store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
   stateUpdates: Omit<Partial<State>, 'activeTriggerId' | 'activeTriggerElement'>,
-  dependencies: React.DependencyList,
 ) {
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', triggerId);
 
@@ -80,7 +87,7 @@ export function useTriggerSetup<State extends PopupStoreState<any>>(
       store.update({ activeTriggerElement: triggerElement, ...stateUpdates } as Partial<State>);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpenedByThisTrigger, store, triggerElement, ...dependencies]);
+  }, [isOpenedByThisTrigger, store, triggerElement, ...Object.values(stateUpdates)]);
 
   return { registerTrigger, isOpenedByThisTrigger };
 }
@@ -155,13 +162,15 @@ export class PopupTriggerMap {
  * This allows controlled popups to work correctly without an explicit triggerId, maintaining compatibility
  * with the contained triggers.
  *
+ * This should be called on the Root part.
+ *
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
  */
 export function useImplicitActiveTrigger<State extends PopupStoreState<any>>(
-  open: boolean,
   store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
 ) {
+  const open = store.useState('open');
   useIsoLayoutEffect(() => {
     if (open && !store.select('activeTriggerId') && store.context.triggerElements.size === 1) {
       const iteratorResult = store.context.triggerElements.entries().next();

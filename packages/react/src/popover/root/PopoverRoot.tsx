@@ -61,7 +61,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  useImplicitActiveTrigger(open, store);
+  useImplicitActiveTrigger(store);
   const forceUnmount = useOpenStateTransitions(open, store, () => {
     store.update({ stickIfOpen: true, openChangeReason: null });
     resetOpenInteractionType();

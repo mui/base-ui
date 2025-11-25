@@ -42,19 +42,14 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     );
   }
 
-  const delayWithDefault = delay ?? OPEN_DELAY;
-  const closeDelayWithDefault = closeDelay ?? 0;
-
   const thisTriggerId = useBaseUiId(idProp);
-
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-
   const floatingRootContext = store.useState('floatingRootContext');
-  const disabled = disabledProp ?? store.useState('disabled');
-  const disableHoverablePopup = store.useState('disableHoverablePopup');
-  const trackCursorAxis = store.useState('trackCursorAxis');
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+
+  const delayWithDefault = delay ?? OPEN_DELAY;
+  const closeDelayWithDefault = closeDelay ?? 0;
 
   const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
     thisTriggerId,
@@ -64,10 +59,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
       payload,
       closeDelay: closeDelayWithDefault,
     },
-    [payload, closeDelayWithDefault],
   );
-
-  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
 
   const providerContext = useTooltipProviderContext();
   const { delayRef, isInstantPhase, hasProvider } = useDelayGroup(floatingRootContext, {
@@ -75,6 +67,11 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   });
 
   store.useSyncedValue('isInstantPhase', isInstantPhase);
+
+  const rootDisabled = store.useState('disabled');
+  const disabled = disabledProp ?? rootDisabled;
+  const trackCursorAxis = store.useState('trackCursorAxis');
+  const disableHoverablePopup = store.useState('disableHoverablePopup');
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     enabled: !disabled,
@@ -117,6 +114,8 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     () => ({ open: isOpenedByThisTrigger }),
     [isOpenedByThisTrigger],
   );
+
+  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
 
   const element = useRenderElement('button', componentProps, {
     state,

@@ -44,17 +44,13 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const menuPositionerContext = useMenuPositionerContext();
 
   const { store } = useMenuRootContext();
-  const rootTriggerProps = store.useState('triggerProps', true);
+
+  const thisTriggerId = useBaseUiId(idProp);
   const open = store.useState('open');
-  const menuDisabled = store.useState('disabled');
-  const hoverEnabled = store.useState('hoverEnabled');
-  const allowMouseEnter = store.useState('allowMouseEnter');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
 
-  const thisTriggerId = useBaseUiId(idProp);
   const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
-
   const registerTrigger = React.useCallback(
     (element: Element | null) => {
       const cleanup = baseRegisterTrigger(element);
@@ -73,8 +69,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   );
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-
-  const disabled = disabledProp || menuDisabled;
 
   const submenuRootContext = useMenuSubmenuRootContext();
   if (!submenuRootContext?.parentMenu) {
@@ -99,6 +93,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     [parentMenuStore, listItem.index],
   );
 
+  const rootDisabled = store.useState('disabled');
+  const disabled = disabledProp || rootDisabled;
+
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick: false,
     disabled,
@@ -109,6 +106,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     itemMetadata,
     nodeId: menuPositionerContext?.nodeId,
   });
+
+  const hoverEnabled = store.useState('hoverEnabled');
+  const allowMouseEnter = store.useState('allowMouseEnter');
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     enabled: hoverEnabled && openOnHover && !disabled,
@@ -131,6 +131,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const localInteractionProps = useInteractions([click]);
 
+  const rootTriggerProps = store.useState('triggerProps', true);
   delete rootTriggerProps.id;
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
