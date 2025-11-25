@@ -9,6 +9,7 @@ import { CheckIcon } from 'docs/src/icons/CheckIcon';
 import { ExternalLinkIcon } from 'docs/src/icons/ExternalLinkIcon';
 import { exportCodeSandbox, exportOpts } from 'docs/src/utils/demoExportOptions';
 import { isSafari, isEdge } from '@base-ui-components/utils/detectBrowser';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { DemoCodeBlock } from './DemoCodeBlock';
@@ -30,7 +31,6 @@ export function Demo({
   ...demoProps
 }: DemoProps) {
   const collapsibleTriggerRef = React.useRef<HTMLButtonElement>(null);
-  const triggerRectTopBeforeCloseRef = React.useRef<number>(0);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
 
   const onCopied = React.useCallback(() => {
@@ -43,6 +43,33 @@ export function Demo({
     setCopyTimeout(newTimeout);
     /* eslint-enable no-restricted-syntax */
   }, [copyTimeout]);
+
+  let frame = -1;
+
+  const onOpenChange = useStableCallback((nextOpen) => {
+    if (!nextOpen && collapsibleTriggerRef.current != null) {
+      const triggerEl = collapsibleTriggerRef.current;
+      const rectTopBeforeClose = triggerEl.getBoundingClientRect().top;
+
+      demo.setExpanded(nextOpen);
+
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const rectTopAfterClose = triggerEl.getBoundingClientRect().top;
+        const delta = rectTopAfterClose - rectTopBeforeClose;
+        // don't scroll if the trigger is still in the viewport after closing
+        if (rectTopAfterClose < 0) {
+          window.scrollBy({
+            top: delta,
+            behavior: 'instant',
+          });
+        }
+      });
+      return;
+    }
+
+    demo.setExpanded(nextOpen);
+  });
 
   const demo = useDemo(demoProps, {
     copy: { onCopied },
@@ -70,27 +97,6 @@ export function Demo({
     </GhostButton>
   );
 
-  React.useEffect(() => {
-    if (
-      !demo.expanded &&
-      collapsibleTriggerRef.current != null &&
-      triggerRectTopBeforeCloseRef.current > 0
-    ) {
-      const triggerRect = collapsibleTriggerRef.current.getBoundingClientRect();
-      const delta = triggerRect.top - triggerRectTopBeforeCloseRef.current;
-
-      // don't scroll if the trigger is still in the viewport after closing
-      if (triggerRect.top < 0) {
-        window.scrollBy({
-          top: delta,
-          behavior: 'instant',
-        });
-      }
-
-      triggerRectTopBeforeCloseRef.current = 0;
-    }
-  }, [demo.expanded]);
-
   return (
     <div className={clsx('DemoRoot', className)}>
       {demo.allFilesSlugs.map(({ slug }) => (
@@ -101,21 +107,7 @@ export function Demo({
           <span className="absolute top-3 right-4.5">{externalPlaygroundLink}</span>
         )}
       </DemoPlayground>
-      <Collapsible.Root
-        open={demo.expanded}
-        onOpenChange={(nextOpen) => {
-          if (!nextOpen) {
-            const triggerEl = collapsibleTriggerRef.current;
-            if (!triggerEl) {
-              demo.setExpanded(nextOpen);
-              return;
-            }
-            const triggerRect = triggerEl.getBoundingClientRect();
-            triggerRectTopBeforeCloseRef.current = triggerRect.top;
-          }
-          demo.setExpanded(nextOpen);
-        }}
-      >
+      <Collapsible.Root open={demo.expanded} onOpenChange={onOpenChange}>
         <div role="figure" aria-label="Component demo code">
           {(compact ? demo.expanded : true) && (
             <div className="DemoToolbar">
