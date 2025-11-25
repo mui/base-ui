@@ -21,7 +21,10 @@ import {
   type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
+import {
+  useImplicitActiveTrigger,
+  type PayloadChildRenderFunction,
+} from '../../utils/popupStoreUtils';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
@@ -134,19 +137,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     [handleUnmount, handleImperativeClose],
   );
 
-  useIsoLayoutEffect(() => {
-    // To ensure compatibility with contained triggers, we don't require an explicit triggerId
-    // to be set when there's only one trigger element registered.
-    if (open && !store.select('activeTriggerId') && store.context.triggerElements.size === 1) {
-      const [implicitTriggerId, implicitTriggerElement] = store.context.triggerElements
-        .entries()
-        .next().value;
-      store.update({
-        activeTriggerId: implicitTriggerId,
-        activeTriggerElement: implicitTriggerElement as HTMLElement,
-      });
-    }
-  }, [open, store]);
+  useImplicitActiveTrigger(open, store);
 
   const floatingContext = useFloatingRootContext({
     elements: {

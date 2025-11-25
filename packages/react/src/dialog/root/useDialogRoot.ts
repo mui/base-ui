@@ -17,6 +17,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
+import { useImplicitActiveTrigger } from '../../utils/popupStoreUtils';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const { store, parentContext, actionsRef } = params;
@@ -29,19 +30,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useIsoLayoutEffect(() => {
-    // To ensure compatibility with contained triggers, we don't require an explicit triggerId
-    // to be set when there's only one trigger element registered.
-    if (open && !store.select('activeTriggerId') && store.context.triggerElements.size === 1) {
-      const [implicitTriggerId, implicitTriggerElement] = store.context.triggerElements
-        .entries()
-        .next().value;
-      store.update({
-        activeTriggerId: implicitTriggerId,
-        activeTriggerElement: implicitTriggerElement as HTMLElement,
-      });
-    }
-  }, [open, store]);
+  useImplicitActiveTrigger(open, store);
 
   useIsoLayoutEffect(() => {
     store.set('mounted', mounted);

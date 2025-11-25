@@ -1,15 +1,17 @@
 import * as React from 'react';
 import { ReactStore } from '@base-ui-components/utils/store';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
 /**
  * Returns a callback ref that registers/unregisters the trigger element in the store.
  *
  * @param store The Store instance where the trigger should be registered.
  */
-export function useTriggerRegistration<Context extends { triggerElements: PopupTriggerMap }>(
-  id: string | undefined,
-  store: ReactStore<any, Context, any>,
-) {
+export function useTriggerRegistration<
+  State extends object,
+  Context extends { triggerElements: PopupTriggerMap },
+  Selectors extends Record<string, (state: State, ...args: any[]) => any>,
+>(id: string | undefined, store: ReactStore<State, Context, Selectors>) {
   const registeredElementId = React.useRef<string | null>(null);
 
   return React.useCallback(
@@ -104,4 +106,36 @@ export class PopupTriggerMap {
   public get size(): number {
     return this.idMap.size;
   }
+}
+
+/**
+ * Ensures that when there's only one trigger element registered, it is set as the active trigger.
+ * This allows controlled popups to work correctly without an explicit triggerId, maintaining compatibility
+ * with the contained triggers.
+ *
+ * @param open Whether the popup is open.
+ * @param store The Store instance managing the popup state.
+ */
+export function useImplicitActiveTrigger<
+  State extends { activeTriggerId: string | null; activeTriggerElement: Element | null },
+>(
+  open: boolean,
+  store: ReactStore<
+    State,
+    { triggerElements: PopupTriggerMap },
+    { activeTriggerId: (state: State) => string | null }
+  >,
+) {
+  useIsoLayoutEffect(() => {
+    if (open && !store.select('activeTriggerId') && store.context.triggerElements.size === 1) {
+      const iteratorResult = store.context.triggerElements.entries().next();
+      if (!iteratorResult.done) {
+        const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
+        store.update({
+          activeTriggerId: implicitTriggerId,
+          activeTriggerElement: implicitTriggerElement,
+        } as Partial<State>);
+      }
+    }
+  }, [open, store]);
 }

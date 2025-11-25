@@ -16,7 +16,10 @@ import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
-import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
+import {
+  useImplicitActiveTrigger,
+  type PayloadChildRenderFunction,
+} from '../../utils/popupStoreUtils';
 import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../utils/reasons';
@@ -79,19 +82,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
 
   store.useSyncedValues({ mounted, transitionStatus, disabled });
 
-  useIsoLayoutEffect(() => {
-    // To ensure compatibility with contained triggers, we don't require an explicit triggerId
-    // to be set when there's only one trigger element registered.
-    if (open && !store.select('activeTriggerId') && store.context.triggerElements.size === 1) {
-      const [implicitTriggerId, implicitTriggerElement] = store.context.triggerElements
-        .entries()
-        .next().value;
-      store.update({
-        activeTriggerId: implicitTriggerId,
-        activeTriggerElement: implicitTriggerElement as HTMLElement,
-      });
-    }
-  }, [open, store]);
+  useImplicitActiveTrigger(open, store);
 
   useIsoLayoutEffect(() => {
     if (open) {
@@ -103,7 +94,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    store.update({ activeTriggerId: null, mounted: false });
+    store.update({ activeTriggerId: null, activeTriggerElement: null, mounted: false });
     store.context.onOpenChangeComplete?.(false);
   });
 

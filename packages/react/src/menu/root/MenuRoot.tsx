@@ -40,7 +40,7 @@ import {
 import { mergeProps } from '../../merge-props';
 import { MenuStore } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
-import { PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
+import { PayloadChildRenderFunction, useImplicitActiveTrigger } from '../../utils/popupStoreUtils';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 /**
@@ -177,19 +177,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   store.useSyncedValues({ mounted, transitionStatus });
 
-  useIsoLayoutEffect(() => {
-    // To ensure compatibility with contained triggers, we don't require an explicit triggerId
-    // to be set when there's only one trigger element registered.
-    if (open && !store.select('activeTriggerId') && store.context.triggerElements.size === 1) {
-      const [implicitTriggerId, implicitTriggerElement] = store.context.triggerElements
-        .entries()
-        .next().value;
-      store.update({
-        activeTriggerId: implicitTriggerId,
-        activeTriggerElement: implicitTriggerElement as HTMLElement,
-      });
-    }
-  }, [open, store]);
+  useImplicitActiveTrigger(open, store);
 
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
