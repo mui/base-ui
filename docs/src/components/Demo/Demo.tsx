@@ -29,7 +29,10 @@ export function Demo({
   className,
   ...demoProps
 }: DemoProps) {
+  const collapsibleTriggerRef = React.useRef<HTMLButtonElement>(null);
+  const triggerRectTopBeforeCloseRef = React.useRef<number>(0);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
+
   const onCopied = React.useCallback(() => {
     /* eslint-disable no-restricted-syntax */
     const newTimeout = window.setTimeout(() => {
@@ -67,6 +70,27 @@ export function Demo({
     </GhostButton>
   );
 
+  React.useEffect(() => {
+    if (
+      !demo.expanded &&
+      collapsibleTriggerRef.current != null &&
+      triggerRectTopBeforeCloseRef.current > 0
+    ) {
+      const triggerRect = collapsibleTriggerRef.current.getBoundingClientRect();
+      const delta = triggerRect.top - triggerRectTopBeforeCloseRef.current;
+
+      // don't scroll if the trigger is still in the viewport after closing
+      if (triggerRect.top < 0) {
+        window.scrollBy({
+          top: delta,
+          behavior: 'smooth',
+        });
+      }
+
+      triggerRectTopBeforeCloseRef.current = 0;
+    }
+  }, [demo.expanded]);
+
   return (
     <div className={clsx('DemoRoot', className)}>
       {demo.allFilesSlugs.map(({ slug }) => (
@@ -77,7 +101,21 @@ export function Demo({
           <span className="absolute top-3 right-4.5">{externalPlaygroundLink}</span>
         )}
       </DemoPlayground>
-      <Collapsible.Root open={demo.expanded} onOpenChange={demo.setExpanded}>
+      <Collapsible.Root
+        open={demo.expanded}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            const triggerEl = collapsibleTriggerRef.current;
+            if (!triggerEl) {
+              demo.setExpanded(nextOpen);
+              return;
+            }
+            const triggerRect = triggerEl.getBoundingClientRect();
+            triggerRectTopBeforeCloseRef.current = triggerRect.top;
+          }
+          demo.setExpanded(nextOpen);
+        }}
+      >
         <div role="figure" aria-label="Component demo code">
           {(compact ? demo.expanded : true) && (
             <div className="DemoToolbar">
@@ -115,6 +153,7 @@ export function Demo({
             selectedFileName={demo.selectedFileName}
             selectedFileLines={demo.selectedFileLines}
             collapsibleOpen={demo.expanded}
+            collapsibleTriggerRef={collapsibleTriggerRef}
             compact={compact}
           />
         </div>
