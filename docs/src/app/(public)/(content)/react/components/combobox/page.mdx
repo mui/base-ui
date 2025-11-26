@@ -69,7 +69,8 @@ import { Combobox } from '@base-ui-components/react/combobox';
 
 ## TypeScript
 
-Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`. The type of items held in the `items` array must also match the type passed to `<Combobox.Item>`'s `value` prop.
+Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
+The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
 
 The following example shows a typed wrapper around the Combobox component with correct type inference and type safety:
 
