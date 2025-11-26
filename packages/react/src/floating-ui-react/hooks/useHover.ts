@@ -23,7 +23,7 @@ import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
-const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
+const interactiveSelector = `button,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
 
 function isInteractiveElement(element: Element | null) {
   return element ? Boolean(element.closest(interactiveSelector)) : false;

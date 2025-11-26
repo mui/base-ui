@@ -35,7 +35,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   } = componentProps;
 
   const rootContext = useTooltipRootContext(true);
-  const store = handle?.store ?? rootContext?.store;
+  const store = handle?.store ?? rootContext;
   if (!store) {
     throw new Error(
       'Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.',

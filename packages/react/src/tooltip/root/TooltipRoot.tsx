@@ -86,24 +86,9 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     }
   }, [store, activeTriggerId, open]);
 
-  const createTooltipEventDetails = React.useCallback(
-    (reason: TooltipRoot.ChangeEventReason) => {
-      const details: TooltipRoot.ChangeEventDetails =
-        createChangeEventDetails<TooltipRoot.ChangeEventReason>(
-          reason,
-        ) as TooltipRoot.ChangeEventDetails;
-      details.preventUnmountOnClose = () => {
-        store.set('preventUnmountingOnClose', true);
-      };
-
-      return details;
-    },
-    [store],
-  );
-
   const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createTooltipEventDetails(REASONS.imperativeAction));
-  }, [store, createTooltipEventDetails]);
+    store.setOpen(false, createTooltipEventDetails(store, REASONS.imperativeAction));
+  }, [store]);
 
   React.useImperativeHandle(
     actionsRef,
@@ -140,18 +125,25 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     popupProps,
   });
 
-  const contextValue: TooltipRootContext<Payload> = React.useMemo(
-    () => ({
-      store,
-    }),
-    [store],
-  );
-
   return (
-    <TooltipRootContext.Provider value={contextValue as TooltipRootContext}>
+    <TooltipRootContext.Provider value={store as TooltipRootContext}>
       {typeof children === 'function' ? children({ payload }) : children}
     </TooltipRootContext.Provider>
   );
+}
+
+function createTooltipEventDetails<P>(
+  store: TooltipStore<P>,
+  reason: TooltipRoot.ChangeEventReason,
+) {
+  const details: TooltipRoot.ChangeEventDetails =
+    createChangeEventDetails<TooltipRoot.ChangeEventReason>(
+      reason,
+    ) as TooltipRoot.ChangeEventDetails;
+  details.preventUnmountOnClose = () => {
+    store.set('preventUnmountingOnClose', true);
+  };
+  return details;
 }
 
 export interface TooltipRootState {}

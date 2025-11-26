@@ -33,7 +33,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { store } = useTooltipRootContext();
+  const store = useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();
 
   const open = store.useState('open');

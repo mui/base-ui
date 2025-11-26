@@ -72,6 +72,19 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
             }
           },
           onMouseUp(event) {
+            if (contextMenuContext) {
+              const initialCursorPoint = contextMenuContext.initialCursorPointRef.current;
+              contextMenuContext.initialCursorPointRef.current = null;
+              if (
+                isContextMenu &&
+                initialCursorPoint &&
+                Math.abs(event.clientX - initialCursorPoint.x) <= 1 &&
+                Math.abs(event.clientY - initialCursorPoint.y) <= 1
+              ) {
+                return;
+              }
+            }
+
             if (
               itemRef.current &&
               store.context.allowMouseUpTriggerRef.current &&
@@ -97,6 +110,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
       menuEvents,
       store,
       isContextMenu,
+      contextMenuContext,
       itemMetadata,
       nodeId,
     ],

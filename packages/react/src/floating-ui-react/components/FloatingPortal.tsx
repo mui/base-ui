@@ -75,10 +75,6 @@ export function useFloatingPortalNode(
 
   const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
 
-  const setPortalNodeRef = React.useCallback((node: HTMLDivElement | null) => {
-    setPortalNode(node);
-  }, []);
-
   useIsoLayoutEffect(() => {
     // Wait for the container to be resolved if explicitly `null`.
     if (containerProp === null) {
@@ -117,7 +113,7 @@ export function useFloatingPortalNode(
   }, [containerProp, parentPortalNode, uniqueId]);
 
   const portalElement = useRenderElement('div', componentProps, {
-    ref: [ref, setPortalNodeRef],
+    ref: [ref, setPortalNode],
     state: elementState,
     props: [
       {
