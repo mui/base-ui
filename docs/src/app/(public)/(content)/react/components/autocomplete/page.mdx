@@ -12,8 +12,8 @@ import { DemoAutocompleteHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **No selection state**: Use [Combobox](/react/components/combobox) instead of Autocomplete if the selection should be remembered and the input value cannot be custom. Unlike Combobox, Autocomplete's input can contain free-form text, as its suggestions only _optionally_ autocomplete the text.
-- **Filterable command picker**: The input can be used as a filter for command items that perform an action when clicked when rendered inside the popup.
+- **Avoid when selection state is needed**: Use [Combobox](/react/components/combobox) instead of Autocomplete if the selection should be remembered and the input value cannot be custom. Unlike Combobox, Autocomplete's input can contain free-form text, as its suggestions only _optionally_ autocomplete the text.
+- **Can be used for filterable command pickers**: The input can be used as a filter for command items that perform an action when clicked when rendered inside the popup.
 - **Form controls must have an accessible name**: The input must have a meaningful label. Prefer using [`<Field>`](/react/components/field) to provide a visible text label and description, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
 
 ## Anatomy
@@ -84,6 +84,26 @@ import { DemoAutocompleteInline } from './demos/inline';
 ### Grouped
 
 Organize related options with `<Autocomplete.Group>` and `<Autocomplete.GroupLabel>` to add section headings inside the popup.
+
+Groups are represented by an array of objects with an `items` property, which itself is an array of individual items for each group. An extra property, such as `value`, can be provided for the heading text when rendering the group label.
+
+```tsx title="Example" {3,9,13}
+interface ProduceGroupItem {
+  value: string;
+  items: string[];
+}
+
+const groups: ProduceGroupItem[] = [
+  {
+    value: 'Fruits',
+    items: ['Apple', 'Banana', 'Orange'],
+  },
+  {
+    value: 'Vegetables',
+    items: ['Carrot', 'Lettuce', 'Spinach'],
+  },
+];
+```
 
 import { DemoAutocompleteGrouped } from './demos/grouped';
 

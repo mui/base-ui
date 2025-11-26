@@ -33,6 +33,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     backdropRef,
     positionerRef,
     allowMouseUpTriggerRef,
+    initialCursorPointRef,
     rootId,
   } = useContextMenuRootContext(false);
 
@@ -47,6 +48,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 
   function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
     const isTouchEvent = event.type.startsWith('touch');
+
+    initialCursorPointRef.current = { x, y };
 
     setAnchor({
       getBoundingClientRect() {
