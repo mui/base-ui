@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { isJSDOM } from '#test-utils';
 import { PopupTriggerMap } from './popupTriggerMap';
 
 describe('PopupTriggerMap', () => {
@@ -69,22 +70,25 @@ describe('PopupTriggerMap', () => {
     }
   });
 
-  it('does not throw in production when the same element is registered under multiple ids', () => {
-    const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+  it.skipIf(!isJSDOM)(
+    'does not throw in production when the same element is registered under multiple ids',
+    () => {
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
 
-    const map = new PopupTriggerMap();
-    const button = document.createElement('button');
+      const map = new PopupTriggerMap();
+      const button = document.createElement('button');
 
-    try {
-      map.add('first', button);
-      expect(() => map.add('second', button)).not.to.throw();
-      expect(map.getById('first')).to.equal(button);
-      expect(map.getById('second')).to.equal(button);
-      expect(map.hasElement(button)).to.equal(true);
-      expect(map.size).to.equal(2);
-    } finally {
-      process.env.NODE_ENV = originalEnv;
-    }
-  });
+      try {
+        map.add('first', button);
+        expect(() => map.add('second', button)).not.to.throw();
+        expect(map.getById('first')).to.equal(button);
+        expect(map.getById('second')).to.equal(button);
+        expect(map.hasElement(button)).to.equal(true);
+        expect(map.size).to.equal(2);
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
+    },
+  );
 });
