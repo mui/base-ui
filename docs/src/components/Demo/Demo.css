@@ -225,6 +225,7 @@
 
     position: sticky;
     bottom: -1px;
+    z-index: 1;
 
     @media (hover: hover) {
       &:hover {
@@ -233,7 +234,7 @@
     }
 
     &:active {
-      background-color: var(--color-gray-100);
+      background-color: color-mix(in oklch, var(--color-gray-75), var(--color-gray-600) 5%);
     }
 
     &:focus-visible {
