@@ -161,7 +161,3 @@ function createInitialState<Payload>(): State<Payload> {
     positionerElement: null,
   };
 }
-
-type Mutable<T> = {
-  -readonly [P in keyof T]: T[P];
-};
