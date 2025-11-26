@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-loop-func */
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Menu } from '@base-ui-components/react/menu';
 import { Tooltip } from '@base-ui-components/react/tooltip';
 import { Popover } from '@base-ui-components/react/popover';
@@ -30,10 +32,86 @@ const rowMenuHandle = Menu.createHandle<RowData>();
 const genericTooltipHandle = Tooltip.createHandle<string>();
 const rowPopoverHandle = Popover.createHandle<RowData>();
 
+let setShowBenchmark: React.Dispatch<React.SetStateAction<boolean>> = (
+  _: React.SetStateAction<boolean>,
+) => {};
+
 export default function PerfExperiment() {
+  const runBenchmark = (iterations = 10, warmupIterations = 5) => {
+    const results = [] as number[];
+
+    for (let i = 0; i < warmupIterations + iterations; i += 1) {
+      ReactDOM.flushSync(() => {
+        setShowBenchmark(false);
+      });
+      const start = performance.now();
+      ReactDOM.flushSync(() => {
+        setShowBenchmark(true);
+      });
+      if (i < warmupIterations) {
+        continue;
+      }
+      const end = performance.now();
+      const elapsed = end - start;
+      results.push(Math.round(elapsed * 10) / 10);
+    }
+
+    console.log(results);
+    console.log(
+      'Average:',
+      Math.round((results.reduce((a, b) => a + b, 0) / results.length) * 10) / 10,
+    );
+    console.log(
+      'Std Dev:',
+      (() => {
+        const avg = results.reduce((a, b) => a + b, 0) / results.length;
+        const squareDiffs = results.map((value) => {
+          const diff = value - avg;
+          return diff * diff;
+        });
+        const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / squareDiffs.length;
+        return +Math.sqrt(avgSquareDiff).toFixed(2);
+      })(),
+    );
+  };
+
   return (
     <div className={styles.container}>
       <h1>Component performance - detached triggers</h1>
+      <div>
+        <button type="button" onClick={() => setShowBenchmark((prev: boolean) => !prev)}>
+          Toggle
+        </button>
+        <button type="button" onClick={() => runBenchmark(10, 5)} style={{ marginLeft: 8 }}>
+          Run 10
+        </button>
+        <button type="button" onClick={() => runBenchmark(20, 5)} style={{ marginLeft: 8 }}>
+          Run 20
+        </button>
+        <button type="button" onClick={() => runBenchmark(50, 5)} style={{ marginLeft: 8 }}>
+          Run 50
+        </button>
+      </div>
+      <Container />
+    </div>
+  );
+}
+
+function Container() {
+  const [showBenchmark, setShowBenchmarkLocal] = React.useState(false);
+
+  setShowBenchmark = setShowBenchmarkLocal;
+
+  if (!showBenchmark) {
+    return null;
+  }
+
+  return <Benchmark />;
+}
+
+function Benchmark() {
+  return (
+    <div>
       <div className={styles.rows}>
         {rows.map((row) => (
           <div key={row.index} className={styles.row}>
