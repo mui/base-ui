@@ -76,7 +76,34 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   store.useSyncedValue('disabled', disabled);
 
   useImplicitActiveTrigger(store);
-  const forceUnmount = useOpenStateTransitions(open, store);
+  const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
+  const isInstantPhase = store.useState('isInstantPhase');
+  const instantType = store.useState('instantType');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+
+  // Animations should be instant in two cases:
+  // 1) Opening during the provider's instant phase (adjacent tooltip opens instantly)
+  // 2) Closing because another tooltip opened (reason === 'none')
+  // Otherwise, allow the animation to play. In particular, do not disable animations
+  // during the 'ending' phase unless it's due to a sibling opening.
+  const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
+  useIsoLayoutEffect(() => {
+    if (
+      (transitionStatus === 'ending' && lastOpenChangeReason === REASONS.none) ||
+      (transitionStatus !== 'ending' && isInstantPhase)
+    ) {
+      // Capture the current instant type so we can restore it later
+      // and set to 'delay' to disable animations while moving from one trigger to another
+      // within a delay group.
+      if (instantType !== 'delay') {
+        previousInstantTypeRef.current = instantType;
+      }
+      store.set('instantType', 'delay');
+    } else if (previousInstantTypeRef.current !== null) {
+      store.set('instantType', previousInstantTypeRef.current);
+      previousInstantTypeRef.current = null;
+    }
+  }, [transitionStatus, isInstantPhase, lastOpenChangeReason, instantType, store]);
 
   useIsoLayoutEffect(() => {
     if (open) {

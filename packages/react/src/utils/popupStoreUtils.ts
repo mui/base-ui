@@ -229,7 +229,7 @@ export function useOpenStateTransitions<State extends PopupStoreState<any>>(
     },
   });
 
-  return forceUnmount;
+  return { forceUnmount, transitionStatus };
 }
 
 export type PopupStoreState<Payload> = {
