@@ -208,7 +208,14 @@
     }
   }
 
-  .DemoCollapseButton {
+  .DemoCollapseButtonStickyContainer {
+    container-type: scroll-state;
+    position: sticky;
+    bottom: -1px;
+    z-index: 1;
+  }
+
+  .DemoCollapseButtonStickyContainer > button {
     @apply text-xs;
     background-color: var(--color-gray-50);
     cursor: default;
@@ -222,10 +229,6 @@
     background-clip: padding-box;
     margin-bottom: -1px;
     user-select: none;
-
-    position: sticky;
-    bottom: -1px;
-    z-index: 1;
 
     @media (hover: hover) {
       &:hover {
@@ -241,6 +244,10 @@
       outline: 2px solid var(--color-blue);
       outline-offset: -1px;
       z-index: 1;
+    }
+
+    @container scroll-state(stuck: bottom) {
+      border-radius: 0;
     }
   }
 }
