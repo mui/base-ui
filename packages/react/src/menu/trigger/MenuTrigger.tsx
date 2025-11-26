@@ -83,6 +83,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
@@ -96,7 +97,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
   const floatingParentNodeId = useFloatingParentNodeId();
 
-  const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerSetup(
     thisTriggerId,
     triggerElement,
     store,
@@ -180,7 +181,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       openOnHover &&
       !disabled &&
       parent.type !== 'context-menu' &&
-      (parent.type !== 'menubar' || (parentMenubarHasSubmenuOpen && !isOpenedByThisTrigger)),
+      (parent.type !== 'menubar' || (parentMenubarHasSubmenuOpen && !isMountedByThisTrigger)),
     handleClose: safePolygon({ blockPointerEvents: parent.type !== 'menubar' }),
     mouseOnly: true,
     move: false,
@@ -228,7 +229,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     [disabled, isOpenedByThisTrigger],
   );
 
-  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, setTriggerElement];
   const props = [

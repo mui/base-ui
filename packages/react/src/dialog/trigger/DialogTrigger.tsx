@@ -42,10 +42,11 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const floatingContext = store.useState('floatingRootContext');
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
-  const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerSetup(
     thisTriggerId,
     triggerElement,
     store,
@@ -71,7 +72,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     [disabled, isOpenedByThisTrigger],
   );
 
-  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   return useRenderElement('button', componentProps, {
     state,

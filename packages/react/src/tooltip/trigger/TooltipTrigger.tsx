@@ -45,13 +45,14 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
-  const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerSetup(
     thisTriggerId,
     triggerElement,
     store,
@@ -115,7 +116,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     [isOpenedByThisTrigger],
   );
 
-  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const element = useRenderElement('button', componentProps, {
     state,

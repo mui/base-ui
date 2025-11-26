@@ -69,10 +69,11 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingContext = store.useState('floatingRootContext');
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
-  const { registerTrigger, isOpenedByThisTrigger } = useTriggerSetup(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerSetup(
     thisTriggerId,
     triggerElement,
     store,
@@ -108,7 +109,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const localProps = useInteractions([click]);
 
-  const rootTriggerProps = store.useState('triggerProps', isOpenedByThisTrigger);
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({

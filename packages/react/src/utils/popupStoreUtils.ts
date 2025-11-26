@@ -64,7 +64,7 @@ export function useTriggerSetup<State extends PopupStoreState<any>>(
   store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
   stateUpdates: Omit<Partial<State>, 'activeTriggerId' | 'activeTriggerElement'>,
 ) {
-  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', triggerId);
+  const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);
 
   const baseRegisterTrigger = useTriggerRegistration(triggerId, store);
 
@@ -83,13 +83,13 @@ export function useTriggerSetup<State extends PopupStoreState<any>>(
   });
 
   useIsoLayoutEffect(() => {
-    if (isOpenedByThisTrigger) {
+    if (isMountedByThisTrigger) {
       store.update({ activeTriggerElement: triggerElement, ...stateUpdates } as Partial<State>);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpenedByThisTrigger, store, triggerElement, ...Object.values(stateUpdates)]);
+  }, [isMountedByThisTrigger, store, triggerElement, ...Object.values(stateUpdates)]);
 
-  return { registerTrigger, isOpenedByThisTrigger };
+  return { registerTrigger, isMountedByThisTrigger };
 }
 
 export type PayloadChildRenderFunction<Payload> = (arg: {
@@ -296,6 +296,10 @@ export const popupStoreSelectors = {
       triggerId !== undefined && state.activeTriggerId === triggerId,
   ),
   isOpenedByTrigger: createSelector(
+    (state: PopupStoreState<unknown>, triggerId: string | undefined) =>
+      triggerId !== undefined && state.activeTriggerId === triggerId && state.open,
+  ),
+  isMountedByTrigger: createSelector(
     (state: PopupStoreState<unknown>, triggerId: string | undefined) =>
       triggerId !== undefined && state.activeTriggerId === triggerId && state.mounted,
   ),
