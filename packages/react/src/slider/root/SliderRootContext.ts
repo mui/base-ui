@@ -27,7 +27,7 @@ export interface SliderRootContext {
   ) => void;
   indicatorPosition: (number | undefined)[];
   inset: boolean;
-  labelId?: string;
+  labelId?: string | undefined;
   /**
    * The large step value of the slider when incrementing or decrementing while the shift key is held,
    * or when using Page-Up or Page-Down keys. Snaps to multiples of this value.
@@ -40,7 +40,7 @@ export interface SliderRootContext {
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
    */
-  locale?: Intl.LocalesArgument;
+  locale?: Intl.LocalesArgument | undefined;
   /**
    * The maximum allowed value of the slider.
    */

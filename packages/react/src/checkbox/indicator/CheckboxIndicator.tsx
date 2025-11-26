@@ -87,7 +87,7 @@ export interface CheckboxIndicatorProps
    * Whether to keep the element in the DOM when the checkbox is not checked.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace CheckboxIndicator {

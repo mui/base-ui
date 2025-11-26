@@ -79,20 +79,22 @@ export interface AlertDialogRootProps<Payload = unknown>
   /**
    * Event handler called when the dialog is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void)
+    | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the dialog will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the dialog manually.
    * Useful when the dialog's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<AlertDialogRoot.Actions>;
+  actionsRef?: React.RefObject<AlertDialogRoot.Actions> | undefined;
   /**
    * A handle to associate the popover with a trigger.
    * If specified, allows external triggers to control the popover's open state.
    * Can be created with the AlertDialog.createHandle() method.
    */
-  handle?: DialogHandle<Payload>;
+  handle?: DialogHandle<Payload> | undefined;
 }
 
 export type AlertDialogRootActions = DialogRoot.Actions;

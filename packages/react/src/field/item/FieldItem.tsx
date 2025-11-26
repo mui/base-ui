@@ -55,7 +55,7 @@ export interface FieldItemProps extends BaseUIComponentProps<'div', FieldItem.St
    * The `disabled` prop on `<Field.Root>` takes precedence over this.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace FieldItem {

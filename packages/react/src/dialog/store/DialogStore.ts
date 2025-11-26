@@ -38,10 +38,12 @@ type Context = {
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly preventUnmountingOnCloseRef: React.RefObject<boolean>;
 
-  readonly onOpenChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
-  readonly onOpenChangeComplete?: (open: boolean) => void;
-  readonly onNestedDialogOpen?: (ownChildrenCount: number) => void;
-  readonly onNestedDialogClose?: () => void;
+  readonly onOpenChange?:
+    | ((open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void)
+    | undefined;
+  readonly onOpenChangeComplete?: ((open: boolean) => void) | undefined;
+  readonly onNestedDialogOpen?: ((ownChildrenCount: number) => void) | undefined;
+  readonly onNestedDialogClose?: (() => void) | undefined;
 };
 
 const selectors = {

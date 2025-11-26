@@ -30,7 +30,9 @@ export interface MenuSubmenuRootProps
   /**
    * Event handler called when the menu is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) => void)
+    | undefined;
 }
 
 export interface MenuSubmenuRootState {}

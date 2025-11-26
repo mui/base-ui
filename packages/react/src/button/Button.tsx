@@ -56,12 +56,12 @@ interface ButtonCommonProps {
   /**
    * Whether the button should ignore user interaction.
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Whether the button should be focusable when disabled.
    * @default false
    */
-  focusableWhenDisabled?: boolean;
+  focusableWhenDisabled?: boolean | undefined;
 }
 
 type NonNativeAttributeKeys =
@@ -79,7 +79,7 @@ interface ButtonNativeProps
   extends NativeButtonProps,
     ButtonCommonProps,
     Omit<BaseUIComponentProps<'button', ButtonState>, 'disabled'> {
-  nativeButton?: true;
+  nativeButton?: true | undefined;
 }
 
 interface ButtonNonNativeProps

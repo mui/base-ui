@@ -222,7 +222,7 @@ export interface SelectScrollArrowProps
    * Whether to keep the HTML element in the DOM while the select popup is not scrollable.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace SelectScrollArrow {

@@ -258,47 +258,49 @@ export interface SwitchRootProps
   /**
    * The id of the switch element.
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Whether the switch is currently active.
    *
    * To render an uncontrolled switch, use the `defaultChecked` prop instead.
    */
-  checked?: boolean;
+  checked?: boolean | undefined;
   /**
    * Whether the switch is initially active.
    *
    * To render a controlled switch, use the `checked` prop instead.
    * @default false
    */
-  defaultChecked?: boolean;
+  defaultChecked?: boolean | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * A ref to access the hidden `<input>` element.
    */
-  inputRef?: React.Ref<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement> | undefined;
   /**
    * Identifies the field when a form is submitted.
    */
-  name?: string;
+  name?: string | undefined;
   /**
    * Event handler called when the switch is activated or deactivated.
    */
-  onCheckedChange?: (checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void;
+  onCheckedChange?:
+    | ((checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether the user should be unable to activate or deactivate the switch.
    * @default false
    */
-  readOnly?: boolean;
+  readOnly?: boolean | undefined;
   /**
    * Whether the user must activate the switch before submitting a form.
    * @default false
    */
-  required?: boolean;
+  required?: boolean | undefined;
 }
 export type SwitchRootChangeEventReason = typeof REASONS.none;
 export type SwitchRootChangeEventDetails = BaseUIChangeEventDetails<SwitchRoot.ChangeEventReason>;

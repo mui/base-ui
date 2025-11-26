@@ -66,12 +66,12 @@ export interface UseMediaQueryOptions {
    * it returns a default matches during the first mount.
    * @default false
    */
-  defaultMatches?: boolean;
+  defaultMatches?: boolean | undefined;
   /**
    * You can provide your own implementation of matchMedia.
    * This can be used for handling an iframe content window.
    */
-  matchMedia?: typeof window.matchMedia;
+  matchMedia?: typeof window.matchMedia | undefined;
   /**
    * To perform the server-side hydration, the hook needs to render twice.
    * A first time with `defaultMatches`, the value of the server, and a second time with the resolved value.
@@ -79,11 +79,11 @@ export interface UseMediaQueryOptions {
    * You can set this option to `true` if you use the returned value **only** client-side.
    * @default false
    */
-  noSsr?: boolean;
+  noSsr?: boolean | undefined;
   /**
    * You can provide your own implementation of `matchMedia`, it's used when rendering server-side.
    */
-  ssrMatchMedia?: (query: string) => { matches: boolean };
+  ssrMatchMedia?: ((query: string) => { matches: boolean }) | undefined;
 }
 
 export namespace useMediaQuery {
