@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui-components/utils/store';
-import { NOOP } from '@base-ui-components/utils/empty';
 import type { FloatingEvents, ContextData, ReferenceType } from '../types';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { type FloatingUIOpenChangeDetails } from '../../utils/types';
-import { type PopupTriggerMap } from '../../utils/popupStoreUtils';
+import { type PopupTriggerMap } from '../../utils/popups';
 
 export interface FloatingRootState {
   open: boolean;
@@ -24,7 +23,6 @@ export interface FloatingRootStoreContext {
     | ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void)
     | undefined;
   readonly dataRef: React.RefObject<ContextData>;
-  setPositionReference(node: ReferenceType | null): void;
   readonly events: FloatingEvents;
   nested: boolean;
   noEmit: boolean;
@@ -70,7 +68,6 @@ export class FloatingRootStore extends ReactStore<
       },
       {
         onOpenChange,
-        setPositionReference: NOOP,
         dataRef: { current: {} },
         events: createEventEmitter(),
         nested,

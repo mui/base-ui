@@ -4,7 +4,7 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useTriggerSetup } from '../../utils/popupStoreUtils';
+import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
@@ -52,7 +52,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerSetup(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
     triggerElement,
     store,

@@ -32,7 +32,7 @@ import {
 } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { useTriggerSetup } from '../../utils/popupStoreUtils';
+import { useTriggerDataForwarding } from '../../utils/popups';
 
 /**
  * A button that opens the popover.
@@ -73,7 +73,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerSetup(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
     triggerElement,
     store,

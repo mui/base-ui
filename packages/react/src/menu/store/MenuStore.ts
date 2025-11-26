@@ -11,7 +11,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-} from '../../utils/popupStoreUtils';
+} from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;

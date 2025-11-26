@@ -34,7 +34,7 @@ import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
-import { useTriggerSetup } from '../../utils/popupStoreUtils';
+import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { REASONS } from '../../utils/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
@@ -97,7 +97,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
   const floatingParentNodeId = useFloatingParentNodeId();
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerSetup(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
     triggerElement,
     store,

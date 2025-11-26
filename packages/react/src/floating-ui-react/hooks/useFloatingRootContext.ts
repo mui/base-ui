@@ -5,9 +5,8 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import type { ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
-import { PopupTriggerMap } from '../../utils/popupStoreUtils';
-import { FloatingRootStore } from '../components/FloatingRootStore';
-import type { FloatingRootState } from '../components/FloatingRootStore';
+import { FloatingRootStore, type FloatingRootState } from '../components/FloatingRootStore';
+import { PopupTriggerMap } from '../../utils/popups';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;

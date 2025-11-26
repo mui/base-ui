@@ -14,7 +14,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
-import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popupStoreUtils';
+import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popups';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const { store, parentContext, actionsRef } = params;

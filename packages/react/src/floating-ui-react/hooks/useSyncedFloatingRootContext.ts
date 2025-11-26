@@ -5,11 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { isElement } from '@floating-ui/utils/dom';
 import { BaseUIChangeEventDetails } from '../../types';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
-import {
-  PopupStoreContext,
-  PopupStoreSelectors,
-  PopupStoreState,
-} from '../../utils/popupStoreUtils';
+import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
 import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
 
 export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreState<any>> {
@@ -25,6 +21,10 @@ export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreSta
   onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
 }
 
+/**
+ * Initializes a FloatingRootStore that is kept in sync with the provided PopupStore.
+ * The new instance is created only once and updated on every render.
+ */
 export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>(
   options: UseSyncedFloatingRootContextOptions<State>,
 ): FloatingRootStore {
@@ -43,11 +43,11 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
   const store = useRefWithInit(
     () =>
       new FloatingRootStore({
-        open: popupStore.select('open'),
-        onOpenChange,
+        open,
         referenceElement,
         floatingElement,
         triggerElements,
+        onOpenChange,
         floatingId,
         nested,
         noEmit,
@@ -69,9 +69,10 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
     store.update(valuesToSync);
   }, [open, floatingId, referenceElement, floatingElement, store]);
 
+  // TODO: When `setOpen` is a part of the PopupStore API, we don't need to sync it.
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
-  store.context.noEmit = options.noEmit || false;
+  store.context.noEmit = noEmit;
 
   return store;
 }

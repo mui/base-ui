@@ -42,7 +42,7 @@ import {
   PayloadChildRenderFunction,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
-} from '../../utils/popupStoreUtils';
+} from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 /**

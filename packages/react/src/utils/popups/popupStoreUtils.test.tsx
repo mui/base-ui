@@ -3,14 +3,24 @@ import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { ReactStore } from '@base-ui-components/utils/store';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { PopupTriggerMap, useTriggerRegistration } from './popupStoreUtils';
-
-type TestStoreContext = {
-  triggerElements: PopupTriggerMap;
-};
+import {
+  createInitialPopupStoreState,
+  PopupStoreContext,
+  PopupStoreState,
+  PopupStoreSelectors,
+  PopupTriggerMap,
+  useTriggerRegistration,
+} from './';
 
 function createStore() {
-  return new ReactStore<any, TestStoreContext, any>({}, { triggerElements: new PopupTriggerMap() });
+  return new ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>(
+    createInitialPopupStoreState(),
+    {
+      triggerElements: new PopupTriggerMap(),
+      popupRef: React.createRef<HTMLElement | null>(),
+      onOpenChangeComplete: undefined,
+    },
+  );
 }
 
 function TestTrigger({
@@ -20,7 +30,7 @@ function TestTrigger({
   repeat = 1,
 }: {
   id: string;
-  store: ReactStore<any, TestStoreContext, any>;
+  store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
   element: HTMLElement;
   repeat?: number;
 }) {
@@ -70,7 +80,7 @@ describe('PopupTriggerMap', () => {
     map.add('trigger', button);
     map.delete('trigger');
 
-    expect(map.getById('trigger')).to.toBeUndefined();
+    expect(map.getById('trigger')).toBeUndefined();
     expect(map.hasElement(button)).to.equal(false);
     expect(map.hasMatchingElement((element) => element === button)).to.equal(false);
   });

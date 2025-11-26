@@ -15,7 +15,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-} from '../../utils/popupStoreUtils';
+} from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {

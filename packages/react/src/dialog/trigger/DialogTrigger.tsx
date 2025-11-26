@@ -7,7 +7,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { DialogHandle } from '../store/DialogHandle';
-import { useTriggerSetup } from '../../utils/popupStoreUtils';
+import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useClick, useInteractions } from '../../floating-ui-react';
 
@@ -46,7 +46,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerSetup(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
     triggerElement,
     store,

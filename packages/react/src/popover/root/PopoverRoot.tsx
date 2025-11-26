@@ -21,7 +21,7 @@ import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   type PayloadChildRenderFunction,
-} from '../../utils/popupStoreUtils';
+} from '../../utils/popups';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {

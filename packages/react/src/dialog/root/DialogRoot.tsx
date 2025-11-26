@@ -7,7 +7,7 @@ import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDeta
 import { REASONS } from '../../utils/reasons';
 import { DialogStore } from '../store/DialogStore';
 import { DialogHandle } from '../store/DialogHandle';
-import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
+import { type PayloadChildRenderFunction } from '../../utils/popups';
 
 /**
  * Groups all parts of the dialog.

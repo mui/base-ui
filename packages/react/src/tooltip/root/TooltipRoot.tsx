@@ -17,7 +17,7 @@ import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   type PayloadChildRenderFunction,
-} from '../../utils/popupStoreUtils';
+} from '../../utils/popups';
 import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../utils/reasons';

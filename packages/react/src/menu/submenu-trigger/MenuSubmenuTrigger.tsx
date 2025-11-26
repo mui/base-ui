@@ -14,7 +14,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { useTriggerRegistration } from '../../utils/popupStoreUtils';
+import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 /**
