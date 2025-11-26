@@ -81,17 +81,35 @@ export function SearchBar({
     },
   });
 
-  const [searchResults, setSearchResults] = React.useState<SearchResults>(defaultResults);
+  const [searchResults, setSearchResults] = React.useState<ReturnType<typeof useSearch>['results']>(
+    {
+      results: defaultResults,
+      count: 0,
+      elapsed: { raw: 0, formatted: '0ms' },
+    },
+  );
 
   // Update search results when hook results change
   React.useEffect(() => {
-    setSearchResults(results);
-  }, [results, defaultResults]);
+    if ('startViewTransition' in document) {
+      (document as any).startViewTransition(() => {
+        ReactDOM.flushSync(() => {
+          setSearchResults(results);
+        });
+      });
+    } else {
+      setSearchResults(results);
+    }
+  }, [results]);
 
   // Reset to default results when dialog closes
   React.useEffect(() => {
     if (!dialogOpen) {
-      setSearchResults(defaultResults);
+      setSearchResults({
+        results: defaultResults,
+        count: 0,
+        elapsed: { raw: 0, formatted: '0ms' },
+      });
     }
   }, [dialogOpen, defaultResults]);
 
@@ -103,10 +121,19 @@ export function SearchBar({
     openingRef.current = true;
 
     if ('startViewTransition' in document) {
-      (document as any).startViewTransition(() => {
+      const transition = (document as any).startViewTransition(() => {
         ReactDOM.flushSync(() => {
           setDialogOpen(true);
         });
+      });
+
+      transition.finished.then(() => {
+        if (popupRef.current) {
+          popupRef.current.className = popupRef.current?.className.replace(
+            'search-dialog-popup',
+            'search-dialog-popup search-dialog-popup-active',
+          );
+        }
       });
     } else {
       setDialogOpen(true);
@@ -118,37 +145,47 @@ export function SearchBar({
     }, 100);
   }, []);
 
-  const handleCloseDialog = React.useCallback((open: boolean) => {
-    if (!open) {
-      // Prevent double-closing across all instances
-      if (closingRef.current) {
-        return;
-      }
-      closingRef.current = true;
+  const handleCloseDialog = React.useCallback(
+    (open: boolean) => {
+      if (!open) {
+        // Prevent double-closing across all instances
+        if (closingRef.current) {
+          return;
+        }
+        closingRef.current = true;
 
-      if ('startViewTransition' in document) {
-        const transition = (document as any).startViewTransition(() => {
-          ReactDOM.flushSync(() => {
-            setDialogOpen(false);
+        if (popupRef.current) {
+          popupRef.current.className = popupRef.current?.className.replace(
+            'search-dialog-popup-active ',
+            '',
+          );
+        }
+
+        if ('startViewTransition' in document) {
+          const transition = (document as any).startViewTransition(() => {
+            ReactDOM.flushSync(() => {
+              setDialogOpen(false);
+            });
           });
-        });
 
-        transition.finished.then(() => {
+          transition.finished.then(() => {
+            // Results will be reset by useEffect
+          });
+        } else {
+          setDialogOpen(false);
           // Results will be reset by useEffect
-        });
-      } else {
-        setDialogOpen(false);
-        // Results will be reset by useEffect
-      }
+        }
 
-      // Reset after a short delay
-      setTimeout(() => {
-        closingRef.current = false;
-      }, 100);
-    } else {
-      setDialogOpen(true);
-    }
-  }, []);
+        // Reset after a short delay
+        setTimeout(() => {
+          closingRef.current = false;
+        }, 100);
+      } else {
+        handleOpenDialog();
+      }
+    },
+    [handleOpenDialog],
+  );
 
   const handleAutocompleteEscape = React.useCallback(
     (open: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => {
@@ -224,7 +261,10 @@ export function SearchBar({
   const renderResultsList = (group: SearchResults[number]) => (
     <Autocomplete.Group key={group.group} items={group.items} className="block pb-2">
       {group.group !== 'Default' && (
-        <Autocomplete.GroupLabel className="sticky top-0 z-1 m-0 w-100% bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider">
+        <Autocomplete.GroupLabel
+          id={`search-group-${group.group}`}
+          className="search-results sticky top-0 z-1 m-0 w-100% bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider"
+        >
           {normalizeGroupName(group.group)}s
         </Autocomplete.GroupLabel>
       )}
@@ -232,31 +272,36 @@ export function SearchBar({
         {(result: SearchResult, i) => (
           <Autocomplete.Item
             key={result.id || i}
+            index={i}
             value={result}
             onClick={() => handleItemClick(result)}
-            className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100 data-highlighted:bg-gray-900 data-highlighted:text-gray-50"
           >
-            <div className="flex items-baseline justify-between gap-2">
-              <div className="flex items-baseline gap-2">
-                {result.type === 'page' && <FileText className="h-4 w-4" />}
-                {result.type === 'part' && <Blocks className="h-4 w-4" />}
-                {result.type === 'export' && <Package className="h-4 w-4" />}
-                {result.type === 'section' && <Heading1 className="h-4 w-4" />}
-                {result.type === 'subsection' && <Heading2 className="h-4 w-4" />}
-                <strong className="font-semibold">{result.title}</strong>
-                {result.type === 'page' && (
-                  <span className="text-xs opacity-50 capitalize">
-                    {result.sectionTitle.replace('React ', '')}
-                  </span>
+            <div
+              id={`search-results-${result.id || i}`}
+              className="search-results flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100 data-highlighted:bg-gray-900 data-highlighted:text-gray-50"
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <div className="flex items-baseline gap-2">
+                  {result.type === 'page' && <FileText className="h-4 w-4" />}
+                  {result.type === 'part' && <Blocks className="h-4 w-4" />}
+                  {result.type === 'export' && <Package className="h-4 w-4" />}
+                  {result.type === 'section' && <Heading1 className="h-4 w-4" />}
+                  {result.type === 'subsection' && <Heading2 className="h-4 w-4" />}
+                  <strong className="font-semibold">{result.title}</strong>
+                  {result.type === 'page' && (
+                    <span className="text-xs opacity-50 capitalize">
+                      {result.sectionTitle.replace('React ', '')}
+                    </span>
+                  )}
+                </div>
+                {process.env.NODE_ENV === 'development' && result.score && (
+                  <span className="text-xs opacity-70">{result.score.toFixed(2)}</span>
                 )}
               </div>
-              {process.env.NODE_ENV === 'development' && result.score && (
-                <span className="text-xs opacity-70">{result.score.toFixed(2)}</span>
+              {result.type === 'page' && result.description && (
+                <div className="mt-0.5 text-sm opacity-80">{result.description}</div>
               )}
             </div>
-            {result.type === 'page' && result.description && (
-              <div className="mt-0.5 text-sm opacity-80">{result.description}</div>
-            )}
           </Autocomplete.Item>
         )}
       </Autocomplete.Collection>
@@ -265,7 +310,9 @@ export function SearchBar({
 
   // Reusable empty state
   const emptyState = (
-    <div className="px-4 py-6 text-center text-sm text-gray-600">No results found.</div>
+    <div className="search-no-results px-4 py-6 text-center text-sm text-gray-600">
+      No results found.
+    </div>
   );
 
   return (
@@ -298,9 +345,12 @@ export function SearchBar({
                 data-open={dialogOpen}
                 className="search-dialog-popup relative flex max-h-full w-[min(40rem,calc(100vw-2rem))] flex-col overflow-hidden p-0 text-gray-900 transition-[transform,scale,opacity] duration-300 ease-out-fast data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:duration-250 data-ending-style:ease-in-slow motion-reduce:transition-none"
               >
-                <ExpandingBox isActive={dialogOpen} className="flex min-h-0 max-h-full flex-col">
+                <ExpandingBox
+                  isActive={dialogOpen}
+                  className="flex min-h-0 max-h-full flex-col px-4 py-3"
+                >
                   <Autocomplete.Root
-                    items={searchResults}
+                    items={searchResults.results}
                     onValueChange={handleValueChange}
                     onOpenChange={handleAutocompleteEscape}
                     open
@@ -309,26 +359,31 @@ export function SearchBar({
                     autoHighlight
                   >
                     {/* Search input - fixed at top */}
-                    <div className="shrink-0 px-4 pt-3 pb-3 border-b border-gray-200">
-                      {searchInput}
-                    </div>
+                    <div className="shrink-0">{searchInput}</div>
                     {/* Results - scrollable */}
-                    <ScrollArea.Root className="relative flex min-h-0 flex-1 overflow-hidden">
-                      <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
-                        <ScrollArea.Content>
-                          {searchResults.length === 0 ? (
-                            emptyState
-                          ) : (
-                            <Autocomplete.List className="outline-0">
-                              {renderResultsList}
-                            </Autocomplete.List>
-                          )}
-                        </ScrollArea.Content>
-                      </ScrollArea.Viewport>
-                      <ScrollArea.Scrollbar className="pointer-events-none absolute m-1 flex w-1 justify-center rounded-2xl opacity-0 transition-opacity duration-250 data-hovering:pointer-events-auto data-hovering:opacity-100 data-hovering:duration-75 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75 md:w-1.25">
-                        <ScrollArea.Thumb className="w-full rounded-[inherit] bg-gray-500 before:absolute before:left-1/2 before:top-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']" />
-                      </ScrollArea.Scrollbar>
-                    </ScrollArea.Root>
+                    <div className="border-t border-gray-200 mt-3 -ml-4 -mr-4 flex min-h-0 flex-1">
+                      <ScrollArea.Root className="search-results-scroll relative flex min-h-0 flex-1 overflow-hidden">
+                        <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+                          <ScrollArea.Content>
+                            {searchResults.results.length === 0 ? (
+                              emptyState
+                            ) : (
+                              <Autocomplete.List className="outline-0">
+                                {renderResultsList}
+                              </Autocomplete.List>
+                            )}
+                          </ScrollArea.Content>
+                        </ScrollArea.Viewport>
+                        <ScrollArea.Scrollbar className="pointer-events-none absolute m-1 flex w-1 justify-center rounded-2xl opacity-0 transition-opacity duration-250 data-hovering:pointer-events-auto data-hovering:opacity-100 data-hovering:duration-75 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75 md:w-1.25">
+                          <ScrollArea.Thumb className="w-full rounded-[inherit] bg-gray-500 before:absolute before:left-1/2 before:top-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']" />
+                        </ScrollArea.Scrollbar>
+                      </ScrollArea.Root>
+                    </div>
+                    <div className="search-results-stats border-t border-gray-200 pt-1 -mb-3 -ml-4 -mr-4 flex justify-end p-1 pl-4 pr-4 text-gray-500 text-xs">
+                      <div className={searchResults.elapsed.raw <= 0 ? 'opacity-0' : ''}>
+                        Found {searchResults.count} in {searchResults.elapsed.formatted}
+                      </div>
+                    </div>
                   </Autocomplete.Root>
                 </ExpandingBox>
               </Dialog.Popup>
@@ -349,7 +404,7 @@ export function SearchBar({
                     >
                       <ExpandingBox isActive={dialogOpen} className="px-4 py-3">
                         <Autocomplete.Root
-                          items={searchResults}
+                          items={searchResults.results}
                           onValueChange={handleValueChange}
                           onOpenChange={handleAutocompleteEscape}
                           open
@@ -359,7 +414,7 @@ export function SearchBar({
                         >
                           <div>{searchInput}</div>
                           <div className="border-t border-gray-200 mt-3 -ml-4 -mr-4">
-                            {searchResults.length === 0 ? (
+                            {searchResults.results.length === 0 ? (
                               emptyState
                             ) : (
                               <Autocomplete.List className="outline-0 overflow-y-auto scroll-pt-9 scroll-pb-2 overscroll-contain max-h-[min(22.5rem,var(--available-height))]">

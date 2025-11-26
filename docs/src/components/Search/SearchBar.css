@@ -12,3 +12,43 @@
     scale: 1 !important;
   }
 }
+
+/* stylelint-disable */
+
+/**
+  * View Transition styles for Search Results
+  * Uses bleeding edge attr() (Chrome) / view-transition-name: auto (Safari)
+  * We expect syntax errors below in IDEs and linters until support is more widespread
+  */
+@supports (view-transition-name: none) {
+  .search-dialog-popup-active .search-results {
+    view-transition-name: auto;
+    view-transition-name: attr(id type(<custom-ident>), auto);
+    view-transition-class: search-result;
+  }
+
+  .search-dialog-popup-active .search-results-scroll {
+    view-transition-name: search-results-scroll;
+    view-transition-class: search-result;
+    view-transition-group: contain;
+  }
+
+  /**
+  * This only works in Chrome, so maybe we need to disable results animations in desktop safari
+  */
+  ::view-transition-group-children(search-results-scroll) {
+    overflow: clip;
+  }
+
+  .search-dialog-popup-active .search-no-results {
+    view-transition-name: search-no-results;
+    view-transition-class: search-result;
+  }
+
+  .search-dialog-popup-active .search-results-stats {
+    view-transition-name: search-results-stats;
+    view-transition-class: search-result;
+  }
+}
+
+/* stylelint-enable */
