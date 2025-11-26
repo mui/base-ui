@@ -156,11 +156,11 @@ import { DemoDialogCloseConfirmation } from './demos/close-confirmation';
 
 You can control where the focus goes when the dialog opens and close using the `initialFocus` and `finalFocus` props on the `<Dialog.Popup>` component.
 
+You can also set these props to `false` if you don't want to move the focus anywhere after opening/closing the dialog, or a function for specifying the target focusable element ref dynamically.
+
 import { DemoDialogFocusManagement } from './demos/focus-management';
 
 <DemoDialogFocusManagement compact />
-
-You can also set these props to `false` if you don't want to move the focus anywhere after opening/closing the dialog, or a function for specifying the target focusable element ref dynamically.
 
 ### Outside scroll dialog
 
