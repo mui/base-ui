@@ -272,13 +272,13 @@ export function SearchBar({
         {(result: SearchResult, i) => (
           <Autocomplete.Item
             key={result.id || i}
-            index={i}
             value={result}
             onClick={() => handleItemClick(result)}
+            className="search-results-item"
           >
             <div
               id={`search-results-${result.id || i}`}
-              className="search-results flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100 data-highlighted:bg-gray-900 data-highlighted:text-gray-50"
+              className="search-results flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100"
             >
               <div className="flex items-baseline justify-between gap-2">
                 <div className="flex items-baseline gap-2">
@@ -354,13 +354,12 @@ export function SearchBar({
                     onValueChange={handleValueChange}
                     onOpenChange={handleAutocompleteEscape}
                     open
+                    inline
                     itemToStringValue={(item) => (item ? item.title || item.slug : '')}
                     filter={null}
                     autoHighlight
                   >
-                    {/* Search input - fixed at top */}
                     <div className="shrink-0">{searchInput}</div>
-                    {/* Results - scrollable */}
                     <div className="border-t border-gray-200 mt-3 -ml-4 -mr-4 flex min-h-0 flex-1">
                       <ScrollArea.Root className="search-results-scroll relative flex min-h-0 flex-1 overflow-hidden">
                         <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
@@ -408,6 +407,7 @@ export function SearchBar({
                           onValueChange={handleValueChange}
                           onOpenChange={handleAutocompleteEscape}
                           open
+                          inline
                           itemToStringValue={(item) => (item ? item.title || item.slug : '')}
                           filter={null}
                           autoHighlight
