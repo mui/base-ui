@@ -116,11 +116,9 @@ export function DemoCodeBlock({
         )}
       </Root>
 
-      <div className="DemoCollapseButtonStickyContainer">
-        <Collapsible.Trigger ref={collapsibleTriggerRef} className="DemoCollapseButton">
-          {collapsibleOpen ? 'Hide' : 'Show'} code
-        </Collapsible.Trigger>
-      </div>
+      <Collapsible.Trigger ref={collapsibleTriggerRef} className="DemoCollapseButton">
+        {collapsibleOpen ? 'Hide' : 'Show'} code
+      </Collapsible.Trigger>
     </React.Fragment>
   );
 }
