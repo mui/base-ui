@@ -34,7 +34,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, children, ...elementProps } = componentProps;
-  const { store } = useTooltipRootContext();
+  const store = useTooltipRootContext();
 
   const activeTrigger = store.useState('activeTriggerElement');
   const open = store.useState('open');

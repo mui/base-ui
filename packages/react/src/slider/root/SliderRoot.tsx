@@ -417,7 +417,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 }) as {
   <Value extends number | readonly number[]>(
     props: SliderRoot.Props<Value> & {
-      ref?: React.RefObject<HTMLDivElement>;
+      ref?: React.Ref<HTMLDivElement>;
     },
   ): React.JSX.Element;
 };

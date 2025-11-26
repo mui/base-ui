@@ -137,7 +137,7 @@ export const Form = React.forwardRef(function Form<
 }) as {
   <FormValues extends Record<string, any> = Record<string, any>>(
     props: Form.Props<FormValues> & {
-      ref?: React.RefObject<HTMLFormElement>;
+      ref?: React.Ref<HTMLFormElement>;
     },
   ): React.JSX.Element;
 };
