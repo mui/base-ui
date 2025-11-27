@@ -8,6 +8,33 @@
   pointer-events: none;
 }
 
+.search-results-scroll-viewport {
+  &::before,
+  &::after {
+    content: '';
+    display: block;
+    left: 0;
+    width: 100%;
+    position: absolute;
+    pointer-events: none;
+    border-radius: 0.375rem;
+    transition: height 0.1s ease-out;
+    z-index: 100;
+  }
+  &::before {
+    --scroll-area-overflow-y-start: inherit;
+    top: 0;
+    height: min(80px, var(--scroll-area-overflow-y-start));
+    background: linear-gradient(to bottom, var(--color-gray-50), transparent);
+  }
+  &::after {
+    --scroll-area-overflow-y-end: inherit;
+    bottom: 0;
+    height: min(80px, var(--scroll-area-overflow-y-end, 80px));
+    background: linear-gradient(to top, var(--color-gray-50), transparent);
+  }
+}
+
 @supports (view-transition-name: none) {
   /* Disable built-in Dialog transitions when view transitions are supported */
   .search-dialog-popup {
@@ -18,31 +45,9 @@
   }
 }
 
-/* stylelint-disable */
-
-/**
-  * View Transition styles for Search Results
-  * Uses bleeding edge attr() (Chrome) / view-transition-name: auto (Safari)
-  * We expect syntax errors below in IDEs and linters until support is more widespread
-  */
 @supports (view-transition-name: none) {
-  .search-dialog-popup-active .search-results {
-    view-transition-name: auto;
-    view-transition-name: attr(id type(<custom-ident>), auto);
-    view-transition-class: search-result;
-  }
-
   .search-dialog-popup-active .search-results-scroll {
     view-transition-name: search-results-scroll;
-    view-transition-class: search-result;
-    view-transition-group: contain;
-  }
-
-  /**
-  * This only works in Chrome, so maybe we need to disable results animations in desktop safari
-  */
-  ::view-transition-group-children(search-results-scroll) {
-    overflow: clip;
   }
 
   .search-dialog-popup-active .search-no-results {
@@ -55,5 +60,3 @@
     view-transition-class: search-result;
   }
 }
-
-/* stylelint-enable */

@@ -331,7 +331,7 @@ export function SearchBar({
     <React.Fragment>
       <Button
         onClick={handleOpenDialog}
-        className={`search-button relative h-7 w-50 text-left text-sm font-normal text-gray-900 focus:outline-none ${dialogOpen ? 'search-button-hidden' : ''}`}
+        className={`search-button relative h-7 w-50 text-left text-sm font-normal text-gray-900 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-800 ${dialogOpen ? 'search-button-hidden' : ''}`}
       >
         <ExpandingBox isActive={!dialogOpen} className="pt-0.75 pb-0.75 pl-3 pr-3">
           <div>
@@ -374,7 +374,7 @@ export function SearchBar({
                     <div className="shrink-0">{searchInput}</div>
                     <div className="border-t border-gray-200 mt-3 -ml-4 -mr-4 flex min-h-0 flex-1">
                       <ScrollArea.Root className="search-results-scroll relative flex min-h-0 flex-1 overflow-hidden">
-                        <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+                        <ScrollArea.Viewport className="search-results-scroll-viewport flex-1 min-h-0 overflow-y-auto overscroll-contain">
                           <ScrollArea.Content>
                             {searchResults.results.length === 0 ? (
                               emptyState
@@ -413,7 +413,7 @@ export function SearchBar({
                       data-open={dialogOpen}
                       className="search-dialog-popup relative mx-auto my-18 w-[min(40rem,calc(100vw-2rem))] p-0 text-gray-900 transition-[transform,scale,opacity] duration-300 ease-out-fast data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:duration-250 data-ending-style:ease-in-slow motion-reduce:transition-none"
                     >
-                      <ExpandingBox isActive={dialogOpen} className="px-4 py-3">
+                      <ExpandingBox isActive={dialogOpen} className="px-4 py-3 min-h-[80vh]">
                         <Autocomplete.Root
                           items={searchResults.results}
                           onValueChange={handleValueChange}
