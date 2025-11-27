@@ -897,6 +897,68 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
+  describe('dismissal', () => {
+    clock.withFakeTimers();
+
+    it('should not open when the trigger was clicked before delay duration', async () => {
+      await render(
+        <Root>
+          <Tooltip.Trigger />
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(OPEN_DELAY / 2);
+
+      fireEvent.click(trigger);
+
+      clock.tick(OPEN_DELAY / 2);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
+
+    it('should close when the trigger is clicked after delay duration', async () => {
+      await render(
+        <Root>
+          <Tooltip.Trigger />
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(OPEN_DELAY);
+
+      await flushMicrotasks();
+
+      expect(screen.getByText('Content')).not.to.equal(null);
+
+      fireEvent.click(trigger);
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
+  });
+
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
     type NumberPayload = { payload: number | undefined };
 

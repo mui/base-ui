@@ -1,20 +1,20 @@
-import type { ReferenceType, FloatingNodeType, FloatingEvents } from '../types';
+import type { FloatingNodeType, FloatingEvents } from '../types';
 import { createEventEmitter } from '../utils/createEventEmitter';
 
 /**
  * Stores and manages floating elements in a tree structure.
  * This is a backing store for the `FloatingTree` component.
  */
-export class FloatingTreeStore<RT extends ReferenceType = ReferenceType> {
-  public readonly nodesRef: React.RefObject<Array<FloatingNodeType<RT>>> = { current: [] };
+export class FloatingTreeStore {
+  public readonly nodesRef: React.RefObject<Array<FloatingNodeType>> = { current: [] };
 
   public readonly events: FloatingEvents = createEventEmitter();
 
-  public addNode(node: FloatingNodeType<RT>) {
+  public addNode(node: FloatingNodeType) {
     this.nodesRef.current.push(node);
   }
 
-  public removeNode(node: FloatingNodeType<RT>) {
+  public removeNode(node: FloatingNodeType) {
     const index = this.nodesRef.current.findIndex((n) => n === node);
     if (index !== -1) {
       this.nodesRef.current.splice(index, 1);

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Popover.Popup />', () => {
   const { render } = createRenderer();
@@ -510,6 +510,7 @@ describe('<Popover.Popup />', () => {
 
       // Close via keyboard: should move focus to final-input
       await user.click(trigger);
+      await waitSingleFrame();
       await user.keyboard('{Escape}');
       await waitFor(() => {
         expect(screen.getByTestId('final-input')).toHaveFocus();

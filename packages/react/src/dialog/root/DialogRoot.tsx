@@ -7,7 +7,7 @@ import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDeta
 import { REASONS } from '../../utils/reasons';
 import { DialogStore } from '../store/DialogStore';
 import { DialogHandle } from '../store/DialogHandle';
-import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
+import { type PayloadChildRenderFunction } from '../../utils/popups';
 
 /**
  * Groups all parts of the dialog.
@@ -33,7 +33,18 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   const parentDialogRootContext = useDialogRootContext(true);
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => handle?.store ?? new DialogStore<Payload>()).current;
+  const store = useRefWithInit(() => {
+    return (
+      handle?.store ??
+      new DialogStore<Payload>({
+        open: openProp ?? defaultOpen,
+        activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+        modal,
+        disablePointerDismissal,
+        nested,
+      })
+    );
+  }).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);

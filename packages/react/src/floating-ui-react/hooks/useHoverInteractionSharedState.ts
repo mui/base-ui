@@ -4,7 +4,6 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
 import { createAttribute } from '../utils/createAttribute';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
-import { getEmptyRootContext } from '../utils/getEmptyRootContext';
 
 export const safePolygonIdentifier = createAttribute('safe-polygon');
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
@@ -31,10 +30,8 @@ type HoverContextData = ContextData & {
 };
 
 export function useHoverInteractionSharedState(
-  context: FloatingRootContext | null,
+  store: FloatingRootContext,
 ): HoverInteractionSharedState {
-  const ctx = context ?? getEmptyRootContext();
-
   const pointerTypeRef = React.useRef<string | undefined>(undefined);
   const interactedInsideRef = React.useRef(false);
   const handlerRef = React.useRef<((event: MouseEvent) => void) | undefined>(undefined);
@@ -42,12 +39,12 @@ export function useHoverInteractionSharedState(
   const performedPointerEventsMutationRef = React.useRef(false);
   const unbindMouseMoveRef = React.useRef<() => void>(() => {});
   const restTimeoutPendingRef = React.useRef(false);
-  const timeout = useTimeout();
+  const openChangeTimeout = useTimeout();
   const restTimeout = useTimeout();
   const handleCloseOptionsRef = React.useRef<SafePolygonOptions | undefined>(undefined);
 
   return React.useMemo(() => {
-    const data = ctx.dataRef.current as HoverContextData;
+    const data = store.context.dataRef.current as HoverContextData;
 
     if (!data.hoverInteractionState) {
       data.hoverInteractionState = {
@@ -58,7 +55,7 @@ export function useHoverInteractionSharedState(
         performedPointerEventsMutationRef,
         unbindMouseMoveRef,
         restTimeoutPendingRef,
-        openChangeTimeout: timeout,
+        openChangeTimeout,
         restTimeout,
         handleCloseOptionsRef,
       };
@@ -66,7 +63,7 @@ export function useHoverInteractionSharedState(
 
     return data.hoverInteractionState;
   }, [
-    ctx.dataRef,
+    store,
     pointerTypeRef,
     interactedInsideRef,
     handlerRef,
@@ -74,7 +71,7 @@ export function useHoverInteractionSharedState(
     performedPointerEventsMutationRef,
     unbindMouseMoveRef,
     restTimeoutPendingRef,
-    timeout,
+    openChangeTimeout,
     restTimeout,
     handleCloseOptionsRef,
   ]);
