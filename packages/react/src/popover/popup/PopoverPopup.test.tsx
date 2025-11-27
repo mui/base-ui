@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer, describeConformance, waitSingleFrame } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Popover.Popup />', () => {
   const { render } = createRenderer();
@@ -261,6 +261,44 @@ describe('<Popover.Popup />', () => {
       await waitFor(() => {
         expect(screen.getByTestId('input-1')).toHaveFocus();
       });
+    });
+  });
+
+  it.skipIf(isJSDOM)('focuses the popup when the active element becomes display:none', async () => {
+    function TestComponent() {
+      const [hidden, setHidden] = React.useState(false);
+
+      return (
+        <Popover.Root open>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popup">
+                <button
+                  data-testid="hide-button"
+                  style={{ display: hidden ? 'none' : undefined }}
+                  onClick={() => setHidden(true)}
+                >
+                  Hide
+                </button>
+                <input />
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('hide-button')).toHaveFocus();
+    });
+
+    await user.click(screen.getByTestId('hide-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toHaveFocus();
     });
   });
 
