@@ -250,7 +250,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     if (!items) {
-      return [];
+      return EMPTY_ARRAY as Value[];
     }
 
     if (isGrouped) {
