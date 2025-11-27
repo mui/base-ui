@@ -58,7 +58,7 @@
     "remark-typography": "0.7.0",
     "scroll-into-view-if-needed": "3.1.0",
     "server-only": "^0.0.1",
-    "shiki": "^3.14.0",
+    "shiki": "^3.15.0",
     "to-vfile": "^8.0.0",
     "unist-util-visit-parents": "^6.0.2",
     "vfile-matter": "^5.0.1"
