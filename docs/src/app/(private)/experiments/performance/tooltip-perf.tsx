@@ -7,7 +7,17 @@ import styles from './tooltip-perf.module.css';
 
 type Mode = 'plain' | 'base' | 'base-old' | 'radix';
 
-const modes: Mode[] = ['plain', 'base', 'base-old', 'radix'];
+type ModeRecord = {
+  mode: Mode;
+  label: string;
+};
+
+const modes: ModeRecord[] = [
+  { mode: 'plain', label: 'Plain buttons' },
+  { mode: 'base', label: 'Base UI' },
+  { mode: 'base-old', label: 'Base UI before detached triggers' },
+  { mode: 'radix', label: 'Radix' },
+];
 
 const array = [...new Array(2000).keys()];
 
@@ -163,8 +173,8 @@ export default function ExampleTooltipPerf() {
           Demo:{' '}
           <select value={mode} onChange={handleModeChange}>
             {modes.map((m) => (
-              <option key={m} value={m}>
-                {m.charAt(0).toUpperCase() + m.slice(1)} {m === 'plain' ? 'buttons' : 'tooltip'}
+              <option key={m.mode} value={m.mode}>
+                {m.label}
               </option>
             ))}
           </select>
@@ -180,15 +190,13 @@ export default function ExampleTooltipPerf() {
         </thead>
         <tbody className={styles.TableBody}>
           {modes.map((m) => (
-            <tr key={m}>
-              <td>{m}</td>
-              <td>{mutationTimeByMode[m].toFixed(0)} ms</td>
+            <tr key={m.mode}>
+              <td>{m.label}</td>
+              <td>{mutationTimeByMode[m.mode].toFixed(0)} ms</td>
             </tr>
           ))}
         </tbody>
       </table>
-      <div>Current mode: {mode}</div>
-      <hr />
       <div ref={demoRef}>{demo}</div>
     </div>
   );
