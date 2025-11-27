@@ -174,6 +174,10 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
+          if (!inputInsidePopup) {
+            floatingRootContext.set('domReferenceElement', event.currentTarget);
+          }
+
           // Ensure items are registered for initial selection highlight.
           store.state.forceMount();
 
