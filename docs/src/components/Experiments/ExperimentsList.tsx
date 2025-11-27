@@ -19,6 +19,11 @@ const groups: Record<string, { name: string; path: string }[]> = {};
 
 for (const key of allExperimentFiles) {
   const segments = key.split('/');
+
+  // Ignore nested entries like `perf/utils/*` to keep navigation at 1 level deep.
+  if (segments.length > 2) {
+    continue;
+  }
   let group: string;
   let name: string;
 
