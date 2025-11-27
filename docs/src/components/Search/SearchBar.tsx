@@ -12,7 +12,7 @@ import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import { Button } from '@base-ui-components/react/button';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
-import { FileText, Blocks, Package, Heading1, Heading2, Search } from 'lucide-react';
+import { FileText, Blocks, Package, Heading2, Heading3, Search } from 'lucide-react';
 import './SearchBar.css';
 import { ExpandingBox } from './ExpandingBox';
 
@@ -61,6 +61,7 @@ export function SearchBar({
     enableStemming: true,
     boost: {
       type: 100,
+      group: 100,
       slug: 2,
       path: 2,
       title: 2,
@@ -235,7 +236,7 @@ export function SearchBar({
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
-      await search(value, { groupBy: { properties: ['type'], maxResult: 5 } });
+      await search(value, { groupBy: { properties: ['group'], maxResult: 5 } });
     },
     [search],
   );
@@ -276,7 +277,7 @@ export function SearchBar({
           id={`search-group-${group.group}`}
           className="search-results sticky top-0 z-1 m-0 w-100% bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider"
         >
-          {normalizeGroupName(group.group)}s
+          {normalizeGroupName(group.group)}
         </Autocomplete.GroupLabel>
       )}
       <Autocomplete.Collection>
@@ -296,8 +297,8 @@ export function SearchBar({
                   {result.type === 'page' && <FileText className="h-4 w-4" />}
                   {result.type === 'part' && <Blocks className="h-4 w-4" />}
                   {result.type === 'export' && <Package className="h-4 w-4" />}
-                  {result.type === 'section' && <Heading1 className="h-4 w-4" />}
-                  {result.type === 'subsection' && <Heading2 className="h-4 w-4" />}
+                  {result.type === 'section' && <Heading2 className="h-4 w-4" />}
+                  {result.type === 'subsection' && <Heading3 className="h-4 w-4" />}
                   <strong className="font-semibold">{result.title}</strong>
                   {result.type === 'page' && (
                     <span className="text-xs opacity-50 capitalize">

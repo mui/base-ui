@@ -9,7 +9,8 @@
     "deploy": "git fetch upstream master && git push -f upstream FETCH_HEAD:docs-v1",
     "serve": "serve ./export -l 3010",
     "docs-infra": "docs-infra",
-    "validate": "docs-infra validate --command 'pnpm validate'",
+    "validate": "pnpm internal-validate --command 'pnpm validate'",
+    "internal-validate": "docs-infra validate --useVisibleDescription",
     "typescript": "tsc -b tsconfig.json",
     "link-check": "tsx ./scripts/reportBrokenLinks.mts",
     "generate-llms": "node ./scripts/generateLlmTxt/index.mjs"
@@ -23,7 +24,7 @@
     "@emotion/styled": "^11.14.1",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@mui/internal-docs-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@33dc02d",
+    "@mui/internal-docs-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@9ff4437",
     "@next/mdx": "^16.0.1",
     "@react-spring/web": "^10.0.3",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",

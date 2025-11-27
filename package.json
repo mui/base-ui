@@ -20,7 +20,7 @@
     "docs:link-check": "pnpm --filter docs link-check",
     "docs:generate-llms": "pnpm --filter docs run generate-llms",
     "docs:infra": "pnpm --filter docs run docs-infra",
-    "docs:validate": "pnpm --filter docs run docs-infra validate --command 'pnpm docs:validate'",
+    "docs:validate": "pnpm --filter docs run internal-validate --command 'pnpm docs:validate'",
     "extract-error-codes": "code-infra extract-error-codes --errorCodesPath docs/src/error-codes.json --detection opt-out",
     "eslint": "pnpm -r lint && eslint . --cache --report-unused-disable-directives --max-warnings 0",
     "eslint:ci": "pnpm -r lint && eslint . --report-unused-disable-directives --max-warnings 0",

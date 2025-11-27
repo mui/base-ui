@@ -27,6 +27,7 @@ const withMdx = nextMdx({
       [
         transformMarkdownMetadata,
         {
+          titleSuffix: ' · Base UI',
           extractToIndex: {
             include: ['src/app/react'],
             exclude: [
@@ -37,6 +38,7 @@ const withMdx = nextMdx({
               'src/app/playground',
             ],
             baseDir: path.dirname(url.fileURLToPath(import.meta.url)),
+            useVisibleDescription: true,
           },
         },
       ],
