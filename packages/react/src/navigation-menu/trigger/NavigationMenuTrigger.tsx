@@ -80,6 +80,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     closeDelay,
     orientation,
     setViewportInert,
+    nested,
   } = useNavigationMenuRootContext();
   const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
@@ -390,6 +391,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
     onKeyDown(event) {
       allowFocusRef.current = true;
+
+      // For nested (submenu) triggers, don't intercept arrow keys that are used for
+      // navigation in the parent content. The arrow keys should be handled by the
+      // parent's CompositeRoot for navigating between items.
+      if (nested) {
+        return;
+      }
+
       const openHorizontal = orientation === 'horizontal' && event.key === 'ArrowDown';
       const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
 
