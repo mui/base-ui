@@ -84,22 +84,33 @@ export function SearchBar({
   const [searchResults, setSearchResults] = React.useState<ReturnType<typeof useSearch>['results']>(
     {
       results: defaultResults,
-      count: 0,
+      count: defaultResults.length,
       elapsed: { raw: 0, formatted: '0ms' },
     },
   );
 
   // Update search results when hook results change
   React.useEffect(() => {
-    if ('startViewTransition' in document) {
-      (document as any).startViewTransition(() => {
-        ReactDOM.flushSync(() => {
-          setSearchResults(results);
+    const updateResults = () => {
+      if ('startViewTransition' in document) {
+        (document as any).startViewTransition(() => {
+          ReactDOM.flushSync(() => {
+            setSearchResults(results);
+          });
         });
-      });
-    } else {
-      setSearchResults(results);
+      } else {
+        setSearchResults(results);
+      }
+    };
+
+    // Delay empty results to avoid flashing "No results" while typing
+    if (results.results.length === 0) {
+      const timeoutId = setTimeout(updateResults, 400);
+      return () => clearTimeout(timeoutId);
     }
+
+    updateResults();
+    return undefined;
   }, [results]);
 
   // Reset to default results when dialog closes
@@ -107,7 +118,7 @@ export function SearchBar({
     if (!dialogOpen) {
       setSearchResults({
         results: defaultResults,
-        count: 0,
+        count: defaultResults.length,
         elapsed: { raw: 0, formatted: '0ms' },
       });
     }
@@ -224,7 +235,7 @@ export function SearchBar({
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
-      await search(value, { groupBy: { properties: ['type'], maxResult: 7 } });
+      await search(value, { groupBy: { properties: ['type'], maxResult: 5 } });
     },
     [search],
   );
@@ -319,7 +330,7 @@ export function SearchBar({
     <React.Fragment>
       <Button
         onClick={handleOpenDialog}
-        className={`search-button relative h-7 w-50 text-left text-sm font-normal text-gray-900 ${dialogOpen ? 'search-button-hidden' : ''}`}
+        className={`search-button relative h-7 w-50 text-left text-sm font-normal text-gray-900 focus:outline-none ${dialogOpen ? 'search-button-hidden' : ''}`}
       >
         <ExpandingBox isActive={!dialogOpen} className="pt-0.75 pb-0.75 pl-3 pr-3">
           <div>
@@ -373,7 +384,7 @@ export function SearchBar({
                             )}
                           </ScrollArea.Content>
                         </ScrollArea.Viewport>
-                        <ScrollArea.Scrollbar className="pointer-events-none absolute m-1 flex w-1 justify-center rounded-2xl opacity-0 transition-opacity duration-250 data-hovering:pointer-events-auto data-hovering:opacity-100 data-hovering:duration-75 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75 md:w-1.25">
+                        <ScrollArea.Scrollbar className="pointer-events-none absolute m-1 flex w-1 z-1 justify-center rounded-2xl opacity-0 transition-opacity duration-250 data-hovering:pointer-events-auto data-hovering:opacity-100 data-hovering:duration-75 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75 md:w-1.25">
                           <ScrollArea.Thumb className="w-full rounded-[inherit] bg-gray-500 before:absolute before:left-1/2 before:top-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']" />
                         </ScrollArea.Scrollbar>
                       </ScrollArea.Root>
