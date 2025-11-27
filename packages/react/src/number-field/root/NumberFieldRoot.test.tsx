@@ -414,6 +414,72 @@ describe('<NumberField />', () => {
       expect(onValueChange.getCall(1).args[0]).to.equal(12);
     });
 
+    it('allows deleting trailing currency symbols with locale literals', async () => {
+      const onValueChange = spy();
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+      const formatter = new Intl.NumberFormat('de-DE', format);
+
+      await render(
+        <NumberField
+          defaultValue={12.34}
+          locale="de-DE"
+          format={format}
+          onValueChange={onValueChange}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      const formatted = formatter.format(12.34);
+      const withoutCurrency = formatted.replace('€', '');
+
+      fireEvent.change(input, { target: { value: withoutCurrency } });
+
+      expect(input).to.have.value(withoutCurrency);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(12.34);
+    });
+
+    it('allows backspace to remove trailing currency symbol that follows a locale literal', async () => {
+      const onValueChange = spy();
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+      const formatter = new Intl.NumberFormat('de-DE', format);
+
+      await render(
+        <NumberField
+          defaultValue={12.34}
+          locale="de-DE"
+          format={format}
+          onValueChange={onValueChange}
+        />,
+      );
+
+      const input = screen.getByRole('textbox');
+      const formatted = formatter.format(12.34);
+      const afterBackspace = formatted.slice(0, -1);
+
+      await act(async () => {
+        input.focus();
+      });
+
+      const keydownResult = fireEvent.keyDown(input, { key: 'Backspace' });
+      expect(keydownResult).to.equal(true);
+
+      fireEvent.change(input, { target: { value: afterBackspace } });
+
+      expect(input).to.have.value(afterBackspace);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(12.34);
+    });
+
     // In JSDOM, change events are not trusted; input text state is not updated for invalid
     // partials (like "."). We cover browser behavior here.
     it.skipIf(isJSDOM)('does not commit on blur for invalid input', async () => {
