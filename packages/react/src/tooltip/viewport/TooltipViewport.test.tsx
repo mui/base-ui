@@ -123,11 +123,14 @@ describe('<Tooltip.Viewport />', () => {
       const trigger1 = screen.getByTestId('trigger1');
       const trigger2 = screen.getByTestId('trigger2');
 
+      await waitSingleFrame();
       await act(async () => trigger1.focus());
+
       await waitFor(() => {
         expect(screen.getByText('Content 0')).toBeVisible();
       });
 
+      await waitSingleFrame();
       await act(async () => trigger2.focus());
 
       // Check for morphing containers during transition
@@ -334,12 +337,14 @@ describe('<Tooltip.Viewport />', () => {
       const triggerElement1 = screen.getByTestId('trigger1');
       const triggerElement2 = screen.getByTestId('trigger2');
 
+      await waitSingleFrame();
       await act(async () => triggerElement1.focus());
 
       await waitFor(() => {
         expect(screen.getByText('Content 0')).toBeVisible();
       });
 
+      await waitSingleFrame();
       await act(async () => triggerElement2.focus());
 
       const viewport = screen.getByTestId('viewport');

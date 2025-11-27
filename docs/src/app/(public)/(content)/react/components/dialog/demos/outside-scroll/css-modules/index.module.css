@@ -252,8 +252,3 @@
   line-height: 1.5rem;
   color: var(--color-gray-600);
 }
-
-.Actions {
-  display: flex;
-  justify-content: flex-end;
-}

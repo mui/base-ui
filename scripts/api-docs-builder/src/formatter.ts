@@ -12,6 +12,11 @@ export async function formatProperties(
   const result: Record<string, any> = {};
 
   for (const prop of props) {
+    // skip `ref` for components
+    if (prop.name === 'ref' && (allExports?.length ?? -1) > 0) {
+      continue;
+    }
+
     const exampleTag = prop.documentation?.tags
       ?.filter((tag) => tag.name === 'example')
       .map((tag) => tag.value)

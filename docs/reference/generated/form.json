@@ -12,10 +12,6 @@
       "description": "Event handler called when the form is submitted.\n`preventDefault()` is called on the native submit event when used.",
       "detailedType": "| ((\n    formValues: Record<string, any>,\n    eventDetails: Form.SubmitEventDetails,\n  ) => void)\n| undefined"
     },
-    "ref": {
-      "type": "RefObject<HTMLFormElement>",
-      "detailedType": "React.RefObject<HTMLFormElement> | undefined"
-    },
     "validationMode": {
       "type": "FormValidationMode",
       "default": "'onSubmit'",

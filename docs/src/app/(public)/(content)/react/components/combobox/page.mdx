@@ -14,6 +14,7 @@ import { DemoComboboxHero } from './demos/hero';
 
 - **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
 - **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
+- **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
 - **Form controls must have an accessible name**: The input must have a meaningful label. Prefer using [`<Field>`](/react/components/field) to provide a visible text label and description, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
 
 ## Anatomy
@@ -69,8 +70,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
 ## TypeScript
 
 Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
-When using `itemToStringLabel` or `itemToStringValue`, the `value` prop on the `<Combobox.Item>` must match the type passed to `defaultValue` or `value`.
-When not specifying value props, the parameter's type must be explicitly specified.
+The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
 
 The following example shows a typed wrapper around the Combobox component with correct type inference and type safety:
 
@@ -107,6 +107,26 @@ import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
 ### Grouped
 
 Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to add section headings inside the popup.
+
+Groups are represented by an array of objects with an `items` property, which itself is an array of individual items for each group. An extra property, such as `value`, can be provided for the heading text when rendering the group label.
+
+```tsx title="Example" {3,9,13}
+interface ProduceGroupItem {
+  value: string;
+  items: string[];
+}
+
+const groups: ProduceGroupItem[] = [
+  {
+    value: 'Fruits',
+    items: ['Apple', 'Banana', 'Orange'],
+  },
+  {
+    value: 'Vegetables',
+    items: ['Carrot', 'Lettuce', 'Spinach'],
+  },
+];
+```
 
 import { DemoComboboxGrouped } from './demos/grouped';
 

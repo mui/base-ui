@@ -32,10 +32,6 @@
       "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale.",
       "detailedType": "Intl.LocalesArgument | undefined"
     },
-    "ref": {
-      "type": "RefObject<HTMLDivElement>",
-      "detailedType": "React.RefObject<HTMLDivElement> | undefined"
-    },
     "thumbAlignment": {
       "type": "'center' | 'edge' | 'edge-client-only'",
       "default": "'center'",
