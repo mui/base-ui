@@ -14,7 +14,7 @@ import {
   safePolygonIdentifier,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
-import { HTMLProps } from '../../utils/types';
+import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 
 export interface UseHoverReferenceInteractionProps extends UseHoverProps {
   /**
@@ -42,7 +42,7 @@ export function useHoverReferenceInteraction(
   props: UseHoverReferenceInteractionProps = {},
 ): HTMLProps | undefined {
   const store = 'rootStore' in context ? context.rootStore : context;
-  const dataRef = store.context.dataRef;
+  const { dataRef, events } = store.context;
 
   const {
     enabled = true,
@@ -118,6 +118,28 @@ export function useHoverReferenceInteraction(
       performedPointerEventsMutationRef.current = false;
     }
   });
+
+  // When closing before opening, clear the delay timeouts to cancel it
+  // from showing.
+  React.useEffect(() => {
+    if (!enabled) {
+      return undefined;
+    }
+
+    function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
+      if (!details.open) {
+        openChangeTimeout.clear();
+        restTimeout.clear();
+        blockMouseMoveRef.current = true;
+        restTimeoutPendingRef.current = false;
+      }
+    }
+
+    events.on('openchange', onOpenChangeLocal);
+    return () => {
+      events.off('openchange', onOpenChangeLocal);
+    };
+  }, [enabled, events, openChangeTimeout, restTimeout, blockMouseMoveRef, restTimeoutPendingRef]);
 
   const handleScrollMouseLeave = useStableCallback((event: MouseEvent) => {
     if (isClickLikeOpenEvent()) {

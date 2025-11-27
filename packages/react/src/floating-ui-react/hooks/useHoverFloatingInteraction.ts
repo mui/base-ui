@@ -8,7 +8,6 @@ import { getDocument, getTarget, isMouseLikePointerType } from '../utils';
 
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
@@ -49,7 +48,7 @@ export function useHoverFloatingInteraction(
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const domReferenceElement = store.useState('domReferenceElement');
-  const { dataRef, events } = store.context;
+  const { dataRef } = store.context;
 
   const { enabled = true, closeDelay: closeDelayProp = 0, externalTree } = parameters;
 
@@ -57,12 +56,10 @@ export function useHoverFloatingInteraction(
     pointerTypeRef,
     interactedInsideRef,
     handlerRef,
-    blockMouseMoveRef,
     performedPointerEventsMutationRef,
     unbindMouseMoveRef,
     restTimeoutPendingRef,
     openChangeTimeout: openChangeTimeout,
-    restTimeout,
     handleCloseOptionsRef,
   } = useHoverInteractionSharedState(store);
 
@@ -120,26 +117,6 @@ export function useHoverFloatingInteraction(
 
     interactedInsideRef.current = true;
   });
-
-  React.useEffect(() => {
-    if (!enabled) {
-      return undefined;
-    }
-
-    function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
-      if (!details.open) {
-        openChangeTimeout.clear();
-        restTimeout.clear();
-        blockMouseMoveRef.current = true;
-        restTimeoutPendingRef.current = false;
-      }
-    }
-
-    events.on('openchange', onOpenChangeLocal);
-    return () => {
-      events.off('openchange', onOpenChangeLocal);
-    };
-  }, [enabled, events, openChangeTimeout, restTimeout, blockMouseMoveRef, restTimeoutPendingRef]);
 
   useIsoLayoutEffect(() => {
     if (!open) {
