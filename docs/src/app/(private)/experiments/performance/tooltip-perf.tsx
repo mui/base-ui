@@ -6,6 +6,8 @@ import styles from './tooltip-perf.module.css';
 
 type Mode = 'plain' | 'base' | 'radix';
 
+const modes: Mode[] = ['plain', 'base', 'radix'];
+
 const array = [...new Array(2000).keys()];
 
 /**
@@ -73,29 +75,46 @@ function ExampleRadixTooltip() {
   );
 }
 
+let mutationObserver: MutationObserver | null = null;
 /**
  * Harness: select a demo and measure ONLY the time it takes to switch modes.
  */
 export default function ExampleTooltipPerf() {
   const [mode, setMode] = React.useState<Mode>('plain');
-  const switchLabelRef = React.useRef<string | null>(null);
+  const demoRef = React.useRef<HTMLDivElement | null>(null);
+  const [mutationTimeByMode, setMutationTimeByMode] = React.useState<Record<Mode, number>>({
+    plain: 0,
+    base: 0,
+    radix: 0,
+  });
+  const modeChangeStartRef = React.useRef<{ mode: Mode; time: DOMHighResTimeStamp } | null>(null);
 
   const handleModeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const nextMode = event.target.value as Mode;
-    const label = `switch to ${nextMode}`;
-    console.log(`=== ${label} ===`);
-    console.time(label);
-    switchLabelRef.current = label;
+    modeChangeStartRef.current = { mode: nextMode, time: performance.now() };
     setMode(nextMode);
   };
 
-  // This runs after React has committed the new mode's UI.
-  React.useEffect(() => {
-    if (switchLabelRef.current) {
-      console.timeEnd(switchLabelRef.current);
-      switchLabelRef.current = null;
+  React.useLayoutEffect(() => {
+    mutationObserver = new MutationObserver(() => {
+      if (modeChangeStartRef.current != null) {
+        const end = performance.now();
+        const modeChange = modeChangeStartRef.current;
+        const duration = end - modeChange.time;
+        setMutationTimeByMode((prev) => ({
+          ...prev,
+          [modeChange.mode]: duration,
+        }));
+        modeChangeStartRef.current = null;
+      }
+    });
+    if (demoRef.current && mutationObserver) {
+      mutationObserver.observe(demoRef.current, { subtree: true, childList: true });
     }
-  }, [mode]);
+    return () => {
+      mutationObserver?.disconnect();
+    };
+  }, []);
 
   let demo: React.ReactNode = null;
   if (mode === 'plain') {
@@ -112,14 +131,34 @@ export default function ExampleTooltipPerf() {
         <label>
           Demo:{' '}
           <select value={mode} onChange={handleModeChange}>
-            <option value="plain">Plain buttons</option>
-            <option value="base">Base UI tooltip</option>
-            <option value="radix">Radix tooltip</option>
+            {modes.map((m) => (
+              <option key={m} value={m}>
+                {m.charAt(0).toUpperCase() + m.slice(1)} {m === 'plain' ? 'buttons' : 'tooltip'}
+              </option>
+            ))}
           </select>
         </label>
       </div>
-      {mode}
-      {demo}
+      Last mutation time:{' '}
+      <table className={styles.Table}>
+        <thead className={styles.TableHeader}>
+          <tr>
+            <th>Mode</th>
+            <th>Time (ms)</th>
+          </tr>
+        </thead>
+        <tbody className={styles.TableBody}>
+          {modes.map((m) => (
+            <tr key={m}>
+              <td>{m}</td>
+              <td>{mutationTimeByMode[m].toFixed(0)} ms</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div>Current mode: {mode}</div>
+      <hr />
+      <div ref={demoRef}>{demo}</div>
     </div>
   );
 }
