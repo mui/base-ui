@@ -5,7 +5,7 @@ import { Menu } from '@base-ui-components/react/menu';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, isJSDOM, popupConformanceTests, wait, waitSingleFrame } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 describe('<Popover.Root />', () => {
@@ -597,9 +597,9 @@ describe('<Popover.Root />', () => {
             expect(screen.queryByTestId('popup')).toBeVisible();
           });
 
-          await waitSingleFrame();
+          await wait(50);
           await user.keyboard('{Tab}');
-          await waitSingleFrame();
+          await wait(50);
           await waitFor(() => {
             expect(screen.getByTestId('input-inside')).toHaveFocus();
           });
