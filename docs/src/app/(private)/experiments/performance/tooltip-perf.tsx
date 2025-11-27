@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
 import { Tooltip as BaseTooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip as BaseOldTooltip } from '@base-ui-components/react-before-detached/tooltip';
 import { Tooltip as RadixTooltip } from 'radix-ui';
 import styles from './tooltip-perf.module.css';
 
-type Mode = 'plain' | 'base' | 'radix';
+type Mode = 'plain' | 'base' | 'base-old' | 'radix';
 
-const modes: Mode[] = ['plain', 'base', 'radix'];
+const modes: Mode[] = ['plain', 'base', 'base-old', 'radix'];
 
 const array = [...new Array(2000).keys()];
 
@@ -51,6 +52,33 @@ function ExampleBaseUITooltip() {
 }
 
 /**
+ * 2,000 Base UI tooltips on version before detached triggers
+ */
+function ExampleBaseOldUITooltip() {
+  const result = array.map((i) => (
+    <BaseOldTooltip.Root key={i}>
+      <BaseOldTooltip.Trigger aria-label="Bold" className={styles.Button}>
+        Button {i}
+      </BaseOldTooltip.Trigger>
+      <BaseOldTooltip.Portal>
+        <BaseOldTooltip.Positioner sideOffset={10}>
+          <BaseOldTooltip.Popup className={styles.Popup}>
+            <BaseOldTooltip.Arrow className={styles.Arrow} />
+            {`Bold Item ${i + 1}`}
+          </BaseOldTooltip.Popup>
+        </BaseOldTooltip.Positioner>
+      </BaseOldTooltip.Portal>
+    </BaseOldTooltip.Root>
+  ));
+
+  return (
+    <BaseOldTooltip.Provider>
+      <div className={styles.Panel}>{result}</div>
+    </BaseOldTooltip.Provider>
+  );
+}
+
+/**
  * 2,000 Radix tooltips
  */
 function ExampleRadixTooltip() {
@@ -85,6 +113,7 @@ export default function ExampleTooltipPerf() {
   const [mutationTimeByMode, setMutationTimeByMode] = React.useState<Record<Mode, number>>({
     plain: 0,
     base: 0,
+    'base-old': 0,
     radix: 0,
   });
   const modeChangeStartRef = React.useRef<{ mode: Mode; time: DOMHighResTimeStamp } | null>(null);
@@ -121,6 +150,8 @@ export default function ExampleTooltipPerf() {
     demo = <ExamplePlainButtons />;
   } else if (mode === 'base') {
     demo = <ExampleBaseUITooltip />;
+  } else if (mode === 'base-old') {
+    demo = <ExampleBaseOldUITooltip />;
   } else {
     demo = <ExampleRadixTooltip />;
   }
