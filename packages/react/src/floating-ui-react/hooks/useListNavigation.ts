@@ -7,6 +7,7 @@ import {
   activeElement,
   contains,
   getDocument,
+  getTarget,
   isTypeableCombobox,
   isVirtualClick,
   isVirtualPointerEvent,
@@ -800,6 +801,14 @@ export function useListNavigation(
       onKeyDown(event: React.KeyboardEvent) {
         // Close submenu on Shift+Tab
         if (event.key === 'Tab' && event.shiftKey && open && !virtual) {
+          // If the event originated from within a nested element (e.g., a Dialog opened from
+          // within the menu), don't close the menu. The nested element has its own focus
+          // management and should handle the Tab key.
+          const target = getTarget(event.nativeEvent) as Element | null;
+          if (target && !contains(floatingFocusElementRef.current, target)) {
+            return;
+          }
+
           stopEvent(event);
           onOpenChange(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
 
@@ -819,6 +828,7 @@ export function useListNavigation(
   }, [
     ariaActiveDescendantProp,
     commonOnKeyDown,
+    floatingFocusElementRef,
     orientation,
     typeableComboboxReference,
     onOpenChange,
