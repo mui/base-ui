@@ -28,7 +28,7 @@ function Tooltip({ children, label }: Props) {
     onOpenChange: setOpen,
   });
 
-  const { delayRef } = useDelayGroup(context);
+  const { delayRef } = useDelayGroup(context, { open });
   const hover = useHover(context, { delay: () => delayRef.current });
   const { getReferenceProps } = useInteractions([hover]);
 
@@ -36,8 +36,7 @@ function Tooltip({ children, label }: Props) {
   const renderCountRef = React.useRef<HTMLSpanElement | null>(null);
 
   React.useEffect(() => {
-    // eslint-disable-next-line no-plusplus
-    renderCount.current++;
+    renderCount.current += 1;
     if (renderCountRef.current) {
       renderCountRef.current.textContent = String(renderCount.current);
     }
@@ -246,8 +245,8 @@ describe.skipIf(!isJSDOM)('FloatingDelayGroup', () => {
     });
 
     expect(screen.getByTestId('floating-two')).toBeInTheDocument();
-    expect(screen.queryByTestId('render-count-one')).toHaveTextContent('8');
-    expect(screen.queryByTestId('render-count-two')).toHaveTextContent('5');
-    expect(screen.queryByTestId('render-count-three')).toHaveTextContent('2');
+    expect(screen.queryByTestId('render-count-one')).toHaveTextContent('11');
+    expect(screen.queryByTestId('render-count-two')).toHaveTextContent('7');
+    expect(screen.queryByTestId('render-count-three')).toHaveTextContent('3');
   });
 });

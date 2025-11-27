@@ -31,19 +31,17 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   const nested = Boolean(parentDialogRootContext);
 
   const store = useRefWithInit(() => {
-    const dialogStore =
+    return (
       handle?.store ??
       new DialogStore<Payload>({
+        open: openProp ?? defaultOpen,
+        activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
         modal: true,
         disablePointerDismissal: true,
+        nested,
         role: 'alertdialog',
-      });
-
-    if (handle?.store) {
-      dialogStore.update({ modal: true, disablePointerDismissal: true });
-    }
-
-    return dialogStore;
+      })
+    );
   }).current;
 
   store.useControlledProp('open', openProp, defaultOpen);

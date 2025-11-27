@@ -174,6 +174,7 @@ describe('<Combobox.Trigger />', () => {
     it('should toggle popup when enabled', async () => {
       const { user } = await render(
         <Combobox.Root>
+          <Combobox.Input />
           <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
           <Combobox.Portal>
             <Combobox.Positioner>

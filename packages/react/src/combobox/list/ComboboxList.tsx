@@ -69,6 +69,8 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     [empty],
   );
 
+  const floatingId = floatingRootContext.useState('floatingId');
+
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, setListElement, hasPositionerContext ? null : setPositionerElement],
@@ -77,7 +79,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
       {
         children: resolvedChildren,
         tabIndex: -1,
-        id: floatingRootContext.floatingId,
+        id: floatingId,
         role: grid ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
         onKeyDown(event) {
