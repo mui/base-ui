@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
-import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
+import { getComputedStyle, getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
@@ -97,6 +97,18 @@ function getFirstTabbableElement(container: Element | null) {
   }
 
   return tabbable(container, tabbableOptions)[0] || container;
+}
+
+function isFocusable(element: Element | null) {
+  if (!element || !element.isConnected) {
+    return false;
+  }
+
+  if (typeof element.checkVisibility === 'function') {
+    return element.checkVisibility();
+  }
+
+  return getComputedStyle(element).display !== 'none';
 }
 
 function handleTabIndex(
@@ -458,7 +470,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         if (
           restoreFocus &&
           currentTarget !== domReference &&
-          !target?.isConnected &&
+          !isFocusable(target) &&
           activeElement(getDocument(floatingFocusElement)) ===
             getDocument(floatingFocusElement).body
         ) {
