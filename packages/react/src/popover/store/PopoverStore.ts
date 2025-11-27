@@ -49,6 +49,7 @@ type Context = {
   internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   onOpenChange: ((open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void) | undefined;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  triggerPreFocusGuardRef: React.RefObject<HTMLElement | null>;
   triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   preventUnmountingRef: React.RefObject<boolean>;
@@ -123,6 +124,7 @@ export class PopoverStore<Payload> extends ReactStore<State<Payload>, Context, S
         internalBackdropRef: React.createRef<HTMLDivElement>(),
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
+        triggerPreFocusGuardRef: React.createRef<HTMLElement>(),
         triggerFocusTargetRef: React.createRef<HTMLElement>(),
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
         preventUnmountingRef: { current: false },

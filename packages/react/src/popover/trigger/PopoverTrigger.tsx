@@ -163,8 +163,6 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     stateAttributesMapping,
   });
 
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
-
   const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
     ReactDOM.flushSync(() => {
       store.setOpen(
@@ -178,7 +176,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     });
 
     const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
-      preFocusGuardRef.current,
+      store.context.triggerPreFocusGuardRef.current,
     );
     previousTabbable?.focus();
   });
@@ -221,7 +219,10 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   if (isTriggerActive) {
     return (
       <React.Fragment>
-        <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
+        <FocusGuard
+          ref={store.context.triggerPreFocusGuardRef}
+          onFocus={handlePreFocusGuardFocus}
+        />
         <React.Fragment key={id}>{element}</React.Fragment>
         <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
