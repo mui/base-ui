@@ -4,7 +4,6 @@ import * as ReactDOM from 'react-dom';
 import { isTabbable } from 'tabbable';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
@@ -31,7 +30,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { EMPTY_ARRAY, PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { EMPTY_ARRAY, ownerVisuallyHidden, PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
@@ -454,7 +453,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
               }
             }}
           />
-          <span aria-owns={viewportElement?.id} style={visuallyHidden} />
+          <span aria-owns={viewportElement?.id} style={ownerVisuallyHidden} />
           <FocusGuard
             ref={afterOutsideRef}
             onFocus={(event) => {
