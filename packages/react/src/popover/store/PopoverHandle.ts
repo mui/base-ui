@@ -21,7 +21,7 @@ export class PopoverHandle<Payload> {
    */
   open(triggerId: string) {
     const triggerElement = triggerId
-      ? (this.store.state.triggers.get(triggerId) ?? undefined)
+      ? (this.store.context.triggerElements.getById(triggerId) ?? undefined)
       : undefined;
 
     if (triggerId && !triggerElement) {
@@ -30,7 +30,11 @@ export class PopoverHandle<Payload> {
 
     this.store.setOpen(
       true,
-      createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
+      createChangeEventDetails(
+        REASONS.imperativeAction,
+        undefined,
+        triggerElement as HTMLElement | undefined,
+      ),
     );
   }
 

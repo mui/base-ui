@@ -845,10 +845,20 @@ describe('<Menu.Root />', () => {
         const actionsRef = {
           current: {
             unmount: spy(),
+            close: spy(),
           },
         };
 
-        const { user } = await render(<TestMenu rootProps={{ actionsRef }} />);
+        const { user } = await render(
+          <TestMenu
+            rootProps={{
+              actionsRef,
+              onOpenChange: (open, details) => {
+                details.preventUnmountOnClose();
+              },
+            }}
+          />,
+        );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await act(() => {
