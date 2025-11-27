@@ -252,6 +252,9 @@ importers:
       postcss-import:
         specifier: ^16.1.1
         version: 16.1.1(postcss@8.5.6)
+      radix-ui:
+        specifier: ^1.4.3
+        version: 1.4.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react:
         specifier: ^19.2.0
         version: 19.2.0
