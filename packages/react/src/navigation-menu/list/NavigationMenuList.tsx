@@ -51,20 +51,23 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
     [open],
   );
 
-  const defaultProps: HTMLProps = {
-    // `stopEventPropagation` won't stop the propagation if the end of the list is reached,
-    // but we want to block it in this case.
-    onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
-      const shouldStop =
-        (orientation === 'horizontal' &&
-          (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) ||
-        (orientation === 'vertical' && (event.key === 'ArrowUp' || event.key === 'ArrowDown'));
+  // `stopEventPropagation` won't stop the propagation if the end of the list is reached,
+  // but we want to block it in this case.
+  // When nested, skip this handler so arrow keys can reach the parent CompositeRoot.
+  const defaultProps: HTMLProps = nested
+    ? {}
+    : {
+        onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+          const shouldStop =
+            (orientation === 'horizontal' &&
+              (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) ||
+            (orientation === 'vertical' && (event.key === 'ArrowUp' || event.key === 'ArrowDown'));
 
-      if (shouldStop) {
-        event.stopPropagation();
-      }
-    },
-  };
+          if (shouldStop) {
+            event.stopPropagation();
+          }
+        },
+      };
 
   const props = [dismissProps?.floating || EMPTY_OBJECT, defaultProps, elementProps];
 
