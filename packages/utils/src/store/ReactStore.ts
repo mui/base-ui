@@ -244,13 +244,14 @@ export class ReactStore<
    *
    * @param key Key of the state to set.
    */
-  public useStateSetter<Key extends keyof State, Value extends State[Key]>(key: keyof State) {
-    return React.useCallback(
-      (value: Value) => {
+  public useStateSetter<const Key extends keyof State, Value extends State[Key]>(key: keyof State) {
+    const ref = React.useRef<(v: Value) => void>(undefined as any);
+    if (ref.current === undefined) {
+      ref.current = (value: Value) => {
         this.set(key, value);
-      },
-      [key],
-    );
+      };
+    }
+    return ref.current;
   }
 
   /**

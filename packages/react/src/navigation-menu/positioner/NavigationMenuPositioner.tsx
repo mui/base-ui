@@ -20,6 +20,7 @@ import { NavigationMenuPositionerContext } from './NavigationMenuPositionerConte
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 /**
  * Positions the navigation menu against the currently active trigger.
@@ -31,8 +32,15 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   componentProps: NavigationMenuPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { open, mounted, positionerElement, setPositionerElement, floatingRootContext, nested } =
-    useNavigationMenuRootContext();
+  const {
+    open,
+    mounted,
+    positionerElement,
+    setPositionerElement,
+    floatingRootContext,
+    nested,
+    transitionStatus,
+  } = useNavigationMenuRootContext();
 
   const {
     className,
@@ -164,7 +172,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, setPositionerElement, positionerRef],
-    props: [defaultProps, elementProps],
+    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     stateAttributesMapping: popupStateMapping,
   });
 
