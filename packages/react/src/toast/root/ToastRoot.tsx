@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -156,18 +157,20 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     const height = element.offsetHeight;
     element.style.height = previousHeight;
 
-    setToasts((prev) =>
-      prev.map((t) =>
-        t.id === toast.id
-          ? {
-              ...t,
-              ref: rootRef,
-              height,
-              transitionStatus: undefined,
-            }
-          : t,
-      ),
-    );
+    ReactDOM.flushSync(() => {
+      setToasts((prev) =>
+        prev.map((t) =>
+          t.id === toast.id
+            ? {
+                ...t,
+                ref: rootRef,
+                height,
+                transitionStatus: undefined,
+              }
+            : t,
+        ),
+      );
+    });
   });
 
   useIsoLayoutEffect(recalculateHeight, [recalculateHeight]);

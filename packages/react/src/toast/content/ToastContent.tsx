@@ -29,14 +29,19 @@ export const ToastContent = React.forwardRef(function ToastContent(
 
     recalculateHeight();
 
-    if (typeof ResizeObserver !== 'function') {
+    if (typeof ResizeObserver !== 'function' || typeof MutationObserver !== 'function') {
       return undefined;
     }
 
     const resizeObserver = new ResizeObserver(recalculateHeight);
+    const mutationObserver = new MutationObserver(recalculateHeight);
+
     resizeObserver.observe(node);
+    mutationObserver.observe(node, { childList: true, subtree: true, characterData: true });
+
     return () => {
       resizeObserver.disconnect();
+      mutationObserver.disconnect();
     };
   }, [recalculateHeight]);
 
