@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Tooltip as BaseTooltip } from '@base-ui-components/react/tooltip';
+import { Field } from '@base-ui-components/react/field';
 import { Tooltip as BaseOldTooltip } from '@base-ui-components/react-before-detached/tooltip';
 import { Tooltip as RadixTooltip } from 'radix-ui';
 import styles from './tooltip-perf.module.css';
@@ -168,18 +169,21 @@ export default function ExampleTooltipPerf() {
 
   return (
     <div className={styles.Root}>
-      <div className={styles.Controls}>
-        <label>
-          Demo:{' '}
-          <select value={mode} onChange={handleModeChange}>
-            {modes.map((m) => (
-              <option key={m.mode} value={m.mode}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      <h1>Tooltip Performance Experiment</h1>
+      <h2>Change demo to re-render and measure time until full DOM mutation.</h2>
+      <Field.Root className={styles.Field}>
+        <Field.Label className={styles.Label}>Demo</Field.Label>
+        <select value={mode} onChange={handleModeChange} className={styles.Input}>
+          {modes.map((m) => (
+            <option key={m.mode} value={m.mode}>
+              {m.label}
+            </option>
+          ))}
+        </select>
+        <Field.Description className={styles.Description}>
+          Initial render time is not measured
+        </Field.Description>
+      </Field.Root>
       Last mutation time:{' '}
       <table className={styles.Table}>
         <thead className={styles.TableHeader}>
