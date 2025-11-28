@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
@@ -23,6 +24,88 @@ describe('<Toast.Root />', () => {
       );
     },
   }));
+
+  it.skipIf(isJSDOM)('recalculates height when content mutates', async () => {
+    function ToastList() {
+      return Toast.useToastManager().toasts.map((toastItem) => (
+        <Toast.Root
+          key={toastItem.id}
+          toast={toastItem}
+          data-testid="toast-root"
+          style={{ width: 30 }}
+        >
+          <Toast.Content>
+            <Toast.Title>{toastItem.title}</Toast.Title>
+            <Toast.Description>{toastItem.description}</Toast.Description>
+          </Toast.Content>
+        </Toast.Root>
+      ));
+    }
+
+    function App() {
+      const { add, update } = Toast.useToastManager();
+      const [toastId, setToastId] = React.useState<string | null>(null);
+      const addedRef = React.useRef(false);
+
+      React.useEffect(() => {
+        if (addedRef.current) {
+          return;
+        }
+        addedRef.current = true;
+        const id = add({
+          id: 'resizable-toast',
+          title: 'Loading',
+          description: 'Short',
+        });
+        setToastId(id);
+      }, [add]);
+
+      return (
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              if (!toastId) {
+                return;
+              }
+              update(toastId, {
+                title: 'Success',
+                description:
+                  'This content is longer than before and should cause the height to increase',
+              });
+            }}
+          >
+            update
+          </button>
+          <Toast.Viewport>
+            <ToastList />
+          </Toast.Viewport>
+        </div>
+      );
+    }
+
+    await render(
+      <Toast.Provider>
+        <App />
+      </Toast.Provider>,
+    );
+
+    const toastRoot = await screen.findByTestId('toast-root');
+
+    await waitFor(() => {
+      const height = toastRoot.style.getPropertyValue('--toast-height');
+      expect(height).to.not.equal('');
+    });
+
+    const initialHeight = parseInt(toastRoot.style.getPropertyValue('--toast-height'), 10);
+
+    fireEvent.click(screen.getByRole('button', { name: 'update' }));
+
+    await waitFor(() => {
+      const newHeight = parseInt(toastRoot.style.getPropertyValue('--toast-height'), 10);
+      expect(newHeight).to.be.greaterThan(initialHeight);
+    });
+  });
 
   // requires :focus-visible check
   it.skipIf(isJSDOM)('closes when pressing escape', async () => {
